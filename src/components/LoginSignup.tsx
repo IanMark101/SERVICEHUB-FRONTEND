@@ -228,21 +228,13 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
       })
         .then((res) => {
           if (res.success) {
-            const user = res.data.user;
-            localStorage.setItem('accessToken', res.data.accessToken);
-            onLoginSuccess({
-              id: user.id,
-              email: user.email,
-              firstName: formData.firstName,
-              lastName: formData.lastName,
-              role: formData.role,
-              avatarUrl: user.avatarUrl || formData.avatarUrl,
-              bio: user.bio || formData.bio,
-              phone: user.phone,
-              trustScore: user.trustScore,
-              verificationStatus: user.verificationStatus,
-              emailVerified: user.emailVerified,
-            });
+            setSuccessMsg("Registration successful! A verification email has been sent. Please verify your email address to unlock account access.");
+            setError('');
+            setStep(1);
+            setTimeout(() => {
+              setMode('login');
+              setSuccessMsg('');
+            }, 6000);
           } else {
             setError(res.error || 'Registration failed');
           }
