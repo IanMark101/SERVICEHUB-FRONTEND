@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-claude-50: #fdfbfa;
+  --color-claude-100: #f9f6f0;
+  --color-claude-200: #f1ebd9;
+  --color-claude-300: #e2d7be;
+  --color-claude-400: #cca972;
+  --color-claude-500: #d97706;
+  --color-claude-600: #b45309;
+  --color-claude-700: #78350f;
+  --color-claude-800: #451a03;
+  --color-claude-900: #270f02;
+  --color-claude-cream: #fbfaf7;
+  --color-claude-paper: #f7f4ed;
+
+  --color-seeker-light: #fff7ed;
+  --color-seeker-primary: #ea580c;
+  --color-seeker-hover: #c2410c;
+
+  --color-provider-light: #ecfdf5;
+  --color-provider-primary: #059669;
+  --color-provider-hover: #047857;
+
+  --color-admin-light: #f3e8ff;
+  --color-admin-primary: #9333ea;
+  --color-admin-hover: #7e22ce;
+
+  --color-neutral-850: #2c2b27;
+  --color-neutral-855: #33322e;
+
+  --font-sans: var(--font-sans), 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fbfaf7;
+    /* matches claude-cream */
+    color: #1e293b;
+    /* Slate-800 body text */
+  }
+
+  /* Custom clean scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    /* Slate-300 scrollbar thumb */
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+    /* Slate-400 */
+  }
+}
+
+/* Glassmorphic elements for dark login screen */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card-active {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 1);
+  color: #090d16;
+}
+
+/* Custom glow backdrops */
+.glow-bubble-green {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+  filter: blur(60px);
+}
+
+.glow-bubble-orange {
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.22) 0%, rgba(180, 83, 9, 0.04) 50%, rgba(0, 0, 0, 0) 100%);
+  filter: blur(60px);
+}
+
+/* Animation classes */
+@keyframes pulseGlow {
+
+  0%,
+  100% {
+    transform: scale(1) translate(0px, 0px);
+  }
+
+  33% {
+    transform: scale(1.1) translate(30px, -50px);
+  }
+
+  66% {
+    transform: scale(0.95) translate(-20px, 20px);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 15s infinite alternate ease-in-out;
+}
+
+/* Theme-adaptive Grid Pattern */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+}
+
+/* Standardize typography for all headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans), 'Inter', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: -0.025em; /* tracking-tight */
+}
+
+/* Fallback smooth transition for colors, borders and backgrounds */
+.theme-transition,
+.theme-transition *,
+.theme-transition *:before,
+.theme-transition *:after {
+  transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease, fill 300ms ease, stroke 300ms ease !important;
+  transition-delay: 0s !important;
+}
+
+/* Custom View Transition styles for circular theme ripple reveal */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Ensure the element being clipped sits on top */
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
