@@ -19,6 +19,8 @@ import {
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
 import { apiRespondCancellationRequest } from '../../api/bookings.api';
+import { useToast } from '../Toast';
+
 
 export default function ProviderActivity({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
   const {
@@ -34,6 +36,8 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
     isDark,
     refreshEngagements
   } = useApp();
+  const { success, error: toastError, info } = useToast();
+
 
   // Filter engagements and bids for currentProviderId
   const myEngagements = jobEngagements.filter(je => je.providerId === currentProviderId);
@@ -154,20 +158,21 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
   const [declineNote, setDeclineNote] = useState<string>('');
 
   const handleApproveCancellation = async (requestId: string) => {
-    if (window.confirm("Are you sure you want to approve this cancellation request? The contract will be canceled and the seeker will receive a full refund of their held payment.")) {
+    if (window.confirm("Approve this cancellation? The booking will be cancelled and the seeker refunded.")) {
       try {
         const res = await apiRespondCancellationRequest(requestId, true);
         if (res.success) {
-          alert("Cancellation request approved. Booking canceled and seeker refunded.");
+          success('Cancellation Approved', 'Booking cancelled and seeker will be refunded.');
           refreshEngagements();
         } else {
-          alert(res.message || "Failed to approve cancellation.");
+          toastError('Action Failed', res.message || 'Failed to approve cancellation.');
         }
       } catch (err: any) {
-        alert(err.response?.data?.message || "Error responding to cancellation request.");
+        toastError('Action Failed', err.response?.data?.message || 'Error responding to cancellation request.');
       }
     }
   };
+
 
   const handleDeclineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,17 +180,18 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
     try {
       const res = await apiRespondCancellationRequest(respondingReqId, false, declineNote);
       if (res.success) {
-        alert("Cancellation request declined.");
+        info('Cancellation Declined', 'The seeker has been notified and may escalate to admin.');
         setRespondingReqId(null);
         setDeclineNote('');
         refreshEngagements();
       } else {
-        alert(res.message || "Failed to decline cancellation.");
+        toastError('Action Failed', res.message || 'Failed to decline cancellation.');
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Error declining cancellation.");
+      toastError('Action Failed', err.response?.data?.message || 'Error declining cancellation.');
     }
   };
+
 
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>

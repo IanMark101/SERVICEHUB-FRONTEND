@@ -22,6 +22,7 @@ import {
 } from '../api/bookings.api';
 import { apiRejectOffer } from '../api/offers.api';
 import { apiSuggestCategory } from '../api/categories.api';
+import { useToast } from '../components/Toast';
 
 interface SeekerActionsDeps {
   users: User[];
@@ -65,6 +66,7 @@ export function useSeekerActions({
   syncTransactions,
   helperAddNotification
 }: SeekerActionsDeps) {
+  const { success, error: toastError, info } = useToast();
 
   const postJobRequest = async (
     seekerId: string,
@@ -89,62 +91,42 @@ export function useSeekerActions({
 
         if (res.success) {
           await syncRequests();
+          success('Request Posted', 'Your service request has been broadcasted to providers.');
           return;
         }
+      } else {
+        toastError('Category Error', 'Please select a valid service category.');
       }
-    } catch (err) {
-      console.warn("Backend API failed in postJobRequest, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Failed to post request', err.response?.data?.error || err.message);
     }
-
-    const seeker = users.find(u => u.id === seekerId);
-    if (!seeker) return;
-
-    const newRequest: JobRequest = {
-      id: `jr_${Date.now()}`,
-      seekerId,
-      seekerName: `${seeker.firstName} ${seeker.lastName}`,
-      seekerAvatar: seeker.avatarUrl,
-      title,
-      category,
-      urgency,
-      budget,
-      description,
-      status: 'open',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    setJobRequests(prev => [newRequest, ...prev]);
-    users.filter(u => u.role === 'provider').forEach(prov => {
-      helperAddNotification(prov.id, 'New Matching Job Broadcasted', `A new request for "${category}" was posted by ${seeker.firstName}.`);
-    });
   };
 
   const editJobRequest = async (requestId: string, title: string, budget: number, description: string) => {
     try {
       const res = await apiUpdateRequest(requestId, { title, budgetMin: budget, budgetMax: budget, description });
       if (res.success) {
-        setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, title, budget, description } : r));
+        await syncRequests();
+        success('Request Updated', 'Your job request was modified successfully.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in editJobRequest, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Update Failed', err.response?.data?.error || err.message);
     }
-    setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, title, budget, description } : r));
   };
 
   const deleteJobRequest = async (requestId: string) => {
     try {
       const res = await apiDeleteRequest(requestId);
       if (res.success) {
-        setJobRequests(prev => prev.filter(r => r.id !== requestId));
-        setBids(prev => prev.filter(b => b.requestId !== requestId));
+        await syncRequests();
+        await syncBids();
+        success('Request Deleted', 'Your job request has been removed.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in deleteJobRequest, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Deletion Failed', err.response?.data?.error || err.message);
     }
-    setJobRequests(prev => prev.filter(r => r.id !== requestId));
-    setBids(prev => prev.filter(b => b.requestId !== requestId));
   };
 
   const bookProviderDirectly = async (
@@ -165,13 +147,14 @@ export function useSeekerActions({
         if (res.success) {
           await syncEngagements();
           await syncNotifications();
+          success('Direct Booking Sent', 'Direct Cash arrangement requested from provider.');
           return;
         }
       } else {
         const payRes = await apiInitiatePayment({
           serviceId,
           amount: price,
-          description: `Booking for service ID ${serviceId}`,
+          description: `Direct Booking payment escrow`,
           paymentMethodType: 'gcash',
         });
         if (payRes.success) {
@@ -179,6 +162,7 @@ export function useSeekerActions({
             localStorage.setItem('pending_service_id', serviceId);
             localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
             localStorage.removeItem('pending_offer_id');
+            info('Redirecting to Payment', 'Please complete the GCash transaction.');
             window.location.href = payRes.data.redirectUrl;
             return;
           }
@@ -189,39 +173,14 @@ export function useSeekerActions({
           if (confirmRes.success) {
             await syncEngagements();
             await syncNotifications();
+            success('Payment Confirmed', 'Booking escrow held and entered queue successfully.');
             return;
           }
         }
       }
-    } catch (err) {
-      console.warn("Backend API failed in bookProviderDirectly, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Booking Failed', err.response?.data?.error || err.message);
     }
-
-    const seeker = users.find(u => u.id === seekerId);
-    const service = services.find(s => s.id === serviceId);
-    if (!seeker || !service) return;
-
-    const newEngagement: JobEngagement = {
-      id: `je_${Date.now()}`,
-      title: service.title,
-      seekerId,
-      seekerName: `${seeker.firstName} ${seeker.lastName}`,
-      providerId: service.providerId,
-      providerName: service.providerName,
-      providerAvatar: service.providerAvatar,
-      serviceId: service.id,
-      price,
-      status: 'pending_provider',
-      paymentMethod,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    setJobEngagements(prev => [newEngagement, ...prev]);
-    helperAddNotification(
-      service.providerId,
-      'New Direct Booking Request',
-      `${seeker.firstName} requested a direct booking for "${service.title}" at ₱${price}.`
-    );
   };
 
   const acceptBid = async (bidId: string, paymentMethod: 'GCash' | 'On-site Cash' = 'On-site Cash') => {
@@ -237,7 +196,8 @@ export function useSeekerActions({
         if (res.success) {
           await syncEngagements();
           await syncBids();
-          setJobRequests(prev => prev.map(r => r.id === targetBid.requestId ? { ...r, status: 'filled' } : r));
+          await syncRequests();
+          success('Bid Accepted', 'Direct Cash arrangement initiated for this offer.');
           return;
         }
       } else {
@@ -245,7 +205,7 @@ export function useSeekerActions({
         const serviceId = providerListing?.id;
 
         if (!serviceId) {
-          alert("This provider does not have an active listing in this category to hold online queue.");
+          toastError('Error accepting bid', 'This provider does not have an active listing in this category to hold online queue.');
           return;
         }
 
@@ -261,6 +221,7 @@ export function useSeekerActions({
             localStorage.setItem('pending_service_id', serviceId);
             localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
             localStorage.setItem('pending_offer_id', bidId);
+            info('Redirecting to Payment', 'Redirecting you to paymongo...');
             window.location.href = payRes.data.redirectUrl;
             return;
           }
@@ -273,57 +234,28 @@ export function useSeekerActions({
           if (confirmRes.success) {
             await syncEngagements();
             await syncBids();
-            setJobRequests(prev => prev.map(r => r.id === targetBid.requestId ? { ...r, status: 'filled' } : r));
+            await syncRequests();
+            success('Bid Accepted & Escrow Held', 'Queue booking confirmed.');
             return;
           }
         }
       }
-    } catch (err) {
-      console.warn("Backend API failed in acceptBid, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Action Failed', err.response?.data?.error || err.message);
     }
-
-    // Mock fallback
-    setJobRequests(prev => prev.map(r => r.id === targetRequest.id ? { ...r, status: 'filled' } : r));
-    setBids(prev => prev.map(b => {
-      if (b.id === bidId) return { ...b, status: 'accepted' };
-      if (b.requestId === targetRequest.id) return { ...b, status: 'declined' };
-      return b;
-    }));
-
-    const newEngagement: JobEngagement = {
-      id: `je_${Date.now()}`,
-      title: targetRequest.title,
-      seekerId: targetRequest.seekerId,
-      seekerName: targetRequest.seekerName,
-      providerId: targetBid.providerId,
-      providerName: targetBid.providerName,
-      providerAvatar: targetBid.providerAvatar,
-      serviceId: null,
-      price: targetBid.price,
-      status: paymentMethod === 'GCash' ? 'queued' : 'in_progress',
-      paymentMethod,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    setJobEngagements(prev => [newEngagement, ...prev]);
-    helperAddNotification(
-      targetBid.providerId,
-      'Bid Accepted!',
-      `${targetRequest.seekerName} accepted your bid of ₱${targetBid.price} for "${targetRequest.title}".`
-    );
   };
 
   const declineBid = async (bidId: string) => {
     try {
       const res = await apiRejectOffer(bidId);
       if (res.success) {
-        setBids(prev => prev.map(b => b.id === bidId ? { ...b, status: 'declined' } : b));
+        await syncBids();
+        success('Bid Declined', 'Offer rejected successfully.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in declineBid, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Action Failed', err.response?.data?.error || err.message);
     }
-    setBids(prev => prev.map(b => b.id === bidId ? { ...b, status: 'declined' } : b));
   };
 
   const confirmJobCompletion = async (jobId: string) => {
@@ -333,38 +265,12 @@ export function useSeekerActions({
         await syncEngagements();
         await syncNotifications();
         await syncTransactions();
+        success('Service Completed', 'Funds released to the provider.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in confirmJobCompletion, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Completion Failed', err.response?.data?.error || err.message);
     }
-
-    const job = jobEngagements.find(je => je.id === jobId);
-    if (!job) return;
-
-    setJobEngagements(prev => prev.map(je => je.id === jobId ? {
-      ...je,
-      status: 'completed',
-      completedAt: new Date().toISOString().split('T')[0]
-    } : je));
-
-    const newTx: Transaction = {
-      id: `tx_${Date.now()}`,
-      jobId,
-      seekerId: job.seekerId,
-      providerId: job.providerId,
-      amount: job.price,
-      paymentMethod: job.paymentMethod,
-      serviceTitle: job.title,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    setTransactions(prev => [newTx, ...prev]);
-    helperAddNotification(
-      job.providerId,
-      'Payout Completed',
-      `${job.seekerName} approved the completion of "${job.title}" and released ₱${job.price} via ${job.paymentMethod}.`
-    );
   };
 
   const disputeJob = async (jobId: string, reason: string) => {
@@ -372,30 +278,12 @@ export function useSeekerActions({
       const res = await apiDisputeJob(jobId, reason);
       if (res.success) {
         await syncEngagements();
+        success('Dispute Filed', 'Admin has been notified and payment has been frozen.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in disputeJob, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Failed to dispute', err.response?.data?.error || err.message);
     }
-
-    setJobEngagements(prev => prev.map(je => je.id === jobId ? { ...je, status: 'disputed', disputeReason: reason } : je));
-
-    const job = jobEngagements.find(je => je.id === jobId);
-    if (!job) return;
-
-    const newReport: UserReport = {
-      id: `ur_${Date.now()}`,
-      reportedUserId: job.providerId,
-      reportedUserName: job.providerName,
-      reporterUserId: job.seekerId,
-      reporterUserName: job.seekerName,
-      reason: 'Job Performance Dispute',
-      details: reason,
-      status: 'pending',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    setUserReports(prev => [newReport, ...prev]);
   };
 
   const cancelQueue = async (id: string) => {
@@ -403,9 +291,10 @@ export function useSeekerActions({
       const res = await apiCancelQueue(id);
       if (res.success) {
         await syncEngagements();
+        success('Queue Entry Cancelled', 'You left the service queue.');
       }
-    } catch (err) {
-      console.warn("Backend API failed in cancelQueue:", err);
+    } catch (err: any) {
+      toastError('Cancellation Failed', err.response?.data?.error || err.message);
     }
   };
 
@@ -421,20 +310,12 @@ export function useSeekerActions({
           status: 'pending'
         };
         setCategorySuggestions(prev => [newSuggestion, ...prev]);
+        success('Category Suggested', 'Admin will review your category request.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in suggestCategory, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Request Failed', err.response?.data?.error || err.message);
     }
-
-    const newSuggestion: CategorySuggestion = {
-      id: `cs_${Date.now()}`,
-      name,
-      description,
-      suggestedBy: seekerName,
-      status: 'pending'
-    };
-    setCategorySuggestions(prev => [newSuggestion, ...prev]);
   };
 
   return {

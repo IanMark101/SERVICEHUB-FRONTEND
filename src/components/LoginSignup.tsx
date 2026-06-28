@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import {
   Eye,
   EyeOff,
@@ -7,7 +7,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
-import { apiLogin, apiRegister } from '../api/auth.api';
+import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword } from '../api/auth.api';
 import { useApp } from '../context/AppContext';
 
 export interface UserSession {
@@ -36,8 +36,11 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
   // Theme state: 'green' (Emerald) or 'orange' (Amber/Orange) - default to orange
   const [theme, setTheme] = useState<'green' | 'orange'>('orange');
 
-  // View mode: 'login' or 'signup'
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  // View mode: 'login' | 'signup' | 'forgot' | 'reset'
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
+
+  // Reset password token from url
+  const [resetToken, setResetToken] = useState<string>('');
 
   // Signup step tracker: 1, 2, or 3
   const [step, setStep] = useState<number>(1);
@@ -56,6 +59,18 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [successMsg, setSuccessMsg] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('resetToken');
+      if (token) {
+        setResetToken(token);
+        setMode('reset');
+      }
+    }
+  }, []);
 
   const avatars = [
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200', // Woman 1
@@ -100,6 +115,55 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (mode === 'forgot') {
+      if (!formData.email) {
+        setError('Please enter your email address');
+        return;
+      }
+      apiForgotPassword(formData.email)
+        .then((res) => {
+          if (res.success) {
+            setSuccessMsg(res.message || 'If an account exists, a reset link has been sent.');
+            setError('');
+          } else {
+            setError(res.error || 'Failed to send reset link.');
+          }
+        })
+        .catch((err) => {
+          setError(err.response?.data?.error || 'Something went wrong.');
+        });
+      return;
+    }
+
+    if (mode === 'reset') {
+      if (!formData.password) {
+        setError('Please enter a new password');
+        return;
+      }
+      if (formData.password.length < 8) {
+        setError('Password must be at least 8 characters long');
+        return;
+      }
+      apiResetPassword({ token: resetToken, password: formData.password })
+        .then((res) => {
+          if (res.success) {
+            setSuccessMsg('Password reset successfully. Redirecting to login...');
+            setError('');
+            setTimeout(() => {
+              setMode('login');
+              setSuccessMsg('');
+              setFormData(prev => ({ ...prev, password: '' }));
+            }, 3000);
+          } else {
+            setError(res.error || 'Failed to reset password.');
+          }
+        })
+        .catch((err) => {
+          setError(err.response?.data?.error || 'Something went wrong.');
+        });
+      return;
+    }
 
     if (mode === 'login') {
       if (!formData.email || !formData.password) {
@@ -196,6 +260,7 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
 
   const toggleMode = () => {
     setError('');
+    setSuccessMsg('');
     setMode(prev => prev === 'login' ? 'signup' : 'login');
     setStep(1);
   };
@@ -321,12 +386,22 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
         {/* Header */}
         <div className="mb-6">
           <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
-            {mode === 'signup' ? `Sign Up Account` : `Sign In Account`}
+            {mode === 'signup'
+              ? 'Sign Up Account'
+              : mode === 'forgot'
+                ? 'Forgot Password'
+                : mode === 'reset'
+                  ? 'Reset Password'
+                  : 'Sign In Account'}
           </h3>
           <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-1 leading-normal">
             {mode === 'signup'
-              ? `Enter your personal data to create your account.`
-              : `Enter your credentials to access your workspace.`}
+              ? 'Enter your personal data to create your account.'
+              : mode === 'forgot'
+                ? 'Enter your email address to receive a secure password reset link.'
+                : mode === 'reset'
+                  ? 'Choose a new password for your account.'
+                  : 'Enter your credentials to access your workspace.'}
           </p>
         </div>
 
@@ -370,6 +445,13 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
         {error && (
           <div className="mb-4 p-3 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-medium animate-in fade-in duration-150">
             {error}
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMsg && (
+          <div className="mb-4 p-3 bg-emerald-950/20 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/35 rounded-xl text-emerald-600 dark:text-emerald-400 text-xs font-medium animate-in fade-in duration-150">
+            {successMsg}
           </div>
         )}
 
@@ -548,7 +630,13 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide">Password</label>
-                  <a href="#" className={`text-[10px] ${accentText} font-bold hover:underline`}>Forgot password?</a>
+                  <button
+                    type="button"
+                    onClick={() => { setError(''); setSuccessMsg(''); setMode('forgot'); }}
+                    className={`text-[10px] ${accentText} font-bold hover:underline cursor-pointer`}
+                  >
+                    Forgot password?
+                  </button>
                 </div>
                 <div className="relative">
                   <input
@@ -572,6 +660,47 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
             </>
           )}
 
+          {/* FORGOT PASSWORD FORM */}
+          {mode === 'forgot' && (
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="eg. alexmercer@gmail.com"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
+                required
+              />
+            </div>
+          )}
+
+          {/* RESET PASSWORD FORM */}
+          {mode === 'reset' && (
+            <div>
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">New Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Enter your new password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-[#b4b0a9] hover:text-[#f2efe9] cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Submit buttons */}
           <div className="pt-2 flex space-x-3">
             {mode === 'signup' && step > 1 && (
@@ -585,32 +714,48 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
               </button>
             )}
 
-            <button
+             <button
               type="submit"
               onClick={mode === 'signup' && step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
               className={`flex-grow ${accentBg} hover:opacity-95 text-white font-extrabold rounded-xl py-3 text-xs tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer`}
             >
               {mode === 'login'
                 ? 'Sign In'
-                : step === 3
-                  ? 'Sign Up'
-                  : 'Next Step'}
+                : mode === 'forgot'
+                  ? 'Send Reset Link'
+                  : mode === 'reset'
+                    ? 'Reset Password'
+                    : step === 3
+                      ? 'Sign Up'
+                      : 'Next Step'}
             </button>
           </div>
         </form>
 
         {/* Form Switcher Footer */}
         <div className="mt-8 text-center text-xs">
-          <span className="text-slate-550 dark:text-[#b4b0a9] font-medium">
-            {mode === 'signup' ? 'Already have an account? ' : "Don't have an account? "}
-          </span>
-          <button
-            type="button"
-            onClick={toggleMode}
-            className={`font-bold ${accentText} hover:underline ml-1 cursor-pointer`}
-          >
-            {mode === 'signup' ? 'Log in' : 'Register here'}
-          </button>
+          {mode === 'forgot' || mode === 'reset' ? (
+            <button
+              type="button"
+              onClick={() => { setError(''); setSuccessMsg(''); setMode('login'); }}
+              className={`font-bold ${accentText} hover:underline cursor-pointer`}
+            >
+              Back to Log in
+            </button>
+          ) : (
+            <>
+              <span className="text-slate-550 dark:text-[#b4b0a9] font-medium">
+                {mode === 'signup' ? 'Already have an account? ' : "Don't have an account? "}
+              </span>
+              <button
+                type="button"
+                onClick={toggleMode}
+                className={`font-bold ${accentText} hover:underline ml-1 cursor-pointer`}
+              >
+                {mode === 'signup' ? 'Log in' : 'Register here'}
+              </button>
+            </>
+          )}
         </div>
       </div>
 

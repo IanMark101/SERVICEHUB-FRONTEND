@@ -33,6 +33,8 @@ import { apiBrowseServices } from '../api/services.api';
 import { apiGetTransactions } from '../api/transactions.api';
 import { UserSession } from '../components/LoginSignup';
 import { apiGetMe } from '../api/auth.api';
+import { connectSocket, disconnectSocket } from '../lib/socket';
+
 
 // Modular Helpers and Hooks
 import {
@@ -402,6 +404,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [refreshAll]);
 
+  // ─── Socket.io — connect when authenticated, disconnect on logout ───
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token || !isAuthenticated) return;
+
+    const sock = connectSocket(token);
+
+    // Real-time notification badge
+    sock.on('notification', () => {
+      syncNotifications();
+    });
+
+    // Real-time queue counter update — update the services list in place
+    sock.on('queue_update', (data: { serviceId: string; delta: number; currentSize?: number }) => {
+      setServices(prev =>
+        prev.map(s => {
+          if (s.id !== data.serviceId) return s;
+          const newSize = data.currentSize !== undefined
+            ? data.currentSize
+            : Math.max(0, (s.queueSize || 0) + data.delta);
+          return { ...s, queueSize: newSize };
+        })
+      );
+    });
+
+    // Unread message badge — re-sync notifications to update badge
+    sock.on('message_notification', () => {
+      syncNotifications();
+    });
+
+    return () => {
+      sock.off('notification');
+      sock.off('queue_update');
+      sock.off('message_notification');
+    };
+  }, [isAuthenticated, syncNotifications]);
+
+  // Disconnect socket when user explicitly logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      disconnectSocket();
+    }
+  }, [isAuthenticated]);
+
   // ─── Notification polling every 60 seconds when authenticated ──
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -413,6 +459,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     return () => clearInterval(interval);
   }, [syncNotifications]);
+
 
   // ─── Shared helper ─────────────────────────────────────────────
   const helperAddNotification = useCallback((userId: string, title: string, desc: string) => {

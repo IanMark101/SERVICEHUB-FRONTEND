@@ -69,3 +69,16 @@ export async function apiResolveReport(id: string, action: 'trust_deduct' | 'sus
   const response = await api.patch(`/admin/reports/${id}/resolve`, { action, adminNotes });
   return response.data;
 }
+
+// ── Cancellation Escalations ──────────────────────────────────────────────────
+
+export async function apiListEscalatedCancellations() {
+  const response = await api.get('/admin/cancellations/escalated');
+  return response.data;
+}
+
+export async function apiResolveEscalatedCancellation(id: string, approve: boolean, adminNote?: string) {
+  const response = await api.patch(`/bookings/cancellation-requests/${id}/admin-resolve`, { approve, adminNote });
+  return response.data;
+}
+

@@ -18,6 +18,7 @@ import {
   apiStartJob,
   apiProviderRemoveQueue
 } from '../api/bookings.api';
+import { useToast } from '../components/Toast';
 
 interface ProviderActionsDeps {
   users: User[];
@@ -50,6 +51,7 @@ export function useProviderActions({
   syncBids,
   helperAddNotification
 }: ProviderActionsDeps) {
+  const { success, error: toastError, info } = useToast();
 
   const createServiceListing = async (
     providerId: string,
@@ -78,7 +80,7 @@ export function useProviderActions({
           const newListing: ServiceListing = {
             id: item.id,
             providerId,
-            providerName: 'Provider',
+            providerName: 'My Service',
             providerAvatar: '',
             title,
             category,
@@ -90,32 +92,15 @@ export function useProviderActions({
             rating: 5.0
           };
           setServices(prev => [newListing, ...prev]);
+          success('Listing Created', 'Your service listing has been sent to admins for approval.');
           return;
         }
+      } else {
+        toastError('Category Error', 'Selected category does not exist.');
       }
-    } catch (err) {
-      console.warn("Backend API failed in createServiceListing, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Failed to create listing', err.response?.data?.error || err.message);
     }
-
-    const provider = users.find(u => u.id === providerId);
-    if (!provider) return;
-
-    const newListing: ServiceListing = {
-      id: `s_${Date.now()}`,
-      providerId,
-      providerName: `${provider.firstName} ${provider.lastName}`,
-      providerAvatar: provider.avatarUrl,
-      title,
-      category,
-      description,
-      price,
-      queueSize: 0,
-      isPaused: false,
-      proofOfSkillUrl: proofUrl,
-      rating: 5.0
-    };
-
-    setServices(prev => [newListing, ...prev]);
   };
 
   const editServiceListing = async (serviceId: string, title: string, price: number, description: string) => {
@@ -123,12 +108,12 @@ export function useProviderActions({
       const res = await apiUpdateService(serviceId, { title, price, description });
       if (res.success) {
         setServices(prev => prev.map(s => s.id === serviceId ? { ...s, title, price, description } : s));
+        success('Listing Updated', 'Service details modified successfully.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in editServiceListing, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Update Failed', err.response?.data?.error || err.message);
     }
-    setServices(prev => prev.map(s => s.id === serviceId ? { ...s, title, price, description } : s));
   };
 
   const toggleServiceListingStatus = async (serviceId: string) => {
@@ -136,12 +121,12 @@ export function useProviderActions({
       const res = await apiToggleServiceAvailability(serviceId);
       if (res.success) {
         setServices(prev => prev.map(s => s.id === serviceId ? { ...s, isPaused: !s.isPaused } : s));
+        success('Availability Toggled', 'Your service availability has been updated.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in toggleServiceListingStatus, falling back to mock:", err);
+    } catch (err: any) {
+      toastError('Action Failed', err.response?.data?.error || err.message);
     }
-    setServices(prev => prev.map(s => s.id === serviceId ? { ...s, isPaused: !s.isPaused } : s));
   };
 
   const submitBid = async (requestId: string, providerId: string, price: number, message: string) => {
@@ -158,7 +143,7 @@ export function useProviderActions({
           id: p.id,
           requestId,
           providerId,
-          providerName: 'Provider',
+          providerName: 'Me',
           providerAvatar: '',
           providerRating: 5.0,
           price,
@@ -167,37 +152,11 @@ export function useProviderActions({
           createdAt: p.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
         };
         setBids(prev => [newBid, ...prev]);
+        success('Bid Submitted', 'Your proposal was sent to the seeker.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in submitBid, falling back to mock:", err);
-    }
-
-    const provider = users.find(u => u.id === providerId);
-    if (!provider) return;
-
-    const newBid: Bid = {
-      id: `b_${Date.now()}`,
-      requestId,
-      providerId,
-      providerName: `${provider.firstName} ${provider.lastName}`,
-      providerAvatar: provider.avatarUrl,
-      providerRating: provider.rating,
-      price,
-      message,
-      status: 'pending',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    setBids(prev => [newBid, ...prev]);
-
-    const request = jobRequests.find(r => r.id === requestId);
-    if (request) {
-      helperAddNotification(
-        request.seekerId,
-        'New Proposal Received',
-        `${provider.firstName} bid ₱${price} on your request: "${request.title}".`
-      );
+    } catch (err: any) {
+      toastError('Failed to submit bid', err.response?.data?.error || err.message);
     }
   };
 
@@ -207,26 +166,11 @@ export function useProviderActions({
       if (res.success) {
         await syncEngagements();
         await syncNotifications();
+        success(accept ? 'Booking Accepted' : 'Booking Declined', 'Seeker has been notified.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in respondToDirectBooking, falling back to mock:", err);
-    }
-
-    setJobEngagements(prev => prev.map(je => {
-      if (je.id === jobId) {
-        return { ...je, status: accept ? 'in_progress' : 'canceled' };
-      }
-      return je;
-    }));
-
-    const job = jobEngagements.find(je => je.id === jobId);
-    if (job) {
-      helperAddNotification(
-        job.seekerId,
-        accept ? 'Booking Accepted!' : 'Booking Declined',
-        `${job.providerName} has ${accept ? 'accepted' : 'declined'} your direct service booking of "${job.title}".`
-      );
+    } catch (err: any) {
+      toastError('Action Failed', err.response?.data?.error || err.message);
     }
   };
 
@@ -236,21 +180,11 @@ export function useProviderActions({
       if (res.success) {
         await syncEngagements();
         await syncNotifications();
+        success('Job Completed', 'Awaiting seeker approval and release of payment.');
         return;
       }
-    } catch (err) {
-      console.warn("Backend API failed in requestJobApproval, falling back to mock:", err);
-    }
-
-    setJobEngagements(prev => prev.map(je => je.id === jobId ? { ...je, status: 'awaiting_seeker_approval' } : je));
-
-    const job = jobEngagements.find(je => je.id === jobId);
-    if (job) {
-      helperAddNotification(
-        job.seekerId,
-        'Approval Requested',
-        `${job.providerName} marked "${job.title}" as done. Please review and confirm completion to release payment.`
-      );
+    } catch (err: any) {
+      toastError('Action Failed', err.response?.data?.error || err.message);
     }
   };
 
@@ -259,9 +193,10 @@ export function useProviderActions({
       const res = await apiStartJob(id);
       if (res.success) {
         await syncEngagements();
+        success('Job Started', 'You began the service booking.');
       }
-    } catch (err) {
-      console.warn("Backend API failed in providerStartJob:", err);
+    } catch (err: any) {
+      toastError('Failed to start job', err.response?.data?.error || err.message);
     }
   };
 
@@ -270,9 +205,10 @@ export function useProviderActions({
       const res = await apiProviderRemoveQueue(id);
       if (res.success) {
         await syncEngagements();
+        success('Queue Entry Removed', 'Booking was removed from queue.');
       }
-    } catch (err) {
-      console.warn("Backend API failed in providerRemoveFromQueue:", err);
+    } catch (err: any) {
+      toastError('Failed to remove from queue', err.response?.data?.error || err.message);
     }
   };
 

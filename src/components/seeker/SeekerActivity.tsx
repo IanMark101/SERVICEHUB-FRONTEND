@@ -18,9 +18,13 @@ import PaginationBar from '../PaginationBar';
 import { apiCancelBooking, apiEscalateCancellationRequest } from '../../api/bookings.api';
 import { apiSubmitReview } from '../../api/reviews.api';
 import ReviewModal from './ReviewModal';
+import { useToast } from '../Toast';
+
 
 export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const { jobEngagements, confirmJobCompletion, disputeJob, cancelQueue, services, jobRequests, isDark, refreshEngagements } = useApp();
+  const { success, error: toastError, info } = useToast();
+
 
   // Active user is currentUserId
   const myEngagements = jobEngagements.filter(je => je.seekerId === currentUserId);
@@ -138,25 +142,27 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
       text: comment,
       tags
     });
+    success('Review Submitted! ⭐', 'Thank you for your feedback.');
     refreshEngagements();
   };
+
 
   const [cancelingJob, setCancelingJob] = useState<JobEngagement | null>(null);
   const [cancelReason, setCancelReason] = useState<string>('');
 
   const handleCancelClick = async (je: JobEngagement) => {
     if (!je.started) {
-      if (window.confirm("Are you sure you want to cancel this booking? Since the provider has not started the job, you will be refunded immediately.")) {
+      if (window.confirm("Are you sure you want to cancel this booking?")) {
         try {
           const res = await apiCancelBooking(je.id);
           if (res.success) {
-            alert("Booking canceled successfully.");
+            success('Booking Cancelled', 'You will be refunded since the provider had not started the job.');
             refreshEngagements();
           } else {
-            alert(res.message || "Failed to cancel booking.");
+            toastError('Cancel Failed', res.message || 'Failed to cancel booking.');
           }
         } catch (err: any) {
-          alert(err.response?.data?.message || "Error canceling booking.");
+          toastError('Cancel Failed', err.response?.data?.message || 'Error canceling booking.');
         }
       }
     } else {
@@ -165,39 +171,42 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
     }
   };
 
+
   const handleCancelSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cancelingJob) return;
     try {
       const res = await apiCancelBooking(cancelingJob.id, cancelReason);
       if (res.success) {
-        alert("Cancellation request submitted to the provider.");
+        info('Cancellation Request Sent', 'The provider will review your request.');
         setCancelingJob(null);
         setCancelReason('');
         refreshEngagements();
       } else {
-        alert(res.message || "Failed to submit request.");
+        toastError('Request Failed', res.message || 'Failed to submit request.');
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || "Error submitting request.");
+      toastError('Request Failed', err.response?.data?.message || 'Error submitting request.');
     }
   };
 
+
   const handleEscalateClick = async (requestId: string) => {
-    if (window.confirm("Are you sure you want to escalate this cancellation request to Admin? An administrator will review the booking and chat logs to make a final decision.")) {
+    if (window.confirm("Escalate this to Admin? They will review the booking and chat logs to make a final decision.")) {
       try {
         const res = await apiEscalateCancellationRequest(requestId);
         if (res.success) {
-          alert("Request escalated to Admin successfully.");
+          success('Escalated to Admin', 'An administrator will review and resolve your case.');
           refreshEngagements();
         } else {
-          alert(res.message || "Failed to escalate request.");
+          toastError('Escalation Failed', res.message || 'Failed to escalate request.');
         }
       } catch (err: any) {
-        alert(err.response?.data?.message || "Error escalating request.");
+        toastError('Escalation Failed', err.response?.data?.message || 'Error escalating request.');
       }
     }
   };
+
 
   const getTabClass = (tab: typeof activeTab, count: number) => {
     const isActive = activeTab === tab;
