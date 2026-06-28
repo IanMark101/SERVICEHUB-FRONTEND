@@ -59,9 +59,8 @@ export function useSharedActions({
         return;
       }
     } catch (err) {
-      console.warn("Backend API failed in markNotificationsRead, falling back to mock:", err);
+      console.error("Backend API failed in markNotificationsRead:", err);
     }
-    setNotifications(prev => prev.map(n => n.userId === userId ? { ...n, read: true } : n));
   };
 
   return {
