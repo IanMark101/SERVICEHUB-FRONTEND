@@ -60,8 +60,8 @@ export async function apiProviderRemoveQueue(queueId: string) {
   return response.data;
 }
 
-export async function apiDisputeJob(bookingId: string, reason: string) {
-  const response = await api.post(`/bookings/${bookingId}/dispute`, { reason });
+export async function apiDisputeJob(bookingId: string, reason: string, description?: string, evidenceUrl?: string) {
+  const response = await api.post(`/bookings/${bookingId}/dispute`, { reason, description, evidenceUrl });
   return response.data;
 }
 

@@ -273,9 +273,9 @@ export function useSeekerActions({
     }
   };
 
-  const disputeJob = async (jobId: string, reason: string) => {
+  const disputeJob = async (jobId: string, reason: string, description?: string, evidenceUrl?: string) => {
     try {
-      const res = await apiDisputeJob(jobId, reason);
+      const res = await apiDisputeJob(jobId, reason, description, evidenceUrl);
       if (res.success) {
         await syncEngagements();
         success('Dispute Filed', 'Admin has been notified and payment has been frozen.');

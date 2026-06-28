@@ -164,8 +164,17 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               </div>
             </div>
 
+            {/* Spec Part 5 Cancellation Policy Disclaimer */}
+            <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${
+              isDark 
+                ? 'bg-neutral-900 border-neutral-800 text-neutral-400' 
+                : 'bg-slate-50 border-slate-200 text-slate-500'
+            }`}>
+              ⚠️ You can cancel for free anytime before the provider starts the job. Once they've started, cancellation needs their approval.
+            </p>
+
             {/* Actions */}
-            <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+            <div className={`pt-3 border-t mt-3 flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
               <button
                 type="button"
                 onClick={onClose}

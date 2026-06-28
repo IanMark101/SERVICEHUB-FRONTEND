@@ -348,6 +348,15 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 </div>
                 <span className="text-orange-500 font-extrabold text-xs">Cash</span>
               </button>
+
+              {/* Spec Part 5 Cancellation Policy Disclaimer */}
+              <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${
+                isDark 
+                  ? 'bg-neutral-900 border-neutral-800 text-neutral-450' 
+                  : 'bg-slate-50 border-slate-200 text-slate-500'
+              }`}>
+                ⚠️ You can cancel for free anytime before the provider starts the job. Once they've started, cancellation needs their approval.
+              </p>
             </div>
           </div>
         </div>
