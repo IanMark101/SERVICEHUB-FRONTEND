@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import LoginSignup, { UserSession } from '../../components/LoginSignup';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const { isAuthenticated, setUser, setIsAuthenticated, user, authLoading } = useApp();
 
@@ -35,7 +35,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#fbfaf7] dark:bg-[#191919]">
       <LoginSignup 
-        initialMode="login"
+        initialMode="signup"
         onLoginSuccess={handleLoginSuccess} 
         onBackToHome={handleBackToHome} 
       />

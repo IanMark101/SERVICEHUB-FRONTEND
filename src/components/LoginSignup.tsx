@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Eye,
   EyeOff,
@@ -7,7 +8,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
-import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword } from '../api/auth.api';
+import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '../api/auth.api';
 import { useApp } from '../context/AppContext';
 import { useToast } from './Toast';
 
@@ -26,11 +27,13 @@ export interface UserSession {
 }
 
 interface LoginSignupProps {
+  initialMode?: 'login' | 'signup';
   onLoginSuccess: (userData: UserSession) => void;
   onBackToHome?: () => void;
 }
 
-export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignupProps) {
+export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome }: LoginSignupProps) {
+  const router = useRouter();
   // Bind to App Context for global theme toggling
   const { isDark, toggleTheme } = useApp();
   const { info } = useToast();
@@ -39,7 +42,14 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
   const [theme, setTheme] = useState<'green' | 'orange'>('orange');
 
   // View mode: 'login' | 'signup' | 'forgot' | 'reset'
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(initialMode || 'login');
+
+  // Sync mode if initialMode prop changes
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [initialMode]);
 
   // Reset password token from url
   const [resetToken, setResetToken] = useState<string>('');
@@ -56,8 +66,14 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
     role: 'seeker' as 'seeker' | 'provider',
     bio: '',
     phone: '',
+    location: 'Poblacion, Cordova', // added location
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
   });
+
+  // Mock Google Dialog Simulation State
+  const [showGoogleMockDialog, setShowGoogleMockDialog] = useState<boolean>(false);
+  const [mockGoogleName, setMockGoogleName] = useState<string>('');
+  const [mockGoogleEmail, setMockGoogleEmail] = useState<string>('');
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -74,6 +90,79 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
     }
   }, []);
 
+  // Google Login Verification and Auto-Creation Handler
+  const handleGoogleSuccessResponse = (idToken: string) => {
+    setError('');
+    setSuccessMsg('');
+    apiGoogleLogin(idToken)
+      .then((res) => {
+        if (res.success) {
+          const user = res.data.user;
+          localStorage.setItem('accessToken', res.data.accessToken);
+          const names = user.name.split(' ');
+          const firstName = names[0] || '';
+          const lastName = names.slice(1).join(' ') || '';
+          onLoginSuccess({
+            id: user.id,
+            email: user.email,
+            firstName,
+            lastName,
+            role: 'seeker', // Default initial view role, switchable in dashboard
+            avatarUrl: user.avatarUrl || avatars[0],
+            bio: user.bio || '',
+            phone: user.phone,
+            trustScore: user.trustScore,
+            verificationStatus: user.verificationStatus,
+            emailVerified: user.emailVerified,
+          });
+        } else {
+          setError(res.error || 'Google Login failed');
+        }
+      })
+      .catch((err) => {
+        setError(err.response?.data?.error || 'Google authentication failed.');
+      });
+  };
+
+  const handleSimulateGoogleLogin = (e: FormEvent) => {
+    e.preventDefault();
+    if (!mockGoogleName || !mockGoogleEmail) {
+      alert("Name and email are required for the simulation");
+      return;
+    }
+    const payload = JSON.stringify({ name: mockGoogleName, email: mockGoogleEmail });
+    const mockToken = "mock-google-token-" + btoa(payload);
+    setShowGoogleMockDialog(false);
+    handleGoogleSuccessResponse(mockToken);
+  };
+
+  // Dynamically load Google accounts.id client script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      if (clientId && (window as any).google) {
+        (window as any).google.accounts.id.initialize({
+          client_id: clientId,
+          callback: (response: any) => {
+            handleGoogleSuccessResponse(response.credential);
+          }
+        });
+      }
+    };
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
   const avatars = [
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200', // Woman 1
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', // Man 1
@@ -81,7 +170,7 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
     'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200', // Man 2
   ];
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setError('');
@@ -113,6 +202,15 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
   const handlePrevStep = () => {
     setError('');
     setStep(prev => prev - 1);
+  };
+
+  const handleGoogleSignInClick = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (clientId && (window as any).google) {
+      (window as any).google.accounts.id.prompt();
+    } else {
+      setShowGoogleMockDialog(true);
+    }
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -224,7 +322,7 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
         email: formData.email,
         password: formData.password,
         phone: phoneFormatted || '+63 917 000 0000',
-        location: 'Cordova, Cebu',
+        location: formData.location || 'Poblacion, Cordova',
         bio: formData.bio,
         avatarUrl: formData.avatarUrl,
       })
@@ -234,7 +332,7 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
             setError('');
             setStep(1);
             setTimeout(() => {
-              setMode('login');
+              router.push('/login');
               setSuccessMsg('');
             }, 6000);
           } else {
@@ -255,8 +353,11 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
   const toggleMode = () => {
     setError('');
     setSuccessMsg('');
-    setMode(prev => prev === 'login' ? 'signup' : 'login');
-    setStep(1);
+    if (mode === 'login') {
+      router.push('/register');
+    } else {
+      router.push('/login');
+    }
   };
 
   const isGreen = theme === 'green';
@@ -307,77 +408,100 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
         {/* Bottom branding and steps container aligned horizontally */}
         <div className="mt-12 md:mt-auto space-y-8 relative z-10">
 
-          {/* Horizontal Header Row: Title on Left, Desc on Right */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-neutral-800/80 pb-4">
-            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight max-w-[200px]">
-              Get Started with Us
-            </h2>
-            <p className="text-slate-500 dark:text-[#b4b0a9] text-xs max-w-[210px] leading-relaxed">
-              Complete these easy steps to register your account.
-            </p>
-          </div>
+          {mode === 'signup' ? (
+            <>
+              {/* Horizontal Header Row: Title on Left, Desc on Right */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-neutral-800/80 pb-4">
+                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight max-w-[200px]">
+                  Get Started with Us
+                </h2>
+                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs max-w-[210px] leading-relaxed">
+                  Complete these easy steps to register your account.
+                </p>
+              </div>
 
-          {/* Active Cordova Area Badge */}
-          <div className="flex">
-            <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-              <span>CORDOVA AREA NETWORK ACTIVE</span>
-            </div>
-          </div>
+              {/* Active Cordova Area Badge */}
+              <div className="flex">
+                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                  <span>CORDOVA AREA NETWORK ACTIVE</span>
+                </div>
+              </div>
 
-          {/* Stepper Cards */}
-          <div className="grid grid-cols-3 gap-3">
-            {/* Card 1 */}
-            <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${mode === 'signup' && step === 1
-                ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
-                : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
-              }`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${mode === 'signup' && step === 1
-                  ? `${accentBg} text-white`
-                  : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
-                }`}>
-                1
-              </div>
-              <div className="mt-4">
-                <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 1</h4>
-                <p className="text-xs font-bold mt-1.5 leading-snug">Sign up account</p>
-              </div>
-            </div>
+              {/* Stepper Cards */}
+              <div className="grid grid-cols-3 gap-3">
+                {/* Card 1 */}
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 1
+                    ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
+                    : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
+                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 1
+                      ? `${accentBg} text-white`
+                      : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
+                    }`}>
+                    1
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 1</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug">Sign Up</p>
+                  </div>
+                </div>
 
-            {/* Card 2 */}
-            <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${mode === 'signup' && step === 2
-                ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
-                : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
-              }`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${mode === 'signup' && step === 2
-                  ? `${accentBg} text-white`
-                  : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
-                }`}>
-                2
-              </div>
-              <div className="mt-4">
-                <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 2</h4>
-                <p className="text-xs font-bold mt-1.5 leading-snug">Choose Role</p>
-              </div>
-            </div>
+                {/* Card 2 */}
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 2
+                    ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
+                    : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
+                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 2
+                      ? `${accentBg} text-white`
+                      : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
+                    }`}>
+                    2
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 2</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug">Contact Info</p>
+                  </div>
+                </div>
 
-            {/* Card 3 */}
-            <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${mode === 'signup' && step === 3
-                ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
-                : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
-              }`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${mode === 'signup' && step === 3
-                  ? `${accentBg} text-white`
-                  : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
-                }`}>
-                3
+                {/* Card 3 */}
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 3
+                    ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
+                    : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
+                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 3
+                      ? `${accentBg} text-white`
+                      : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
+                    }`}>
+                    3
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 3</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug">Profile Setup</p>
+                  </div>
+                </div>
               </div>
-              <div className="mt-4">
-                <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 3</h4>
-                <p className="text-xs font-bold mt-1.5 leading-snug">Set Profile Info</p>
+            </>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-4xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight">
+                  Welcome Back!
+                </h2>
+                <p className="text-slate-500 dark:text-[#b4b0a9] text-sm leading-relaxed max-w-sm">
+                  Find or offer local services with verified, trusted Cordova residents. Connect with skilled providers, coordinate jobs in real-time, and manage secure transactions.
+                </p>
+              </div>
+
+              {/* Active Cordova Area Badge */}
+              <div className="flex">
+                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                  <span>CORDOVA AREA NETWORK ACTIVE</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
         </div>
       </div>
@@ -413,7 +537,7 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
             <div className="grid grid-cols-1 gap-3 mb-5">
               <button
                 type="button"
-                onClick={() => info('Google Sign-In', 'Google Authentication is currently unavailable. Please sign in using your registered email address and password.')}
+                onClick={handleGoogleSignInClick}
                 className="flex items-center justify-center space-x-2 bg-white dark:bg-[#22211e] hover:bg-slate-50 dark:hover:bg-[#2c2b27] border border-slate-300 dark:border-neutral-800/80 text-slate-700 dark:text-[#f2efe9] rounded-xl py-2.5 px-4 text-xs font-bold tracking-wide transition-all active:scale-95 shadow-sm cursor-pointer"
               >
                 <svg className="w-4 h-4 mr-1.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
@@ -519,34 +643,43 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
             </>
           )}
 
-          {/* SIGN UP: STEP 2 (Role selection - Only seeker and provider, NO admin) */}
+          {/* SIGN UP: STEP 2 (Contact & Location Details) */}
           {mode === 'signup' && step === 2 && (
-            <div className="space-y-3">
-              <label className="block text-xs font-bold text-slate-800 dark:text-[#f2efe9] uppercase tracking-wide">
-                Select your Account Type
-              </label>
-              <div className="space-y-2.5">
-                <div
-                  onClick={() => handleRoleSelect('seeker')}
-                  className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col ${formData.role === 'seeker'
-                      ? 'border-orange-500 bg-orange-50/30 dark:bg-orange-950/20'
-                      : 'border-slate-300 dark:border-neutral-800 bg-white dark:bg-[#22211e] hover:bg-slate-50 dark:hover:bg-[#2c2b27]'
-                    }`}
-                >
-                  <span className={`font-bold text-xs ${formData.role === 'seeker' ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-[#f2efe9]'}`}>Seeker Account</span>
-                  <p className="text-[10px] text-slate-500 dark:text-[#b4b0a9] mt-1">Hire local Cordova service providers and track jobs.</p>
-                </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Contact Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="eg. +63 917 123 4567"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
+                  required
+                />
+              </div>
 
-                <div
-                  onClick={() => handleRoleSelect('provider')}
-                  className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col ${formData.role === 'provider'
-                      ? 'border-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/20'
-                      : 'border-slate-300 dark:border-neutral-800 bg-white dark:bg-[#22211e] hover:bg-slate-50 dark:hover:bg-[#2c2b27]'
-                    }`}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Cordova Barangay / Location</label>
+                <select
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
+                  required
                 >
-                  <span className={`font-bold text-xs ${formData.role === 'provider' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-800 dark:text-[#f2efe9]'}`}>Provider Account</span>
-                  <p className="text-[10px] text-slate-500 dark:text-[#b4b0a9] mt-1">Offer local services, manage queue, and accept bookings.</p>
-                </div>
+                  <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
+                  <option value="San Miguel, Cordova">San Miguel</option>
+                  <option value="Bangbang, Cordova">Bangbang</option>
+                  <option value="Gabi, Cordova">Gabi</option>
+                  <option value="Ibabao, Cordova">Ibabao</option>
+                  <option value="Pilipog, Cordova">Pilipog</option>
+                  <option value="Catarman, Cordova">Catarman</option>
+                  <option value="Alegria, Cordova">Alegria</option>
+                  <option value="Buagsong, Cordova">Buagsong</option>
+                  <option value="Dapitan, Cordova">Dapitan</option>
+                  <option value="Day-as, Cordova">Day-as</option>
+                </select>
               </div>
             </div>
           )}
@@ -576,18 +709,6 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
                     ))}
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Contact Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="eg. +63 917 123 4567"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                />
               </div>
 
               <div>
@@ -751,6 +872,73 @@ export default function LoginSignup({ onLoginSuccess, onBackToHome }: LoginSignu
           )}
         </div>
       </div>
+
+      {/* Google OAuth Simulation Modal */}
+      {showGoogleMockDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#22211e] border border-slate-200 dark:border-neutral-800/80 rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in zoom-in-95 duration-200 text-slate-800 dark:text-[#f2efe9]">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold tracking-tight">Google Sign-In Sandbox</h3>
+                <span className="text-[10px] uppercase font-bold text-orange-500 tracking-wider bg-orange-500/10 px-1.5 py-0.5 rounded">Credentials Emulator</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-550 dark:text-[#b4b0a9] leading-relaxed mb-4">
+              Since a Google OAuth client is not configured locally, use this simulator sandbox to test registration auto-creation, dual roles, and returning user auto-linking.
+            </p>
+
+            <form onSubmit={handleSimulateGoogleLogin} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Profile Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="eg. Jane Doe"
+                  value={mockGoogleName}
+                  onChange={(e) => setMockGoogleName(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-[#1c1b18] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="eg. janedoe@gmail.com"
+                  value={mockGoogleEmail}
+                  onChange={(e) => setMockGoogleEmail(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-[#1c1b18] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowGoogleMockDialog(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-500 dark:text-[#b4b0a9] hover:bg-slate-100 dark:hover:bg-[#2c2b27] rounded-xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-500 rounded-xl shadow-sm transition-all"
+                >
+                  Simulate Sign In
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

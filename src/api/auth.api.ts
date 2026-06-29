@@ -39,3 +39,8 @@ export async function apiResetPassword(data: any) {
   const response = await api.post('/auth/reset-password', data);
   return response.data;
 }
+
+export async function apiGoogleLogin(token: string) {
+  const response = await api.post('/auth/google-login', { token });
+  return response.data;
+}
