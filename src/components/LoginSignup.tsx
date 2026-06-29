@@ -197,11 +197,6 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         setError('Please fill in all account fields');
         return;
       }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        setError('Please enter a valid email address');
-        return;
-      }
       if (formData.password.length < 8) {
         setError('Password must be at least 8 characters long');
         return;
@@ -381,7 +376,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         <div className="absolute inset-0 bg-grid-pattern pointer-events-none"></div>
 
         {/* Branding Logo & Theme switchers */}
-        <div className="relative z-10 flex items-center justify-between flex-shrink-0">
+        <div className="relative z-10 flex items-center justify-between">
           <button
             type="button"
             onClick={onBackToHome}
@@ -409,78 +404,78 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         </div>
 
         {/* Bottom branding and steps container aligned horizontally */}
-        <div className="mt-12 md:mt-auto space-y-8 relative z-10 flex-shrink-0">
+        <div className="mt-12 md:mt-auto space-y-8 relative z-10">
 
           {mode === 'signup' ? (
             <>
               {/* Horizontal Header Row: Title on Left, Desc on Right */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-neutral-800/80 pb-4 flex-shrink-0">
-                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight max-w-[200px] flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-neutral-800/80 pb-4">
+                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight max-w-[200px]">
                   Get Started with Us
                 </h2>
-                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs max-w-[210px] leading-relaxed flex-shrink-0">
+                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs max-w-[210px] leading-relaxed">
                   Complete these easy steps to register your account.
                 </p>
               </div>
 
               {/* Active Cordova Area Badge */}
-              <div className="flex flex-shrink-0">
-                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide flex-shrink-0">
+              <div className="flex">
+                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
                   <span>CORDOVA AREA NETWORK ACTIVE</span>
                 </div>
               </div>
 
               {/* Stepper Cards */}
-              <div className="grid grid-cols-3 gap-3 flex-shrink-0">
+              <div className="grid grid-cols-3 gap-3">
                 {/* Card 1 */}
-                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border flex-shrink-0 ${step === 1
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 1
                   ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
                   : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
                   }`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step === 1
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 1
                     ? `${accentBg} text-white`
                     : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
                     }`}>
                     1
                   </div>
-                  <div className="mt-4 flex-shrink-0">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9] flex-shrink-0">Step 1</h4>
-                    <p className="text-xs font-bold mt-1.5 leading-snug flex-shrink-0">Sign Up</p>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 1</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug">Sign Up</p>
                   </div>
                 </div>
 
                 {/* Card 2 */}
-                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border flex-shrink-0 ${step === 2
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 2
                   ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
                   : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
                   }`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step === 2
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 2
                     ? `${accentBg} text-white`
                     : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
                     }`}>
                     2
                   </div>
-                  <div className="mt-4 flex-shrink-0">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9] flex-shrink-0">Step 2</h4>
-                    <p className="text-xs font-bold mt-1.5 leading-snug flex-shrink-0">Contact Info</p>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 2</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug">Contact Info</p>
                   </div>
                 </div>
 
                 {/* Card 3 */}
-                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border flex-shrink-0 ${step === 3
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 3
                   ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
                   : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
                   }`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step === 3
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 3
                     ? `${accentBg} text-white`
                     : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
                     }`}>
                     3
                   </div>
-                  <div className="mt-4 flex-shrink-0">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9] flex-shrink-0">Step 3</h4>
-                    <p className="text-xs font-bold mt-1.5 leading-snug flex-shrink-0">Profile Setup</p>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 3</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug">Profile Setup</p>
                   </div>
                 </div>
               </div>
@@ -554,12 +549,17 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
           </>
         )}
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-medium animate-in fade-in duration-150">
-            {error}
-          </div>
-        )}
+        {/* Error Message Slot (Height-Stabilized to prevent layout shifting) */}
+        <div className="h-14 mb-4 relative flex items-center justify-center flex-shrink-0">
+          {error ? (
+            <div className="absolute inset-0 p-3 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-medium flex items-center justify-center animate-in fade-in duration-150">
+              {error}
+            </div>
+          ) : (
+            // Spacer wrapper matching the exact same layout height
+            <div className="h-full w-full" />
+          )}
+        </div>
 
         {/* Success Message */}
         {successMsg && (
