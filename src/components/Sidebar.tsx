@@ -143,17 +143,17 @@ export default function Sidebar({
         key={item.id}
         onClick={() => handleTabClick(item.id)}
         className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl transition-all group relative ${isActive
-            ? `${theme.accent} ${theme.bgActive} border-l-4 ${theme.borderActive}`
-            : isDark
-              ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'
-              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
+          ? `${theme.accent} ${theme.bgActive} border-l-4 ${theme.borderActive}`
+          : isDark
+            ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'
+            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
           }`}
       >
         <Icon className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-105 ${isActive
-            ? ''
-            : isDark
-              ? 'text-neutral-500 group-hover:text-[#b4b0a9]'
-              : 'text-slate-400 group-hover:text-slate-500'
+          ? ''
+          : isDark
+            ? 'text-neutral-500 group-hover:text-[#b4b0a9]'
+            : 'text-slate-400 group-hover:text-slate-500'
           }`} />
 
         {(!isCollapsed || isMobileOpen) && (
@@ -175,8 +175,8 @@ export default function Sidebar({
         {/* Tooltip on Hover when Collapsed */}
         {isCollapsed && !isMobileOpen && (
           <div className={`absolute left-16 hidden group-hover:block text-xs py-1 px-2.5 rounded-lg border shadow-lg whitespace-nowrap z-50 ${isDark
-              ? 'bg-[#22211e] text-[#f2efe9] border-neutral-800/80'
-              : 'bg-slate-900 text-white border-slate-800'
+            ? 'bg-[#22211e] text-[#f2efe9] border-neutral-800/80'
+            : 'bg-slate-900 text-white border-slate-800'
             }`}>
             {item.label}
           </div>
@@ -187,8 +187,8 @@ export default function Sidebar({
 
   const sidebarContent = (
     <div className={`h-full flex flex-col justify-between py-5 px-3 select-none transition-colors duration-200 ${isDark
-        ? 'bg-[#1c1b18] border-r border-neutral-800/80 text-[#f2efe9]'
-        : 'bg-white border-r border-slate-200 text-slate-800'
+      ? 'bg-[#1c1b18] border-r border-neutral-800/80 text-[#f2efe9]'
+      : 'bg-white border-r border-slate-200 text-slate-800'
       }`}>
 
       {/* Brand & Workspace Role Switcher */}
@@ -211,8 +211,8 @@ export default function Sidebar({
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className={`hidden md:flex p-1.5 rounded-lg border transition-all ${isDark
-                  ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
+                ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'
+                : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
                 }`}
             >
               {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
@@ -224,8 +224,8 @@ export default function Sidebar({
             <button
               onClick={() => setIsMobileOpen(false)}
               className={`md:hidden p-1.5 rounded-lg border transition-all ${isDark
-                  ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
+                ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'
+                : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
                 }`}
             >
               <X className="w-4 h-4" />
@@ -243,12 +243,12 @@ export default function Sidebar({
                   <button
                     onClick={() => handleRoleChange('seeker')}
                     className={`w-full flex items-center px-3 py-2 rounded-xl text-xs font-semibold transition-all ${currentRole === 'seeker'
-                        ? isDark
-                          ? 'bg-[#1c1b18] text-orange-400 shadow-sm border border-neutral-800/40'
-                          : 'bg-white text-orange-600 shadow-sm border border-slate-100'
-                        : isDark
-                          ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
-                          : 'text-slate-500 hover:text-slate-800'
+                      ? isDark
+                        ? 'bg-[#1c1b18] text-orange-400 shadow-sm border border-neutral-800/40'
+                        : 'bg-white text-orange-600 shadow-sm border border-slate-100'
+                      : isDark
+                        ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
+                        : 'text-slate-500 hover:text-slate-800'
                       }`}
                   >
                     <Search className="w-3.5 h-3.5 mr-2" />
@@ -257,12 +257,12 @@ export default function Sidebar({
                   <button
                     onClick={() => handleRoleChange('provider')}
                     className={`w-full flex items-center px-3 py-2 rounded-xl text-xs font-semibold transition-all ${currentRole === 'provider'
-                        ? isDark
-                          ? 'bg-[#1c1b18] text-emerald-400 shadow-sm border border-neutral-800/40'
-                          : 'bg-white text-emerald-600 shadow-sm border border-slate-100'
-                        : isDark
-                          ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
-                          : 'text-slate-500 hover:text-slate-800'
+                      ? isDark
+                        ? 'bg-[#1c1b18] text-emerald-400 shadow-sm border border-neutral-800/40'
+                        : 'bg-white text-emerald-600 shadow-sm border border-slate-100'
+                      : isDark
+                        ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
+                        : 'text-slate-500 hover:text-slate-800'
                       }`}
                   >
                     <Briefcase className="w-3.5 h-3.5 mr-2" />
@@ -277,8 +277,8 @@ export default function Sidebar({
                 <button
                   onClick={() => handleRoleChange('seeker')}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${currentRole === 'seeker'
-                      ? isDark ? 'bg-[#1c1b18] text-orange-400 shadow-sm' : 'bg-white text-orange-600 shadow-sm'
-                      : isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-700'
+                    ? isDark ? 'bg-[#1c1b18] text-orange-400 shadow-sm' : 'bg-white text-orange-600 shadow-sm'
+                    : isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-700'
                     }`}
                   title="Switch to Seeker"
                 >
@@ -287,8 +287,8 @@ export default function Sidebar({
                 <button
                   onClick={() => handleRoleChange('provider')}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${currentRole === 'provider'
-                      ? isDark ? 'bg-[#1c1b18] text-emerald-400 shadow-sm' : 'bg-white text-emerald-600 shadow-sm'
-                      : isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-700'
+                    ? isDark ? 'bg-[#1c1b18] text-emerald-400 shadow-sm' : 'bg-white text-emerald-600 shadow-sm'
+                    : isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-700'
                     }`}
                   title="Switch to Provider"
                 >
@@ -334,8 +334,8 @@ export default function Sidebar({
               src={user.avatarUrl}
               alt="Avatar"
               className={`w-8 h-8 rounded-full object-cover border-2 ${currentRole === 'seeker'
-                  ? isDark ? 'border-orange-500/40' : 'border-orange-600/30'
-                  : isDark ? 'border-emerald-500/40' : 'border-emerald-600/30'
+                ? isDark ? 'border-orange-500/40' : 'border-orange-600/30'
+                : isDark ? 'border-emerald-500/40' : 'border-emerald-600/30'
                 }`}
             />
             <div className="min-w-0 flex-1">

@@ -73,6 +73,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMsg, setSuccessMsg] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -181,6 +182,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setError('');
+    setFieldErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleRoleSelect = (role: 'seeker' | 'provider') => {
@@ -193,15 +195,40 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
 
   const handleNextStep = () => {
     if (step === 1) {
-      if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
-        setError('Please fill in all account fields');
-        return;
+      const errors: Record<string, string> = {};
+      if (!formData.firstName.trim()) {
+        errors.firstName = 'First name is required';
       }
-      if (formData.password.length < 8) {
-        setError('Password must be at least 8 characters long');
+      if (!formData.lastName.trim()) {
+        errors.lastName = 'Last name is required';
+      }
+      if (!formData.email.trim()) {
+        errors.email = 'Email address is required';
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        errors.email = 'Invalid email format';
+      }
+      if (!formData.password) {
+        errors.password = 'Password is required';
+      } else if (formData.password.length < 8) {
+        errors.password = 'Must be at least 8 characters';
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
         return;
       }
     }
+    if (step === 2) {
+      const errors: Record<string, string> = {};
+      if (!formData.phone.trim()) {
+        errors.phone = 'Contact number is required';
+      }
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        return;
+      }
+    }
+    setFieldErrors({});
     setError('');
     setStep(prev => prev + 1);
   };
@@ -215,10 +242,14 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
     e.preventDefault();
 
     if (mode === 'forgot') {
-      if (!formData.email) {
-        setError('Please enter your email address');
+      if (!formData.email.trim()) {
+        setFieldErrors({ email: 'Email is required' });
+        return;
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        setFieldErrors({ email: 'Invalid email format' });
         return;
       }
+      setFieldErrors({});
       apiForgotPassword(formData.email)
         .then((res) => {
           if (res.success) {
@@ -236,13 +267,14 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
 
     if (mode === 'reset') {
       if (!formData.password) {
-        setError('Please enter a new password');
+        setFieldErrors({ password: 'Password is required' });
         return;
       }
       if (formData.password.length < 8) {
-        setError('Password must be at least 8 characters long');
+        setFieldErrors({ password: 'Must be at least 8 characters' });
         return;
       }
+      setFieldErrors({});
       apiResetPassword({ token: resetToken, password: formData.password })
         .then((res) => {
           if (res.success) {
@@ -264,10 +296,18 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
     }
 
     if (mode === 'login') {
-      if (!formData.email || !formData.password) {
-        setError('Please fill in email and password');
+      const errors: Record<string, string> = {};
+      if (!formData.email.trim()) {
+        errors.email = 'Email is required';
+      }
+      if (!formData.password) {
+        errors.password = 'Password is required';
+      }
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
         return;
       }
+      setFieldErrors({});
 
       apiLogin({ email: formData.email, password: formData.password })
         .then((res) => {
@@ -363,14 +403,14 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
   const accentBg = isGreen ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-orange-600 hover:bg-orange-500';
 
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#fbfaf7] dark:bg-[#191919] relative overflow-hidden font-sans select-none text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
+    <div className="h-screen w-full flex flex-col md:flex-row bg-[#fbfaf7] dark:bg-[#191919] relative overflow-hidden font-sans select-none text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
 
       {/* Decorative Blur Backgrounds - Pastel glows matching theme */}
       <div className={`absolute -top-40 -left-40 w-96 h-96 rounded-full opacity-15 dark:opacity-20 blur-3xl transition-all duration-700 ${isGreen ? 'bg-emerald-500/10 dark:bg-emerald-900/35' : 'bg-orange-500/10 dark:bg-orange-900/35'} pointer-events-none`} />
       <div className={`absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-15 dark:opacity-20 blur-3xl transition-all duration-700 ${isGreen ? 'bg-emerald-500/10 dark:bg-emerald-900/35' : 'bg-orange-500/10 dark:bg-orange-900/35'} pointer-events-none`} style={{ animationDelay: '-5s' }} />
 
       {/* Left Column: Brand & Horizontal Stepper Indicator */}
-      <div className="md:w-1/2 bg-slate-50/50 dark:bg-[#22211e]/40 p-8 sm:p-12 md:p-16 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-neutral-800/80 relative overflow-hidden min-h-[40vh] md:min-h-screen transition-colors duration-300">
+      <div className="md:w-1/2 bg-slate-50/50 dark:bg-[#22211e]/40 p-6 sm:p-10 md:p-12 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-neutral-800/80 relative overflow-hidden min-h-[40vh] md:h-screen transition-colors duration-300">
 
         {/* Subtle grid line overlays - black lines in light mode, white lines in dark mode */}
         <div className="absolute inset-0 bg-grid-pattern pointer-events-none"></div>
@@ -505,10 +545,10 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
       </div>
 
       {/* Right Column: Clean Dark Form Panel */}
-      <div className="md:w-1/2 p-8 sm:p-12 md:p-16 flex flex-col justify-center bg-[#fbfaf7] dark:bg-[#191919] relative min-h-[60vh] md:min-h-screen z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
+      <div className="md:w-1/2 p-4 sm:p-8 md:p-10 flex flex-col justify-center bg-[#fbfaf7] dark:bg-[#191919] relative h-full md:h-screen md:overflow-y-auto z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
 
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4">
           <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
             {mode === 'signup'
               ? 'Sign Up Account'
@@ -532,16 +572,39 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         {/* Social login buttons (Google Auth) */}
         {(mode === 'login' || (mode === 'signup' && step === 1)) && (
           <>
-            <div className="w-full mb-5 flex flex-col items-center">
-              <div id="google-signin-btn" className="w-full flex justify-center min-h-[40px]"></div>
-              {!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
-                <p className="text-[10px] text-center text-orange-500/80 mt-2 font-semibold">
-                  Google Client ID is missing. Add NEXT_PUBLIC_GOOGLE_CLIENT_ID to .env to activate Google OAuth.
-                </p>
+            <div className="w-full mb-3 flex flex-col items-center">
+              {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? (
+                <div id="google-signin-btn" className="w-full flex justify-center min-h-[40px]"></div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setError("Google Sign-In is not configured yet. Please define NEXT_PUBLIC_GOOGLE_CLIENT_ID in your environment variables.")}
+                  className="w-full max-w-[400px] min-h-[40px] flex items-center justify-center space-x-3 px-4 py-2 border border-slate-300 dark:border-neutral-800 rounded-xl bg-white dark:bg-[#22211e] hover:bg-slate-50 dark:hover:bg-[#2b2a26] text-slate-700 dark:text-[#f2efe9] text-xs font-semibold shadow-sm transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <path
+                      fill="#EA4335"
+                      d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.355 0 3.39 2.673 1.482 6.564l3.784 3.201z"
+                    />
+                    <path
+                      fill="#4285F4"
+                      d="M23.49 12.275c0-.818-.073-1.636-.218-2.433H12v4.613h6.448c-.278 1.472-1.11 2.718-2.355 3.554l3.664 2.84c2.146-1.98 3.382-4.89 3.382-8.574z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.266 14.235A7.172 7.172 0 0 1 4.909 12c0-.78.127-1.536.357-2.235L1.482 6.564A11.954 11.954 0 0 0 0 12c0 1.942.463 3.774 1.282 5.418l3.984-3.183z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 24c3.24 0 5.973-1.08 7.964-2.924l-3.664-2.84c-1.018.682-2.318 1.082-4.3 1.082-3.3 0-6.1-2.236-7.1-5.236L1.118 17.265C3.018 21.164 6.982 24 12 24z"
+                    />
+                  </svg>
+                  <span>Sign in with Google</span>
+                </button>
               )}
             </div>
 
-            <div className="relative flex py-1 items-center mb-5">
+            <div className="relative flex py-1 items-center mb-3">
               <div className="flex-grow border-t border-slate-200 dark:border-neutral-800/80"></div>
               <span className="flex-shrink mx-3 text-slate-400 dark:text-[#b4b0a9] text-[10px] font-bold tracking-widest uppercase">Or</span>
               <div className="flex-grow border-t border-slate-200 dark:border-neutral-800/80"></div>
@@ -550,9 +613,9 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         )}
 
         {/* Error Message Slot (Height-Stabilized to prevent layout shifting) */}
-        <div className="h-14 mb-4 relative flex items-center justify-center flex-shrink-0">
+        <div className="h-8 mb-2 relative flex items-center justify-center flex-shrink-0">
           {error ? (
-            <div className="absolute inset-0 p-3 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-medium flex items-center justify-center animate-in fade-in duration-150">
+            <div className="absolute inset-0 p-2 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-medium flex items-center justify-center animate-in fade-in duration-150">
               {error}
             </div>
           ) : (
@@ -569,53 +632,65 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
 
           {/* SIGN UP: STEP 1 */}
           {mode === 'signup' && step === 1 && (
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">First Name</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1">First Name</label>
                   <input
                     type="text"
                     name="firstName"
                     placeholder="eg. John"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                    required
+                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   />
+                  <div className="h-3.5 mt-0.5 flex items-center">
+                    {fieldErrors.firstName && (
+                      <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.firstName}</span>
+                    )}
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Last Name</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1">Last Name</label>
                   <input
                     type="text"
                     name="lastName"
                     placeholder="eg. Francisco"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                    required
+                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   />
+                  <div className="h-3.5 mt-0.5 flex items-center">
+                    {fieldErrors.lastName && (
+                      <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.lastName}</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Email</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1">Email</label>
                 <input
                   type="email"
                   name="email"
                   placeholder="eg. johnfrans@gmail.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                  required
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                 />
+                <div className="h-3.5 mt-0.5 flex items-center">
+                  {fieldErrors.email && (
+                    <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.email}</span>
+                  )}
+                </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Password</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -623,8 +698,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                    required
+                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   />
                   <button
                     type="button"
@@ -634,7 +708,13 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <span className="block text-[10px] text-slate-400 dark:text-[#b4b0a9] mt-1.5">Must be at least 8 characters.</span>
+                <div className="h-3.5 mt-0.5 flex items-center">
+                  {fieldErrors.password ? (
+                    <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.password}</span>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 dark:text-[#b4b0a9] leading-none">Must be at least 8 characters.</span>
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -651,8 +731,12 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                  required
                 />
+                <div className="h-4 mt-1 flex items-center">
+                  {fieldErrors.phone && (
+                    <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.phone}</span>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -662,7 +746,6 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   value={formData.location}
                   onChange={handleInputChange}
                   className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                  required
                 >
                   <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
                   <option value="San Miguel, Cordova">San Miguel</option>
@@ -676,6 +759,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   <option value="Dapitan, Cordova">Dapitan</option>
                   <option value="Day-as, Cordova">Day-as</option>
                 </select>
+                <div className="h-4 mt-1" />
               </div>
             </div>
           )}
@@ -733,8 +817,12 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                  required
                 />
+                <div className="h-4 mt-1 flex items-center">
+                  {fieldErrors.email && (
+                    <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.email}</span>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -756,7 +844,6 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                     value={formData.password}
                     onChange={handleInputChange}
                     className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                    required
                   />
                   <button
                     type="button"
@@ -765,6 +852,11 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
+                </div>
+                <div className="h-4 mt-1 flex items-center">
+                  {fieldErrors.password && (
+                    <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.password}</span>
+                  )}
                 </div>
               </div>
             </>
@@ -781,8 +873,12 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                 value={formData.email}
                 onChange={handleInputChange}
                 className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                required
               />
+              <div className="h-4 mt-1 flex items-center">
+                {fieldErrors.email && (
+                  <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.email}</span>
+                )}
+              </div>
             </div>
           )}
 
@@ -798,7 +894,6 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   value={formData.password}
                   onChange={handleInputChange}
                   className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
-                  required
                 />
                 <button
                   type="button"
@@ -807,6 +902,11 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
+              </div>
+              <div className="h-4 mt-1 flex items-center">
+                {fieldErrors.password && (
+                  <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">{fieldErrors.password}</span>
+                )}
               </div>
             </div>
           )}

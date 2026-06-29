@@ -33,11 +33,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] dark:bg-[#191919]">
-      <LoginSignup 
+    <div className="h-screen w-screen overflow-hidden bg-[#fbfaf7] dark:bg-[#191919]">
+      <LoginSignup
         initialMode="login"
-        onLoginSuccess={handleLoginSuccess} 
-        onBackToHome={handleBackToHome} 
+        onLoginSuccess={handleLoginSuccess}
+        onBackToHome={handleBackToHome}
       />
     </div>
   );

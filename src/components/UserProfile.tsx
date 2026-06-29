@@ -34,13 +34,12 @@ export default function UserProfile({ targetUser }: { targetUser: UserSession })
         <img
           src={targetUser.avatarUrl}
           alt="Avatar"
-          className={`w-24 h-24 rounded-full object-cover border-4 ${
-            targetUser.role === 'seeker' 
-              ? 'border-orange-500' 
-              : targetUser.role === 'admin' 
-                ? 'border-blue-500' 
+          className={`w-24 h-24 rounded-full object-cover border-4 ${targetUser.role === 'seeker'
+              ? 'border-orange-500'
+              : targetUser.role === 'admin'
+                ? 'border-blue-500'
                 : 'border-emerald-500'
-          }`}
+            }`}
         />
         <div className="text-center sm:text-left flex-1 min-w-0">
           <h2 className="text-2xl font-bold truncate">{targetUser.firstName} {targetUser.lastName}</h2>

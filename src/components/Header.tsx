@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  Bell, 
-  Search, 
-  Settings, 
-  LogOut, 
-  User, 
+import {
+  Bell,
+  Search,
+  Settings,
+  LogOut,
+  User,
   Menu,
   ChevronDown,
   Sparkles,
@@ -28,11 +28,11 @@ interface HeaderProps {
   onViewProfile?: (user: UserSession) => void;
 }
 
-export default function Header({ 
-  currentRole, 
-  activeTab, 
+export default function Header({
+  currentRole,
+  activeTab,
   setActiveTab,
-  setIsMobileOpen, 
+  setIsMobileOpen,
   user,
   onSignOut,
   onViewProfile
@@ -84,7 +84,7 @@ export default function Header({
     if (tabId === 'incoming-offers') return 'Service Requests';
     if (tabId === 'provider-activity' || tabId === 'seeker-activity') return 'Activity Tracker';
     if (tabId === 'transaction-history') return 'Transaction History';
-    
+
     return tabId
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -117,26 +117,23 @@ export default function Header({
   };
 
   return (
-    <header className={`sticky top-0 right-0 z-30 w-full h-16 backdrop-blur-md border-b flex items-center justify-between px-4 sm:px-6 select-none transition-all duration-200 ${
-      isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
-    }`}>
-      
+    <header className={`sticky top-0 right-0 z-30 w-full h-16 backdrop-blur-md border-b flex items-center justify-between px-4 sm:px-6 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
+      }`}>
+
       {/* Left side: Hamburger (Mobile) & Workspace Indicator badge */}
       <div className="flex items-center space-x-4">
-        <button 
+        <button
           onClick={() => setIsMobileOpen(true)}
-          className={`md:hidden p-1.5 rounded-lg border transition-colors ${
-            isDark ? 'border-neutral-800 bg-[#22211e] text-[#b4b0a9] hover:text-white' : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
-          }`}
+          className={`md:hidden p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 bg-[#22211e] text-[#b4b0a9] hover:text-white' : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
+            }`}
         >
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center space-x-3">
-          <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border uppercase tracking-wider ${
-            isDark 
+          <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border uppercase tracking-wider ${isDark
               ? (currentRole === 'seeker' ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
               : theme.badgeBg
-          }`}>
+            }`}>
             {currentRole} Workspace
           </span>
           <span className="text-slate-300 hidden sm:inline-block">/</span>
@@ -151,44 +148,41 @@ export default function Header({
         <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#b4b0a9]">
           <Search className="w-3.5 h-3.5" />
         </span>
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder="Search users..."
-          className={`w-full border rounded-xl pl-9 pr-4 py-1.5 text-xs transition-all ${
-            isDark 
-              ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 focus:ring-amber-500/30 focus:border-amber-500/50' 
+          className={`w-full border rounded-xl pl-9 pr-4 py-1.5 text-xs transition-all ${isDark
+              ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 focus:ring-amber-500/30 focus:border-amber-500/50'
               : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${theme.ring}`
-          }`}
+            }`}
         />
       </div>
 
       {/* Right side: Notifications & Profile Avatar dropdowns */}
       <div className="flex items-center space-x-3 sm:space-x-4">
-        
+
         {/* Global Hub Indicator */}
         {activeTab !== 'community-hub' && (
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => setActiveTab('community-hub')}
-            className={`hidden lg:flex items-center space-x-1.5 px-3 py-1.5 border text-xs font-semibold rounded-xl transition-all ${
-              isDark 
-                ? 'border-neutral-800 hover:bg-[#22211e] text-[#f2efe9]' 
+            className={`hidden lg:flex items-center space-x-1.5 px-3 py-1.5 border text-xs font-semibold rounded-xl transition-all ${isDark
+                ? 'border-neutral-800 hover:bg-[#22211e] text-[#f2efe9]'
                 : 'border-slate-200 hover:bg-slate-50 text-slate-600'
-            }`}
+              }`}
           >
             <span>Community Hub</span>
           </button>
         )}
 
         {/* Global Messages Button */}
-        <button 
+        <button
           type="button"
           onClick={() => setActiveTab('messages')}
-          className={`p-2 rounded-xl border transition-all relative ${
-            isDark 
-              ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]' 
+          className={`p-2 rounded-xl border transition-all relative ${isDark
+              ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
               : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
-          } ${activeTab === 'messages' ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
+            } ${activeTab === 'messages' ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
           title="Messages"
         >
           <MessageSquare className="w-4 h-4" />
@@ -198,14 +192,13 @@ export default function Header({
         </button>
 
         {/* Global Theme Toggle Button */}
-        <button 
+        <button
           type="button"
           onClick={toggleTheme}
-          className={`p-2 rounded-xl border transition-all ${
-            isDark 
-              ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-amber-400' 
+          className={`p-2 rounded-xl border transition-all ${isDark
+              ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-amber-400'
               : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
-          }`}
+            }`}
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -213,13 +206,12 @@ export default function Header({
 
         {/* Notification Bell Dropdown */}
         <div className="relative">
-          <button 
+          <button
             onClick={handleToggleNotifications}
-            className={`p-2 rounded-xl border transition-all relative ${
-              isDark 
-                ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]' 
+            className={`p-2 rounded-xl border transition-all relative ${isDark
+                ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
                 : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-650 hover:text-slate-800'
-            } ${showNotifications ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
+              } ${showNotifications ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
@@ -231,10 +223,9 @@ export default function Header({
           {showNotifications && (
             <>
               <div onClick={() => setShowNotifications(false)} className="fixed inset-0 z-30" />
-              
-              <div className={`absolute right-0 mt-3 w-85 sm:w-96 rounded-[20px] border shadow-xl overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-155 ${
-                isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-              }`}>
+
+              <div className={`absolute right-0 mt-3 w-85 sm:w-96 rounded-[20px] border shadow-xl overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-155 ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+                }`}>
                 <div className={`p-4 border-b flex justify-between items-center ${isDark ? 'border-neutral-800 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'}`}>
                   <span className="font-bold text-xs">Notifications</span>
                   <span className="text-[10px] text-slate-400 font-semibold">{userNotifications.length} alerts</span>
@@ -267,7 +258,7 @@ export default function Header({
                     })
                   )}
                 </div>
-                
+
                 <div className={`p-2.5 border-t text-center ${isDark ? 'border-neutral-800 bg-[#1c1b18]/25' : 'border-slate-100 bg-slate-50/20'}`}>
                   <button onClick={() => setShowNotifications(false)} className="text-[10px] font-bold text-slate-400 hover:text-slate-800 transition-colors">
                     Close Notifications
@@ -281,21 +272,19 @@ export default function Header({
         {/* User Profile Avatar Dropdown */}
         {user && (
           <div className="relative">
-            <button 
+            <button
               onClick={() => {
                 setShowProfileMenu(!showProfileMenu);
                 setShowNotifications(false);
               }}
-              className={`flex items-center space-x-2 p-1 rounded-xl border border-transparent ${theme.borderHover} transition-all ${
-                showProfileMenu ? (isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-slate-50 border-slate-200') : ''
-              }`}
-            >
-              <img 
-                src={user.avatarUrl} 
-                alt="Profile Avatar" 
-                className={`w-7 h-7 rounded-full object-cover border ${
-                  currentRole === 'seeker' ? 'border-orange-500/30' : 'border-emerald-600/30'
+              className={`flex items-center space-x-2 p-1 rounded-xl border border-transparent ${theme.borderHover} transition-all ${showProfileMenu ? (isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-slate-50 border-slate-200') : ''
                 }`}
+            >
+              <img
+                src={user.avatarUrl}
+                alt="Profile Avatar"
+                className={`w-7 h-7 rounded-full object-cover border ${currentRole === 'seeker' ? 'border-orange-500/30' : 'border-emerald-600/30'
+                  }`}
               />
               <span className={`hidden sm:inline-block text-xs font-bold truncate max-w-[80px] ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>
                 {user.firstName}
@@ -307,10 +296,9 @@ export default function Header({
             {showProfileMenu && (
               <>
                 <div onClick={() => setShowProfileMenu(false)} className="fixed inset-0 z-30" />
-                
-                <div className={`absolute right-0 mt-3 w-52 rounded-[20px] border shadow-xl overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-155 ${
-                  isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200'
-                }`}>
+
+                <div className={`absolute right-0 mt-3 w-52 rounded-[20px] border shadow-xl overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-155 ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200'
+                  }`}>
                   <div className={`p-4 border-b ${isDark ? 'border-neutral-800 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/45'}`}>
                     <p className="text-[10px] text-slate-400 font-semibold">Signed in as</p>
                     <p className="text-xs font-bold truncate mt-0.5">{user.firstName} {user.lastName}</p>
@@ -320,27 +308,25 @@ export default function Header({
                   </div>
 
                   <div className="py-1">
-                    <button 
+                    <button
                       onClick={() => {
                         setShowProfileMenu(false);
                         if (onViewProfile) onViewProfile(user);
                       }}
-                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${
-                        isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                      }`}
+                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        }`}
                     >
                       <User className="w-3.5 h-3.5 mr-2.5 text-slate-400" />
                       View Profile
                     </button>
-                    
-                    <button 
+
+                    <button
                       onClick={() => {
                         setShowProfileMenu(false);
                         alert('Account Settings will be configured in Phase 6.');
                       }}
-                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${
-                        isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                      }`}
+                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        }`}
                     >
                       <Settings className="w-3.5 h-3.5 mr-2.5 text-slate-400" />
                       Account Settings
@@ -348,7 +334,7 @@ export default function Header({
                   </div>
 
                   <div className={`border-t py-1 ${isDark ? 'border-neutral-800 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/40'}`}>
-                    <button 
+                    <button
                       onClick={onSignOut}
                       className="w-full flex items-center px-4 py-2 text-xs font-bold text-red-655 hover:text-red-550 hover:bg-red-950/20 transition-colors"
                     >

@@ -33,11 +33,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfaf7] dark:bg-[#191919]">
-      <LoginSignup 
+    <div className="h-screen w-screen overflow-hidden bg-[#fbfaf7] dark:bg-[#191919]">
+      <LoginSignup
         initialMode="signup"
-        onLoginSuccess={handleLoginSuccess} 
-        onBackToHome={handleBackToHome} 
+        onLoginSuccess={handleLoginSuccess}
+        onBackToHome={handleBackToHome}
       />
     </div>
   );
