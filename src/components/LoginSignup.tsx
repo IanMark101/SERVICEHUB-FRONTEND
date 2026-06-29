@@ -197,6 +197,11 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         setError('Please fill in all account fields');
         return;
       }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError('Please enter a valid email address');
+        return;
+      }
       if (formData.password.length < 8) {
         setError('Password must be at least 8 characters long');
         return;
@@ -376,7 +381,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         <div className="absolute inset-0 bg-grid-pattern pointer-events-none"></div>
 
         {/* Branding Logo & Theme switchers */}
-        <div className="relative z-10 flex items-center justify-between">
+        <div className="relative z-10 flex items-center justify-between flex-shrink-0">
           <button
             type="button"
             onClick={onBackToHome}
@@ -404,17 +409,90 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
         </div>
 
         {/* Bottom branding and steps container aligned horizontally */}
-        <div className="mt-12 md:mt-auto space-y-8 relative z-10">
+        <div className="mt-12 md:mt-auto space-y-8 relative z-10 flex-shrink-0">
 
           {mode === 'signup' ? (
             <>
               {/* Horizontal Header Row: Title on Left, Desc on Right */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-neutral-800/80 pb-4">
-                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight max-w-[200px]">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-neutral-800/80 pb-4 flex-shrink-0">
+                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight max-w-[200px] flex-shrink-0">
                   Get Started with Us
                 </h2>
-                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs max-w-[210px] leading-relaxed">
+                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs max-w-[210px] leading-relaxed flex-shrink-0">
                   Complete these easy steps to register your account.
+                </p>
+              </div>
+
+              {/* Active Cordova Area Badge */}
+              <div className="flex flex-shrink-0">
+                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide flex-shrink-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                  <span>CORDOVA AREA NETWORK ACTIVE</span>
+                </div>
+              </div>
+
+              {/* Stepper Cards */}
+              <div className="grid grid-cols-3 gap-3 flex-shrink-0">
+                {/* Card 1 */}
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border flex-shrink-0 ${step === 1
+                  ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
+                  : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
+                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step === 1
+                    ? `${accentBg} text-white`
+                    : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
+                    }`}>
+                    1
+                  </div>
+                  <div className="mt-4 flex-shrink-0">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9] flex-shrink-0">Step 1</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug flex-shrink-0">Sign Up</p>
+                  </div>
+                </div>
+
+                {/* Card 2 */}
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border flex-shrink-0 ${step === 2
+                  ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
+                  : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
+                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step === 2
+                    ? `${accentBg} text-white`
+                    : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
+                    }`}>
+                    2
+                  </div>
+                  <div className="mt-4 flex-shrink-0">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9] flex-shrink-0">Step 2</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug flex-shrink-0">Contact Info</p>
+                  </div>
+                </div>
+
+                {/* Card 3 */}
+                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border flex-shrink-0 ${step === 3
+                  ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
+                  : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
+                  }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${step === 3
+                    ? `${accentBg} text-white`
+                    : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
+                    }`}>
+                    3
+                  </div>
+                  <div className="mt-4 flex-shrink-0">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9] flex-shrink-0">Step 3</h4>
+                    <p className="text-xs font-bold mt-1.5 leading-snug flex-shrink-0">Profile Setup</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h2 className="text-4xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight">
+                  Welcome Back!
+                </h2>
+                <p className="text-slate-500 dark:text-[#b4b0a9] text-sm leading-relaxed max-w-sm">
+                  Find or offer local services with verified, trusted Cordova residents. Connect with skilled providers, coordinate jobs in real-time, and manage secure transactions.
                 </p>
               </div>
 
@@ -425,98 +503,18 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   <span>CORDOVA AREA NETWORK ACTIVE</span>
                 </div>
               </div>
-
-              {/* Stepper Cards */}
-              <div className="grid grid-cols-3 gap-3">
-                {/* Card 1 */}
-                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 1
-                    ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
-                    : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
-                  }`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 1
-                      ? `${accentBg} text-white`
-                      : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
-                    }`}>
-                    1
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 1</h4>
-                    <p className="text-xs font-bold mt-1.5 leading-snug">Sign Up</p>
-                  </div>
-                </div>
-
-                {/* Card 2 */}
-                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 2
-                    ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
-                    : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
-                  }`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 2
-                      ? `${accentBg} text-white`
-                      : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
-                    }`}>
-                    2
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 2</h4>
-                    <p className="text-xs font-bold mt-1.5 leading-snug">Contact Info</p>
-                  </div>
-                </div>
-
-                {/* Card 3 */}
-                <div className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${step === 3
-                    ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
-                    : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
-                  }`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${step === 3
-                      ? `${accentBg} text-white`
-                      : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
-                    }`}>
-                    3
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">Step 3</h4>
-                    <p className="text-xs font-bold mt-1.5 leading-snug">Profile Setup</p>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="space-y-6 bg-white/10 dark:bg-white/5 backdrop-blur-md border border-slate-200/20 dark:border-white/10 p-6 sm:p-8 rounded-3xl shadow-xl">
-              <div className="space-y-2.5">
-                <h2 className="text-4xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight">
-                  Welcome Back!
-                </h2>
-                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs leading-relaxed">
-                  Find or offer local services with verified, trusted Cordova residents. Connect with skilled providers, coordinate jobs in real-time, and manage secure transactions.
-                </p>
-              </div>
-
-              {/* Active Cordova Area Badge */}
-              <div className="flex">
-                <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                  <span>CORDOVA AREA NETWORK ACTIVE</span>
-                </div>
-              </div>
             </div>
           )}
 
         </div>
       </div>
 
-      {/* Right Column: Clean Premium Dark Form Panel */}
-      <div className="md:w-1/2 p-4 sm:p-8 md:p-12 flex flex-col justify-center bg-[#fbfaf7] dark:bg-[#191919] relative min-h-[60vh] md:min-h-screen z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
+      {/* Right Column: Clean Dark Form Panel */}
+      <div className="md:w-1/2 p-8 sm:p-12 md:p-16 flex flex-col justify-center bg-[#fbfaf7] dark:bg-[#191919] relative min-h-[60vh] md:min-h-screen z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
 
-        {/* Ambient background glows for the right panel */}
-        <div className={`absolute top-1/4 right-10 w-80 h-80 rounded-full opacity-20 dark:opacity-30 blur-3xl transition-all duration-700 ${isGreen ? 'bg-emerald-500/10 dark:bg-emerald-900/30' : 'bg-orange-500/10 dark:bg-orange-950/20'} pointer-events-none`} style={{ animationDelay: '-2s' }} />
-        <div className={`absolute bottom-1/4 left-10 w-72 h-72 rounded-full opacity-15 dark:opacity-20 blur-3xl transition-all duration-700 ${isGreen ? 'bg-emerald-500/10 dark:bg-emerald-900/30' : 'bg-orange-500/10 dark:bg-orange-950/20'} pointer-events-none`} style={{ animationDelay: '-6s' }} />
-
-        {/* Glassmorphic card container for the form */}
-        <div className="w-full max-w-md mx-auto p-6 sm:p-8 md:p-10 rounded-3xl bg-white/40 dark:bg-[#22211e]/30 backdrop-blur-xl border border-slate-200/50 dark:border-neutral-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.35)] relative z-10 select-text">
-
-          {/* Header */}
-          <div className="mb-6">
-            <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
+        {/* Header */}
+        <div className="mb-6">
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
             {mode === 'signup'
               ? 'Sign Up Account'
               : mode === 'forgot'
@@ -542,15 +540,9 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
             <div className="w-full mb-5 flex flex-col items-center">
               <div id="google-signin-btn" className="w-full flex justify-center min-h-[40px]"></div>
               {!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
-                <div className="w-full mt-3 p-3 bg-amber-500/5 dark:bg-amber-500/5 border border-dashed border-amber-500/25 rounded-2xl flex items-center space-x-2.5 text-left transition-all duration-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-550 dark:bg-amber-500 animate-ping flex-shrink-0" />
-                  <div className="space-y-0.5">
-                    <p className="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-none">Google Integration Pending</p>
-                    <p className="text-[9px] text-amber-650 dark:text-amber-500/80 leading-normal">
-                      Provide <code>NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> in env to activate native Google OAuth.
-                    </p>
-                  </div>
-                </div>
+                <p className="text-[10px] text-center text-orange-500/80 mt-2 font-semibold">
+                  Google Client ID is missing. Add NEXT_PUBLIC_GOOGLE_CLIENT_ID to .env to activate Google OAuth.
+                </p>
               )}
             </div>
 
@@ -584,46 +576,46 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">First Name</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">First Name</label>
                   <input
                     type="text"
                     name="firstName"
                     placeholder="eg. John"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Last Name</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Last Name</label>
                   <input
                     type="text"
                     name="lastName"
                     placeholder="eg. Francisco"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Email</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Email</label>
                 <input
                   type="email"
                   name="email"
                   placeholder="eg. johnfrans@gmail.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Password</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -631,7 +623,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                     required
                   />
                   <button
@@ -651,25 +643,25 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
           {mode === 'signup' && step === 2 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Contact Number</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Contact Number</label>
                 <input
                   type="tel"
                   name="phone"
                   placeholder="eg. +63 917 123 4567"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Cordova Barangay / Location</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Cordova Barangay / Location</label>
                 <select
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   required
                 >
                   <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
@@ -716,14 +708,14 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Short Bio</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Short Bio</label>
                 <textarea
                   name="bio"
                   rows={3}
                   placeholder="Tell the community about yourself..."
                   value={formData.bio}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 resize-none transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 resize-none transition-all"
                 />
               </div>
             </div>
@@ -733,21 +725,21 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
           {mode === 'login' && (
             <>
               <div>
-                <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Email</label>
+                <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Email</label>
                 <input
                   type="email"
                   name="email"
                   placeholder="eg. alexmercer@gmail.com"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   required
                 />
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Password</label>
+                  <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide">Password</label>
                   <button
                     type="button"
                     onClick={() => { setError(''); setSuccessMsg(''); setMode('forgot'); }}
@@ -763,7 +755,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                    className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                     required
                   />
                   <button
@@ -781,14 +773,14 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
           {/* FORGOT PASSWORD FORM */}
           {mode === 'forgot' && (
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">Email</label>
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">Email</label>
               <input
                 type="email"
                 name="email"
                 placeholder="eg. alexmercer@gmail.com"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                 required
               />
             </div>
@@ -797,7 +789,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
           {/* RESET PASSWORD FORM */}
           {mode === 'reset' && (
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-400 dark:text-[#b4b0a9] uppercase tracking-widest mb-1.5">New Password</label>
+              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">New Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -805,7 +797,7 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                   placeholder="Enter your new password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full bg-slate-50/50 dark:bg-[#1a1916]/80 border border-slate-200 dark:border-neutral-850 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-white dark:focus:bg-[#22211e] focus:outline-none focus:ring-4 focus:ring-orange-500/15 focus:border-orange-500 hover:border-slate-300 dark:hover:border-neutral-800 transition-all duration-300 hover:scale-[1.005] focus:scale-[1.01]"
+                  className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl pl-4 pr-10 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all"
                   required
                 />
                 <button
@@ -832,10 +824,10 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
               </button>
             )}
 
-             <button
+            <button
               type="submit"
               onClick={mode === 'signup' && step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-              className={`flex-grow bg-gradient-to-r ${isGreen ? 'from-emerald-600 via-teal-600 to-emerald-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'from-orange-600 via-amber-600 to-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]'} text-white font-extrabold rounded-xl py-3 text-xs tracking-wider transition-all hover:scale-[1.02] active:scale-95 shadow-md hover:shadow-lg hover:opacity-95 cursor-pointer`}
+              className={`flex-grow ${accentBg} hover:opacity-95 text-white font-extrabold rounded-xl py-3 text-xs tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer`}
             >
               {mode === 'login'
                 ? 'Sign In'
@@ -876,7 +868,6 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
           )}
         </div>
       </div>
-    </div>
 
     </div>
   );
