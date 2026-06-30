@@ -448,12 +448,12 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
 
           {mode === 'signup' ? (
             <>
-              {/* Horizontal Header Row: Title on Left, Desc on Right */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-neutral-800/80 pb-4">
-                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight max-w-[200px]">
+              {/* Vertical Header Row */}
+              <div className="space-y-2 border-b border-slate-200 dark:border-neutral-800/80 pb-4">
+                <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight">
                   Get Started with Us
                 </h2>
-                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs max-w-[210px] leading-relaxed">
+                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs leading-relaxed max-w-sm">
                   Complete these easy steps to register your account.
                 </p>
               </div>
@@ -526,8 +526,8 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                 <h2 className="text-4xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight">
                   Welcome Back!
                 </h2>
-                <p className="text-slate-500 dark:text-[#b4b0a9] text-sm leading-relaxed max-w-sm">
-                  Find or offer local services with verified, trusted Cordova residents. Connect with skilled providers, coordinate jobs in real-time, and manage secure transactions.
+                <p className="text-slate-500 dark:text-[#b4b0a9] text-xs leading-relaxed max-w-sm">
+                  Connect with skilled local providers, coordinate service jobs in real-time, and manage secure transactions.
                 </p>
               </div>
 
@@ -536,6 +536,35 @@ export default function LoginSignup({ initialMode, onLoginSuccess, onBackToHome 
                 <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
                   <span>CORDOVA AREA NETWORK ACTIVE</span>
+                </div>
+              </div>
+
+              {/* Styled Welcome Option Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-4">
+                {/* Find Help Today Card */}
+                <div className="p-4 rounded-2xl flex flex-col justify-between min-h-[125px] transition-all duration-300 border bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] border-slate-200 dark:border-neutral-800 hover:border-orange-500/40 hover:scale-[1.01] shadow-sm">
+                  <div className="w-7 h-7 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold text-xs">
+                    🔍
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-orange-600 dark:text-orange-500">Find Help Today</h4>
+                    <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                      Post job requests and hire skilled Cordova locals.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Offer Skills Today Card */}
+                <div className="p-4 rounded-2xl flex flex-col justify-between min-h-[125px] transition-all duration-300 border bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] border-slate-200 dark:border-neutral-800 hover:border-emerald-500/40 hover:scale-[1.01] shadow-sm">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xs">
+                    🛠️
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-emerald-600 dark:text-emerald-400">Offer Skills Today</h4>
+                    <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                      Publish services, submit bids, and grow earnings.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
