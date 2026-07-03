@@ -81,7 +81,7 @@ export default function LoginForm({
             <button
               type="button"
               onClick={() => setMode('forgot')}
-              className={`text-[10px] ${accentText} font-bold hover:underline cursor-pointer focus:outline-none`}
+              className="text-xs font-bold text-[#FF5A1F] hover:text-orange-400 transition-colors focus:outline-none cursor-pointer"
             >
               Forgot password?
             </button>
@@ -109,7 +109,7 @@ export default function LoginForm({
         <div className="pt-2">
           <button
             type="submit"
-            className="w-full bg-orange-600 hover:bg-orange-500 dark:bg-orange-600 dark:hover:bg-orange-500 text-white font-extrabold rounded-xl py-3 text-xs tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+            className="w-full py-4 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FF5A1F]/25 transition-all mt-4 cursor-pointer"
           >
             Sign In
           </button>
@@ -117,14 +117,14 @@ export default function LoginForm({
       </form>
 
       {/* Footer Switcher */}
-      <div className="text-center text-xs pt-4 border-t border-slate-100 dark:border-neutral-800/40">
+      <div className="text-center text-sm mt-8 pt-4 border-t border-slate-100 dark:border-neutral-800/40">
         <span className="text-slate-550 dark:text-[#b4b0a9] font-medium">
           Don't have an account?
         </span>
         <button
           type="button"
           onClick={toggleMode}
-          className={`font-bold ${accentText} hover:underline ml-1 cursor-pointer focus:outline-none`}
+          className="font-bold text-[#FF5A1F] hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
         >
           Register here
         </button>

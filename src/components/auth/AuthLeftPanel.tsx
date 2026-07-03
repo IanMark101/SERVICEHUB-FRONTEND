@@ -17,157 +17,126 @@ export default function AuthLeftPanel({
 }: AuthLeftPanelProps) {
   const { isDark, toggleTheme } = useApp();
 
-  const isGreen = accentBg.includes('emerald');
-
   return (
-    <div className="md:w-1/2 bg-slate-50/50 dark:bg-[#1c1b18]/40 p-6 sm:p-10 md:p-12 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 dark:border-neutral-800/80 relative overflow-hidden min-h-[40vh] md:h-screen transition-colors duration-300 select-none">
+    <div className="hidden lg:flex w-1/2 relative bg-[#faf8f5] dark:bg-[#0f1115] flex-col justify-between p-12 overflow-hidden border-r border-slate-200 dark:border-slate-800 select-none transition-colors duration-300">
       
-      {/* Self-contained CSS styles for static dot grid background and transitions */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .dot-grid {
-          background-image: radial-gradient(${isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'} 1.5px, transparent 1.5px);
-          background-size: 24px 24px;
-        }
-      `}} />
+      {/* Subtle Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
+      
+      {/* Glowing Orb */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-orange-500/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
-      {/* Grid Pattern Background */}
-      <div className="absolute inset-0 dot-grid pointer-events-none z-0" />
-
-      {/* Branding Logo & Theme switchers */}
-      <div className="relative z-10 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBackToHome}
-          className="flex items-center space-x-2 group hover:opacity-90 transition-all focus:outline-none cursor-pointer"
-          title="Back to Landing Page"
-        >
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 dark:bg-neutral-800/80 border border-slate-200 dark:border-neutral-700/60 text-slate-500 dark:text-[#b4b0a9] group-hover:bg-slate-200 dark:group-hover:bg-[#22211e] group-hover:shadow-sm transition-all">
-            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+      {/* Header Bar */}
+      <div className="relative z-10 flex items-center justify-between w-full">
+        <div className="flex items-center gap-5">
+          <button
+            onClick={onBackToHome}
+            className="w-10 h-10 rounded-xl bg-slate-200/40 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700 flex items-center justify-center hover:bg-slate-350/60 dark:hover:bg-slate-700 transition-all text-slate-650 dark:text-slate-300 backdrop-blur-sm focus:outline-none cursor-pointer"
+            title="Back to Landing Page"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#FF5A1F] flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
+              S
+            </div>
+            <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-white">
+              ServiceHub Cordova
+            </span>
           </div>
-          <div className={`p-1.5 rounded-lg ${accentBg} text-white flex items-center justify-center font-extrabold text-base shadow-sm transition-colors w-9 h-9`}>
-            S
-          </div>
-          <span className="font-extrabold text-lg tracking-tight text-slate-900 dark:text-[#f2efe9]">
-            ServiceHub Cordova
-          </span>
-        </button>
+        </div>
 
-        {/* Theme Toggle Button */}
+        {/* Theme Toggle */}
         <button
-          type="button"
           onClick={toggleTheme}
-          className="p-2 h-9 w-9 rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer bg-white dark:bg-[#22211e] border-slate-200 dark:border-neutral-800/80 text-slate-500 dark:text-amber-500 hover:text-slate-800 dark:hover:text-amber-400 shadow-sm"
+          className="w-10 h-10 rounded-xl bg-slate-200/40 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700 flex items-center justify-center hover:bg-slate-350/60 dark:hover:bg-slate-700 transition-all text-slate-550 dark:text-slate-400 backdrop-blur-sm focus:outline-none cursor-pointer"
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
       </div>
 
-      {/* Main Left Content Container */}
-      <div className="mt-12 md:mt-auto space-y-8 relative z-10">
+      {/* Main Left Marketing/Stepper Content */}
+      <div className="relative z-10 w-full max-w-xl mt-16">
+        <div className="flex justify-between items-end mb-8">
+          <h1 className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+            {mode === 'signup' ? (
+              <>Get Started<br/>with Us</>
+            ) : (
+              <>Welcome<br/>Back!</>
+            )}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-[200px] leading-relaxed mb-2">
+            {mode === 'signup' 
+              ? 'Complete these easy steps to register your account.'
+              : 'Connect with skilled providers and coordinate service jobs.'}
+          </p>
+        </div>
+        
+        {/* Cordova area network badge */}
+        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-full w-max text-xs font-bold tracking-widest uppercase mb-12 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Cordova Area Network Active
+        </div>
+
         {mode === 'signup' ? (
-          <>
-            {/* SIGNUP MODE: Classic Stepper */}
-            <div className="space-y-2 border-b border-slate-200 dark:border-neutral-800/80 pb-4">
-              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight">
-                Get Started with Us
-              </h2>
-              <p className="text-slate-500 dark:text-[#b4b0a9] text-xs leading-relaxed max-w-sm">
-                Complete these easy steps to register your account.
-              </p>
-            </div>
-
-            <div className="flex">
-              <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                <span>CORDOVA AREA NETWORK ACTIVE</span>
-              </div>
-            </div>
-
-            {/* Stepper Cards */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { s: 1, label: 'Sign Up' },
-                { s: 2, label: 'Contact Info' },
-                { s: 3, label: 'Profile Setup' },
-              ].map((item) => (
-                <div
-                  key={item.s}
-                  className={`p-4 rounded-2xl flex flex-col justify-between min-h-[120px] transition-all duration-300 border ${
-                    step === item.s
-                      ? 'bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] shadow-md border-orange-500/50 dark:border-neutral-800 scale-[1.02]'
-                      : 'bg-slate-100/50 dark:bg-[#1c1b18]/40 text-slate-400 dark:text-[#b4b0a9] border-slate-300 dark:border-neutral-800/40 hover:border-slate-400 dark:hover:border-neutral-800/60'
-                  }`}
-                >
-                  <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
-                      step === item.s ? `${accentBg} text-white` : 'bg-slate-200 dark:bg-[#2b2a26] text-slate-500 dark:text-[#b4b0a9]'
-                    }`}
-                  >
-                    {item.s}
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-slate-400 dark:text-[#b4b0a9]">
-                      Step {item.s}
-                    </h4>
-                    <p className="text-xs font-bold mt-1.5 leading-snug">{item.label}</p>
-                  </div>
+          /* SIGNUP STEP CARDS */
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { s: 1, title: 'Sign up account' },
+              { s: 2, title: 'Choose Role' },
+              { s: 3, title: 'Set Profile Info' }
+            ].map((item) => (
+              <div 
+                key={item.s} 
+                className={`backdrop-blur-md border rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-sm ${
+                  step === item.s 
+                    ? 'bg-white dark:bg-[#1a1917] border-[#FF5A1F]/50 dark:border-[#FF5A1F]/50 ring-1 ring-[#FF5A1F]/30 scale-[1.02]' 
+                    : 'bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-4 border shadow-inner ${
+                  step === item.s 
+                    ? 'bg-[#FF5A1F] text-white border-[#FF5A1F]' 
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                }`}>
+                  {item.s}
                 </div>
-              ))}
-            </div>
-          </>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mb-1">Step {item.s}</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{item.title}</p>
+              </div>
+            ))}
+          </div>
         ) : (
-          /* LOGIN, FORGOT, RESET MODES: Clean, Formal Grid Option Cards */
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-4xl font-extrabold text-slate-900 dark:text-[#f2efe9] leading-tight tracking-tight">
-                Welcome Back!
-              </h2>
-              <p className="text-slate-500 dark:text-[#b4b0a9] text-xs leading-relaxed max-w-sm">
-                Connect with skilled local providers, coordinate service jobs in real-time, and manage secure transactions.
+          /* LOGIN OPTION CARDS */
+          <div className="grid grid-cols-2 gap-4">
+            {/* Find Help Card */}
+            <div className="backdrop-blur-md border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:-translate-y-1 hover:border-orange-500/40 transition-all cursor-default shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-sm mb-4 shadow-inner">
+                🔍
+              </div>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-orange-600 dark:text-orange-500 mb-1.5">Find Help Today</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Post job requests and hire skilled Cordova locals.
               </p>
             </div>
 
-            {/* Active Cordova Area Badge */}
-            <div className="flex">
-              <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full border bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold tracking-wide">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                <span>CORDOVA AREA NETWORK ACTIVE</span>
+            {/* Offer Skills Card */}
+            <div className="backdrop-blur-md border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:-translate-y-1 hover:border-emerald-500/40 transition-all cursor-default shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-sm mb-4 shadow-inner">
+                🛠️
               </div>
-            </div>
-
-            {/* Styled Welcome Option Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-4">
-              {/* Find Help Today Card */}
-              <div className="p-4 rounded-2xl flex flex-col justify-between min-h-[125px] transition-all duration-300 border bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] border-slate-200 dark:border-neutral-800 hover:border-orange-500/40 hover:scale-[1.01] shadow-sm">
-                <div className="w-7 h-7 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold text-xs">
-                  🔍
-                </div>
-                <div className="mt-4">
-                  <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-orange-600 dark:text-orange-500">Find Help Today</h4>
-                  <p className="text-[11px] text-slate-400 dark:text-[#b4b0a9] mt-2 leading-relaxed">
-                    Post job requests and hire skilled Cordova locals.
-                  </p>
-                </div>
-              </div>
-
-              {/* Offer Skills Today Card */}
-              <div className="p-4 rounded-2xl flex flex-col justify-between min-h-[125px] transition-all duration-300 border bg-white dark:bg-[#22211e] text-slate-950 dark:text-[#f2efe9] border-slate-200 dark:border-neutral-800 hover:border-emerald-500/40 hover:scale-[1.01] shadow-sm">
-                <div className="w-7 h-7 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xs">
-                  🛠️
-                </div>
-                <div className="mt-4">
-                  <h4 className="font-bold text-[10px] uppercase tracking-wider leading-none text-emerald-600 dark:text-emerald-400">Offer Skills Today</h4>
-                  <p className="text-[11px] text-slate-400 dark:text-[#b4b0a9] mt-2 leading-relaxed">
-                    Publish services, submit offers, and grow earnings.
-                  </p>
-                </div>
-              </div>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1.5">Offer Skills Today</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Publish services, submit offers, and grow earnings.
+              </p>
             </div>
           </div>
         )}
       </div>
-
+      
+      {/* Spacer placeholder */}
+      <div className="relative z-10 w-10 h-10"></div>
     </div>
   );
 }

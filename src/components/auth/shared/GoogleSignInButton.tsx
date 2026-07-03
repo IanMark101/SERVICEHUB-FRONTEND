@@ -82,9 +82,9 @@ export default function GoogleSignInButton({
             'Google Sign-In is not configured yet. Please define NEXT_PUBLIC_GOOGLE_CLIENT_ID in your environment variables.'
           )
         }
-        className="w-full max-w-[400px] min-h-[40px] flex items-center justify-center space-x-3 px-4 py-2 border border-slate-300 dark:border-neutral-800 rounded-xl bg-white dark:bg-[#22211e] hover:bg-slate-50 dark:hover:bg-[#2b2a26] text-slate-700 dark:text-[#f2efe9] text-xs font-semibold shadow-sm transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+        className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 dark:bg-slate-900/40 hover:dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-white rounded-xl py-3.5 font-semibold text-sm transition-all shadow-sm hover:scale-[1.005] active:scale-[0.995] cursor-pointer"
       >
-        <svg className="w-4 h-4" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path
             fill="#EA4335"
             d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.355 0 3.39 2.673 1.482 6.564l3.784 3.201z"
@@ -102,7 +102,7 @@ export default function GoogleSignInButton({
             d="M12 24c3.24 0 5.973-1.08 7.964-2.924l-3.664-2.84c-1.018.682-2.318 1.082-4.3 1.082-3.3 0-6.1-2.236-7.1-5.236L1.118 17.265C3.018 21.164 6.982 24 12 24z"
           />
         </svg>
-        <span>Sign in with Google</span>
+        <span>Sign In via Google</span>
       </button>
     </div>
   );

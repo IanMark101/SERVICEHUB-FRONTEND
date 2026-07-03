@@ -214,7 +214,7 @@ export default function SignupForm({
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase mb-1.5">
                 Short Bio
               </label>
               <textarea
@@ -223,7 +223,7 @@ export default function SignupForm({
                 placeholder="Tell the community about yourself..."
                 value={formData.bio}
                 onChange={handleInputChange}
-                className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 resize-none transition-all"
+                className="w-full bg-white dark:bg-[#0f1115] border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-800 dark:text-white placeholder-slate-455 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/50 resize-none transition-all shadow-sm"
               />
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function SignupForm({
             <button
               type="button"
               onClick={handlePrevStep}
-              className="w-1/3 flex items-center justify-center space-x-2 border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-[#22211e] text-slate-500 dark:text-[#b4b0a9] rounded-xl py-2.5 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
+              className="w-1/3 flex items-center justify-center space-x-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-[#22211e] text-slate-500 dark:text-[#b4b0a9] rounded-xl py-3.5 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -245,7 +245,7 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            className={`flex-grow ${accentBg} hover:opacity-95 text-white font-extrabold rounded-xl py-3 text-xs tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer`}
+            className="flex-grow py-4 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FF5A1F]/25 transition-all cursor-pointer"
           >
             {step === 3 ? 'Sign Up' : 'Next Step'}
           </button>
@@ -253,14 +253,14 @@ export default function SignupForm({
       </form>
 
       {/* Footer Switcher */}
-      <div className="text-center text-xs pt-4 border-t border-slate-100 dark:border-neutral-800/40">
+      <div className="text-center text-sm mt-8 pt-4 border-t border-slate-100 dark:border-neutral-800/40">
         <span className="text-slate-555 dark:text-[#b4b0a9] font-medium">
           Already have an account?
         </span>
         <button
           type="button"
           onClick={toggleMode}
-          className={`font-bold ${accentText} hover:underline ml-1 cursor-pointer focus:outline-none`}
+          className="font-bold text-[#FF5A1F] hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
         >
           Log in
         </button>

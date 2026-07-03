@@ -47,7 +47,7 @@ export default function ForgotPasswordForm({
         <div className="pt-2">
           <button
             type="submit"
-            className={`w-full ${accentBg} hover:opacity-95 text-white font-extrabold rounded-xl py-3 text-xs tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer`}
+            className="w-full py-4 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FF5A1F]/25 transition-all cursor-pointer"
           >
             Send Reset Link
           </button>
@@ -55,11 +55,11 @@ export default function ForgotPasswordForm({
       </form>
 
       {/* Footer Back Link */}
-      <div className="text-center text-xs pt-4 border-t border-slate-100 dark:border-neutral-800/40">
+      <div className="text-center text-sm mt-8 pt-4 border-t border-slate-100 dark:border-neutral-800/40">
         <button
           type="button"
           onClick={() => setMode('login')}
-          className={`font-bold ${accentText} hover:underline cursor-pointer focus:outline-none`}
+          className="font-bold text-[#FF5A1F] hover:text-orange-400 cursor-pointer focus:outline-none transition-colors"
         >
           Back to Log in
         </button>

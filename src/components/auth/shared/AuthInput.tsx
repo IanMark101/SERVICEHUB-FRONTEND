@@ -29,9 +29,11 @@ export default function AuthInput({
 }: AuthInputProps) {
   return (
     <div className="w-full">
-      <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1">
-        {label}
-      </label>
+      {label && (
+        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase mb-1.5">
+          {label}
+        </label>
+      )}
       <div className="relative">
         <input
           type={type}
@@ -40,8 +42,8 @@ export default function AuthInput({
           value={value}
           onChange={onChange}
           required={required}
-          className={`w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] placeholder-slate-400 dark:placeholder-[#b4b0a9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all ${
-            children ? 'pr-10' : ''
+          className={`w-full bg-white dark:bg-[#0f1115] border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-800 dark:text-white placeholder-slate-450 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/50 transition-all shadow-sm ${
+            children ? 'pr-12' : ''
           } ${className}`}
         />
         {children}
