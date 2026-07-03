@@ -58,18 +58,14 @@ export default function AuthLeftPanel({
 
       {/* Main Left Marketing/Stepper Content */}
       <div className="relative z-10 w-full max-w-xl mt-16">
-        <div className="flex justify-between items-end mb-8">
-          <h1 className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-            {mode === 'signup' ? (
-              <>Get Started<br/>with Us</>
-            ) : (
-              <>Welcome<br/>Back!</>
-            )}
+        <div className="space-y-2 mb-8">
+          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+            {mode === 'signup' ? 'Get Started with Us' : 'Welcome Back!'}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-[200px] leading-relaxed mb-2">
+          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md leading-relaxed">
             {mode === 'signup' 
               ? 'Complete these easy steps to register your account.'
-              : 'Connect with skilled providers and coordinate service jobs.'}
+              : 'Connect with skilled providers, coordinate service jobs in real-time, and manage secure transactions.'}
           </p>
         </div>
         
