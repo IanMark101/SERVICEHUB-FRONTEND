@@ -30,7 +30,7 @@ export default function AuthInput({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase mb-1.5">
+        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
           {label}
         </label>
       )}
@@ -42,13 +42,13 @@ export default function AuthInput({
           value={value}
           onChange={onChange}
           required={required}
-          className={`w-full bg-white dark:bg-[#0f1115] border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-800 dark:text-white placeholder-slate-450 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/50 transition-all shadow-sm ${
-            children ? 'pr-12' : ''
+          className={`w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 transition-all ${
+            children ? 'pr-10' : ''
           } ${className}`}
         />
         {children}
       </div>
-      <div className="h-4 mt-1 flex items-center">
+      <div className="h-4 mt-0.5 flex items-center">
         {error ? (
           <span className="text-[10px] text-red-500 font-semibold leading-none animate-in fade-in duration-100">
             {error}

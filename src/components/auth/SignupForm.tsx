@@ -56,27 +56,6 @@ export default function SignupForm({
         </p>
       </div>
 
-      {step === 1 && (
-        <>
-          {/* Google Login Component for Easy Registration */}
-          <GoogleSignInButton
-            onSuccess={handleGoogleSuccessResponse}
-            onError={setError}
-            isDark={isDark}
-            mode="signup"
-            step={step}
-          />
-
-          <div className="relative flex py-1 items-center mb-1">
-            <div className="flex-grow border-t border-slate-200 dark:border-neutral-800/80"></div>
-            <span className="flex-shrink mx-3 text-slate-450 dark:text-[#b4b0a9] text-[10px] font-bold tracking-widest uppercase">
-              Or
-            </span>
-            <div className="flex-grow border-t border-slate-200 dark:border-neutral-800/80"></div>
-          </div>
-        </>
-      )}
-
       {/* Main Multi-Step Form */}
       <form onSubmit={handleSubmit} className="space-y-3">
         {/* STEP 1 */}
@@ -112,7 +91,7 @@ export default function SignupForm({
             />
 
             <div className="space-y-0.5">
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Password
               </label>
               <AuthInput
@@ -128,9 +107,9 @@ export default function SignupForm({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-[#b4b0a9] hover:text-slate-900 dark:hover:text-[#f2efe9] cursor-pointer focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </AuthInput>
             </div>
@@ -151,14 +130,14 @@ export default function SignupForm({
             />
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Cordova Barangay / Location
               </label>
               <select
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
-                className="w-full bg-white dark:bg-[#22211e] border border-slate-300 dark:border-neutral-800/80 rounded-xl px-4 py-2.5 text-xs text-slate-900 dark:text-[#f2efe9] focus:bg-slate-50/50 dark:focus:bg-[#2b2a26] focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500/50 transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 transition-all cursor-pointer"
               >
                 <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
                 <option value="San Miguel, Cordova">San Miguel</option>
@@ -181,14 +160,14 @@ export default function SignupForm({
         {step === 3 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
                 Select Profile Avatar
               </label>
               <div className="flex items-center space-x-4">
                 <img
                   src={formData.avatarUrl}
                   alt="Selected Profile"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-slate-300 dark:border-neutral-700/60 shadow-sm"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-slate-300 dark:border-slate-800 shadow-sm"
                 />
                 <div className="flex space-x-2">
                   {avatars.map((url, idx) => (
@@ -196,10 +175,10 @@ export default function SignupForm({
                       key={idx}
                       type="button"
                       onClick={() => handleAvatarSelect(url)}
-                      className={`w-9 h-9 rounded-full overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer ${
+                      className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer ${
                         formData.avatarUrl === url
-                          ? 'border-orange-500 shadow-sm scale-105'
-                          : 'border-slate-300 dark:border-neutral-800 opacity-60'
+                          ? 'border-[#FF5A1F] shadow-sm scale-105'
+                          : 'border-slate-300 dark:border-slate-800 opacity-60'
                       }`}
                     >
                       <img
@@ -214,7 +193,7 @@ export default function SignupForm({
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase mb-1.5">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
                 Short Bio
               </label>
               <textarea
@@ -223,7 +202,7 @@ export default function SignupForm({
                 placeholder="Tell the community about yourself..."
                 value={formData.bio}
                 onChange={handleInputChange}
-                className="w-full bg-white dark:bg-[#0f1115] border border-slate-300 dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-800 dark:text-white placeholder-slate-455 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/50 resize-none transition-all shadow-sm"
+                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 resize-none transition-all"
               />
             </div>
           </div>
@@ -235,7 +214,7 @@ export default function SignupForm({
             <button
               type="button"
               onClick={handlePrevStep}
-              className="w-1/3 flex items-center justify-center space-x-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-[#22211e] text-slate-500 dark:text-[#b4b0a9] rounded-xl py-3.5 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
+              className="w-1/3 flex items-center justify-center space-x-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-[#22211e] text-slate-500 dark:text-[#b4b0a9] rounded-lg py-2 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -245,16 +224,40 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            className="flex-grow py-4 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FF5A1F]/25 transition-all cursor-pointer"
+            className="flex-grow py-2.5 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
           >
             {step === 3 ? 'Sign Up' : 'Next Step'}
           </button>
         </div>
       </form>
 
+      {/* Google Login Component for Easy Registration */}
+      {step === 1 && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-[#faf8f5] dark:bg-[#0a0a0a] px-3 text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase">
+                OR
+              </span>
+            </div>
+          </div>
+
+          <GoogleSignInButton
+            onSuccess={handleGoogleSuccessResponse}
+            onError={setError}
+            isDark={isDark}
+            mode="signup"
+            step={step}
+          />
+        </>
+      )}
+
       {/* Footer Switcher */}
-      <div className="text-center text-sm mt-8 pt-4 border-t border-slate-100 dark:border-neutral-800/40">
-        <span className="text-slate-555 dark:text-[#b4b0a9] font-medium">
+      <div className="text-center text-sm pt-3 border-t border-slate-200 dark:border-slate-800">
+        <span className="text-slate-500 dark:text-slate-400">
           Already have an account?
         </span>
         <button

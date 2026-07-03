@@ -36,29 +36,13 @@ export default function LoginForm({
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       
       {/* Header Info */}
-      <div>
-        <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
+      <div className="text-center lg:text-left">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
           Sign In Account
-        </h3>
-        <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-1 leading-normal">
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 text-xs">
           Enter your credentials to access the Cordova local service network.
         </p>
-      </div>
-
-      {/* Google Login Component */}
-      <GoogleSignInButton
-        onSuccess={handleGoogleSuccessResponse}
-        onError={setError}
-        isDark={isDark}
-        mode="login"
-      />
-
-      <div className="relative flex py-1 items-center mb-1">
-        <div className="flex-grow border-t border-slate-200 dark:border-neutral-800/80"></div>
-        <span className="flex-shrink mx-3 text-slate-450 dark:text-[#b4b0a9] text-[10px] font-bold tracking-widest uppercase">
-          Or
-        </span>
-        <div className="flex-grow border-t border-slate-200 dark:border-neutral-800/80"></div>
       </div>
 
       {/* Main Email/Password Form */}
@@ -67,7 +51,7 @@ export default function LoginForm({
           label="Email"
           name="email"
           type="email"
-          placeholder="eg. alexmercer@gmail.com"
+          placeholder="Enter your email"
           value={formData.email}
           onChange={handleInputChange}
           error={fieldErrors.email}
@@ -75,7 +59,7 @@ export default function LoginForm({
 
         <div className="space-y-0.5">
           <div className="flex justify-between items-center mb-1">
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
               Password
             </label>
             <button
@@ -98,27 +82,47 @@ export default function LoginForm({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-[#b4b0a9] hover:text-slate-900 dark:hover:text-[#f2efe9] cursor-pointer focus:outline-none"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </AuthInput>
         </div>
 
         {/* Submit button */}
-        <div className="pt-2">
+        <div className="pt-1.5">
           <button
             type="submit"
-            className="w-full py-4 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FF5A1F]/25 transition-all mt-4 cursor-pointer"
+            className="w-full py-2.5 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
           >
             Sign In
           </button>
         </div>
       </form>
 
+      {/* Divider OR */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-[#faf8f5] dark:bg-[#0a0a0a] px-3 text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase">
+            OR
+          </span>
+        </div>
+      </div>
+
+      {/* Google Login Component */}
+      <GoogleSignInButton
+        onSuccess={handleGoogleSuccessResponse}
+        onError={setError}
+        isDark={isDark}
+        mode="login"
+      />
+
       {/* Footer Switcher */}
-      <div className="text-center text-sm mt-8 pt-4 border-t border-slate-100 dark:border-neutral-800/40">
-        <span className="text-slate-550 dark:text-[#b4b0a9] font-medium">
+      <div className="text-center text-sm pt-3 border-t border-slate-200 dark:border-slate-800">
+        <span className="text-slate-500 dark:text-slate-400">
           Don't have an account?
         </span>
         <button

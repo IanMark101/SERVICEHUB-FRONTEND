@@ -24,11 +24,11 @@ export default function ForgotPasswordForm({
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       
       {/* Header Info */}
-      <div>
-        <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
+      <div className="text-center lg:text-left">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
           Forgot Password
-        </h3>
-        <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-1 leading-normal">
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 text-xs">
           Enter your email address to receive a secure password reset link.
         </p>
       </div>
@@ -44,10 +44,10 @@ export default function ForgotPasswordForm({
           error={fieldErrors.email}
         />
 
-        <div className="pt-2">
+        <div className="pt-1.5">
           <button
             type="submit"
-            className="w-full py-4 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FF5A1F]/25 transition-all cursor-pointer"
+            className="w-full py-2.5 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
           >
             Send Reset Link
           </button>
@@ -55,7 +55,7 @@ export default function ForgotPasswordForm({
       </form>
 
       {/* Footer Back Link */}
-      <div className="text-center text-sm mt-8 pt-4 border-t border-slate-100 dark:border-neutral-800/40">
+      <div className="text-center text-sm pt-3 border-t border-slate-200 dark:border-slate-800">
         <button
           type="button"
           onClick={() => setMode('login')}

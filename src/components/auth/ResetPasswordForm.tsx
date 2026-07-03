@@ -29,18 +29,18 @@ export default function ResetPasswordForm({
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       
       {/* Header Info */}
-      <div>
-        <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
+      <div className="text-center lg:text-left">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
           Reset Password
-        </h3>
-        <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-1 leading-normal">
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 text-xs">
           Choose a new password for your account.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="space-y-0.5">
-          <label className="block text-[10px] font-bold text-slate-500 dark:text-[#b4b0a9] uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
             New Password
           </label>
           <AuthInput
@@ -55,17 +55,17 @@ export default function ResetPasswordForm({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-[#b4b0a9] hover:text-slate-900 dark:hover:text-[#f2efe9] cursor-pointer focus:outline-none"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </AuthInput>
         </div>
 
-        <div className="pt-2">
+        <div className="pt-1.5">
           <button
             type="submit"
-            className="w-full py-4 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#FF5A1F]/25 transition-all cursor-pointer"
+            className="w-full py-2.5 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
           >
             Reset Password
           </button>
@@ -73,7 +73,7 @@ export default function ResetPasswordForm({
       </form>
 
       {/* Footer Back Link */}
-      <div className="text-center text-sm mt-8 pt-4 border-t border-slate-100 dark:border-neutral-800/40">
+      <div className="text-center text-sm pt-3 border-t border-slate-200 dark:border-slate-800">
         <button
           type="button"
           onClick={() => setMode('login')}
