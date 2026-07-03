@@ -412,10 +412,10 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
                     ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
                     : 'text-emerald-600 bg-emerald-50 border-slate-300'
                   }`}>
-                  Proposal Bid
+                  Offer Proposal
                 </span>
                 <h3 className={`font-extrabold text-sm mt-1.5 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                  Submit a Proposal Bid
+                  Submit an Offer
                 </h3>
               </div>
               <button
@@ -434,7 +434,7 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
                   }`}>
                   ✓
                 </div>
-                <h4 className={`font-bold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Bid Submitted!</h4>
+                <h4 className={`font-bold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Offer Submitted!</h4>
                 <p className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
                   Your proposal has been logged and the client will be notified.
                 </p>
@@ -444,7 +444,7 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
                 {/* Offer Price Input */}
                 <div>
                   <label className={`block text-[10px] font-bold uppercase tracking-wide mb-1.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                    Your Bid Offer (₱)
+                    Your Offered Price (₱)
                   </label>
                   <input
                     type="number"
@@ -494,7 +494,7 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
                     disabled={loading}
                     className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
                   >
-                    {loading ? 'Submitting...' : 'Submit Proposal Bid'}
+                    {loading ? 'Submitting...' : 'Submit Offer'}
                   </button>
                 </div>
               </form>
