@@ -57,19 +57,19 @@ export default function AuthLeftPanel({
       <div className="relative z-10 w-full max-w-xl mt-16">
         <div className="space-y-2 mb-8">
           <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-            {mode === 'signup' ? 'Get Started with Us' : 'Welcome Back!'}
+            {mode === 'signup' ? 'Get Started with Us' : 'Where Talent Meets Opportunity'}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md leading-relaxed">
             {mode === 'signup' 
               ? 'Complete these easy steps to register your account.'
-              : 'Connect with skilled providers, coordinate service jobs in real-time, and manage secure transactions.'}
+              : 'Connect with trusted local talent, request community services, or showcase your skills within the Cordova community—all through secure escrow-protected transactions.'}
           </p>
         </div>
         
         {/* Cordova area network badge */}
         <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-full w-max text-xs font-bold tracking-widest uppercase mb-12 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Cordova Area Network Active
+          Trusted Local Service Network
         </div>
 
         {mode === 'signup' ? (
@@ -108,9 +108,9 @@ export default function AuthLeftPanel({
               <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-sm mb-4 shadow-inner">
                 🔍
               </div>
-              <h4 className="font-bold text-xs uppercase tracking-wider text-orange-600 dark:text-orange-500 mb-1.5">Find Help Today</h4>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-orange-600 dark:text-orange-500 mb-1.5">FIND TRUSTED SERVICES</h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Post job requests and hire skilled Cordova locals.
+                Request help from skilled community members for your everyday needs.
               </p>
             </div>
 
@@ -119,9 +119,9 @@ export default function AuthLeftPanel({
               <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-sm mb-4 shadow-inner">
                 🛠️
               </div>
-              <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1.5">Offer Skills Today</h4>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1.5">SHOWCASE YOUR SKILLS</h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Publish services, submit offers, and grow earnings.
+                Offer your expertise, connect with local clients, and create meaningful opportunities within your community.
               </p>
             </div>
           </div>
