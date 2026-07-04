@@ -32,6 +32,7 @@
   --color-neutral-855: #33322e;
 
   --font-sans: var(--font-sans), 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-serif), Georgia, Cambria, serif;
 }
 
 @layer base {
@@ -144,7 +145,11 @@
 
 /* Standardize typography for all headings */
 h1,
-h2,
+h2 {
+  font-family: var(--font-serif), Georgia, Cambria, serif !important;
+  letter-spacing: -0.015em;
+}
+
 h3,
 h4,
 h5,
