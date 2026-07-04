@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Lora } from "next/font/google";
+import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import { AppProvider } from "../context/AppContext";
 import { ToastProvider } from "../components/Toast";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
-
-const lora = Lora({
+const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",
+  weight: ["400", "500", "600", "700"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-sans",
   weight: ["400", "500", "600", "700"],
 });
 
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${lora.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ToastProvider>
