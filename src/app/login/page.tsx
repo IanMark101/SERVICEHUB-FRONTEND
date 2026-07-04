@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import LoginSignup, { UserSession } from '../../components/LoginSignup';
+import LoginContainer, { UserSession } from '../../components/auth/LoginContainer';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,8 +34,7 @@ export default function LoginPage() {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-[#fbfaf7] dark:bg-[#191919]">
-      <LoginSignup
-        initialMode="login"
+      <LoginContainer
         onLoginSuccess={handleLoginSuccess}
         onBackToHome={handleBackToHome}
       />

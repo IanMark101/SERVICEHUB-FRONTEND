@@ -31,7 +31,7 @@ import { apiGetMyEngagements, apiConfirmOnlineBooking } from '../api/bookings.ap
 import { apiGetNotifications } from '../api/notifications.api';
 import { apiBrowseServices } from '../api/services.api';
 import { apiGetTransactions } from '../api/transactions.api';
-import { UserSession } from '../components/LoginSignup';
+import { UserSession } from '../components/auth/LoginContainer';
 import { apiGetMe } from '../api/auth.api';
 import { connectSocket, disconnectSocket } from '../lib/socket';
 

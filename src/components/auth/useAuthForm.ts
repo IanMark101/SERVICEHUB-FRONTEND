@@ -1,7 +1,7 @@
 import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '../../api/auth.api';
-import { UserSession } from '../LoginSignup';
+import { UserSession } from './LoginContainer';
 
 interface UseAuthFormProps {
   onLoginSuccess: (userData: UserSession) => void;

@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import UserProfile from '../../../components/UserProfile';
-import { UserSession } from '../../../components/LoginSignup';
+import { UserSession } from '../../../components/auth/LoginContainer';
 
 function ProfileContent() {
   const searchParams = useSearchParams();

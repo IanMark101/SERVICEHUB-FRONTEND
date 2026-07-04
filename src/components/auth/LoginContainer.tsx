@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import useAuthForm from './auth/useAuthForm';
-import AuthLayout from './auth/AuthLayout';
-import AuthLeftPanel from './auth/AuthLeftPanel';
-import LoginForm from './auth/LoginForm';
-import SignupForm from './auth/SignupForm';
-import ForgotPasswordForm from './auth/ForgotPasswordForm';
-import ResetPasswordForm from './auth/ResetPasswordForm';
-import { useApp } from '../context/AppContext';
+import useAuthForm from './useAuthForm';
+import AuthLayout from './AuthLayout';
+import AuthLeftPanel from './AuthLeftPanel';
+import LoginForm from './LoginForm';
+import ForgotPasswordForm from './ForgotPasswordForm';
+import ResetPasswordForm from './ResetPasswordForm';
+import { useApp } from '../../context/AppContext';
+import { useRouter } from 'next/navigation';
 
 export interface UserSession {
   id: string;
@@ -22,30 +22,20 @@ export interface UserSession {
   emailVerified?: boolean;
 }
 
-interface LoginSignupProps {
-  initialMode?: 'login' | 'signup';
+interface LoginContainerProps {
   onLoginSuccess: (userData: UserSession) => void;
   onBackToHome?: () => void;
 }
 
-export default function LoginSignup({
-  initialMode,
+export default function LoginContainer({
   onLoginSuccess,
   onBackToHome,
-}: LoginSignupProps) {
+}: LoginContainerProps) {
   const { isDark } = useApp();
-  const [theme, setTheme] = useState<'green' | 'orange'>('orange');
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(
-    initialMode || 'login'
-  );
+  const router = useRouter();
+  const [theme] = useState<'orange'>('orange');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
   const [initialResetToken, setInitialResetToken] = useState<string>('');
-
-  // Sync mode if initialMode prop changes
-  useEffect(() => {
-    if (initialMode) {
-      setMode(initialMode);
-    }
-  }, [initialMode]);
 
   // Read resetToken from query params if any
   useEffect(() => {
@@ -69,9 +59,6 @@ export default function LoginSignup({
     successMsg,
     fieldErrors,
     handleInputChange,
-    handleAvatarSelect,
-    handlePrevStep,
-    handleNextStep,
     handleGoogleSuccessResponse,
     handleSubmit,
   } = useAuthForm({
@@ -82,17 +69,11 @@ export default function LoginSignup({
   });
 
   const toggleMode = () => {
-    setError('');
-    if (mode === 'login') {
-      setMode('signup');
-    } else {
-      setMode('login');
-    }
+    router.push('/register');
   };
 
-  const isGreen = theme === 'green';
-  const accentText = isGreen ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-500';
-  const accentBg = isGreen ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-orange-600 hover:bg-orange-500';
+  const accentText = 'text-orange-600 dark:text-orange-500';
+  const accentBg = 'bg-orange-600 hover:bg-orange-500';
 
   return (
     <AuthLayout theme={theme}>
@@ -139,27 +120,6 @@ export default function LoginSignup({
             isDark={isDark}
             accentText={accentText}
             setMode={setMode}
-            toggleMode={toggleMode}
-          />
-        )}
-
-        {mode === 'signup' && (
-          <SignupForm
-            step={step}
-            formData={formData}
-            handleInputChange={handleInputChange}
-            fieldErrors={fieldErrors}
-            showPassword={showPassword}
-            setShowPassword={setShowPassword}
-            handleGoogleSuccessResponse={handleGoogleSuccessResponse}
-            setError={setError}
-            handleSubmit={handleSubmit}
-            handleAvatarSelect={handleAvatarSelect}
-            handlePrevStep={handlePrevStep}
-            handleNextStep={handleNextStep}
-            isDark={isDark}
-            accentText={accentText}
-            accentBg={accentBg}
             toggleMode={toggleMode}
           />
         )}

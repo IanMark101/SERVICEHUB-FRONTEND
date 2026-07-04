@@ -14,7 +14,12 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
   return (
     <header className={`sticky top-0 z-50 w-full h-16 backdrop-blur-xl flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 ${isDark ? 'bg-[#191919]/80 border-neutral-850/40' : 'bg-[#fbfaf7]/80 border-slate-300'
       }`}>
-      <div className="flex items-center space-x-2.5">
+      <div className="flex items-center space-x-3">
+        <img 
+          src="/logo.png" 
+          alt="ServiceHub Cordova Logo" 
+          className="h-8 w-8 object-contain rounded-lg shadow-sm"
+        />
         <span className={`font-extrabold text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-955'
           }`}>
           ServiceHub Cordova

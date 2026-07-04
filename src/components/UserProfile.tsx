@@ -2,7 +2,7 @@
 import React from 'react';
 import { Info } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { UserSession } from './LoginSignup';
+import { UserSession } from './auth/LoginContainer';
 
 export default function UserProfile({ targetUser }: { targetUser: UserSession }) {
   const { isDark } = useApp();

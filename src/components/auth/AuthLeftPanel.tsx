@@ -34,9 +34,11 @@ export default function AuthLeftPanel({
             <ArrowLeft size={18} />
           </button>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#FF5A1F] flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
-              S
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="ServiceHub Cordova Logo" 
+              className="h-10 w-10 object-contain rounded-lg shadow-md"
+            />
             <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-white">
               ServiceHub Cordova
             </span>

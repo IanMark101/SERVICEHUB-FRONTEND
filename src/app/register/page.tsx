@@ -2,7 +2,8 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import LoginSignup, { UserSession } from '../../components/LoginSignup';
+import RegisterContainer from '../../components/auth/RegisterContainer';
+import { UserSession } from '../../components/auth/LoginContainer';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -34,8 +35,7 @@ export default function RegisterPage() {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-[#fbfaf7] dark:bg-[#191919]">
-      <LoginSignup
-        initialMode="signup"
+      <RegisterContainer
         onLoginSuccess={handleLoginSuccess}
         onBackToHome={handleBackToHome}
       />
