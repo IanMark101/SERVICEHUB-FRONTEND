@@ -79,8 +79,8 @@ export default function AuthLeftPanel({
           <div className="grid grid-cols-3 gap-4 w-full">
             {[
               { s: 1, title: 'Sign up account' },
-              { s: 2, title: 'Choose Role' },
-              { s: 3, title: 'Set Profile Info' }
+              { s: 2, title: 'Contact Info' },
+              { s: 3, title: 'Profile Setup' }
             ].map((item) => (
               <div
                 key={item.s}

@@ -47,7 +47,9 @@ export default function SignupForm({
       {/* Header Info */}
       <div>
         <h3 className="text-xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
-          Sign Up Account
+          {step === 1 && 'Sign Up Account'}
+          {step === 2 && 'Contact Info'}
+          {step === 3 && 'Profile Setup'}
         </h3>
         <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-1 leading-normal">
           {step === 1 && 'Enter your personal data to create your account.'}
