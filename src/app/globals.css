@@ -31,8 +31,8 @@
   --color-neutral-850: #2c2b27;
   --color-neutral-855: #33322e;
 
-  --font-sans: var(--font-sans), 'Space Grotesk', system-ui, sans-serif;
-  --font-serif: var(--font-serif), 'Playfair Display', Georgia, serif;
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
 @layer base {
@@ -52,6 +52,7 @@
     /* Slate-800 body text */
     overflow-x: hidden;
     max-width: 100vw;
+    font-family: var(--font-sans), sans-serif;
   }
 
   /* Custom clean scrollbars */
@@ -145,7 +146,7 @@
 
 /* Typography Utility Classes - Color-Free */
 .heading-serif {
-  font-family: var(--font-serif), 'Playfair Display', Georgia, serif !important;
+  font-family: var(--font-serif) !important;
   letter-spacing: -0.02em;
   line-height: 1.15;
   -webkit-font-smoothing: antialiased;
@@ -153,20 +154,20 @@
 }
 
 .ui-text-sans {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .ui-text-sans-medium {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .ui-text-sans-normal {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -175,7 +176,7 @@
 /* Standardize typography for all headings */
 h1,
 h2 {
-  font-family: var(--font-serif), 'Playfair Display', Georgia, serif !important;
+  font-family: var(--font-serif) !important;
   letter-spacing: -0.02em;
   line-height: 1.15;
   -webkit-font-smoothing: antialiased;
@@ -186,7 +187,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans) !important;
   letter-spacing: -0.025em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
