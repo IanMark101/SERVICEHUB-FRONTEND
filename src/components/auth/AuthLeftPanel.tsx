@@ -54,12 +54,12 @@ export default function AuthLeftPanel({
       </div>
 
       {/* Main Left Marketing/Stepper Content */}
-      <div className="relative z-10 w-full max-w-xl mt-16">
-        <div className="space-y-2 mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+      <div className="relative z-10 w-full max-w-xl mt-16 flex flex-col items-center text-center">
+        <div className="space-y-2 mb-8 flex flex-col items-center">
+          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight text-center">
             {mode === 'signup' ? 'Get Started with Us' : 'Where Talent Meets Opportunity'}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md leading-relaxed">
+          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md leading-relaxed text-center">
             {mode === 'signup'
               ? 'Complete these easy steps to register your account.'
               : 'Connect with trusted local talent, request community services, or showcase your skills within the Cordova community—all through secure escrow-protected transactions.'}
@@ -67,14 +67,14 @@ export default function AuthLeftPanel({
         </div>
 
         {/* Cordova area network badge */}
-        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-full w-max text-xs font-bold tracking-widest uppercase mb-12 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3 py-1.5 rounded-full w-max text-xs font-bold tracking-widest uppercase mb-12 shadow-[0_0_15px_rgba(16,185,129,0.05)] mx-auto">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           Trusted Local Service Network
         </div>
 
         {mode === 'signup' ? (
           /* SIGNUP STEP CARDS */
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 w-full">
             {[
               { s: 1, title: 'Sign up account' },
               { s: 2, title: 'Choose Role' },
@@ -82,12 +82,12 @@ export default function AuthLeftPanel({
             ].map((item) => (
               <div
                 key={item.s}
-                className={`backdrop-blur-md border rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-sm ${step === item.s
+                className={`backdrop-blur-md border rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 cursor-default shadow-sm flex flex-col items-center text-center ${step === item.s
                   ? 'bg-white dark:bg-[#1a1917] border-[#FF5A1F]/50 dark:border-[#FF5A1F]/50 ring-1 ring-[#FF5A1F]/30 scale-[1.02]'
                   : 'bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800'
                   }`}
               >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-4 border shadow-inner ${step === item.s
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-4 border shadow-inner mx-auto ${step === item.s
                   ? 'bg-[#FF5A1F] text-white border-[#FF5A1F]'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                   }`}>
@@ -100,25 +100,25 @@ export default function AuthLeftPanel({
           </div>
         ) : (
           /* LOGIN OPTION CARDS */
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 w-full">
             {/* Find Help Card */}
-            <div className="backdrop-blur-md border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:-translate-y-1 hover:border-orange-500/40 transition-all cursor-default shadow-sm">
-              <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-sm mb-4 shadow-inner">
+            <div className="backdrop-blur-md border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:-translate-y-1 hover:border-orange-500/40 transition-all cursor-default shadow-sm flex flex-col items-center text-center">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/10 flex items-center justify-center text-sm mb-4 shadow-inner mx-auto">
                 🔍
               </div>
-              <h4 className="font-bold text-xs uppercase tracking-wider text-orange-600 dark:text-orange-500 mb-1.5">FIND TRUSTED SERVICES</h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-orange-600 dark:text-orange-500 mb-1.5 text-center">FIND TRUSTED SERVICES</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed text-center">
                 Request help from skilled community members for your everyday needs.
               </p>
             </div>
 
             {/* Offer Skills Card */}
-            <div className="backdrop-blur-md border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:-translate-y-1 hover:border-emerald-500/40 transition-all cursor-default shadow-sm">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-sm mb-4 shadow-inner">
+            <div className="backdrop-blur-md border bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 rounded-2xl p-5 hover:-translate-y-1 hover:border-emerald-500/40 transition-all cursor-default shadow-sm flex flex-col items-center text-center">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-sm mb-4 shadow-inner mx-auto">
                 🛠️
               </div>
-              <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1.5">SHOWCASE YOUR SKILLS</h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1.5 text-center">SHOWCASE YOUR SKILLS</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed text-center">
                 Offer your expertise, connect with local clients, and create meaningful opportunities within your community.
               </p>
             </div>
