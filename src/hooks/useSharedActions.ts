@@ -53,13 +53,21 @@ export function useSharedActions({
 
   const markNotificationsRead = async (userId: string) => {
     try {
+      // Skip API call if no auth token is available (e.g. during role switch transitions)
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+
       const res = await apiMarkNotificationsRead();
       if (res.success) {
         setNotifications(prev => prev.map(n => n.userId === userId ? { ...n, read: true } : n));
         return;
       }
-    } catch (err) {
-      console.error("Backend API failed in markNotificationsRead:", err);
+    } catch (err: any) {
+      // Silently ignore 401 errors during workspace transitions — the axios interceptor
+      // will attempt a token refresh automatically on the next valid request
+      if (err?.response?.status !== 401) {
+        console.error("Backend API failed in markNotificationsRead:", err);
+      }
     }
   };
 

@@ -297,7 +297,7 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
                         <img
-                          src={req.seekerAvatar}
+                          src={req.seekerAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'}
                           alt={req.seekerName}
                           className="w-10 h-10 rounded-full object-cover border border-slate-100"
                         />

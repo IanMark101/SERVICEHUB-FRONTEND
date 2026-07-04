@@ -7,6 +7,8 @@ import {
   Notification
 } from '../types';
 
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200';
+
 export function mapBookingToEngagement(b: any): JobEngagement {
   const title = b.service?.title || b.offer?.request?.title || b.directRequest?.service?.title || 'Job Engagement';
   const statusMap: Record<string, string> = {
@@ -27,7 +29,7 @@ export function mapBookingToEngagement(b: any): JobEngagement {
     seekerName: b.seeker?.name || 'Seeker',
     providerId: b.providerId,
     providerName: b.provider?.name || 'Provider',
-    providerAvatar: b.provider?.avatarUrl || '',
+    providerAvatar: b.provider?.avatarUrl || DEFAULT_AVATAR,
     serviceId: b.serviceId || null,
     price: Number(b.directRequest?.agreedPrice || b.offer?.offeredPrice || b.service?.price || 0),
     status: (statusMap[b.status] || 'pending_provider') as JobEngagement['status'],
@@ -50,7 +52,7 @@ export function mapCompletedServiceToEngagement(cs: any): JobEngagement {
     seekerName: cs.seeker?.name || 'Seeker',
     providerId: cs.providerId,
     providerName: cs.provider?.name || 'Provider',
-    providerAvatar: cs.provider?.avatarUrl || '',
+    providerAvatar: cs.provider?.avatarUrl || DEFAULT_AVATAR,
     serviceId: booking?.serviceId || null,
     price: Number(cs.finalPrice),
     status: 'completed',
@@ -84,7 +86,7 @@ export function mapRequestToJobRequest(r: any): JobRequest {
     id: r.id,
     seekerId: r.seekerId || r.seeker?.id,
     seekerName: r.seeker?.name || 'Seeker',
-    seekerAvatar: r.seeker?.avatarUrl || '',
+    seekerAvatar: r.seeker?.avatarUrl || DEFAULT_AVATAR,
     title: r.title,
     category: r.category?.name || 'General',
     urgency: (r.urgency || 'medium') as 'low' | 'medium' | 'high',
@@ -101,7 +103,7 @@ export function mapOfferToBid(o: any): Bid {
     requestId: o.requestId,
     providerId: o.providerId || o.provider?.id,
     providerName: o.provider?.name || 'Provider',
-    providerAvatar: o.provider?.avatarUrl || '',
+    providerAvatar: o.provider?.avatarUrl || DEFAULT_AVATAR,
     providerRating: o.provider?.trustScore ? o.provider.trustScore / 20 : 5.0,
     price: Number(o.offeredPrice),
     message: o.message || '',
