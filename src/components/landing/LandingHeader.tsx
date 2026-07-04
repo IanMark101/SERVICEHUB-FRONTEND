@@ -20,7 +20,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           alt="ServiceHub Cordova Logo" 
           className="h-8 w-8 object-contain rounded-lg shadow-sm"
         />
-        <span className={`font-extrabold text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-955'
+        <span className={`ui-text-sans font-extrabold text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-955'
           }`}>
           ServiceHub Cordova
         </span>
@@ -43,7 +43,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
 
         <button
           onClick={() => router.push('/login')}
-          className={`font-bold text-xs py-2.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${isDark
+          className={`ui-text-sans-medium font-bold text-xs py-2.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${isDark
               ? 'text-[#f2efe9] hover:bg-neutral-850'
               : 'text-slate-700 hover:bg-slate-100/60'
             }`}
@@ -53,7 +53,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
 
         <button
           onClick={() => router.push('/register')}
-          className="font-bold text-xs py-2.5 px-5 rounded-xl transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer bg-[#FF5A1F] hover:bg-[#e04f1a] text-white"
+          className="ui-text-sans-medium font-bold text-xs py-2.5 px-5 rounded-xl transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer bg-[#FF5A1F] hover:bg-[#e04f1a] text-white"
         >
           Sign Up
         </button>
