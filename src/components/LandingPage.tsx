@@ -51,7 +51,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
       isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#fbfaf7] text-[#1c1b18]'
     }`}>
       {/* Global Background Grid */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none z-0"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-100 pointer-events-none z-0"></div>
       
       <LandingHeader isDark={isDark} toggleTheme={toggleTheme} onGetStarted={onGetStarted} />
       <LandingHero isDark={isDark} onGetStarted={onGetStarted} />
