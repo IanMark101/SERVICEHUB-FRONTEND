@@ -39,7 +39,7 @@ export default function useAuthForm({
     role: 'seeker' as 'seeker' | 'provider',
     bio: '',
     phone: '',
-    location: 'Poblacion, Cordova',
+    location: 'Alegria, Cordova',
     avatarUrl: avatars[0],
   });
 
@@ -82,8 +82,8 @@ export default function useAuthForm({
       }
       if (!formData.password) {
         errors.password = 'Password is required';
-      } else if (formData.password.length < 8) {
-        errors.password = 'Must be at least 8 characters';
+      } else if (formData.password.length < 8 || !/\d/.test(formData.password)) {
+        errors.password = 'Must be at least 8 characters and contain at least 1 number';
       }
 
       if (Object.keys(errors).length > 0) {
@@ -93,8 +93,12 @@ export default function useAuthForm({
     }
     if (step === 2) {
       const errors: Record<string, string> = {};
+      const cleanPhone = formData.phone.replace(/\s+/g, '');
+      const phPhoneRegex = /^(\+639|09)\d{9}$/;
       if (!formData.phone.trim()) {
         errors.phone = 'Contact number is required';
+      } else if (!phPhoneRegex.test(cleanPhone)) {
+        errors.phone = 'Invalid PH mobile format (e.g. 09171234567 or +63 917 123 4567)';
       }
       if (Object.keys(errors).length > 0) {
         setFieldErrors(errors);

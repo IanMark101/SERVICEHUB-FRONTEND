@@ -139,17 +139,19 @@ export default function SignupForm({
                 onChange={handleInputChange}
                 className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 transition-all cursor-pointer"
               >
-                <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
-                <option value="San Miguel, Cordova">San Miguel</option>
-                <option value="Bangbang, Cordova">Bangbang</option>
-                <option value="Gabi, Cordova">Gabi</option>
-                <option value="Ibabao, Cordova">Ibabao</option>
-                <option value="Pilipog, Cordova">Pilipog</option>
-                <option value="Catarman, Cordova">Catarman</option>
                 <option value="Alegria, Cordova">Alegria</option>
+                <option value="Bangbang, Cordova">Bangbang</option>
                 <option value="Buagsong, Cordova">Buagsong</option>
+                <option value="Catarman, Cordova">Catarman</option>
+                <option value="Cogon, Cordova">Cogon</option>
                 <option value="Dapitan, Cordova">Dapitan</option>
                 <option value="Day-as, Cordova">Day-as</option>
+                <option value="Gabi, Cordova">Gabi</option>
+                <option value="Gilutongan, Cordova">Gilutongan</option>
+                <option value="Ibabao, Cordova">Ibabao</option>
+                <option value="Pilipog, Cordova">Pilipog</option>
+                <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
+                <option value="San Miguel, Cordova">San Miguel</option>
               </select>
               <div className="h-4 mt-1" />
             </div>
