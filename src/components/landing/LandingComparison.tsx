@@ -8,7 +8,7 @@ interface LandingComparisonProps {
 
 export default function LandingComparison({ isDark }: LandingComparisonProps) {
   return (
-    <section className="py-20 px-6 md:px-12 w-full relative">
+    <section id="comparison" className="py-20 px-6 md:px-12 w-full relative scroll-mt-20">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 glow-bubble-orange -z-10 opacity-30 animate-pulse-glow" />
       <div className="max-w-4xl mx-auto space-y-10">
         <ScrollReveal className="text-center space-y-3">

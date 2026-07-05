@@ -8,7 +8,7 @@ interface LandingWorkspacesProps {
 
 export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
   return (
-    <section className={`py-20 md:py-28 px-6 md:px-12 border-b transition-colors duration-500 relative overflow-hidden ${
+    <section id="workspaces" className={`py-20 md:py-28 px-6 md:px-12 border-b transition-colors duration-500 relative overflow-hidden scroll-mt-20 ${
       isDark ? 'bg-[#191919] border-neutral-850/40 text-[#f2efe9]' : 'bg-[#fbfaf7] border-slate-200 text-slate-800'
     }`}>
       {/* Glow backgrounds */}

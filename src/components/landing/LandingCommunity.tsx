@@ -8,7 +8,7 @@ interface LandingCommunityProps {
 
 export default function LandingCommunity({ isDark }: LandingCommunityProps) {
   return (
-    <section className={`py-20 border-y transition-colors duration-500 px-6 md:px-12 w-full ${
+    <section id="community" className={`py-20 border-y transition-colors duration-500 px-6 md:px-12 w-full scroll-mt-20 ${
       isDark ? 'bg-[#22211e]/40 border-neutral-855' : 'bg-slate-50/50 border-slate-200/60'
     }`}>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
