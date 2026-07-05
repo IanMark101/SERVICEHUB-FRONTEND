@@ -126,11 +126,11 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
 
               let cardStyles = '';
               if (isFocus) {
-                cardStyles = 'z-20 scale-100 opacity-100 translate-x-0 cursor-default';
+                cardStyles = 'z-20 scale-[1.05] opacity-100 translate-x-0 cursor-default';
               } else if (isLeft) {
-                cardStyles = 'z-10 scale-85 opacity-40 -translate-x-[20%] md:-translate-x-[35%] cursor-pointer rotate-y-12';
+                cardStyles = 'z-10 scale-[0.90] opacity-40 -translate-x-[22%] md:-translate-x-[35%] cursor-pointer rotate-y-12';
               } else if (isRight) {
-                cardStyles = 'z-10 scale-85 opacity-40 translate-x-[20%] md:translate-x-[35%] cursor-pointer -rotate-y-12';
+                cardStyles = 'z-10 scale-[0.90] opacity-40 translate-x-[22%] md:translate-x-[35%] cursor-pointer -rotate-y-12';
               } else {
                 cardStyles = 'z-0 scale-75 opacity-0 pointer-events-none absolute';
               }
@@ -139,7 +139,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                 <div
                   key={review.id}
                   onClick={() => !isFocus && setActiveIndex(idx)}
-                  className={`w-full max-w-[340px] md:max-w-[480px] p-5 sm:p-6 rounded-[24px] border backdrop-blur-xl transition-all duration-550 ease-out absolute ${cardStyles} ${
+                  className={`w-full max-w-[340px] md:max-w-[480px] min-h-[220px] sm:min-h-[240px] p-6 sm:p-7 rounded-[24px] border backdrop-blur-xl transition-all duration-550 ease-out absolute ${cardStyles} ${
                     isDark 
                       ? 'bg-[#1c1b18]/90 border-neutral-800/80 text-[#f2efe9] shadow-xl' 
                       : 'bg-white border-slate-200 text-slate-800 shadow-lg'
@@ -154,18 +154,18 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                     <img
                       src={review.avatarUrl}
                       alt={review.name}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-orange-500/30"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-orange-500/30"
                     />
                     <div>
-                      <p className={`text-[9px] uppercase font-bold tracking-wider ${
+                      <p className={`text-[10px] uppercase font-bold tracking-wider ${
                         isDark ? 'text-amber-500' : 'text-orange-600'
                       }`}>
                         Verified Reviewer
                       </p>
-                      <h4 className="font-bold text-xs sm:text-sm leading-tight">
+                      <h4 className="font-bold text-sm sm:text-base leading-tight">
                         {review.name}
                       </h4>
-                      <p className={`text-[10px] font-medium ${
+                      <p className={`text-xs font-medium ${
                         isDark ? 'text-[#b4b0a9]' : 'text-slate-450'
                       }`}>
                         {review.role}
@@ -174,7 +174,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                   </div>
 
                   {/* Feedback comment paragraph */}
-                  <p className={`text-[11px] leading-relaxed font-medium overflow-y-auto max-h-[170px] transition-colors duration-300 pr-1 ${
+                  <p className={`text-xs sm:text-[13px] leading-relaxed font-medium overflow-y-auto max-h-[170px] transition-colors duration-300 pr-1 ${
                     isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
                   }`}>
                     {review.feedback}
