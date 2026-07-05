@@ -13,10 +13,10 @@ interface Review {
 const mockReviews: Review[] = [
   {
     id: 'rev-1',
-    name: 'Aria Blackwood',
-    role: 'Product Designer',
+    name: 'Rosie Cañete',
+    role: 'Working Mom / Seeker',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
-    feedback: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eget libero ac nisi convallis eleifend. Mauris nec enim et sem aliquet viverra. Sed ornare mauris eu nunc consectetur, nec cursus sem suscipit. Proin ac diam ac mi malesuada pharetra. Nulla facilisi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Duis sollicitudin sapien td turpis dapibus, primis in faucibus orci luctus et ultrices posuere cubilia curae; Integer auctor est id interdum mollis. Sed et justo velit. Nam nec tempor dui, eget faucibus felis. Aliquam id erat ac sapien tincidunt tempor. Donec ac justo quis enim aliquet vestibulum.'
+    feedback: 'Finding helper services in Gabi, Cordova was such a headache before ServiceHub. Now, I can hire verified neighbors for laundry or housekeeping with complete confidence. The live queue is a lifesaver, allowing me to plan my day around when the helper will arrive.'
   },
   {
     id: 'rev-2',
