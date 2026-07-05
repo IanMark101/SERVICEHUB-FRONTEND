@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Mail, Phone } from 'lucide-react';
+import { MapPin, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface LandingFooterProps {
@@ -7,130 +7,179 @@ interface LandingFooterProps {
   onGetStarted: () => void;
 }
 
-const BARANGAYS = [
-  'Alegria', 'Bangbang', 'Buagsong', 'Catarman',
-  'Cogon', 'Dapitan', 'Day-as', 'Gabi',
-  'Gilutongan', 'Ibabao', 'Pilipog', 'Poblacion',
-  'San Miguel',
-];
-
 function scrollTo(id: string) {
   if (typeof window === 'undefined') return;
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+const COLUMNS: { heading: string; links: { label: string; type: 'scroll' | 'route' | 'none'; target: string }[] }[] = [
+  {
+    heading: 'Platform',
+    links: [
+      { label: 'How It Works',        type: 'scroll', target: 'how-it-works' },
+      { label: 'Live Queue System',   type: 'scroll', target: 'queue' },
+      { label: 'Why ServiceHub',      type: 'scroll', target: 'problem' },
+      { label: 'Community Reviews',   type: 'scroll', target: 'reviews' },
+      { label: 'FAQ',                 type: 'scroll', target: 'faq' },
+      { label: 'Create Account',      type: 'route',  target: '/register' },
+      { label: 'Log In',              type: 'route',  target: '/login' },
+    ],
+  },
+  {
+    heading: 'For Service Seekers',
+    links: [
+      { label: 'Book a Service',       type: 'route', target: '/register' },
+      { label: 'Browse Providers',     type: 'route', target: '/register' },
+      { label: 'Track Live Queue',     type: 'scroll', target: 'queue' },
+      { label: 'Secure Escrow Payment', type: 'scroll', target: 'how-it-works' },
+      { label: 'Rate & Review',        type: 'scroll', target: 'how-it-works' },
+      { label: 'Seeker Verification',  type: 'scroll', target: 'how-it-works' },
+    ],
+  },
+  {
+    heading: 'For Service Providers',
+    links: [
+      { label: 'Offer a Service',      type: 'route', target: '/register' },
+      { label: 'Manage Bookings',      type: 'route', target: '/login' },
+      { label: 'Provider Verification', type: 'scroll', target: 'how-it-works' },
+      { label: 'Queue Management',     type: 'scroll', target: 'queue' },
+      { label: 'Payout & Earnings',    type: 'scroll', target: 'how-it-works' },
+      { label: 'Provider Guidelines',  type: 'scroll', target: 'how-it-works' },
+    ],
+  },
+  {
+    heading: 'Coverage Area',
+    links: [
+      { label: 'Municipality of Cordova', type: 'none', target: '' },
+      { label: 'Brgy. Alegria',        type: 'none', target: '' },
+      { label: 'Brgy. Bangbang',       type: 'none', target: '' },
+      { label: 'Brgy. Buagsong',       type: 'none', target: '' },
+      { label: 'Brgy. Catarman',       type: 'none', target: '' },
+      { label: 'Brgy. Cogon',          type: 'none', target: '' },
+      { label: 'Brgy. Dapitan',        type: 'none', target: '' },
+      { label: 'Brgy. Day-as',         type: 'none', target: '' },
+      { label: 'Brgy. Gabi',           type: 'none', target: '' },
+      { label: 'Brgy. Gilutongan',     type: 'none', target: '' },
+      { label: 'Brgy. Ibabao',         type: 'none', target: '' },
+      { label: 'Brgy. Pilipog',        type: 'none', target: '' },
+      { label: 'Brgy. Poblacion',      type: 'none', target: '' },
+      { label: 'Brgy. San Miguel',     type: 'none', target: '' },
+    ],
+  },
+  {
+    heading: 'Support',
+    links: [
+      { label: 'Contact Admin',        type: 'none', target: '' },
+      { label: 'Help Center',          type: 'none', target: '' },
+      { label: 'System Status',        type: 'none', target: '' },
+      { label: 'Report an Issue',      type: 'none', target: '' },
+    ],
+  },
+  {
+    heading: 'Legal & Policies',
+    links: [
+      { label: 'Privacy Policy',       type: 'none', target: '' },
+      { label: 'Terms of Service',     type: 'none', target: '' },
+      { label: 'Data Protection',      type: 'none', target: '' },
+      { label: 'Acceptable Use Policy', type: 'none', target: '' },
+      { label: 'Cookie Policy',        type: 'none', target: '' },
+    ],
+  },
+];
+
 export default function LandingFooter({ isDark, onGetStarted }: LandingFooterProps) {
   const router = useRouter();
 
-  const text    = isDark ? 'text-[#9a9590]' : 'text-slate-400';
-  const hover   = isDark ? 'hover:text-[#f2efe9]' : 'hover:text-white';
-  const heading = `text-xs font-semibold uppercase tracking-[0.15em] mb-5 ${isDark ? 'text-[#c5c0b7]' : 'text-slate-200'}`;
-  const divider = isDark ? 'border-neutral-800' : 'border-slate-700/60';
+  const bg      = isDark ? 'bg-[#0d0d0c]' : 'bg-slate-950';
+  const border  = isDark ? 'border-neutral-800/60' : 'border-slate-800/50';
+  const heading = isDark ? 'text-[#7a7670]' : 'text-slate-500';
+  const link    = isDark ? 'text-[#b4b0a9] hover:text-white' : 'text-slate-400 hover:text-white';
+  const muted   = isDark ? 'text-[#55524e]' : 'text-slate-600';
+
+  function handleLink(type: string, target: string) {
+    if (type === 'scroll') scrollTo(target);
+    else if (type === 'route') router.push(target);
+  }
 
   return (
-    <footer className={`w-full border-t ${isDark ? 'bg-[#0f0f0e] border-neutral-900' : 'bg-slate-950 border-slate-900'}`}>
+    <footer className={`w-full ${bg}`}>
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-0">
 
-      {/* Main footer body */}
-      <div className="max-w-6xl mx-auto px-6 md:px-12 py-16 grid grid-cols-1 md:grid-cols-4 gap-12">
+        {/* Top section: brand left + columns right */}
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
 
-        {/* Column 1 — Brand & Contact */}
-        <div className="md:col-span-1 space-y-6">
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <img src="/logo.png" alt="ServiceHub Cordova" className="h-8 w-8 rounded-lg object-contain" />
-              <span className={`font-extrabold text-base tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-white'}`}>
-                ServiceHub Cordova
+          {/* Brand block */}
+          <div className="lg:w-56 shrink-0 space-y-5">
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.png" alt="ServiceHub Cordova" className="h-7 w-7 rounded-lg object-contain" />
+              <span className={`font-extrabold text-sm tracking-tight text-white`}>
+                ServiceHub<br />Cordova
               </span>
             </div>
-            <p className={`text-sm leading-relaxed ${text}`}>
-              A transparent, community-driven service platform built for the residents of Cordova, Cebu.
+            <p className={`text-xs leading-relaxed ${isDark ? 'text-[#6e6a62]' : 'text-slate-600'}`}>
+              A hyperlocal service marketplace for Cordova, Cebu. Connecting verified providers with residents across all 13 barangays.
             </p>
+            <div className={`space-y-1.5 text-xs ${isDark ? 'text-[#55524e]' : 'text-slate-600'}`}>
+              <div className="flex items-center gap-2">
+                <MapPin size={11} className="opacity-50 shrink-0" />
+                <span>Cordova, Cebu 6017</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail size={11} className="opacity-50 shrink-0" />
+                <a href="mailto:admin@servicehub-cordova.local" className={`transition-colors ${isDark ? 'hover:text-[#b4b0a9]' : 'hover:text-slate-400'}`}>
+                  admin@servicehub-cordova.local
+                </a>
+              </div>
+            </div>
           </div>
 
-          <div className={`space-y-2.5 border-t pt-5 ${divider}`}>
-            <div className={`flex items-start gap-2.5 text-sm ${text}`}>
-              <MapPin size={14} className="mt-0.5 shrink-0 opacity-60" />
-              <span>Cordova, Cebu, Philippines 6017</span>
-            </div>
-            <div className={`flex items-start gap-2.5 text-sm ${text}`}>
-              <Mail size={14} className="mt-0.5 shrink-0 opacity-60" />
-              <a href="mailto:admin@servicehub-cordova.local" className={`transition-colors ${hover}`}>
-                admin@servicehub-cordova.local
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Column 2 — Navigation */}
-        <div>
-          <p className={heading}>Platform</p>
-          <ul className="space-y-3">
-            {[
-              { label: 'How It Works',   id: 'how-it-works' },
-              { label: 'Live Queue System', id: 'queue' },
-              { label: 'Why ServiceHub', id: 'problem' },
-              { label: 'FAQ',            id: 'faq' },
-            ].map((l) => (
-              <li key={l.id}>
-                <button
-                  onClick={() => scrollTo(l.id)}
-                  className={`text-sm transition-colors cursor-pointer text-left ${text} ${hover}`}
-                >
-                  {l.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          <p className={`${heading} mt-8`}>Account</p>
-          <ul className="space-y-3">
-            <li>
-              <button onClick={() => router.push('/register')} className={`text-sm cursor-pointer transition-colors ${text} ${hover}`}>
-                Create an Account
-              </button>
-            </li>
-            <li>
-              <button onClick={() => router.push('/login')} className={`text-sm cursor-pointer transition-colors ${text} ${hover}`}>
-                Log In to Dashboard
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        {/* Column 3 & 4 — Service Coverage (spans 2 cols) */}
-        <div className="md:col-span-2">
-          <p className={heading}>
-            <span className="flex items-center gap-2">
-              <MapPin size={11} />
-              Service Coverage — Municipality of Cordova
-            </span>
-          </p>
-          <p className={`text-sm mb-5 ${text}`}>
-            ServiceHub Cordova is available to all residents across every barangay in the Municipality of Cordova, Cebu Province.
-          </p>
-          <div className={`grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2.5 pb-6 mb-6 border-b ${divider}`}>
-            {BARANGAYS.map((brgy) => (
-              <div key={brgy} className={`flex items-center gap-2 text-sm ${text}`}>
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isDark ? 'bg-amber-500/40' : 'bg-slate-500/50'}`} />
-                {brgy}
+          {/* Link columns grid */}
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
+            {COLUMNS.map((col) => (
+              <div key={col.heading}>
+                <p className={`text-[11px] font-semibold uppercase tracking-widest mb-4 ${heading}`}>
+                  {col.heading}
+                </p>
+                <ul className="space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.label}>
+                      {l.type === 'none' ? (
+                        <span className={`text-[13px] ${isDark ? 'text-[#7a7670]' : 'text-slate-500'}`}>
+                          {l.label}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleLink(l.type, l.target)}
+                          className={`text-[13px] text-left transition-colors cursor-pointer ${link}`}
+                        >
+                          {l.label}
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
-          <p className={`text-xs leading-relaxed ${isDark ? 'text-[#55524e]' : 'text-slate-600'}`}>
-            <strong className={isDark ? 'text-[#7a7670]' : 'text-slate-500'}>About the Municipality: </strong>
-            Cordova is a 1st-class municipality on Mactan Island, Cebu Province, Philippines. With 13 barangays, a growing residential population, and close proximity to Mactan-Cebu International Airport, Cordova residents deserve a reliable and transparent way to access local services — which is exactly what ServiceHub was built for.
-          </p>
         </div>
-      </div>
 
-      {/* Bottom strip */}
-      <div className={`border-t ${divider}`}>
-        <div className={`max-w-6xl mx-auto px-6 md:px-12 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs ${isDark ? 'text-[#4a4741]' : 'text-slate-600'}`}>
-          <span>© 2026 ServiceHub Cordova. A capstone project serving the Municipality of Cordova, Cebu Province, Philippines.</span>
-          <span className={`shrink-0 ${isDark ? 'text-[#3a3733]' : 'text-slate-700'}`}>
-            Built for the Cordova Local Government Unit
-          </span>
+        {/* Divider */}
+        <div className={`mt-14 border-t ${border}`} />
+
+        {/* Bottom bar */}
+        <div className="py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <p className={`text-[11px] font-semibold uppercase tracking-widest ${isDark ? 'text-[#4a4741]' : 'text-slate-700'}`}>
+              By ServiceHub Cordova
+            </p>
+            <p className={`text-[11px] ${muted}`}>
+              © 2026 ServiceHub Cordova — A capstone project for the Municipality of Cordova, Cebu Province, Philippines.
+            </p>
+          </div>
+          <p className={`text-[11px] shrink-0 ${muted}`}>
+            Serving Cordova Local Government Unit
+          </p>
         </div>
       </div>
     </footer>
