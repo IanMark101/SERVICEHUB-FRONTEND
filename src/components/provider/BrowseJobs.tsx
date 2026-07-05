@@ -28,7 +28,9 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
     'House Cleaning',
     'Electrician',
     'Gardening',
-    'Tutoring'
+    'Tutoring',
+    'Aircon Service',
+    'Appliance Repair'
   ];
 
   // Map category tabs to actual database category names
@@ -37,7 +39,9 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
     'House Cleaning': 'House Cleaning',
     'Electrician': 'Electrical Repair',
     'Gardening': 'Lawn Care',
-    'Tutoring': 'Tutoring'
+    'Tutoring': 'Tutoring',
+    'Aircon Service': 'Aircon Service',
+    'Appliance Repair': 'Appliance Repair'
   };
 
   const handleOpenBid = (reqId: string, defaultBudget: number) => {
@@ -72,10 +76,17 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
     if (req.status !== 'open') return false;
 
     // 1. Search Query filter
+    const query = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.seekerName.toLowerCase().includes(searchQuery.toLowerCase());
+      req.title.toLowerCase().includes(query) ||
+      req.description.toLowerCase().includes(query) ||
+      req.seekerName.toLowerCase().includes(query) ||
+      req.category.toLowerCase().includes(query) ||
+      // Special aliases for common abbreviations or alternate terms
+      (query === 'aircon' && (req.title.toLowerCase().includes('air conditioner') || req.category.toLowerCase().includes('aircon') || req.category.toLowerCase().includes('ac'))) ||
+      (query === 'ac' && (req.title.toLowerCase().includes('air conditioner') || req.title.toLowerCase().includes('aircon'))) ||
+      (query === 'electrical' && req.category.toLowerCase().includes('electrical')) ||
+      (query === 'electrician' && req.category.toLowerCase().includes('electrical'));
 
     // 2. Category Tab filter
     const targetCategory = categoryMap[selectedCategory];
@@ -141,6 +152,28 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
           <p className={`text-xs sm:text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
             Browse and bid on open jobs in our trusted community marketplace.
           </p>
+
+          {/* Inputs Row inside Banner */}
+          <div className={`flex items-center rounded-2xl p-1.5 shadow-inner mt-6 max-w-xl mx-auto w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
+            }`}>
+            <span className={`pl-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+              <Search className="w-4 h-4" />
+            </span>
+            <input
+              type="text"
+              placeholder="What job or service request are you looking for?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
+                }`}
+            />
+            <button
+              type="button"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex-shrink-0"
+            >
+              Search
+            </button>
+          </div>
         </div>
       </div>
 
@@ -227,22 +260,7 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
         </div>
 
         {/* Search & Sort Action Bar */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between pt-2">
-          {/* Search Box */}
-          <div className={`flex items-center rounded-xl px-3 py-2 w-full md:max-w-md border transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-800/80' : 'bg-slate-50 border-slate-300'
-            }`}>
-            <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
-              <Search className="w-4 h-4 mr-2" />
-            </span>
-            <input
-              type="text"
-              placeholder="Search open jobs by client name, title, description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-none outline-none text-xs w-full text-slate-800 dark:text-[#f2efe9] placeholder-slate-400"
-            />
-          </div>
-
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-end pt-2">
           {/* Sort Dropdown & Badge */}
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
             <div className="flex items-center space-x-2">

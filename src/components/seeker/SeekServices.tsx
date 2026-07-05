@@ -21,7 +21,9 @@ export default function SeekServices() {
     'House Cleaning',
     'Electrician',
     'Gardening',
-    'Tutoring'
+    'Tutoring',
+    'Aircon Service',
+    'Appliance Repair'
   ];
 
   // Map category tabs to actual database category names
@@ -30,7 +32,9 @@ export default function SeekServices() {
     'House Cleaning': 'House Cleaning',
     'Electrician': 'Electrical Repair',
     'Gardening': 'Lawn Care',
-    'Tutoring': 'Tutoring'
+    'Tutoring': 'Tutoring',
+    'Aircon Service': 'Aircon Service',
+    'Appliance Repair': 'Appliance Repair'
   };
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'On-site Cash'>('On-site Cash');
@@ -47,9 +51,17 @@ export default function SeekServices() {
   // Filter listings based on category tabs, search strings, and quick filter options
   const filteredServices = services.filter(service => {
     // 1. Search Query filter
-    const matchesSearch = service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.providerName.toLowerCase().includes(searchQuery.toLowerCase());
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch = 
+      service.title.toLowerCase().includes(query) ||
+      service.description.toLowerCase().includes(query) ||
+      service.providerName.toLowerCase().includes(query) ||
+      service.category.toLowerCase().includes(query) ||
+      // Special aliases for common abbreviations or alternate terms
+      (query === 'aircon' && (service.title.toLowerCase().includes('air conditioner') || service.category.toLowerCase().includes('aircon') || service.category.toLowerCase().includes('ac'))) ||
+      (query === 'ac' && (service.title.toLowerCase().includes('air conditioner') || service.title.toLowerCase().includes('aircon'))) ||
+      (query === 'electrical' && service.category.toLowerCase().includes('electrical')) ||
+      (query === 'electrician' && service.category.toLowerCase().includes('electrical'));
 
     // 2. Category Tab filter
     const targetCategory = categoryMap[selectedCategory];
