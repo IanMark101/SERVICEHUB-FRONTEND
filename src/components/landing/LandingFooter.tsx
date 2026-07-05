@@ -100,9 +100,9 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
 
   const bg      = 'bg-[#0d0d0c]';
   const border  = 'border-neutral-800/60';
-  const heading = 'text-slate-400';
-  const link    = 'text-slate-200 hover:text-white';
-  const muted   = 'text-slate-500';
+  const heading = 'text-slate-200 font-bold';
+  const link    = 'text-slate-300 hover:text-white';
+  const muted   = 'text-slate-400';
 
   function handleLink(type: string, target: string) {
     if (type === 'scroll') scrollTo(target);
@@ -124,10 +124,10 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
                 ServiceHub<br />Cordova
               </span>
             </div>
-            <p className="text-sm leading-relaxed text-slate-400">
+            <p className="text-sm leading-relaxed text-slate-300">
               A hyperlocal service marketplace for Cordova, Cebu. Connecting verified providers with residents across all 13 barangays.
             </p>
-            <div className="space-y-2 text-sm text-slate-400">
+            <div className="space-y-2 text-sm text-slate-300">
               <div className="flex items-center gap-2">
                 <MapPin size={12} className="opacity-60 shrink-0" />
                 <span>Cordova, Cebu 6017</span>
@@ -152,7 +152,7 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
                   {col.links.map((l) => (
                     <li key={l.label}>
                       {l.type === 'none' ? (
-                        <span className={`text-[13px] ${isDark ? 'text-[#7a7670]' : 'text-slate-500'}`}>
+                        <span className="text-[13px] text-slate-300">
                           {l.label}
                         </span>
                       ) : (
@@ -177,7 +177,7 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
         {/* Bottom bar */}
         <div className="py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="space-y-1">
-            <p className={`text-[11px] font-semibold uppercase tracking-widest ${isDark ? 'text-[#4a4741]' : 'text-slate-700'}`}>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-300">
               By ServiceHub Cordova
             </p>
             <p className={`text-[11px] ${muted}`}>
