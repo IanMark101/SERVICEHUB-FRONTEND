@@ -36,23 +36,23 @@ const COLUMNS: { heading: string; links: { label: string; type: 'scroll' | 'rout
   {
     heading: 'For Service Seekers',
     links: [
-      { label: 'Book a Service',       type: 'route', target: '/register' },
-      { label: 'Browse Providers',     type: 'route', target: '/register' },
+      { label: 'Seek Services',        type: 'route',  target: '/login' },
+      { label: 'Post a Request',       type: 'route',  target: '/login' },
       { label: 'Track Live Queue',     type: 'scroll', target: 'queue' },
-      { label: 'Secure Escrow Payment', type: 'scroll', target: 'how-it-works' },
+      { label: 'Escrow Payment',       type: 'scroll', target: 'how-it-works' },
       { label: 'Rate & Review',        type: 'scroll', target: 'how-it-works' },
-      { label: 'Seeker Verification',  type: 'scroll', target: 'how-it-works' },
+      { label: 'Residency Verification', type: 'scroll', target: 'how-it-works' },
     ],
   },
   {
     heading: 'For Service Providers',
     links: [
-      { label: 'Offer a Service',      type: 'route', target: '/register' },
-      { label: 'Manage Bookings',      type: 'route', target: '/login' },
-      { label: 'Provider Verification', type: 'scroll', target: 'how-it-works' },
+      { label: 'Browse Jobs',          type: 'route',  target: '/login' },
+      { label: 'Create a Listing',     type: 'route',  target: '/login' },
+      { label: 'Manage Bookings',      type: 'route',  target: '/login' },
       { label: 'Queue Management',     type: 'scroll', target: 'queue' },
-      { label: 'Payout & Earnings',    type: 'scroll', target: 'how-it-works' },
-      { label: 'Provider Guidelines',  type: 'scroll', target: 'how-it-works' },
+      { label: 'Escrow Disbursement',  type: 'scroll', target: 'how-it-works' },
+      { label: 'Residency Verification', type: 'scroll', target: 'how-it-works' },
     ],
   },
   {
