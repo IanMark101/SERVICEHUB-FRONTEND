@@ -11,9 +11,13 @@ interface LandingHeaderProps {
 }
 
 const NAV_LINKS = [
-  { label: 'How It Works', href: 'how-it-works' },
-  { label: 'Live Queue', href: 'queue' },
   { label: 'Why Us', href: 'problem' },
+  { label: 'How It Works', href: 'how-it-works' },
+  { label: 'Features', href: 'workspaces' },
+  { label: 'Live Queue', href: 'queue' },
+  { label: 'Security', href: 'trust' },
+  { label: 'Comparison', href: 'comparison' },
+  { label: 'Community', href: 'community' },
   { label: 'Reviews', href: 'reviews' },
   { label: 'FAQ', href: 'faq' },
 ];
@@ -39,26 +43,26 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 w-full h-16 flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 ${isDark
+        className={`fixed top-0 left-0 right-0 z-50 w-full h-16 flex items-center justify-between px-4 lg:px-8 border-b transition-all duration-300 ${isDark
           ? 'bg-[#191919]/95 border-neutral-800/60'
           : 'bg-[#fbfaf7]/95 border-slate-200/80'
           } ${scrolled ? 'backdrop-blur-xl shadow-md' : 'backdrop-blur-md'}`}
       >
         {/* Brand */}
-        <div className="flex items-center space-x-3 shrink-0">
+        <div className="flex items-center space-x-2 shrink-0">
           <img src="/logo.png" alt="ServiceHub Cordova Logo" className="h-8 w-8 object-contain rounded-lg shadow-sm" />
-          <span className={`font-extrabold text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <span className={`font-extrabold text-base lg:text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             ServiceHub Cordova
           </span>
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {NAV_LINKS.map((link) => (
             <button
               key={link.href}
               onClick={() => scrollTo(link.href)}
-              className={`text-[13px] font-semibold px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${isDark
+              className={`text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDark
                 ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
                 : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
                 }`}
