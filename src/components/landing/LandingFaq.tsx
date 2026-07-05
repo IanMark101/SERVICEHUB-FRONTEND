@@ -89,7 +89,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
   ];
 
   return (
-    <section className="py-20 px-6 md:px-12 w-full">
+    <section id="faq" className="py-20 px-6 md:px-12 w-full scroll-mt-20">
       <div className="max-w-4xl mx-auto space-y-10">
         <ScrollReveal className="text-center space-y-3">
           <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Detailed Flow Walkthrough</span>

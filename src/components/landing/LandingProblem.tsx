@@ -8,7 +8,7 @@ interface LandingProblemProps {
 
 export default function LandingProblem({ isDark }: LandingProblemProps) {
   return (
-    <section className={`py-20 border-y transition-colors duration-500 px-6 md:px-12 w-full relative ${
+    <section id="problem" className={`py-20 border-y transition-colors duration-500 px-6 md:px-12 w-full relative scroll-mt-20 ${
       isDark ? 'bg-[#22211e]/40 border-neutral-850' : 'bg-slate-50/50 border-slate-200/60'
     }`}>
       {/* Ambient glow decoration */}
