@@ -14,12 +14,15 @@ const NAV_LINKS = [
   { label: 'How It Works', href: 'how-it-works' },
   { label: 'Live Queue', href: 'queue' },
   { label: 'Why Us', href: 'problem' },
+  { label: 'Reviews', href: 'reviews' },
   { label: 'FAQ', href: 'faq' },
 ];
 
 function scrollTo(id: string) {
   const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - 68;
+  window.scrollTo({ top, behavior: 'smooth' });
 }
 
 export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProps) {

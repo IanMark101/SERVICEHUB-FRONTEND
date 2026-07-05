@@ -10,7 +10,10 @@ interface LandingFooterProps {
 function scrollTo(id: string) {
   if (typeof window === 'undefined') return;
   const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!el) return;
+  // Account for the 64px fixed header so the section isn't hidden behind it
+  const top = el.getBoundingClientRect().top + window.scrollY - 68;
+  window.scrollTo({ top, behavior: 'smooth' });
 }
 
 const COLUMNS: { heading: string; links: { label: string; type: 'scroll' | 'route' | 'none'; target: string }[] }[] = [
@@ -91,11 +94,11 @@ const COLUMNS: { heading: string; links: { label: string; type: 'scroll' | 'rout
 export default function LandingFooter({ isDark, onGetStarted }: LandingFooterProps) {
   const router = useRouter();
 
-  const bg      = isDark ? 'bg-[#0d0d0c]' : 'bg-slate-950';
-  const border  = isDark ? 'border-neutral-800/60' : 'border-slate-800/50';
-  const heading = isDark ? 'text-[#7a7670]' : 'text-slate-500';
-  const link    = isDark ? 'text-[#b4b0a9] hover:text-white' : 'text-slate-400 hover:text-white';
-  const muted   = isDark ? 'text-[#55524e]' : 'text-slate-600';
+  const bg      = 'bg-[#0d0d0c]';
+  const border  = 'border-neutral-800/60';
+  const heading = 'text-slate-400';
+  const link    = 'text-slate-200 hover:text-white';
+  const muted   = 'text-slate-500';
 
   function handleLink(type: string, target: string) {
     if (type === 'scroll') scrollTo(target);
@@ -117,17 +120,17 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
                 ServiceHub<br />Cordova
               </span>
             </div>
-            <p className={`text-xs leading-relaxed ${isDark ? 'text-[#6e6a62]' : 'text-slate-600'}`}>
+            <p className="text-sm leading-relaxed text-slate-400">
               A hyperlocal service marketplace for Cordova, Cebu. Connecting verified providers with residents across all 13 barangays.
             </p>
-            <div className={`space-y-1.5 text-xs ${isDark ? 'text-[#55524e]' : 'text-slate-600'}`}>
+            <div className="space-y-2 text-sm text-slate-400">
               <div className="flex items-center gap-2">
-                <MapPin size={11} className="opacity-50 shrink-0" />
+                <MapPin size={12} className="opacity-60 shrink-0" />
                 <span>Cordova, Cebu 6017</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail size={11} className="opacity-50 shrink-0" />
-                <a href="mailto:admin@servicehub-cordova.local" className={`transition-colors ${isDark ? 'hover:text-[#b4b0a9]' : 'hover:text-slate-400'}`}>
+                <Mail size={12} className="opacity-60 shrink-0" />
+                <a href="mailto:admin@servicehub-cordova.local" className="hover:text-white transition-colors">
                   admin@servicehub-cordova.local
                 </a>
               </div>

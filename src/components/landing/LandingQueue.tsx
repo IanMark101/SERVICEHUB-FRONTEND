@@ -8,7 +8,7 @@ interface LandingQueueProps {
 
 export default function LandingQueue({ isDark }: LandingQueueProps) {
   return (
-    <section className="py-20 px-6 md:px-12 w-full relative overflow-hidden">
+    <section id="queue" className="py-20 px-6 md:px-12 w-full relative overflow-hidden scroll-mt-20">
       {/* Soft background glow */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 glow-bubble-green -z-10 opacity-30 animate-pulse-glow" />
       <div className="max-w-4xl mx-auto space-y-10">

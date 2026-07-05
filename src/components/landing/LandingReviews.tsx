@@ -57,7 +57,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
   };
 
   return (
-    <section className={`pt-10 pb-16 md:pt-12 md:pb-16 px-6 md:px-12 border-b overflow-hidden relative transition-colors duration-500 ${
+    <section id="reviews" className={`pt-10 pb-16 md:pt-12 md:pb-16 px-6 md:px-12 border-b overflow-hidden relative transition-colors duration-500 scroll-mt-20 ${
       isDark ? 'bg-[#121210] border-neutral-850/40 text-[#f2efe9]' : 'bg-[#f7f6f2] border-slate-200 text-slate-800'
     }`}>
       {/* Decorative background glows */}
