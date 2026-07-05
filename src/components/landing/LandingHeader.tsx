@@ -37,8 +37,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
     <>
       <header
         className={`sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 ${isDark
-            ? 'bg-[#191919]/95 border-neutral-800/60'
-            : 'bg-[#fbfaf7]/95 border-slate-200/80'
+          ? 'bg-[#191919]/95 border-neutral-800/60'
+          : 'bg-[#fbfaf7]/95 border-slate-200/80'
           } ${scrolled ? 'backdrop-blur-xl shadow-md' : 'backdrop-blur-md'}`}
       >
         {/* Brand */}
@@ -56,8 +56,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
               key={link.href}
               onClick={() => scrollTo(link.href)}
               className={`text-[13px] font-semibold px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${isDark
-                  ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
+                ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
                 }`}
             >
               {link.label}
@@ -72,8 +72,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
             type="button"
             onClick={toggleTheme}
             className={`p-2.5 rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer ${isDark
-                ? 'bg-[#2c2b27] border-neutral-700 text-amber-500 hover:text-amber-400'
-                : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800 shadow-sm'
+              ? 'bg-[#2c2b27] border-neutral-700 text-amber-500 hover:text-amber-400'
+              : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800 shadow-sm'
               }`}
             title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
@@ -98,8 +98,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           {/* Mobile hamburger */}
           <button
             className={`md:hidden p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${isDark
-                ? 'bg-[#2c2b27] border-neutral-700 text-[#f2efe9]'
-                : 'bg-white border-slate-200 text-slate-700 shadow-sm'
+              ? 'bg-[#2c2b27] border-neutral-700 text-[#f2efe9]'
+              : 'bg-white border-slate-200 text-slate-700 shadow-sm'
               }`}
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
@@ -121,8 +121,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
                 key={link.href}
                 onClick={() => { scrollTo(link.href); setMobileOpen(false); }}
                 className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${isDark
-                    ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
               >
                 {link.label}
@@ -132,8 +132,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
               <button
                 onClick={() => { router.push('/login'); setMobileOpen(false); }}
                 className={`flex-1 font-bold text-xs py-3 px-4 rounded-xl transition-all duration-200 cursor-pointer border ${isDark
-                    ? 'border-neutral-700 text-[#f2efe9] hover:bg-neutral-800'
-                    : 'border-slate-200 text-slate-700 hover:bg-slate-100'
+                  ? 'border-neutral-700 text-[#f2efe9] hover:bg-neutral-800'
+                  : 'border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
               >
                 Log In
