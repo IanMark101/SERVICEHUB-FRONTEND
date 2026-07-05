@@ -118,9 +118,9 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
 
           {/* Brand block */}
           <div className="lg:w-56 shrink-0 space-y-5">
-            <div className="flex items-center gap-2.5">
-              <img src="/logo.png" alt="ServiceHub Cordova" className="h-7 w-7 rounded-lg object-contain" />
-              <span className={`font-extrabold text-sm tracking-tight text-white`}>
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="ServiceHub Cordova" className="h-11 w-11 rounded-xl object-contain shadow-md" />
+              <span className="font-black text-lg md:text-xl tracking-tight text-white leading-tight">
                 ServiceHub<br />Cordova
               </span>
             </div>
