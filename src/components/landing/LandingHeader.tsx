@@ -36,7 +36,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 ${isDark
+        className={`fixed top-0 left-0 right-0 z-50 w-full h-16 flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 ${isDark
           ? 'bg-[#191919]/95 border-neutral-800/60'
           : 'bg-[#fbfaf7]/95 border-slate-200/80'
           } ${scrolled ? 'backdrop-blur-xl shadow-md' : 'backdrop-blur-md'}`}
@@ -148,6 +148,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           </nav>
         </div>
       )}
+      {/* Spacer so page content isn't hidden behind the fixed header */}
+      <div className="h-16" />
     </>
   );
 }
