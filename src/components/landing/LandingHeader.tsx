@@ -12,8 +12,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
   const router = useRouter();
 
   return (
-    <header className={`sticky top-0 z-50 w-full h-16 backdrop-blur-xl flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 ${isDark ? 'bg-[#191919]/80 border-neutral-850/40' : 'bg-[#fbfaf7]/80 border-slate-300'
-      }`}>
+    <header className="sticky top-0 z-50 w-full h-16 backdrop-blur-xl flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 bg-[#fbfaf7]/80 dark:bg-[#191919]/80 border-slate-300 dark:border-neutral-850/40">
       <div className="flex items-center space-x-3">
         <img 
           src="/logo.png" 
