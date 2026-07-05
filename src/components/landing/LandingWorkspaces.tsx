@@ -117,14 +117,14 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h3 className={`font-bold text-base sm:text-lg tracking-tight mb-2.5 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                  Unified Identity & Escrow
+                  Unified Identity & Trust
                 </h3>
                 <p className={`text-xs leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>
-                  Your trust scores, verified credentials, chat messages, and transaction records remain linked under one single profile. Money earned as a Provider can be spent directly to hire providers as a Seeker.
+                  Your trust scores, verified credentials, chat messages, and transaction records remain linked under one single profile. Your community reputation travels with you, whether you are seeking help or offering skills.
                 </p>
               </div>
               <div className="pt-6 border-t border-slate-100 dark:border-neutral-850 mt-6 text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-neutral-500">
-                Single Wallet, Double Utility
+                One Profile, Seamless Trust
               </div>
             </div>
           </ScrollReveal>
