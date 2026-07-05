@@ -11,18 +11,15 @@ interface LandingHeaderProps {
 }
 
 const NAV_LINKS = [
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'Live Queue', href: '#queue' },
-  { label: 'Why ServiceHub', href: '#problem' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'How It Works', href: 'how-it-works' },
+  { label: 'Live Queue',   href: 'queue' },
+  { label: 'Why Us',       href: 'problem' },
+  { label: 'FAQ',          href: 'faq' },
 ];
 
-function scrollToSection(href: string) {
-  const id = href.replace('#', '');
+function scrollTo(id: string) {
   const el = document.getElementById(id);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProps) {
@@ -31,63 +28,56 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const handler = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
   }, []);
 
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300
-          ${isDark
-            ? 'bg-[#191919]/90 border-neutral-800/50'
-            : 'bg-[#fbfaf7]/90 border-slate-200/70'
-          }
-          ${scrolled ? 'backdrop-blur-xl shadow-sm' : 'backdrop-blur-md'}
-        `}
+        className={`sticky top-0 z-50 w-full h-16 flex items-center justify-between px-6 md:px-12 border-b transition-all duration-300 ${
+          isDark
+            ? 'bg-[#191919]/95 border-neutral-800/60'
+            : 'bg-[#fbfaf7]/95 border-slate-200/80'
+        } ${scrolled ? 'backdrop-blur-xl shadow-md' : 'backdrop-blur-md'}`}
       >
         {/* Brand */}
-        <div className="flex items-center space-x-3">
-          <img
-            src="/logo.png"
-            alt="ServiceHub Cordova Logo"
-            className="h-8 w-8 object-contain rounded-lg shadow-sm"
-          />
+        <div className="flex items-center space-x-3 shrink-0">
+          <img src="/logo.png" alt="ServiceHub Cordova Logo" className="h-8 w-8 object-contain rounded-lg shadow-sm" />
           <span className={`font-extrabold text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             ServiceHub Cordova
           </span>
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-1">
+        <nav className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map((link) => (
             <button
               key={link.href}
-              onClick={() => scrollToSection(link.href)}
-              className={`text-xs font-semibold px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer
-                ${isDark
+              onClick={() => scrollTo(link.href)}
+              className={`text-[13px] font-semibold px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer ${
+                isDark
                   ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/70'
-                }
-              `}
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
+              }`}
             >
               {link.label}
             </button>
           ))}
         </nav>
 
-        {/* Action Controls */}
-        <div className="flex items-center space-x-2.5">
+        {/* Right controls */}
+        <div className="flex items-center gap-2.5 shrink-0">
           {/* Theme toggle */}
           <button
             type="button"
             onClick={toggleTheme}
-            className={`p-2.5 rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer
-              ${isDark
+            className={`p-2.5 rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer ${
+              isDark
                 ? 'bg-[#2c2b27] border-neutral-700 text-amber-500 hover:text-amber-400'
                 : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800 shadow-sm'
-              }`}
+            }`}
             title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
             {isDark ? <Sun size={15} /> : <Moon size={15} />}
@@ -95,11 +85,9 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
 
           <button
             onClick={() => router.push('/login')}
-            className={`hidden sm:block font-bold text-xs py-2.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer
-              ${isDark
-                ? 'text-[#f2efe9] hover:bg-neutral-800'
-                : 'text-slate-700 hover:bg-slate-100/60'
-              }`}
+            className={`hidden sm:block font-bold text-xs py-2.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${
+              isDark ? 'text-[#f2efe9] hover:bg-neutral-800' : 'text-slate-700 hover:bg-slate-100/70'
+            }`}
           >
             Log In
           </button>
@@ -111,13 +99,13 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
             Sign Up
           </button>
 
-          {/* Mobile menu button */}
+          {/* Mobile hamburger */}
           <button
-            className={`md:hidden p-2.5 rounded-xl border transition-all duration-200 cursor-pointer
-              ${isDark
+            className={`md:hidden p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+              isDark
                 ? 'bg-[#2c2b27] border-neutral-700 text-[#f2efe9]'
                 : 'bg-white border-slate-200 text-slate-700 shadow-sm'
-              }`}
+            }`}
             onClick={() => setMobileOpen((v) => !v)}
             aria-label="Toggle menu"
           >
@@ -129,37 +117,32 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
       {/* Mobile Nav Drawer */}
       {mobileOpen && (
         <div
-          className={`md:hidden fixed top-16 left-0 right-0 z-40 border-b shadow-xl transition-all duration-300
-            ${isDark ? 'bg-[#1d1c19] border-neutral-800' : 'bg-[#fefdf9] border-slate-200'}
-          `}
+          className={`md:hidden fixed top-16 left-0 right-0 z-40 border-b shadow-2xl ${
+            isDark ? 'bg-[#1d1c19] border-neutral-800' : 'bg-[#fefdf9] border-slate-200'
+          }`}
         >
-          <nav className="flex flex-col px-6 py-4 space-y-1">
+          <nav className="flex flex-col px-6 py-4 gap-1">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.href}
-                onClick={() => {
-                  scrollToSection(link.href);
-                  setMobileOpen(false);
-                }}
-                className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer
-                  ${isDark
+                onClick={() => { scrollTo(link.href); setMobileOpen(false); }}
+                className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                  isDark
                     ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                }`}
               >
                 {link.label}
               </button>
             ))}
-            <div className="pt-2 border-t mt-2 border-dashed flex gap-3
-              ${isDark ? 'border-neutral-700' : 'border-slate-200'}
-            ">
+            <div className={`pt-3 mt-2 border-t flex gap-3 ${isDark ? 'border-neutral-700' : 'border-slate-200'}`}>
               <button
                 onClick={() => { router.push('/login'); setMobileOpen(false); }}
-                className={`flex-1 font-bold text-xs py-3 px-4 rounded-xl transition-all duration-200 cursor-pointer border
-                  ${isDark
+                className={`flex-1 font-bold text-xs py-3 px-4 rounded-xl transition-all duration-200 cursor-pointer border ${
+                  isDark
                     ? 'border-neutral-700 text-[#f2efe9] hover:bg-neutral-800'
                     : 'border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
+                }`}
               >
                 Log In
               </button>

@@ -89,18 +89,16 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
   ];
 
   return (
-    <section id="faq" className="py-20 px-6 md:px-12 w-full scroll-mt-20">
+    <section className="py-20 px-6 md:px-12 w-full">
       <div className="max-w-4xl mx-auto space-y-10">
         <ScrollReveal className="text-center space-y-3">
           <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Detailed Flow Walkthrough</span>
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${
-            isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-          }`}>
+          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
+            }`}>
             How everything actually works
           </h2>
-          <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${
-            isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-          }`}>
+          <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
+            }`}>
             Click on a question below to read the complete mechanical breakdown.
           </p>
         </ScrollReveal>
@@ -111,26 +109,22 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
             return (
               <ScrollReveal
                 key={idx}
-                className={`rounded-[16px] border backdrop-blur-xl overflow-hidden transition-all duration-500 shadow-sm hover:shadow-md ${
-                  isDark ? 'bg-[#1f1e1a]/30 border-[#33322e]/45' : 'bg-white/40 border-white/20'
-                }`}
+                className={`rounded-[16px] border backdrop-blur-xl overflow-hidden transition-all duration-500 shadow-sm hover:shadow-md ${isDark ? 'bg-[#1f1e1a]/30 border-[#33322e]/45' : 'bg-white/40 border-white/20'
+                  }`}
               >
                 <button
                   onClick={() => toggleFaq(idx)}
-                  className={`w-full flex items-center justify-between p-5 text-left font-bold text-xs sm:text-sm transition-colors duration-250 cursor-pointer ${
-                    isDark ? 'text-[#f2efe9] hover:bg-[#2c2a27]/30' : 'text-slate-950 hover:bg-slate-50/50'
-                  }`}
+                  className={`w-full flex items-center justify-between p-5 text-left font-bold text-xs sm:text-sm transition-colors duration-250 cursor-pointer ${isDark ? 'text-[#f2efe9] hover:bg-[#2c2a27]/30' : 'text-slate-950 hover:bg-slate-50/50'
+                    }`}
                 >
                   <span>{item.q}</span>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transform transition-transform duration-300 ${
-                    isOpen ? 'rotate-180' : ''
-                  }`} />
+                  <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''
+                    }`} />
                 </button>
 
                 {isOpen && (
-                  <div className={`px-5 pb-5 pt-1 border-t text-xs leading-relaxed font-medium animate-in slide-in-from-top-1 fade-in duration-200 ${
-                    isDark ? 'border-t border-neutral-855 text-[#b4b0a9]' : 'border-t border-slate-100 text-slate-600'
-                  }`}>
+                  <div className={`px-5 pb-5 pt-1 border-t text-xs leading-relaxed font-medium animate-in slide-in-from-top-1 fade-in duration-200 ${isDark ? 'border-t border-neutral-855 text-[#b4b0a9]' : 'border-t border-slate-100 text-slate-600'
+                    }`}>
                     {item.a}
                   </div>
                 )}

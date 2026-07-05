@@ -9,7 +9,7 @@ interface LandingHeroProps {
 
 export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
   return (
-    <section id="hero" className="relative pt-8 pb-16 md:pt-10 md:pb-24 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden scroll-mt-20">
+    <section className="relative pt-8 pb-16 md:pt-10 md:pb-24 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden">
       {/* Soft decorative background glows */}
       <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-3xl -z-10 pointer-events-none transition-colors duration-500 ${isDark ? 'bg-amber-955/10' : 'bg-amber-100/25'
         }`} />

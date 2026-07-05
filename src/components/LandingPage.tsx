@@ -47,23 +47,28 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen font-sans select-none flex flex-col justify-between transition-colors duration-500 overflow-x-clip relative bg-[#fbfaf7] dark:bg-[#191919] text-[#1c1b18] dark:text-[#f2efe9]">
-      {/* Global Background Grid */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-100 pointer-events-none z-0"></div>
-      
+    <div className="min-h-screen font-sans select-none flex flex-col transition-colors duration-500 relative bg-[#fbfaf7] dark:bg-[#191919] text-[#1c1b18] dark:text-[#f2efe9]">
       <LandingHeader isDark={isDark} toggleTheme={toggleTheme} onGetStarted={onGetStarted} />
-      <LandingHero isDark={isDark} onGetStarted={onGetStarted} />
-      <LandingProblem isDark={isDark} />
-      <LandingHowItWorks isDark={isDark} />
-      <LandingWorkspaces isDark={isDark} />
-      <LandingQueue isDark={isDark} />
-      <LandingTrust isDark={isDark} />
-      <LandingComparison isDark={isDark} />
-      <LandingCommunity isDark={isDark} />
-      <LandingReviews isDark={isDark} />
-      <LandingFaq isDark={isDark} />
-      <LandingCta isDark={isDark} onGetStarted={onGetStarted} />
-      <LandingFooter isDark={isDark} onGetStarted={onGetStarted} />
+
+      {/* Scrollable content — overflow-x clipped here so sticky header above is unaffected */}
+      <div className="flex-1 flex flex-col overflow-x-hidden relative">
+        {/* Global Background Grid */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-100 pointer-events-none z-0"></div>
+
+        <LandingHero isDark={isDark} onGetStarted={onGetStarted} />
+        <LandingProblem isDark={isDark} />
+        <LandingHowItWorks isDark={isDark} />
+        <LandingWorkspaces isDark={isDark} />
+        <LandingQueue isDark={isDark} />
+        <LandingTrust isDark={isDark} />
+        <LandingComparison isDark={isDark} />
+        <LandingCommunity isDark={isDark} />
+        <LandingReviews isDark={isDark} />
+        <LandingFaq isDark={isDark} />
+        <LandingCta isDark={isDark} onGetStarted={onGetStarted} />
+        <LandingFooter isDark={isDark} onGetStarted={onGetStarted} />
+      </div>
     </div>
   );
+
 }
