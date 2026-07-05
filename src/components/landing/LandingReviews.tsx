@@ -139,7 +139,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                 <div
                   key={review.id}
                   onClick={() => !isFocus && setActiveIndex(idx)}
-                  className={`w-full max-w-[280px] md:max-w-[340px] p-5 sm:p-6 rounded-[24px] border backdrop-blur-xl transition-all duration-550 ease-out absolute ${cardStyles} ${
+                  className={`w-full max-w-[340px] md:max-w-[480px] p-5 sm:p-6 rounded-[24px] border backdrop-blur-xl transition-all duration-550 ease-out absolute ${cardStyles} ${
                     isDark 
                       ? 'bg-[#1c1b18]/90 border-neutral-800/80 text-[#f2efe9] shadow-xl' 
                       : 'bg-white border-slate-200 text-slate-800 shadow-lg'
