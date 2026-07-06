@@ -102,7 +102,7 @@ export default function GoogleSignInButton({
             d="M12 24c3.24 0 5.973-1.08 7.964-2.924l-3.664-2.84c-1.018.682-2.318 1.082-4.3 1.082-3.3 0-6.1-2.236-7.1-5.236L1.118 17.265C3.018 21.164 6.982 24 12 24z"
           />
         </svg>
-        <span>Sign In via Google</span>
+        <span>{mode === 'signup' ? 'Continue with Google' : 'Sign In via Google'}</span>
       </button>
     </div>
   );

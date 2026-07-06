@@ -30,6 +30,11 @@ export async function apiVerifyEmail(token: string) {
   return response.data;
 }
 
+export async function apiResendVerification(email: string) {
+  const response = await api.post('/auth/resend-verification', { email });
+  return response.data;
+}
+
 export async function apiForgotPassword(email: string) {
   const response = await api.post('/auth/forgot-password', { email });
   return response.data;

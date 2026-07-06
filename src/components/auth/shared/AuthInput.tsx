@@ -30,7 +30,7 @@ export default function AuthInput({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+        <label className="block text-sm font-semibold text-slate-550 dark:text-slate-400 mb-1.5">
           {label}
         </label>
       )}

@@ -30,12 +30,15 @@ export default function useAuthForm({
   const [error, setError] = useState<string>('');
   const [successMsg, setSuccessMsg] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isRegisterSuccess, setIsRegisterSuccess] = useState<boolean>(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
+    confirmPassword: '',
+    agreeTerms: false,
     role: 'seeker' as 'seeker' | 'provider',
     bio: '',
     phone: '',
@@ -52,8 +55,11 @@ export default function useAuthForm({
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target as any;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as any).checked : value
+    }));
     setError('');
     setFieldErrors((prev) => ({ ...prev, [name]: '' }));
   };
@@ -82,8 +88,14 @@ export default function useAuthForm({
       }
       if (!formData.password) {
         errors.password = 'Password is required';
-      } else if (formData.password.length < 8 || !/\d/.test(formData.password)) {
-        errors.password = 'Must be at least 8 characters and contain at least 1 number';
+      } else if (formData.password.length < 8 || !/\d/.test(formData.password) || !/[A-Z]/.test(formData.password)) {
+        errors.password = 'Must be at least 8 characters, contain at least 1 number, and 1 uppercase letter';
+      }
+      if (formData.password !== formData.confirmPassword) {
+        errors.confirmPassword = 'Passwords do not match';
+      }
+      if (!formData.agreeTerms) {
+        errors.agreeTerms = 'You must agree to the Terms of Service and Privacy Policy';
       }
 
       if (Object.keys(errors).length > 0) {
@@ -273,15 +285,8 @@ export default function useAuthForm({
       })
         .then((res) => {
           if (res.success) {
-            setSuccessMsg(
-              'Registration successful! A verification email has been sent. Please verify your email address to unlock account access.'
-            );
+            setIsRegisterSuccess(true);
             setError('');
-            setStep(1);
-            setTimeout(() => {
-              router.push('/login');
-              setSuccessMsg('');
-            }, 6000);
           } else {
             setError(res.error || 'Registration failed');
           }
@@ -310,6 +315,8 @@ export default function useAuthForm({
     setSuccessMsg,
     fieldErrors,
     setFieldErrors,
+    isRegisterSuccess,
+    setIsRegisterSuccess,
     handleInputChange,
     handleRoleSelect,
     handleAvatarSelect,
