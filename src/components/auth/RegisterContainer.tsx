@@ -65,22 +65,18 @@ export default function RegisterContainer({
       />
 
       {/* Right Panel: Height-stabilized Forms Column */}
-      <div className="md:w-1/2 p-4 sm:p-8 md:p-10 flex flex-col justify-center bg-[#fbfaf7] dark:bg-[#191919] relative h-full md:h-screen md:overflow-y-auto z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
+      <div className="md:w-1/2 p-4 sm:p-6 md:p-8 flex flex-col justify-center bg-[#fbfaf7] dark:bg-[#191919] relative h-full md:h-screen md:overflow-y-auto z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
         
         {/* Error Message Banner Slot */}
-        <div className="h-8 mb-2 relative flex items-center justify-center flex-shrink-0">
-          {error ? (
-            <div className="absolute inset-0 p-2 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-medium flex items-center justify-center animate-in fade-in duration-150">
-              {error}
-            </div>
-          ) : (
-            <div className="h-full w-full" />
-          )}
-        </div>
+        {error && (
+          <div className="mb-3 p-2 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-600 dark:text-red-400 text-xs font-medium text-center animate-in fade-in duration-150 flex-shrink-0">
+            {error}
+          </div>
+        )}
 
         {/* Success Message Banner Slot */}
         {successMsg && (
-          <div className="mb-4 p-3 bg-emerald-950/20 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/35 rounded-xl text-emerald-600 dark:text-emerald-400 text-xs font-medium animate-in fade-in duration-150">
+          <div className="mb-3 p-2.5 bg-emerald-950/20 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/35 rounded-xl text-emerald-600 dark:text-emerald-400 text-xs font-medium text-center animate-in fade-in duration-150 flex-shrink-0">
             {successMsg}
           </div>
         )}

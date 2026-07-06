@@ -42,7 +42,7 @@ export default function SignupForm({
   toggleMode,
 }: SignupFormProps) {
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+    <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-300">
       
       {/* Header Info */}
       <div>
@@ -51,7 +51,7 @@ export default function SignupForm({
           {step === 2 && 'Contact Info'}
           {step === 3 && 'Profile Setup'}
         </h3>
-        <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-1 leading-normal">
+        <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-0.5 leading-normal">
           {step === 1 && 'Enter your personal data to create your account.'}
           {step === 2 && 'Provide contact details for hyper-local booking verification.'}
           {step === 3 && 'Finalize your public profile details.'}
@@ -59,7 +59,7 @@ export default function SignupForm({
       </div>
 
       {/* Main Multi-Step Form */}
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-2">
         {/* STEP 1 */}
         {step === 1 && (
           <>
@@ -92,29 +92,24 @@ export default function SignupForm({
               error={fieldErrors.email}
             />
 
-            <div className="space-y-0.5">
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
-                Password
-              </label>
-              <AuthInput
-                label=""
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleInputChange}
-                error={fieldErrors.password}
-                helperText="Must be at least 8 characters."
+            <AuthInput
+              label="Password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleInputChange}
+              error={fieldErrors.password}
+              helperText="Must be at least 8 characters."
+            >
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
               >
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </AuthInput>
-            </div>
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </AuthInput>
           </>
         )}
 
