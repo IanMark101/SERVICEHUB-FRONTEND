@@ -61,7 +61,12 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: #fbfaf7;
+  }
+
+  .dark ::-webkit-scrollbar-track,
+  .dark::-webkit-scrollbar-track {
+    background: #0a0a0a;
   }
 
   ::-webkit-scrollbar-thumb {
