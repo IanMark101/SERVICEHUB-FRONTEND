@@ -18,12 +18,16 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ onGetStarted }: LandingPageProps) {
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("theme") === "dark";
+    }
+    return false;
+  });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const dark = localStorage.getItem("theme") === "dark";
-      setIsDark(dark);
       if (dark) {
         document.documentElement.classList.add('dark');
       } else {
