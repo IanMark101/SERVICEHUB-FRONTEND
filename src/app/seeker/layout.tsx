@@ -7,30 +7,28 @@ import Header from '../../components/Header';
 import { HelpCircle, LogOut } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
+import { useRouteGuard } from '../../hooks/useRouteGuard';
+
 const tabDetails: Record<string, { title: string; desc: string }> = {
   'seek-services': {
     title: 'Seek Services Marketplace',
     desc: 'Interactive grid displaying certified local providers. Features live custom request triggers, search sorting, and quick rating filters.',
   },
   'post-request': {
-    title: 'Post Service Request Form',
-    desc: 'Broadcast workspace job requests to the community dashboard. Form covers title, specific category select, urgency levels, budget cap, and job description.',
-  },
-  'request-manager': {
-    title: 'Seeker Request Manager',
-    desc: 'Dashboard for posted requests. Manage current broadcasts: pause inquiries, edit job budget outlines, or retract community job posts.',
+    title: 'Post Custom Job Request',
+    desc: 'Publish active job openings. Detail category, minimum-maximum budgets, schedule, and urgency to receive local worker applications.',
   },
   'incoming-offers': {
-    title: 'Incoming Offers (Bids List)',
-    desc: 'Compare bids submitted by providers for your requests.',
+    title: 'Incoming Provider Offers Board',
+    desc: 'Real-time overview of custom service quotes submitted by providers for your requests. Accept an offer to immediately start booking.',
   },
   'seeker-activity': {
-    title: 'Seeker Engagement Lifecycle Tracker',
-    desc: 'Visual progress map tracking active bookings through: Action Required, Work In Progress, Queued, Pending Freelancer Response, Disputes, Completed.',
+    title: 'Seeker Workspace & Job Tracker',
+    desc: 'Workspace checklist to schedule active projects: In Progress, Waiting Queue position tracker, Pending Offers, Awaiting Seeker Approvals, and Disputes.',
   },
-  'suggest-category': {
-    title: 'Suggest New Category Form',
-    desc: 'Request the creation of specialized community service categories. Submissions route to the Moderator Queue for Admin approval.',
+  'transaction-history': {
+    title: 'Transaction History & Financial Ledger',
+    desc: 'Detailed transaction logs displaying escrow logs, wallet deposits/refunds, PayMongo checkout links, and mini-calendar filters.',
   },
   'messages': {
     title: 'Direct Split-Screen Chat Interface',
@@ -39,6 +37,10 @@ const tabDetails: Record<string, { title: string; desc: string }> = {
   'community-hub': {
     title: 'Community Announcement Hub & Leaderboard',
     desc: 'Local announcement board showing platform news, safety guidelines, and the Weekly Top 10 High-Rated Providers leaderboards.',
+  },
+  'user-profile': {
+    title: 'Provider Details Profile Canvas',
+    desc: 'Dynamic biography displaying verified credentials, portfolio images, customer reviews history, and real-time active queue position.',
   }
 };
 
@@ -46,15 +48,10 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, authLoading, user, isDark, setUser, setIsAuthenticated, jobRequests, bids } = useApp();
+  const { shouldRender } = useRouteGuard(['user']);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
 
   const handleSignOut = () => {
     apiLogout().catch(() => {});
@@ -72,7 +69,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
     );
   }
 
-  if (!isAuthenticated) return null;
+  if (!shouldRender) return null;
 
   // Resolve activeTab from pathname
   const activeTab = pathname.split('/').pop() || 'seek-services';

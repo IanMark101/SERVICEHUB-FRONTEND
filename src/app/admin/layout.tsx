@@ -1,28 +1,20 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
 import { apiLogout } from '../../api/auth.api';
+import { useRouteGuard } from '../../hooks/useRouteGuard';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, authLoading, user, isDark, setUser, setIsAuthenticated } = useApp();
+  const { shouldRender } = useRouteGuard(['admin']);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (!isAuthenticated) {
-        router.push('/login');
-      } else if (user && user.role !== 'admin') {
-        router.push('/dashboard');
-      }
-    }
-  }, [isAuthenticated, authLoading, user, router]);
 
   const handleSignOut = () => {
     apiLogout().catch(() => {});
@@ -40,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  if (!isAuthenticated || !user || user.role !== 'admin') return null;
+  if (!shouldRender) return null;
 
   const activeTab = pathname.split('/').pop() || 'overview';
 

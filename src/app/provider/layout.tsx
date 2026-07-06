@@ -7,6 +7,8 @@ import Header from '../../components/Header';
 import { HelpCircle, LogOut } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
+import { useRouteGuard } from '../../hooks/useRouteGuard';
+
 const tabDetails: Record<string, { title: string; desc: string }> = {
   'browse-services': {
     title: 'Browse Service Requests Board',
@@ -46,15 +48,10 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, authLoading, user, isDark, setUser, setIsAuthenticated, jobEngagements } = useApp();
+  const { shouldRender } = useRouteGuard(['user']);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
 
   const handleSignOut = () => {
     apiLogout().catch(() => {});
@@ -72,7 +69,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
     );
   }
 
-  if (!isAuthenticated) return null;
+  if (!shouldRender) return null;
 
   // Resolve activeTab from pathname
   const activeTab = pathname.split('/').pop() || 'browse-services';

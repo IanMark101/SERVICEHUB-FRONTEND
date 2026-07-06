@@ -315,11 +315,13 @@ export default function Sidebar({
             </div>
           </div>
 
-          <div className={`border-t pt-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
-            <div className="space-y-0.5">
-              {sharedMenu.map(renderMenuItem)}
+          {currentRole !== 'admin' && (
+            <div className={`border-t pt-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
+              <div className="space-y-0.5">
+                {sharedMenu.map(renderMenuItem)}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

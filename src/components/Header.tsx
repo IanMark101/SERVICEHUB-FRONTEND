@@ -162,7 +162,7 @@ export default function Header({
       <div className="flex items-center space-x-3 sm:space-x-4">
 
         {/* Global Hub Indicator */}
-        {activeTab !== 'community-hub' && (
+        {currentRole !== 'admin' && activeTab !== 'community-hub' && (
           <button
             type="button"
             onClick={() => setActiveTab('community-hub')}
@@ -176,20 +176,22 @@ export default function Header({
         )}
 
         {/* Global Messages Button */}
-        <button
-          type="button"
-          onClick={() => setActiveTab('messages')}
-          className={`p-2 rounded-xl border transition-all relative ${isDark
-              ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
-              : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
-            } ${activeTab === 'messages' ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
-          title="Messages"
-        >
-          <MessageSquare className="w-4 h-4" />
-          <span className={`absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full ${theme.badge} text-[9px] font-bold flex items-center justify-center border border-white shadow-sm`}>
-            4
-          </span>
-        </button>
+        {currentRole !== 'admin' && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('messages')}
+            className={`p-2 rounded-xl border transition-all relative ${isDark
+                ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
+                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
+              } ${activeTab === 'messages' ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
+            title="Messages"
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span className={`absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full ${theme.badge} text-[9px] font-bold flex items-center justify-center border border-white shadow-sm`}>
+              4
+            </span>
+          </button>
+        )}
 
         {/* Global Theme Toggle Button */}
         <button

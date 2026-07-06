@@ -10,14 +10,16 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && isAuthenticated && user) {
-      router.push(`/${user.role}`);
+      const finalRole = user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
+      router.push(`/${finalRole}`);
     }
   }, [isAuthenticated, user, authLoading, router]);
 
   const handleLoginSuccess = (userData: UserSession) => {
     setUser(userData);
     setIsAuthenticated(true);
-    router.push(`/${userData.role}`);
+    const finalRole = userData.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
+    router.push(`/${finalRole}`);
   };
 
   const handleBackToHome = () => {

@@ -142,13 +142,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const firstName = names[0] || '';
             const lastName = names.slice(1).join(' ') || '';
             const savedRole = (localStorage.getItem('workspaceRole') as any) || 'seeker';
+            const finalRole = dbUser.role === 'admin' ? 'admin' : savedRole;
 
             const sessionData: UserSession = {
               id: dbUser.id,
               email: dbUser.email,
               firstName,
               lastName,
-              role: savedRole,
+              role: finalRole,
               avatarUrl: dbUser.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
               bio: dbUser.bio || '',
               phone: dbUser.phone,

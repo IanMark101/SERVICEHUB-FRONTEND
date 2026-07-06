@@ -50,6 +50,15 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    if (error.response?.status === 403) {
+      const errData = error.response.data;
+      if (errData?.error === "Account suspended" || errData?.code === "EMAIL_NOT_VERIFIED") {
+        localStorage.removeItem('accessToken');
+        window.dispatchEvent(new Event('auth_session_expired'));
+        return Promise.reject(error);
+      }
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

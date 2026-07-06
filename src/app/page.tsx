@@ -14,8 +14,8 @@ export default function Home() {
       apiGetMe()
         .then((res) => {
           if (res.success) {
-            const savedRole = localStorage.getItem('workspaceRole') || 'seeker';
-            router.push(`/${savedRole}`);
+            const finalRole = res.data.user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
+            router.push(`/${finalRole}`);
           } else {
             setLoading(false);
           }
