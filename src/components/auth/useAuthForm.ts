@@ -131,7 +131,7 @@ export default function useAuthForm({
             email: user.email,
             firstName,
             lastName,
-            role: 'seeker', // Default initial view role, switchable in dashboard
+            role: user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') as any || 'seeker'),
             avatarUrl: user.avatarUrl || avatars[0],
             bio: user.bio || '',
             phone: user.phone,
@@ -232,7 +232,7 @@ export default function useAuthForm({
               email: user.email,
               firstName,
               lastName,
-              role: formData.role,
+              role: user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') as any || 'seeker'),
               avatarUrl: user.avatarUrl || avatars[0],
               bio: user.bio || '',
               phone: user.phone,
