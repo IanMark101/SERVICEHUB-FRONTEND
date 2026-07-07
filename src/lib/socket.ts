@@ -14,7 +14,6 @@ export function connectSocket(token: string): Socket {
 
   socket = io(SOCKET_URL, {
     auth: { token },
-    transports: ["websocket", "polling"],
     reconnectionAttempts: 5,
     reconnectionDelay: 2000,
   });
