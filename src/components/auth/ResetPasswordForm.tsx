@@ -4,7 +4,6 @@ import AuthInput from './shared/AuthInput';
 
 interface ResetPasswordFormProps {
   formData: any;
-  handleInputChange: (e: any) => void;
   fieldErrors: Record<string, string>;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
@@ -12,11 +11,11 @@ interface ResetPasswordFormProps {
   accentText: string;
   accentBg: string;
   setMode: (mode: 'login' | 'signup' | 'forgot' | 'reset') => void;
+  register: any;
 }
 
 export default function ResetPasswordForm({
   formData,
-  handleInputChange,
   fieldErrors,
   showPassword,
   setShowPassword,
@@ -24,6 +23,7 @@ export default function ResetPasswordForm({
   accentText,
   accentBg,
   setMode,
+  register,
 }: ResetPasswordFormProps) {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -40,17 +40,15 @@ export default function ResetPasswordForm({
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="space-y-0.5">
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+          <label className="block text-xs font-semibold text-slate-550 dark:text-slate-400 mb-1">
             New Password
           </label>
           <AuthInput
             label=""
-            name="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter your new password"
-            value={formData.password}
-            onChange={handleInputChange}
             error={fieldErrors.password}
+            {...register('password')}
           >
             <button
               type="button"

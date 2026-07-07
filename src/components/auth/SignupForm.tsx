@@ -1,4 +1,4 @@
-import React, { FormEvent } from 'react';
+import React from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import AuthInput from './shared/AuthInput';
@@ -8,13 +8,12 @@ import { avatars } from './useAuthForm';
 interface SignupFormProps {
   step: number;
   formData: any;
-  handleInputChange: (e: any) => void;
   fieldErrors: Record<string, string>;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
   handleGoogleSuccessResponse: (token: string) => void;
   setError: (msg: string) => void;
-  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  handleSubmit: (e: any) => void;
   handleAvatarSelect: (url: string) => void;
   handlePrevStep: () => void;
   handleNextStep: () => void;
@@ -22,12 +21,12 @@ interface SignupFormProps {
   accentText: string;
   accentBg: string;
   toggleMode: () => void;
+  register: any;
 }
 
 export default function SignupForm({
   step,
   formData,
-  handleInputChange,
   fieldErrors,
   showPassword,
   setShowPassword,
@@ -41,8 +40,8 @@ export default function SignupForm({
   accentText,
   accentBg,
   toggleMode,
+  register,
 }: SignupFormProps) {
-
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -120,42 +119,34 @@ export default function SignupForm({
             <div className="grid grid-cols-2 gap-3 animate-fade-in">
               <AuthInput
                 label="First Name"
-                name="firstName"
                 placeholder="eg. John"
-                value={formData.firstName}
-                onChange={handleInputChange}
                 error={fieldErrors.firstName}
+                {...register('firstName')}
               />
               <AuthInput
                 label="Last Name"
-                name="lastName"
                 placeholder="eg. Francisco"
-                value={formData.lastName}
-                onChange={handleInputChange}
                 error={fieldErrors.lastName}
+                {...register('lastName')}
               />
             </div>
 
             <AuthInput
               label="Email"
-              name="email"
               type="email"
               placeholder="eg. johnfrans@gmail.com"
-              value={formData.email}
-              onChange={handleInputChange}
               error={fieldErrors.email}
+              {...register('email')}
             />
 
             {/* Password input and Live Checklist grouped for tighter margin */}
             <div className="space-y-2">
               <AuthInput
                 label="Password"
-                name="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleInputChange}
                 error={fieldErrors.password}
+                {...register('password')}
               >
                 <button
                   type="button"
@@ -197,22 +188,18 @@ export default function SignupForm({
 
             <AuthInput
               label="Confirm Password"
-              name="confirmPassword"
               type={showPassword ? 'text' : 'password'}
               placeholder="Confirm your password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
               error={fieldErrors.confirmPassword}
+              {...register('confirmPassword')}
             />
 
             {/* Terms of Service agreement checkbox */}
             <div className="flex items-center space-x-2.5 pt-1.5 pb-1 px-1">
               <input
                 id="agreeTerms"
-                name="agreeTerms"
                 type="checkbox"
-                checked={formData.agreeTerms}
-                onChange={handleInputChange}
+                {...register('agreeTerms')}
                 className="h-4 w-4 text-[#FF5A1F] border-slate-300 dark:border-slate-800 rounded focus:ring-[#FF5A1F]/30 bg-white dark:bg-[#0c0c0e] cursor-pointer flex-shrink-0"
               />
               <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-500 dark:text-[#b4b0a9] select-none cursor-pointer leading-none">
@@ -234,22 +221,18 @@ export default function SignupForm({
           <div className="space-y-4 animate-fade-in">
             <AuthInput
               label="Contact Number"
-              name="phone"
               type="tel"
               placeholder="eg. 0917 123 4567 or +63 917 123 4567"
-              value={formData.phone}
-              onChange={handleInputChange}
               error={fieldErrors.phone}
+              {...register('phone')}
             />
 
             <div>
-              <label className="block text-sm font-semibold text-slate-550 dark:text-slate-400 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-1.5">
                 Cordova Barangay / Location
               </label>
               <select
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
+                {...register('location')}
                 className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 transition-all cursor-pointer"
               >
                 <option value="Alegria, Cordova">Alegria</option>
@@ -277,7 +260,7 @@ export default function SignupForm({
         {step === 3 && (
           <div className="space-y-4 animate-fade-in">
             <div>
-              <label className="block text-sm font-semibold text-slate-550 dark:text-slate-400 mb-2.5">
+              <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-2.5">
                 Select Profile Avatar
               </label>
               <div className="flex items-center space-x-4">
@@ -310,15 +293,13 @@ export default function SignupForm({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-550 dark:text-slate-400 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-1.5">
                 About You
               </label>
               <textarea
-                name="bio"
                 rows={3}
                 placeholder="Tell the community a little about yourself..."
-                value={formData.bio}
-                onChange={handleInputChange}
+                {...register('bio')}
                 className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 resize-none transition-all"
               />
             </div>

@@ -3,22 +3,22 @@ import AuthInput from './shared/AuthInput';
 
 interface ForgotPasswordFormProps {
   formData: any;
-  handleInputChange: (e: any) => void;
   fieldErrors: Record<string, string>;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   accentText: string;
   accentBg: string;
   setMode: (mode: 'login' | 'signup' | 'forgot' | 'reset') => void;
+  register: any;
 }
 
 export default function ForgotPasswordForm({
   formData,
-  handleInputChange,
   fieldErrors,
   handleSubmit,
   accentText,
   accentBg,
   setMode,
+  register,
 }: ForgotPasswordFormProps) {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -36,12 +36,10 @@ export default function ForgotPasswordForm({
       <form onSubmit={handleSubmit} className="space-y-3">
         <AuthInput
           label="Email"
-          name="email"
           type="email"
           placeholder="eg. alexmercer@gmail.com"
-          value={formData.email}
-          onChange={handleInputChange}
           error={fieldErrors.email}
+          {...register('email')}
         />
 
         <div className="pt-1.5">

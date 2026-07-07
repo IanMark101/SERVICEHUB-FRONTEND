@@ -1,26 +1,25 @@
-import React, { FormEvent } from 'react';
+import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthInput from './shared/AuthInput';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 
 interface LoginFormProps {
   formData: any;
-  handleInputChange: (e: any) => void;
   fieldErrors: Record<string, string>;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
   handleGoogleSuccessResponse: (token: string) => void;
   setError: (msg: string) => void;
-  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  handleSubmit: (e: any) => void;
   isDark: boolean;
   accentText: string;
   setMode: (mode: 'login' | 'signup' | 'forgot' | 'reset') => void;
   toggleMode: () => void;
+  register: any;
 }
 
 export default function LoginForm({
   formData,
-  handleInputChange,
   fieldErrors,
   showPassword,
   setShowPassword,
@@ -31,6 +30,7 @@ export default function LoginForm({
   accentText,
   setMode,
   toggleMode,
+  register,
 }: LoginFormProps) {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -49,17 +49,15 @@ export default function LoginForm({
       <form onSubmit={handleSubmit} className="space-y-3">
         <AuthInput
           label="Email"
-          name="email"
           type="email"
           placeholder="Enter your email"
-          value={formData.email}
-          onChange={handleInputChange}
           error={fieldErrors.email}
+          {...register('email')}
         />
 
         <div className="space-y-0.5">
           <div className="flex justify-between items-center mb-1">
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <label className="block text-xs font-semibold text-slate-550 dark:text-slate-400">
               Password
             </label>
             <button
@@ -72,12 +70,10 @@ export default function LoginForm({
           </div>
           <AuthInput
             label=""
-            name="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleInputChange}
             error={fieldErrors.password}
+            {...register('password')}
           >
             <button
               type="button"

@@ -20,7 +20,7 @@ export default function RegisterContainer({
   const { isDark } = useApp();
   const router = useRouter();
   const [theme] = useState<'orange'>('orange');
-  const [mode, setMode] = useState<'signup'>('signup');
+  const [mode] = useState<'signup'>('signup');
 
   const {
     formData,
@@ -32,7 +32,7 @@ export default function RegisterContainer({
     successMsg,
     fieldErrors,
     isRegisterSuccess,
-    handleInputChange,
+    register,
     handleAvatarSelect,
     handlePrevStep,
     handleNextStep,
@@ -71,7 +71,7 @@ export default function RegisterContainer({
         <div className="w-full max-w-2xl mx-auto py-10 px-4 sm:px-6 md:px-8 flex flex-col justify-start min-h-full">
           {/* Error Message Banner Slot */}
           {error && (
-            <div className="mb-4 p-2.5 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-semibold text-center animate-in fade-in duration-150 flex-shrink-0">
+            <div className="mb-4 p-2.5 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-655 dark:text-red-400 text-xs font-semibold text-center animate-in fade-in duration-150 flex-shrink-0">
               {error}
             </div>
           )}
@@ -93,7 +93,6 @@ export default function RegisterContainer({
             <SignupForm
               step={step}
               formData={formData}
-              handleInputChange={handleInputChange}
               fieldErrors={fieldErrors}
               showPassword={showPassword}
               setShowPassword={setShowPassword}
@@ -107,6 +106,7 @@ export default function RegisterContainer({
               accentText={accentText}
               accentBg={accentBg}
               toggleMode={toggleMode}
+              register={register}
             />
           )}
         </div>

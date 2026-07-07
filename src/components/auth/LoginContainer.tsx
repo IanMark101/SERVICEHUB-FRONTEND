@@ -58,7 +58,7 @@ export default function LoginContainer({
     setError,
     successMsg,
     fieldErrors,
-    handleInputChange,
+    register,
     handleGoogleSuccessResponse,
     handleSubmit,
   } = useAuthForm({
@@ -91,7 +91,7 @@ export default function LoginContainer({
         {/* Error Message Banner Slot */}
         <div className="h-8 mb-2 relative flex items-center justify-center flex-shrink-0">
           {error ? (
-            <div className="absolute inset-0 p-2 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-650 dark:text-red-400 text-xs font-medium flex items-center justify-center animate-in fade-in duration-150">
+            <div className="absolute inset-0 p-2 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-655 dark:text-red-400 text-xs font-medium flex items-center justify-center animate-in fade-in duration-150">
               {error}
             </div>
           ) : (
@@ -110,7 +110,6 @@ export default function LoginContainer({
         {mode === 'login' && (
           <LoginForm
             formData={formData}
-            handleInputChange={handleInputChange}
             fieldErrors={fieldErrors}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
@@ -121,25 +120,25 @@ export default function LoginContainer({
             accentText={accentText}
             setMode={setMode}
             toggleMode={toggleMode}
+            register={register}
           />
         )}
 
         {mode === 'forgot' && (
           <ForgotPasswordForm
             formData={formData}
-            handleInputChange={handleInputChange}
             fieldErrors={fieldErrors}
             handleSubmit={handleSubmit}
             accentText={accentText}
             accentBg={accentBg}
             setMode={setMode}
+            register={register}
           />
         )}
 
         {mode === 'reset' && (
           <ResetPasswordForm
             formData={formData}
-            handleInputChange={handleInputChange}
             fieldErrors={fieldErrors}
             showPassword={showPassword}
             setShowPassword={setShowPassword}
@@ -147,6 +146,7 @@ export default function LoginContainer({
             accentText={accentText}
             accentBg={accentBg}
             setMode={setMode}
+            register={register}
           />
         )}
 

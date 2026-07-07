@@ -1,12 +1,13 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, forwardRef } from 'react';
 
 interface AuthInputProps {
   label: string;
   name: string;
   type?: string;
   placeholder?: string;
-  value: string;
-  onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  value?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onBlur?: (e: any) => void;
   error?: string;
   helperText?: string;
   className?: string;
@@ -14,19 +15,20 @@ interface AuthInputProps {
   children?: React.ReactNode; // For eye toggle or other absolute overlay items
 }
 
-export default function AuthInput({
+const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
   label,
   name,
   type = 'text',
   placeholder,
   value,
   onChange,
+  onBlur,
   error,
   helperText,
   className = '',
   required = false,
   children,
-}: AuthInputProps) {
+}, ref) => {
   return (
     <div className="w-full">
       {label && (
@@ -36,11 +38,13 @@ export default function AuthInput({
       )}
       <div className="relative">
         <input
+          ref={ref}
           type={type}
           name={name}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           required={required}
           className={`w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 transition-all ${
             children ? 'pr-10' : ''
@@ -61,4 +65,8 @@ export default function AuthInput({
       </div>
     </div>
   );
-}
+});
+
+AuthInput.displayName = 'AuthInput';
+
+export default AuthInput;
