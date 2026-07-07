@@ -2,6 +2,16 @@ import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '../../api/auth.api';
 import { UserSession } from './LoginContainer';
+import { signupStep1Schema, signupStep2Schema, loginSchema, forgotSchema, resetSchema } from './authValidation';
+
+const formatZodErrors = (error: any) => {
+  const errors: Record<string, string> = {};
+  error.issues.forEach((issue: any) => {
+    const path = issue.path[0] as string;
+    errors[path] = issue.message;
+  });
+  return errors;
+};
 
 interface UseAuthFormProps {
   onLoginSuccess: (userData: UserSession) => void;
@@ -74,46 +84,16 @@ export default function useAuthForm({
 
   const handleNextStep = () => {
     if (step === 1) {
-      const errors: Record<string, string> = {};
-      if (!formData.firstName.trim()) {
-        errors.firstName = 'First name is required';
-      }
-      if (!formData.lastName.trim()) {
-        errors.lastName = 'Last name is required';
-      }
-      if (!formData.email.trim()) {
-        errors.email = 'Email address is required';
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        errors.email = 'Invalid email format';
-      }
-      if (!formData.password) {
-        errors.password = 'Password is required';
-      } else if (formData.password.length < 8 || !/\d/.test(formData.password) || !/[A-Z]/.test(formData.password)) {
-        errors.password = 'Must be at least 8 characters, contain at least 1 number, and 1 uppercase letter';
-      }
-      if (formData.password !== formData.confirmPassword) {
-        errors.confirmPassword = 'Passwords do not match';
-      }
-      if (!formData.agreeTerms) {
-        errors.agreeTerms = 'You must agree to the Terms of Service and Privacy Policy';
-      }
-
-      if (Object.keys(errors).length > 0) {
-        setFieldErrors(errors);
+      const result = signupStep1Schema.safeParse(formData);
+      if (!result.success) {
+        setFieldErrors(formatZodErrors(result.error));
         return;
       }
     }
     if (step === 2) {
-      const errors: Record<string, string> = {};
-      const cleanPhone = formData.phone.replace(/\s+/g, '');
-      const phPhoneRegex = /^(\+639|09)\d{9}$/;
-      if (!formData.phone.trim()) {
-        errors.phone = 'Contact number is required';
-      } else if (!phPhoneRegex.test(cleanPhone)) {
-        errors.phone = 'Invalid PH mobile format (e.g. 09171234567 or +63 917 123 4567)';
-      }
-      if (Object.keys(errors).length > 0) {
-        setFieldErrors(errors);
+      const result = signupStep2Schema.safeParse(formData);
+      if (!result.success) {
+        setFieldErrors(formatZodErrors(result.error));
         return;
       }
     }
@@ -164,11 +144,9 @@ export default function useAuthForm({
     e.preventDefault();
 
     if (mode === 'forgot') {
-      if (!formData.email.trim()) {
-        setFieldErrors({ email: 'Email is required' });
-        return;
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        setFieldErrors({ email: 'Invalid email format' });
+      const result = forgotSchema.safeParse(formData);
+      if (!result.success) {
+        setFieldErrors(formatZodErrors(result.error));
         return;
       }
       setFieldErrors({});
@@ -188,12 +166,9 @@ export default function useAuthForm({
     }
 
     if (mode === 'reset') {
-      if (!formData.password) {
-        setFieldErrors({ password: 'Password is required' });
-        return;
-      }
-      if (formData.password.length < 8) {
-        setFieldErrors({ password: 'Must be at least 8 characters' });
+      const result = resetSchema.safeParse(formData);
+      if (!result.success) {
+        setFieldErrors(formatZodErrors(result.error));
         return;
       }
       setFieldErrors({});
@@ -218,15 +193,9 @@ export default function useAuthForm({
     }
 
     if (mode === 'login') {
-      const errors: Record<string, string> = {};
-      if (!formData.email.trim()) {
-        errors.email = 'Email is required';
-      }
-      if (!formData.password) {
-        errors.password = 'Password is required';
-      }
-      if (Object.keys(errors).length > 0) {
-        setFieldErrors(errors);
+      const result = loginSchema.safeParse(formData);
+      if (!result.success) {
+        setFieldErrors(formatZodErrors(result.error));
         return;
       }
       setFieldErrors({});
