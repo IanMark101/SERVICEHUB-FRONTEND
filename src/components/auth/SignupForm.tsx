@@ -42,17 +42,7 @@ export default function SignupForm({
   accentBg,
   toggleMode,
 }: SignupFormProps) {
-  // Live Validation for Step 1 Enablement
-  const isStep1Valid =
-    formData.firstName.trim().length > 0 &&
-    formData.lastName.trim().length > 0 &&
-    formData.email.trim().length > 0 &&
-    /\S+@\S+\.\S+/.test(formData.email) &&
-    formData.password.length >= 8 &&
-    /\d/.test(formData.password) &&
-    /[A-Z]/.test(formData.password) &&
-    formData.password === formData.confirmPassword &&
-    formData.agreeTerms === true;
+
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -351,12 +341,7 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            disabled={step === 1 && !isStep1Valid}
-            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer ${
-              (step === 1 && !isStep1Valid)
-                ? 'bg-slate-200 dark:bg-slate-800/80 text-slate-450 dark:text-slate-500 cursor-not-allowed active:scale-100'
-                : 'bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white'
-            }`}
+            className="flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white"
           >
             {step === 3 ? 'Sign Up' : 'Next Step'}
           </button>
