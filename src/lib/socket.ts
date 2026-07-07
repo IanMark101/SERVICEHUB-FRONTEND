@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:5000";
+const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3001";
 
 /**
  * Connect to the Socket.io server with a JWT.
