@@ -1,10 +1,28 @@
 import { z } from 'zod';
 
+const baseEmailSchema = (requiredMessage: string) => z.string()
+  .trim()
+  .min(1, requiredMessage)
+  .refine((val) => val.includes('@'), {
+    message: "Email is missing the '@' symbol (e.g. user@example.com)",
+  })
+  .refine((val) => {
+    const parts = val.split('@');
+    return parts.length === 2 && parts[1].includes('.');
+  }, {
+    message: "Email domain is missing a dot suffix (e.g. '.com')",
+  })
+  .refine((val) => {
+    return /\S+@\S+\.\S+/.test(val);
+  }, {
+    message: 'Please enter a valid email format',
+  });
+
 // Step 1: Credentials & Agreement
 export const signupStep1Schema = z.object({
   firstName: z.string().trim().min(1, 'First name is required'),
   lastName: z.string().trim().min(1, 'Last name is required'),
-  email: z.string().trim().min(1, 'Email address is required').email('Invalid email format'),
+  email: baseEmailSchema('Email address is required'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters long')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -32,13 +50,13 @@ export const signupStep2Schema = z.object({
 
 // Login Form
 export const loginSchema = z.object({
-  email: z.string().trim().min(1, 'Email is required'),
+  email: baseEmailSchema('Email is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
 // Forgot Password Form
 export const forgotSchema = z.object({
-  email: z.string().trim().min(1, 'Email is required').email('Invalid email format'),
+  email: baseEmailSchema('Email is required'),
 });
 
 // Reset Password Form
