@@ -66,11 +66,11 @@ export default function Header({
       badgeBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     admin: {
-      accent: 'text-blue-600',
-      ring: 'focus:ring-blue-500 focus:border-blue-500',
-      borderHover: 'hover:border-blue-500/50',
-      badge: 'bg-blue-600 text-white',
-      badgeBg: 'bg-blue-50 text-blue-600 border-blue-100',
+      accent: 'text-red-500',
+      ring: 'focus:ring-red-500 focus:border-red-500',
+      borderHover: 'hover:border-red-500/50',
+      badge: 'bg-red-600 text-white',
+      badgeBg: 'bg-red-50 text-red-500 border-red-100',
     }
   };
 
@@ -131,7 +131,11 @@ export default function Header({
         </button>
         <div className="flex items-center space-x-3">
           <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border uppercase tracking-wider ${isDark
-              ? (currentRole === 'seeker' ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
+              ? (currentRole === 'seeker' 
+                  ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
+                  : currentRole === 'admin'
+                  ? 'bg-red-950/20 text-red-400 border-red-900/30'
+                  : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
               : theme.badgeBg
             }`}>
             {currentRole} Workspace

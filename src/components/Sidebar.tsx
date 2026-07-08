@@ -195,8 +195,9 @@ export default function Sidebar({
       <div>
         <div className="flex items-center justify-between px-2 mb-4">
           <div className="flex items-center space-x-2.5">
-            <div className={`p-1.5 rounded-lg text-white font-extrabold text-base flex items-center justify-center transition-all ${currentRole === 'seeker' ? 'bg-orange-600' : 'bg-emerald-600'
-              }`}>
+            <div className={`p-1.5 rounded-lg text-white font-extrabold text-base flex items-center justify-center transition-all ${
+              currentRole === 'seeker' ? 'bg-orange-600' : currentRole === 'admin' ? 'bg-red-600' : 'bg-emerald-600'
+            }`}>
               S
             </div>
             {(!isCollapsed || isMobileOpen) && (
@@ -300,7 +301,7 @@ export default function Sidebar({
         ) : (
           (!isCollapsed || isMobileOpen) && (
             <div className="mb-6 px-1">
-              <div className={`px-3 py-2.5 rounded-xl border text-center text-[10px] font-extrabold tracking-wider uppercase border-blue-500/25 bg-blue-500/5 text-blue-500`}>
+              <div className={`px-3 py-2.5 rounded-xl border text-center text-[10px] font-extrabold tracking-wider uppercase border-red-500/25 bg-red-500/5 text-red-500`}>
                 🛡️ Admin Area
               </div>
             </div>
