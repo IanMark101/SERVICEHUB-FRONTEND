@@ -72,7 +72,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
 
       {/* Modal Container */}
-      <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+      <div className={`rounded-[24px] max-w-lg w-full max-h-[95vh] overflow-y-auto shadow-xl border transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
         }`}>
 
         {/* Header */}
