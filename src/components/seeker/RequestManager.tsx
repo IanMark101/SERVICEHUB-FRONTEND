@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare } from 'lucide-react';
+import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
+import { apiMatchProviders } from '../../api/ai.api';
 
 interface EditModalState {
   requestId: string;
@@ -21,6 +22,38 @@ export default function RequestManager({
   onNavigateToPost?: () => void; 
 }) {
   const { jobRequests, bids, deleteJobRequest, editJobRequest, isDark } = useApp();
+
+  const [activeAiRequestId, setActiveAiRequestId] = useState<string | null>(null);
+  const [aiSuggestions, setAiSuggestions] = useState<Record<string, Array<{ name: string; rationale: string }>>>({});
+  const [loadingAiMap, setLoadingAiMap] = useState<Record<string, boolean>>({});
+
+  const handleToggleAiSuggestions = (requestId: string) => {
+    if (activeAiRequestId === requestId) {
+      setActiveAiRequestId(null);
+      return;
+    }
+
+    setActiveAiRequestId(requestId);
+
+    if (!aiSuggestions[requestId]) {
+      setLoadingAiMap(prev => ({ ...prev, [requestId]: true }));
+      apiMatchProviders(requestId)
+        .then((res) => {
+          if (res.success && res.data.suggestions) {
+            setAiSuggestions(prev => ({ ...prev, [requestId]: res.data.suggestions }));
+          } else if (res.success && res.data.reason) {
+            setAiSuggestions(prev => ({ ...prev, [requestId]: [{ name: "No Suggestion", rationale: res.data.reason }] }));
+          }
+        })
+        .catch((err) => {
+          console.warn("Failed to fetch AI suggestions:", err);
+          setAiSuggestions(prev => ({ ...prev, [requestId]: [{ name: "Error", rationale: err.response?.data?.error || "Failed to load recommendations" }] }));
+        })
+        .finally(() => {
+          setLoadingAiMap(prev => ({ ...prev, [requestId]: false }));
+        });
+    }
+  };
   
   // Find current seeker's requests
   const myRequests = jobRequests.filter(r => r.seekerId === currentUserId);
@@ -104,55 +137,73 @@ export default function RequestManager({
               return (
                 <div 
                   key={req.id} 
-                  className={`rounded-[24px] p-5 border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors duration-200 ${
+                  className={`rounded-[24px] p-5 border shadow-sm flex flex-col gap-4 transition-colors duration-200 ${
                     isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200 hover:shadow-md'
                   }`}
                 >
-                  
-                  {/* Left side: Icon, title, metadata */}
-                  <div className="flex items-start space-x-4">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-600'
-                    }`}>
-                      <ClipboardList className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className={`font-extrabold text-xs md:text-sm mb-1 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                        {req.title}
-                      </h3>
-                      
-                      {/* Details row: Price, Location, Category */}
-                      <div className={`flex flex-wrap items-center gap-2 text-[10px] font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                        <span className={`${isDark ? 'text-[#f2efe9]' : 'text-slate-900'} font-extrabold`}>Est. Budget: ₱{req.budget}</span>
-                        <span className="text-slate-300">•</span>
-                        <span>Central Cordova, Cebu</span>
-                        <span className="text-slate-300">•</span>
-                        <span className={`uppercase tracking-wider text-[9px] ${isDark ? 'text-orange-400' : 'text-orange-655'}`}>
-                          {req.category}
-                        </span>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    
+                    {/* Left side: Icon, title, metadata */}
+                    <div className="flex items-start space-x-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-600'
+                      }`}>
+                        <ClipboardList className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className={`font-extrabold text-xs md:text-sm mb-1 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                          {req.title}
+                        </h3>
+                        
+                        {/* Details row: Price, Location, Category */}
+                        <div className={`flex flex-wrap items-center gap-2 text-[10px] font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+                          <span className={`${isDark ? 'text-[#f2efe9]' : 'text-slate-900'} font-extrabold`}>Est. Budget: ₱{req.budget}</span>
+                          <span className="text-slate-300">•</span>
+                          <span>Central Cordova, Cebu</span>
+                          <span className="text-slate-300">•</span>
+                          <span className={`uppercase tracking-wider text-[9px] ${isDark ? 'text-orange-400' : 'text-orange-655'}`}>
+                            {req.category}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Right side: Action controls & Toggle */}
-                  <div className={`flex flex-wrap items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 ${
-                    isDark ? 'border-neutral-850' : 'border-slate-100'
-                  }`}>
-                    
-                    {/* Control Buttons */}
-                    <div className="flex items-center space-x-2">
-                      {/* Offers count badge */}
-                      <button
-                        onClick={onNavigateToOffers}
-                        className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-xl transition-all text-[10px] font-extrabold ${
-                          isDark 
-                            ? 'bg-orange-950/20 text-orange-450 border-orange-900/30 hover:bg-orange-950/30' 
-                            : 'bg-orange-55 text-orange-600 border-orange-100 hover:bg-orange-100'
-                        }`}
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Offers [{offerCount}]</span>
-                      </button>
+                    {/* Right side: Action controls & Toggle */}
+                    <div className={`flex flex-wrap items-center justify-between md:justify-end gap-4 border-t md:border-t-0 pt-3 md:pt-0 ${
+                      isDark ? 'border-neutral-850' : 'border-slate-100'
+                    }`}>
+                      
+                      {/* Control Buttons */}
+                      <div className="flex items-center space-x-2">
+                        {/* Offers count badge */}
+                        <button
+                          onClick={onNavigateToOffers}
+                          className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-xl transition-all text-[10px] font-extrabold ${
+                            isDark 
+                              ? 'bg-orange-950/20 text-orange-450 border-orange-900/30 hover:bg-orange-950/30' 
+                              : 'bg-orange-55 text-orange-600 border-orange-100 hover:bg-orange-100'
+                          }`}
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Offers [{offerCount}]</span>
+                        </button>
+
+                        {/* AI suggestions button */}
+                        <button
+                          onClick={() => handleToggleAiSuggestions(req.id)}
+                          className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-xl transition-all text-[10px] font-extrabold ${
+                            activeAiRequestId === req.id
+                              ? isDark
+                                ? 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                                : 'bg-orange-100 text-orange-700 border-orange-200'
+                              : isDark
+                                ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
+                                : 'border-slate-200 hover:bg-slate-50 text-slate-500'
+                          }`}
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>AI Matches</span>
+                        </button>
 
                       {/* Edit button */}
                       <button
@@ -206,7 +257,57 @@ export default function RequestManager({
                       </span>
                     </div>
 
+                    </div>
+
                   </div>
+
+                  {/* Collapsible AI Recommendations Section */}
+                  {activeAiRequestId === req.id && (
+                    <div className={`w-full border-t p-4 mt-3 rounded-2xl animate-in slide-in-from-top-3 duration-200 ${
+                      isDark ? 'border-neutral-850 bg-[#1c1b18]/30' : 'border-slate-100 bg-slate-50/40'
+                    }`}>
+                      <div className="flex items-center space-x-2 mb-3">
+                        <Sparkles className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-[#f2efe9]">
+                          Suggested Providers (Gemini Matchmaker)
+                        </h4>
+                      </div>
+
+                      {loadingAiMap[req.id] ? (
+                        <div className="flex items-center space-x-2 py-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
+                          <span className="text-[10px] text-slate-400 dark:text-neutral-500 font-semibold pl-1">Analyzing provider capabilities and trust scores...</span>
+                        </div>
+                      ) : !aiSuggestions[req.id] || aiSuggestions[req.id].length === 0 ? (
+                        <p className="text-xs text-slate-500 dark:text-[#b4b0a9] italic">No recommendations available for this request.</p>
+                      ) : aiSuggestions[req.id][0]?.name === "No Suggestion" || aiSuggestions[req.id][0]?.name === "Error" ? (
+                        <p className="text-xs text-slate-500 dark:text-orange-405 italic">{aiSuggestions[req.id][0]?.rationale}</p>
+                      ) : (
+                        <div className="space-y-2.5">
+                          {aiSuggestions[req.id].map((sug, idx) => (
+                            <div 
+                              key={idx}
+                              className={`p-3 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs transition-colors ${
+                                isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-150 text-slate-800'
+                              }`}
+                            >
+                              <div className="space-y-1">
+                                <div className="flex items-center space-x-2">
+                                  <span className="font-extrabold text-orange-600 dark:text-orange-400">Rank #{idx + 1}</span>
+                                  <span className="font-extrabold text-slate-900 dark:text-white">{sug.name}</span>
+                                </div>
+                                <p className="text-slate-650 dark:text-[#b4b0a9] italic leading-normal">
+                                  {sug.rationale}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                 </div>
               );

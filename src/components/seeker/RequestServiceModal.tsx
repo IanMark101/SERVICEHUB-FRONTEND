@@ -1,7 +1,8 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { X, CreditCard, DollarSign } from 'lucide-react';
+import { X, CreditCard, DollarSign, Sparkles } from 'lucide-react';
+import { apiGetProviderSummary } from '../../api/ai.api';
 
 interface RequestServiceModalProps {
   listing: ServiceListing;
@@ -17,6 +18,31 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(initialPaymentMethod || 'GCash');
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [loadingAi, setLoadingAi] = useState<boolean>(false);
+
+  useEffect(() => {
+    let active = true;
+    if (listing.providerId) {
+      setLoadingAi(true);
+      apiGetProviderSummary(listing.providerId)
+        .then((res) => {
+          if (active && res.success && res.data.summary) {
+            setAiSummary(res.data.summary);
+          }
+        })
+        .catch((err) => {
+          console.warn("Failed to fetch provider reviews summary:", err);
+        })
+        .finally(() => {
+          if (active) setLoadingAi(false);
+        });
+    }
+    return () => {
+      active = false;
+    };
+  }, [listing.providerId]);
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,6 +112,40 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
           </div>
         ) : (
           <form onSubmit={handleFormSubmit} className="p-5 space-y-4">
+
+            {/* AI Review Summary Card */}
+            {(loadingAi || aiSummary) && (
+              <div className={`p-4 rounded-2xl border transition-all duration-200 ${
+                isDark 
+                  ? 'bg-orange-950/10 border-orange-900/30 text-[#f2efe9]' 
+                  : 'bg-orange-50/50 border-orange-100/80 text-slate-800'
+              }`}>
+                <div className="flex items-center space-x-2 mb-1.5">
+                  <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
+                    <Sparkles className="w-4 h-4 animate-pulse" />
+                  </span>
+                  <h4 className={`text-[11px] uppercase tracking-wider font-extrabold ${
+                    isDark ? 'text-orange-400' : 'text-orange-755'
+                  }`}>
+                    AI-Generated Feedback Digest
+                  </h4>
+                </div>
+                {loadingAi ? (
+                  <div className="flex items-center space-x-2 py-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
+                    <span className="text-[10px] text-slate-400 dark:text-neutral-500 font-semibold pl-1">Analyzing past community reviews...</span>
+                  </div>
+                ) : (
+                  <p className={`text-xs leading-relaxed font-semibold italic ${
+                    isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
+                  }`}>
+                    "{aiSummary}"
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Description */}
             <div>

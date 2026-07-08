@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Wrench, Edit3, Trash2, Plus, X } from 'lucide-react';
+import { Wrench, Edit3, Trash2, Plus, X, Sparkles } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
+import { apiGetProviderSummary } from '../../api/ai.api';
 
 interface EditServiceState {
   serviceId: string;
@@ -20,6 +21,31 @@ export default function ServiceManager({
 }) {
   const { services, editServiceListing, toggleServiceListingStatus, isDark } = useApp();
   
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [loadingAi, setLoadingAi] = useState<boolean>(false);
+
+  useEffect(() => {
+    let active = true;
+    if (currentProviderId) {
+      setLoadingAi(true);
+      apiGetProviderSummary(currentProviderId)
+        .then((res) => {
+          if (active && res.success && res.data.summary) {
+            setAiSummary(res.data.summary);
+          }
+        })
+        .catch((err) => {
+          console.warn("Failed to fetch provider reviews summary:", err);
+        })
+        .finally(() => {
+          if (active) setLoadingAi(false);
+        });
+    }
+    return () => {
+      active = false;
+    };
+  }, [currentProviderId]);
+
   // Find current provider's services
   const myServices = services.filter(s => s.providerId === currentProviderId);
 
@@ -73,6 +99,40 @@ export default function ServiceManager({
           <span>New Listing</span>
         </button>
       </div>
+
+      {/* AI Review Summary Card for Provider */}
+      {(loadingAi || aiSummary) && (
+        <div className={`p-5 rounded-[24px] border shadow-sm transition-all duration-200 ${
+          isDark 
+            ? 'bg-emerald-950/10 border-emerald-900/20 text-[#f2efe9]' 
+            : 'bg-emerald-50/30 border-emerald-100 text-slate-800'
+        }`}>
+          <div className="flex items-center space-x-2 mb-2">
+            <span className={isDark ? 'text-emerald-400' : 'text-emerald-600'}>
+              <Sparkles className="w-4 h-4 animate-pulse" />
+            </span>
+            <h4 className={`text-xs uppercase tracking-wider font-extrabold ${
+              isDark ? 'text-emerald-400' : 'text-emerald-700'
+            }`}>
+              AI-Generated Review Summary
+            </h4>
+          </div>
+          {loadingAi ? (
+            <div className="flex items-center space-x-2 py-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" />
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce delay-100" />
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce delay-200" />
+              <span className="text-[10px] text-slate-400 dark:text-neutral-500 font-semibold pl-1">Analyzing client reviews...</span>
+            </div>
+          ) : (
+            <p className={`text-xs leading-relaxed font-semibold italic ${
+              isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
+            }`}>
+              "{aiSummary}"
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Services grid */}
       {myServices.length === 0 ? (
