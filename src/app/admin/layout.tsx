@@ -27,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -70,6 +70,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           onSignOut={handleSignOut}
           onViewProfile={(u) => router.push(`/admin/users`)}
         />
+
+        {/* Warning strip */}
+        <div className="bg-red-700 text-white font-extrabold text-[10px] tracking-wider uppercase py-1.5 px-4 text-center select-none shadow-sm flex items-center justify-center space-x-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
+          <span>SECURITY ACCESS: Administrator Workspace — All actions are audited.</span>
+        </div>
  
         {/* Scrollable Layout Content Canvas */}
         <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-6xl w-full mx-auto overflow-y-auto">
@@ -84,7 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             
             <div className="flex items-center space-x-2.5">
               <span className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Workspace:</span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold capitalize border bg-blue-950/20 text-blue-400 border-blue-900/30">
+              <span className="px-2.5 py-1 rounded-full text-xs font-semibold capitalize border bg-red-950/20 text-red-400 border-red-900/30">
                 Administrator
               </span>
             </div>

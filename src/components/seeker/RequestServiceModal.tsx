@@ -11,7 +11,7 @@ interface RequestServiceModalProps {
 }
 
 export default function RequestServiceModal({ listing, onClose, initialPaymentMethod }: RequestServiceModalProps) {
-  const { bookProviderDirectly, isDark } = useApp();
+  const { user, bookProviderDirectly, isDark } = useApp();
 
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(listing.price);
@@ -55,7 +55,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
     // Mock API call delay
     setTimeout(() => {
-      const seekerId = 'u1'; // Default logged in seeker Alex
+      const seekerId = user?.id || '';
 
       bookProviderDirectly(seekerId, listing.id, price, description, paymentMethod);
 

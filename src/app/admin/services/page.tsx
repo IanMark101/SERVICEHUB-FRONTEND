@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListPendingServices, apiReviewService } from '../../../api/admin.api';
-import { Loader2, CheckCircle2, XCircle, Briefcase, Award, ExternalLink } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { useToast } from '../../../components/Toast';
 
 interface ProviderInfo {
   id: string;
@@ -34,6 +35,8 @@ interface ServiceItem {
 
 export default function AdminServices() {
   const { isDark } = useApp();
+  const { success: toastSuccess, error: toastError } = useToast();
+
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -48,6 +51,7 @@ export default function AdminServices() {
       .then(res => {
         if (res.success) {
           setServices(res.data);
+          setError('');
         } else {
           setError("Failed to fetch pending service listings.");
         }
@@ -69,13 +73,16 @@ export default function AdminServices() {
     try {
       const res = await apiReviewService(reviewingItem.id, isApproveMode, adminNotes);
       if (res.success) {
-        alert(`Service listing ${isApproveMode ? 'approved' : 'rejected'} successfully!`);
+        toastSuccess(
+          "Listing Moderated", 
+          `Service listing "${reviewingItem.title}" has been ${isApproveMode ? 'APPROVED' : 'REJECTED'}.`
+        );
         setReviewingItem(null);
         setAdminNotes('');
         fetchServices();
       }
     } catch (err: any) {
-      alert("Failed to review service listing: " + (err.response?.data?.error || err.message));
+      toastError("Review Failed", err.response?.data?.error || err.message);
     }
   };
 
@@ -88,14 +95,6 @@ export default function AdminServices() {
     }
   };
 
-  if (loading && services.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -104,9 +103,10 @@ export default function AdminServices() {
         </h4>
         <button
           onClick={fetchServices}
-          className="px-4 py-2 border rounded-xl font-bold text-xs bg-blue-500/5 text-blue-500 border-blue-500/25 cursor-pointer hover:bg-blue-500/10"
+          className="px-4 py-2 border rounded-xl font-bold text-xs bg-red-500/5 text-red-500 border-red-500/25 cursor-pointer hover:bg-red-500/10 transition-colors flex items-center space-x-1.5"
         >
-          Refresh Queue
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Refresh Queue</span>
         </button>
       </div>
 
@@ -118,7 +118,11 @@ export default function AdminServices() {
 
       {/* Services Listings queue */}
       <div className="space-y-6">
-        {services.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-red-500" />
+          </div>
+        ) : services.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
           }`}>
@@ -141,24 +145,24 @@ export default function AdminServices() {
               <div
                 key={item.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
-                  isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
                 }`}
               >
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b pb-3 border-slate-100 dark:border-neutral-800/60">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b pb-3 border-slate-100 dark:border-neutral-850">
                   <div>
                     <h3 className={`font-extrabold text-base ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {item.title}
                     </h3>
                     <div className="flex flex-wrap gap-2 items-center mt-1.5">
-                      <span className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-blue-500/10 text-blue-400 border-blue-900/30`}>
+                      <span className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-red-500/10 text-red-405 border-red-900/30`}>
                         📁 {item.category?.name || 'Uncategorized'}
                       </span>
                       <span className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-slate-500/10 text-slate-400 border-slate-900/30`}>
                         ⏱️ {item.estimatedDurationMins} mins
                       </span>
                       {methods.map((method, idx) => (
-                        <span key={idx} className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-purple-500/10 text-purple-400 border-purple-900/30`}>
+                        <span key={idx} className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-purple-500/10 text-purple-455 border-purple-900/30`}>
                           💵 {method}
                         </span>
                       ))}
@@ -230,7 +234,7 @@ export default function AdminServices() {
                       setIsApproveMode(false);
                       setAdminNotes('');
                     }}
-                    className="px-3 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
+                    className="px-3.5 py-2 border rounded-xl text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
                   >
                     <XCircle className="w-3.5 h-3.5" />
                     <span>Reject Listing</span>
@@ -241,7 +245,7 @@ export default function AdminServices() {
                       setIsApproveMode(true);
                       setAdminNotes('');
                     }}
-                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[10px] rounded-lg transition-all active:scale-95 cursor-pointer flex items-center space-x-1"
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[10px] rounded-xl transition-all active:scale-95 cursor-pointer flex items-center space-x-1"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Approve Listing</span>
@@ -260,8 +264,8 @@ export default function AdminServices() {
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
           }`}>
             <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
-              <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-blue-500' : 'text-red-500'}`}>
-                {isApproveMode ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+              <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-emerald-500' : 'text-red-500'}`}>
+                {isApproveMode ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-red-500" />}
                 <span>{isApproveMode ? "Approve Service Listing" : "Reject Service Listing"}</span>
               </h4>
               <p className="text-[10px] text-slate-400">
@@ -288,7 +292,7 @@ export default function AdminServices() {
                 </button>
                 <button
                   type="submit"
-                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold ${isApproveMode ? 'bg-blue-650 hover:bg-blue-750' : 'bg-red-650 hover:bg-red-750'}`}
+                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold cursor-pointer ${isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
                 >
                   Submit Review
                 </button>

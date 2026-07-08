@@ -11,7 +11,7 @@ interface PaginationBarProps {
   startIndex: number;
   endIndex: number;
   totalItems: number;
-  variant?: 'seeker' | 'provider';
+  variant?: 'seeker' | 'provider' | 'admin';
 }
 
 export default function PaginationBar({
@@ -53,17 +53,22 @@ export default function PaginationBar({
 
   const pages = getPages();
 
-  const isSeeker = variant === 'seeker';
-  const activeBgClass = isSeeker 
-    ? 'bg-orange-600 text-white border-orange-600 hover:bg-orange-700' 
+  const activeBgClass = variant === 'seeker'
+    ? 'bg-orange-600 text-white border-orange-600 hover:bg-orange-700'
+    : variant === 'admin'
+    ? 'bg-red-600 text-white border-red-600 hover:bg-red-700'
     : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700';
   
-  const textClass = isSeeker
+  const textClass = variant === 'seeker'
     ? 'text-orange-550 dark:text-orange-400'
+    : variant === 'admin'
+    ? 'text-red-500 dark:text-red-400'
     : 'text-emerald-600 dark:text-emerald-400';
 
-  const hoverBorderClass = isSeeker
+  const hoverBorderClass = variant === 'seeker'
     ? 'hover:border-orange-500/50 hover:text-orange-500'
+    : variant === 'admin'
+    ? 'hover:border-red-500/50 hover:text-red-500'
     : 'hover:border-emerald-500/50 hover:text-emerald-500';
 
   return (

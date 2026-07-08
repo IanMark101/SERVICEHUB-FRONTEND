@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Briefcase, Info } from 'lucide-react';
 
 export default function OfferServices() {
-  const { createServiceListing, isDark } = useApp();
+  const { user, createServiceListing, isDark } = useApp();
 
   const [title, setTitle] = useState<string>('');
   const [category, setCategory] = useState<string>('Lawn Care');
@@ -37,7 +37,7 @@ export default function OfferServices() {
 
     setLoading(true);
     setTimeout(() => {
-      const providerId = 'u3'; // Default provider John Francisco
+      const providerId = user?.id || '';
       // Mock skill proof url
       const mockProofUrl = 'cert_uploaded.jpg';
 

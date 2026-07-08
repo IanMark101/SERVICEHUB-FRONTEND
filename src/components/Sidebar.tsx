@@ -59,7 +59,7 @@ export default function Sidebar({
   const { bids, jobRequests, jobEngagements, isDark } = useApp();
 
   // Resolve current mock user ID
-  const mockUserId = user?.email === 'alexmercer@gmail.com' ? 'u1' : user?.email === 'janedoe@gmail.com' ? 'u4' : 'u3';
+  const mockUserId = user?.id || '';
 
   // Dynamic Badge Calculations
   const pendingBidsCount = bids.filter(b => b.status === 'pending' && jobRequests.some(r => r.id === b.requestId && r.seekerId === mockUserId)).length;
@@ -80,10 +80,10 @@ export default function Sidebar({
       badge: isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
     },
     admin: {
-      accent: isDark ? 'text-blue-400' : 'text-blue-600',
-      bgActive: isDark ? 'bg-blue-950/20' : 'bg-blue-50/70',
-      borderActive: 'border-blue-500',
-      badge: isDark ? 'bg-blue-950/40 text-blue-400 border-blue-900/30' : 'bg-blue-50 text-blue-600 border-blue-200'
+      accent: isDark ? 'text-red-400' : 'text-red-655',
+      bgActive: isDark ? 'bg-red-950/20' : 'bg-red-50/70',
+      borderActive: 'border-red-500',
+      badge: isDark ? 'bg-red-950/40 text-red-400 border-red-900/30' : 'bg-red-50 text-red-655 border-red-200'
     }
   };
 

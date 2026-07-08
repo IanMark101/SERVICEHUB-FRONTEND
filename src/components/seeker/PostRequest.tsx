@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { PlusCircle, Info } from 'lucide-react';
 
 export default function PostRequest() {
-  const { postJobRequest, isDark } = useApp();
+  const { user, postJobRequest, isDark } = useApp();
   const [title, setTitle] = useState<string>('');
   const [category, setCategory] = useState<string>('Plumbing');
   const [urgency, setUrgency] = useState<'low' | 'medium' | 'high'>('medium');
@@ -31,7 +31,7 @@ export default function PostRequest() {
     setLoading(true);
 
     setTimeout(() => {
-      const seekerId = 'u1'; // Default logged-in seeker Alex
+      const seekerId = user?.id || '';
       postJobRequest(seekerId, title, category, urgency, budget, description);
 
       setLoading(false);

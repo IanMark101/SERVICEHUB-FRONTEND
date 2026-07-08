@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
-import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, HelpCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from 'lucide-react';
+import { useToast } from '../../../components/Toast';
 
 interface VerificationProof {
   id: string;
@@ -26,6 +27,8 @@ interface VerificationItem {
 
 export default function AdminVerifications() {
   const { isDark } = useApp();
+  const { success: toastSuccess, error: toastError } = useToast();
+
   const [verifications, setVerifications] = useState<VerificationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -40,6 +43,7 @@ export default function AdminVerifications() {
       .then(res => {
         if (res.success) {
           setVerifications(res.data);
+          setError('');
         } else {
           setError("Failed to fetch pending verifications queue.");
         }
@@ -61,23 +65,18 @@ export default function AdminVerifications() {
     try {
       const res = await apiReviewVerification(reviewingItem.id, isApproveMode, adminNotes);
       if (res.success) {
-        alert(`Verification request ${isApproveMode ? 'approved' : 'rejected'} successfully!`);
+        toastSuccess(
+          "Verification Resolved", 
+          `Request for ${reviewingItem.user?.name} has been ${isApproveMode ? 'APPROVED' : 'REJECTED'}.`
+        );
         setReviewingItem(null);
         setAdminNotes('');
         fetchVerifications();
       }
     } catch (err: any) {
-      alert("Failed to review verification: " + (err.response?.data?.error || err.message));
+      toastError("Failed to update", err.response?.data?.error || err.message);
     }
   };
-
-  if (loading && verifications.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -87,9 +86,10 @@ export default function AdminVerifications() {
         </h4>
         <button
           onClick={fetchVerifications}
-          className="px-4 py-2 border rounded-xl font-bold text-xs bg-blue-500/5 text-blue-500 border-blue-500/25 cursor-pointer hover:bg-blue-500/10"
+          className="px-4 py-2 border rounded-xl font-bold text-xs bg-red-500/5 text-red-500 border-red-500/25 cursor-pointer hover:bg-red-500/10 transition-colors flex items-center space-x-1.5"
         >
-          Refresh Queue
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Refresh Queue</span>
         </button>
       </div>
 
@@ -101,7 +101,11 @@ export default function AdminVerifications() {
 
       {/* Verification Queue items */}
       <div className="space-y-6">
-        {verifications.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-red-500" />
+          </div>
+        ) : verifications.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
           }`}>
@@ -117,11 +121,11 @@ export default function AdminVerifications() {
               <div
                 key={item.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
-                  isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
                 }`}
               >
                 {/* Header info */}
-                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800/60">
+                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-850">
                   <div>
                     <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {item.user?.name}
@@ -130,7 +134,7 @@ export default function AdminVerifications() {
                       Provider ID: {item.userId} • Email: {item.user?.email}
                     </p>
                   </div>
-                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-450' : 'text-amber-600'}`}>
                     📅 Submitted: {formattedDate}
                   </span>
                 </div>
@@ -149,14 +153,14 @@ export default function AdminVerifications() {
                         }`}
                       >
                         <div className="flex items-center space-x-2">
-                          <FileText className="w-4 h-4 text-blue-500" />
+                          <FileText className="w-4 h-4 text-red-500" />
                           <span>{proof.documentType}</span>
                         </div>
                         <a
                           href={proof.fileUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-500 hover:text-blue-600 flex items-center space-x-0.5"
+                          className="text-red-500 hover:text-red-655 flex items-center space-x-0.5"
                         >
                           <span>Open</span>
                           <ExternalLink className="w-3.5 h-3.5" />
@@ -176,7 +180,7 @@ export default function AdminVerifications() {
                       setIsApproveMode(false);
                       setAdminNotes('');
                     }}
-                    className="px-3 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
+                    className="px-3.5 py-2 border rounded-xl text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
                   >
                     <XCircle className="w-3.5 h-3.5" />
                     <span>Reject proofs</span>
@@ -187,7 +191,7 @@ export default function AdminVerifications() {
                       setIsApproveMode(true);
                       setAdminNotes('');
                     }}
-                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-[10px] rounded-lg transition-all active:scale-95 cursor-pointer flex items-center space-x-1"
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[10px] rounded-xl transition-all active:scale-95 cursor-pointer flex items-center space-x-1"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Approve verification</span>
@@ -206,8 +210,8 @@ export default function AdminVerifications() {
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
           }`}>
             <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
-              <h4 className={`font-extrabold text-sm flex items-center gap-1 ${isApproveMode ? 'text-blue-500' : 'text-red-500'}`}>
-                {isApproveMode ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+              <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-emerald-500' : 'text-red-500'}`}>
+                {isApproveMode ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-red-500" />}
                 <span>{isApproveMode ? "Approve Verification" : "Reject Verification"}</span>
               </h4>
               <p className="text-[10px] text-slate-400">
@@ -234,7 +238,7 @@ export default function AdminVerifications() {
                 </button>
                 <button
                   type="submit"
-                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold ${isApproveMode ? 'bg-blue-650 hover:bg-blue-750' : 'bg-red-650 hover:bg-red-750'}`}
+                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold cursor-pointer ${isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
                 >
                   Submit Review
                 </button>

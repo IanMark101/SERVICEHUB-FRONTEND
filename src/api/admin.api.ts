@@ -5,8 +5,8 @@ export async function apiGetAdminOverview() {
   return response.data;
 }
 
-export async function apiListUsers() {
-  const response = await api.get('/admin/users');
+export async function apiListUsers(params?: { search?: string; role?: string; status?: string; page?: number; limit?: number }) {
+  const response = await api.get('/admin/users', { params });
   return response.data;
 }
 
@@ -78,7 +78,7 @@ export async function apiListEscalatedCancellations() {
 }
 
 export async function apiResolveEscalatedCancellation(id: string, approve: boolean, adminNote?: string) {
-  const response = await api.patch(`/bookings/cancellation-requests/${id}/admin-resolve`, { approve, adminNote });
+  const response = await api.patch(`/admin/cancellation-requests/${id}/resolve`, { approve, adminNote });
   return response.data;
 }
 
