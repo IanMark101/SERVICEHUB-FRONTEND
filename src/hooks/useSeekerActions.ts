@@ -242,6 +242,7 @@ export function useSeekerActions({
       }
     } catch (err: any) {
       toastError('Action Failed', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 
@@ -255,6 +256,7 @@ export function useSeekerActions({
       }
     } catch (err: any) {
       toastError('Action Failed', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 
@@ -270,6 +272,7 @@ export function useSeekerActions({
       }
     } catch (err: any) {
       toastError('Completion Failed', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 
@@ -283,6 +286,7 @@ export function useSeekerActions({
       }
     } catch (err: any) {
       toastError('Failed to dispute', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 
@@ -295,6 +299,7 @@ export function useSeekerActions({
       }
     } catch (err: any) {
       toastError('Cancellation Failed', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 

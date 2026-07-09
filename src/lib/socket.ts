@@ -10,11 +10,18 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http
  * Idempotent — if already connected, returns the existing socket.
  */
 export function connectSocket(token: string): Socket {
-  if (socket?.connected) return socket;
+  if (socket) {
+    // If socket is already created, update its auth token in case the token refreshed
+    socket.auth = { token };
+    if (!socket.connected) {
+      socket.connect();
+    }
+    return socket;
+  }
 
   socket = io(SOCKET_URL, {
     auth: { token },
-    reconnectionAttempts: 5,
+    reconnectionAttempts: 10,
     reconnectionDelay: 2000,
   });
 
@@ -26,8 +33,20 @@ export function connectSocket(token: string): Socket {
     console.log("[Socket.io] Disconnected:", reason);
   });
 
+  // Automatically fetch fresh token on error/reconnect to prevent JWT expiration locks
   socket.on("connect_error", (err) => {
     console.warn("[Socket.io] Connection error:", err.message);
+    const freshToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (freshToken && socket) {
+      socket.auth = { token: freshToken };
+    }
+  });
+
+  socket.on("reconnect_attempt", () => {
+    const freshToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (freshToken && socket) {
+      socket.auth = { token: freshToken };
+    }
   });
 
   return socket;

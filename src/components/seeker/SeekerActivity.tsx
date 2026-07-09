@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement } from '../../types';
 import {
@@ -11,7 +12,8 @@ import {
   MessageSquare,
   AlertCircle,
   Search,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
@@ -24,13 +26,62 @@ import { useToast } from '../Toast';
 export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const { jobEngagements, confirmJobCompletion, disputeJob, cancelQueue, services, jobRequests, isDark, refreshEngagements } = useApp();
   const { success, error: toastError, info } = useToast();
+  const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
+  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | null>(null);
 
+  const searchParams = useSearchParams();
+  const bookingIdParam = searchParams.get('booking');
+  const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
 
   // Active user is currentUserId
   const myEngagements = jobEngagements.filter(je => je.seekerId === currentUserId);
 
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<'all' | 'action_required' | 'pending' | 'active' | 'waiting' | 'disputed' | 'canceled'>('all');
+
+  const tabParam = searchParams.get('tab');
+
+  useEffect(() => {
+    if (tabParam) {
+      const allowed = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'canceled'];
+      if (allowed.includes(tabParam)) {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, [tabParam]);
+
+  useEffect(() => {
+    if (bookingIdParam) {
+      const found = myEngagements.find(e => e.id === bookingIdParam);
+      if (found) {
+        let targetTab: typeof activeTab = 'all';
+        if (found.status === 'in_progress') targetTab = 'active';
+        else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
+        else if (found.status === 'awaiting_seeker_approval') targetTab = 'action_required';
+        else if (found.status === 'disputed') targetTab = 'disputed';
+        else if (found.status === 'canceled') targetTab = 'canceled';
+
+        setActiveTab(targetTab);
+        setHighlightedBookingId(bookingIdParam);
+
+        const scrollTimer = setTimeout(() => {
+          const element = document.getElementById(`booking-${bookingIdParam}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
+
+        const clearTimer = setTimeout(() => {
+          setHighlightedBookingId(null);
+        }, 3000);
+
+        return () => {
+          clearTimeout(scrollTimer);
+          clearTimeout(clearTimer);
+        };
+      }
+    }
+  }, [bookingIdParam, myEngagements.length]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -125,13 +176,34 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
     endIndex
   } = usePagination(filteredEngagements, 6);
 
-  const handleDisputeSubmit = (e: React.FormEvent) => {
+  const handleConfirmJobCompletion = async (jobId: string) => {
+    setLoadingItemId(jobId);
+    setLoadingActionType('complete');
+    try {
+      await confirmJobCompletion(jobId);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
+  };
+
+  const handleDisputeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!disputingJob || !disputeReason.trim()) return;
-
-    disputeJob(disputingJob.id, disputeReason);
-    setDisputingJob(null);
-    setDisputeReason('');
+    setLoadingItemId(disputingJob.id);
+    setLoadingActionType('dispute');
+    try {
+      await disputeJob(disputingJob.id, disputeReason);
+      setDisputingJob(null);
+      setDisputeReason('');
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
   };
 
   const handleReviewSubmit = async (rating: number, comment: string, tags: string[]) => {
@@ -153,6 +225,8 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
   const handleCancelClick = async (je: JobEngagement) => {
     if (!je.started) {
       if (window.confirm("Are you sure you want to cancel this booking?")) {
+        setLoadingItemId(je.id);
+        setLoadingActionType('cancel');
         try {
           const res = await apiCancelBooking(je.id);
           if (res.success) {
@@ -163,6 +237,9 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
           }
         } catch (err: any) {
           toastError('Cancel Failed', err.response?.data?.message || 'Error canceling booking.');
+        } finally {
+          setLoadingItemId(null);
+          setLoadingActionType(null);
         }
       }
     } else {
@@ -175,6 +252,8 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
   const handleCancelSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cancelingJob) return;
+    setLoadingItemId(cancelingJob.id);
+    setLoadingActionType('cancel_submit');
     try {
       const res = await apiCancelBooking(cancelingJob.id, cancelReason);
       if (res.success) {
@@ -187,12 +266,17 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
       }
     } catch (err: any) {
       toastError('Request Failed', err.response?.data?.message || 'Error submitting request.');
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
     }
   };
 
 
   const handleEscalateClick = async (requestId: string) => {
     if (window.confirm("Escalate this to Admin? They will review the booking and chat logs to make a final decision.")) {
+      setLoadingItemId(requestId);
+      setLoadingActionType('escalate');
       try {
         const res = await apiEscalateCancellationRequest(requestId);
         if (res.success) {
@@ -203,6 +287,9 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
         }
       } catch (err: any) {
         toastError('Escalation Failed', err.response?.data?.message || 'Error escalating request.');
+      } finally {
+        setLoadingItemId(null);
+        setLoadingActionType(null);
       }
     }
   };
@@ -354,8 +441,14 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
               return (
                 <div
                   key={je.id}
-                  className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' : 'bg-white border-slate-300 hover:shadow-md'
-                    }`}
+                  id={`booking-${je.id}`}
+                  className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 ${
+                    je.id === highlightedBookingId
+                      ? 'ring-2 ring-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.6)] border-orange-500 scale-[1.01]'
+                      : isDark
+                        ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
+                        : 'bg-white border-slate-300 hover:shadow-md'
+                  }`}
                 >
 
                   {/* Top Line: Category & Date */}
@@ -394,13 +487,21 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                     </div>
                   </div>
 
-                  {/* Escrow details banner */}
+                  {/* Escrow/Payment details banner */}
                   {hasEscrow && (
-                    <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-orange-950/15 border-orange-900/20 text-orange-400' : 'bg-orange-50/40 border-orange-100 text-orange-700'
-                      }`}>
-                      <span className="font-semibold">🔒 Escrow Protected (GCash Hold)</span>
-                      <span className="font-extrabold">₱{je.price} Secured</span>
-                    </div>
+                    je.paymentMethod === 'GCash' ? (
+                      <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-orange-950/15 border-orange-900/20 text-orange-400' : 'bg-orange-50/40 border-orange-100 text-orange-700'
+                        }`}>
+                        <span className="font-semibold">🔒 Escrow Protected (GCash Hold)</span>
+                        <span className="font-extrabold">₱{je.price} Secured</span>
+                      </div>
+                    ) : (
+                      <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'
+                        }`}>
+                        <span className="font-semibold">💵 On-Site Cash Payment</span>
+                        <span className="font-extrabold">₱{je.price} Payable</span>
+                      </div>
+                    )
                   )}
 
                   {/* Dispute note inside card */}
@@ -433,10 +534,22 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                             <span>Cancellation Declined by Provider: "{activeReq.providerNote || 'No explanation provided'}"</span>
                           </div>
                           <button
+                            disabled={!!loadingItemId}
                             onClick={() => handleEscalateClick(activeReq.id)}
-                            className="self-start px-2.5 py-1 bg-red-650 hover:bg-red-750 text-white font-extrabold text-[9px] rounded-lg transition-all active:scale-95 cursor-pointer"
+                            className={`self-start px-2.5 py-1 font-extrabold text-[9px] rounded-lg transition-all active:scale-95 cursor-pointer flex items-center space-x-1 ${
+                              loadingItemId === activeReq.id && loadingActionType === 'escalate'
+                                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                : 'bg-red-650 hover:bg-red-750 text-white'
+                            }`}
                           >
-                            Escalate to Admin
+                            {loadingItemId === activeReq.id && loadingActionType === 'escalate' ? (
+                              <>
+                                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                <span>Escalating...</span>
+                              </>
+                            ) : (
+                              <span>Escalate to Admin</span>
+                            )}
                           </button>
                         </div>
                       );
@@ -531,7 +644,9 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                       {je.status === 'awaiting_seeker_approval' && (
                         <div className="flex flex-col items-end space-y-2">
                           <p className="text-[10px] text-orange-500 font-semibold text-right max-w-xs">
-                            ⚠️ Releasing funds is final. Verify the service is fully completed to your satisfaction before releasing payment.
+                            {je.paymentMethod === 'GCash'
+                              ? '⚠️ Releasing funds is final. Verify the service is fully completed to your satisfaction before releasing payment.'
+                              : '⚠️ Please ensure you pay the provider the agreed cash amount on-site. Confirming completes the transaction.'}
                           </p>
                           <div className="flex items-center space-x-2">
                             <button
@@ -544,14 +659,29 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                               Report Issue
                             </button>
                             <button
+                              disabled={!!loadingItemId}
                               onClick={() => {
-                                if (window.confirm("Are you sure you want to release funds to the provider? This action is final and cannot be undone.")) {
-                                  confirmJobCompletion(je.id);
+                                const confirmMsg = je.paymentMethod === 'GCash'
+                                  ? 'Are you sure you want to release escrowed funds to the provider? This action is final and cannot be undone.'
+                                  : 'Have you paid the provider on-site and want to complete this transaction?';
+                                if (window.confirm(confirmMsg)) {
+                                  handleConfirmJobCompletion(je.id);
                                 }
                               }}
-                              className="px-3.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-[10px] rounded-xl transition-all active:scale-95 shadow-sm cursor-pointer"
+                              className={`px-3.5 py-1.5 font-extrabold text-[10px] rounded-xl transition-all active:scale-95 shadow-sm flex items-center justify-center space-x-1.5 cursor-pointer ${
+                                loadingItemId === je.id && loadingActionType === 'complete'
+                                  ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                  : 'bg-orange-600 hover:bg-orange-700 text-white'
+                              }`}
                             >
-                              Release Funds
+                              {loadingItemId === je.id && loadingActionType === 'complete' ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                  <span>{je.paymentMethod === 'GCash' ? 'Releasing Funds...' : 'Completing...'}</span>
+                                </>
+                              ) : (
+                                <span>{je.paymentMethod === 'GCash' ? 'Release Cash' : 'Complete Transaction'}</span>
+                              )}
                             </button>
                           </div>
                         </div>
@@ -569,13 +699,24 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                         const isStarted = !!je.started;
                         return (
                           <button
+                            disabled={!!loadingItemId}
                             onClick={() => handleCancelClick(je)}
-                            className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all cursor-pointer ${isDark
-                                ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]'
-                                : 'border-slate-300 hover:bg-red-50 hover:text-red-655 hover:border-red-200 text-slate-550'
-                              }`}
+                            className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                              loadingItemId === je.id && loadingActionType === 'cancel'
+                                ? 'bg-[#1c1b18] border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                : isDark
+                                  ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
+                                  : 'border-slate-300 hover:bg-slate-50 text-slate-550'
+                            }`}
                           >
-                            {isStarted ? "Request Cancellation" : "Cancel Booking"}
+                            {loadingItemId === je.id && loadingActionType === 'cancel' ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                <span>Cancelling...</span>
+                              </>
+                            ) : (
+                              <span>{isStarted ? "Request Cancellation" : "Cancel Booking"}</span>
+                            )}
                           </button>
                         );
                       })()}
@@ -659,9 +800,21 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
+                  disabled={!!loadingItemId}
+                  className={`px-5 py-2.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer ${
+                    loadingItemId === disputingJob.id && loadingActionType === 'dispute'
+                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      : 'bg-red-600 hover:bg-red-700'
+                  }`}
                 >
-                  File Dispute
+                  {loadingItemId === disputingJob.id && loadingActionType === 'dispute' ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                      <span>Filing Dispute...</span>
+                    </>
+                  ) : (
+                    <span>File Dispute</span>
+                  )}
                 </button>
               </div>
             </form>
@@ -727,9 +880,21 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
+                  disabled={!!loadingItemId}
+                  className={`px-5 py-2.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer ${
+                    loadingItemId === cancelingJob.id && loadingActionType === 'cancel_submit'
+                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      : 'bg-orange-600 hover:bg-orange-700'
+                  }`}
                 >
-                  Submit Request
+                  {loadingItemId === cancelingJob.id && loadingActionType === 'cancel_submit' ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                      <span>Cancelling...</span>
+                    </>
+                  ) : (
+                    <span>Submit Request</span>
+                  )}
                 </button>
               </div>
             </form>

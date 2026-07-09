@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Check, X, Calendar, User, MapPin } from 'lucide-react';
+import { Check, X, Calendar, User, MapPin, Loader2 } from 'lucide-react';
 
 export default function IncomingRequests({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
   const { jobEngagements, respondToDirectBooking, isDark } = useApp();
+  const [loadingJobId, setLoadingJobId] = useState<string | null>(null);
+  const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
+
+  const handleRespond = async (jobId: string, accept: boolean) => {
+    setLoadingJobId(jobId);
+    setLoadingAction(accept ? 'accepting' : 'declining');
+    try {
+      await respondToDirectBooking(jobId, accept);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingJobId(null);
+      setLoadingAction(null);
+    }
+  };
 
 
   // Filter pending direct bookings
@@ -77,21 +92,45 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                 {/* Accept/Decline Actions */}
                 <div className={`pt-2 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-855' : 'border-slate-100'}`}>
                   <button
-                    onClick={() => respondToDirectBooking(je.id, false)}
-                    className={`px-5 py-2.5 border font-bold text-xs rounded-xl transition-all ${
-                      isDark 
-                        ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]' 
-                        : 'border-slate-200 hover:bg-red-50 hover:text-red-650 hover:border-red-200 text-slate-500'
+                    disabled={!!loadingJobId}
+                    onClick={() => handleRespond(je.id, false)}
+                    className={`px-5 py-2.5 border font-bold text-xs rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                      loadingJobId === je.id && loadingAction === 'declining'
+                        ? 'bg-[#1c1b18] border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                        : isDark 
+                          ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]' 
+                          : 'border-slate-200 hover:bg-red-50 hover:text-red-650 hover:border-red-200 text-slate-500'
                     }`}
                   >
-                    Decline
+                    {loadingJobId === je.id && loadingAction === 'declining' ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        <span>Declining...</span>
+                      </>
+                    ) : (
+                      <span>Decline</span>
+                    )}
                   </button>
                   <button
-                    onClick={() => respondToDirectBooking(je.id, true)}
-                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1"
+                    disabled={!!loadingJobId}
+                    onClick={() => handleRespond(je.id, true)}
+                    className={`px-5 py-2.5 font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1 cursor-pointer ${
+                      loadingJobId === je.id && loadingAction === 'accepting'
+                        ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                    }`}
                   >
-                    <Check className="w-3.5 h-3.5" />
-                    <span>Accept Job</span>
+                    {loadingJobId === je.id && loadingAction === 'accepting' ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        <span>Accepting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-3.5 h-3.5 mr-1" />
+                        <span>Accept Job</span>
+                      </>
+                    )}
                   </button>
                 </div>
 

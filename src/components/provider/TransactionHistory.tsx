@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { Calendar, CreditCard, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
@@ -7,6 +8,9 @@ import PaginationBar from '../PaginationBar';
 export default function TransactionHistory({ currentUserId = 'u3' }: { currentUserId?: string }) {
   const { transactions, isDark } = useApp();
   const [filterDate, setFilterDate] = useState<string>('');
+  const searchParams = useSearchParams();
+  const bookingIdParam = searchParams.get('booking');
+  const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
 
   // Filter transactions for currentUserId (as provider OR seeker)
   const myTransactions = transactions.filter(tx => {
@@ -29,6 +33,33 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
     startIndex,
     endIndex
   } = usePagination(myTransactions, 8);
+
+  useEffect(() => {
+    if (bookingIdParam) {
+      const idx = myTransactions.findIndex(tx => tx.jobId === bookingIdParam);
+      if (idx !== -1) {
+        const targetPage = Math.floor(idx / 8) + 1;
+        goToPage(targetPage);
+        setHighlightedBookingId(bookingIdParam);
+        
+        const scrollTimer = setTimeout(() => {
+          const element = document.getElementById(`transaction-${bookingIdParam}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 400);
+
+        const clearTimer = setTimeout(() => {
+          setHighlightedBookingId(null);
+        }, 3400);
+
+        return () => {
+          clearTimeout(scrollTimer);
+          clearTimeout(clearTimer);
+        };
+      }
+    }
+  }, [bookingIdParam, myTransactions.length]);
 
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
@@ -107,11 +138,16 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
                 year: 'numeric'
               });
 
+              const isHighlighted = highlightedBookingId && tx.jobId === highlightedBookingId;
+
               return (
                 <div 
                   key={tx.id}
-                  className={`border rounded-2xl p-4 flex items-center justify-between transition-all ${
-                    isDark 
+                  id={`transaction-${tx.jobId}`}
+                  className={`border rounded-2xl p-4 flex items-center justify-between transition-all duration-500 ${
+                    isHighlighted 
+                      ? (isDark ? 'border-orange-500 bg-orange-950/10 ring-1 ring-orange-500/30' : 'border-orange-400 bg-orange-50/70 ring-1 ring-orange-400/40')
+                      : isDark 
                       ? 'bg-[#1c1b18] border-neutral-850 hover:border-neutral-800' 
                       : 'bg-slate-50 border-slate-100 hover:border-slate-250'
                   }`}

@@ -85,8 +85,16 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
 
   const currentRole = 'seeker';
 
+  useEffect(() => {
+    document.documentElement.classList.add('workspace-seeker');
+    document.documentElement.classList.remove('workspace-provider', 'workspace-admin');
+    return () => {
+      document.documentElement.classList.remove('workspace-seeker');
+    };
+  }, []);
+
   return (
-    <div className={`min-h-screen flex transition-colors duration-200 ${
+    <div className={`h-screen overflow-hidden flex transition-colors duration-200 ${
       isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#fbfaf7] text-slate-800'
     }`}>
       
@@ -105,7 +113,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
       />
  
       {/* Main Content Pane */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
+      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden transition-all duration-300 ${
         isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         

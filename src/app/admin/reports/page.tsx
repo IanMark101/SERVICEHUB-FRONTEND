@@ -58,6 +58,8 @@ export default function AdminReports() {
 
   // Escalation Overlay States
   const [pendingEscalationAction, setPendingEscalationAction] = useState<{ id: string; approve: boolean } | null>(null);
+  const [submittingResolve, setSubmittingResolve] = useState<boolean>(false);
+  const [submittingEscalation, setSubmittingEscalation] = useState<boolean>(false);
 
   const fetchReports = () => {
     setLoading(true);
@@ -84,6 +86,7 @@ export default function AdminReports() {
   const handleResolveSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resolvingItem) return;
+    setSubmittingResolve(true);
     try {
       const res = await apiResolveReport(resolvingItem.id, action, adminNotes);
       if (res.success) {
@@ -94,6 +97,8 @@ export default function AdminReports() {
       }
     } catch (err: any) {
       toastError('Resolution Failed', err.response?.data?.error || err.message);
+    } finally {
+      setSubmittingResolve(false);
     }
   };
 
@@ -410,11 +415,23 @@ export default function AdminReports() {
                 >
                   Cancel
                 </button>
-                <button
+                 <button
                   type="submit"
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                  disabled={submittingResolve}
+                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${
+                    submittingResolve
+                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      : 'bg-red-600 hover:bg-red-700'
+                  }`}
                 >
-                  Confirm Resolution
+                  {submittingResolve ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      <span>Resolving...</span>
+                    </>
+                  ) : (
+                    <span>Confirm Resolution</span>
+                  )}
                 </button>
               </div>
             </form>
@@ -449,17 +466,20 @@ export default function AdminReports() {
               </div>
               <div className="flex items-center justify-end space-x-2">
                 <button
+                  type="button"
                   onClick={() => { setPendingEscalationAction(null); setAdminNotes(''); }}
                   className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
                 <button
+                  disabled={submittingEscalation}
                   onClick={async () => {
                     if (!pendingEscalationAction.approve && !adminNotes.trim()) {
                       toastError("Remarks Required", "You must provide a reason to deny this cancellation.");
                       return;
                     }
+                    setSubmittingEscalation(true);
                     try {
                       const res = await apiResolveEscalatedCancellation(
                         pendingEscalationAction.id, 
@@ -479,11 +499,24 @@ export default function AdminReports() {
                       }
                     } catch (err: any) {
                       toastError('Action Failed', err.response?.data?.error || err.message);
+                    } finally {
+                      setSubmittingEscalation(false);
                     }
                   }}
-                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold cursor-pointer ${pendingEscalationAction.approve ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
+                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${
+                    submittingEscalation
+                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      : pendingEscalationAction.approve ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
+                  }`}
                 >
-                  Confirm Decision
+                  {submittingEscalation ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      <span>{pendingEscalationAction.approve ? 'Approving...' : 'Rejecting...'}</span>
+                    </>
+                  ) : (
+                    <span>Confirm Decision</span>
+                  )}
                 </button>
               </div>
             </div>

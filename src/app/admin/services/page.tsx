@@ -44,6 +44,7 @@ export default function AdminServices() {
   const [reviewingItem, setReviewingItem] = useState<ServiceItem | null>(null);
   const [isApproveMode, setIsApproveMode] = useState<boolean>(true);
   const [adminNotes, setAdminNotes] = useState<string>('');
+  const [submittingReview, setSubmittingReview] = useState<boolean>(false);
 
   const fetchServices = () => {
     setLoading(true);
@@ -70,6 +71,7 @@ export default function AdminServices() {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewingItem) return;
+    setSubmittingReview(true);
     try {
       const res = await apiReviewService(reviewingItem.id, isApproveMode, adminNotes);
       if (res.success) {
@@ -83,6 +85,8 @@ export default function AdminServices() {
       }
     } catch (err: any) {
       toastError("Review Failed", err.response?.data?.error || err.message);
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -290,11 +294,23 @@ export default function AdminServices() {
                 >
                   Cancel
                 </button>
-                <button
+                 <button
                   type="submit"
-                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold cursor-pointer ${isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
+                  disabled={submittingReview}
+                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${
+                    submittingReview
+                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      : isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
+                  }`}
                 >
-                  Submit Review
+                  {submittingReview ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      <span>{isApproveMode ? 'Approving...' : 'Rejecting...'}</span>
+                    </>
+                  ) : (
+                    <span>Submit Review</span>
+                  )}
                 </button>
               </div>
             </form>

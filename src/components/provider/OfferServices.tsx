@@ -30,18 +30,19 @@ export default function OfferServices() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) {
-      alert('Please fill out all fields.');
+    setLoading(true);
+    if (!acceptCash && !acceptGCash) {
+      alert('Please select at least one accepted payment method.');
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
     setTimeout(() => {
       const providerId = user?.id || '';
       // Mock skill proof url
       const mockProofUrl = 'cert_uploaded.jpg';
 
-      createServiceListing(providerId, title, category, price, description, mockProofUrl);
+      createServiceListing(providerId, title, category, price, description, mockProofUrl, { cash: acceptCash, gcash: acceptGCash });
 
       setLoading(false);
       setSuccess(true);

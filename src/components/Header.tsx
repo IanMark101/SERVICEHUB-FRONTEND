@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Bell,
   Search,
@@ -41,7 +42,7 @@ export default function Header({
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
 
   // Bind to App Context
-  const { notifications, markNotificationsRead, isDark, toggleTheme } = useApp();
+  const { notifications, markNotificationsRead, isDark, toggleTheme, unreadMessagesCount } = useApp();
 
   // Use the real authenticated user ID directly from session
   const userId = user?.id || '';
@@ -106,6 +107,8 @@ export default function Header({
     return { icon: Sparkles, color: 'text-orange-600 bg-orange-50' };
   };
 
+  const router = useRouter();
+
   const handleToggleNotifications = () => {
     const nextState = !showNotifications;
     setShowNotifications(nextState);
@@ -113,6 +116,19 @@ export default function Header({
 
     if (nextState) {
       markNotificationsRead(userId);
+    }
+  };
+
+  const handleNotificationClick = (link?: string | null) => {
+    setShowNotifications(false);
+    markNotificationsRead(userId);
+    if (!link) return;
+    // Full path with query params — use Next.js router
+    if (link.startsWith('/')) {
+      router.push(link);
+    } else {
+      // Bare tab key like 'seeker-activity'
+      setActiveTab(link);
     }
   };
 
@@ -186,14 +202,16 @@ export default function Header({
             onClick={() => setActiveTab('messages')}
             className={`p-2 rounded-xl border transition-all relative ${isDark
                 ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
-                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
+                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-655 hover:text-slate-800'
               } ${activeTab === 'messages' ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
             title="Messages"
           >
             <MessageSquare className="w-4 h-4" />
-            <span className={`absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full ${theme.badge} text-[9px] font-bold flex items-center justify-center border border-white shadow-sm`}>
-              4
-            </span>
+            {unreadMessagesCount > 0 && (
+              <span className={`absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full ${theme.badge} text-[9px] font-bold flex items-center justify-center border border-white shadow-sm`}>
+                {unreadMessagesCount}
+              </span>
+            )}
           </button>
         )}
 
@@ -247,17 +265,49 @@ export default function Header({
                       const iconDetails = getNotificationIcon(notif.title);
                       const IconComponent = iconDetails.icon;
                       const iconBg = isDark ? 'bg-neutral-800/80' : iconDetails.color;
+
+                      let ctaText = "View Details";
+                      if (notif.link) {
+                        const path = notif.link.toLowerCase();
+                        if (path.includes("messages")) ctaText = "Open Conversation";
+                        else if (path.includes("incoming-offers")) ctaText = "View Offer";
+                        else if (path.includes("verification")) ctaText = "Open Verification";
+                        else if (path.includes("reviews")) ctaText = "View Review";
+                        else if (path.includes("transaction-history") || path.includes("transaction")) ctaText = "View Transaction";
+                        else if (path.includes("activity")) ctaText = "View Booking";
+                      }
+
                       return (
-                        <div key={notif.id} className={`p-4 cursor-pointer flex space-x-3 transition-colors ${isDark ? 'hover:bg-[#2c2b27]/40' : 'hover:bg-slate-50/50'}`}>
+                        <div
+                          key={notif.id}
+                          onClick={() => handleNotificationClick(notif.link)}
+                          className={`p-4 cursor-pointer flex space-x-3 transition-colors ${isDark ? 'hover:bg-[#2c2b27]/40' : 'hover:bg-slate-50/50'} ${!notif.read ? (isDark ? 'bg-orange-950/10' : 'bg-orange-50/40') : ''}`}
+                        >
                           <div className={`p-2 rounded-lg ${iconBg} h-8 w-8 flex-shrink-0 flex items-center justify-center`}>
                             <IconComponent className={`w-4 h-4 ${isDark ? 'text-slate-300' : ''}`} />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h5 className="font-bold text-xs flex justify-between">
+                            <h5 className="font-bold text-xs flex justify-between items-center">
                               <span>{notif.title}</span>
-                              <span className="text-[9px] text-slate-400 font-normal">{notif.time}</span>
+                              <div className="flex items-center space-x-1.5">
+                                <span className="text-[9px] text-slate-400 font-normal">{notif.time}</span>
+                                {!notif.read && (
+                                  <span className="w-1.5 h-1.5 bg-orange-600 rounded-full flex-shrink-0" />
+                                )}
+                              </div>
                             </h5>
-                            <p className={`text-[10.5px] mt-1 leading-normal ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>{notif.desc}</p>
+                            <p className={`text-[10.5px] mt-1 leading-normal ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>{notif.desc}</p>
+                            {notif.link && (
+                              <div className="mt-2 flex justify-start">
+                                <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md border transition-all ${
+                                  isDark 
+                                    ? 'bg-[#2a2927] border-neutral-700 text-orange-400 hover:text-[#f2efe9]' 
+                                    : 'bg-orange-50 border-orange-100 text-orange-600 hover:bg-orange-100'
+                                }`}>
+                                  {ctaText} →
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );

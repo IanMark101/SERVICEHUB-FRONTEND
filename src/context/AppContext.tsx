@@ -31,6 +31,7 @@ import { apiGetMyEngagements, apiConfirmOnlineBooking } from '../api/bookings.ap
 import { apiGetNotifications } from '../api/notifications.api';
 import { apiBrowseServices } from '../api/services.api';
 import { apiGetTransactions } from '../api/transactions.api';
+import { apiGetConversations } from '../api/messages.api';
 import { UserSession } from '../components/auth/LoginContainer';
 import { apiGetMe } from '../api/auth.api';
 import { connectSocket, disconnectSocket } from '../lib/socket';
@@ -79,7 +80,7 @@ interface AppContextType {
   cancelQueue: (id: string) => void;
 
   // Provider actions
-  createServiceListing: (providerId: string, title: string, category: string, price: number, description: string, proofUrl: string) => void;
+  createServiceListing: (providerId: string, title: string, category: string, price: number, description: string, proofUrl: string, paymentMethods: { cash: boolean; gcash: boolean }) => void;
   editServiceListing: (serviceId: string, title: string, price: number, description: string) => void;
   toggleServiceListingStatus: (serviceId: string) => void;
   submitBid: (requestId: string, providerId: string, price: number, message: string) => void;
@@ -105,6 +106,8 @@ interface AppContextType {
   isAuthenticated: boolean;
   setIsAuthenticated: (auth: boolean) => void;
   authLoading: boolean;
+  unreadMessagesCount: number;
+  syncUnreadMessages: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -131,6 +134,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
   const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>(mockCategorySuggestions);
   const [userReports, setUserReports] = useState<UserReport[]>(mockUserReports);
   const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
@@ -263,7 +267,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const dbBookings = res.data.bookings || [];
         const dbCompleted = res.data.completedServices || [];
 
-        const mappedBookings = dbBookings.map(mapBookingToEngagement);
+        const mappedBookings = dbBookings
+          .filter((b: any) => b.status !== "COMPLETED")
+          .map(mapBookingToEngagement);
         const mappedCompleted = dbCompleted.map(mapCompletedServiceToEngagement);
 
         const dbIds = new Set([...mappedBookings, ...mappedCompleted].map((x: any) => x.id));
@@ -312,6 +318,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const syncUnreadMessages = useCallback(async () => {
+    try {
+      const res = await apiGetConversations();
+      if (res.success && Array.isArray(res.data)) {
+        const totalUnread = res.data.reduce((acc: number, conv: any) => acc + (conv.unreadCount || 0), 0);
+        setUnreadMessagesCount(totalUnread);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const syncTransactions = useCallback(async () => {
     try {
       const res = await apiGetTransactions();
@@ -341,8 +359,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncEngagements();
       syncNotifications();
       syncTransactions();
+      syncUnreadMessages();
     }
-  }, [syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions]);
+  }, [syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
 
   // ─── Initial Data Load on Mount ────────────────────────────────
   useEffect(() => {
@@ -376,6 +395,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncEngagements();
       syncNotifications();
       syncTransactions();
+      syncUnreadMessages();
 
       // Check for returning GCash payment checkout
       if (typeof window !== "undefined") {
@@ -435,9 +455,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
     });
 
-    // Unread message badge — re-sync notifications to update badge
+    // Unread message badge — re-sync unread messages count in real-time
     sock.on('message_notification', () => {
-      syncNotifications();
+      syncUnreadMessages();
     });
 
     return () => {
@@ -445,7 +465,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sock.off('queue_update');
       sock.off('message_notification');
     };
-  }, [isAuthenticated, syncNotifications]);
+  }, [isAuthenticated, syncNotifications, syncUnreadMessages]);
 
   // Disconnect socket when user explicitly logs out
   useEffect(() => {
@@ -454,6 +474,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated]);
 
+  // Sync data automatically upon successful login
+  useEffect(() => {
+    if (isAuthenticated) {
+      syncPublicServices();
+      syncRequests();
+      syncBids();
+      syncEngagements();
+      syncNotifications();
+      syncTransactions();
+      syncUnreadMessages();
+    }
+  }, [isAuthenticated, syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
+
   // ─── Notification polling every 60 seconds when authenticated ──
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -461,10 +494,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const interval = setInterval(() => {
       syncNotifications();
+      syncUnreadMessages();
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [syncNotifications]);
+  }, [syncNotifications, syncUnreadMessages]);
 
 
   // ─── Shared helper ─────────────────────────────────────────────
@@ -567,7 +601,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setUser,
       isAuthenticated,
       setIsAuthenticated,
-      authLoading
+      authLoading,
+      unreadMessagesCount,
+      syncUnreadMessages
     }}>
       {children}
     </AppContext.Provider>

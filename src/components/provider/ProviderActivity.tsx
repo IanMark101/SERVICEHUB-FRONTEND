@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement } from '../../types';
 import {
@@ -14,7 +15,8 @@ import {
   Search,
   MessageSquare,
   X,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
@@ -23,6 +25,9 @@ import { useToast } from '../Toast';
 
 
 export default function ProviderActivity({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
+  const searchParams = useSearchParams();
+  const bookingIdParam = searchParams.get('booking');
+  const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
   const {
     jobEngagements,
     bids,
@@ -44,7 +49,53 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
   const myPendingBids = bids.filter(b => b.providerId === currentProviderId && b.status === 'pending');
 
   // Filter state
-  const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'waiting' | 'pending_offers' | 'awaiting_approval' | 'disputed'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'waiting' | 'pending_offers' | 'awaiting_approval' | 'disputed' | 'canceled'>('all');
+  const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
+  const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
+
+  const tabParam = searchParams.get('tab');
+
+  useEffect(() => {
+    if (tabParam) {
+      const allowed = ['all', 'in_progress', 'waiting', 'pending_offers', 'awaiting_approval', 'disputed', 'canceled'];
+      if (allowed.includes(tabParam)) {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, [tabParam]);
+
+  useEffect(() => {
+    if (bookingIdParam) {
+      const found = myEngagements.find(e => e.id === bookingIdParam);
+      if (found) {
+        let targetTab: typeof activeTab = 'all';
+        if (found.status === 'in_progress') targetTab = 'in_progress';
+        else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
+        else if (found.status === 'awaiting_seeker_approval') targetTab = 'awaiting_approval';
+        else if (found.status === 'disputed') targetTab = 'disputed';
+        else if (found.status === 'canceled') targetTab = 'canceled';
+
+        setActiveTab(targetTab);
+        setHighlightedBookingId(bookingIdParam);
+
+        const scrollTimer = setTimeout(() => {
+          const element = document.getElementById(`booking-${bookingIdParam}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
+
+        const clearTimer = setTimeout(() => {
+          setHighlightedBookingId(null);
+        }, 3000);
+
+        return () => {
+          clearTimeout(scrollTimer);
+          clearTimeout(clearTimer);
+        };
+      }
+    }
+  }, [bookingIdParam, myEngagements.length]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -79,8 +130,11 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
         return myEngagements.filter(je => je.status === 'awaiting_seeker_approval').length;
       case 'disputed':
         return myEngagements.filter(je => je.status === 'disputed').length;
+      case 'canceled':
+        return myEngagements.filter(je => je.status === 'canceled').length;
       default:
-        return myEngagements.length + myPendingBids.length;
+        // Exclude completed and canceled engagements from the 'all' counter
+        return myEngagements.filter(je => je.status !== 'completed' && je.status !== 'canceled').length + myPendingBids.length;
     }
   };
 
@@ -105,12 +159,18 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
 
     // Add engagements
     myEngagements.forEach(je => {
+      // Exclude completed engagements from ProviderActivity completely
+      if (je.status === 'completed') return;
+      // Exclude canceled engagements from 'all' tab
+      if (je.status === 'canceled' && activeTab !== 'canceled') return;
+
       let matchesTab = false;
       if (activeTab === 'all') matchesTab = true;
       else if (activeTab === 'in_progress' && je.status === 'in_progress') matchesTab = true;
       else if (activeTab === 'waiting' && (je.status === 'queued' || je.status === 'pending_provider')) matchesTab = true;
       else if (activeTab === 'awaiting_approval' && je.status === 'awaiting_seeker_approval') matchesTab = true;
       else if (activeTab === 'disputed' && je.status === 'disputed') matchesTab = true;
+      else if (activeTab === 'canceled' && je.status === 'canceled') matchesTab = true;
 
       if (!matchesTab) return;
 
@@ -157,8 +217,75 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
   const [respondingReqId, setRespondingReqId] = useState<string | null>(null);
   const [declineNote, setDeclineNote] = useState<string>('');
 
+  const handleProviderStartJob = async (id: string) => {
+    setLoadingItemId(id);
+    setLoadingActionType('start');
+    try {
+      await providerStartJob(id);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
+  };
+
+  const handleRequestJobApproval = async (id: string) => {
+    setLoadingItemId(id);
+    setLoadingActionType('complete');
+    try {
+      await requestJobApproval(id);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
+  };
+
+  const handleForceApprove = async (id: string) => {
+    setLoadingItemId(id);
+    setLoadingActionType('force_approve');
+    try {
+      await confirmJobCompletion(id);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
+  };
+
+  const handleProviderRemoveFromQueue = async (id: string) => {
+    setLoadingItemId(id);
+    setLoadingActionType('remove');
+    try {
+      await providerRemoveFromQueue(id);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
+  };
+
+  const handleCancelOffer = async (bidId: string) => {
+    setLoadingItemId(bidId);
+    setLoadingActionType('cancel_offer');
+    try {
+      await declineBid(bidId);
+    } catch (err) {
+      // already toasted
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
+  };
+
   const handleApproveCancellation = async (requestId: string) => {
     if (window.confirm("Approve this cancellation? The booking will be cancelled and the seeker refunded.")) {
+      setLoadingItemId(requestId);
+      setLoadingActionType('approve_cancellation');
       try {
         const res = await apiRespondCancellationRequest(requestId, true);
         if (res.success) {
@@ -169,6 +296,9 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
         }
       } catch (err: any) {
         toastError('Action Failed', err.response?.data?.message || 'Error responding to cancellation request.');
+      } finally {
+        setLoadingItemId(null);
+        setLoadingActionType(null);
       }
     }
   };
@@ -177,6 +307,8 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
   const handleDeclineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!respondingReqId) return;
+    setLoadingItemId(respondingReqId);
+    setLoadingActionType('decline_cancellation');
     try {
       const res = await apiRespondCancellationRequest(respondingReqId, false, declineNote);
       if (res.success) {
@@ -189,6 +321,9 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
       }
     } catch (err: any) {
       toastError('Action Failed', err.response?.data?.message || 'Error declining cancellation.');
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
     }
   };
 
@@ -275,7 +410,7 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'disputed'
               ? isDark
                 ? 'bg-red-955/20 border-red-900/30 text-red-400 font-extrabold'
-                : 'bg-red-50 border-red-200 text-red-650 font-extrabold'
+                : 'bg-red-50 border-red-200 text-red-655 font-extrabold'
               : isDark
                 ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-855 text-[#b4b0a9]'
                 : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
@@ -283,6 +418,21 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
         >
           Disputes ({countTabItems('disputed')})
         </button>
+
+        <button
+          onClick={() => setActiveTab('canceled')}
+          className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'canceled'
+              ? isDark
+                ? 'bg-neutral-800/40 border-neutral-750 text-[#f2efe9] font-extrabold'
+                : 'bg-slate-100 border-slate-300 text-slate-700 font-extrabold'
+              : isDark
+                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-855 text-[#b4b0a9]'
+                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-550'
+            }`}
+        >
+          Canceled ({countTabItems('canceled')})
+        </button>
+
       </div>
 
       {/* Grid of job/bid cards */}
@@ -383,13 +533,24 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                           Offer Sent
                         </span>
                         <button
-                          onClick={() => declineBid(b.id)}
-                          className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all cursor-pointer ${isDark
-                              ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                              : 'border-slate-300 hover:bg-slate-50 text-slate-500'
-                            }`}
+                          disabled={!!loadingItemId}
+                          onClick={() => handleCancelOffer(b.id)}
+                          className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                            loadingItemId === b.id && loadingActionType === 'cancel_offer'
+                              ? 'bg-[#1c1b18] border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                              : isDark
+                                ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
+                                : 'border-slate-300 hover:bg-slate-50 text-slate-550'
+                          }`}
                         >
-                          Cancel Offer
+                          {loadingItemId === b.id && loadingActionType === 'cancel_offer' ? (
+                            <>
+                              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                              <span>Cancelling...</span>
+                            </>
+                          ) : (
+                            <span>Cancel Offer</span>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -407,8 +568,14 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                 return (
                   <div
                     key={je.id}
-                    className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors duration-200 border-emerald-500/20 ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' : 'bg-white border-slate-300 hover:shadow-md'
-                      }`}
+                    id={`booking-${je.id}`}
+                    className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 border-emerald-500/20 ${
+                      je.id === highlightedBookingId
+                        ? 'ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] border-emerald-500 scale-[1.01]'
+                        : isDark
+                          ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
+                          : 'bg-white border-slate-300 hover:shadow-md'
+                    }`}
                   >
                     {/* Top line: Category and Date */}
                     <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
@@ -435,13 +602,21 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                       </div>
                     </div>
 
-                    {/* Escrow details banner */}
+                    {/* Escrow/Payment details banner */}
                     {hasEscrow && (
-                      <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-emerald-955/15 border-emerald-900/20 text-emerald-400' : 'bg-emerald-50/40 border-emerald-100 text-emerald-700'
-                        }`}>
-                        <span className="font-semibold">🔒 Escrow Protected (GCash Hold)</span>
-                        <span className="font-extrabold">₱{je.price} Secured</span>
-                      </div>
+                      je.paymentMethod === 'GCash' ? (
+                        <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-emerald-955/15 border-emerald-900/20 text-emerald-400' : 'bg-emerald-50/40 border-emerald-100 text-emerald-700'
+                          }`}>
+                          <span className="font-semibold">🔒 Escrow Protected (GCash Hold)</span>
+                          <span className="font-extrabold">₱{je.price} Secured</span>
+                        </div>
+                      ) : (
+                        <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'
+                          }`}>
+                          <span className="font-semibold">💵 On-Site Cash Payment</span>
+                          <span className="font-extrabold">₱{je.price} Receivable</span>
+                        </div>
+                      )
                     )}
 
                     {/* Dispute note inside card */}
@@ -470,12 +645,25 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
 
                             <div className="flex items-center gap-2">
                               <button
+                                disabled={!!loadingItemId}
                                 onClick={() => handleApproveCancellation(activeReq.id)}
-                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-lg transition-all active:scale-95 cursor-pointer"
+                                className={`px-3 py-1.5 text-white font-extrabold text-[10px] rounded-lg transition-all active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer ${
+                                  loadingItemId === activeReq.id && loadingActionType === 'approve_cancellation'
+                                    ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                    : 'bg-emerald-600 hover:bg-emerald-700'
+                                }`}
                               >
-                                Approve & Refund
+                                {loadingItemId === activeReq.id && loadingActionType === 'approve_cancellation' ? (
+                                  <>
+                                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                    <span>Approving...</span>
+                                  </>
+                                ) : (
+                                  <span>Approve & Refund</span>
+                                )}
                               </button>
                               <button
+                                disabled={!!loadingItemId}
                                 onClick={() => {
                                   setRespondingReqId(activeReq.id);
                                   setDeclineNote('');
@@ -586,54 +774,116 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                           if (!isStarted) {
                             return (
                               <button
-                                onClick={() => providerStartJob(je.id)}
-                                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer"
+                                disabled={!!loadingItemId}
+                                onClick={() => handleProviderStartJob(je.id)}
+                                className={`px-3.5 py-1.5 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer ${
+                                  loadingItemId === je.id && loadingActionType === 'start'
+                                    ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                    : 'bg-emerald-600 hover:bg-emerald-700'
+                                }`}
                               >
-                                <Play className="w-3 h-3 animate-pulse" />
-                                <span>Start Job</span>
+                                {loadingItemId === je.id && loadingActionType === 'start' ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                    <span>Starting...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="w-3 h-3 mr-1" />
+                                    <span>Start Job</span>
+                                  </>
+                                )}
                               </button>
                             );
                           }
                           return (
                             <button
-                              onClick={() => requestJobApproval(je.id)}
-                              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
+                              disabled={!!loadingItemId}
+                              onClick={() => handleRequestJobApproval(je.id)}
+                              className={`px-3.5 py-1.5 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center space-x-1 cursor-pointer ${
+                                loadingItemId === je.id && loadingActionType === 'complete'
+                                  ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                  : 'bg-emerald-600 hover:bg-emerald-700'
+                              }`}
                             >
-                              Mark Completed
+                              {loadingItemId === je.id && loadingActionType === 'complete' ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                  <span>Completing...</span>
+                                </>
+                              ) : (
+                                <span>Mark Completed</span>
+                              )}
                             </button>
                           );
                         })()}
 
                         {je.status === 'awaiting_seeker_approval' && (
                           <button
-                            onClick={() => confirmJobCompletion(je.id)}
-                            className={`px-3.5 py-1.5 font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 ${isDark
-                                ? 'bg-[#f2efe9] hover:bg-white text-slate-950'
-                                : 'bg-slate-900 hover:bg-slate-800 text-white'
-                              }`}
+                            disabled={!!loadingItemId}
+                            onClick={() => handleForceApprove(je.id)}
+                            className={`px-3.5 py-1.5 font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center justify-center space-x-1 cursor-pointer ${
+                              loadingItemId === je.id && loadingActionType === 'force_approve'
+                                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                : isDark
+                                  ? 'bg-[#f2efe9] hover:bg-white text-slate-950'
+                                  : 'bg-slate-900 hover:bg-slate-800 text-white'
+                            }`}
                             title="Speed up demo testing by simulating Seeker releasing cash"
                           >
-                            Force Approve
+                            {loadingItemId === je.id && loadingActionType === 'force_approve' ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                <span>Approving...</span>
+                              </>
+                            ) : (
+                              <span>Force Approve</span>
+                            )}
                           </button>
                         )}
 
                         {je.status === 'queued' && (
                           <div className="flex items-center space-x-1.5">
                             <button
-                              onClick={() => providerStartJob(je.id)}
-                              className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer"
+                              disabled={!!loadingItemId}
+                              onClick={() => handleProviderStartJob(je.id)}
+                              className={`px-3.5 py-1.5 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer ${
+                                loadingItemId === je.id && loadingActionType === 'start'
+                                  ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                  : 'bg-emerald-600 hover:bg-emerald-700'
+                              }`}
                             >
-                              <Play className="w-3 h-3 animate-pulse" />
-                              <span>Start</span>
+                              {loadingItemId === je.id && loadingActionType === 'start' ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                  <span>Starting...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="w-3 h-3 mr-1" />
+                                  <span>Start</span>
+                                </>
+                              )}
                             </button>
                             <button
-                              onClick={() => providerRemoveFromQueue(je.id)}
-                              className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all cursor-pointer ${isDark
-                                  ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]'
-                                  : 'border-slate-200 hover:bg-red-50 hover:text-red-655 hover:border-red-200 text-slate-455'
-                                }`}
+                              disabled={!!loadingItemId}
+                              onClick={() => handleProviderRemoveFromQueue(je.id)}
+                              className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                                loadingItemId === je.id && loadingActionType === 'remove'
+                                  ? 'bg-[#1c1b18] border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                  : isDark
+                                    ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]'
+                                    : 'border-slate-205 text-slate-500 hover:bg-slate-50 border-slate-200'
+                              }`}
                             >
-                              Remove
+                              {loadingItemId === je.id && loadingActionType === 'remove' ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  <span>Removing...</span>
+                                </>
+                              ) : (
+                                <span>Remove</span>
+                              )}
                             </button>
                           </div>
                         )}
@@ -717,9 +967,21 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
+                  disabled={!!loadingItemId}
+                  className={`px-5 py-2.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer ${
+                    loadingItemId === respondingReqId && loadingActionType === 'decline_cancellation'
+                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      : 'bg-red-600 hover:bg-red-700'
+                  }`}
                 >
-                  Decline Request
+                  {loadingItemId === respondingReqId && loadingActionType === 'decline_cancellation' ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                      <span>Declining...</span>
+                    </>
+                  ) : (
+                    <span>Decline Request</span>
+                  )}
                 </button>
               </div>
             </form>

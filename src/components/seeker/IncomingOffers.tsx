@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ShieldCheck, Star, Calendar, MessageSquare, Trash2, Check, Search, X, CreditCard } from 'lucide-react';
+import { ShieldCheck, Star, Calendar, MessageSquare, Trash2, Check, Search, X, CreditCard, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
 
@@ -9,8 +9,9 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price_asc' | 'price_desc' | 'rating' | 'trust'>('rating');
-  const [acceptedBidId, setAcceptedBidId] = useState<string | null>(null);
   const [selectingPaymentBidId, setSelectingPaymentBidId] = useState<string | null>(null);
+  const [loadingBidId, setLoadingBidId] = useState<string | null>(null);
+  const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
 
   // Find current seeker's requests
   const myRequests = jobRequests.filter(r => r.seekerId === currentUserId);
@@ -25,15 +26,33 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     setSelectingPaymentBidId(bidId);
   };
 
-  const handleSelectPaymentMethod = (paymentMethod: 'GCash' | 'On-site Cash') => {
+  const handleSelectPaymentMethod = async (paymentMethod: 'GCash' | 'On-site Cash') => {
     if (!selectingPaymentBidId) return;
     const bidId = selectingPaymentBidId;
     setSelectingPaymentBidId(null);
-    setAcceptedBidId(bidId);
-    setTimeout(() => {
-      acceptBid(bidId, paymentMethod);
-      setAcceptedBidId(null);
-    }, 1500);
+    setLoadingBidId(bidId);
+    setLoadingAction('accepting');
+    try {
+      await acceptBid(bidId, paymentMethod);
+    } catch (err) {
+      // error is already toasted, clean up loading state
+    } finally {
+      setLoadingBidId(null);
+      setLoadingAction(null);
+    }
+  };
+
+  const handleDeclineBid = async (bidId: string) => {
+    setLoadingBidId(bidId);
+    setLoadingAction('declining');
+    try {
+      await declineBid(bidId);
+    } catch (err) {
+      // error is already toasted
+    } finally {
+      setLoadingBidId(null);
+      setLoadingAction(null);
+    }
   };
 
   // Helper to get matching request details
@@ -168,13 +187,13 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   }`}
                 >
                   {/* Accept Flash Overlay */}
-                  {acceptedBidId === bid.id && (
+                  {loadingBidId === bid.id && loadingAction === 'accepting' && (
                     <div className="absolute inset-0 bg-emerald-600/90 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all animate-in fade-in duration-200">
                       <div className="text-center text-white space-y-1">
                         <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mx-auto text-xl font-bold border border-white/30 animate-bounce">
                           ✓
                         </div>
-                        <h4 className="font-extrabold text-sm tracking-wide">Offer Accepted!</h4>
+                        <h4 className="font-extrabold text-sm tracking-wide">Accepting Offer...</h4>
                         <p className="text-[10px] opacity-80">Creating contract and setting up escrow...</p>
                       </div>
                     </div>
@@ -259,22 +278,48 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
 
                       <div className="flex flex-row lg:flex-col gap-2 flex-1 lg:flex-none">
                         <button
-                          onClick={() => declineBid(bid.id)}
+                          disabled={!!loadingBidId}
+                          onClick={() => handleDeclineBid(bid.id)}
                           className={`flex-1 py-2.5 border font-bold text-[10px] rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
-                            isDark 
-                              ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]' 
-                              : 'border-slate-300 hover:bg-red-50 hover:text-red-655 hover:border-red-200 text-slate-550'
+                            loadingBidId === bid.id && loadingAction === 'declining'
+                              ? 'bg-[#1c1b18] border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                              : isDark 
+                                ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]' 
+                                : 'border-slate-300 hover:bg-red-50 hover:text-red-655 hover:border-red-200 text-slate-550'
                           }`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>Decline</span>
+                          {loadingBidId === bid.id && loadingAction === 'declining' ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                              <span>Declining...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Decline</span>
+                            </>
+                          )}
                         </button>
                         <button
+                          disabled={!!loadingBidId}
                           onClick={() => handleAcceptBid(bid.id)}
-                          className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center space-x-1 cursor-pointer"
+                          className={`flex-1 py-2.5 font-extrabold text-[10px] rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center space-x-1 cursor-pointer ${
+                            loadingBidId === bid.id && loadingAction === 'accepting'
+                              ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                          }`}
                         >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Accept</span>
+                          {loadingBidId === bid.id && loadingAction === 'accepting' ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                              <span>Accepting...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Accept</span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>

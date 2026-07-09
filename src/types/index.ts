@@ -40,6 +40,11 @@ export interface ServiceListing {
   isPaused: boolean;
   proofOfSkillUrl: string; // Proof uploaded for verification
   rating: number;
+  paymentMethods?: {
+    cash: boolean;
+    gcash: boolean;
+    maya?: boolean;
+  };
 }
 
 export interface JobRequest {
@@ -74,6 +79,7 @@ export interface JobEngagement {
   title: string;
   seekerId: string;
   seekerName: string;
+  seekerAvatar: string;
   providerId: string;
   providerName: string;
   providerAvatar: string;
@@ -108,6 +114,7 @@ export interface Notification {
   desc: string;
   time: string;
   read: boolean;
+  link?: string | null;
 }
 
 export interface Message {

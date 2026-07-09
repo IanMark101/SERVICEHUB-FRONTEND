@@ -1,8 +1,9 @@
 import React, { useState, FormEvent, useEffect } from 'react';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { X, CreditCard, DollarSign, Sparkles } from 'lucide-react';
+import { X, CreditCard, MapPin, Smartphone, Sparkles } from 'lucide-react';
 import { apiGetProviderSummary } from '../../api/ai.api';
+import { getServicePaymentMethods, shouldShowPaymentSelector } from '../../lib/paymentUtils';
 
 interface RequestServiceModalProps {
   listing: ServiceListing;
@@ -12,12 +13,33 @@ interface RequestServiceModalProps {
 
 export default function RequestServiceModal({ listing, onClose, initialPaymentMethod }: RequestServiceModalProps) {
   const { user, bookProviderDirectly, isDark } = useApp();
+  const isOwned = !!(user && listing.providerId === user.id);
+
+  // ── Payment method source of truth ──────────────────────────────────────────
+  const { cash, gcash } = getServicePaymentMethods(listing);
+  const showSelector = shouldShowPaymentSelector(listing); // true only when BOTH are supported
+
+  // Resolve a valid default: if the caller passed a method not supported, fall back to supported one
+  const resolveDefault = (): 'GCash' | 'On-site Cash' => {
+    if (initialPaymentMethod === 'GCash' && gcash) return 'GCash';
+    if (initialPaymentMethod === 'On-site Cash' && cash) return 'On-site Cash';
+    if (cash) return 'On-site Cash';
+    return 'GCash';
+  };
 
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(listing.price);
-  const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(initialPaymentMethod || 'GCash');
+  const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(resolveDefault);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+
+  const gcashClass = paymentMethod === 'GCash'
+    ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
+    : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
+
+  const cashClass = paymentMethod === 'On-site Cash'
+    ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
+    : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
 
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [loadingAi, setLoadingAi] = useState<boolean>(false);
@@ -113,6 +135,19 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         ) : (
           <form onSubmit={handleFormSubmit} className="p-5 space-y-4">
 
+            {/* Self-transaction policy warning banner */}
+            {isOwned && (
+              <div className={`p-4 rounded-2xl border transition-all duration-200 ${
+                isDark 
+                  ? 'bg-red-950/20 border-red-900/30 text-red-400' 
+                  : 'bg-red-50 border-red-100 text-red-750'
+              }`}>
+                <p className="text-xs font-semibold">
+                  This is your own service listing. Marketplace transactions with your own account are not allowed.
+                </p>
+              </div>
+            )}
+
             {/* AI Review Summary Card */}
             {(loadingAi || aiSummary) && (
               <div className={`p-4 rounded-2xl border transition-all duration-200 ${
@@ -149,19 +184,20 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
             {/* Description */}
             <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-650'}`}>
+              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
                 Describe the work needed
               </label>
               <textarea
                 rows={4}
                 required
+                disabled={isOwned}
                 placeholder="Describe exactly what needs to be done, location details, preferred schedules..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${isDark
                     ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
                     : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
-                  }`}
+                  } ${isOwned ? 'opacity-65' : ''}`}
               />
             </div>
 
@@ -174,55 +210,69 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 type="number"
                 min={1}
                 required
+                disabled={isOwned}
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${isDark
                     ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
                     : 'bg-slate-50 border-slate-200 text-slate-750 focus:border-orange-500'
-                  }`}
+                  } ${isOwned ? 'opacity-65' : ''}`}
               />
               <span className={`block text-[10px] mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>Base listing rate: ₱{listing.price}</span>
             </div>
 
-            {/* Payment Method Badge Selector */}
-            <div>
-              <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                Preferred Payment Method
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('GCash')}
-                  className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${paymentMethod === 'GCash'
-                      ? isDark
-                        ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold'
-                        : 'border-orange-500 bg-orange-55 text-orange-600 font-bold'
-                      : isDark
-                        ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450'
-                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold'
-                    }`}
-                >
-                  <CreditCard className="w-4 h-4" />
-                  <span className="text-xs">GCash</span>
-                </button>
+            {/* Payment Method Badge Selector — only shown when provider supports BOTH methods */}
+            {showSelector ? (
+              <div>
+                <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Preferred Payment Method
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => !isOwned && setPaymentMethod('GCash')}
+                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${
+                      paymentMethod === 'GCash'
+                        ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
+                        : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold')
+                    } ${isOwned ? 'opacity-65 cursor-not-allowed' : ''}`}
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span className="text-xs">GCash</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('On-site Cash')}
-                  className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${paymentMethod === 'On-site Cash'
-                      ? isDark
-                        ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold'
-                        : 'border-orange-500 bg-orange-55 text-orange-600 font-bold'
-                      : isDark
-                        ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450'
-                        : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold'
-                    }`}
-                >
-                  <DollarSign className="w-4 h-4" />
-                  <span className="text-xs">On-site Cash</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => !isOwned && setPaymentMethod('On-site Cash')}
+                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${
+                      paymentMethod === 'On-site Cash'
+                        ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
+                        : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold')
+                    } ${isOwned ? 'opacity-65 cursor-not-allowed' : ''}`}
+                  >
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-xs">On-site Cash</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              /* Single method — show read-only badge, no selector */
+              <div>
+                <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Payment Method
+                </label>
+                <div className={`p-3 rounded-xl border flex items-center space-x-2 ${
+                  isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-600'
+                }`}>
+                  {gcash && !cash
+                    ? <><Smartphone className="w-4 h-4 text-orange-500" /><span className="text-xs font-semibold">GCash Online</span></>
+                    : <><MapPin className="w-4 h-4" /><span className="text-xs font-semibold">On-site Cash</span></>}
+                  <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-md border ${
+                    isDark ? 'border-neutral-800 text-neutral-500' : 'border-slate-200 text-slate-400'
+                  }`}>Provider's only accepted method</span>
+                </div>
+              </div>
+            )}
 
             {/* Spec Part 5 Cancellation Policy Disclaimer */}
             <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${
@@ -243,15 +293,25 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     : 'border-slate-200 hover:bg-slate-50 text-slate-500'
                   }`}
               >
-                Cancel
+                {isOwned ? 'Return to Marketplace' : 'Cancel'}
               </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5"
-              >
-                {loading ? 'Sending Request...' : 'Send Booking Request'}
-              </button>
+              {isOwned ? (
+                <button
+                  type="button"
+                  onClick={() => window.location.href = `/provider/service-manager?id=${listing.id}`}
+                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer"
+                >
+                  Edit Listing Details
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5"
+                >
+                  {loading ? 'Sending Request...' : 'Send Booking Request'}
+                </button>
+              )}
             </div>
 
           </form>

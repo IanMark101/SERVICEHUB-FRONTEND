@@ -5,9 +5,10 @@ import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone } fr
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
+import { getServicePaymentMethods, getPrimaryBookingCTA } from '../../lib/paymentUtils';
 
 export default function SeekServices() {
-  const { services, users, isDark } = useApp();
+  const { services, users, isDark, user } = useApp();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
@@ -227,7 +228,9 @@ export default function SeekServices() {
               const provider = getProviderDetails(service.providerId);
               const trustScore = provider?.email === 'johnfrans@gmail.com' ? '96' : '99';
               const isVerified = provider?.isVerified ?? false;
-              const supportsGCash = service.price >= 1000;
+              const { cash, gcash } = getServicePaymentMethods(service);
+              const ctaText = getPrimaryBookingCTA(service);
+              const isOwned = !!(user && service.providerId === user.id);
 
               return (
                 <div
@@ -275,14 +278,22 @@ export default function SeekServices() {
                       </div>
                     </div>
 
-                    {/* Category Tag */}
-                    <div className="mt-4">
+                    {/* Category Tag & Ownership Badge */}
+                    <div className="mt-4 flex items-center justify-between">
                       <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
                           ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
                           : 'text-orange-600 bg-orange-50 border-orange-100/50'
                         }`}>
                         {service.category}
                       </span>
+                      {isOwned && (
+                        <span className={`inline-flex items-center px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
+                            ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
+                            : 'text-orange-655 bg-orange-50 border-orange-200'
+                          }`}>
+                          👤 Owned by You
+                        </span>
+                      )}
                     </div>
 
                     {/* Service Listing Details */}
@@ -323,14 +334,16 @@ export default function SeekServices() {
                     </div>
                   </div>
 
-                  {/* Payment Methods Badges */}
+                  {/* Payment Methods Badges — driven by provider's selection */}
                   <div className="flex flex-wrap gap-1.5 mt-4">
-                    <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-[#1c1b18] border-neutral-855 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-500'
-                      }`}>
-                      <MapPin className={`w-3 h-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`} />
-                      <span>On-site Cash</span>
-                    </span>
-                    {supportsGCash && (
+                    {cash && (
+                      <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-[#1c1b18] border-neutral-855 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-500'
+                        }`}>
+                        <MapPin className={`w-3 h-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`} />
+                        <span>On-site Cash</span>
+                      </span>
+                    )}
+                    {gcash && (
                       <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-orange-950/20 border-orange-900/30 text-orange-400' : 'bg-orange-50 border-orange-100 text-orange-600'
                         }`}>
                         <Smartphone className={`w-3 h-3 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
@@ -341,27 +354,66 @@ export default function SeekServices() {
 
                   {/* Action Buttons */}
                   <div className="mt-4 space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => handleBookListing(service, 'On-site Cash')}
-                      className={`w-full font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
-                          ? 'bg-[#f2efe9] hover:bg-white text-slate-950'
-                          : 'bg-[#1a2238] hover:bg-[#111726] text-white'
-                        }`}
-                    >
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span>Request On-site</span>
-                    </button>
+                    {isOwned ? (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => window.location.href = `/provider/service-manager?id=${service.id}`}
+                            className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
+                                ? 'bg-orange-950/20 border border-orange-900/30 text-orange-400 hover:bg-orange-955'
+                                : 'bg-orange-50 border border-orange-200 text-orange-655 hover:bg-orange-100'
+                              }`}
+                          >
+                            <span>Edit Listing</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => window.location.href = `/provider/service-manager`}
+                            className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
+                                ? 'bg-[#22211e] border border-neutral-800/80 text-[#b4b0a9] hover:bg-[#2c2b27]'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                              }`}
+                          >
+                            <span>Performance</span>
+                          </button>
+                        </div>
+                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} title="Self-transaction policy: Marketplace transactions with your own account are not allowed.">
+                          You cannot book your own service.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Primary CTA — opens modal pre-selecting the right method */}
+                        <button
+                          type="button"
+                          onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
+                          className={`w-full font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${
+                            gcash && !cash
+                              ? 'bg-orange-600 hover:bg-orange-700 text-white'
+                              : isDark
+                                ? 'bg-[#f2efe9] hover:bg-white text-slate-950'
+                                : 'bg-[#1a2238] hover:bg-[#111726] text-white'
+                          }`}
+                        >
+                          {gcash && !cash
+                            ? <Smartphone className="w-3.5 h-3.5" />
+                            : <MapPin className="w-3.5 h-3.5" />}
+                          <span>{ctaText}</span>
+                        </button>
 
-                    {supportsGCash && (
-                      <button
-                        type="button"
-                        onClick={() => handleBookListing(service, 'GCash')}
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
-                      >
-                        <Smartphone className="w-3.5 h-3.5" />
-                        <span>Request via GCash</span>
-                      </button>
+                        {/* Secondary GCash button only when BOTH methods are supported */}
+                        {cash && gcash && (
+                          <button
+                            type="button"
+                            onClick={() => handleBookListing(service, 'GCash')}
+                            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                          >
+                            <Smartphone className="w-3.5 h-3.5" />
+                            <span>Book with GCash</span>
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
 

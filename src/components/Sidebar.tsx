@@ -56,7 +56,7 @@ export default function Sidebar({
 }: SidebarProps) {
 
   // Bind to App Context
-  const { bids, jobRequests, jobEngagements, isDark } = useApp();
+  const { bids, jobRequests, jobEngagements, isDark, unreadMessagesCount } = useApp();
 
   // Resolve current mock user ID
   const mockUserId = user?.id || '';
@@ -118,7 +118,7 @@ export default function Sidebar({
   };
 
   const sharedMenu: MenuItem[] = [
-    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: 4 },
+    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined },
     { id: 'community-hub', label: 'Community Hub', icon: Users },
   ];
 

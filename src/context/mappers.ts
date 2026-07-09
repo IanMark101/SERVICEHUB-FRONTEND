@@ -27,6 +27,7 @@ export function mapBookingToEngagement(b: any): JobEngagement {
     title,
     seekerId: b.seekerId,
     seekerName: b.seeker?.name || 'Seeker',
+    seekerAvatar: b.seeker?.avatarUrl || DEFAULT_AVATAR,
     providerId: b.providerId,
     providerName: b.provider?.name || 'Provider',
     providerAvatar: b.provider?.avatarUrl || DEFAULT_AVATAR,
@@ -50,6 +51,7 @@ export function mapCompletedServiceToEngagement(cs: any): JobEngagement {
     title,
     seekerId: cs.seekerId,
     seekerName: cs.seeker?.name || 'Seeker',
+    seekerAvatar: cs.seeker?.avatarUrl || DEFAULT_AVATAR,
     providerId: cs.providerId,
     providerName: cs.provider?.name || 'Provider',
     providerAvatar: cs.provider?.avatarUrl || DEFAULT_AVATAR,
@@ -78,6 +80,11 @@ export function mapServiceToListing(item: any): ServiceListing {
     isPaused: !item.isAvailable,
     proofOfSkillUrl: '',
     rating: item.provider?.trustScore ? item.provider.trustScore / 20 : 5.0,
+    paymentMethods: item.paymentMethods ? {
+      cash: !!item.paymentMethods.cash,
+      gcash: !!item.paymentMethods.gcash,
+      maya: !!item.paymentMethods.maya
+    } : undefined
   };
 }
 
@@ -129,6 +136,7 @@ export function mapDbNotification(n: any): Notification {
     desc: n.body,
     time,
     read: n.isRead,
+    link: n.link || null,
   };
 }
 

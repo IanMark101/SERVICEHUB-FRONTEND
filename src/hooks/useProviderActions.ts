@@ -59,7 +59,8 @@ export function useProviderActions({
     category: string,
     price: number,
     description: string,
-    proofUrl: string
+    proofUrl: string,
+    paymentMethods: { cash: boolean; gcash: boolean }
   ) => {
     try {
       const catObj = dbCategories.find(c => c.name.toLowerCase() === category.toLowerCase());
@@ -71,7 +72,7 @@ export function useProviderActions({
           description,
           price,
           estimatedDurationMins: 60,
-          paymentMethods: { cash: true, gcash: true, maya: false },
+          paymentMethods: { cash: paymentMethods.cash, gcash: paymentMethods.gcash, maya: false },
           queueLimit: 5,
         });
 
@@ -89,7 +90,12 @@ export function useProviderActions({
             queueSize: 0,
             isPaused: false,
             proofOfSkillUrl: proofUrl,
-            rating: 5.0
+            rating: 5.0,
+            paymentMethods: {
+              cash: paymentMethods.cash,
+              gcash: paymentMethods.gcash,
+              maya: false
+            }
           };
           setServices(prev => [newListing, ...prev]);
           success('Listing Created', 'Your service listing has been sent to admins for approval.');
@@ -171,6 +177,7 @@ export function useProviderActions({
       }
     } catch (err: any) {
       toastError('Action Failed', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 
@@ -185,6 +192,7 @@ export function useProviderActions({
       }
     } catch (err: any) {
       toastError('Action Failed', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 
@@ -197,6 +205,7 @@ export function useProviderActions({
       }
     } catch (err: any) {
       toastError('Failed to start job', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 
@@ -209,6 +218,7 @@ export function useProviderActions({
       }
     } catch (err: any) {
       toastError('Failed to remove from queue', err.response?.data?.error || err.message);
+      throw err;
     }
   };
 

@@ -9,3 +9,8 @@ export async function apiSendMessage(completedServiceId: string, content: string
   const response = await api.post(`/messages/${completedServiceId}`, { content, imageUrl });
   return response.data;
 }
+
+export async function apiGetConversations() {
+  const response = await api.get('/messages/conversations');
+  return response.data;
+}
