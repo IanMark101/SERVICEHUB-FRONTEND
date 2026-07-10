@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api } from '../lib/api/axios';
 
 export async function apiSubmitOffer(data: { requestId: string; offeredPrice: number; estimatedDuration: number; availability?: string; message?: string }) {
   const response = await api.post('/offers', data);

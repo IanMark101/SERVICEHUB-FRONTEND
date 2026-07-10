@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api } from '../lib/api/axios';
 
 export async function apiGetNotifications() {
   const response = await api.get('/notifications');

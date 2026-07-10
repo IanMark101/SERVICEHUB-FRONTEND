@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api } from '../lib/api/axios';
 
 export async function apiGetMessages(completedServiceId: string) {
   const response = await api.get(`/messages/${completedServiceId}`);

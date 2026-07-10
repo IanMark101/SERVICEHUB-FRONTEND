@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api } from '../lib/api/axios';
 
 export async function apiBookDirect(data: { serviceId: string; agreedPrice: number; schedule?: string; message?: string }) {
   const response = await api.post('/bookings/direct', data);

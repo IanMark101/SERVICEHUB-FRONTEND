@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api } from '../lib/api/axios';
 
 export async function apiSubmitVerification(proofs: { fileUrl: string; documentType: string }[]) {
   const response = await api.post('/verifications/submit', { proofs });

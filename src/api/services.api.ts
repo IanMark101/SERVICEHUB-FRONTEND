@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api } from '../lib/api/axios';
 
 export async function apiBrowseServices(params?: { categoryId?: string; search?: string; availableOnly?: boolean }) {
   const response = await api.get('/services', { params });

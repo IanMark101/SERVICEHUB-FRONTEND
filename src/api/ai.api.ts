@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { api } from '../lib/api/axios';
 
 export async function apiGetProviderSummary(providerId: string) {
   const response = await api.get(`/ai/provider-summary/${providerId}`);
