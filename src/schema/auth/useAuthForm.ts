@@ -1,9 +1,9 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '../../api/auth.api';
-import { UserSession } from './LoginContainer';
-import { signupStep1Schema, signupStep2Schema, loginSchema, forgotSchema, resetSchema } from './authValidation';
+import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '@/api/auth.api';
+import { UserSession } from '../../components/auth/LoginContainer';
+import { signupStep1Schema, signupStep2Schema, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
 
 interface UseAuthFormProps {
   onLoginSuccess: (userData: UserSession) => void;

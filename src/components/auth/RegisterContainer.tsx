@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import useAuthForm from './useAuthForm';
-import AuthLayout from './AuthLayout';
+import useAuthForm from '../../schema/auth/useAuthForm';
+import { AuthLayout } from '@/components/auth/AuthLayout';
 import AuthLeftPanel from './AuthLeftPanel';
 import SignupForm from './SignupForm';
 import RegistrationSuccess from './RegistrationSuccess';

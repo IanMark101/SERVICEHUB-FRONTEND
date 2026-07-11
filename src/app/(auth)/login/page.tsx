@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useApp } from '../../context/AppContext';
-import LoginContainer, { UserSession } from '../../components/auth/LoginContainer';
+import { useApp } from '@/context/AppContext';
+import LoginContainer, { UserSession } from '@/components/auth/LoginContainer';
 
 export default function LoginPage() {
   const router = useRouter();

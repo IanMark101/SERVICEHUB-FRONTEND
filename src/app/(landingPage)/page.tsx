@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import LandingPage from '../components/LandingPage';
-import { apiGetMe } from '../api/auth.api';
+import LandingPage from '@/components/LandingPage';
+import { apiGetMe } from '@/api/auth.api';
 
 export default function Home() {
   const router = useRouter();

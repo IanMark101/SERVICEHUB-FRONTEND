@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import useAuthForm from './useAuthForm';
-import AuthLayout from './AuthLayout';
+import useAuthForm from '../../schema/auth/useAuthForm';
 import AuthLeftPanel from './AuthLeftPanel';
 import LoginForm from './LoginForm';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import ResetPasswordForm from './ResetPasswordForm';
 import { useApp } from '../../context/AppContext';
 import { useRouter } from 'next/navigation';
+import { AuthLayout } from "@/components/auth/AuthLayout"
 
 export interface UserSession {
   id: string;

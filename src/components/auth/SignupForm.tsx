@@ -3,7 +3,7 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import AuthInput from './shared/AuthInput';
 import GoogleSignInButton from './shared/GoogleSignInButton';
-import { avatars } from './useAuthForm';
+import { avatars } from '../../schema/auth/useAuthForm';
 
 interface SignupFormProps {
   step: number;

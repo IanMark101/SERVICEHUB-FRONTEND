@@ -2,10 +2,10 @@ import React from 'react';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
-  theme: 'green' | 'orange';
+  theme?: 'green' | 'orange';
 }
 
-export default function AuthLayout({ children, theme }: AuthLayoutProps) {
+export  function AuthLayout({ children, theme }: AuthLayoutProps) {
   const isGreen = theme === 'green';
 
   return (
