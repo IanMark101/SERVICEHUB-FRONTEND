@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Bell,
@@ -21,6 +21,8 @@ import { useToast } from './Toast';
 import { resolveNotificationLink } from '../lib/notificationRoutes';
 import { useApp } from '../context/AppContext';
 import { useTransactionPermission } from '../hooks/useTransactionPermission';
+import { apiSearchUsers } from '../api/users.api';
+import type { User as AppUser } from '../types';
 
 interface HeaderProps {
   currentRole: 'seeker' | 'provider' | 'admin';
@@ -43,9 +45,15 @@ export default function Header({
 }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
+  const [userSearch, setUserSearch] = useState<string>('');
+  const [showUserSearchResults, setShowUserSearchResults] = useState<boolean>(false);
+  const [userSearchResults, setUserSearchResults] = useState<AppUser[]>([]);
+  const [userSearchLoading, setUserSearchLoading] = useState<boolean>(false);
+  const [serverSearchEnabled, setServerSearchEnabled] = useState<boolean>(true);
+  const userSearchRef = useRef<HTMLDivElement | null>(null);
 
   // Bind to App Context
-  const { notifications, markNotificationsRead, isDark, toggleTheme, unreadMessagesCount } = useApp();
+  const { notifications, markNotificationsRead, isDark, toggleTheme, unreadMessagesCount, users, services, jobRequests } = useApp();
   const { navigateToVerification } = useTransactionPermission();
 
   // Use the real authenticated user ID directly from session
@@ -81,6 +89,16 @@ export default function Header({
 
   const theme = roleThemes[currentRole];
 
+  // Resolve a safe display name from various possible server shapes
+  const getDisplayName = (r: AppUser) => {
+    const first = r.firstName || '';
+    const last = r.lastName || '';
+    const full = `${first} ${last}`.trim();
+    if (full) return full;
+    const anyR = r as any;
+    return anyR.name || anyR.fullName || anyR.displayName || 'Unknown';
+  };
+
   // Helper to format tab ID into human-readable Title
   const getPageTitle = (tabId: string) => {
     if (!tabId) return 'ServiceHub';
@@ -112,6 +130,150 @@ export default function Header({
   };
 
   const router = useRouter();
+
+  useEffect(() => {
+    const query = userSearch.trim();
+    if (!query) {
+      setUserSearchResults([]);
+      setUserSearchLoading(false);
+      return;
+    }
+
+    setUserSearchLoading(true);
+    const timer = window.setTimeout(async () => {
+      // Debug: log query
+      // eslint-disable-next-line no-console
+      console.log('[Header] search query:', query);
+
+      // Try global search API first (non-admin endpoint) if enabled. If it returns results, use them.
+      if (serverSearchEnabled) {
+        try {
+          const res = await apiSearchUsers({ search: query, page: 1, limit: 6 });
+          // eslint-disable-next-line no-console
+          console.log('[Header] apiSearchUsers response:', res);
+          if (res && res.success && Array.isArray(res.data)) {
+            // eslint-disable-next-line no-console
+            console.log('[Header] apiSearchUsers results length:', (res.data || []).length);
+            setUserSearchResults(res.data as AppUser[]);
+            setShowUserSearchResults((res.data as AppUser[]).length > 0);
+            setUserSearchLoading(false);
+            return;
+          }
+        } catch (e: any) {
+          // eslint-disable-next-line no-console
+          console.warn('[Header] apiSearchUsers error, falling back to client search', e);
+          // If endpoint missing (404), disable further server calls to avoid console noise
+          if (e?.response?.status === 404) {
+            setServerSearchEnabled(false);
+          }
+        }
+      }
+
+      const normalizedQuery = query.toLowerCase();
+      const userCandidates = [
+        ...users,
+        ...services.map((service) => ({
+          id: service.providerId || `service_${service.id}`,
+          firstName: (service.providerName || '').split(' ')[0] || service.providerName || 'Provider',
+          lastName: (service.providerName || '').split(' ').slice(1).join(' ') || '',
+          email: '',
+          role: 'provider' as const,
+          avatarUrl: service.providerAvatar,
+          bio: '',
+          phone: '',
+          rating: service.rating || 0,
+          reviews: [],
+          isVerified: true,
+          proofOfResidencyUrl: undefined,
+          proofOfSkillUrl: undefined,
+          trustScore: undefined,
+          verificationStatus: undefined,
+          emailVerified: undefined,
+          isActive: true,
+        })),
+        ...jobRequests.map((request) => ({
+          id: request.seekerId || `request_${request.id}`,
+          firstName: (request.seekerName || '').split(' ')[0] || request.seekerName || 'Seeker',
+          lastName: (request.seekerName || '').split(' ').slice(1).join(' ') || '',
+          email: '',
+          role: 'seeker' as const,
+          avatarUrl: request.seekerAvatar,
+          bio: '',
+          phone: '',
+          rating: 0,
+          reviews: [],
+          isVerified: false,
+          proofOfResidencyUrl: undefined,
+          proofOfSkillUrl: undefined,
+          trustScore: undefined,
+          verificationStatus: undefined,
+          emailVerified: undefined,
+          isActive: true,
+        })),
+      ];
+
+      const filtered = userCandidates
+        .filter((u) => u.id !== userId)
+        .filter((u) => {
+          const fullName = `${u.firstName} ${u.lastName}`.trim().toLowerCase();
+          return (
+            fullName.includes(normalizedQuery) ||
+            (u.email || '').toLowerCase().includes(normalizedQuery) ||
+            u.role.toLowerCase().includes(normalizedQuery) ||
+            (u.bio || '').toLowerCase().includes(normalizedQuery)
+          );
+        })
+        .filter((u, index, self) => self.findIndex((item) => item.id === u.id) === index)
+          .slice(0, 6);
+
+        // eslint-disable-next-line no-console
+        console.log('[Header] client filtered results count:', filtered.length, filtered.map(f => ({ id: f.id, name: `${f.firstName} ${f.lastName}` }))); 
+        setUserSearchResults(filtered);
+        setShowUserSearchResults(filtered.length > 0);
+        setUserSearchLoading(false);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [userSearch, currentRole, users, services, jobRequests, userId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userSearchRef.current && !userSearchRef.current.contains(event.target as Node)) {
+        setShowUserSearchResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleOpenUserProfile = (selectedUser: AppUser) => {
+    setUserSearch('');
+    setShowUserSearchResults(false);
+
+    if (onViewProfile) {
+      onViewProfile({
+        id: selectedUser.id,
+        email: selectedUser.email,
+        firstName: selectedUser.firstName,
+        lastName: selectedUser.lastName,
+        role: selectedUser.role,
+        avatarUrl: selectedUser.avatarUrl,
+        bio: selectedUser.bio,
+        phone: selectedUser.phone,
+        trustScore: selectedUser.trustScore,
+        verificationStatus: selectedUser.verificationStatus,
+        emailVerified: selectedUser.emailVerified,
+        isActive: selectedUser.isActive,
+      });
+      return;
+    }
+
+    if (currentRole === 'admin') {
+      router.push(`/admin/users?id=${selectedUser.id}`);
+    } else {
+      router.push(`/${currentRole}/user-profile?id=${selectedUser.id}`);
+    }
+  };
 
   const handleToggleNotifications = () => {
     const nextState = !showNotifications;
@@ -188,18 +350,70 @@ export default function Header({
       </div>
 
       {/* Middle: Global User Search Bar */}
-      <div className="hidden md:block w-80 relative mx-4">
+      <div ref={userSearchRef} className="hidden md:block w-80 relative mx-4">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9]">
           <Search className="w-3.5 h-3.5" />
         </span>
         <input
           type="text"
+          value={userSearch}
+          onChange={(e) => {
+            setUserSearch(e.target.value);
+            setShowUserSearchResults(Boolean(e.target.value.trim()));
+          }}
+          onFocus={() => setShowUserSearchResults(Boolean(userSearch.trim()))}
           placeholder="Search users..."
           className={`w-full border rounded-xl pl-9 pr-4 py-2 text-xs transition-all ${isDark
               ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 focus:ring-amber-500/30 focus:border-amber-500/50'
               : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${theme.ring}`
             }`}
         />
+
+        {showUserSearchResults && (
+          <div className={`absolute left-0 right-0 mt-2 z-50 rounded-2xl border shadow-xl overflow-hidden ${isDark ? 'bg-[#191919] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'}`}>
+            {userSearchLoading ? (
+              <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">Searching users...</div>
+            ) : userSearchResults.length > 0 ? (
+              userSearchResults.map((result) => (
+                <button
+                  key={result.id}
+                  type="button"
+                  onClick={() => handleOpenUserProfile(result)}
+                  className={`w-full text-left px-3 py-3 border-b last:border-b-0 transition-colors ${isDark ? 'hover:bg-[#22211e]' : 'hover:bg-slate-50'}`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <img
+                        src={result.avatarUrl || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&q=80&w=200'}
+                        alt={`${getDisplayName(result)} avatar`}
+                        className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <div className="font-semibold text-xs truncate">{getDisplayName(result)}</div>
+                        {result.email && result.email !== 'N/A' && (
+                          <div className="text-[10px] text-slate-500 dark:text-neutral-500 truncate">{result.email}</div>
+                        )}
+                        {result.bio && result.bio !== 'N/A' && (
+                          <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate mt-1">{result.bio}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      <div className={`text-[10px] uppercase tracking-wide font-bold ${result.role === 'provider' ? 'text-emerald-500' : 'text-orange-500'}`}>
+                        {result.role}
+                      </div>
+                      {result.phone && result.phone !== 'N/A' && (
+                        <div className="text-[10px] text-slate-400 mt-1">{result.phone}</div>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">No users found.</div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Right side: Notifications & Profile Avatar dropdowns */}
