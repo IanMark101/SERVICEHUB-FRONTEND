@@ -15,53 +15,79 @@ export default function GoogleSignInButton({
   mode,
   step,
 }: GoogleSignInButtonProps) {
+  const onSuccessRef = React.useRef(onSuccess);
+
   useEffect(() => {
+    onSuccessRef.current = onSuccess;
+  }, [onSuccess]);
+
+  useEffect(() => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) return;
+
     let script = document.querySelector(
       'script[src="https://accounts.google.com/gsi/client"]'
-    ) as HTMLScriptElement;
+    ) as HTMLScriptElement | null;
+
+    const initializeGoogle = () => {
+      if (clientId && (window as any).google) {
+        (window as any).google.accounts.id.initialize({
+          client_id: clientId,
+          callback: (response: any) => {
+            onSuccessRef.current(response.credential);
+          },
+        });
+      }
+    };
+
     if (!script) {
       script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
       document.body.appendChild(script);
+      script.addEventListener('load', initializeGoogle);
+    } else if ((window as any).google) {
+      initializeGoogle();
+    } else {
+      script.addEventListener('load', initializeGoogle);
     }
 
-    const initAndRenderBtn = () => {
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-      if (clientId && (window as any).google) {
-        (window as any).google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (response: any) => {
-            onSuccess(response.credential);
-          },
-        });
+    return () => {
+      if (script) {
+        script.removeEventListener('load', initializeGoogle);
+      }
+    };
+  }, []);
 
-        const btnContainer = document.getElementById('google-signin-btn');
-        if (btnContainer) {
-          (window as any).google.accounts.id.renderButton(btnContainer, {
-            theme: isDark ? 'filled_black' : 'outline',
-            size: 'large',
-            shape: 'pill',
-            width: btnContainer.offsetWidth || 300,
-          });
-        }
+  useEffect(() => {
+    const renderGoogleButton = () => {
+      const btnContainer = document.getElementById('google-signin-btn');
+      if (btnContainer && (window as any).google) {
+        btnContainer.innerHTML = '';
+        (window as any).google.accounts.id.renderButton(btnContainer, {
+          theme: isDark ? 'filled_black' : 'outline',
+          size: 'large',
+          shape: 'pill',
+          width: btnContainer.offsetWidth || 300,
+        });
       }
     };
 
     if ((window as any).google) {
-      initAndRenderBtn();
+      renderGoogleButton();
     } else {
-      script.onload = initAndRenderBtn;
-    }
-
-    return () => {
-      const btnContainer = document.getElementById('google-signin-btn');
-      if (btnContainer) {
-        btnContainer.innerHTML = '';
+      const script = document.querySelector(
+        'script[src="https://accounts.google.com/gsi/client"]'
+      ) as HTMLScriptElement | null;
+      if (script) {
+        script.addEventListener('load', renderGoogleButton);
+        return () => {
+          script.removeEventListener('load', renderGoogleButton);
+        };
       }
-    };
-  }, [mode, step, isDark, onSuccess]);
+    }
+  }, [isDark]);
 
   const hasClientId = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
