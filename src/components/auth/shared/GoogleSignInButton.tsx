@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 
+let googleAccountsIdInitialized = false;
+
 interface GoogleSignInButtonProps {
   onSuccess: (idToken: string) => void;
   onError: (msg: string) => void;
@@ -30,7 +32,12 @@ export default function GoogleSignInButton({
     ) as HTMLScriptElement | null;
 
     const initializeGoogle = () => {
-      if (clientId && (window as any).google) {
+      if (
+        !googleAccountsIdInitialized &&
+        clientId &&
+        (window as any).google
+      ) {
+        googleAccountsIdInitialized = true;
         (window as any).google.accounts.id.initialize({
           client_id: clientId,
           callback: (response: any) => {
