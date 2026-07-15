@@ -374,41 +374,41 @@ export default function Header({
             {userSearchLoading ? (
               <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">Searching users...</div>
             ) : userSearchResults.length > 0 ? (
-              userSearchResults.map((result) => (
-                <button
-                  key={result.id}
-                  type="button"
-                  onClick={() => handleOpenUserProfile(result)}
-                  className={`w-full text-left px-3 py-3 border-b last:border-b-0 transition-colors ${isDark ? 'hover:bg-[#22211e]' : 'hover:bg-slate-50'}`}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
+              userSearchResults.map((result) => {
+                const emailToShow = result.email && result.email !== 'N/A' ? result.email : '';
+                return (
+                  <button
+                    key={result.id}
+                    type="button"
+                    onClick={() => handleOpenUserProfile(result)}
+                    className={`w-full text-left px-4 py-3 transition-colors ${isDark ? 'hover:bg-[#242424]' : 'hover:bg-slate-50'}`}
+                  >
+                    <div className="flex items-start gap-3">
                       <img
                         src={result.avatarUrl || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&q=80&w=200'}
                         alt={`${getDisplayName(result)} avatar`}
-                        className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                        className="w-11 h-11 rounded-2xl object-cover flex-shrink-0 border border-slate-200 dark:border-neutral-800"
                       />
-                      <div className="min-w-0">
-                        <div className="font-semibold text-xs truncate">{getDisplayName(result)}</div>
-                        {result.email && result.email !== 'N/A' && (
-                          <div className="text-[10px] text-slate-500 dark:text-neutral-500 truncate">{result.email}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="font-semibold text-sm truncate text-slate-900 dark:text-[#f2efe9]">{getDisplayName(result)}</div>
+                          <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${result.role === 'provider' ? 'text-emerald-500' : 'text-orange-500'}`}>
+                            {result.role}
+                          </span>
+                        </div>
+                        {emailToShow ? (
+                          <div className="mt-1 text-xs text-slate-500 dark:text-neutral-400 truncate">{emailToShow}</div>
+                        ) : (
+                          <div className="mt-1 text-xs text-slate-400 dark:text-neutral-500 truncate">No email available</div>
                         )}
                         {result.bio && result.bio !== 'N/A' && (
-                          <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate mt-1">{result.bio}</div>
+                          <div className="mt-2 text-[10.5px] text-slate-400 dark:text-neutral-500 line-clamp-2">{result.bio}</div>
                         )}
                       </div>
                     </div>
-                    <div className="flex-shrink-0 text-right">
-                      <div className={`text-[10px] uppercase tracking-wide font-bold ${result.role === 'provider' ? 'text-emerald-500' : 'text-orange-500'}`}>
-                        {result.role}
-                      </div>
-                      {result.phone && result.phone !== 'N/A' && (
-                        <div className="text-[10px] text-slate-400 mt-1">{result.phone}</div>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              ))
+                  </button>
+                );
+              })
             ) : (
               <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">No users found.</div>
             )}
