@@ -3,15 +3,19 @@ import { useApp } from '../../context/AppContext';
 import { ShieldCheck, Star, Calendar, MessageSquare, Trash2, Check, Search, X, CreditCard, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
+import TransactionBlockedModal from '../TransactionBlockedModal';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const { bids, jobRequests, acceptBid, declineBid, users, isDark } = useApp();
+  const { canTransact } = useTransactionPermission();
   
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price_asc' | 'price_desc' | 'rating' | 'trust'>('rating');
   const [selectingPaymentBidId, setSelectingPaymentBidId] = useState<string | null>(null);
   const [loadingBidId, setLoadingBidId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
+  const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
 
   // Find current seeker's requests
   const myRequests = jobRequests.filter(r => r.seekerId === currentUserId);
@@ -23,6 +27,10 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   );
 
   const handleAcceptBid = (bidId: string) => {
+    if (!canTransact) {
+      setBlockedModalOpen(true);
+      return;
+    }
     setSelectingPaymentBidId(bidId);
   };
 
@@ -406,6 +414,12 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
           </div>
         </div>
       )}
+
+      {/* Transaction Blocked Modal */}
+      <TransactionBlockedModal
+        isOpen={blockedModalOpen}
+        onClose={() => setBlockedModalOpen(false)}
+      />
 
     </div>
   );

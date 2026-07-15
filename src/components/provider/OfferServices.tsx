@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Briefcase, Info } from 'lucide-react';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function OfferServices() {
   const { user, createServiceListing, isDark } = useApp();
+  const { canTransact, navigateToVerification } = useTransactionPermission();
 
   const [title, setTitle] = useState<string>('');
   const [category, setCategory] = useState<string>('Lawn Care');
@@ -84,6 +86,25 @@ export default function OfferServices() {
           </div>
         </div>
 
+        {/* Verification Required Alert Block */}
+        {!canTransact && (
+          <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 animate-in fade-in duration-200 ${
+            isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
+          }`}>
+            <div>
+              <span className="font-bold">Verification Required:</span>
+              <span className="font-medium ml-1">You may browse ServiceHub freely, but you must complete Cordova Residency Verification before participating in marketplace transactions.</span>
+            </div>
+            <button
+              type="button"
+              onClick={navigateToVerification}
+              className="bg-emerald-650 hover:bg-emerald-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer animate-none"
+            >
+              Verify Now
+            </button>
+          </div>
+        )}
+
         {/* Success Alert Banner */}
         {success && (
           <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 mb-6 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
@@ -105,13 +126,14 @@ export default function OfferServices() {
               <input
                 type="text"
                 required
+                disabled={!canTransact}
                 placeholder="e.g. Lawn Mowing and Edge Trimming"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
+                    ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-emerald-500/80'
                     : 'bg-white border-slate-300 text-slate-700 focus:border-emerald-500'
-                  }`}
+                  } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
             </div>
 
@@ -123,13 +145,14 @@ export default function OfferServices() {
               <textarea
                 rows={7}
                 required
+                disabled={!canTransact}
                 placeholder="Describe what you will do, tools you will use, and what is included in the service..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
+                    ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-emerald-500/80'
                     : 'bg-white border-slate-300 text-slate-700 focus:border-emerald-500'
-                  }`}
+                  } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
             </div>
           </div>
@@ -266,8 +289,12 @@ export default function OfferServices() {
             <div className="pt-3 flex items-center justify-end">
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-2 animate-none"
+                disabled={loading || !canTransact}
+                className={`w-full py-3.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 animate-none ${
+                  !canTransact
+                    ? 'bg-neutral-500 cursor-not-allowed opacity-50'
+                    : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'
+                }`}
               >
                 {loading ? 'Publishing...' : 'Publish Service Listing'}
               </button>

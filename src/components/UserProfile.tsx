@@ -1,76 +1,117 @@
 "use client";
 import React from 'react';
-import { Info } from 'lucide-react';
-import { useApp } from '../context/AppContext';
 import { UserSession } from './auth/LoginContainer';
+import { useUserProfileState } from './profile/useUserProfileState';
 
-export default function UserProfile({ targetUser }: { targetUser: UserSession }) {
-  const { isDark } = useApp();
+// Hero Profile Components
+import InstagramProfileHeader from './profile/InstagramProfileHeader';
+import ProfileEditForm from './profile/ProfileEditForm';
+import PlayStoreReviewsSection from './profile/PlayStoreReviewsSection';
 
-  const roleAccents = {
-    seeker: {
-      text: 'text-orange-500 dark:text-orange-400',
-      border: 'border-orange-500/20',
-      bgLight: 'bg-orange-500/5',
-    },
-    provider: {
-      text: 'text-emerald-500 dark:text-emerald-400',
-      border: 'border-emerald-500/20',
-      bgLight: 'bg-emerald-500/5',
-    },
-    admin: {
-      text: 'text-blue-500 dark:text-blue-400',
-      border: 'border-blue-500/20',
-      bgLight: 'bg-blue-500/5',
-    }
-  };
+interface UserProfileProps {
+  targetUser: UserSession;
+  isOwnProfile?: boolean;
+  onProfileUpdated?: (updated: Partial<UserSession>) => void;
+  onTriggerVerification?: () => void;
+}
 
-  const accent = roleAccents[targetUser.role];
+export default function UserProfile({
+  targetUser,
+  isOwnProfile = false,
+  onProfileUpdated,
+  onTriggerVerification
+}: UserProfileProps) {
+  const {
+    isDark,
+    displayName,
+    usernameHandle,
+    responseRate,
+    trustScore,
+    verStatus,
+    avatarUrl,
+    bio,
+    location,
+    role,
+    createdAt,
+    completedJobs,
+    averageRating,
+    reviews,
+    showEdit,
+    setShowEdit,
+    editForm,
+    setEditForm,
+    saving,
+    handleSaveProfile,
+    handleShareProfile,
+    cardBg,
+    innerBg,
+    labelText,
+    headingText,
+    inputClass,
+  } = useUserProfileState({ targetUser, isOwnProfile, onProfileUpdated });
 
   return (
-    <div className={`rounded-[24px] p-6 sm:p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-955'
-      }`}>
-      <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
-        <img
-          src={targetUser.avatarUrl}
-          alt="Avatar"
-          className={`w-24 h-24 rounded-full object-cover border-4 ${targetUser.role === 'seeker'
-              ? 'border-orange-500'
-              : targetUser.role === 'admin'
-                ? 'border-blue-500'
-                : 'border-emerald-500'
-            }`}
-        />
-        <div className="text-center sm:text-left flex-1 min-w-0">
-          <h2 className="text-2xl font-bold truncate">{targetUser.firstName} {targetUser.lastName}</h2>
-          <p className={`text-xs mt-1 uppercase tracking-wider font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-            Role: <span className={accent.text}>{targetUser.role}</span>
-          </p>
-          <p className={`text-sm mt-3 leading-relaxed max-w-xl ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>{targetUser.bio}</p>
-          <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
-            <span className={`px-2.5 py-1 text-xs font-semibold rounded-lg border ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#b4b0a9]' : 'bg-[#faf8f5] border-slate-200 text-slate-500'
-              }`}>
-              {targetUser.phone}
-            </span>
-            <span className={`px-2.5 py-1 text-xs font-semibold rounded-lg border ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#b4b0a9]' : 'bg-[#faf8f5] border-slate-200 text-slate-500'
-              }`}>
-              {targetUser.email}
-            </span>
-          </div>
-        </div>
-      </div>
+    <div className={`max-w-6xl mx-auto space-y-6 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+      
+      {/* 🌟 Simple Profile Hero Section */}
+      <InstagramProfileHeader
+        displayName={displayName}
+        usernameHandle={usernameHandle}
+        avatarUrl={avatarUrl}
+        role={role}
+        verStatus={verStatus}
+        location={location}
+        bio={bio}
+        trustScore={trustScore}
+        createdAt={createdAt}
+        completedJobs={completedJobs}
+        averageRating={averageRating}
+        responseRate={responseRate}
+        isOwnProfile={isOwnProfile}
+        showEdit={showEdit}
+        setShowEdit={setShowEdit}
+        handleShareProfile={handleShareProfile}
+        isDark={isDark}
+        cardBg={cardBg}
+        innerBg={innerBg}
+        labelText={labelText}
+        headingText={headingText}
+      />
 
-      <div className={`mt-8 border-t pt-6 ${isDark ? 'border-neutral-800/85' : 'border-slate-100'}`}>
-        <div className={`p-4 rounded-xl ${accent.bgLight} border ${accent.border} text-sm flex items-start space-x-3`}>
-          <Info className={`w-5 h-5 flex-shrink-0 ${accent.text}`} />
-          <div>
-            <h4 className="font-semibold">Profile Details</h4>
-            <p className={`text-xs mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-              Full provider reviews, trust ratings, and service histories will be dynamic in Phase 5.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* ✏️ Profile Edit Drawer (When Edit Profile button is clicked) */}
+      {isOwnProfile && showEdit && (
+        <ProfileEditForm
+          editForm={editForm}
+          setEditForm={setEditForm}
+          setShowEdit={setShowEdit}
+          handleSaveProfile={handleSaveProfile}
+          saving={saving}
+          isDark={isDark}
+          cardBg={cardBg}
+          labelText={labelText}
+          headingText={headingText}
+          inputClass={inputClass}
+        />
+      )}
+
+      {/* ⭐ Google PlayStore-Style Interactive Ratings & Reviews Section */}
+      <PlayStoreReviewsSection
+        initialReviews={reviews.map((r: any) => ({
+          id: r.id,
+          authorName: r.author?.name || r.authorName || 'Verified Client',
+          authorAvatar: r.author?.avatarUrl || r.authorAvatar,
+          rating: r.rating || 5,
+          comment: r.text || r.comment || '',
+          createdAt: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently',
+          helpfulCount: 5,
+        }))}
+        isDark={isDark}
+        cardBg={cardBg}
+        innerBg={innerBg}
+        labelText={labelText}
+        headingText={headingText}
+      />
+
     </div>
   );
 }

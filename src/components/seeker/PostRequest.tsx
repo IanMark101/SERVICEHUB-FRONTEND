@@ -1,12 +1,14 @@
 import React, { useState, FormEvent } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PlusCircle, Info } from 'lucide-react';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function PostRequest() {
   const { user, postJobRequest, isDark } = useApp();
+  const { canTransact, navigateToVerification } = useTransactionPermission();
   const [title, setTitle] = useState<string>('');
   const [category, setCategory] = useState<string>('Plumbing');
-  const [urgency, setUrgency] = useState<'low' | 'medium' | 'high'>('medium');
+  const [urgency, setUrgency] = useState<string>('');
   const [budget, setBudget] = useState<number>(500);
   const [description, setDescription] = useState<string>('');
 
@@ -32,7 +34,7 @@ export default function PostRequest() {
 
     setTimeout(() => {
       const seekerId = user?.id || '';
-      postJobRequest(seekerId, title, category, urgency, budget, description);
+      postJobRequest(seekerId, title, category, urgency.trim() || 'Flexible', budget, description);
 
       setLoading(false);
       setSuccess(true);
@@ -40,7 +42,7 @@ export default function PostRequest() {
       setDescription('');
       setBudget(500);
       setCategory('Plumbing');
-      setUrgency('medium');
+      setUrgency('');
 
       setTimeout(() => {
         setSuccess(false);
@@ -71,6 +73,25 @@ export default function PostRequest() {
           </div>
         </div>
 
+        {/* Verification Required Alert Block */}
+        {!canTransact && (
+          <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 animate-in fade-in duration-200 ${
+            isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
+          }`}>
+            <div>
+              <span className="font-bold">Verification Required:</span>
+              <span className="font-medium ml-1">You may browse ServiceHub freely, but you must complete Cordova Residency Verification before participating in marketplace transactions.</span>
+            </div>
+            <button
+              type="button"
+              onClick={navigateToVerification}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer"
+            >
+              Verify Now
+            </button>
+          </div>
+        )}
+
         {/* Success Alert Banner */}
         {success && (
           <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 mb-6 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
@@ -92,13 +113,14 @@ export default function PostRequest() {
               <input
                 type="text"
                 required
+                disabled={!canTransact}
                 placeholder="e.g. Need help fixing kitchen faucet leak"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
                     ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
                     : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                  }`}
+                  } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
             </div>
 
@@ -110,13 +132,14 @@ export default function PostRequest() {
               <textarea
                 rows={7}
                 required
+                disabled={!canTransact}
                 placeholder="Describe the scope of work, timeline, and tools required so providers can submit accurate proposals."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
                     ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500'
                     : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                  }`}
+                  } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
             </div>
           </div>
@@ -131,11 +154,12 @@ export default function PostRequest() {
                 </label>
                 <select
                   value={category}
+                  disabled={!canTransact}
                   onChange={(e) => setCategory(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
                       ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
                       : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                    }`}
+                    } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
                 >
                   {categories.map((cat) => (
                     <option key={cat.value} value={cat.value} className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>
@@ -145,23 +169,53 @@ export default function PostRequest() {
                 </select>
               </div>
 
-              {/* Urgency */}
+              {/* Urgency / Preferred Timeframe */}
               <div>
                 <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Urgency Level
+                  Urgency / Desired Timeline
                 </label>
-                <select
+                <input
+                  type="text"
+                  disabled={!canTransact}
+                  placeholder="e.g. ASAP / Today, Needs Tomorrow, July 16 at 2 PM, Flexible"
                   value={urgency}
-                  onChange={(e) => setUrgency(e.target.value as any)}
+                  onChange={(e) => setUrgency(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
                       ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
                       : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                    }`}
-                >
-                  <option value="low" className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>Low Urgency (Within a week)</option>
-                  <option value="medium" className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>Medium Urgency (Next 1-2 days)</option>
-                  <option value="high" className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>High Urgency (Emergency / Today)</option>
-                </select>
+                    } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
+                />
+                
+                {/* Quick Presets */}
+                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  <span className={`text-[10px] font-bold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Quick Select:</span>
+                  {[
+                    'ASAP / Today',
+                    'Needs Tomorrow',
+                    'Next 1-2 Days',
+                    'Flexible Schedule'
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      disabled={!canTransact}
+                      onClick={() => setUrgency(preset)}
+                      className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg border transition-all ${
+                        urgency === preset
+                          ? 'bg-orange-600 text-white border-orange-600 shadow-sm'
+                          : isDark
+                            ? 'bg-[#1c1b18] border-neutral-800/80 text-[#b4b0a9] hover:border-orange-500/50 hover:text-orange-400'
+                            : 'bg-slate-50 border-slate-200 text-slate-650 hover:border-orange-400 hover:text-orange-600'
+                      } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+
+                <p className={`text-[10px] mt-1.5 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+                  Tell providers exactly when you need this done (e.g. ASAP / Today, Needs Tomorrow, or type a custom date).
+                </p>
               </div>
 
               {/* Budget */}
@@ -173,13 +227,14 @@ export default function PostRequest() {
                   type="number"
                   min={1}
                   required
+                  disabled={!canTransact}
                   placeholder="e.g. 500"
                   value={budget}
                   onChange={(e) => setBudget(Number(e.target.value))}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
                       ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
                       : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                    }`}
+                    } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
                 />
               </div>
             </div>
@@ -188,8 +243,12 @@ export default function PostRequest() {
             <div className="pt-3 flex items-center justify-end">
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-2"
+                disabled={loading || !canTransact}
+                className={`w-full py-3.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 ${
+                  !canTransact
+                    ? 'bg-neutral-500 cursor-not-allowed opacity-50'
+                    : 'bg-orange-600 hover:bg-orange-700 active:scale-95'
+                }`}
               >
                 {loading ? 'Posting...' : 'Post Request Publicly'}
               </button>

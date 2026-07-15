@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
+import ConfirmModal, { ConfirmModalState } from '../../components/ConfirmModal';
 import { HelpCircle, LogOut } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
@@ -52,13 +53,37 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+
+  // ✅ useEffect MUST come before any conditional early returns
+  useEffect(() => {
+    document.documentElement.classList.add('workspace-provider');
+    document.documentElement.classList.remove('workspace-seeker', 'workspace-admin');
+    return () => {
+      document.documentElement.classList.remove('workspace-provider');
+    };
+  }, []);
 
   const handleSignOut = () => {
-    apiLogout().catch(() => {});
-    localStorage.removeItem('accessToken');
-    setIsAuthenticated(false);
-    setUser(null);
-    router.push('/');
+    setConfirmModal({
+      isOpen: true,
+      title: 'Sign Out Confirmation',
+      message: 'Are you sure you want to sign out of your ServiceHub account?',
+      confirmText: 'Sign Out',
+      cancelText: 'Stay Logged In',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        try {
+          await apiLogout();
+        } catch (_) {}
+        localStorage.removeItem('accessToken');
+        setIsAuthenticated(false);
+        setUser(null);
+        setConfirmModal(null);
+        router.push('/');
+      }
+    });
   };
 
   if (authLoading) {
@@ -85,14 +110,6 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
   const currentRole = 'provider';
 
-  useEffect(() => {
-    document.documentElement.classList.add('workspace-provider');
-    document.documentElement.classList.remove('workspace-seeker', 'workspace-admin');
-    return () => {
-      document.documentElement.classList.remove('workspace-provider');
-    };
-  }, []);
-
   return (
     <div className={`h-screen overflow-hidden flex transition-colors duration-200 ${
       isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#fbfaf7] text-slate-800'
@@ -113,7 +130,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
       />
  
       {/* Main Content Pane */}
-      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden transition-all duration-300 ${
+      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-all duration-300 ${
         isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         
@@ -129,7 +146,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-6xl w-full mx-auto overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-6xl w-full mx-auto">
           
           {/* Breadcrumbs / Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 border-b pb-4 border-slate-200 dark:border-neutral-800/80">
@@ -182,6 +199,12 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         </main>
       </div>
  
+      {/* Sign Out Confirmation Modal */}
+      <ConfirmModal
+        state={confirmModal}
+        onClose={() => setConfirmModal(null)}
+      />
+
     </div>
   );
 }

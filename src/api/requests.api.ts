@@ -1,6 +1,6 @@
 import { api } from '../lib/api/axios';
 
-export async function apiCreateRequest(data: { categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency?: 'low' | 'medium' | 'high' }) {
+export async function apiCreateRequest(data: { categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency?: string }) {
   const response = await api.post('/requests', data);
   return response.data;
 }

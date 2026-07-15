@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles } from 'lucide-react';
+import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles, AlertCircle } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
 import { apiMatchProviders } from '../../api/ai.api';
+import { apiGetMyRequests } from '../../api/requests.api';
+import { mapRequestToJobRequest } from '../../context/mappers';
+import { JobRequest } from '../../types';
+import { formatUrgencyDisplay } from '../provider/BrowseJobs';
 
 interface EditModalState {
   requestId: string;
@@ -22,6 +26,20 @@ export default function RequestManager({
   onNavigateToPost?: () => void; 
 }) {
   const { jobRequests, bids, deleteJobRequest, editJobRequest, isDark } = useApp();
+
+  // Fetch the seeker's own requests directly so all statuses show up
+  const [myOwnRequests, setMyOwnRequests] = useState<JobRequest[] | null>(null);
+  useEffect(() => {
+    apiGetMyRequests()
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setMyOwnRequests(res.data.map(mapRequestToJobRequest));
+        }
+      })
+      .catch(() => {
+        // fallback to public board filter
+      });
+  }, []);
 
   const [activeAiRequestId, setActiveAiRequestId] = useState<string | null>(null);
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, Array<{ name: string; rationale: string }>>>({});
@@ -55,8 +73,8 @@ export default function RequestManager({
     }
   };
   
-  // Find current seeker's requests
-  const myRequests = jobRequests.filter(r => r.seekerId === currentUserId);
+  // Find current seeker's requests — prefer direct fetch, fallback to context filter
+  const myRequests = myOwnRequests ?? jobRequests.filter(r => r.seekerId === currentUserId);
 
   // Pagination
   const {
@@ -155,7 +173,7 @@ export default function RequestManager({
                           {req.title}
                         </h3>
                         
-                        {/* Details row: Price, Location, Category */}
+                        {/* Details row: Price, Location, Category, Urgency */}
                         <div className={`flex flex-wrap items-center gap-2 text-[10px] font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
                           <span className={`${isDark ? 'text-[#f2efe9]' : 'text-slate-900'} font-extrabold`}>Est. Budget: ₱{req.budget}</span>
                           <span className="text-slate-300">•</span>
@@ -163,6 +181,10 @@ export default function RequestManager({
                           <span className="text-slate-300">•</span>
                           <span className={`uppercase tracking-wider text-[9px] ${isDark ? 'text-orange-400' : 'text-orange-655'}`}>
                             {req.category}
+                          </span>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-amber-600 dark:text-amber-400 font-bold">
+                            ⏰ Needed: {formatUrgencyDisplay(req.urgency)}
                           </span>
                         </div>
                       </div>
@@ -280,10 +302,18 @@ export default function RequestManager({
                           <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
                           <span className="text-[10px] text-slate-400 dark:text-neutral-500 font-semibold pl-1">Analyzing provider capabilities and trust scores...</span>
                         </div>
-                      ) : !aiSuggestions[req.id] || aiSuggestions[req.id].length === 0 ? (
-                        <p className="text-xs text-slate-500 dark:text-[#b4b0a9] italic">No recommendations available for this request.</p>
+                      ) : !aiSuggestions[req.id] ? (
+                        <p className="text-xs text-slate-400 dark:text-neutral-500 italic">Click the button above to generate AI-powered provider matches.</p>
+                      ) : aiSuggestions[req.id].length === 0 ? (
+                        <div className="flex items-start space-x-2 text-xs text-slate-500 dark:text-[#b4b0a9]">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-amber-500" />
+                          <span>No providers found in this category yet. Try again after more providers join.</span>
+                        </div>
                       ) : aiSuggestions[req.id][0]?.name === "No Suggestion" || aiSuggestions[req.id][0]?.name === "Error" ? (
-                        <p className="text-xs text-slate-500 dark:text-orange-405 italic">{aiSuggestions[req.id][0]?.rationale}</p>
+                        <div className="flex items-start space-x-2 text-xs">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-amber-500" />
+                          <span className="text-slate-500 dark:text-[#b4b0a9] italic">{aiSuggestions[req.id][0]?.rationale}</span>
+                        </div>
                       ) : (
                         <div className="space-y-2.5">
                           {aiSuggestions[req.id].map((sug, idx) => (

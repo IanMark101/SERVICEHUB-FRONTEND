@@ -22,6 +22,7 @@ import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
 import { apiRespondCancellationRequest } from '../../api/bookings.api';
 import { useToast } from '../Toast';
+import ConfirmModal, { ConfirmModalState } from '../ConfirmModal';
 
 
 export default function ProviderActivity({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
@@ -39,10 +40,11 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
     providerRemoveFromQueue,
     services,
     isDark,
-    refreshEngagements
+    refreshEngagements,
+    refreshAll,
+    notifications
   } = useApp();
   const { success, error: toastError, info } = useToast();
-
 
   // Filter engagements and bids for currentProviderId
   const myEngagements = jobEngagements.filter(je => je.providerId === currentProviderId);
@@ -52,6 +54,33 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
   const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'waiting' | 'pending_offers' | 'awaiting_approval' | 'disputed' | 'canceled'>('all');
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
+
+  // Confirm Modal state
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+
+  // Debounced auto-refresh effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const triggerDebounce = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        refreshEngagements();
+        refreshAll();
+      }, 300);
+    };
+
+    triggerDebounce();
+
+    const handleFocus = () => {
+      triggerDebounce();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
 
   const tabParam = searchParams.get('tab');
 
@@ -66,7 +95,7 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
 
   useEffect(() => {
     if (bookingIdParam) {
-      const found = myEngagements.find(e => e.id === bookingIdParam);
+      const found = myEngagements.find(e => e.id === bookingIdParam || e.completedServiceId === bookingIdParam);
       if (found) {
         let targetTab: typeof activeTab = 'all';
         if (found.status === 'in_progress') targetTab = 'in_progress';
@@ -76,10 +105,10 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         setActiveTab(targetTab);
-        setHighlightedBookingId(bookingIdParam);
+        setHighlightedBookingId(found.id);
 
         const scrollTimer = setTimeout(() => {
-          const element = document.getElementById(`booking-${bookingIdParam}`);
+          const element = document.getElementById(`booking-${found.id}`);
           if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
@@ -283,24 +312,34 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
   };
 
   const handleApproveCancellation = async (requestId: string) => {
-    if (window.confirm("Approve this cancellation? The booking will be cancelled and the seeker refunded.")) {
-      setLoadingItemId(requestId);
-      setLoadingActionType('approve_cancellation');
-      try {
-        const res = await apiRespondCancellationRequest(requestId, true);
-        if (res.success) {
-          success('Cancellation Approved', 'Booking cancelled and seeker will be refunded.');
-          refreshEngagements();
-        } else {
-          toastError('Action Failed', res.message || 'Failed to approve cancellation.');
+    setConfirmModal({
+      isOpen: true,
+      title: 'Approve Cancellation',
+      message: 'Approve this cancellation request? The booking will be cancelled and the seeker refunded.',
+      confirmText: 'Approve & Refund',
+      cancelText: 'Keep Booking',
+      variant: 'warning',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        setLoadingItemId(requestId);
+        setLoadingActionType('approve_cancellation');
+        try {
+          const res = await apiRespondCancellationRequest(requestId, true);
+          if (res.success) {
+            success('Cancellation Approved', 'Booking cancelled and seeker will be refunded.');
+            refreshEngagements();
+          } else {
+            toastError('Action Failed', res.message || 'Failed to approve cancellation.');
+          }
+        } catch (err: any) {
+          toastError('Action Failed', err.response?.data?.message || 'Error responding to cancellation request.');
+        } finally {
+          setLoadingItemId(null);
+          setLoadingActionType(null);
+          setConfirmModal(null);
         }
-      } catch (err: any) {
-        toastError('Action Failed', err.response?.data?.message || 'Error responding to cancellation request.');
-      } finally {
-        setLoadingItemId(null);
-        setLoadingActionType(null);
       }
-    }
+    });
   };
 
 
@@ -989,6 +1028,12 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        state={confirmModal}
+        onClose={() => setConfirmModal(null)}
+      />
 
     </div>
   );

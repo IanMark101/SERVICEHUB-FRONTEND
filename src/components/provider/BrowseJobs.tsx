@@ -1,133 +1,97 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Search, Send, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
+import { Search, CheckCircle2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
 
-export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
-  const { jobRequests, bids, submitBid, isDark } = useApp();
+export function formatUrgencyDisplay(urgency?: string): string {
+  if (!urgency || !urgency.trim()) return 'Flexible Schedule';
+  const u = urgency.trim();
+  const lower = u.toLowerCase();
+  if (lower === 'high') return 'High Urgency (ASAP / Today)';
+  if (lower === 'medium') return 'Medium Urgency (Next 1-2 Days)';
+  if (lower === 'low') return 'Low Urgency (Flexible)';
+  return u;
+}
+
+export default function BrowseJobs({
+  currentProviderId = 'u3',
+  onNavigateToOffers
+}: {
+  currentProviderId?: string;
+  onNavigateToOffers?: () => void;
+}) {
+  const { jobRequests, bids, submitBid, isDark, user } = useApp();
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
-
-  // Sort state
-  const [sortBy, setSortBy] = useState<'highest_budget' | 'most_urgent' | 'fewest_bids'>('most_urgent');
-
-  // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'urgent' | 'high-budget' | 'few-offers'>('all');
+  const [sortBy, setSortBy] = useState<'most_urgent' | 'highest_budget' | 'fewest_bids'>('most_urgent');
 
-  // Bid modal state
-  const [biddingJobId, setBiddingJobId] = useState<string | null>(null);
+  // Modal State
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [bidPrice, setBidPrice] = useState<number>(0);
   const [bidMessage, setBidMessage] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
 
   const categories = [
     'All Categories',
-    'Plumbing Repair',
-    'House Cleaning',
-    'Electrician',
-    'Gardening',
-    'Tutoring',
+    'Plumbing',
+    'Electrical Repair',
+    'Cleaning Services',
     'Aircon Service',
-    'Appliance Repair'
+    'Lawn Care',
+    'Tutoring'
   ];
 
-  // Map category tabs to actual database category names
-  const categoryMap: Record<string, string> = {
-    'Plumbing Repair': 'Plumbing',
-    'House Cleaning': 'House Cleaning',
-    'Electrician': 'Electrical Repair',
-    'Gardening': 'Lawn Care',
-    'Tutoring': 'Tutoring',
-    'Aircon Service': 'Aircon Service',
-    'Appliance Repair': 'Appliance Repair'
-  };
-
-  const handleOpenBid = (reqId: string, defaultBudget: number) => {
-    setBiddingJobId(reqId);
-    setBidPrice(defaultBudget);
-    setBidMessage('');
-    setSuccess(false);
-  };
-
-  const handleSendBid = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!biddingJobId) return;
-    if (bidPrice <= 0 || !bidMessage.trim()) {
-      alert('Please enter a valid price and proposal message.');
-      return;
-    }
-
-    setLoading(true);
-    setTimeout(() => {
-      submitBid(biddingJobId, currentProviderId, bidPrice, bidMessage);
-      setLoading(false);
-      setSuccess(true);
-      setTimeout(() => {
-        setBiddingJobId(null);
-        setSuccess(false);
-      }, 1000);
-    }, 800);
-  };
-
-  // Filter requests that are open and match selections
-  const filteredRequests = jobRequests.filter(req => {
-    if (req.status !== 'open') return false;
-
-    // 1. Search Query filter
+  // Filtering Logic
+  const filteredRequests = jobRequests.filter((req) => {
+    // 1. Search Query Filter
     const query = searchQuery.toLowerCase().trim();
     const matchesSearch =
       req.title.toLowerCase().includes(query) ||
       req.description.toLowerCase().includes(query) ||
       req.seekerName.toLowerCase().includes(query) ||
-      req.category.toLowerCase().includes(query) ||
-      // Special aliases for common abbreviations or alternate terms
-      (query === 'aircon' && (req.title.toLowerCase().includes('air conditioner') || req.category.toLowerCase().includes('aircon') || req.category.toLowerCase().includes('ac'))) ||
-      (query === 'ac' && (req.title.toLowerCase().includes('air conditioner') || req.title.toLowerCase().includes('aircon'))) ||
-      (query === 'electrical' && req.category.toLowerCase().includes('electrical')) ||
-      (query === 'electrician' && req.category.toLowerCase().includes('electrical'));
+      req.category.toLowerCase().includes(query);
 
-    // 2. Category Tab filter
-    const targetCategory = categoryMap[selectedCategory];
-    const matchesCategory = selectedCategory === 'All Categories' || req.category === targetCategory;
+    // 2. Category Dropdown Filter
+    const matchesCategory = selectedCategory === 'All Categories' || req.category === selectedCategory;
 
-    // 3. Quick Filter conditions
-    let matchesQuickFilter = true;
-    const requestBidsCount = bids.filter(b => b.requestId === req.id).length;
+    // 3. Quick Filter Buttons Logic
+    let matchesFilter = true;
     if (activeFilter === 'urgent') {
-      matchesQuickFilter = req.urgency === 'high';
+      const u = (req.urgency || '').toLowerCase();
+      matchesFilter = u.includes('high') || u.includes('urgent') || u.includes('immediate') || u.includes('asap') || u.includes('today') || u.includes('24') || u.includes('emergency') || req.urgency === 'high';
     } else if (activeFilter === 'high-budget') {
-      matchesQuickFilter = req.budget >= 1000;
+      matchesFilter = req.budget >= 1000;
     } else if (activeFilter === 'few-offers') {
-      matchesQuickFilter = requestBidsCount <= 1;
+      const bidCount = bids.filter(b => b.requestId === req.id).length;
+      matchesFilter = bidCount <= 1;
     }
 
-    return matchesSearch && matchesCategory && matchesQuickFilter;
+    return matchesSearch && matchesCategory && matchesFilter;
   });
 
-  // Sort requests based on selected option
+  // Sorting Logic
   const sortedRequests = [...filteredRequests].sort((a, b) => {
-    if (sortBy === 'highest_budget') {
-      return b.budget - a.budget;
-    }
     if (sortBy === 'most_urgent') {
-      const urgencyScore = (u: 'low' | 'medium' | 'high') => {
-        if (u === 'high') return 3;
-        if (u === 'medium') return 2;
+      const getRank = (u: string) => {
+        const s = (u || '').toLowerCase();
+        if (s.includes('high') || s.includes('emergency')) return 3;
+        if (s.includes('medium')) return 2;
         return 1;
       };
-      return urgencyScore(b.urgency) - urgencyScore(a.urgency);
-    }
-    if (sortBy === 'fewest_bids') {
-      const countA = bids.filter(bid => bid.requestId === a.id).length;
-      const countB = bids.filter(bid => bid.requestId === b.id).length;
-      return countA - countB;
+      return getRank(b.urgency) - getRank(a.urgency);
+    } else if (sortBy === 'highest_budget') {
+      return b.budget - a.budget;
+    } else if (sortBy === 'fewest_bids') {
+      const aBids = bids.filter(b => b.requestId === a.id).length;
+      const bBids = bids.filter(b => b.requestId === b.id).length;
+      return aBids - bBids;
     }
     return 0;
   });
 
-  // Pagination
+  // Pagination hook
   const {
     currentPage,
     totalPages,
@@ -138,6 +102,20 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
     startIndex,
     endIndex
   } = usePagination(sortedRequests, 6);
+
+  const handleOpenBid = (reqId: string, initialPrice: number) => {
+    setSelectedRequestId(reqId);
+    setBidPrice(initialPrice);
+    setBidMessage('');
+  };
+
+  const handleSendOfferSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRequestId) return;
+
+    submitBid(selectedRequestId, currentProviderId, bidPrice, bidMessage);
+    setSelectedRequestId(null);
+  };
 
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
@@ -239,32 +217,28 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
           </button>
         </div>
 
-        {/* Horizontal Category pills row */}
-        <div className="flex flex-wrap gap-2.5">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${selectedCategory === cat
-                  ? isDark
-                    ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950'
-                    : 'bg-[#1a2238] border-[#1a2238] text-white shadow-sm'
-                  : isDark
-                    ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                    : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-600'
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        {/* Categories Bar and Sort Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedCategory === cat
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                    : isDark
+                      ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9] hover:bg-[#2c2b27]'
+                      : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                  }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
 
-        {/* Search & Sort Action Bar */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-end pt-2">
-          {/* Sort Dropdown & Badge */}
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
-            <div className="flex items-center space-x-2">
-              <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>Sort by:</span>
+          <div className="flex items-center space-x-3 flex-shrink-0">
+            <div className="flex items-center space-x-1.5">
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Sort:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
@@ -286,7 +260,9 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
             </span>
           </div>
         </div>
-      </div>      {/* Job Requests Card Grid */}
+      </div>
+
+      {/* Job Requests Card Grid */}
       {sortedRequests.length === 0 ? (
         <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
           }`}>
@@ -297,14 +273,18 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedRequests.map((req) => {
               const totalBids = bids.filter(b => b.requestId === req.id).length;
-              const hasSentBid = bids.some(b => b.requestId === req.id && b.providerId === currentProviderId);
+              const hasSentBid = bids.some(b => b.requestId === req.id && b.providerId === currentProviderId && b.status === 'pending');
+
+              // Check if request belongs to currently logged-in user
+              const isOwned = !!(user && (req.seekerId === user.id || req.seekerName === `${user.firstName} ${user.lastName}`.trim() || req.seekerName.includes(user.firstName)));
 
               return (
                 <div
                   key={req.id}
-                  onClick={() => !hasSentBid && handleOpenBid(req.id, req.budget)}
-                  className={`rounded-[24px] p-5 border transition-all duration-200 flex flex-col justify-between h-full group ${hasSentBid
-                      ? 'opacity-55 cursor-not-allowed border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
+                  onClick={() => !hasSentBid && !isOwned && handleOpenBid(req.id, req.budget)}
+                  className={`rounded-[24px] p-5 border transition-all duration-200 flex flex-col justify-between h-full group ${
+                    isOwned || hasSentBid
+                      ? 'opacity-70 cursor-not-allowed border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
                       : isDark
                         ? 'bg-[#22211e] border-neutral-855 hover:border-emerald-500/40 hover:shadow-lg hover:bg-[#2c2b27]/20 cursor-pointer'
                         : 'bg-white border-slate-300 hover:border-emerald-500/40 hover:shadow-md cursor-pointer'
@@ -335,35 +315,47 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
                         </div>
                       </div>
 
-                      {/* Urgency tag */}
+                      {/* Proposal count */}
                       <div className="text-right flex flex-col items-end">
-                        <span className={`inline-block px-2.5 py-0.5 text-[9px] font-extrabold rounded-md uppercase tracking-wider border ${req.urgency === 'high'
-                            ? isDark ? 'text-red-400 bg-red-955/20 border-red-900/30' : 'text-red-600 bg-red-50 border-red-200'
-                            : req.urgency === 'medium'
-                              ? isDark ? 'text-amber-400 bg-amber-955/20 border-amber-900/30' : 'text-amber-600 bg-amber-50 border-amber-200'
-                              : isDark ? 'text-[#b4b0a9] bg-neutral-900/20 border-neutral-850' : 'text-slate-500 bg-slate-50 border-slate-300'
-                          }`}>
-                          {req.urgency}
-                        </span>
-                        <span className={`text-[10px] font-bold mt-1 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+                        <span className={`text-[10px] font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
                           {totalBids} proposal{totalBids === 1 ? '' : 's'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Category Tag */}
-                    <div className="mt-4">
+                    {/* Category Tag, Needed Timeline Badge & Owned Indicator */}
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
                       <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
                           ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
                           : 'text-emerald-600 bg-emerald-50 border-slate-300'
                         }`}>
                         {req.category}
                       </span>
+
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-lg border ${
+                        (req.urgency || '').toLowerCase().includes('high') || (req.urgency || '').toLowerCase().includes('urgent') || (req.urgency || '').toLowerCase().includes('asap') || (req.urgency || '').toLowerCase().includes('today') || req.urgency === 'high'
+                          ? isDark ? 'text-red-400 bg-red-955/30 border-red-900/40' : 'text-red-600 bg-red-50 border-red-200'
+                          : (req.urgency || '').toLowerCase().includes('medium') || (req.urgency || '').toLowerCase().includes('24') || (req.urgency || '').toLowerCase().includes('tomorrow') || req.urgency === 'medium'
+                            ? isDark ? 'text-amber-400 bg-amber-955/30 border-amber-900/40' : 'text-amber-700 bg-amber-50 border-amber-200'
+                            : isDark ? 'text-slate-300 bg-neutral-900/30 border-neutral-800' : 'text-slate-700 bg-slate-100 border-slate-200'
+                      }`}>
+                        <span>⏰ Needed:</span>
+                        <span className="font-black">{formatUrgencyDisplay(req.urgency)}</span>
+                      </span>
+
+                      {isOwned && (
+                        <span className={`inline-block px-2.5 py-1 text-[9px] font-extrabold rounded-lg border uppercase tracking-wider ${isDark
+                            ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
+                            : 'text-orange-600 bg-orange-50 border-orange-200'
+                          }`}>
+                          👤 Owned By You
+                        </span>
+                      )}
                     </div>
 
                     {/* Job Details */}
                     <div className="mt-3">
-                      <h3 className={`font-extrabold text-sm leading-snug group-hover:underline ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                         {req.title}
                       </h3>
                       <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
@@ -373,30 +365,42 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
                   </div>
 
                   {/* Divider Line */}
-                  <div className={`border-t my-4 ${isDark ? 'border-neutral-850' : 'border-slate-350'}`} />
+                  <div className={`border-t my-4 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
 
                   {/* Footer: Budget & Action */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Budget</span>
-                      <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{req.budget}</span>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Budget</span>
+                        <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{req.budget}</span>
+                      </div>
+
+                      {isOwned ? (
+                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-850' : 'text-slate-400 bg-slate-100 border-slate-200'
+                          }`}>
+                          Your Request
+                        </span>
+                      ) : hasSentBid ? (
+                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl border ${isDark ? 'text-neutral-550 bg-[#1c1b18] border-neutral-850' : 'text-slate-400 bg-slate-100/50 border-slate-300'
+                          }`}>
+                          Submitted Proposal
+                        </span>
+                      ) : (
+                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all ${isDark
+                            ? 'text-emerald-450 bg-emerald-955/20 group-hover:bg-[#f2efe9] group-hover:text-slate-950 border border-emerald-900/30'
+                            : 'text-emerald-600 bg-emerald-55 group-hover:bg-emerald-600 group-hover:text-white border border-slate-300'
+                          }`}>
+                          Send Offer
+                        </span>
+                      )}
                     </div>
 
-                    {hasSentBid ? (
-                      <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl border ${isDark ? 'text-neutral-550 bg-[#1c1b18] border-neutral-850' : 'text-slate-400 bg-slate-100/50 border-slate-300'
-                        }`}>
-                        Submitted Proposal
-                      </span>
-                    ) : (
-                      <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all ${isDark
-                          ? 'text-emerald-450 bg-emerald-955/20 group-hover:bg-[#f2efe9] group-hover:text-slate-950 border border-emerald-900/30'
-                          : 'text-emerald-600 bg-emerald-55 group-hover:bg-emerald-600 group-hover:text-white border border-slate-300'
-                        }`}>
-                        Send Offer
-                      </span>
+                    {isOwned && (
+                      <p className={`text-[10px] font-medium text-center mt-2 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+                        You cannot send an offer to your own request.
+                      </p>
                     )}
                   </div>
-
                 </div>
               );
             })}
@@ -416,108 +420,109 @@ export default function BrowseJobs({ currentProviderId = 'u3' }: { currentProvid
         </div>
       )}
 
-      {/* Offer Proposal Modal Overlay */}
-      {biddingJobId && (
+      {/* Send Offer Modal Dialog */}
+      {selectedRequestId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-955/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
           <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-300 text-slate-800'
             }`}>
-
-            {/* Header */}
             <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-855 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
               }`}>
-              <div>
-                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider border ${isDark
-                    ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
-                    : 'text-emerald-600 bg-emerald-50 border-slate-300'
-                  }`}>
-                  Offer Proposal
-                </span>
-                <h3 className={`font-extrabold text-sm mt-1.5 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                  Submit an Offer
-                </h3>
-              </div>
+              <h3 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                Submit Proposal Offer
+              </h3>
               <button
-                onClick={() => setBiddingJobId(null)}
-                className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-300 hover:bg-slate-100 text-slate-450 hover:text-slate-700'
+                onClick={() => setSelectedRequestId(null)}
+                className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'
                   }`}
               >
                 ✕
               </button>
             </div>
 
-            {/* Content Form */}
-            {success ? (
-              <div className="p-8 text-center space-y-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold border ${isDark ? 'bg-emerald-955/20 text-emerald-450 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-slate-300'
-                  }`}>
-                  ✓
-                </div>
-                <h4 className={`font-bold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Offer Submitted!</h4>
-                <p className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                  Your proposal has been logged and the client will be notified.
-                </p>
+            {(() => {
+              const activeReq = jobRequests.find(r => r.id === selectedRequestId);
+              return (
+                <form onSubmit={handleSendOfferSubmit} className="p-5 space-y-4">
+                  {/* Job Preview Details Box */}
+                  {activeReq && (
+                    <div className={`p-3.5 rounded-xl border space-y-1.5 ${
+                      isDark ? 'bg-[#1c1b18] border-neutral-800/80' : 'bg-slate-50 border-slate-200'
+                    }`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="font-extrabold text-xs text-orange-600 dark:text-orange-400 truncate">
+                          {activeReq.title}
+                        </h4>
+                        <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md border flex-shrink-0 ${
+                          isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                        }`}>
+                          Budget: ₱{activeReq.budget}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-500 dark:text-[#b4b0a9] font-medium">
+                        <span>Client: <strong className="text-slate-700 dark:text-slate-200">{activeReq.seekerName}</strong></span>
+                        <span>•</span>
+                        <span>Category: <strong>{activeReq.category}</strong></span>
+                        <span>•</span>
+                        <span className="text-amber-600 dark:text-amber-400 font-extrabold">⏰ Needed: {formatUrgencyDisplay(activeReq.urgency)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                      Proposed Rate (₱)
+                    </label>
+                <input
+                  type="number"
+                  min={1}
+                  required
+                  value={bidPrice}
+                  onChange={(e) => setBidPrice(Number(e.target.value))}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
+                      : 'bg-slate-50 border-slate-200 text-slate-750 focus:border-emerald-500'
+                    }`}
+                />
               </div>
-            ) : (
-              <form onSubmit={handleSendBid} className="p-5 space-y-4">
-                {/* Offer Price Input */}
-                <div>
-                  <label className={`block text-[10px] font-bold uppercase tracking-wide mb-1.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                    Your Offered Price (₱)
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    required
-                    value={bidPrice}
-                    onChange={(e) => setBidPrice(Number(e.target.value))}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
-                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                        : 'bg-slate-50 border-slate-300 text-slate-755 focus:border-emerald-500'
-                      }`}
-                  />
-                </div>
 
-                {/* Proposal Message Textarea */}
-                <div>
-                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                    Proposal Message / Cover Letter
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    placeholder="Hello, I have standard replacement units in my kit and can perform this task tomorrow..."
-                    value={bidMessage}
-                    onChange={(e) => setBidMessage(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${isDark
-                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                        : 'bg-slate-50 border-slate-300 text-slate-700 focus:border-emerald-500'
-                      }`}
-                  />
-                </div>
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Proposal Message / Cover Note
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Explain your approach, availability in Cordova, and why the seeker should choose your offer..."
+                  value={bidMessage}
+                  onChange={(e) => setBidMessage(e.target.value)}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
+                    }`}
+                />
+              </div>
 
-                {/* Actions */}
-                <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                  <button
-                    type="button"
-                    onClick={() => setBiddingJobId(null)}
-                    className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${isDark
-                        ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                        : 'border-slate-300 hover:bg-slate-50 text-slate-500'
-                      }`}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
-                  >
-                    {loading ? 'Submitting...' : 'Submit Offer'}
-                  </button>
-                </div>
-              </form>
-            )}
-
+              <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedRequestId(null)}
+                  className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${isDark
+                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
+                      : 'border-slate-200 hover:bg-slate-50 text-slate-500'
+                    }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
+                >
+                  Send Proposal
+                </button>
+              </div>
+            </form>
+            );
+          })()}
           </div>
         </div>
       )}

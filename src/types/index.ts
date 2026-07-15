@@ -7,6 +7,13 @@ export interface Review {
   createdAt: string;
 }
 
+export enum VerificationStatus {
+  UNVERIFIED = 'UNVERIFIED',
+  PENDING_REVIEW = 'PENDING_REVIEW',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED'
+}
+
 export interface User {
   id: string;
   firstName: string;
@@ -22,7 +29,7 @@ export interface User {
   proofOfResidencyUrl?: string; // Admin inspection
   proofOfSkillUrl?: string; // Admin inspection
   trustScore?: number;
-  verificationStatus?: 'UNVERIFIED' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
+  verificationStatus?: VerificationStatus;
   emailVerified?: boolean;
   isActive?: boolean;
 }
@@ -54,7 +61,7 @@ export interface JobRequest {
   seekerAvatar: string;
   title: string;
   category: string;
-  urgency: 'low' | 'medium' | 'high';
+  urgency: string;
   budget: number;
   description: string;
   status: 'open' | 'paused' | 'filled';
@@ -92,6 +99,7 @@ export interface JobEngagement {
   reviews?: any[];
   completedAt?: string;
   disputeReason?: string;
+  description?: string;
   started?: boolean;
   cancellationRequests?: any[];
 }

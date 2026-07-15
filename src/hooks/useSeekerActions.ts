@@ -72,7 +72,7 @@ export function useSeekerActions({
     seekerId: string,
     title: string,
     category: string,
-    urgency: 'low' | 'medium' | 'high',
+    urgency: string,
     budget: number,
     description: string
   ) => {

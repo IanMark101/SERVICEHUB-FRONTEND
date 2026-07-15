@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
+import ConfirmModal, { ConfirmModalState } from '../../components/ConfirmModal';
 import { apiLogout } from '../../api/auth.api';
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 
@@ -15,13 +16,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+
+  // ✅ useEffect MUST come before any conditional early returns
+  useEffect(() => {
+    document.documentElement.classList.add('workspace-admin');
+    document.documentElement.classList.remove('workspace-seeker', 'workspace-provider');
+    return () => {
+      document.documentElement.classList.remove('workspace-admin');
+    };
+  }, []);
 
   const handleSignOut = () => {
-    apiLogout().catch(() => {});
-    localStorage.removeItem('accessToken');
-    setIsAuthenticated(false);
-    setUser(null);
-    router.push('/');
+    setConfirmModal({
+      isOpen: true,
+      title: 'Sign Out Confirmation',
+      message: 'Are you sure you want to sign out of your Administrator account?',
+      confirmText: 'Sign Out',
+      cancelText: 'Stay Logged In',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        try {
+          await apiLogout();
+        } catch (_) {}
+        localStorage.removeItem('accessToken');
+        setIsAuthenticated(false);
+        setUser(null);
+        setConfirmModal(null);
+        router.push('/');
+      }
+    });
   };
 
   if (authLoading) {
@@ -35,14 +60,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!shouldRender) return null;
 
   const activeTab = pathname.split('/').pop() || 'overview';
-
-  useEffect(() => {
-    document.documentElement.classList.add('workspace-admin');
-    document.documentElement.classList.remove('workspace-seeker', 'workspace-provider');
-    return () => {
-      document.documentElement.classList.remove('workspace-admin');
-    };
-  }, []);
 
   return (
     <div className={`h-screen overflow-hidden flex transition-colors duration-200 ${
@@ -109,6 +126,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
  
         </main>
       </div>
+
+      {/* Sign Out Confirmation Modal */}
+      <ConfirmModal
+        state={confirmModal}
+        onClose={() => setConfirmModal(null)}
+      />
  
     </div>
   );

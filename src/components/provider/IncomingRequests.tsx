@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Check, X, Calendar, User, MapPin, Loader2 } from 'lucide-react';
+import TransactionBlockedModal from '../TransactionBlockedModal';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function IncomingRequests({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
   const { jobEngagements, respondToDirectBooking, isDark } = useApp();
+  const { canTransact } = useTransactionPermission();
   const [loadingJobId, setLoadingJobId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
+  const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
 
   const handleRespond = async (jobId: string, accept: boolean) => {
+    if (accept && !canTransact) {
+      setBlockedModalOpen(true);
+      return;
+    }
     setLoadingJobId(jobId);
     setLoadingAction(accept ? 'accepting' : 'declining');
     try {
@@ -25,6 +33,19 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
   const pendingRequests = jobEngagements.filter(
     je => je.providerId === currentProviderId && je.status === 'pending_provider'
   );
+
+  // Compute relative time from a full ISO timestamp
+  const formatTimeAgo = (isoStr: string): string => {
+    if (!isoStr) return 'Just now';
+    const diffMs = Date.now() - new Date(isoStr).getTime();
+    const diffSecs = Math.floor(diffMs / 1000);
+    if (diffSecs < 60) return diffSecs <= 1 ? 'Just now' : `${diffSecs}s ago`;
+    const diffMins = Math.floor(diffSecs / 60);
+    if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+    const diffHrs = Math.floor(diffMins / 60);
+    if (diffHrs < 24) return `${diffHrs} hr${diffHrs > 1 ? 's' : ''} ago`;
+    return `${Math.floor(diffHrs / 24)} day${Math.floor(diffHrs / 24) > 1 ? 's' : ''} ago`;
+  };
 
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
@@ -58,7 +79,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                      {je.title} • <span className={`font-semibold text-[11px] ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>10 mins ago</span>
+                      {je.title} • <span className={`font-semibold text-[11px] ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>{formatTimeAgo(je.createdAt)}</span>
                     </h3>
                     
                     <div className="flex items-center space-x-1.5 mt-1">
@@ -84,8 +105,10 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                 <div className={`border rounded-2xl p-4 flex items-start space-x-3 transition-colors duration-200 ${
                   isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-100'
                 }`}>
-                  <p className={`text-xs leading-relaxed italic ${isDark ? 'text-[#f2efe9]' : 'text-slate-600'}`}>
-                    "Need prompt assistance for this service listing. Faucet leak is spraying and needs sealing as soon as possible."
+                  <p className={`text-xs leading-relaxed ${je.description ? 'italic' : 'text-slate-400 dark:text-neutral-500'} ${isDark ? 'text-[#f2efe9]' : 'text-slate-600'}`}>
+                    {je.description
+                      ? `"${je.description}"`
+                      : 'No description provided by the seeker.'}
                   </p>
                 </div>
 
@@ -139,6 +162,12 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
           })}
         </div>
       )}
+
+      {/* Transaction Blocked Modal */}
+      <TransactionBlockedModal
+        isOpen={blockedModalOpen}
+        onClose={() => setBlockedModalOpen(false)}
+      />
 
     </div>
   );

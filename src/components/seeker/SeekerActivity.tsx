@@ -21,10 +21,11 @@ import { apiCancelBooking, apiEscalateCancellationRequest } from '../../api/book
 import { apiSubmitReview } from '../../api/reviews.api';
 import ReviewModal from './ReviewModal';
 import { useToast } from '../Toast';
+import ConfirmModal, { ConfirmModalState } from '../ConfirmModal';
 
 
 export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId?: string }) {
-  const { jobEngagements, confirmJobCompletion, disputeJob, cancelQueue, services, jobRequests, isDark, refreshEngagements } = useApp();
+  const { jobEngagements, confirmJobCompletion, disputeJob, cancelQueue, services, jobRequests, isDark, refreshEngagements, refreshAll, notifications } = useApp();
   const { success, error: toastError, info } = useToast();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | null>(null);
@@ -33,11 +34,38 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
   const bookingIdParam = searchParams.get('booking');
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
 
+  // Confirm Modal state
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+
   // Active user is currentUserId
   const myEngagements = jobEngagements.filter(je => je.seekerId === currentUserId);
 
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<'all' | 'action_required' | 'pending' | 'active' | 'waiting' | 'disputed' | 'canceled'>('all');
+
+  // Debounced auto-refresh effect
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const triggerDebounce = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        refreshEngagements();
+        refreshAll();
+      }, 300);
+    };
+
+    triggerDebounce();
+
+    const handleFocus = () => {
+      triggerDebounce();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
 
   const tabParam = searchParams.get('tab');
 
@@ -52,7 +80,7 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
 
   useEffect(() => {
     if (bookingIdParam) {
-      const found = myEngagements.find(e => e.id === bookingIdParam);
+      const found = myEngagements.find(e => e.id === bookingIdParam || e.completedServiceId === bookingIdParam);
       if (found) {
         let targetTab: typeof activeTab = 'all';
         if (found.status === 'in_progress') targetTab = 'active';
@@ -62,10 +90,10 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         setActiveTab(targetTab);
-        setHighlightedBookingId(bookingIdParam);
+        setHighlightedBookingId(found.id);
 
         const scrollTimer = setTimeout(() => {
-          const element = document.getElementById(`booking-${bookingIdParam}`);
+          const element = document.getElementById(`booking-${found.id}`);
           if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
@@ -224,24 +252,34 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
 
   const handleCancelClick = async (je: JobEngagement) => {
     if (!je.started) {
-      if (window.confirm("Are you sure you want to cancel this booking?")) {
-        setLoadingItemId(je.id);
-        setLoadingActionType('cancel');
-        try {
-          const res = await apiCancelBooking(je.id);
-          if (res.success) {
-            success('Booking Cancelled', 'You will be refunded since the provider had not started the job.');
-            refreshEngagements();
-          } else {
-            toastError('Cancel Failed', res.message || 'Failed to cancel booking.');
+      setConfirmModal({
+        isOpen: true,
+        title: 'Cancel Booking',
+        message: 'Are you sure you want to cancel this booking? You will be fully refunded since the provider has not started work.',
+        confirmText: 'Cancel Booking',
+        cancelText: 'Keep Booking',
+        variant: 'danger',
+        onConfirm: async () => {
+          setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+          setLoadingItemId(je.id);
+          setLoadingActionType('cancel');
+          try {
+            const res = await apiCancelBooking(je.id);
+            if (res.success) {
+              success('Booking Cancelled', 'You will be refunded since the provider had not started the job.');
+              refreshEngagements();
+            } else {
+              toastError('Cancel Failed', res.message || 'Failed to cancel booking.');
+            }
+          } catch (err: any) {
+            toastError('Cancel Failed', err.response?.data?.message || 'Error canceling booking.');
+          } finally {
+            setLoadingItemId(null);
+            setLoadingActionType(null);
+            setConfirmModal(null);
           }
-        } catch (err: any) {
-          toastError('Cancel Failed', err.response?.data?.message || 'Error canceling booking.');
-        } finally {
-          setLoadingItemId(null);
-          setLoadingActionType(null);
         }
-      }
+      });
     } else {
       setCancelingJob(je);
       setCancelReason('');
@@ -274,24 +312,34 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
 
 
   const handleEscalateClick = async (requestId: string) => {
-    if (window.confirm("Escalate this to Admin? They will review the booking and chat logs to make a final decision.")) {
-      setLoadingItemId(requestId);
-      setLoadingActionType('escalate');
-      try {
-        const res = await apiEscalateCancellationRequest(requestId);
-        if (res.success) {
-          success('Escalated to Admin', 'An administrator will review and resolve your case.');
-          refreshEngagements();
-        } else {
-          toastError('Escalation Failed', res.message || 'Failed to escalate request.');
+    setConfirmModal({
+      isOpen: true,
+      title: 'Escalate to Admin',
+      message: 'Escalate this dispute to Admin? Administrators will review the booking details and chat logs to make a final decision.',
+      confirmText: 'Escalate Dispute',
+      cancelText: 'Cancel',
+      variant: 'warning',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        setLoadingItemId(requestId);
+        setLoadingActionType('escalate');
+        try {
+          const res = await apiEscalateCancellationRequest(requestId);
+          if (res.success) {
+            success('Escalated to Admin', 'An administrator will review and resolve your case.');
+            refreshEngagements();
+          } else {
+            toastError('Escalation Failed', res.message || 'Failed to escalate request.');
+          }
+        } catch (err: any) {
+          toastError('Escalation Failed', err.response?.data?.message || 'Error escalating request.');
+        } finally {
+          setLoadingItemId(null);
+          setLoadingActionType(null);
+          setConfirmModal(null);
         }
-      } catch (err: any) {
-        toastError('Escalation Failed', err.response?.data?.message || 'Error escalating request.');
-      } finally {
-        setLoadingItemId(null);
-        setLoadingActionType(null);
       }
-    }
+    });
   };
 
 
@@ -661,12 +709,25 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
                             <button
                               disabled={!!loadingItemId}
                               onClick={() => {
-                                const confirmMsg = je.paymentMethod === 'GCash'
-                                  ? 'Are you sure you want to release escrowed funds to the provider? This action is final and cannot be undone.'
-                                  : 'Have you paid the provider on-site and want to complete this transaction?';
-                                if (window.confirm(confirmMsg)) {
-                                  handleConfirmJobCompletion(je.id);
-                                }
+                                const isOnline = je.paymentMethod === 'GCash';
+                                setConfirmModal({
+                                  isOpen: true,
+                                  title: isOnline ? 'Release Escrowed Funds' : 'Complete Transaction',
+                                  message: isOnline
+                                    ? 'Are you sure you want to release escrowed funds to the provider? This action is final and cannot be undone.'
+                                    : 'Have you paid the provider on-site and want to complete this transaction?',
+                                  confirmText: isOnline ? 'Release Cash' : 'Complete Transaction',
+                                  cancelText: 'Cancel',
+                                  variant: 'warning',
+                                  onConfirm: async () => {
+                                    setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+                                    try {
+                                      await handleConfirmJobCompletion(je.id);
+                                    } finally {
+                                      setConfirmModal(null);
+                                    }
+                                  }
+                                });
                               }}
                               className={`px-3.5 py-1.5 font-extrabold text-[10px] rounded-xl transition-all active:scale-95 shadow-sm flex items-center justify-center space-x-1.5 cursor-pointer ${
                                 loadingItemId === je.id && loadingActionType === 'complete'
@@ -911,6 +972,12 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
           isDark={isDark}
         />
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        state={confirmModal}
+        onClose={() => setConfirmModal(null)}
+      />
 
     </div>
   );

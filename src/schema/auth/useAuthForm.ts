@@ -118,7 +118,7 @@ export default function useAuthForm({
         if (res.success) {
           const user = res.data.user;
           localStorage.setItem('accessToken', res.data.accessToken);
-          const names = user.name.split(' ');
+          const names = (user.name || '').split(' ');
           const firstName = names[0] || '';
           const lastName = names.slice(1).join(' ') || '';
           onLoginSuccess({
@@ -222,7 +222,7 @@ export default function useAuthForm({
           if (res.success) {
             const user = res.data.user;
             localStorage.setItem('accessToken', res.data.accessToken);
-            const names = user.name.split(' ');
+            const names = (user.name || '').split(' ');
             const firstName = names[0] || '';
             const lastName = names.slice(1).join(' ') || '';
             onLoginSuccess({

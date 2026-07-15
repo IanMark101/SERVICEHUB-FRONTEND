@@ -27,25 +27,22 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const dark = localStorage.getItem("theme") === "dark";
+      const dark = isDark;
       if (dark) {
         document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = 'dark';
       } else {
         document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
       }
     }
-  }, []);
+  }, [isDark]);
 
   const toggleTheme = () => {
     const nextDark = !isDark;
     setIsDark(nextDark);
     localStorage.setItem('theme', nextDark ? 'dark' : 'light');
     if (typeof window !== "undefined") {
-      if (nextDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
       window.dispatchEvent(new Event('storage'));
     }
   };

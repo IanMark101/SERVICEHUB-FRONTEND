@@ -38,6 +38,8 @@ export default function AdminVerifications() {
   const [adminNotes, setAdminNotes] = useState<string>('');
   const [submittingReview, setSubmittingReview] = useState<boolean>(false);
 
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
+
   const fetchVerifications = () => {
     setLoading(true);
     apiListPendingVerifications()
@@ -149,28 +151,53 @@ export default function AdminVerifications() {
                     Document Proofs:
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {item.proofs && item.proofs.map((proof) => (
-                      <div
-                        key={proof.id}
-                        className={`rounded-xl p-3 border flex items-center justify-between text-[11px] font-bold ${
-                          isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <FileText className="w-4 h-4 text-red-500" />
-                          <span>{proof.documentType}</span>
-                        </div>
-                        <a
-                          href={proof.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-red-500 hover:text-red-655 flex items-center space-x-0.5"
+                    {item.proofs && item.proofs.map((proof) => {
+                      const isImage = proof.fileUrl.startsWith('data:image/') || proof.fileUrl.match(/\.(png|jpg|jpeg|webp|gif)$/i) || proof.fileUrl.startsWith('http');
+                      return (
+                        <div
+                          key={proof.id}
+                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${
+                            isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
+                          }`}
                         >
-                          <span>Open</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    ))}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-1.5 truncate">
+                              <FileText className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                              <span className="truncate">{proof.documentType}</span>
+                            </div>
+                            <a
+                              href={proof.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-red-500 hover:text-red-655 flex items-center space-x-0.5 text-[10px] flex-shrink-0"
+                            >
+                              <span>Open</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+
+                          {isImage ? (
+                            <div
+                              onClick={() => setZoomImage(proof.fileUrl)}
+                              className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-700/50 cursor-pointer group bg-black/40"
+                            >
+                              <img
+                                src={proof.fileUrl}
+                                alt={proof.documentType}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              />
+                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                                <span>🔍 Inspect Photo</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-3 text-center text-slate-400 text-[10px]">
+                              Non-image document attached
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -260,6 +287,28 @@ export default function AdminVerifications() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Image Zoom Modal */}
+      {zoomImage && (
+        <div
+          onClick={() => setZoomImage(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <img
+              src={zoomImage}
+              alt="Document Proof Inspection"
+              className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+            />
+            <button
+              onClick={() => setZoomImage(null)}
+              className="absolute -top-3 -right-3 bg-red-600 hover:bg-red-700 text-white rounded-full p-2 text-xs font-bold shadow-lg"
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}

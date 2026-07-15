@@ -68,7 +68,7 @@ interface AppContextType {
   updateUserProfile: (userId: string, data: Partial<User>) => void;
 
   // Seeker actions
-  postJobRequest: (seekerId: string, title: string, category: string, urgency: 'low' | 'medium' | 'high', budget: number, description: string) => void;
+  postJobRequest: (seekerId: string, title: string, category: string, urgency: string, budget: number, description: string) => void;
   editJobRequest: (requestId: string, title: string, budget: number, description: string) => void;
   deleteJobRequest: (requestId: string) => void;
   acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => void;
@@ -147,7 +147,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         .then((res) => {
           if (res.success) {
             const dbUser = res.data.user;
-            const names = dbUser.name.split(' ');
+            const names = (dbUser.name || '').split(' ');
             const firstName = names[0] || '';
             const lastName = names.slice(1).join(' ') || '';
             const savedRole = (localStorage.getItem('workspaceRole') as any) || 'seeker';
@@ -192,17 +192,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = 'dark';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+      }
+    }
+  }, [isDark]);
+
   const toggleTheme = () => {
     const nextDark = !isDark;
     setIsDark(nextDark);
     localStorage.setItem('theme', nextDark ? 'dark' : 'light');
-    if (typeof document !== 'undefined') {
-      if (nextDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
   };
 
   // ─── Live Data Sync Helpers ────────────────────────────────────

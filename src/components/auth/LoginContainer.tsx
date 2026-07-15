@@ -17,9 +17,11 @@ export interface UserSession {
   avatarUrl: string;
   bio: string;
   phone: string;
+  location?: string;
   trustScore?: number;
   verificationStatus?: string;
   emailVerified?: boolean;
+  isActive?: boolean;
 }
 
 interface LoginContainerProps {

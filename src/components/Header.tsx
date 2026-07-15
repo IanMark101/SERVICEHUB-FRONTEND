@@ -17,7 +17,10 @@ import {
   Moon
 } from 'lucide-react';
 import { UserSession } from './auth/LoginContainer';
+import { useToast } from './Toast';
+import { resolveNotificationLink } from '../lib/notificationRoutes';
 import { useApp } from '../context/AppContext';
+import { useTransactionPermission } from '../hooks/useTransactionPermission';
 
 interface HeaderProps {
   currentRole: 'seeker' | 'provider' | 'admin';
@@ -43,6 +46,7 @@ export default function Header({
 
   // Bind to App Context
   const { notifications, markNotificationsRead, isDark, toggleTheme, unreadMessagesCount } = useApp();
+  const { navigateToVerification } = useTransactionPermission();
 
   // Use the real authenticated user ID directly from session
   const userId = user?.id || '';
@@ -122,31 +126,31 @@ export default function Header({
   const handleNotificationClick = (link?: string | null) => {
     setShowNotifications(false);
     markNotificationsRead(userId);
-    if (!link) return;
-    // Full path with query params — use Next.js router
-    if (link.startsWith('/')) {
-      router.push(link);
+    const targetRoute = resolveNotificationLink(link, currentRole);
+    if (!targetRoute) return;
+
+    if (targetRoute.startsWith('/')) {
+      router.push(targetRoute);
     } else {
-      // Bare tab key like 'seeker-activity'
-      setActiveTab(link);
+      setActiveTab(targetRoute);
     }
   };
 
   return (
-    <header className={`sticky top-0 right-0 z-30 w-full h-16 backdrop-blur-md border-b flex items-center justify-between px-4 sm:px-6 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
+    <header className={`sticky top-0 right-0 z-30 w-full h-20 backdrop-blur-md border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
       }`}>
 
       {/* Left side: Hamburger (Mobile) & Workspace Indicator badge */}
       <div className="flex items-center space-x-4">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className={`md:hidden p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 bg-[#22211e] text-[#b4b0a9] hover:text-white' : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
+          className={`md:hidden p-2 rounded-xl border transition-colors ${isDark ? 'border-neutral-800 bg-[#22211e] text-[#b4b0a9] hover:text-white' : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
             }`}
         >
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center space-x-3">
-          <span className={`px-2.5 py-1 text-[11px] font-bold rounded-lg border uppercase tracking-wider ${isDark
+          <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider ${isDark
               ? (currentRole === 'seeker' 
                   ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
                   : currentRole === 'admin'
@@ -156,6 +160,26 @@ export default function Header({
             }`}>
             {currentRole} Workspace
           </span>
+
+          {user && user.role !== 'admin' && user.verificationStatus !== 'APPROVED' && (
+            <span
+              onClick={navigateToVerification}
+              title="Click to go to verification profile"
+              className={`cursor-pointer px-2.5 py-1 text-[9px] font-extrabold rounded-lg border flex items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] ${
+                user.verificationStatus === 'PENDING_REVIEW'
+                  ? isDark
+                    ? 'bg-amber-955/20 border-amber-900/30 text-amber-400'
+                    : 'bg-amber-50 border-amber-250 text-amber-700'
+                  : isDark
+                    ? 'bg-red-955/20 border-red-900/30 text-red-450'
+                    : 'bg-red-50 border-red-200 text-red-700'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${user.verificationStatus === 'PENDING_REVIEW' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`} />
+              <span>{user.verificationStatus === 'PENDING_REVIEW' ? 'Verification Under Review' : 'Limited Mode'}</span>
+            </span>
+          )}
+
           <span className="text-slate-300 hidden sm:inline-block">/</span>
           <h1 className={`text-sm sm:text-base font-extrabold tracking-wide hidden sm:block ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
             {getPageTitle(activeTab)}
@@ -165,13 +189,13 @@ export default function Header({
 
       {/* Middle: Global User Search Bar */}
       <div className="hidden md:block w-80 relative mx-4">
-        <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#b4b0a9]">
+        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9]">
           <Search className="w-3.5 h-3.5" />
         </span>
         <input
           type="text"
           placeholder="Search users..."
-          className={`w-full border rounded-xl pl-9 pr-4 py-1.5 text-xs transition-all ${isDark
+          className={`w-full border rounded-xl pl-9 pr-4 py-2 text-xs transition-all ${isDark
               ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 focus:ring-amber-500/30 focus:border-amber-500/50'
               : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${theme.ring}`
             }`}
@@ -186,7 +210,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => setActiveTab('community-hub')}
-            className={`hidden lg:flex items-center space-x-1.5 px-3 py-1.5 border text-xs font-semibold rounded-xl transition-all ${isDark
+            className={`hidden lg:flex items-center space-x-1.5 px-3.5 py-2 border text-xs font-semibold rounded-xl transition-all ${isDark
                 ? 'border-neutral-800 hover:bg-[#22211e] text-[#f2efe9]'
                 : 'border-slate-200 hover:bg-slate-50 text-slate-600'
               }`}
@@ -200,7 +224,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => setActiveTab('messages')}
-            className={`p-2 rounded-xl border transition-all relative ${isDark
+            className={`p-2.5 rounded-xl border transition-all relative ${isDark
                 ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
                 : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-655 hover:text-slate-800'
               } ${activeTab === 'messages' ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
@@ -219,7 +243,7 @@ export default function Header({
         <button
           type="button"
           onClick={toggleTheme}
-          className={`p-2 rounded-xl border transition-all ${isDark
+          className={`p-2.5 rounded-xl border transition-all ${isDark
               ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-amber-400'
               : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
             }`}
@@ -232,7 +256,7 @@ export default function Header({
         <div className="relative">
           <button
             onClick={handleToggleNotifications}
-            className={`p-2 rounded-xl border transition-all relative ${isDark
+            className={`p-2.5 rounded-xl border transition-all relative ${isDark
                 ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
                 : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-650 hover:text-slate-800'
               } ${showNotifications ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}

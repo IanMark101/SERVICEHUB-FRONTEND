@@ -6,12 +6,17 @@ import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
 import { getServicePaymentMethods, getPrimaryBookingCTA } from '../../lib/paymentUtils';
+import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
+import TransactionBlockedModal from '../TransactionBlockedModal';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function SeekServices() {
   const { services, users, isDark, user } = useApp();
+  const { canTransact } = useTransactionPermission();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
+  const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
 
   // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'near' | 'available' | 'rated' | 'low-queue'>('all');
@@ -41,6 +46,10 @@ export default function SeekServices() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'On-site Cash'>('On-site Cash');
 
   const handleBookListing = (listing: ServiceListing, method: 'GCash' | 'On-site Cash' = 'On-site Cash') => {
+    if (!canTransact) {
+      setBlockedModalOpen(true);
+      return;
+    }
     setSelectedPaymentMethod(method);
     setSelectedListing(listing);
   };
@@ -99,6 +108,8 @@ export default function SeekServices() {
 
   return (
     <div className={`space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+
+      <LimitedModeDashboardCard />
 
       {/* Search Banner */}
       <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
@@ -444,6 +455,12 @@ export default function SeekServices() {
           onClose={handleCloseModal}
         />
       )}
+
+      {/* Transaction Blocked Modal */}
+      <TransactionBlockedModal
+        isOpen={blockedModalOpen}
+        onClose={() => setBlockedModalOpen(false)}
+      />
 
     </div>
   );

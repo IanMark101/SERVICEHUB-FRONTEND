@@ -43,6 +43,23 @@ export default function SignupForm({
   register,
 }: SignupFormProps) {
 
+  // Compute per-step validity for button state
+  const isStep1Valid =
+    formData.firstName?.trim().length > 0 &&
+    formData.lastName?.trim().length > 0 &&
+    formData.email?.includes('@') &&
+    formData.password?.length >= 8 &&
+    /[A-Z]/.test(formData.password) &&
+    /\d/.test(formData.password) &&
+    formData.confirmPassword === formData.password &&
+    formData.agreeTerms === true;
+
+  const isStep2Valid =
+    formData.phone?.trim().length > 0 &&
+    formData.location?.trim().length > 0;
+
+  const isNextDisabled = (step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid);
+
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
       
@@ -99,12 +116,12 @@ export default function SignupForm({
 
       {/* Header Info */}
       <div className="border-t border-slate-200 dark:border-slate-800/60 pt-4">
-        <h3 className="text-2xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
           {step === 1 && 'Sign Up Account'}
           {step === 2 && 'Contact Info'}
           {step === 3 && 'Profile Setup'}
-        </h3>
-        <p className="text-slate-500 dark:text-[#b4b0a9] text-xs mt-0.5 leading-normal">
+        </h2>
+        <p className="text-slate-500 dark:text-slate-400 text-xs">
           {step === 1 && 'Enter your personal data to create your account.'}
           {step === 2 && 'Provide your contact information and select your Cordova barangay.'}
           {step === 3 && 'Finalize your public profile details.'}
@@ -322,7 +339,12 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            className="flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white"
+            disabled={step < 3 ? isNextDisabled : false}
+            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all ${
+              (step < 3 && isNextDisabled)
+                ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                : 'bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white cursor-pointer'
+            }`}
           >
             {step === 3 ? 'Sign Up' : 'Next Step'}
           </button>

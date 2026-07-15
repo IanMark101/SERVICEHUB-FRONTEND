@@ -1,7 +1,8 @@
 import { api } from '../lib/api/axios';
 
-export async function apiGetProviderSummary(providerId: string) {
-  const response = await api.get(`/ai/provider-summary/${providerId}`);
+export async function apiGetProviderSummary(providerId: string, serviceId?: string) {
+  const query = serviceId ? `?serviceId=${encodeURIComponent(serviceId)}` : '';
+  const response = await api.get(`/ai/provider-summary/${providerId}${query}`);
   return response.data;
 }
 

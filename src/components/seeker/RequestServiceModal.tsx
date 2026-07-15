@@ -42,6 +42,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
 
   const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiReason, setAiReason] = useState<string | null>(null);
   const [loadingAi, setLoadingAi] = useState<boolean>(false);
 
   useEffect(() => {
@@ -50,8 +51,12 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       setLoadingAi(true);
       apiGetProviderSummary(listing.providerId)
         .then((res) => {
-          if (active && res.success && res.data.summary) {
-            setAiSummary(res.data.summary);
+          if (active && res.success) {
+            if (res.data?.summary) {
+              setAiSummary(res.data.summary);
+            } else if (res.data?.reason) {
+              setAiReason(res.data.reason);
+            }
           }
         })
         .catch((err) => {
@@ -94,11 +99,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
 
       {/* Modal Container */}
-      <div className={`rounded-[24px] max-w-lg w-full max-h-[95vh] overflow-y-auto shadow-xl border transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+      <div className={`rounded-[24px] max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden shadow-xl border transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
         }`}>
 
         {/* Header */}
-        <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'bg-[#1c1b18]/45 border-neutral-850' : 'bg-slate-50/50 border-slate-100'
+        <div className={`flex-shrink-0 p-5 border-b flex justify-between items-center ${isDark ? 'bg-[#1c1b18]/45 border-neutral-850' : 'bg-slate-50/50 border-slate-100'
           }`}>
           <div>
             <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider border ${isDark
@@ -133,7 +138,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
             </p>
           </div>
         ) : (
-          <form onSubmit={handleFormSubmit} className="p-5 space-y-4">
+          <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
 
             {/* Self-transaction policy warning banner */}
             {isOwned && (
@@ -149,7 +154,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
             )}
 
             {/* AI Review Summary Card */}
-            {(loadingAi || aiSummary) && (
+            {loadingAi ? (
               <div className={`p-4 rounded-2xl border transition-all duration-200 ${
                 isDark 
                   ? 'bg-orange-950/10 border-orange-900/30 text-[#f2efe9]' 
@@ -165,20 +170,46 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     AI-Generated Feedback Digest
                   </h4>
                 </div>
-                {loadingAi ? (
-                  <div className="flex items-center space-x-2 py-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
-                    <span className="text-[10px] text-slate-400 dark:text-neutral-500 font-semibold pl-1">Analyzing past community reviews...</span>
-                  </div>
-                ) : (
-                  <p className={`text-xs leading-relaxed font-semibold italic ${
-                    isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
+                <div className="flex items-center space-x-2 py-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
+                  <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Analyzing past community reviews and summarizing...</span>
+                </div>
+              </div>
+            ) : aiSummary ? (
+              <div className={`p-4 rounded-2xl border transition-all duration-200 ${
+                isDark 
+                  ? 'bg-orange-950/10 border-orange-900/30 text-[#f2efe9]' 
+                  : 'bg-orange-50/50 border-orange-100/80 text-slate-800'
+              }`}>
+                <div className="flex items-center space-x-2 mb-1.5">
+                  <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
+                    <Sparkles className="w-4 h-4 animate-pulse" />
+                  </span>
+                  <h4 className={`text-[11px] uppercase tracking-wider font-extrabold ${
+                    isDark ? 'text-orange-400' : 'text-orange-755'
                   }`}>
-                    "{aiSummary}"
-                  </p>
-                )}
+                    AI-Generated Feedback Digest
+                  </h4>
+                </div>
+                <p className={`text-xs leading-relaxed font-semibold italic ${
+                  isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
+                }`}>
+                  "{aiSummary}"
+                </p>
+              </div>
+            ) : (
+              <div className={`p-3.5 rounded-2xl border text-xs space-y-0.5 font-medium ${
+                isDark ? 'bg-[#1c1b18] border-neutral-850 text-neutral-400' : 'bg-slate-50 border-slate-200 text-slate-500'
+              }`}>
+                <div className="flex items-center space-x-1.5 font-bold text-amber-500">
+                  <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>AI Summary unavailable</span>
+                </div>
+                <p className="text-[11px]">
+                  This provider needs at least 5 reviews for us to generate a reliable AI review summary.
+                </p>
               </div>
             )}
 

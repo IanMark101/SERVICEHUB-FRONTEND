@@ -49,3 +49,25 @@ export async function apiGoogleLogin(token: string) {
   const response = await api.post('/auth/google-login', { token });
   return response.data;
 }
+
+export async function apiGetPublicProfile(userId: string) {
+  const response = await api.get(`/auth/profile/${userId}`);
+  return response.data;
+}
+
+export async function apiUpdateProfile(data: {
+  name?: string;
+  bio?: string;
+  phone?: string;
+  location?: string;
+  avatarUrl?: string;
+}) {
+  const response = await api.put('/auth/profile', data);
+  return response.data;
+}
+
+export async function apiChangePassword(data: { currentPassword?: string; newPassword?: string }) {
+  const response = await api.post('/auth/change-password', data);
+  return response.data;
+}
+

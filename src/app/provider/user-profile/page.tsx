@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import UserProfile from '../../../components/UserProfile';
@@ -9,6 +9,7 @@ import { Shield, ChevronDown, ChevronUp } from 'lucide-react';
 function ProfileContent() {
   const searchParams = useSearchParams();
   const targetId = searchParams.get('id');
+  const verifyParam = searchParams.get('verify');
   const { user, users, isDark } = useApp();
   const [showVerification, setShowVerification] = useState(false);
 
@@ -22,7 +23,7 @@ function ProfileContent() {
         email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role,
+        role: dbUser.role as any,
         avatarUrl: dbUser.avatarUrl,
         bio: dbUser.bio,
         phone: dbUser.phone,
@@ -30,8 +31,31 @@ function ProfileContent() {
         verificationStatus: dbUser.verificationStatus,
         emailVerified: dbUser.emailVerified
       };
+    } else {
+      targetUser = {
+        id: targetId,
+        email: '',
+        firstName: '',
+        lastName: '',
+        role: 'provider',
+        avatarUrl: '',
+        bio: '',
+        phone: '',
+      };
     }
   }
+
+  useEffect(() => {
+    if (verifyParam === 'true') {
+      setShowVerification(true);
+      setTimeout(() => {
+        const el = document.getElementById('verification-section-anchor');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
+    }
+  }, [verifyParam]);
 
   if (!targetUser) return null;
 
@@ -39,20 +63,31 @@ function ProfileContent() {
   const isProvider = user?.role === 'provider';
   const needsVerification = isOwnProfile && isProvider && targetUser.verificationStatus !== 'APPROVED';
 
+  const handleTriggerVerification = () => {
+    setShowVerification(true);
+    setTimeout(() => {
+      const el = document.getElementById('verification-section-anchor');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
   return (
     <div className="space-y-6">
-      <UserProfile targetUser={targetUser} />
+      <UserProfile
+        targetUser={targetUser}
+        isOwnProfile={isOwnProfile}
+        onTriggerVerification={handleTriggerVerification}
+      />
 
       {/* Verification Banner — only shown to the provider on their own profile */}
       {isOwnProfile && isProvider && (
-        <div>
+        <div id="verification-section-anchor" className="scroll-mt-6">
           <button
             onClick={() => setShowVerification(prev => !prev)}
-            className={`w-full flex items-center justify-between px-5 py-3.5 rounded-2xl border text-sm font-semibold transition-all ${
-              isDark
+            className={`w-full flex items-center justify-between px-5 py-3.5 rounded-2xl border text-sm font-semibold transition-all ${isDark
                 ? 'bg-[#1c1b18] border-neutral-800/70 text-[#f2efe9] hover:bg-neutral-800/40'
                 : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2.5">
               <Shield size={16} className={needsVerification ? 'text-amber-500' : 'text-emerald-500'} />
