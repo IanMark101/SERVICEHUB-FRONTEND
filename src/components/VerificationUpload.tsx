@@ -124,7 +124,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
     <div style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: '24px', padding: '24px', maxWidth: '600px', width: '100%', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-        <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '14px', padding: '10px', color: '#10b981', display: 'flex', alignItems: 'center', justifyCenter: 'center' }}>
+        <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '14px', padding: '10px', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Shield size={22} />
         </div>
         <div>
@@ -169,7 +169,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                 <div key={i} style={{ background: isDark ? '#23221e' : '#f8fafc', border: `1px solid ${isDark ? '#33312c' : '#e2e8f0'}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   
                   {/* Select Document Type */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
                     <div style={{ flex: 1 }}>
                       <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: textMuted, marginBottom: '6px' }}>
                         Document Type #{i + 1}
@@ -214,14 +214,14 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                             <img src={row.fileUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             <button
                               onClick={() => setPreviewModalUrl(row.fileUrl)}
-                              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyCenter: 'center', opacity: 0.9 }}
+                              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.9 }}
                               title="Zoom Preview"
                             >
                               <Eye size={16} />
                             </button>
                           </div>
                         ) : (
-                          <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyCenter: 'center', color: '#10b981', flexShrink: 0 }}>
+                          <div style={{ width: '48px', height: '48px', borderRadius: '10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0 }}>
                             <FileCheck size={22} />
                           </div>
                         )}
@@ -248,7 +248,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                         onClick={() => fileInputRefs.current[i]?.click()}
                         style={{ border: `2px dashed ${isDark ? '#3a3730' : '#cbd5e1'}`, borderRadius: '14px', padding: '20px', textAlign: 'center', cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.015)' : '#ffffff', transition: 'all 0.2s' }}
                       >
-                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: isDark ? '#2a2927' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyCenter: 'center', margin: '0 auto 10px', color: isDark ? '#10b981' : '#059669' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: isDark ? '#2a2927' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: isDark ? '#10b981' : '#059669' }}>
                           <Camera size={22} />
                         </div>
                         <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: textPrimary }}>
@@ -324,10 +324,10 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
 
       {/* Image Zoom Preview Modal */}
       {previewModalUrl && (
-        <div onClick={() => setPreviewModalUrl(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyCenter: 'center', padding: '20px' }}>
+        <div onClick={() => setPreviewModalUrl(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
             <img src={previewModalUrl} alt="Document Zoom" style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '12px', objectFit: 'contain' }} />
-            <button onClick={() => setPreviewModalUrl(null)} style={{ position: 'absolute', top: '-16px', right: '-16px', background: '#ef4444', color: '#fff', border: 'none', width: '32px', height: '32px', borderRadius: '50%', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyCenter: 'center' }}>×</button>
+            <button onClick={() => setPreviewModalUrl(null)} style={{ position: 'absolute', top: '-16px', right: '-16px', background: '#ef4444', color: '#fff', border: 'none', width: '32px', height: '32px', borderRadius: '50%', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
           </div>
         </div>
       )}

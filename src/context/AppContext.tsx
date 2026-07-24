@@ -12,18 +12,6 @@ import {
   CategorySuggestion,
   UserReport
 } from '../types';
-import {
-  mockUsers,
-  mockServices,
-  mockJobRequests,
-  mockBids,
-  mockJobEngagements,
-  mockTransactions,
-  mockNotifications,
-  mockMessages,
-  mockCategorySuggestions,
-  mockUserReports
-} from './mockData';
 import { apiGetCategories } from '../api/categories.api';
 import { apiGetRequests } from '../api/requests.api';
 import { apiGetReceivedOffers, apiGetMyOffers } from '../api/offers.api';
@@ -113,7 +101,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("theme") === "dark";
@@ -126,17 +114,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
 
-  // Data states — start with mock data as fallback, replaced by live API on mount
-  const [services, setServices] = useState<ServiceListing[]>(mockServices);
-  const [jobRequests, setJobRequests] = useState<JobRequest[]>(mockJobRequests);
-  const [bids, setBids] = useState<Bid[]>(mockBids);
-  const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>(mockJobEngagements);
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  // Data states — start with empty state, populated strictly by live database APIs
+  const [services, setServices] = useState<ServiceListing[]>([]);
+  const [jobRequests, setJobRequests] = useState<JobRequest[]>([]);
+  const [bids, setBids] = useState<Bid[]>([]);
+  const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
-  const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>(mockCategorySuggestions);
-  const [userReports, setUserReports] = useState<UserReport[]>(mockUserReports);
+  const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>([]);
+  const [userReports, setUserReports] = useState<UserReport[]>([]);
   const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
 
   // ─── Session Recovery ──────────────────────────────────────────
@@ -215,27 +203,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const syncPublicServices = useCallback(async () => {
     try {
       const res = await apiBrowseServices();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+      if (res.success && Array.isArray(res.data)) {
         setServices(res.data.map(mapServiceToListing));
       }
     } catch {
-      // silently keep mock data as fallback
+      // ignore
     }
   }, []);
 
   const syncRequests = useCallback(async () => {
     try {
       const res = await apiGetRequests();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map(mapRequestToJobRequest);
-        const dbIds = new Set(mapped.map((x: JobRequest) => x.id));
-        setJobRequests([
-          ...mapped,
-          ...mockJobRequests.filter(m => !dbIds.has(m.id))
-        ]);
+      if (res.success && Array.isArray(res.data)) {
+        setJobRequests(res.data.map(mapRequestToJobRequest));
       }
     } catch {
-      // keep mock fallback
+      // ignore
     }
   }, []);
 
@@ -254,14 +237,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ? mineBidsRes.value.data.map(mapOfferToBid)
         : [];
 
-      const allOffers = [...receivedOffers, ...myOffers];
-      const dbIds = new Set(allOffers.map((b: Bid) => b.id));
-      setBids([
-        ...allOffers,
-        ...mockBids.filter(m => !dbIds.has(m.id))
-      ]);
+      setBids([...receivedOffers, ...myOffers]);
     } catch {
-      // keep mock fallback
+      // ignore
     }
   }, []);
 
@@ -277,12 +255,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           .map(mapBookingToEngagement);
         const mappedCompleted = dbCompleted.map(mapCompletedServiceToEngagement);
 
-        const dbIds = new Set([...mappedBookings, ...mappedCompleted].map((x: any) => x.id));
-        setJobEngagements([
-          ...mappedBookings,
-          ...mappedCompleted,
-          ...mockJobEngagements.filter(m => !dbIds.has(m.id))
-        ]);
+        setJobEngagements([...mappedBookings, ...mappedCompleted]);
 
         // Sync transactions from completed services
         const txs: Transaction[] = dbCompleted.map((cs: any) => ({
@@ -296,14 +269,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           createdAt: cs.completedAt?.split('T')[0] || '',
         }));
 
-        const txIds = new Set(txs.map((x: Transaction) => x.id));
-        setTransactions([
-          ...txs,
-          ...mockTransactions.filter(t => !txIds.has(t.id))
-        ]);
+        setTransactions(txs);
       }
     } catch {
-      // keep mock fallback
+      // ignore
     }
   }, []);
 
@@ -311,15 +280,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const res = await apiGetNotifications();
       if (res.success && Array.isArray(res.data)) {
-        const mapped = res.data.map(mapDbNotification);
-        const dbIds = new Set(mapped.map((n: Notification) => n.id));
-        setNotifications([
-          ...mapped,
-          ...mockNotifications.filter(m => !dbIds.has(m.id))
-        ]);
+        setNotifications(res.data.map(mapDbNotification));
       }
     } catch {
-      // keep mock fallback
+      // ignore
     }
   }, []);
 
@@ -338,16 +302,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const syncTransactions = useCallback(async () => {
     try {
       const res = await apiGetTransactions();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map(mapDbTransaction);
-        const dbIds = new Set(mapped.map((t: Transaction) => t.id));
-        setTransactions([
-          ...mapped,
-          ...mockTransactions.filter(m => !dbIds.has(m.id))
-        ]);
+      if (res.success && Array.isArray(res.data)) {
+        setTransactions(res.data.map(mapDbTransaction));
       }
     } catch {
-      // keep mock fallback
+      // ignore
     }
   }, []);
 

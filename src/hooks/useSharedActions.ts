@@ -34,21 +34,11 @@ export function useSharedActions({
             createdAt: m.createdAt,
           };
           setMessages(prev => [...prev, newMessage]);
-          return;
         }
       }
     } catch (err) {
-      console.warn("Backend API failed in sendMessage, falling back to mock:", err);
+      console.error("Failed to send message via API:", err);
     }
-
-    const newMessage: Message = {
-      id: `m_${Date.now()}`,
-      senderId,
-      receiverId,
-      text,
-      createdAt: new Date().toISOString()
-    };
-    setMessages(prev => [...prev, newMessage]);
   };
 
   const markNotificationsRead = async (userId: string) => {
