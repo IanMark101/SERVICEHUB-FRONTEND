@@ -356,10 +356,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [syncEngagements]);
 
   const refreshAll = useCallback(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     syncPublicServices();
-    syncRequests();
     if (token) {
+      syncRequests();
       syncBids();
       syncEngagements();
       syncNotifications();
@@ -391,11 +391,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .catch(() => { });
 
     syncPublicServices();
-    syncRequests();
 
     // Load private data only if authenticated
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     if (token) {
+      syncRequests();
       syncBids();
       syncEngagements();
       syncNotifications();
