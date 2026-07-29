@@ -67,8 +67,11 @@ export default function ProviderMessagesPage() {
       if (res.success) {
         setConversations(res.data || []);
       }
-    } catch (e) {
-      console.error("Failed to sync conversations:", e);
+    } catch (e: any) {
+      // 401s are handled by the axios interceptor (token refresh + retry)
+      if (e?.response?.status !== 401) {
+        console.error("Failed to sync conversations:", e);
+      }
     }
   }, []);
 

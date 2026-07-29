@@ -67,8 +67,12 @@ export default function SeekerMessagesPage() {
       if (res.success) {
         setConversations(res.data || []);
       }
-    } catch (e) {
-      console.error("Failed to sync conversations:", e);
+    } catch (e: any) {
+      // 401s are handled by the axios interceptor (token refresh + retry),
+      // so only log genuinely unexpected errors to reduce console noise.
+      if (e?.response?.status !== 401) {
+        console.error("Failed to sync conversations:", e);
+      }
     }
   }, []);
 
