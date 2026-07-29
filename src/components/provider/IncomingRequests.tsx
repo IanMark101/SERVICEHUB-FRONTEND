@@ -51,7 +51,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
       
-      <LimitedModeDashboardCard />
+      <LimitedModeDashboardCard role="provider" />
 
 
       {pendingRequests.length === 0 ? (

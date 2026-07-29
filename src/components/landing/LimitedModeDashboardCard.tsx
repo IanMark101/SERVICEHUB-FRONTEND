@@ -4,10 +4,18 @@ import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { VerificationStatus } from '../../types';
 import { ShieldAlert, ShieldCheck, X, ArrowRight } from 'lucide-react';
 
-export default function LimitedModeDashboardCard() {
-  const { isDark } = useApp();
+interface LimitedModeDashboardCardProps {
+  role?: 'seeker' | 'provider';
+}
+
+export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardCardProps = {}) {
+  const { isDark, user } = useApp();
   const { verificationStatus, navigateToVerification, canTransact } = useTransactionPermission();
   const [dismissed, setDismissed] = useState<boolean>(true); // start true to prevent flash
+
+  // Determine active workspace theme: 'provider' -> emerald green, 'seeker' -> orange
+  const activeRole = role || (user?.role === 'provider' ? 'provider' : 'seeker');
+  const isProvider = activeRole === 'provider';
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -29,6 +37,10 @@ export default function LimitedModeDashboardCard() {
 
   const isPending = verificationStatus === VerificationStatus.PENDING_REVIEW;
   const isRejected = verificationStatus === VerificationStatus.REJECTED;
+
+  const ctaTextColor = isProvider
+    ? isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700'
+    : isDark ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-700';
 
   return (
     <div className={`rounded-3xl border p-5 relative shadow-sm transition-all duration-200 ${
@@ -62,7 +74,7 @@ export default function LimitedModeDashboardCard() {
               ? 'bg-amber-950/20 border-amber-900/30 text-amber-400'
               : 'bg-amber-100 border-amber-250 text-amber-700'
             : isDark
-              ? 'bg-red-950/20 border-red-900/30 text-red-400'
+              ? 'bg-red-955/20 border-red-900/30 text-red-400'
               : 'bg-red-100 border-red-150 text-red-700'
         }`}>
           {isPending ? <ShieldCheck className="w-5 h-5 animate-pulse" /> : <ShieldAlert className="w-5 h-5" />}
@@ -91,9 +103,7 @@ export default function LimitedModeDashboardCard() {
           {!isPending && (
             <button
               onClick={navigateToVerification}
-              className={`inline-flex items-center space-x-1 text-xs font-extrabold hover:underline mt-2 cursor-pointer ${
-                isDark ? 'text-orange-400' : 'text-orange-655'
-              }`}
+              className={`inline-flex items-center space-x-1 text-xs font-extrabold hover:underline mt-2 cursor-pointer transition-colors ${ctaTextColor}`}
             >
               <span>Verify Now</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -105,3 +115,4 @@ export default function LimitedModeDashboardCard() {
     </div>
   );
 }
+

@@ -109,7 +109,7 @@ export default function SeekServices() {
   return (
     <div className={`space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
-      <LimitedModeDashboardCard />
+      <LimitedModeDashboardCard role="seeker" />
 
       {/* Search Banner */}
       <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
