@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Lightbulb, Send, Sparkles } from 'lucide-react';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function SuggestCategory() {
-  const { categorySuggestions, suggestCategory, isDark } = useApp();
+  const { categorySuggestions, suggestCategory, isDark, user } = useApp();
+  const { canTransact, navigateToVerification } = useTransactionPermission();
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
 
-  // Filter suggestions submitted by Alex Mercer
-  const mySuggestions = categorySuggestions.filter(s => s.suggestedBy === 'Alex Mercer');
+  // Filter suggestions submitted by the current user
+  const mySuggestions = categorySuggestions.filter(s => s.suggestedBy === `${user?.firstName} ${user?.lastName}`.trim() || s.suggestedBy === user?.firstName);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +25,7 @@ export default function SuggestCategory() {
     setLoading(true);
 
     setTimeout(() => {
-      suggestCategory('Alex Mercer', name, description);
+      suggestCategory(`${user?.firstName} ${user?.lastName}`.trim() || 'User', name, description);
       setLoading(false);
       setSuccess(true);
       setName('');
@@ -75,6 +77,25 @@ export default function SuggestCategory() {
               </h3>
             </div>
 
+            {/* Verification Required Banner */}
+            {!canTransact && (
+              <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in duration-200 ${
+                isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
+              }`}>
+                <div>
+                  <span className="font-bold">Verification Required:</span>
+                  <span className="font-medium ml-1">You must complete Cordova Residency Verification before submitting category suggestions.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={navigateToVerification}
+                  className="bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer"
+                >
+                  Verify Now
+                </button>
+              </div>
+            )}
+
             {/* Success alert banner */}
             {success && (
               <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-450' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
@@ -94,6 +115,7 @@ export default function SuggestCategory() {
                 <input
                   type="text"
                   required
+                  disabled={!canTransact}
                   placeholder="e.g. Pet Grooming, Mobile Car Wash, AC Repair"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -112,6 +134,7 @@ export default function SuggestCategory() {
                 <textarea
                   rows={5}
                   required
+                  disabled={!canTransact}
                   placeholder="Describe the typical tasks or services that would fall under this category..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -136,8 +159,12 @@ export default function SuggestCategory() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer"
+                  disabled={loading || !canTransact}
+                  className={`px-5 py-2 font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer ${
+                    !canTransact
+                      ? 'bg-neutral-500 opacity-50 cursor-not-allowed text-white'
+                      : 'bg-orange-600 hover:bg-orange-700 text-white'
+                  }`}
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{loading ? 'Submitting...' : 'Submit Suggestion'}</span>

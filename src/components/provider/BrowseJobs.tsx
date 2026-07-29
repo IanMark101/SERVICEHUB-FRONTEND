@@ -3,6 +3,9 @@ import { useApp } from '../../context/AppContext';
 import { Search, CheckCircle2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../PaginationBar';
+import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
+import TransactionBlockedModal from '../TransactionBlockedModal';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export function formatUrgencyDisplay(urgency?: string): string {
   if (!urgency || !urgency.trim()) return 'Flexible Schedule';
@@ -22,6 +25,7 @@ export default function BrowseJobs({
   onNavigateToOffers?: () => void;
 }) {
   const { jobRequests, bids, submitBid, isDark, user } = useApp();
+  const { canTransact } = useTransactionPermission();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
@@ -32,6 +36,7 @@ export default function BrowseJobs({
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [bidPrice, setBidPrice] = useState<number>(0);
   const [bidMessage, setBidMessage] = useState<string>('');
+  const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
 
   const categories = [
     'All Categories',
@@ -104,6 +109,10 @@ export default function BrowseJobs({
   } = usePagination(sortedRequests, 6);
 
   const handleOpenBid = (reqId: string, initialPrice: number) => {
+    if (!canTransact) {
+      setBlockedModalOpen(true);
+      return;
+    }
     setSelectedRequestId(reqId);
     setBidPrice(initialPrice);
     setBidMessage('');
@@ -119,6 +128,8 @@ export default function BrowseJobs({
 
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+
+      <LimitedModeDashboardCard />
 
       {/* Header Banner */}
       <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
@@ -526,6 +537,12 @@ export default function BrowseJobs({
           </div>
         </div>
       )}
+
+      {/* Transaction Blocked Modal */}
+      <TransactionBlockedModal
+        isOpen={blockedModalOpen}
+        onClose={() => setBlockedModalOpen(false)}
+      />
 
     </div>
   );
