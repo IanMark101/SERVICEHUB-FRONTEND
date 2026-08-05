@@ -1,4 +1,5 @@
 import React, { useState, FormEvent, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { X, CreditCard, MapPin, Smartphone, Sparkles } from 'lucide-react';
@@ -12,6 +13,7 @@ interface RequestServiceModalProps {
 }
 
 export default function RequestServiceModal({ listing, onClose, initialPaymentMethod }: RequestServiceModalProps) {
+  const router = useRouter();
   const { user, bookProviderDirectly, isDark } = useApp();
   const isOwned = !!(user && listing.providerId === user.id);
 
@@ -329,7 +331,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               {isOwned ? (
                 <button
                   type="button"
-                  onClick={() => window.location.href = `/provider/service-manager?id=${listing.id}`}
+                  onClick={() => router.push(`/provider/service-manager?id=${listing.id}`)}
                   className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer"
                 >
                   Edit Listing Details

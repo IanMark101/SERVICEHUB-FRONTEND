@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import ConfirmModal, { ConfirmModalState } from '../../components/ConfirmModal';
+import Sidebar from '../../components/layout/Sidebar';
+import Header from '../../components/layout/Header';
+import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModal';
 import { HelpCircle, LogOut } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
@@ -73,7 +73,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
       cancelText: 'Stay Logged In',
       variant: 'danger',
       onConfirm: async () => {
-        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        setConfirmModal((prev: any) => prev ? { ...prev, isLoading: true } : null);
         try {
           await apiLogout();
         } catch (_) {}
@@ -118,9 +118,9 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
       {/* Sidebar Component */}
       <Sidebar 
         currentRole={currentRole} 
-        setCurrentRole={(role) => router.push(`/${role}`)} 
+        setCurrentRole={(role: string) => router.push(`/${role}`)} 
         activeTab={activeTab} 
-        setActiveTab={(tabId) => router.push(`/seeker/${tabId}`)} 
+        setActiveTab={(tabId: string) => router.push(`/seeker/${tabId}`)} 
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
         isMobileOpen={isMobileSidebarOpen}
@@ -138,11 +138,11 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
         <Header 
           currentRole={currentRole}
           activeTab={activeTab}
-          setActiveTab={(tabId) => router.push(`/seeker/${tabId}`)}
+          setActiveTab={(tabId: string) => router.push(`/seeker/${tabId}`)}
           setIsMobileOpen={setIsMobileSidebarOpen}
           user={user}
           onSignOut={handleSignOut}
-          onViewProfile={(u) => router.push(`/seeker/user-profile?id=${u.id}`)}
+          onViewProfile={(u: any) => router.push(`/seeker/user-profile?id=${u.id}`)}
         />
  
         {/* Scrollable Layout Content Canvas */}

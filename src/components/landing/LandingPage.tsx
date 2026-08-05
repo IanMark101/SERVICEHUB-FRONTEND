@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import LandingHeader from './landing/LandingHeader';
-import LandingHero from './landing/LandingHero';
-import LandingProblem from './landing/LandingProblem';
-import LandingHowItWorks from './landing/LandingHowItWorks';
-import LandingWorkspaces from './landing/LandingWorkspaces';
-import LandingQueue from './landing/LandingQueue';
-import LandingTrust from './landing/LandingTrust';
-import LandingComparison from './landing/LandingComparison';
-import LandingCommunity from './landing/LandingCommunity';
-import LandingReviews from './landing/LandingReviews';
-import LandingFaq from './landing/LandingFaq';
-import LandingCta from './landing/LandingCta';
-import LandingFooter from './landing/LandingFooter';
+import LandingHeader from './LandingHeader';
+import LandingHero from './LandingHero';
+import LandingProblem from './LandingProblem';
+import LandingHowItWorks from './LandingHowItWorks';
+import LandingWorkspaces from './LandingWorkspaces';
+import LandingQueue from './LandingQueue';
+import LandingTrust from './LandingTrust';
+import LandingComparison from './LandingComparison';
+import LandingCommunity from './LandingCommunity';
+import LandingReviews from './LandingReviews';
+import LandingFaq from './LandingFaq';
+import LandingCta from './LandingCta';
+import LandingFooter from './LandingFooter';
 
 interface LandingPageProps {
   onGetStarted: () => void;

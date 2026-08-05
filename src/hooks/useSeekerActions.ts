@@ -22,7 +22,7 @@ import {
 } from '../api/bookings.api';
 import { apiRejectOffer } from '../api/offers.api';
 import { apiSuggestCategory } from '../api/categories.api';
-import { useToast } from '../components/Toast';
+import { useToast } from '../components/ui/Toast';
 
 interface SeekerActionsDeps {
   users: User[];

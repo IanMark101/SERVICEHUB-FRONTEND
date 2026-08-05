@@ -3,7 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { Calendar, CreditCard, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 
 export default function TransactionHistory({ currentUserId = 'u3' }: { currentUserId?: string }) {
   const { transactions, isDark } = useApp();

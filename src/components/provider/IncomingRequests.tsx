@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Check, X, Calendar, User, MapPin, Loader2 } from 'lucide-react';
-import TransactionBlockedModal from '../TransactionBlockedModal';
+import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 

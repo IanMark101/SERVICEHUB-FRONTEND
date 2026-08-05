@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListCategorySuggestions, apiResolveCategorySuggestion } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, Tag, User, RefreshCw } from 'lucide-react';
-import { useToast } from '../../../components/Toast';
+import { useToast } from '../../../components/ui/Toast';
 
 interface SubmitterInfo {
   id: string;

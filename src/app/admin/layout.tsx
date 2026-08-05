@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import ConfirmModal, { ConfirmModalState } from '../../components/ConfirmModal';
+import Sidebar from '../../components/layout/Sidebar';
+import Header from '../../components/layout/Header';
+import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModal';
 import { apiLogout } from '../../api/auth.api';
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 
@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       cancelText: 'Stay Logged In',
       variant: 'danger',
       onConfirm: async () => {
-        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        setConfirmModal((prev: any) => prev ? { ...prev, isLoading: true } : null);
         try {
           await apiLogout();
         } catch (_) {}
@@ -69,9 +69,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar Component */}
       <Sidebar 
         currentRole="admin" 
-        setCurrentRole={(role) => router.push(`/${role}`)} 
+        setCurrentRole={(role: string) => router.push(`/${role}`)} 
         activeTab={activeTab} 
-        setActiveTab={(tabId) => router.push(`/admin/${tabId}`)} 
+        setActiveTab={(tabId: string) => router.push(`/admin/${tabId}`)} 
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
         isMobileOpen={isMobileSidebarOpen}
@@ -89,11 +89,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Header 
           currentRole="admin"
           activeTab={activeTab}
-          setActiveTab={(tabId) => router.push(`/admin/${tabId}`)}
+          setActiveTab={(tabId: string) => router.push(`/admin/${tabId}`)}
           setIsMobileOpen={setIsMobileSidebarOpen}
           user={user}
           onSignOut={handleSignOut}
-          onViewProfile={(u) => router.push(`/admin/users`)}
+          onViewProfile={(u: any) => router.push(`/admin/users`)}
         />
 
         {/* Warning strip */}

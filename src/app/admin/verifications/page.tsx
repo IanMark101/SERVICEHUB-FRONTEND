@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from 'lucide-react';
-import { useToast } from '../../../components/Toast';
+import { useToast } from '../../../components/ui/Toast';
 
 interface VerificationProof {
   id: string;

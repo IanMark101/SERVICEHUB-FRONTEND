@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListPendingServices, apiReviewService } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
-import { useToast } from '../../../components/Toast';
+import { useToast } from '../../../components/ui/Toast';
 
 interface ProviderInfo {
   id: string;

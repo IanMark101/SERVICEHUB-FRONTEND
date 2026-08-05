@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Shield, Upload, CheckCircle2, Clock, XCircle, ExternalLink, AlertTriangle, Image as ImageIcon, FileCheck, Trash2, Camera, Plus, Eye } from 'lucide-react';
-import { apiSubmitVerification, apiGetVerificationStatus } from '../api/verifications.api';
-import { useToast } from './Toast';
+import { apiSubmitVerification, apiGetVerificationStatus } from '../../api/verifications.api';
+import { useToast } from '../ui/Toast';
 
 interface VerificationUploadProps {
   isDark: boolean;

@@ -8,7 +8,7 @@ import {
   apiChangePassword,
 } from '../../api/auth.api';
 import { apiGetProviderSummary } from '../../api/ai.api';
-import { useToast } from '../Toast';
+import { useToast } from '../ui/Toast';
 
 export interface UseUserProfileStateProps {
   targetUser: UserSession;
@@ -21,7 +21,7 @@ export function useUserProfileState({
   isOwnProfile = false,
   onProfileUpdated,
 }: UseUserProfileStateProps) {
-  const { isDark, setUser, user, toggleTheme, services, jobRequests } = useApp();
+  const { isDark, setUser, user, toggleTheme, services = [], jobRequests = [], bids = [] } = useApp();
   const { success: toastSuccess, error: toastError } = useToast();
 
   const [profile, setProfile] = useState<any>(null);
@@ -34,10 +34,24 @@ export function useUserProfileState({
   const [aiLoaded, setAiLoaded] = useState(false);
 
   // UI state
-  const [activeTab, setActiveTab] = useState<'portfolio' | 'reviews' | 'about'>('portfolio');
+  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'trust' | 'verification' | 'settings'>('overview');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('verify') === 'true' || params.get('tab') === 'verification') {
+        setActiveTab('verification');
+      }
+    }
+  }, []);
   const [showEdit, setShowEdit] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Settings states
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [publicProfileVisible, setPublicProfileVisible] = useState(true);
 
   // Forms
   const [editForm, setEditForm] = useState({
@@ -46,9 +60,9 @@ export function useUserProfileState({
     phone: '',
     location: '',
     avatarUrl: '',
-    occupation: 'Service Specialist',
-    languages: 'English, Cebuano, Tagalog',
-    availability: 'Mon - Sat (8:00 AM - 6:00 PM)',
+    occupation: '',
+    languages: '',
+    availability: '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -104,18 +118,18 @@ export function useUserProfileState({
   const completedJobs = profile?.completedServiceCount || 0;
 
   const rawRating = profile?.averageRating;
+  const reviews: any[] = Array.isArray(profile?.reviews) ? profile.reviews : [];
   const averageRating: number = typeof rawRating === 'number' && !isNaN(rawRating) && rawRating > 0
     ? rawRating
-    : (role === 'provider' ? 5.0 : 5.0);
+    : (reviews.length > 0 ? (reviews.reduce((acc, r) => acc + (r.rating || 5), 0) / reviews.length) : 0);
 
-  const reviews: any[] = Array.isArray(profile?.reviews) ? profile.reviews : [];
+  const availability = profile?.availability || '';
+  const languages = profile?.languages || '';
 
   // Provider Categories & Services
   const providerServices = services.filter(s => s.providerId === targetUser?.id);
   const providerCategories = Array.from(new Set(providerServices.map(s => s.category)));
-  const displayCategories = providerCategories.length > 0
-    ? providerCategories
-    : ['Plumbing', 'Electrical', 'Home Repairs', 'Aircon Cleaning'];
+  const displayCategories = role === 'provider' ? providerCategories : [];
 
   // Completion Score
   const missingItems: { label: string; key: string }[] = [];
@@ -130,22 +144,40 @@ export function useUserProfileState({
   // Rating Distribution breakdown (5★ to 1★)
   const ratingDistribution = [5, 4, 3, 2, 1].map(star => {
     const count = reviews.filter(r => Math.round(r.rating) === star).length;
-    const percentage = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : (star === 5 ? 85 : star === 4 ? 15 : 0);
-    return { star, count: reviews.length > 0 ? count : (star === 5 ? 4 : star === 4 ? 1 : 0), percentage };
+    const percentage = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
+    return { star, count, percentage };
   });
+
+  // Derived User Activity (Posted Service Listings, Requests, and Offers)
+  const userServices = (services || []).filter(s => s.providerId === targetUser?.id);
+  const userRequests = (jobRequests || []).filter(r => r.seekerId === targetUser?.id || (r as any).userId === targetUser?.id);
+  const userBids = (bids || []).filter(b => b.providerId === targetUser?.id);
 
   // Dynamic Trust History Timeline
   const trustHistory: { delta: string; label: string; date: string; type: 'positive' | 'negative' }[] = [];
   if (verStatus === 'APPROVED') {
-    trustHistory.push({ delta: '+5', label: 'Residency Verification Approved by Admin', date: 'Cordova Admin Verified', type: 'positive' });
+    trustHistory.push({ delta: '+25', label: 'Residency & Identity Verification Approved by Cordova Admin', date: 'Admin Verified', type: 'positive' });
+  }
+  if (userServices.length > 0) {
+    trustHistory.push({ delta: `+${userServices.length * 5}`, label: `Published ${userServices.length} Active Service Listing(s)`, date: 'Service Offering', type: 'positive' });
+  }
+  if (userRequests.length > 0) {
+    trustHistory.push({ delta: `+${userRequests.length * 5}`, label: `Posted ${userRequests.length} Verified Service Request(s)`, date: 'Service Request', type: 'positive' });
+  }
+  if (userBids.length > 0) {
+    trustHistory.push({ delta: `+${userBids.length * 2}`, label: `Submitted ${userBids.length} Service Offer(s) to Clients`, date: 'Service Offer', type: 'positive' });
   }
   if (completedJobs > 0) {
-    trustHistory.push({ delta: `+${completedJobs * 2}`, label: `${completedJobs} Verified Bookings Completed & Confirmed`, date: 'Marketplace History', type: 'positive' });
+    trustHistory.push({ delta: `+${completedJobs * 5}`, label: `${completedJobs} Verified Bookings Completed & Confirmed`, date: 'Marketplace History', type: 'positive' });
   }
-  if (reviews.length > 0) {
-    trustHistory.push({ delta: `+${reviews.length}`, label: `${reviews.length} Client Review Ratings Received`, date: 'Client Reviews', type: 'positive' });
+  const fiveStarReviewsCount = reviews.filter((r: any) => r.rating === 5).length;
+  if (fiveStarReviewsCount > 0) {
+    trustHistory.push({ delta: `+${fiveStarReviewsCount * 2}`, label: `Received ${fiveStarReviewsCount} 5-Star Verified Client Rating(s)`, date: 'Client Feedback', type: 'positive' });
   }
-  trustHistory.push({ delta: '+50', label: 'Initial Account Base Trust Rating', date: 'System Baseline', type: 'positive' });
+  if (avatarUrl && bio && location) {
+    trustHistory.push({ delta: '+15', label: 'Full Profile Identity & Contact Details Completed', date: 'Profile Setup', type: 'positive' });
+  }
+  trustHistory.push({ delta: '+50', label: 'Initial Account Base Trust Score Baseline', date: 'Account Created', type: 'positive' });
 
   // Handlers
   const handleShareProfile = () => {
@@ -250,12 +282,17 @@ export function useUserProfileState({
     phone,
     email,
     role,
+    availability,
+    languages,
     createdAt,
     completedJobs,
     averageRating,
     ratingDistribution,
     reviews,
     providerServices,
+    userServices,
+    userRequests,
+    userBids,
     jobRequests,
     displayCategories,
     completionScore,
@@ -277,6 +314,12 @@ export function useUserProfileState({
     pwSaving,
     handleChangePassword,
     handleShareProfile,
+    emailNotifications,
+    setEmailNotifications,
+    pushNotifications,
+    setPushNotifications,
+    publicProfileVisible,
+    setPublicProfileVisible,
     aiSummary,
     aiReason,
     aiLoading,

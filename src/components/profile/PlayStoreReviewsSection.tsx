@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Star, ThumbsUp, MessageSquare, Send } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 
 interface ReviewItem {
   id: string;
@@ -21,6 +21,7 @@ interface PlayStoreReviewsSectionProps {
   innerBg: string;
   labelText: string;
   headingText: string;
+  isOwnProfile?: boolean;
 }
 
 export default function PlayStoreReviewsSection({
@@ -30,53 +31,13 @@ export default function PlayStoreReviewsSection({
   innerBg,
   labelText,
   headingText,
+  isOwnProfile = false,
 }: PlayStoreReviewsSectionProps) {
-  const defaultReviews: ReviewItem[] = [
-    {
-      id: 'r1',
-      authorName: 'Anna Ramos',
-      rating: 5,
-      comment: 'Superb plumbing service! Job was resolved quickly. Maria is very clean, professional, and on time. Highly recommended across Cordova!',
-      createdAt: 'July 10, 2026',
-      helpfulCount: 14,
-    },
-    {
-      id: 'r2',
-      authorName: 'Robert Dy',
-      rating: 5,
-      comment: 'Arrived within 20 minutes of booking. Diagnosed the main pipe leak efficiently and replaced the fitting with zero hassle. Will book again!',
-      createdAt: 'July 8, 2026',
-      helpfulCount: 9,
-    },
-    {
-      id: 'r3',
-      authorName: 'Clara Tan',
-      rating: 5,
-      comment: 'Extremely polite and honest pricing. Explained what caused the blockage and gave great tips to prevent future issues.',
-      createdAt: 'July 5, 2026',
-      helpfulCount: 7,
-    },
-    {
-      id: 'r4',
-      authorName: 'Vicente Lim',
-      rating: 5,
-      comment: 'Great craftsmanship and very reliable technician in Cordova. Fixed our kitchen sink drain cleanly.',
-      createdAt: 'July 1, 2026',
-      helpfulCount: 4,
-    },
-    {
-      id: 'r5',
-      authorName: 'Luz Castro',
-      rating: 5,
-      comment: 'Top tier service! Solved a severe pipe pressure issue that two other handymen failed to diagnose. 10/10!',
-      createdAt: 'June 28, 2026',
-      helpfulCount: 11,
-    },
-  ];
+  const [reviewsList, setReviewsList] = useState<ReviewItem[]>(initialReviews);
 
-  const [reviewsList, setReviewsList] = useState<ReviewItem[]>(
-    initialReviews.length > 0 ? initialReviews : defaultReviews
-  );
+  React.useEffect(() => {
+    setReviewsList(initialReviews);
+  }, [initialReviews]);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newRating, setNewRating] = useState(5);
@@ -119,9 +80,9 @@ export default function PlayStoreReviewsSection({
     goToPage(1);
   };
 
-  const avgRating = (
-    reviewsList.reduce((acc, r) => acc + r.rating, 0) / (reviewsList.length || 1)
-  ).toFixed(1);
+  const avgRating = reviewsList.length > 0
+    ? (reviewsList.reduce((acc, r) => acc + r.rating, 0) / reviewsList.length).toFixed(1)
+    : '0.0';
 
   return (
     <div className={`${cardBg} rounded-[28px] p-6 sm:p-7 border shadow-sm space-y-6`}>
@@ -130,13 +91,15 @@ export default function PlayStoreReviewsSection({
         <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
           <MessageSquare size={18} className="text-amber-400" /> Ratings & Reviews ({reviewsList.length})
         </h3>
-        <button
-          onClick={() => setShowAddForm(v => !v)}
-          className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
-        >
-          <Send size={13} />
-          <span>{showAddForm ? 'Close Form' : 'Write a Review'}</span>
-        </button>
+        {!isOwnProfile && (
+          <button
+            onClick={() => setShowAddForm(v => !v)}
+            className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
+          >
+            <Send size={13} />
+            <span>{showAddForm ? 'Close Form' : 'Write a Review'}</span>
+          </button>
+        )}
       </div>
 
       {/* Form */}
@@ -201,41 +164,49 @@ export default function PlayStoreReviewsSection({
 
       {/* Paginated Review Cards Feed */}
       <div className="space-y-3 pt-1">
-        {paginatedReviews.map(r => (
-          <div key={r.id} className={`p-4 rounded-2xl border ${innerBg} space-y-2 text-xs transition-all hover:scale-[1.005]`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black flex items-center justify-center text-xs shadow-sm">
-                  {r.authorName[0]}
-                </div>
-                <div>
-                  <div className={`font-bold ${headingText}`}>{r.authorName}</div>
-                  <div className="text-[10px] text-slate-400">{r.createdAt}</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map(s => (
-                  <Star key={s} size={12} className={s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-neutral-700'} />
-                ))}
-              </div>
-            </div>
-
-            <p className={`leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>{r.comment}</p>
-
-            <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 dark:border-neutral-800">
-              <span className="text-[10px] text-emerald-500 font-semibold">Verified Booking Completed</span>
-              <button
-                onClick={() => handleToggleHelpful(r.id, r.helpfulCount || 0)}
-                className={`text-[10px] font-bold flex items-center gap-1 px-2.5 py-1 rounded-lg border transition-all active:scale-95 ${
-                  isDark ? 'border-neutral-800 hover:bg-neutral-800 text-neutral-400' : 'border-slate-200 hover:bg-slate-100 text-slate-500'
-                }`}
-              >
-                <ThumbsUp size={11} className="text-emerald-500" />
-                <span>Helpful ({helpfulMap[r.id] !== undefined ? helpfulMap[r.id] : (r.helpfulCount || 0)})</span>
-              </button>
-            </div>
+        {reviewsList.length === 0 ? (
+          <div className={`p-8 rounded-2xl border ${innerBg} text-center space-y-2`}>
+            <MessageSquare className="mx-auto text-amber-400/80" size={32} />
+            <p className={`font-bold text-sm ${headingText}`}>No verified ratings or reviews yet</p>
+            <p className={`text-xs ${labelText}`}>Client reviews and ratings will appear here after service bookings are completed.</p>
           </div>
-        ))}
+        ) : (
+          paginatedReviews.map(r => (
+            <div key={r.id} className={`p-4 rounded-2xl border ${innerBg} space-y-2 text-xs transition-all hover:scale-[1.005]`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black flex items-center justify-center text-xs shadow-sm">
+                    {r.authorName[0]}
+                  </div>
+                  <div>
+                    <div className={`font-bold ${headingText}`}>{r.authorName}</div>
+                    <div className="text-[10px] text-slate-400">{r.createdAt}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <Star key={s} size={12} className={s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-neutral-700'} />
+                  ))}
+                </div>
+              </div>
+
+              <p className={`leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>{r.comment}</p>
+
+              <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 dark:border-neutral-800">
+                <span className="text-[10px] text-emerald-500 font-semibold">Verified Booking Completed</span>
+                <button
+                  onClick={() => handleToggleHelpful(r.id, r.helpfulCount || 0)}
+                  className={`text-[10px] font-bold flex items-center gap-1 px-2.5 py-1 rounded-lg border transition-all active:scale-95 ${
+                    isDark ? 'border-neutral-800 hover:bg-neutral-800 text-neutral-400' : 'border-slate-200 hover:bg-slate-100 text-slate-500'
+                  }`}
+                >
+                  <ThumbsUp size={11} className="text-emerald-500" />
+                  <span>Helpful ({helpfulMap[r.id] !== undefined ? helpfulMap[r.id] : (r.helpfulCount || 0)})</span>
+                </button>
+              </div>
+            </div>
+          ))
+        )}
 
         {/* Pagination Bar */}
         {totalPages > 1 && (

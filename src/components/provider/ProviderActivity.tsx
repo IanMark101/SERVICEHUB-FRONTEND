@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement } from '../../types';
 import {
@@ -19,10 +19,10 @@ import {
   Loader2
 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 import { apiRespondCancellationRequest } from '../../api/bookings.api';
-import { useToast } from '../Toast';
-import ConfirmModal, { ConfirmModalState } from '../ConfirmModal';
+import { useToast } from '../ui/Toast';
+import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 
 
 export default function ProviderActivity({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
@@ -45,6 +45,7 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
     notifications
   } = useApp();
   const { success, error: toastError, info } = useToast();
+  const router = useRouter();
 
   // Filter engagements and bids for currentProviderId
   const myEngagements = jobEngagements.filter(je => je.providerId === currentProviderId);
@@ -799,10 +800,14 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                           </span>
                         )}
 
-                        {/* Direct Chat shortcut */}
-                        {['in_progress', 'queued', 'disputed'].includes(je.status) && (
-                          <button className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-[#f2efe9]' : 'border-slate-300 hover:bg-slate-50 text-slate-700'
-                            }`} title="Message Client">
+                        {/* Open Conversation — accessible on all non-pending booking statuses */}
+                        {je.status !== 'pending_provider' && (
+                          <button
+                            onClick={() => router.push(`/provider/messages?booking=${je.id}`)}
+                            className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-[#f2efe9]' : 'border-slate-300 hover:bg-slate-50 text-slate-700'
+                            }`}
+                            title="Open Conversation"
+                          >
                             <MessageSquare className="w-3.5 h-3.5" />
                           </button>
                         )}

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import { AppProvider } from "../context/AppContext";
-import { ToastProvider } from "../components/Toast";
+import { ToastProvider } from "../components/ui/Toast";
 import "./globals.css";
+
+import Script from "next/script";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -33,7 +35,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
+        <Script
+          id="theme-initializer"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

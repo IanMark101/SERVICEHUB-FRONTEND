@@ -18,7 +18,7 @@ import {
   apiStartJob,
   apiProviderRemoveQueue
 } from '../api/bookings.api';
-import { useToast } from '../components/Toast';
+import { useToast } from '../components/ui/Toast';
 
 interface ProviderActionsDeps {
   users: User[];

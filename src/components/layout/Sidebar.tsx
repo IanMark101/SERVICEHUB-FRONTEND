@@ -19,8 +19,8 @@ import {
   ShieldCheck,
   AlertTriangle
 } from 'lucide-react';
-import { UserSession } from './auth/LoginContainer';
-import { useApp } from '../context/AppContext';
+import { UserSession } from '../auth/LoginContainer';
+import { useApp } from '../../context/AppContext';
 
 interface SidebarProps {
   currentRole: 'seeker' | 'provider' | 'admin';

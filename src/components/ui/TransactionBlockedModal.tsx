@@ -1,6 +1,6 @@
 import React from 'react';
-import { useApp } from '../context/AppContext';
-import { useTransactionPermission } from '../hooks/useTransactionPermission';
+import { useApp } from '../../context/AppContext';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { ShieldAlert, X } from 'lucide-react';
 
 interface TransactionBlockedModalProps {

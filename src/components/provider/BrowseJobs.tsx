@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Search, CheckCircle2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
-import TransactionBlockedModal from '../TransactionBlockedModal';
+import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export function formatUrgencyDisplay(urgency?: string): string {

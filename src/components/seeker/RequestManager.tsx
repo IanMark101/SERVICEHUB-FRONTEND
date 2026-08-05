@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles, AlertCircle } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 import { apiMatchProviders } from '../../api/ai.api';
 import { apiGetMyRequests } from '../../api/requests.api';
 import { mapRequestToJobRequest } from '../../context/mappers';

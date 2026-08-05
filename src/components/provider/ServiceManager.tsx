@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { Wrench, Edit3, Trash2, Plus, X, Sparkles } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 import { apiGetProviderSummary } from '../../api/ai.api';
 
 interface EditServiceState {
@@ -19,6 +20,8 @@ export default function ServiceManager({
   currentProviderId?: string;
   onNavigateToOffer?: () => void;
 }) {
+  const searchParams = useSearchParams();
+  const targetServiceId = searchParams.get('id');
   const { services, editServiceListing, toggleServiceListingStatus, isDark } = useApp();
 
   // State for per-service AI Review Summary
@@ -42,6 +45,21 @@ export default function ServiceManager({
   } = usePagination(myServices, 6);
 
   const [editingService, setEditingService] = useState<EditServiceState | null>(null);
+
+  // Auto-open edit modal if service id query param is present
+  useEffect(() => {
+    if (targetServiceId && services.length > 0) {
+      const match = services.find(s => s.id === targetServiceId);
+      if (match) {
+        setEditingService({
+          serviceId: match.id,
+          title: match.title,
+          price: match.price,
+          description: match.description
+        });
+      }
+    }
+  }, [targetServiceId, services]);
 
   // Trigger per-service AI Review Summary fetch from backend
   const handleToggleAiSummary = (serviceId: string) => {

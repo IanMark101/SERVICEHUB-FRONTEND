@@ -1,6 +1,6 @@
 import React from 'react';
 import { Globe, AlertTriangle, Calendar, Star, ShieldCheck, Award } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../../context/AppContext';
 
 export default function CommunityHub() {
   const { isDark } = useApp();

@@ -10,6 +10,7 @@ export function useRouteGuard(allowedRoles: UserRole[]) {
   // In the AppContext, normal users might have user.role as 'seeker' or 'provider'
   // but their actual database account tier is either 'user' or 'admin'.
   const userRoleType: UserRole = user?.role === 'admin' ? 'admin' : 'user';
+  const allowedKey = allowedRoles.join(',');
 
   useEffect(() => {
     if (!authLoading) {
@@ -26,7 +27,7 @@ export function useRouteGuard(allowedRoles: UserRole[]) {
         }
       }
     }
-  }, [isAuthenticated, authLoading, user, userRoleType, allowedRoles, router]);
+  }, [isAuthenticated, authLoading, user, userRoleType, allowedKey, router]);
 
   const shouldRender = !authLoading && isAuthenticated && user && allowedRoles.includes(userRoleType);
   return { shouldRender };

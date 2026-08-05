@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../../context/AppContext';
 import { AlertTriangle, HelpCircle, ShieldAlert, CheckCircle2, X, Loader2 } from 'lucide-react';
 
 export interface ConfirmModalState {

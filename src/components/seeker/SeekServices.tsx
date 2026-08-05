@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
 import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone } from 'lucide-react';
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 import { getServicePaymentMethods, getPrimaryBookingCTA } from '../../lib/paymentUtils';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
-import TransactionBlockedModal from '../TransactionBlockedModal';
+import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function SeekServices() {
+  const router = useRouter();
   const { services, users, isDark, user } = useApp();
   const { canTransact } = useTransactionPermission();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -370,7 +372,7 @@ export default function SeekServices() {
                         <div className="flex gap-2">
                           <button
                             type="button"
-                            onClick={() => window.location.href = `/provider/service-manager?id=${service.id}`}
+                            onClick={() => router.push(`/provider/service-manager?id=${service.id}`)}
                             className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
                                 ? 'bg-orange-950/20 border border-orange-900/30 text-orange-400 hover:bg-orange-955'
                                 : 'bg-orange-50 border border-orange-200 text-orange-655 hover:bg-orange-100'
@@ -380,7 +382,7 @@ export default function SeekServices() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => window.location.href = `/provider/service-manager`}
+                            onClick={() => router.push(`/provider/service-manager`)}
                             className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
                                 ? 'bg-[#22211e] border border-neutral-800/80 text-[#b4b0a9] hover:bg-[#2c2b27]'
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'

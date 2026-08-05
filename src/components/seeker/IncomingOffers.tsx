@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ShieldCheck, Star, Calendar, MessageSquare, Trash2, Check, Search, X, CreditCard, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
-import TransactionBlockedModal from '../TransactionBlockedModal';
+import PaginationBar from '../ui/PaginationBar';
+import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {

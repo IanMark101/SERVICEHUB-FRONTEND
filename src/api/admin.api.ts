@@ -10,8 +10,8 @@ export async function apiListUsers(params?: { search?: string; role?: string; st
   return response.data;
 }
 
-export async function apiUpdateTrustScore(userId: string, trustScore: number) {
-  const response = await api.patch(`/admin/users/${userId}/trust`, { trustScore });
+export async function apiUpdateTrustScore(userId: string, delta: number, reason: string) {
+  const response = await api.patch(`/admin/users/${userId}/trust`, { delta, reason });
   return response.data;
 }
 
@@ -65,7 +65,7 @@ export async function apiListReports() {
   return response.data;
 }
 
-export async function apiResolveReport(id: string, action: 'trust_deduct' | 'suspend' | 'approve_refund' | 'dismiss', adminNotes?: string) {
+export async function apiResolveReport(id: string, action: 'warn' | 'trust_deduct' | 'suspend' | 'ban' | 'approve_refund' | 'dismiss', adminNotes?: string) {
   const response = await api.patch(`/admin/reports/${id}/resolve`, { action, adminNotes });
   return response.data;
 }

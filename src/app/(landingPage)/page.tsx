@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import LandingPage from '@/components/LandingPage';
+import LandingPage from '@/components/landing/LandingPage';
 import { apiGetMe } from '@/api/auth.api';
 
 export default function Home() {

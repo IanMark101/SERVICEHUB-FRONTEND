@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser } from '../../../api/admin.api';
 import { Loader2, Search, Award, ShieldAlert, Ban, RotateCcw, AlertCircle, Filter } from 'lucide-react';
-import { useToast } from '../../../components/Toast';
-import PaginationBar from '../../../components/PaginationBar';
+import { useToast } from '../../../components/ui/Toast';
+import PaginationBar from '../../../components/ui/PaginationBar';
 
 interface UserItem {
   id: string;
@@ -41,7 +41,8 @@ export default function AdminUsers() {
 
   // Overlay states
   const [editingTrustUser, setEditingTrustUser] = useState<UserItem | null>(null);
-  const [newTrustScore, setNewTrustScore] = useState<number>(50);
+  const [trustDelta, setTrustDelta] = useState<number>(0);
+  const [trustReason, setTrustReason] = useState<string>('');
 
   const [suspendingUser, setSuspendingUser] = useState<UserItem | null>(null);
   const [suspendReason, setSuspendReason] = useState<string>('');
@@ -94,12 +95,15 @@ export default function AdminUsers() {
 
   const handleUpdateTrust = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingTrustUser) return;
+    if (!editingTrustUser || !trustReason.trim()) return;
     try {
-      const res = await apiUpdateTrustScore(editingTrustUser.id, newTrustScore);
+      const res = await apiUpdateTrustScore(editingTrustUser.id, trustDelta, trustReason);
       if (res.success) {
-        toastSuccess("Trust Updated", "User trust score manually set to " + newTrustScore);
+        const sign = trustDelta > 0 ? '+' : '';
+        toastSuccess("Trust Updated", `Applied ${sign}${trustDelta} pts to ${editingTrustUser.name}. New score updates shortly.`);
         setEditingTrustUser(null);
+        setTrustDelta(0);
+        setTrustReason('');
         fetchUsers();
       }
     } catch (err: any) {
@@ -318,7 +322,8 @@ export default function AdminUsers() {
                       <button
                         onClick={() => {
                           setEditingTrustUser(u);
-                          setNewTrustScore(u.trustScore);
+                          setTrustDelta(0);
+                          setTrustReason('');
                         }}
                         className="px-2.5 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
                       >
@@ -376,19 +381,45 @@ export default function AdminUsers() {
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
           }`}>
             <form onSubmit={handleUpdateTrust} className="p-5 space-y-4">
-              <h4 className="font-extrabold text-sm">Update Trust Score</h4>
-              <p className="text-[10px] text-slate-400">Set direct trust score value for user {editingTrustUser.name}.</p>
-              <div>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={newTrustScore}
-                  onChange={(e) => setNewTrustScore(parseInt(e.target.value))}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
-                  }`}
-                />
+              <h4 className="font-extrabold text-sm">Adjust Trust Score</h4>
+              <p className="text-[10px] text-slate-400">
+                Apply a trust point adjustment for <strong>{editingTrustUser.name}</strong>. Current score: <strong className="text-red-500">{editingTrustUser.trustScore}</strong>/100.
+              </p>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Adjustment Delta (e.g. -10, +5)</label>
+                  <input
+                    type="number"
+                    min="-100"
+                    max="100"
+                    required
+                    value={trustDelta}
+                    onChange={(e) => setTrustDelta(parseInt(e.target.value) || 0)}
+                    className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
+                      isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
+                    }`}
+                  />
+                  {trustDelta !== 0 && (
+                    <p className="text-[10px] mt-1 font-semibold">
+                      New score: <strong className={trustDelta > 0 ? 'text-emerald-500' : 'text-red-500'}>
+                        {Math.min(100, Math.max(0, editingTrustUser.trustScore + trustDelta))}
+                      </strong>
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Reason (required)</label>
+                  <textarea
+                    required
+                    placeholder="Admin reason for this trust adjustment..."
+                    value={trustReason}
+                    onChange={(e) => setTrustReason(e.target.value)}
+                    rows={3}
+                    className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
+                      isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
+                    }`}
+                  />
+                </div>
               </div>
               <div className="flex items-center justify-end space-x-2">
                 <button
@@ -400,9 +431,10 @@ export default function AdminUsers() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                  disabled={!trustReason.trim() || trustDelta === 0}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold cursor-pointer"
                 >
-                  Update
+                  Apply Adjustment
                 </button>
               </div>
             </form>

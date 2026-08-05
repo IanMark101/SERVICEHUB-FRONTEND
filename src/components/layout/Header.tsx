@@ -16,13 +16,13 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
-import { UserSession } from './auth/LoginContainer';
-import { useToast } from './Toast';
-import { resolveNotificationLink } from '../lib/notificationRoutes';
-import { useApp } from '../context/AppContext';
-import { useTransactionPermission } from '../hooks/useTransactionPermission';
-import { apiSearchUsers } from '../api/users.api';
-import type { User as AppUser } from '../types';
+import { UserSession } from '../auth/LoginContainer';
+import { useToast } from '../ui/Toast';
+import { resolveNotificationLink } from '../../lib/notificationRoutes';
+import { useApp } from '../../context/AppContext';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import { apiSearchUsers } from '../../api/users.api';
+import type { User as AppUser } from '../../types';
 
 interface HeaderProps {
   currentRole: 'seeker' | 'provider' | 'admin';
@@ -433,16 +433,16 @@ export default function Header({
           </button>
         )}
 
-        {/* Global Messages Button */}
+        {/* Global Messages & Activity Quick Access */}
         {currentRole !== 'admin' && (
           <button
             type="button"
-            onClick={() => setActiveTab('messages')}
+            onClick={() => setActiveTab(currentRole === 'seeker' ? 'seeker-activity' : 'provider-activity')}
             className={`p-2.5 rounded-xl border transition-all relative ${isDark
                 ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
                 : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-655 hover:text-slate-800'
-              } ${activeTab === 'messages' ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
-            title="Messages"
+              } ${activeTab.includes('activity') ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
+            title="Job Workspace & Messaging"
           >
             <MessageSquare className="w-4 h-4" />
             {unreadMessagesCount > 0 && (
@@ -617,7 +617,7 @@ export default function Header({
                     <button
                       onClick={() => {
                         setShowProfileMenu(false);
-                        alert('Account Settings will be configured in Phase 6.');
+                        router.push(`/${currentRole}/account-settings`);
                       }}
                       className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         }`}

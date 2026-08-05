@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListReports, apiResolveReport, apiListEscalatedCancellations, apiResolveEscalatedCancellation } from '../../../api/admin.api';
 import { Loader2, AlertTriangle, ShieldCheck, User, MessageSquare, ChevronDown, ChevronUp, Scale, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
-import { useToast } from '../../../components/Toast';
+import { useToast } from '../../../components/ui/Toast';
 
 interface ReporterInfo {
   id: string;
@@ -53,7 +53,7 @@ export default function AdminReports() {
 
   // Overlay States
   const [resolvingItem, setResolvingItem] = useState<ReportItem | null>(null);
-  const [action, setAction] = useState<'dismiss' | 'trust_deduct' | 'suspend' | 'approve_refund'>('dismiss');
+  const [action, setAction] = useState<'warn' | 'dismiss' | 'trust_deduct' | 'suspend' | 'ban' | 'approve_refund'>('dismiss');
   const [adminNotes, setAdminNotes] = useState<string>('');
 
   // Escalation Overlay States
@@ -386,9 +386,11 @@ export default function AdminReports() {
                   }`}
                 >
                   <option value="dismiss">Dismiss Case (No penalties)</option>
+                  <option value="warn">Warn Accused (Official Warning)</option>
                   <option value="trust_deduct">Deduct Trust Points (-10 from Accused)</option>
                   <option value="suspend">Suspend Accused User Account</option>
-                  {resolvingItem.booking && <option value="approve_refund">Cancel Booking & Refund Seeker</option>}
+                  <option value="ban">Permanently Ban Accused User</option>
+                  {resolvingItem.booking && <option value="approve_refund">Cancel Booking &amp; Refund Seeker</option>}
                 </select>
               </div>
 
