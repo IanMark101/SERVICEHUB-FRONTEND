@@ -61,6 +61,9 @@ export async function apiUpdateProfile(data: {
   phone?: string;
   location?: string;
   avatarUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  websiteUrl?: string;
 }) {
   const response = await api.put('/auth/profile', data);
   return response.data;
@@ -71,3 +74,14 @@ export async function apiChangePassword(data: { currentPassword?: string; newPas
   return response.data;
 }
 
+// Trust Score History — reads real TrustScoreEvent records from DB.
+// This is the ONLY function that should feed the Trust History tab.
+export async function apiGetTrustHistory() {
+  const response = await api.get('/auth/trust-history');
+  return response.data;
+}
+
+export async function apiGetPublicTrustHistory(userId: string) {
+  const response = await api.get(`/auth/trust-history/${userId}`);
+  return response.data;
+}

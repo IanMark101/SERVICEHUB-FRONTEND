@@ -279,10 +279,6 @@ export default function Header({
     const nextState = !showNotifications;
     setShowNotifications(nextState);
     setShowProfileMenu(false);
-
-    if (nextState) {
-      markNotificationsRead(userId);
-    }
   };
 
   const handleNotificationClick = (link?: string | null) => {
@@ -553,9 +549,15 @@ export default function Header({
                   )}
                 </div>
 
-                <div className={`p-2.5 border-t text-center ${isDark ? 'border-neutral-800 bg-[#1c1b18]/25' : 'border-slate-100 bg-slate-50/20'}`}>
+                <div className={`p-2.5 border-t flex items-center justify-between ${isDark ? 'border-neutral-800 bg-[#1c1b18]/25' : 'border-slate-100 bg-slate-50/20'}`}>
+                  {unreadCount > 0 && (
+                    <button onClick={() => markNotificationsRead(userId)} className={`text-[10px] font-bold transition-colors ${isDark ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-800'}`}>
+                      Mark All as Read
+                    </button>
+                  )}
+                  {unreadCount === 0 && <span />}
                   <button onClick={() => setShowNotifications(false)} className="text-[10px] font-bold text-slate-400 hover:text-slate-800 transition-colors">
-                    Close Notifications
+                    Close
                   </button>
                 </div>
               </div>

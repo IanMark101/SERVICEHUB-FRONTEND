@@ -6,6 +6,8 @@ import {
   apiGetPublicProfile,
   apiUpdateProfile,
   apiChangePassword,
+  apiGetTrustHistory,
+  apiGetPublicTrustHistory,
 } from '../../api/auth.api';
 import { apiGetProviderSummary } from '../../api/ai.api';
 import { useToast } from '../ui/Toast';
@@ -32,6 +34,17 @@ export function useUserProfileState({
   const [aiReason, setAiReason] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiLoaded, setAiLoaded] = useState(false);
+
+  // Trust History — loaded from DB, never fabricated
+  const [trustHistory, setTrustHistory] = useState<{
+    id: string;
+    delta: number;
+    reason: string;
+    scoreBefore: number;
+    scoreAfter: number;
+    createdAt: string;
+  }[]>([]);
+  const [trustHistoryLoading, setTrustHistoryLoading] = useState(false);
 
   // UI state
   const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'trust' | 'verification' | 'settings'>('overview');
@@ -60,6 +73,9 @@ export function useUserProfileState({
     phone: '',
     location: '',
     avatarUrl: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    websiteUrl: '',
     occupation: '',
     languages: '',
     availability: '',
@@ -84,6 +100,9 @@ export function useUserProfileState({
             phone: res.data.phone || '',
             location: res.data.location || '',
             avatarUrl: res.data.avatarUrl || '',
+            facebookUrl: res.data.facebookUrl || '',
+            instagramUrl: res.data.instagramUrl || '',
+            websiteUrl: res.data.websiteUrl || '',
           }));
         }
       })
@@ -104,12 +123,32 @@ export function useUserProfileState({
       .finally(() => { setAiLoading(false); setAiLoaded(true); });
   }, [targetUser?.id, targetUser?.role]);
 
+  // Fetch real trust history from DB whenever target user changes
+  useEffect(() => {
+    if (!targetUser?.id) return;
+    setTrustHistoryLoading(true);
+    const fetchFn = isOwnProfile
+      ? apiGetTrustHistory
+      : () => apiGetPublicTrustHistory(targetUser.id);
+    fetchFn()
+      .then(res => {
+        if (res.success && Array.isArray(res.data)) {
+          setTrustHistory(res.data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setTrustHistoryLoading(false));
+  }, [targetUser?.id, isOwnProfile]);
+
   // Derived Properties
   const displayName = profile?.name || `${targetUser?.firstName || ''} ${targetUser?.lastName || ''}`.trim() || 'ServiceHub User';
   const trustScore = profile?.trustScore || targetUser?.trustScore || 50;
   const verStatus = profile?.verificationStatus || targetUser?.verificationStatus || 'UNVERIFIED';
-  const avatarUrl = profile?.avatarUrl || targetUser?.avatarUrl;
-  const bio = profile?.bio || targetUser?.bio || '';
+  const avatarUrl = profile?.avatarUrl || targetUser?.avatarUrl || '';
+  const bio = profile?.bio || targetUser?.bio || 'Active member on ServiceHub Cordova. Looking for reliable local service providers.';
+  const facebookUrl = profile?.facebookUrl || '';
+  const instagramUrl = profile?.instagramUrl || '';
+  const websiteUrl = profile?.websiteUrl || '';
   const location = profile?.location || targetUser?.location || '';
   const phone = profile?.phone || targetUser?.phone || '';
   const email = profile?.email || targetUser?.email || '';
@@ -153,31 +192,7 @@ export function useUserProfileState({
   const userRequests = (jobRequests || []).filter(r => r.seekerId === targetUser?.id || (r as any).userId === targetUser?.id);
   const userBids = (bids || []).filter(b => b.providerId === targetUser?.id);
 
-  // Dynamic Trust History Timeline
-  const trustHistory: { delta: string; label: string; date: string; type: 'positive' | 'negative' }[] = [];
-  if (verStatus === 'APPROVED') {
-    trustHistory.push({ delta: '+25', label: 'Residency & Identity Verification Approved by Cordova Admin', date: 'Admin Verified', type: 'positive' });
-  }
-  if (userServices.length > 0) {
-    trustHistory.push({ delta: `+${userServices.length * 5}`, label: `Published ${userServices.length} Active Service Listing(s)`, date: 'Service Offering', type: 'positive' });
-  }
-  if (userRequests.length > 0) {
-    trustHistory.push({ delta: `+${userRequests.length * 5}`, label: `Posted ${userRequests.length} Verified Service Request(s)`, date: 'Service Request', type: 'positive' });
-  }
-  if (userBids.length > 0) {
-    trustHistory.push({ delta: `+${userBids.length * 2}`, label: `Submitted ${userBids.length} Service Offer(s) to Clients`, date: 'Service Offer', type: 'positive' });
-  }
-  if (completedJobs > 0) {
-    trustHistory.push({ delta: `+${completedJobs * 5}`, label: `${completedJobs} Verified Bookings Completed & Confirmed`, date: 'Marketplace History', type: 'positive' });
-  }
-  const fiveStarReviewsCount = reviews.filter((r: any) => r.rating === 5).length;
-  if (fiveStarReviewsCount > 0) {
-    trustHistory.push({ delta: `+${fiveStarReviewsCount * 2}`, label: `Received ${fiveStarReviewsCount} 5-Star Verified Client Rating(s)`, date: 'Client Feedback', type: 'positive' });
-  }
-  if (avatarUrl && bio && location) {
-    trustHistory.push({ delta: '+15', label: 'Full Profile Identity & Contact Details Completed', date: 'Profile Setup', type: 'positive' });
-  }
-  trustHistory.push({ delta: '+50', label: 'Initial Account Base Trust Score Baseline', date: 'Account Created', type: 'positive' });
+  // trustHistory is now loaded from the DB above — do NOT reconstruct it here.
 
   // Handlers
   const handleShareProfile = () => {
@@ -195,7 +210,10 @@ export function useUserProfileState({
         bio: editForm.bio,
         phone: editForm.phone,
         location: editForm.location,
-        avatarUrl: editForm.avatarUrl
+        avatarUrl: editForm.avatarUrl,
+        facebookUrl: editForm.facebookUrl,
+        instagramUrl: editForm.instagramUrl,
+        websiteUrl: editForm.websiteUrl,
       });
       if (res.success) {
         setProfile((p: any) => ({ ...p, ...res.data }));
@@ -278,6 +296,9 @@ export function useUserProfileState({
     verStatus,
     avatarUrl,
     bio,
+    facebookUrl,
+    instagramUrl,
+    websiteUrl,
     location,
     phone,
     email,
@@ -324,6 +345,7 @@ export function useUserProfileState({
     aiReason,
     aiLoading,
     aiLoaded,
+    trustHistoryLoading,
     cardBg,
     innerBg,
     labelText,

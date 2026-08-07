@@ -15,6 +15,9 @@ interface ProfileEditFormProps {
     phone: string;
     location: string;
     avatarUrl: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    websiteUrl?: string;
     occupation: string;
     languages: string;
     availability: string;
@@ -105,6 +108,42 @@ export default function ProfileEditForm({
             onChange={e => setEditForm((f: any) => ({ ...f, avatarUrl: e.target.value }))}
             placeholder="https://images.unsplash.com/..."
           />
+        </div>
+
+        {/* Social Media Links */}
+        <div className="sm:col-span-2 pt-2 border-t dark:border-neutral-800">
+          <h4 className={`text-xs font-black uppercase tracking-wider mb-3 ${headingText}`}>
+            Social Media & Web Links
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className={`block text-[11px] font-bold mb-1 ${labelText}`}>Facebook Profile/Page URL</label>
+              <input
+                className={inputClass}
+                value={editForm.facebookUrl || ''}
+                onChange={e => setEditForm((f: any) => ({ ...f, facebookUrl: e.target.value }))}
+                placeholder="https://facebook.com/username"
+              />
+            </div>
+            <div>
+              <label className={`block text-[11px] font-bold mb-1 ${labelText}`}>Instagram Profile URL</label>
+              <input
+                className={inputClass}
+                value={editForm.instagramUrl || ''}
+                onChange={e => setEditForm((f: any) => ({ ...f, instagramUrl: e.target.value }))}
+                placeholder="https://instagram.com/username"
+              />
+            </div>
+            <div>
+              <label className={`block text-[11px] font-bold mb-1 ${labelText}`}>Website / Portfolio URL</label>
+              <input
+                className={inputClass}
+                value={editForm.websiteUrl || ''}
+                onChange={e => setEditForm((f: any) => ({ ...f, websiteUrl: e.target.value }))}
+                placeholder="https://yourwebsite.com"
+              />
+            </div>
+          </div>
         </div>
       </div>
 

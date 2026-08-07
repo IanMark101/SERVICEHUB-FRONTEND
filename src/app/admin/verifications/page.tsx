@@ -4,6 +4,7 @@ import { useApp } from '../../../context/AppContext';
 import { apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
+import { getSocket } from '../../../lib/socket';
 
 interface VerificationProof {
   id: string;
@@ -60,6 +61,18 @@ export default function AdminVerifications() {
 
   useEffect(() => {
     fetchVerifications();
+
+    // Real-time: auto-refresh when a new verification is submitted
+    const socket = getSocket();
+    if (socket) {
+      const handleNewVerification = () => {
+        fetchVerifications();
+      };
+      socket.on('verification_submitted', handleNewVerification);
+      return () => {
+        socket.off('verification_submitted', handleNewVerification);
+      };
+    }
   }, []);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -70,7 +83,7 @@ export default function AdminVerifications() {
       const res = await apiReviewVerification(reviewingItem.id, isApproveMode, adminNotes);
       if (res.success) {
         toastSuccess(
-          "Verification Resolved", 
+          "Verification Resolved",
           `Request for ${reviewingItem.user?.name} has been ${isApproveMode ? 'APPROVED' : 'REJECTED'}.`
         );
         setReviewingItem(null);
@@ -112,9 +125,8 @@ export default function AdminVerifications() {
             <Loader2 className="w-8 h-8 animate-spin text-red-500" />
           </div>
         ) : verifications.length === 0 ? (
-          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
-          }`}>
+          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
+            }`}>
             There are no verifications currently pending review.
           </div>
         ) : (
@@ -126,9 +138,8 @@ export default function AdminVerifications() {
             return (
               <div
                 key={item.id}
-                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
-                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
-                }`}
+                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
+                  }`}
               >
                 {/* Header info */}
                 <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-850">
@@ -156,9 +167,8 @@ export default function AdminVerifications() {
                       return (
                         <div
                           key={proof.id}
-                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${
-                            isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
-                          }`}
+                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
+                            }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5 truncate">
@@ -202,9 +212,8 @@ export default function AdminVerifications() {
                 </div>
 
                 {/* Audit Action panel */}
-                <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${
-                  isDark ? 'border-neutral-850' : 'border-slate-100'
-                }`}>
+                <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'
+                  }`}>
                   <button
                     onClick={() => {
                       setReviewingItem(item);
@@ -237,9 +246,8 @@ export default function AdminVerifications() {
       {/* Review Dialog Overlay */}
       {reviewingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-          }`}>
+          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+            }`}>
             <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
               <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-emerald-500' : 'text-red-500'}`}>
                 {isApproveMode ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-red-500" />}
@@ -253,9 +261,8 @@ export default function AdminVerifications() {
                   placeholder="Explain rejection reason or add approval remarks here..."
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
-                  }`}
+                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
+                    }`}
                   rows={4}
                 />
               </div>
@@ -270,11 +277,10 @@ export default function AdminVerifications() {
                 <button
                   type="submit"
                   disabled={submittingReview}
-                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${
-                    submittingReview
+                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${submittingReview
                       ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                       : isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
-                  }`}
+                    }`}
                 >
                   {submittingReview ? (
                     <>
