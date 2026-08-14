@@ -189,8 +189,8 @@ export function useUserProfileState({
 
   // Derived User Activity (Posted Service Listings, Requests, and Offers)
   const userServices = (services || []).filter(s => s.providerId === targetUser?.id);
-  const userRequests = (jobRequests || []).filter(r => r.seekerId === targetUser?.id || (r as any).userId === targetUser?.id);
-  const userBids = (bids || []).filter(b => b.providerId === targetUser?.id);
+  const userRequests = (jobRequests || []).filter(r => (r.seekerId === targetUser?.id || (r as any).userId === targetUser?.id) && r.status !== 'CANCELED' && (r.status as string) !== 'canceled');
+  const userBids = (bids || []).filter(b => b.providerId === targetUser?.id && b.status !== 'CANCELED' && (b.status as string) !== 'canceled');
 
   // trustHistory is now loaded from the DB above — do NOT reconstruct it here.
 
@@ -346,6 +346,7 @@ export function useUserProfileState({
     aiLoading,
     aiLoaded,
     trustHistoryLoading,
+    isViewerVerified: user?.verificationStatus === 'APPROVED',
     cardBg,
     innerBg,
     labelText,

@@ -51,6 +51,11 @@ interface AppContextType {
   messages: Message[];
   categorySuggestions: CategorySuggestion[];
   userReports: UserReport[];
+  // Live admin-controlled category list. Always sourced from the database.
+  // Populated on mount and refreshable via refreshCategories().
+  // OfferServices and SeekServices use this — never hardcoded lists.
+  dbCategories: { id: string; name: string }[];
+  refreshCategories: () => void;
 
   // Auth helper callbacks
   updateUserProfile: (userId: string, data: Partial<User>) => void;
@@ -71,6 +76,7 @@ interface AppContextType {
   createServiceListing: (providerId: string, title: string, category: string, price: number, description: string, proofUrl: string, paymentMethods: { cash: boolean; gcash: boolean }) => void;
   editServiceListing: (serviceId: string, title: string, price: number, description: string) => void;
   toggleServiceListingStatus: (serviceId: string) => void;
+  deleteServiceListing: (serviceId: string) => void;
   submitBid: (requestId: string, providerId: string, price: number, message: string) => void;
   respondToDirectBooking: (jobId: string, accept: boolean) => void;
   requestJobApproval: (jobId: string) => void;
@@ -211,6 +217,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const syncCategories = useCallback(async () => {
+    try {
+      const res = await apiGetCategories();
+      if (res.success && Array.isArray(res.data)) {
+        setDbCategories(res.data);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const refreshCategories = useCallback(() => {
+    syncCategories();
+  }, [syncCategories]);
+
   const syncRequests = useCallback(async () => {
     try {
       const res = await apiGetRequests();
@@ -341,14 +362,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     // Always load categories and public services
-    apiGetCategories()
-      .then((res) => {
-        if (res.success && Array.isArray(res.data)) {
-          setDbCategories(res.data);
-        }
-      })
-      .catch(() => { });
-
+    syncCategories();
     syncPublicServices();
 
     // Load private data only if authenticated
@@ -552,6 +566,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       messages,
       categorySuggestions,
       userReports,
+      dbCategories,
+      refreshCategories,
       updateUserProfile,
       ...seekerActions,
       ...providerActions,

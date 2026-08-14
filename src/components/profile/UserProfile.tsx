@@ -66,6 +66,7 @@ export default function UserProfile({
     trustScore,
     trustHistory,
     trustHistoryLoading,
+    isViewerVerified,
     verStatus,
     avatarUrl,
     bio,
@@ -372,20 +373,20 @@ export default function UserProfile({
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center justify-between ${headingText}`}>
               <span className="flex items-center gap-2">
                 <TrendingUp size={17} className="text-emerald-500" />
-                {role === 'provider' ? 'Published Service Offerings & Bids' : 'Posted Service Requests'}
+                {role === 'provider' ? 'Published Service Offerings' : 'Posted Service Requests'}
               </span>
               <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${innerBg} ${labelText}`}>
-                {role === 'provider' ? userServices.length + userBids.length : userRequests.length} total
+                {role === 'provider' ? userServices.length : userRequests.length} total
               </span>
             </h3>
 
             {/* Provider Activity */}
             {role === 'provider' ? (
               <div className="space-y-3">
-                {userServices.length === 0 && userBids.length === 0 ? (
+                {userServices.length === 0 ? (
                   <div className={`p-6 rounded-2xl border ${innerBg} text-center space-y-1`}>
-                    <p className={`text-xs font-semibold ${headingText}`}>No published service offerings or bids yet.</p>
-                    <p className={`text-[11px] ${labelText}`}>When this provider publishes a service listing or submits an offer to a seeker request, it will appear here automatically.</p>
+                    <p className={`text-xs font-semibold ${headingText}`}>No published service offerings yet.</p>
+                    <p className={`text-[11px] ${labelText}`}>When this provider publishes a service listing, it will appear here automatically.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -399,19 +400,6 @@ export default function UserProfile({
                         </div>
                         <h4 className={`font-bold text-xs ${headingText} line-clamp-1`}>{srv.title}</h4>
                         <p className={`text-[11px] ${labelText} line-clamp-2`}>{srv.description}</p>
-                      </div>
-                    ))}
-
-                    {userBids.map((bid: any) => (
-                      <div key={bid.id} className={`p-3.5 rounded-2xl border ${innerBg} space-y-1.5`}>
-                        <div className="flex items-center justify-between">
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                            Submitted Offer
-                          </span>
-                          <span className={`text-xs font-black ${headingText}`}>₱{bid.price}</span>
-                        </div>
-                        <h4 className={`font-bold text-xs ${headingText} line-clamp-1`}>{bid.message || 'Custom Service Offer'}</h4>
-                        <p className={`text-[11px] ${labelText}`}>Status: <strong className="uppercase">{bid.status || 'PENDING'}</strong></p>
                       </div>
                     ))}
                   </div>
@@ -469,6 +457,8 @@ export default function UserProfile({
           labelText={labelText}
           headingText={headingText}
           isOwnProfile={isOwnProfile}
+          isVerified={isViewerVerified}
+          canReview={isViewerVerified && !isOwnProfile && completedJobs > 0}
         />
       )}
 

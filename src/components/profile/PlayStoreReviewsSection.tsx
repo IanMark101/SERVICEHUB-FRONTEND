@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Star, ThumbsUp, MessageSquare, Send } from 'lucide-react';
+import { Star, ThumbsUp, MessageSquare, Send, Lock } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 
@@ -22,6 +22,8 @@ interface PlayStoreReviewsSectionProps {
   labelText: string;
   headingText: string;
   isOwnProfile?: boolean;
+  isVerified?: boolean;
+  canReview?: boolean;
 }
 
 export default function PlayStoreReviewsSection({
@@ -32,6 +34,8 @@ export default function PlayStoreReviewsSection({
   labelText,
   headingText,
   isOwnProfile = false,
+  isVerified = false,
+  canReview = false,
 }: PlayStoreReviewsSectionProps) {
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>(initialReviews);
 
@@ -92,18 +96,30 @@ export default function PlayStoreReviewsSection({
           <MessageSquare size={18} className="text-amber-400" /> Ratings & Reviews ({reviewsList.length})
         </h3>
         {!isOwnProfile && (
-          <button
-            onClick={() => setShowAddForm(v => !v)}
-            className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
-          >
-            <Send size={13} />
-            <span>{showAddForm ? 'Close Form' : 'Write a Review'}</span>
-          </button>
+          <>
+            {!isVerified ? (
+              <span className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center gap-1.5 shadow-sm">
+                <Lock size={12} /> Verification required to review
+              </span>
+            ) : canReview ? (
+              <button
+                onClick={() => setShowAddForm(v => !v)}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-sm flex items-center gap-1.5 active:scale-95"
+              >
+                <Send size={13} />
+                <span>{showAddForm ? 'Close Form' : 'Write a Review'}</span>
+              </button>
+            ) : (
+              <span className="text-[11px] text-slate-400 dark:text-neutral-500 font-semibold italic flex items-center gap-1">
+                <Lock size={11} /> Reviews posted upon booking completion
+              </span>
+            )}
+          </>
         )}
       </div>
 
       {/* Form */}
-      {showAddForm && (
+      {showAddForm && isVerified && canReview && (
         <form onSubmit={handleSubmitReview} className={`p-4 rounded-2xl border ${innerBg} space-y-3 animate-in fade-in duration-200`}>
           <div className="text-xs font-bold text-emerald-500 uppercase tracking-wider">Rate & Comment</div>
           <div className="flex items-center gap-1">

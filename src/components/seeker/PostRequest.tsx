@@ -17,10 +17,13 @@ export default function PostRequest() {
 
   const categories = [
     { label: 'Plumbing Repair', value: 'Plumbing' },
-    { label: 'House Cleaning', value: 'House Cleaning' },
     { label: 'Electrical Repair', value: 'Electrical Repair' },
+    { label: 'House Cleaning', value: 'House Cleaning' },
     { label: 'Gardening & Lawn Care', value: 'Lawn Care' },
-    { label: 'Academic Tutoring', value: 'Tutoring' }
+    { label: 'Academic Tutoring', value: 'Tutoring' },
+    { label: 'Aircon Service', value: 'Aircon Service' },
+    { label: 'Appliance Repair', value: 'Appliance Repair' },
+    { label: 'Carpentry & Woodwork', value: 'Carpentry & Woodwork' }
   ];
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {

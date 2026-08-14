@@ -24,8 +24,8 @@ import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 
 
-export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId?: string }) {
-  const { jobEngagements, confirmJobCompletion, disputeJob, cancelQueue, services, jobRequests, isDark, refreshEngagements, refreshAll, notifications } = useApp();
+export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
+  const { jobEngagements, confirmJobCompletion, disputeJob, cancelQueue, services, jobRequests, isDark, refreshEngagements, refreshAll, notifications, user } = useApp();
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
@@ -38,8 +38,11 @@ export default function SeekerActivity({ currentUserId = 'u1' }: { currentUserId
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
-  // Active user is currentUserId
-  const myEngagements = jobEngagements.filter(je => je.seekerId === currentUserId);
+  // Active user is the authenticated user — use prop if passed (e.g. admin view), otherwise fall back to current user from context
+  const resolvedUserId = currentUserId || user?.id;
+  const myEngagements = resolvedUserId
+    ? jobEngagements.filter(je => je.seekerId === resolvedUserId)
+    : jobEngagements; // if no userId yet, show all (context already scopes to user)
 
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<'all' | 'action_required' | 'pending' | 'active' | 'waiting' | 'disputed' | 'canceled'>('all');

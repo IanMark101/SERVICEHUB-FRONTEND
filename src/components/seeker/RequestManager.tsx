@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles, AlertCircle } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
+import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 import { apiMatchProviders } from '../../api/ai.api';
 import { apiGetMyRequests } from '../../api/requests.api';
 import { mapRequestToJobRequest } from '../../context/mappers';
@@ -73,8 +74,9 @@ export default function RequestManager({
     }
   };
   
-  // Find current seeker's requests — prefer direct fetch, fallback to context filter
-  const myRequests = myOwnRequests ?? jobRequests.filter(r => r.seekerId === currentUserId);
+  // Find current seeker's requests — prefer direct fetch, fallback to context filter (filter out canceled)
+  const myRequests = (myOwnRequests ?? jobRequests.filter(r => r.seekerId === currentUserId))
+    .filter(r => r.status !== 'CANCELED' && (r.status as string) !== 'canceled');
 
   // Pagination
   const {
@@ -93,6 +95,32 @@ export default function RequestManager({
   
   // Local state to toggle accepting state (simulated by modifying list state directly or keeping standard toggles)
   const [pausedRequests, setPausedRequests] = useState<Record<string, boolean>>({});
+
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+
+  const handleDeleteRequest = async (requestId: string) => {
+    await deleteJobRequest(requestId);
+    setMyOwnRequests(prev => prev ? prev.filter(r => r.id !== requestId) : null);
+  };
+
+  const handleDeleteRequestClick = (req: JobRequest) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Job Request',
+      message: `Are you sure you want to delete "${req.title}"? This will remove your request and any associated bids.`,
+      confirmText: 'Yes, Delete Request',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        try {
+          await handleDeleteRequest(req.id);
+        } finally {
+          setConfirmModal(null);
+        }
+      }
+    });
+  };
 
   const handleToggleAccepting = (requestId: string) => {
     setPausedRequests(prev => ({
@@ -242,7 +270,7 @@ export default function RequestManager({
 
                       {/* Delete button */}
                       <button
-                        onClick={() => deleteJobRequest(req.id)}
+                        onClick={() => handleDeleteRequestClick(req)}
                         className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center space-x-1 ${
                           isDark 
                             ? 'border-red-950/45 hover:bg-red-950/20 text-red-400' 
@@ -463,6 +491,9 @@ export default function RequestManager({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal state={confirmModal} onClose={() => setConfirmModal(null)} />
 
     </div>
   );

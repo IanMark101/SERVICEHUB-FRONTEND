@@ -9,7 +9,8 @@ import {
 import {
   apiCreateService,
   apiUpdateService,
-  apiToggleServiceAvailability
+  apiToggleServiceAvailability,
+  apiDeleteService
 } from '../api/services.api';
 import { apiSubmitOffer } from '../api/offers.api';
 import {
@@ -53,6 +54,32 @@ export function useProviderActions({
 }: ProviderActionsDeps) {
   const { success, error: toastError, info } = useToast();
 
+  const resolveCategoryId = (catName: string): string | undefined => {
+    if (!dbCategories || dbCategories.length === 0) return undefined;
+    const target = catName.trim().toLowerCase();
+
+    // 1. Exact match
+    const exact = dbCategories.find(c => c.name.trim().toLowerCase() === target);
+    if (exact) return exact.id;
+
+    // 2. Keyword match
+    const match = dbCategories.find(c => {
+      const name = c.name.trim().toLowerCase();
+      return name.includes(target) || target.includes(name) ||
+        (target.includes('electric') && name.includes('electric')) ||
+        (target.includes('plumb') && name.includes('plumb')) ||
+        (target.includes('clean') && name.includes('clean')) ||
+        (target.includes('lawn') && (name.includes('lawn') || name.includes('garden'))) ||
+        (target.includes('tutor') && (name.includes('tutor') || name.includes('academic'))) ||
+        (target.includes('aircon') && name.includes('aircon')) ||
+        (target.includes('appliance') && name.includes('appliance')) ||
+        (target.includes('carpent') && name.includes('carpent'));
+    });
+    if (match) return match.id;
+
+    return dbCategories[0]?.id;
+  };
+
   const createServiceListing = async (
     providerId: string,
     title: string,
@@ -63,8 +90,7 @@ export function useProviderActions({
     paymentMethods: { cash: boolean; gcash: boolean }
   ) => {
     try {
-      const catObj = dbCategories.find(c => c.name.toLowerCase() === category.toLowerCase());
-      const catId = catObj ? catObj.id : dbCategories[0]?.id;
+      const catId = resolveCategoryId(category);
       if (catId) {
         const res = await apiCreateService({
           categoryId: catId,
@@ -222,10 +248,24 @@ export function useProviderActions({
     }
   };
 
+  const deleteServiceListing = async (serviceId: string) => {
+    try {
+      const res = await apiDeleteService(serviceId);
+      if (res.success) {
+        setServices(prev => prev.filter(s => s.id !== serviceId));
+        success('Listing Deleted', 'Your service listing has been removed.');
+        return;
+      }
+    } catch (err: any) {
+      toastError('Deletion Failed', err.response?.data?.error || err.message);
+    }
+  };
+
   return {
     createServiceListing,
     editServiceListing,
     toggleServiceListingStatus,
+    deleteServiceListing,
     submitBid,
     respondToDirectBooking,
     requestJobApproval,

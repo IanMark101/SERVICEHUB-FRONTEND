@@ -42,10 +42,11 @@ export default function BrowseJobs({
     'All Categories',
     'Plumbing',
     'Electrical Repair',
-    'Cleaning Services',
+    'House Cleaning',
     'Aircon Service',
     'Lawn Care',
-    'Tutoring'
+    'Tutoring',
+    'Appliance Repair'
   ];
 
   // Filtering Logic
@@ -67,9 +68,10 @@ export default function BrowseJobs({
       const u = (req.urgency || '').toLowerCase();
       matchesFilter = u.includes('high') || u.includes('urgent') || u.includes('immediate') || u.includes('asap') || u.includes('today') || u.includes('24') || u.includes('emergency') || req.urgency === 'high';
     } else if (activeFilter === 'high-budget') {
-      matchesFilter = req.budget >= 1000;
+      // ₱500+ is considered high-budget for local neighborhood services
+      matchesFilter = req.budget >= 500;
     } else if (activeFilter === 'few-offers') {
-      const bidCount = bids.filter(b => b.requestId === req.id).length;
+      const bidCount = bids.filter(bid => bid.requestId === req.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
       matchesFilter = bidCount <= 1;
     }
 
@@ -89,9 +91,10 @@ export default function BrowseJobs({
     } else if (sortBy === 'highest_budget') {
       return b.budget - a.budget;
     } else if (sortBy === 'fewest_bids') {
-      const aBids = bids.filter(b => b.requestId === a.id).length;
-      const bBids = bids.filter(b => b.requestId === b.id).length;
-      return aBids - bBids;
+      // Use 'bid' to avoid shadowing the outer sort param 'b'
+      const aBidCount = bids.filter(bid => bid.requestId === a.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
+      const bBidCount = bids.filter(bid => bid.requestId === b.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
+      return aBidCount - bBidCount;
     }
     return 0;
   });
@@ -208,7 +211,7 @@ export default function BrowseJobs({
                   ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
                   : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-500'
               }`}
-            title="Filter by budget ₱1,000 and above"
+            title="Filter by budget ₱500 and above"
           >
             High Budget
           </button>
@@ -283,8 +286,8 @@ export default function BrowseJobs({
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedRequests.map((req) => {
-              const totalBids = bids.filter(b => b.requestId === req.id).length;
-              const hasSentBid = bids.some(b => b.requestId === req.id && b.providerId === currentProviderId && b.status === 'pending');
+              const totalBids = bids.filter(b => b.requestId === req.id && (b.status === 'pending' || b.status === 'PENDING')).length;
+              const hasSentBid = bids.some(b => b.requestId === req.id && b.providerId === currentProviderId && (b.status === 'pending' || b.status === 'PENDING'));
 
               // Check if request belongs to currently logged-in user
               const isOwned = !!(user && (req.seekerId === user.id || req.seekerName === `${user.firstName} ${user.lastName}`.trim() || req.seekerName.includes(user.firstName)));

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Briefcase, Info } from 'lucide-react';
+import { Briefcase, Info, RefreshCw } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function OfferServices() {
-  const { user, createServiceListing, isDark } = useApp();
+  const { user, createServiceListing, isDark, dbCategories } = useApp();
   const { canTransact, navigateToVerification } = useTransactionPermission();
 
   const [title, setTitle] = useState<string>('');
-  const [category, setCategory] = useState<string>('Lawn Care');
+  const [category, setCategory] = useState<string>('');
   const [price, setPrice] = useState<number>(500);
+  const [priceType, setPriceType] = useState<string>('FIXED');
+  const [serviceType, setServiceType] = useState<string>('ONE_TIME');
   const [description, setDescription] = useState<string>('');
   const [maxQueue, setMaxQueue] = useState<number>(5);
   const [estTime, setEstTime] = useState<string>('1 hour');
@@ -22,13 +24,7 @@ export default function OfferServices() {
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
 
-  const categories = [
-    { label: 'Plumbing Repair', value: 'Plumbing' },
-    { label: 'House Cleaning', value: 'House Cleaning' },
-    { label: 'Electrical Repair', value: 'Electrical Repair' },
-    { label: 'Gardening & Lawn Care', value: 'Lawn Care' },
-    { label: 'Academic Tutoring', value: 'Tutoring' }
-  ];
+  const categories = dbCategories;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +49,9 @@ export default function OfferServices() {
       setTitle('');
       setDescription('');
       setPrice(500);
-      setCategory('Lawn Care');
+      setCategory(dbCategories.length > 0 ? dbCategories[0].id : '');
+      setServiceType('ONE_TIME');
+      setPriceType('FIXED');
       setMaxQueue(5);
       setEstTime('1 hour');
 
@@ -165,26 +163,81 @@ export default function OfferServices() {
                 <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
                   Service Category
                 </label>
+
+                {/* Live category dropdown — driven by admin-approved DB categories */}
                 <select
                   value={category}
+                  required
                   onChange={(e) => setCategory(e.target.value)}
+                  disabled={!canTransact}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
                       ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
                       : 'bg-white border-slate-300 text-slate-750 focus:border-emerald-500'
-                    }`}
+                    } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
                 >
+                  <option value="" disabled>Select a category...</option>
                   {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value} className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>
-                      {cat.label}
+                    <option key={cat.id} value={cat.id} className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>
+                      {cat.name}
                     </option>
                   ))}
                 </select>
               </div>
 
+
+              {/* Service Type */}
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Service Type
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setServiceType('ONE_TIME')}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
+                      serviceType === 'ONE_TIME'
+                        ? isDark
+                          ? 'bg-emerald-950/30 border-emerald-700/40 text-emerald-400'
+                          : 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                        : isDark
+                          ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]'
+                          : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50'
+                    }`}
+                  >
+                    One-time
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setServiceType('SESSION_BASED');
+                      // Auto-suggest PER_SESSION pricing when session-based is selected
+                      if (priceType === 'FIXED') setPriceType('PER_SESSION');
+                    }}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                      serviceType === 'SESSION_BASED'
+                        ? isDark
+                          ? 'bg-emerald-950/30 border-emerald-700/40 text-emerald-400'
+                          : 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                        : isDark
+                          ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]'
+                          : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50'
+                    }`}
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Session-based
+                  </button>
+                </div>
+                <p className={`text-[10px] mt-1.5 leading-relaxed ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+                  {serviceType === 'SESSION_BASED'
+                    ? 'Seeker can book multiple individual sessions (e.g. tutoring, coaching).'
+                    : 'A single engagement per booking (e.g. plumbing, cleaning).'}
+                </p>
+              </div>
+
               {/* Base Price */}
               <div>
                 <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Base Price (₱)
+                  Price (₱)
                 </label>
                 <input
                   type="number"
@@ -198,6 +251,34 @@ export default function OfferServices() {
                       : 'bg-white border-slate-300 text-slate-755 focus:border-emerald-500'
                     }`}
                 />
+              </div>
+
+              {/* Pricing Unit */}
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Pricing Unit
+                </label>
+                <select
+                  value={priceType}
+                  onChange={(e) => setPriceType(e.target.value)}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
+                      : 'bg-white border-slate-300 text-slate-750 focus:border-emerald-500'
+                    }`}
+                >
+                  <option value="FIXED" className={isDark ? 'bg-[#1c1b18]' : ''}>Fixed Price</option>
+                  <option value="PER_SESSION" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Session</option>
+                  <option value="PER_HOUR" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Hour</option>
+                  <option value="PER_DAY" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Day</option>
+                  <option value="PER_PROJECT" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Project</option>
+                  <option value="STARTS_AT" className={isDark ? 'bg-[#1c1b18]' : ''}>Starts At</option>
+                  <option value="CUSTOM" className={isDark ? 'bg-[#1c1b18]' : ''}>Custom</option>
+                </select>
+                {price > 0 && (
+                  <p className={`text-[10px] mt-1.5 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    Preview: ₱{price}{priceType === 'PER_SESSION' ? ' / session' : priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : priceType === 'STARTS_AT' ? ' starting at' : ''}
+                  </p>
+                )}
               </div>
 
               {/* Max Queue & Est Time side-by-side */}

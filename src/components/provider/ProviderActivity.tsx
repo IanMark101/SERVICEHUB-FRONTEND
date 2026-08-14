@@ -25,7 +25,7 @@ import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 
 
-export default function ProviderActivity({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
+export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
@@ -42,14 +42,22 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
     isDark,
     refreshEngagements,
     refreshAll,
-    notifications
+    notifications,
+    user
   } = useApp();
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
 
-  // Filter engagements and bids for currentProviderId
-  const myEngagements = jobEngagements.filter(je => je.providerId === currentProviderId);
-  const myPendingBids = bids.filter(b => b.providerId === currentProviderId && b.status === 'pending');
+  // Use prop if passed (e.g. admin view), otherwise fall back to current user from context
+  const resolvedProviderId = currentProviderId || user?.id;
+
+  // Filter engagements and bids for resolvedProviderId
+  const myEngagements = resolvedProviderId
+    ? jobEngagements.filter(je => je.providerId === resolvedProviderId)
+    : jobEngagements;
+  const myPendingBids = resolvedProviderId
+    ? bids.filter(b => b.providerId === resolvedProviderId && b.status === 'pending')
+    : bids.filter(b => b.status === 'pending');
 
   // Filter state
   const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'waiting' | 'pending_offers' | 'awaiting_approval' | 'disputed' | 'canceled'>('all');
@@ -175,11 +183,14 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
     if (activeTab === 'all' || activeTab === 'pending_offers') {
       myPendingBids.forEach(b => {
         const req = getRequestForBid(b.requestId);
+        const title = req?.title || b.requestTitle || '';
+        const seekerName = req?.seekerName || b.seekerName || '';
+        const categoryName = req?.category || b.category || '';
         const matchesSearch =
           searchQuery.trim() === '' ||
-          (req?.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (req?.seekerName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (req?.category || '').toLowerCase().includes(searchQuery.toLowerCase());
+          title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          seekerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchQuery.toLowerCase());
 
         if (matchesSearch) {
           combined.push({ type: 'bid', data: b });
@@ -542,7 +553,7 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                     {/* Top line: Category and Date */}
                     <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
                       <span className="text-orange-500 dark:text-orange-400">
-                        📁 {req?.category || 'General'}
+                        📁 {req?.category || b.category || 'General'}
                       </span>
                       <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
                         📅 {formattedDate}
@@ -552,11 +563,11 @@ export default function ProviderActivity({ currentProviderId = 'u3' }: { current
                     {/* Title & Info */}
                     <div className="space-y-2">
                       <h3 className={`font-extrabold text-sm leading-snug tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                        {req?.title || 'Public Job Proposal'}
+                        {req?.title || b.requestTitle || 'Service Request'}
                       </h3>
                       <div className="flex items-center text-[11px] font-bold">
                         <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}>Client:</span>
-                        <span className={`ml-1 ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{req?.seekerName || 'Platform Seeker'}</span>
+                        <span className={`ml-1 ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{req?.seekerName || b.seekerName || 'Seeker'}</span>
                       </div>
                     </div>
 

@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
-import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone } from 'lucide-react';
+import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone, RefreshCw } from 'lucide-react';
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
-import { getServicePaymentMethods, getPrimaryBookingCTA } from '../../lib/paymentUtils';
+import { getServicePaymentMethods, getPrimaryBookingCTA, getFormattedPrice, getServiceTypeLabel } from '../../lib/paymentUtils';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import { joinServiceRoom } from '../../lib/socket';
 
 export default function SeekServices() {
   const router = useRouter();
-  const { services, users, isDark, user } = useApp();
+  const { services, users, isDark, user, dbCategories } = useApp();
   const { canTransact } = useTransactionPermission();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
@@ -21,29 +22,13 @@ export default function SeekServices() {
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
 
   // Quick Filters state
-  const [activeFilter, setActiveFilter] = useState<'all' | 'near' | 'available' | 'rated' | 'low-queue'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
 
   const categories = [
     'All Categories',
-    'Plumbing Repair',
-    'House Cleaning',
-    'Electrician',
-    'Gardening',
-    'Tutoring',
-    'Aircon Service',
-    'Appliance Repair'
+    ...dbCategories.map(c => c.name)
   ];
 
-  // Map category tabs to actual database category names
-  const categoryMap: Record<string, string> = {
-    'Plumbing Repair': 'Plumbing',
-    'House Cleaning': 'House Cleaning',
-    'Electrician': 'Electrical Repair',
-    'Gardening': 'Lawn Care',
-    'Tutoring': 'Tutoring',
-    'Aircon Service': 'Aircon Service',
-    'Appliance Repair': 'Appliance Repair'
-  };
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'On-site Cash'>('On-site Cash');
 
@@ -75,18 +60,21 @@ export default function SeekServices() {
       (query === 'electrical' && service.category.toLowerCase().includes('electrical')) ||
       (query === 'electrician' && service.category.toLowerCase().includes('electrical'));
 
-    // 2. Category Tab filter
-    const targetCategory = categoryMap[selectedCategory];
-    const matchesCategory = selectedCategory === 'All Categories' || service.category === targetCategory;
+    // 2. Category Tab filter — pills use live DB category names
+    const matchesCategory = selectedCategory === 'All Categories' || service.category.toLowerCase() === selectedCategory.toLowerCase();
 
     // 3. Quick Filter conditions
     let matchesQuickFilter = true;
     if (activeFilter === 'available') {
-      matchesQuickFilter = !service.isPaused;
+      // Show services that are not paused AND not at queue capacity
+      const queueLimit = (service as any).queueLimit ?? 5;
+      matchesQuickFilter = !service.isPaused && service.queueSize < queueLimit;
     } else if (activeFilter === 'rated') {
-      matchesQuickFilter = service.rating >= 4.8;
+      // Top Rated: trustScore >= 80 → rating >= 4.0 (trustScore / 20)
+      matchesQuickFilter = service.rating >= 4.0;
     } else if (activeFilter === 'low-queue') {
-      matchesQuickFilter = service.queueSize <= 1;
+      // Low queue: 2 or fewer people in line
+      matchesQuickFilter = service.queueSize <= 2;
     }
     return matchesSearch && matchesCategory && matchesQuickFilter;
   });
@@ -107,6 +95,15 @@ export default function SeekServices() {
   const getProviderDetails = (providerId: string) => {
     return users.find(u => u.id === providerId);
   };
+
+  // ─── Join Socket.io rooms for every visible service ─────────────────────────
+  // This ensures real-time queue_update events from the backend are received
+  // and the queue counter badge updates instantly without waiting for polling.
+  useEffect(() => {
+    paginatedServices.forEach((service) => {
+      joinServiceRoom(service.id);
+    });
+  }, [paginatedServices]);
 
   return (
     <div className={`space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
@@ -338,12 +335,41 @@ export default function SeekServices() {
                           <span>Available Now</span>
                         </div>
                       )}
+                      {/* Service type badge — only shown for SESSION_BASED */}
+                      {service.serviceType === 'SESSION_BASED' && (
+                        <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md border w-fit ${
+                          isDark
+                            ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400'
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                        }`}>
+                          <RefreshCw className="w-2.5 h-2.5" />
+                          Session-based
+                        </span>
+                      )}
                     </div>
 
                     {/* Right: Price */}
                     <div className="text-right">
-                      <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Starting at</span>
-                      <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{service.price}</span>
+                      {service.priceType && service.priceType !== 'FIXED' ? (
+                        <>
+                          <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                            ₱{service.price}
+                          </span>
+                          <span className={`text-[10px] font-bold ml-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
+                            {service.priceType === 'PER_SESSION' ? '/ session'
+                              : service.priceType === 'PER_HOUR' ? '/ hour'
+                              : service.priceType === 'PER_DAY' ? '/ day'
+                              : service.priceType === 'PER_PROJECT' ? '/ project'
+                              : service.priceType === 'STARTS_AT' ? 'starting at'
+                              : ''}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Starting at</span>
+                          <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{service.price}</span>
+                        </>
+                      )}
                     </div>
                   </div>
 

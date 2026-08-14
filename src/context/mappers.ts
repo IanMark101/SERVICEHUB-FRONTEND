@@ -81,6 +81,10 @@ export function mapServiceToListing(item: any): ServiceListing {
     isPaused: !item.isAvailable,
     proofOfSkillUrl: '',
     rating: item.provider?.trustScore ? item.provider.trustScore / 20 : 5.0,
+    // serviceType and priceType are passed through from the DB so UI can display
+    // session-based badges and pricing unit labels (e.g. ₱200 / session).
+    serviceType: item.serviceType || 'ONE_TIME',
+    priceType: item.priceType || 'FIXED',
     paymentMethods: item.paymentMethods ? {
       cash: !!item.paymentMethods.cash,
       gcash: !!item.paymentMethods.gcash,
@@ -88,6 +92,7 @@ export function mapServiceToListing(item: any): ServiceListing {
     } : undefined
   };
 }
+
 
 export function mapRequestToJobRequest(r: any): JobRequest {
   return {
@@ -117,6 +122,9 @@ export function mapOfferToBid(o: any): Bid {
     message: o.message || '',
     status: o.status === 'PENDING' ? 'pending' : o.status === 'ACCEPTED' ? 'accepted' : 'declined',
     createdAt: o.createdAt?.split('T')[0] || '',
+    requestTitle: o.request?.title,
+    seekerName: o.request?.seeker?.name,
+    category: typeof o.request?.category === 'object' ? o.request?.category?.name : o.request?.category,
   };
 }
 

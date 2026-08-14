@@ -108,15 +108,31 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         <div className={`flex-shrink-0 p-5 border-b flex justify-between items-center ${isDark ? 'bg-[#1c1b18]/45 border-neutral-850' : 'bg-slate-50/50 border-slate-100'
           }`}>
           <div>
-            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider border ${isDark
-                ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                : 'text-orange-655 bg-orange-50 border-orange-100'
-              }`}>
-              Direct Booking
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider border ${isDark
+                  ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
+                  : 'text-orange-655 bg-orange-50 border-orange-100'
+                }`}>
+                Direct Booking
+              </span>
+              {listing.serviceType === 'SESSION_BASED' && (
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${
+                  isDark
+                    ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
+                    : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                }`}>
+                  ↺ Session-based
+                </span>
+              )}
+            </div>
             <h3 className={`font-extrabold text-sm mt-1.5 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
               Request {listing.title}
             </h3>
+            {listing.priceType && listing.priceType !== 'FIXED' && (
+              <p className={`text-[10px] font-semibold mt-0.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                ₱{listing.price}{listing.priceType === 'PER_SESSION' ? ' / session' : listing.priceType === 'PER_HOUR' ? ' / hour' : listing.priceType === 'PER_DAY' ? ' / day' : listing.priceType === 'PER_PROJECT' ? ' / project' : ''}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -176,7 +192,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
-                  <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Analyzing past community reviews and summarizing...</span>
+                  <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Getting review information...</span>
                 </div>
               </div>
             ) : aiSummary ? (
@@ -210,7 +226,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   <span>AI Summary unavailable</span>
                 </div>
                 <p className="text-[11px]">
-                  This provider needs at least 5 reviews for us to generate a reliable AI review summary.
+                  {aiReason || 'No client reviews are available yet for this service offer.'}
                 </p>
               </div>
             )}

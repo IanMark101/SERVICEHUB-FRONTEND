@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Wrench, Edit3, Trash2, Plus, X, Sparkles } from 'lucide-react';
+import { Wrench, Edit3, Trash2, Plus, X } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
-import { apiGetProviderSummary } from '../../api/ai.api';
+import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 
 interface EditServiceState {
   serviceId: string;
   title: string;
   price: number;
+  priceType: string;
+  serviceType: string;
   description: string;
 }
 
@@ -22,12 +24,28 @@ export default function ServiceManager({
 }) {
   const searchParams = useSearchParams();
   const targetServiceId = searchParams.get('id');
-  const { services, editServiceListing, toggleServiceListingStatus, isDark } = useApp();
+  const { services, editServiceListing, toggleServiceListingStatus, deleteServiceListing, isDark } = useApp();
 
-  // State for per-service AI Review Summary
-  const [expandedAiServiceId, setExpandedAiServiceId] = useState<string | null>(null);
-  const [aiSummaries, setAiSummaries] = useState<Record<string, { summary: string | null; reason?: string }>>({});
-  const [loadingAiMap, setLoadingAiMap] = useState<Record<string, boolean>>({});
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+
+  const handleDeleteServiceClick = (service: any) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Service Listing',
+      message: `Are you sure you want to delete "${service.title}"? This will remove your service listing from the marketplace.`,
+      confirmText: 'Yes, Delete Listing',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        try {
+          await deleteServiceListing(service.id);
+        } finally {
+          setConfirmModal(null);
+        }
+      }
+    });
+  };
 
   // Find current provider's services
   const myServices = services.filter(s => s.providerId === currentProviderId);
@@ -55,56 +73,21 @@ export default function ServiceManager({
           serviceId: match.id,
           title: match.title,
           price: match.price,
+          priceType: (match as any).priceType || 'FIXED',
+          serviceType: (match as any).serviceType || 'ONE_TIME',
           description: match.description
         });
       }
     }
   }, [targetServiceId, services]);
 
-  // Trigger per-service AI Review Summary fetch from backend
-  const handleToggleAiSummary = (serviceId: string) => {
-    if (expandedAiServiceId === serviceId) {
-      setExpandedAiServiceId(null);
-      return;
-    }
-
-    setExpandedAiServiceId(serviceId);
-
-    // If summary for this specific service is already fetched, no need to fetch again
-    if (aiSummaries[serviceId] !== undefined) return;
-
-    setLoadingAiMap(prev => ({ ...prev, [serviceId]: true }));
-    apiGetProviderSummary(currentProviderId, serviceId)
-      .then((res: any) => {
-        if (res.success && res.data) {
-          setAiSummaries(prev => ({
-            ...prev,
-            [serviceId]: {
-              summary: res.data.summary,
-              reason: res.data.reason,
-            },
-          }));
-        }
-      })
-      .catch(() => {
-        setAiSummaries(prev => ({
-          ...prev,
-          [serviceId]: {
-            summary: null,
-            reason: 'Unable to connect to AI summary service at this time.',
-          },
-        }));
-      })
-      .finally(() => {
-        setLoadingAiMap(prev => ({ ...prev, [serviceId]: false }));
-      });
-  };
-
   const handleOpenEdit = (s: any) => {
     setEditingService({
       serviceId: s.id,
       title: s.title,
       price: s.price,
+      priceType: s.priceType || 'FIXED',
+      serviceType: s.serviceType || 'ONE_TIME',
       description: s.description
     });
   };
@@ -147,59 +130,12 @@ export default function ServiceManager({
           <div className="space-y-4">
             {paginatedServices.map((service) => {
               const isPaused = service.isPaused;
-              const isAiExpanded = expandedAiServiceId === service.id;
-              const isLoadingAi = loadingAiMap[service.id];
-              const aiData = aiSummaries[service.id];
 
               return (
                 <div key={service.id} className="space-y-3">
-                  
-                  {/* 🤖 Per-Service AI Review Summary Expansion Card */}
-                  {isAiExpanded && (
-                    <div className={`p-5 rounded-[24px] border shadow-sm transition-all duration-200 animate-in fade-in zoom-in-95 ${isDark
-                        ? 'bg-emerald-950/20 border-emerald-500/30 text-[#f2efe9]'
-                        : 'bg-emerald-50/50 border-emerald-200 text-slate-800'
-                      }`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <Sparkles className="w-4 h-4 text-emerald-500 animate-pulse" />
-                          <h4 className="text-xs uppercase tracking-wider font-extrabold text-emerald-500">
-                            AI-Generated Review Summary — {service.title}
-                          </h4>
-                        </div>
-                        <button
-                          onClick={() => setExpandedAiServiceId(null)}
-                          className="text-slate-400 hover:text-slate-200 text-xs font-bold px-2 py-0.5 rounded-lg border border-transparent hover:border-slate-700"
-                        >
-                          ✕
-                        </button>
-                      </div>
-
-                      {isLoadingAi ? (
-                        <div className="flex items-center space-x-2 py-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce delay-100" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce delay-200" />
-                          <span className="text-[10px] text-slate-400 font-semibold pl-1">Connecting to AI backend and analyzing client reviews for {service.title}...</span>
-                        </div>
-                      ) : aiData?.summary ? (
-                        <p className={`text-xs leading-relaxed font-semibold italic ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>
-                          &ldquo;{aiData.summary}&rdquo;
-                        </p>
-                      ) : (
-                        <div className="space-y-0.5">
-                          <div className="font-bold text-amber-500 text-xs">AI Summary unavailable</div>
-                          <p className={`text-[11px] font-medium leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
-                            {aiData?.reason || 'This provider needs at least 5 reviews for us to generate a reliable AI review summary.'}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
                   {/* Service Listing Card Item */}
                   <div
-                    className={`rounded-[24px] p-5 border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-850' : 'bg-white border-slate-200 hover:shadow-md'
+                    className={`rounded-[24px] p-5 border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200 hover:shadow-md'
                       }`}
                   >
                     {/* Left: Icon, Title, and details */}
@@ -215,13 +151,21 @@ export default function ServiceManager({
 
                         {/* Tags row */}
                         <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold">
-                          <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-900'}>₱{service.price} Base</span>
+                          <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-900'}>
+                            ₱{service.price}{(service as any).priceType === 'PER_SESSION' ? ' / session' : (service as any).priceType === 'PER_HOUR' ? ' / hr' : (service as any).priceType === 'PER_DAY' ? ' / day' : (service as any).priceType === 'PER_PROJECT' ? ' / project' : ' Base'}
+                          </span>
                           <span className="text-slate-350">•</span>
+                          {(service as any).serviceType === 'SESSION_BASED' && (
+                            <span className={`px-2 py-0.5 rounded text-[8px] flex items-center gap-1 ${isDark ? 'bg-emerald-950/20 text-emerald-400 border border-emerald-900/30' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              }`}>
+                              ↺ Session-based
+                            </span>
+                          )}
                           <span className={`px-2 py-0.5 rounded text-[8px] ${isDark ? 'bg-[#1c1b18] text-[#b4b0a9]' : 'bg-slate-50 text-slate-600'
                             }`}>
                             On-site Cash
                           </span>
-                          {service.category === 'Electrical Repair' && (
+                          {(service as any).category === 'Electrical Repair' && (
                             <span className={`px-2 py-0.5 rounded text-[8px] ${isDark ? 'bg-emerald-950/20 text-emerald-400 border border-emerald-900/30' : 'bg-emerald-50 text-emerald-600'
                               }`}>
                               GCash
@@ -235,21 +179,6 @@ export default function ServiceManager({
                     <div className={`flex flex-wrap items-center justify-between md:justify-end gap-3 border-t md:border-t-0 pt-3 md:pt-0 ${isDark ? 'border-neutral-855' : 'border-slate-100'
                       }`}>
                       <div className="flex items-center space-x-2">
-                        {/* ✨ Real Backend Per-Service AI Summary Toggle Button */}
-                        <button
-                          onClick={() => handleToggleAiSummary(service.id)}
-                          className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center space-x-1.5 active:scale-95 ${isAiExpanded
-                              ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-                              : isDark
-                              ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                              : 'border-slate-200 hover:bg-slate-50 text-slate-600'
-                            }`}
-                          title="View live AI-generated review summary for this specific service"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-                          <span>AI Summary</span>
-                        </button>
-
                         <button
                           onClick={() => handleOpenEdit(service)}
                           className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center space-x-1 ${isDark
@@ -261,12 +190,11 @@ export default function ServiceManager({
                           <span>Edit</span>
                         </button>
                         <button
-                          disabled
-                          className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center space-x-1 cursor-not-allowed ${isDark
-                              ? 'border-neutral-850 text-neutral-600'
-                              : 'border-slate-200 text-slate-300'
+                          onClick={() => handleDeleteServiceClick(service)}
+                          className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center space-x-1 ${isDark
+                              ? 'border-red-950/45 hover:bg-red-950/20 text-red-400'
+                              : 'border-red-200 hover:bg-red-50 text-red-500'
                             }`}
-                          title="Deletions managed in future dashboard checkouts"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>Delete</span>
@@ -356,10 +284,33 @@ export default function ServiceManager({
                 />
               </div>
 
+              {/* Service Type */}
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Service Type
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['ONE_TIME', 'SESSION_BASED'] as const).map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setEditingService({ ...editingService, serviceType: st })}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                        editingService.serviceType === st
+                          ? isDark ? 'bg-emerald-950/30 border-emerald-700/40 text-emerald-400' : 'bg-emerald-50 border-emerald-300 text-emerald-700'
+                          : isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                      }`}
+                    >
+                      {st === 'ONE_TIME' ? 'One-time' : 'Session-based'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Price */}
               <div>
                 <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Base Price (₱)
+                  Price (₱)
                 </label>
                 <input
                   type="number"
@@ -372,6 +323,29 @@ export default function ServiceManager({
                       : 'bg-slate-50 border-slate-200 text-slate-755 focus:border-emerald-500'
                     }`}
                 />
+              </div>
+
+              {/* Pricing Unit */}
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Pricing Unit
+                </label>
+                <select
+                  value={editingService.priceType}
+                  onChange={(e) => setEditingService({ ...editingService, priceType: e.target.value })}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
+                    }`}
+                >
+                  <option value="FIXED">Fixed Price</option>
+                  <option value="PER_SESSION">Per Session</option>
+                  <option value="PER_HOUR">Per Hour</option>
+                  <option value="PER_DAY">Per Day</option>
+                  <option value="PER_PROJECT">Per Project</option>
+                  <option value="STARTS_AT">Starts At</option>
+                  <option value="CUSTOM">Custom</option>
+                </select>
               </div>
 
               {/* Description */}
@@ -415,6 +389,9 @@ export default function ServiceManager({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal state={confirmModal} onClose={() => setConfirmModal(null)} />
 
     </div>
   );
