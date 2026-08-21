@@ -380,6 +380,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const syncNotifications = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) return;
     try {
       const res = await apiGetNotifications();
       if (res.success && Array.isArray(res.data)) {
@@ -391,6 +393,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const syncUnreadMessages = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) return;
     try {
       const res = await apiGetConversations();
       if (res.success && Array.isArray(res.data)) {
@@ -403,6 +407,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const syncTransactions = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) return;
     try {
       const res = await apiGetTransactions();
       if (res.success && Array.isArray(res.data)) {

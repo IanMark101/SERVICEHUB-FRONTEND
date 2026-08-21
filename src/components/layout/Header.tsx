@@ -251,6 +251,11 @@ export default function Header({
   const handleOpenUserProfile = (selectedUser: AppUser) => {
     setUserSearch('');
     setShowUserSearchResults(false);
+    setIsMobileSearchOpen(false);
+
+    const targetUrl = currentRole === 'admin'
+      ? `/admin/users?id=${selectedUser.id}`
+      : `/${currentRole}/user-profile?id=${selectedUser.id}`;
 
     if (onViewProfile) {
       onViewProfile({
@@ -267,14 +272,9 @@ export default function Header({
         emailVerified: selectedUser.emailVerified,
         isActive: selectedUser.isActive,
       });
-      return;
     }
 
-    if (currentRole === 'admin') {
-      router.push(`/admin/users?id=${selectedUser.id}`);
-    } else {
-      router.push(`/${currentRole}/user-profile?id=${selectedUser.id}`);
-    }
+    router.push(targetUrl);
   };
 
   const handleToggleNotifications = () => {
@@ -406,8 +406,12 @@ export default function Header({
                     <button
                       key={result.id}
                       type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleOpenUserProfile(result);
+                      }}
                       onClick={() => handleOpenUserProfile(result)}
-                      className={`w-full text-left px-3.5 py-2.5 transition-colors border-b last:border-b-0 ${isDark ? 'border-neutral-800/60 hover:bg-[#242424]' : 'border-slate-100 hover:bg-slate-50'}`}
+                      className={`w-full text-left px-3.5 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-[#242424]' : 'border-slate-100 hover:bg-slate-50'}`}
                     >
                       <div className="flex items-start gap-2.5">
                         <img
@@ -754,11 +758,18 @@ export default function Header({
                     <button
                       key={result.id}
                       type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleOpenUserProfile(result);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        handleOpenUserProfile(result);
+                      }}
                       onClick={() => {
                         handleOpenUserProfile(result);
-                        setIsMobileSearchOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 ${
+                      className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${
                         isDark ? 'border-neutral-800/60 hover:bg-[#2c2b27]' : 'border-slate-100 hover:bg-slate-50'
                       }`}
                     >

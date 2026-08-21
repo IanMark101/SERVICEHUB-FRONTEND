@@ -49,6 +49,7 @@ function ProfileContent() {
   return (
     <div>
       <UserProfile
+        key={targetId || user?.id || 'profile'}
         targetUser={targetUser}
         isOwnProfile={isOwnProfile}
         initialTab={tabParam || undefined}
