@@ -58,12 +58,12 @@ export default function Sidebar({
   // Bind to App Context
   const { bids, jobRequests, jobEngagements, isDark, unreadMessagesCount } = useApp();
 
-  // Resolve current mock user ID
-  const mockUserId = user?.id || '';
+  // Resolve current user ID
+  const currentUserId = user?.id || '';
 
   // Dynamic Badge Calculations
-  const pendingBidsCount = bids.filter(b => b.status === 'pending' && jobRequests.some(r => r.id === b.requestId && r.seekerId === mockUserId)).length;
-  const pendingRequestsCount = jobEngagements.filter(je => je.providerId === mockUserId && je.status === 'pending_provider').length;
+  const pendingBidsCount = bids.filter(b => b.status === 'pending' && jobRequests.some(r => r.id === b.requestId && r.seekerId === currentUserId)).length;
+  const pendingRequestsCount = jobEngagements.filter(je => je.providerId === currentUserId && je.status === 'pending_provider').length;
 
   // Role styling configs
   const roleThemes = {

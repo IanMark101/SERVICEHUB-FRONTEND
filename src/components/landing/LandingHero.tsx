@@ -13,7 +13,8 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
   useEffect(() => {
     // Fetch live avatar for BUENAFLOR IAN MARK J. if available
-    fetch('http://localhost:3001/api/users?search=BUENAFLOR')
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    fetch(`${apiBase}/users?search=BUENAFLOR`)
       .then(res => res.json())
       .then(data => {
         if (data?.data?.[0]?.avatarUrl) {
