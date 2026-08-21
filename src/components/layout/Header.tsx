@@ -14,7 +14,8 @@ import {
   DollarSign,
   MessageSquare,
   Sun,
-  Moon
+  Moon,
+  X
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { useToast } from '../ui/Toast';
@@ -50,6 +51,7 @@ export default function Header({
   const [userSearchResults, setUserSearchResults] = useState<AppUser[]>([]);
   const [userSearchLoading, setUserSearchLoading] = useState<boolean>(false);
   const [serverSearchEnabled, setServerSearchEnabled] = useState<boolean>(true);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState<boolean>(false);
   const userSearchRef = useRef<HTMLDivElement | null>(null);
 
   // Bind to App Context
@@ -345,8 +347,8 @@ export default function Header({
         </div>
       </div>
 
-      {/* Middle: Global User Search Bar */}
-      <div ref={userSearchRef} className="hidden md:block w-80 relative mx-4">
+      {/* Middle: Global User Search Bar (Responsive from sm up) */}
+      <div ref={userSearchRef} className="hidden sm:block flex-1 max-w-[180px] md:max-w-xs lg:max-w-sm relative mx-2 sm:mx-4">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9]">
           <Search className="w-3.5 h-3.5" />
         </span>
@@ -418,7 +420,25 @@ export default function Header({
       </div>
 
       {/* Right side: Notifications & Profile Avatar dropdowns */}
-      <div className="flex items-center space-x-3 sm:space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+
+        {/* Mobile Search Toggle Icon */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsMobileSearchOpen(!isMobileSearchOpen);
+            setShowNotifications(false);
+            setShowProfileMenu(false);
+          }}
+          className={`sm:hidden p-2.5 rounded-xl border transition-all ${
+            isMobileSearchOpen
+              ? isDark ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' : 'bg-orange-50 border-orange-200 text-orange-600'
+              : isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#b4b0a9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-655'
+          }`}
+          title="Search Users"
+        >
+          <Search className="w-4 h-4" />
+        </button>
 
         {/* Global Hub Indicator */}
         {currentRole !== 'admin' && activeTab !== 'community-hub' && (
@@ -650,6 +670,95 @@ export default function Header({
         )}
 
       </div>
+
+      {/* ─── Mobile Search Drawer (Screen width < sm) ─── */}
+      {isMobileSearchOpen && (
+        <div className={`sm:hidden absolute top-full left-0 right-0 p-3 border-b shadow-xl z-50 transition-all ${
+          isDark ? 'bg-[#191919] border-neutral-800' : 'bg-white border-slate-200'
+        }`}>
+          <div className="relative flex items-center">
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9] pointer-events-none">
+              <Search className="w-3.5 h-3.5" />
+            </span>
+            <input
+              type="text"
+              autoFocus
+              value={userSearch}
+              onChange={(e) => {
+                setUserSearch(e.target.value);
+                setShowUserSearchResults(Boolean(e.target.value.trim()));
+              }}
+              placeholder="Search users..."
+              className={`w-full border rounded-xl pl-9 pr-9 py-2 text-xs transition-all ${isDark
+                  ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 focus:ring-amber-500/30'
+                  : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${theme.ring}`
+                }`}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setUserSearch('');
+                setShowUserSearchResults(false);
+                setIsMobileSearchOpen(false);
+              }}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Mobile User Search Results */}
+          {showUserSearchResults && (
+            <div className={`mt-2 rounded-xl border shadow-xl overflow-hidden max-h-60 overflow-y-auto ${
+              isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'
+            }`}>
+              {userSearchLoading ? (
+                <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">Searching users...</div>
+              ) : userSearchResults.length > 0 ? (
+                userSearchResults.map((result) => {
+                  const emailToShow = result.email && result.email !== 'N/A' ? result.email : '';
+                  return (
+                    <button
+                      key={result.id}
+                      type="button"
+                      onClick={() => {
+                        handleOpenUserProfile(result);
+                        setIsMobileSearchOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 ${
+                        isDark ? 'border-neutral-800/60 hover:bg-[#2c2b27]' : 'border-slate-100 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <img
+                          src={result.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`}
+                          alt={getDisplayName(result)}
+                          className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-neutral-700"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="font-bold text-xs truncate">{getDisplayName(result)}</div>
+                            <span className={`text-[9px] font-extrabold uppercase ${result.role === 'provider' ? 'text-emerald-500' : 'text-orange-500'}`}>
+                              {result.role}
+                            </span>
+                          </div>
+                          {emailToShow ? (
+                            <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">{emailToShow}</div>
+                          ) : result.location ? (
+                            <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">📍 {result.location}</div>
+                          ) : null}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">No users found.</div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 }
