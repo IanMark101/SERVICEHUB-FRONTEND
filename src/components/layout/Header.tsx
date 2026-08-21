@@ -381,8 +381,11 @@ export default function Header({
                   >
                     <div className="flex items-start gap-3">
                       <img
-                        src={result.avatarUrl || 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&q=80&w=200'}
+                        src={result.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`}
                         alt={`${getDisplayName(result)} avatar`}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`;
+                        }}
                         className="w-11 h-11 rounded-2xl object-cover flex-shrink-0 border border-slate-200 dark:border-neutral-800"
                       />
                       <div className="min-w-0 flex-1">
@@ -393,12 +396,14 @@ export default function Header({
                           </span>
                         </div>
                         {emailToShow ? (
-                          <div className="mt-1 text-xs text-slate-500 dark:text-neutral-400 truncate">{emailToShow}</div>
-                        ) : (
-                          <div className="mt-1 text-xs text-slate-400 dark:text-neutral-500 truncate">No email available</div>
-                        )}
+                          <div className="mt-0.5 text-xs text-slate-500 dark:text-neutral-400 truncate">{emailToShow}</div>
+                        ) : result.location ? (
+                          <div className="mt-0.5 text-xs text-slate-400 dark:text-neutral-500 truncate">
+                            📍 {result.location}, Cordova
+                          </div>
+                        ) : null}
                         {result.bio && result.bio !== 'N/A' && (
-                          <div className="mt-2 text-[10.5px] text-slate-400 dark:text-neutral-500 line-clamp-2">{result.bio}</div>
+                          <div className="mt-1 text-[11px] text-slate-400 dark:text-neutral-400 italic line-clamp-1">"{result.bio}"</div>
                         )}
                       </div>
                     </div>
@@ -577,7 +582,7 @@ export default function Header({
                 }`}
             >
               <img
-                src={user.avatarUrl}
+                src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`}
                 alt="Profile Avatar"
                 className={`w-7 h-7 rounded-full object-cover border ${currentRole === 'seeker' ? 'border-orange-500/30' : 'border-emerald-600/30'
                   }`}

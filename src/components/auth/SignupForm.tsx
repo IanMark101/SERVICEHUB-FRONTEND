@@ -1,9 +1,10 @@
-import React from 'react';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Eye, EyeOff, ArrowLeft, Camera, Upload, Sparkles, Check, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import AuthInput from './shared/AuthInput';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import { avatars } from '../../schema/auth/useAuthForm';
+import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 
 interface SignupFormProps {
   step: number;
@@ -42,6 +43,27 @@ export default function SignupForm({
   toggleMode,
   register,
 }: SignupFormProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const cdnUrl = await uploadAvatarToCloudinary(file);
+      handleAvatarSelect(cdnUrl);
+    } catch (err: any) {
+      setUploadError(err?.message || 'Failed to process and upload image');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   // Compute per-step validity for button state
   const isStep1Valid =
@@ -276,46 +298,119 @@ export default function SignupForm({
         {/* STEP 3 */}
         {step === 3 && (
           <div className="space-y-4 animate-fade-in">
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+
             <div>
-              <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-2.5">
-                Select Profile Avatar
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                Profile Picture
               </label>
-              <div className="flex items-center space-x-4">
-                <img
-                  src={formData.avatarUrl}
-                  alt="Selected Profile"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-slate-300 dark:border-slate-800 shadow-sm"
-                />
-                <div className="flex space-x-2">
-                  {avatars.map((url, idx) => (
+
+              {/* Avatar Preview & Upload Action */}
+              <div className="flex items-center gap-3.5 p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50/70 dark:bg-[#151515] transition-all">
+                <div className="relative group/avatar flex-shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                  <img
+                    src={formData.avatarUrl || avatars[0]}
+                    alt="Selected Profile"
+                    className="w-14 h-14 rounded-2xl object-cover border-2 border-[#FF5A1F] shadow-sm transition-transform duration-200 group-hover/avatar:scale-105"
+                  />
+                  <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity text-white">
+                    <Camera size={18} />
+                  </div>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 text-slate-700 dark:text-neutral-200 hover:border-[#FF5A1F] hover:text-[#FF5A1F] transition-all shadow-sm active:scale-95"
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 size={13} className="animate-spin text-[#FF5A1F]" />
+                          <span>Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload size={13} className="text-[#FF5A1F]" />
+                          <span>Upload Photo</span>
+                        </>
+                      )}
+                    </button>
+
+                    {formData.avatarUrl?.startsWith('data:image') && (
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-900/30 flex items-center gap-1">
+                        <Check size={11} /> Custom
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10.5px] text-slate-400 dark:text-neutral-500 mt-1 truncate">
+                    JPG, PNG, or WebP (max 10MB)
+                  </p>
+                </div>
+              </div>
+
+              {uploadError && (
+                <p className="text-xs text-rose-500 font-semibold mt-1.5 animate-fade-in">
+                  {uploadError}
+                </p>
+              )}
+            </div>
+
+            {/* Animated Avatar Presets */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-600 dark:text-neutral-300 flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-amber-500" /> Or pick an animated avatar
+                </span>
+              </div>
+
+              <div className="grid grid-cols-6 gap-2">
+                {avatars.map((url, idx) => {
+                  const isSelected = formData.avatarUrl === url;
+                  return (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => handleAvatarSelect(url)}
-                      className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer ${
-                        formData.avatarUrl === url
-                          ? 'border-[#FF5A1F] shadow-sm scale-105'
-                          : 'border-slate-300 dark:border-slate-800 opacity-60'
+                      className={`relative aspect-square rounded-2xl p-1 border-2 transition-all duration-200 hover:scale-105 cursor-pointer flex items-center justify-center ${
+                        isSelected
+                          ? 'border-[#FF5A1F] bg-orange-50/50 dark:bg-orange-950/20 shadow-md ring-2 ring-[#FF5A1F]/30 scale-105'
+                          : 'border-slate-200 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-900 opacity-75 hover:opacity-100 hover:border-slate-300'
                       }`}
+                      title={`Animated Avatar #${idx + 1}`}
                     >
                       <img
                         src={url}
-                        alt={`Option ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        alt={`Animated Avatar ${idx + 1}`}
+                        className="w-full h-full object-cover rounded-xl"
                       />
+                      {isSelected && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center text-[9px] shadow-sm">
+                          ✓
+                        </span>
+                      )}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-1.5">
-                About You
+                About You (Bio)
               </label>
               <textarea
                 rows={3}
-                placeholder="Tell the community a little about yourself..."
+                placeholder="Tell the community a little about yourself, skills, or what you need..."
                 {...register('bio')}
                 className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 resize-none transition-all"
               />

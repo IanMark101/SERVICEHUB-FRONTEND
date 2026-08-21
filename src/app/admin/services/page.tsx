@@ -23,7 +23,8 @@ interface ServiceItem {
   title: string;
   description: string;
   price: string;
-  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR';
+  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
+  serviceType?: 'ONE_TIME' | 'SESSION_BASED';
   estimatedDurationMins: number;
   queueLimit: number;
   paymentMethods: any;
@@ -95,6 +96,10 @@ export default function AdminServices() {
       case 'FIXED': return 'Fixed';
       case 'STARTS_AT': return 'Starts At';
       case 'PER_HOUR': return 'Per Hour';
+      case 'PER_SESSION': return 'Per Session';
+      case 'PER_DAY': return 'Per Day';
+      case 'PER_PROJECT': return 'Per Project';
+      case 'CUSTOM': return 'Custom';
       default: return type;
     }
   };
@@ -162,6 +167,11 @@ export default function AdminServices() {
                       <span className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-red-500/10 text-red-405 border-red-900/30`}>
                         📁 {item.category?.name || 'Uncategorized'}
                       </span>
+                      {item.serviceType === 'SESSION_BASED' && (
+                        <span className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-emerald-500/10 text-emerald-500 border-emerald-900/30`}>
+                          ↺ Session-based
+                        </span>
+                      )}
                       <span className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-slate-500/10 text-slate-400 border-slate-900/30`}>
                         ⏱️ {item.estimatedDurationMins} mins
                       </span>
@@ -174,7 +184,7 @@ export default function AdminServices() {
                   </div>
                   <div className="text-left sm:text-right">
                     <span className={`text-lg font-black tracking-tight ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                      ₱{parseFloat(item.price).toLocaleString()}
+                      ₱{parseFloat(item.price).toLocaleString()}{item.priceType === 'PER_SESSION' ? ' / session' : item.priceType === 'PER_HOUR' ? ' / hr' : item.priceType === 'PER_DAY' ? ' / day' : item.priceType === 'PER_PROJECT' ? ' / project' : ''}
                     </span>
                     <span className={`text-[10px] block font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
                       Price Type: {getPriceTypeLabel(item.priceType)}

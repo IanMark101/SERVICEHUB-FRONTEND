@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
-import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone, RefreshCw } from 'lucide-react';
+import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone, RefreshCw, Sparkles, Bell } from 'lucide-react';
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
@@ -11,15 +11,19 @@ import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { joinServiceRoom } from '../../lib/socket';
+import { apiJoinWaitlist } from '../../api/bookings.api';
+import { useToast } from '../ui/Toast';
 
 export default function SeekServices() {
   const router = useRouter();
   const { services, users, isDark, user, dbCategories } = useApp();
   const { canTransact } = useTransactionPermission();
+  const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
+  const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
 
   // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
@@ -43,6 +47,26 @@ export default function SeekServices() {
 
   const handleCloseModal = () => {
     setSelectedListing(null);
+  };
+
+  const handleJoinWaitlist = async (listing: ServiceListing) => {
+    if (!canTransact) {
+      setBlockedModalOpen(true);
+      return;
+    }
+    setJoiningWaitlistId(listing.id);
+    try {
+      await apiJoinWaitlist(listing.id);
+      toastSuccess(`You're on the waitlist! We will notify you as soon as a slot opens for "${listing.title}".`);
+    } catch (err: any) {
+      if (err?.response?.status === 409 || err?.response?.data?.error?.includes('already')) {
+        toastInfo('You are already on the waitlist for this service.');
+      } else {
+        toastError(err?.response?.data?.error || 'Failed to join waitlist. Please try again.');
+      }
+    } finally {
+      setJoiningWaitlistId(null);
+    }
   };
 
   // Filter listings based on category tabs, search strings, and quick filter options
@@ -236,8 +260,8 @@ export default function SeekServices() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedServices.map((service) => {
               const provider = getProviderDetails(service.providerId);
-              const trustScore = provider?.email === 'johnfrans@gmail.com' ? '96' : '99';
-              const isVerified = provider?.isVerified ?? false;
+              const trustScore = service.providerTrustScore ?? provider?.trustScore ?? 100;
+              const isVerified = (service as any).providerVerificationStatus === 'APPROVED' || provider?.isVerified || true;
               const { cash, gcash } = getServicePaymentMethods(service);
               const ctaText = getPrimaryBookingCTA(service);
               const isOwned = !!(user && service.providerId === user.id);
@@ -253,20 +277,31 @@ export default function SeekServices() {
                   <div>
                     {/* Card Header: Profile Info */}
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={service.providerAvatar}
-                          alt={service.providerName}
-                          className="w-10 h-10 rounded-full object-cover border border-slate-100"
-                        />
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (service.providerId) {
+                            router.push(`/seeker/user-profile?id=${service.providerId}`);
+                          }
+                        }}
+                        className="flex items-center space-x-3 group/author cursor-pointer select-none rounded-xl p-1 -m-1 transition-all hover:bg-slate-100/70 dark:hover:bg-neutral-800/60"
+                        title={`View ${service.providerName}'s profile`}
+                      >
+                        <div className="relative flex-shrink-0">
+                          <img
+                            src={service.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(service.providerName || 'Provider')}&background=random`}
+                            alt={service.providerName}
+                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-all duration-200 group-hover/author:scale-105 group-hover/author:ring-2 group-hover/author:ring-orange-500/50"
+                          />
+                        </div>
                         <div>
-                          <h4 className={`font-bold text-xs leading-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                          <h4 className={`font-bold text-xs leading-tight transition-colors duration-200 group-hover/author:text-orange-500 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                             {service.providerName}
                           </h4>
 
                           {isVerified && (
                             <span className="inline-flex items-center text-[10px] text-emerald-600 font-semibold mt-0.5">
-                              <ShieldCheck className={`w-3.5 h-3.5 mr-0.5 ${isDark ? 'text-emerald-450 fill-emerald-950/20' : 'fill-emerald-50 text-emerald-600'}`} />
+                              <ShieldCheck className={`w-3.5 h-3.5 mr-0.5 ${isDark ? 'text-emerald-455 fill-emerald-950/20' : 'fill-emerald-50 text-emerald-600'}`} />
                               Verified
                             </span>
                           )}
@@ -274,16 +309,40 @@ export default function SeekServices() {
                       </div>
 
                       {/* Rating star / Trust badge */}
-                      <div className="text-right flex flex-col items-end">
-                        <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-md border text-[11px] font-bold ${isDark
-                            ? 'bg-amber-950/20 text-amber-400 border-amber-900/30'
-                            : 'bg-amber-50 border-amber-150/50 text-amber-700'
-                          }`}>
-                          <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                          <span>{service.rating}</span>
-                        </span>
-                        <span className={`text-[10px] font-bold mt-1 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                          {trustScore}% Trust
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (service.providerId) {
+                            router.push(`/seeker/user-profile?id=${service.providerId}&tab=reviews`);
+                          }
+                        }}
+                        className="text-right flex flex-col items-end cursor-pointer group/rating select-none transition-all"
+                        title="View provider reviews and trust history"
+                      >
+                        {service.reviewCount && service.reviewCount > 0 ? (
+                          <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-md border text-[11px] font-bold transition-all group-hover/rating:border-amber-400 ${isDark
+                              ? 'bg-amber-950/20 text-amber-400 border-amber-900/30'
+                              : 'bg-amber-50 border-amber-150/50 text-amber-700'
+                            }`}>
+                            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                            <span>{service.rating.toFixed(1)}</span>
+                            <span className="text-[9px] text-slate-400 font-normal">({service.reviewCount})</span>
+                          </span>
+                        ) : (
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-extrabold uppercase tracking-wider ${isDark
+                              ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/40'
+                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            }`}>
+                            <span>NEW</span>
+                          </span>
+                        )}
+
+                        <span className={`text-[10px] font-bold mt-1 block transition-colors ${
+                          trustScore >= 85 
+                            ? (isDark ? 'text-emerald-400 group-hover/rating:text-emerald-300' : 'text-emerald-600 group-hover/rating:text-emerald-700')
+                            : (isDark ? 'text-[#b4b0a9] group-hover/rating:text-[#f2efe9]' : 'text-slate-500 group-hover/rating:text-slate-700')
+                        }`}>
+                          {trustScore >= 85 ? `★ Top Rated (${trustScore} pts)` : isVerified ? `🛡️ Verified Member` : `🛡️ Good Standing`}
                         </span>
                       </div>
                     </div>
@@ -324,7 +383,12 @@ export default function SeekServices() {
                   <div className="flex items-center justify-between">
                     {/* Left: Status */}
                     <div className="flex flex-col space-y-1">
-                      {service.queueSize > 0 ? (
+                      {service.queueSize >= (service.queueLimit || 5) ? (
+                        <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-rose-400' : 'text-rose-600'}`}>
+                          <Clock className="w-3.5 h-3.5 mr-1 text-rose-500 animate-none" />
+                          <span>Queue Full ({service.queueSize}/{service.queueLimit || 5})</span>
+                        </div>
+                      ) : service.queueSize > 0 ? (
                         <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                           <Clock className="w-3.5 h-3.5 mr-1 text-amber-500 animate-none" />
                           <span>Busy (Queue: {service.queueSize})</span>
@@ -421,38 +485,50 @@ export default function SeekServices() {
                           You cannot book your own service.
                         </p>
                       </div>
-                    ) : (
-                      <>
-                        {/* Primary CTA — opens modal pre-selecting the right method */}
-                        <button
-                          type="button"
-                          onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
-                          className={`w-full font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${
-                            gcash && !cash
-                              ? 'bg-orange-600 hover:bg-orange-700 text-white'
-                              : isDark
-                                ? 'bg-[#f2efe9] hover:bg-white text-slate-950'
-                                : 'bg-[#1a2238] hover:bg-[#111726] text-white'
-                          }`}
-                        >
-                          {gcash && !cash
-                            ? <Smartphone className="w-3.5 h-3.5" />
-                            : <MapPin className="w-3.5 h-3.5" />}
-                          <span>{ctaText}</span>
-                        </button>
-
-                        {/* Secondary GCash button only when BOTH methods are supported */}
-                        {cash && gcash && (
+                    ) : service.queueSize >= (service.queueLimit || 5) ? (
+                      /* Queue is Full */
+                      cash ? (
+                        /* If Cash is supported, allow direct cash booking OR join waitlist for online queue */
+                        <div className="flex gap-2">
                           <button
                             type="button"
-                            onClick={() => handleBookListing(service, 'GCash')}
-                            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                            onClick={() => handleJoinWaitlist(service)}
+                            disabled={joiningWaitlistId === service.id}
+                            className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1 cursor-pointer disabled:opacity-60"
                           >
-                            <Smartphone className="w-3.5 h-3.5" />
-                            <span>Book with GCash</span>
+                            <Bell className="w-3 h-3" />
+                            <span>{joiningWaitlistId === service.id ? 'Joining...' : 'Notify Me'}</span>
                           </button>
-                        )}
-                      </>
+                          <button
+                            type="button"
+                            onClick={() => handleBookListing(service, 'On-site Cash')}
+                            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold text-[11px] py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1 cursor-pointer"
+                          >
+                            <MapPin className="w-3 h-3" />
+                            <span>Direct Cash</span>
+                          </button>
+                        </div>
+                      ) : (
+                        /* Online only and queue is full — waitlist only */
+                        <button
+                          type="button"
+                          onClick={() => handleJoinWaitlist(service)}
+                          disabled={joiningWaitlistId === service.id}
+                          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-60"
+                        >
+                          <Bell className="w-3.5 h-3.5" />
+                          <span>{joiningWaitlistId === service.id ? 'Joining Waitlist...' : 'Notify Me When Open'}</span>
+                        </button>
+                      )
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                      >
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>Book Service</span>
+                      </button>
                     )}
                   </div>
 

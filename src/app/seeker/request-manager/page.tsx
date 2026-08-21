@@ -12,7 +12,8 @@ export default function RequestManagerPage() {
     <RequestManager 
       currentUserId={user?.id}
       onNavigateToOffers={() => router.push('/seeker/incoming-offers')} 
-      onNavigateToPost={() => router.push('/seeker/post-request')} 
+      onNavigateToPost={() => router.push('/seeker/post-request')}
+      onNavigateToActivity={() => router.push('/seeker/seeker-activity')}
     />
   );
 }

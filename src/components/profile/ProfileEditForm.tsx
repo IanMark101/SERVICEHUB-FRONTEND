@@ -1,6 +1,7 @@
 "use client";
-import React from 'react';
-import { Edit3, X, Save } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Edit3, X, Save, Camera, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
+import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -31,6 +32,7 @@ interface ProfileEditFormProps {
   labelText: string;
   headingText: string;
   inputClass: string;
+  role?: string;
 }
 
 export default function ProfileEditForm({
@@ -44,12 +46,38 @@ export default function ProfileEditForm({
   labelText,
   headingText,
   inputClass,
+  role = 'seeker',
 }: ProfileEditFormProps) {
+  const isProvider = role === 'provider';
+  const isAdmin = role === 'admin';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
+  const saveBtnBg = isProvider ? 'bg-emerald-600 hover:bg-emerald-700' : isAdmin ? 'bg-blue-600 hover:bg-blue-700' : 'bg-orange-600 hover:bg-orange-700';
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [processingImage, setProcessingImage] = useState(false);
+
+  const handleAvatarFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError(null);
+    setProcessingImage(true);
+    try {
+      const cdnUrl = await uploadAvatarToCloudinary(file);
+      setEditForm((f: any) => ({ ...f, avatarUrl: cdnUrl }));
+    } catch (err: any) {
+      setUploadError(err.message || 'Failed to process and upload image');
+    } finally {
+      setProcessingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className={`${cardBg} rounded-[24px] p-6 border shadow-md space-y-4`}>
       <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
         <h3 className={`font-extrabold text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
-          <Edit3 size={16} className="text-orange-500" /> Edit Profile Information
+          <Edit3 size={16} className={accentColor} /> Edit Profile Information
         </h3>
         <X size={18} className="cursor-pointer text-slate-400 hover:text-slate-600" onClick={() => setShowEdit(false)} />
       </div>
@@ -100,14 +128,65 @@ export default function ProfileEditForm({
           />
         </div>
 
-        <div className="sm:col-span-2">
-          <label className={`block text-xs font-bold mb-1 ${labelText}`}>Avatar Image URL</label>
-          <input
-            className={inputClass}
-            value={editForm.avatarUrl}
-            onChange={e => setEditForm((f: any) => ({ ...f, avatarUrl: e.target.value }))}
-            placeholder="https://images.unsplash.com/..."
-          />
+        {/* 📸 Profile Photo Upload & Preview */}
+        <div className="sm:col-span-2 p-4 rounded-2xl border dark:border-neutral-800 bg-slate-50/50 dark:bg-[#1c1b18]/40 space-y-3">
+          <label className={`block text-xs font-bold ${labelText}`}>Profile Picture</label>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="relative group flex-shrink-0">
+              <img
+                src={editForm.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name || 'User')}&background=random`}
+                alt="Profile Preview"
+                className="w-20 h-20 rounded-full object-cover border-2 border-slate-300 dark:border-neutral-700 shadow-sm"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={processingImage}
+                className="absolute inset-0 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                title="Change Photo"
+              >
+                <Camera size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 space-y-2 text-center sm:text-left w-full">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleAvatarFileSelect}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={processingImage}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold ${saveBtnBg} text-white flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-60`}
+                >
+                  <Upload size={13} />
+                  <span>{processingImage ? 'Optimizing...' : 'Upload New Photo'}</span>
+                </button>
+
+                {editForm.avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setEditForm((f: any) => ({ ...f, avatarUrl: '' }))}
+                    className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-neutral-800 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 transition-all flex items-center gap-1"
+                  >
+                    <Trash2 size={13} />
+                    <span>Reset</span>
+                  </button>
+                )}
+              </div>
+              <p className={`text-[11px] ${labelText}`}>
+                Supported formats: JPG, PNG, WebP (Max 10MB). Automatically cropped & optimized.
+              </p>
+              {uploadError && (
+                <p className="text-[11px] font-bold text-rose-500">⚠️ {uploadError}</p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Social Media Links */}
@@ -157,7 +236,7 @@ export default function ProfileEditForm({
         <button
           onClick={handleSaveProfile}
           disabled={saving}
-          className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 disabled:opacity-60 transition-all"
+          className={`px-5 py-2 rounded-xl text-xs font-bold ${saveBtnBg} text-white flex items-center gap-1.5 disabled:opacity-60 transition-all shadow-sm active:scale-95`}
         >
           <Save size={14} />
           <span>{saving ? 'Saving...' : 'Save Profile'}</span>

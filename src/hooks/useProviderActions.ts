@@ -56,6 +56,11 @@ export function useProviderActions({
 
   const resolveCategoryId = (catName: string): string | undefined => {
     if (!dbCategories || dbCategories.length === 0) return undefined;
+
+    // 0. Direct ID match
+    const directMatch = dbCategories.find(c => c.id === catName);
+    if (directMatch) return directMatch.id;
+
     const target = catName.trim().toLowerCase();
 
     // 1. Exact match
@@ -87,7 +92,13 @@ export function useProviderActions({
     price: number,
     description: string,
     proofUrl: string,
-    paymentMethods: { cash: boolean; gcash: boolean }
+    paymentMethods: { cash: boolean; gcash: boolean },
+    options?: {
+      serviceType?: string;
+      priceType?: string;
+      estimatedDurationMins?: number;
+      queueLimit?: number;
+    }
   ) => {
     try {
       const catId = resolveCategoryId(category);
@@ -97,9 +108,11 @@ export function useProviderActions({
           title,
           description,
           price,
-          estimatedDurationMins: 60,
+          serviceType: options?.serviceType || 'ONE_TIME',
+          priceType: options?.priceType || 'FIXED',
+          estimatedDurationMins: options?.estimatedDurationMins || 60,
           paymentMethods: { cash: paymentMethods.cash, gcash: paymentMethods.gcash, maya: false },
-          queueLimit: 5,
+          queueLimit: options?.queueLimit || 5,
         });
 
         if (res.success) {
@@ -110,9 +123,11 @@ export function useProviderActions({
             providerName: 'My Service',
             providerAvatar: '',
             title,
-            category,
+            category: item.category?.name || category,
             description,
             price,
+            serviceType: item.serviceType || (options?.serviceType as any) || 'ONE_TIME',
+            priceType: item.priceType || (options?.priceType as any) || 'FIXED',
             queueSize: 0,
             isPaused: false,
             proofOfSkillUrl: proofUrl,
@@ -135,11 +150,39 @@ export function useProviderActions({
     }
   };
 
-  const editServiceListing = async (serviceId: string, title: string, price: number, description: string) => {
+  const editServiceListing = async (
+    serviceId: string,
+    title: string,
+    price: number,
+    description: string,
+    options?: {
+      priceType?: string;
+      serviceType?: string;
+    }
+  ) => {
     try {
-      const res = await apiUpdateService(serviceId, { title, price, description });
+      const res = await apiUpdateService(serviceId, {
+        title,
+        price,
+        description,
+        ...(options?.priceType ? { priceType: options.priceType } : {}),
+        ...(options?.serviceType ? { serviceType: options.serviceType } : {}),
+      });
       if (res.success) {
-        setServices(prev => prev.map(s => s.id === serviceId ? { ...s, title, price, description } : s));
+        setServices(prev =>
+          prev.map(s =>
+            s.id === serviceId
+              ? {
+                  ...s,
+                  title,
+                  price,
+                  description,
+                  ...(options?.priceType ? { priceType: options.priceType as any } : {}),
+                  ...(options?.serviceType ? { serviceType: options.serviceType as any } : {}),
+                }
+              : s
+          )
+        );
         success('Listing Updated', 'Service details modified successfully.');
         return;
       }

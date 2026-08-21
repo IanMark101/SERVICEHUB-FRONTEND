@@ -26,9 +26,6 @@ export function getServicePaymentMethods(service: ServiceListing | any): Resolve
 }
 
 export function getPrimaryBookingCTA(service: ServiceListing | any): string {
-  const { cash, gcash } = getServicePaymentMethods(service);
-  if (cash && !gcash) return 'Request On-Site';
-  if (!cash && gcash) return 'Book with GCash';
   return 'Book Service';
 }
 

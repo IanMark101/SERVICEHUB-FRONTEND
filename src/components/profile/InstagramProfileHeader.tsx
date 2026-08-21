@@ -105,8 +105,11 @@ export default function InstagramProfileHeader({
           <div className={`p-1 rounded-full bg-gradient-to-tr ${borderRing} shadow-lg transition-transform duration-300 group-hover:scale-105`}>
             <div className="p-1 bg-white dark:bg-[#22211e] rounded-full">
               <img
-                src={avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`}
+                src={avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=random`}
                 alt={displayName}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=random`;
+                }}
                 className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover"
               />
             </div>

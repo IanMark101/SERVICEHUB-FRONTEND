@@ -7,6 +7,7 @@ import UserProfile from '../../../components/profile/UserProfile';
 function ProfileContent() {
   const searchParams = useSearchParams();
   const targetId = searchParams.get('id');
+  const tabParam = searchParams.get('tab') as any;
   const { user, users } = useApp();
 
   let targetUser = user;
@@ -50,6 +51,7 @@ function ProfileContent() {
       <UserProfile
         targetUser={targetUser}
         isOwnProfile={isOwnProfile}
+        initialTab={tabParam || undefined}
       />
     </div>
   );

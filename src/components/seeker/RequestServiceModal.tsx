@@ -4,6 +4,7 @@ import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { X, CreditCard, MapPin, Smartphone, Sparkles } from 'lucide-react';
 import { apiGetProviderSummary } from '../../api/ai.api';
+import { apiBookDirect } from '../../api/bookings.api';
 import { getServicePaymentMethods, shouldShowPaymentSelector } from '../../lib/paymentUtils';
 
 interface RequestServiceModalProps {
@@ -32,6 +33,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(listing.price);
   const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(resolveDefault);
+  const [scheduledDate, setScheduledDate] = useState<string>('');
+  const [scheduledTime, setScheduledTime] = useState<string>('');
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
 
@@ -73,28 +77,55 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     };
   }, [listing.providerId]);
 
-  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormError(null);
+
     if (!description.trim()) {
-      alert('Please enter a description for the booking.');
+      setFormError('Please describe the work needed before sending the request.');
+      return;
+    }
+
+    if (listing.serviceType === 'SESSION_BASED') {
+      if (!scheduledDate) {
+        setFormError('Please select a session date.');
+        return;
+      }
+      if (!scheduledTime) {
+        setFormError('Please select a session start time.');
+        return;
+      }
+    }
+
+    if (!user) {
+      setFormError('You must be logged in to book a service.');
       return;
     }
 
     setLoading(true);
-
-    // Mock API call delay
-    setTimeout(() => {
-      const seekerId = user?.id || '';
-
-      bookProviderDirectly(seekerId, listing.id, price, description, paymentMethod);
-
+    try {
+      if (paymentMethod === 'On-site Cash') {
+        // Cash path — call apiBookDirect directly to pass scheduledDate/Time
+        await apiBookDirect({
+          serviceId: listing.id,
+          agreedPrice: price,
+          message: description,
+          scheduledDate: scheduledDate || undefined,
+          scheduledTime: scheduledTime || undefined,
+        });
+      } else {
+        // GCash/online path — use the existing hook
+        await bookProviderDirectly(user.id, listing.id, price, description, paymentMethod);
+      }
       setLoading(false);
       setSuccess(true);
-
       setTimeout(() => {
         onClose();
-      }, 1000);
-    }, 800);
+      }, 1500);
+    } catch (err: any) {
+      setLoading(false);
+      setFormError(err?.response?.data?.error || err?.message || 'Booking failed. Please try again.');
+    }
   };
 
   return (
@@ -250,6 +281,45 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               />
             </div>
 
+            {/* Session Scheduling — only for SESSION_BASED services */}
+            {listing.serviceType === 'SESSION_BASED' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                    Session Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    disabled={isOwned}
+                    value={scheduledDate}
+                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
+                    } ${isOwned ? 'opacity-65' : ''}`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                    Session Start Time
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    disabled={isOwned}
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
+                    } ${isOwned ? 'opacity-65' : ''}`}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Price offer / Budget */}
             <div>
               <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
@@ -331,6 +401,18 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
             }`}>
               ⚠️ You can cancel for free anytime before the provider starts the job. Once they've started, cancellation needs their approval.
             </p>
+
+            {/* Error Message */}
+            {formError && (
+              <div className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center space-x-2 ${
+                isDark
+                  ? 'bg-red-950/30 border-red-900/40 text-red-400'
+                  : 'bg-red-50 border-red-200 text-red-600'
+              }`}>
+                <span>⚠️</span>
+                <span>{formError}</span>
+              </div>
+            )}
 
             {/* Actions */}
             <div className={`pt-3 border-t mt-3 flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>

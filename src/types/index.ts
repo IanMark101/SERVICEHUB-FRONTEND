@@ -32,6 +32,7 @@ export interface User {
   verificationStatus?: VerificationStatus;
   emailVerified?: boolean;
   isActive?: boolean;
+  location?: string;
 }
 
 export interface ServiceListing {
@@ -44,14 +45,20 @@ export interface ServiceListing {
   description: string;
   price: number;
   queueSize: number;
+  queueLimit?: number;
   isPaused: boolean;
   proofOfSkillUrl: string; // Proof uploaded for verification
   rating: number;
+  providerTrustScore?: number;
+  reviewCount?: number;
   // serviceType: ONE_TIME = single engagement, SESSION_BASED = repeatable sessions
   // (e.g. tutoring, fitness coaching). Defaults to ONE_TIME for all existing listings.
   serviceType?: 'ONE_TIME' | 'SESSION_BASED';
   // priceType controls how the price is displayed (e.g. ₱200 / session, ₱500 / project)
   priceType?: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
+  status?: 'PENDING_REVIEW' | 'ACTIVE' | 'REJECTED' | 'INACTIVE' | 'SUSPENDED' | 'DELETED';
+  adminNotes?: string | null;
+  rejectionCount?: number;
   paymentMethods?: {
     cash: boolean;
     gcash: boolean;
@@ -70,8 +77,9 @@ export interface JobRequest {
   urgency: string;
   budget: number;
   description: string;
-  status: 'open' | 'paused' | 'filled' | 'canceled' | 'OPEN' | 'IN_PROGRESS' | 'CANCELED';
+  status: 'open' | 'paused' | 'filled' | 'canceled' | 'OPEN' | 'IN_PROGRESS' | 'CANCELED' | 'CLOSED' | 'closed';
   createdAt: string;
+  offersCount?: number;
 }
 
 export interface Bid {

@@ -70,6 +70,11 @@ export function useSeekerActions({
 
   const resolveCategoryId = (catName: string): string | undefined => {
     if (!dbCategories || dbCategories.length === 0) return undefined;
+
+    // 0. Direct ID match
+    const directMatch = dbCategories.find(c => c.id === catName);
+    if (directMatch) return directMatch.id;
+
     const target = catName.trim().toLowerCase();
 
     // 1. Exact match
@@ -151,6 +156,38 @@ export function useSeekerActions({
       }
     } catch (err: any) {
       toastError('Deletion Failed', err.response?.data?.error || err.message);
+    }
+  };
+
+  const toggleJobRequestStatus = async (requestId: string, currentStatus?: string): Promise<boolean> => {
+    const current = jobRequests.find(r => r.id === requestId);
+    const effectiveStatus = currentStatus || (current ? current.status : 'OPEN');
+    const isCurrentlyOpen = effectiveStatus === 'OPEN' || effectiveStatus === 'open';
+    const nextStatus = isCurrentlyOpen ? 'CLOSED' : 'OPEN';
+
+    // 1. Instant optimistic state update
+    setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: nextStatus } : r));
+
+    try {
+      // 2. Perform API update
+      const res = await apiUpdateRequest(requestId, { status: nextStatus });
+      if (res.success) {
+        // 3. Notification fires in sync with the actual confirmed update
+        if (nextStatus === 'OPEN') {
+          success('Request Activated 🟢', 'Your task request is now active and visible to providers.');
+        } else {
+          info('Request Paused ⏸️', 'Your task request is paused. Providers cannot submit offers.');
+        }
+        await syncRequests();
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      // Revert optimistic update on failure
+      setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: effectiveStatus as any } : r));
+      toastError('Status Update Failed', err.response?.data?.error || err.message);
+      await syncRequests();
+      return false;
     }
   };
 
@@ -352,6 +389,7 @@ export function useSeekerActions({
     postJobRequest,
     editJobRequest,
     deleteJobRequest,
+    toggleJobRequestStatus,
     acceptBid,
     declineBid,
     confirmJobCompletion,

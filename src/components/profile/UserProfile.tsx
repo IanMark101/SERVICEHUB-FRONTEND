@@ -48,6 +48,7 @@ import VerificationUpload from './VerificationUpload';
 interface UserProfileProps {
   targetUser: UserSession;
   isOwnProfile?: boolean;
+  initialTab?: 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
   onProfileUpdated?: (updated: Partial<UserSession>) => void;
   onTriggerVerification?: () => void;
 }
@@ -55,6 +56,7 @@ interface UserProfileProps {
 export default function UserProfile({
   targetUser,
   isOwnProfile = false,
+  initialTab,
   onProfileUpdated,
 }: UserProfileProps) {
   const {
@@ -112,11 +114,16 @@ export default function UserProfile({
     labelText,
     headingText,
     inputClass,
-  } = useUserProfileState({ targetUser, isOwnProfile, onProfileUpdated });
+  } = useUserProfileState({ targetUser, isOwnProfile, initialTab, onProfileUpdated });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const trustBand = getTrustBand(trustScore);
+
+  const isProvider = role === 'provider';
+  const isAdmin = role === 'admin';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
+  const activeTabBg = isProvider ? 'bg-emerald-600 text-white shadow-sm' : isAdmin ? 'bg-blue-600 text-white shadow-sm' : 'bg-orange-600 text-white shadow-sm';
 
   return (
     <div className={`max-w-5xl mx-auto space-y-6 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
@@ -162,6 +169,7 @@ export default function UserProfile({
           labelText={labelText}
           headingText={headingText}
           inputClass={inputClass}
+          role={role}
         />
       )}
 
@@ -171,7 +179,7 @@ export default function UserProfile({
           onClick={() => setActiveTab('overview')}
           className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'overview'
-              ? 'bg-emerald-600 text-white shadow-sm'
+              ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
           }`}
         >
@@ -183,7 +191,7 @@ export default function UserProfile({
           onClick={() => setActiveTab('reviews')}
           className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'reviews'
-              ? 'bg-emerald-600 text-white shadow-sm'
+              ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
           }`}
         >
@@ -195,7 +203,7 @@ export default function UserProfile({
           onClick={() => setActiveTab('trust')}
           className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'trust'
-              ? 'bg-emerald-600 text-white shadow-sm'
+              ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
           }`}
         >
@@ -207,7 +215,7 @@ export default function UserProfile({
           onClick={() => setActiveTab('verification')}
           className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'verification'
-              ? 'bg-emerald-600 text-white shadow-sm'
+              ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
           }`}
         >
@@ -227,7 +235,7 @@ export default function UserProfile({
           {/* Identity Info Card */}
           <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
-              <User size={17} className="text-emerald-500" /> Identity Details
+              <User size={17} className={accentColor} /> Identity Details
             </h3>
 
             <div className="space-y-3 text-xs">
@@ -307,7 +315,7 @@ export default function UserProfile({
           {/* Professional Details Card */}
           <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
-              <Briefcase size={17} className="text-emerald-500" /> Professional Summary
+              <Briefcase size={17} className={accentColor} /> Professional Summary
             </h3>
 
             <div className="space-y-3 text-xs">
@@ -372,7 +380,7 @@ export default function UserProfile({
           <div className={`${cardBg} rounded-[24px] p-6 border space-y-4 md:col-span-2`}>
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center justify-between ${headingText}`}>
               <span className="flex items-center gap-2">
-                <TrendingUp size={17} className="text-emerald-500" />
+                <TrendingUp size={17} className={accentColor} />
                 {role === 'provider' ? 'Published Service Offerings' : 'Posted Service Requests'}
               </span>
               <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${innerBg} ${labelText}`}>

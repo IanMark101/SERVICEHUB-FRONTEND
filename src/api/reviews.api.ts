@@ -14,3 +14,16 @@ export async function apiGetProviderReviews(providerId: string) {
   const response = await api.get(`/reviews/provider/${providerId}`);
   return response.data;
 }
+
+export async function apiUpdateReview(
+  id: string,
+  data: {
+    rating?: number;
+    text?: string;
+    tags?: string[];
+  }
+) {
+  const response = await api.patch(`/reviews/${id}`, data);
+  return response.data;
+}
+

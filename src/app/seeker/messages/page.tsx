@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { MessageSquare, Send, ChevronLeft, ImagePlus, Loader2, Lock, ShieldCheck } from 'lucide-react';
+import { MessageSquare, Send, ChevronLeft, ImagePlus, Loader2, Lock, ShieldCheck, X } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { apiGetMessages, apiSendMessage, apiGetConversations } from '../../../api/messages.api';
 import { joinBookingRoom, getSocket } from '../../../lib/socket';
+import { processMessageImage } from '../../../lib/imageUtils';
 
 interface DbMessage {
   id: string;
@@ -54,11 +55,13 @@ export default function SeekerMessagesPage() {
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
   const [input, setInput] = useState('');
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync conversation list from backend
   const syncConversations = useCallback(async () => {
@@ -159,13 +162,28 @@ export default function SeekerMessagesPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await processMessageImage(file);
+      setAttachedImage(dataUrl);
+    } catch (err: any) {
+      setError(err.message || 'Failed to attach image.');
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || !selectedConv || sending) return;
-    const content = input.trim();
+    if ((!input.trim() && !attachedImage) || !selectedConv || sending) return;
+    const content = input.trim() || 'Sent an attachment';
+    const img = attachedImage;
     setInput('');
+    setAttachedImage(null);
     setSending(true);
     try {
-      const res = await apiSendMessage(selectedConv.bookingId, content);
+      const res = await apiSendMessage(selectedConv.bookingId, content, img || undefined);
       if (res.success) {
         setMessages(prev => {
           const exists = prev.some(m => m.id === res.data.id);
@@ -175,6 +193,7 @@ export default function SeekerMessagesPage() {
       }
     } catch (e: any) {
       setInput(content);
+      setAttachedImage(img);
       setError(e?.response?.data?.error || 'Failed to send message.');
     } finally {
       setSending(false);
@@ -419,27 +438,54 @@ export default function SeekerMessagesPage() {
                   <span>This conversation is read-only because the transaction is closed.</span>
                 </div>
               ) : (
-                <div className="flex items-end gap-2">
-                  <button className={`p-2 rounded-lg transition-colors ${textMuted} hover:text-orange-500`} title="Attach image (URL)">
-                    <ImagePlus size={16} />
-                  </button>
-                  <textarea
-                    ref={textareaRef}
-                    rows={1}
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type a message… (Enter to send)"
-                    className={`flex-1 resize-none rounded-xl border px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-orange-500 transition-all ${inputBg}`}
-                    style={{ maxHeight: '96px' }}
-                  />
-                  <button
-                    onClick={handleSend}
-                    disabled={!input.trim() || sending}
-                    className="p-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-                  >
-                    {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                  </button>
+                <div>
+                  {attachedImage && (
+                    <div className="relative inline-block mb-2 p-1.5 border rounded-2xl bg-slate-100 dark:bg-neutral-800/80 dark:border-neutral-700">
+                      <img src={attachedImage} alt="Attachment preview" className="h-16 w-16 object-cover rounded-xl" />
+                      <button
+                        type="button"
+                        onClick={() => setAttachedImage(null)}
+                        className="absolute -top-1.5 -right-1.5 p-1 bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow transition-all cursor-pointer"
+                        title="Remove image"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex items-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`p-2 rounded-lg transition-colors ${textMuted} hover:text-orange-500 cursor-pointer`}
+                      title="Attach image from device"
+                    >
+                      <ImagePlus size={16} />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                    />
+                    <textarea
+                      ref={textareaRef}
+                      rows={1}
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Type a message… (Enter to send)"
+                      className={`flex-1 resize-none rounded-xl border px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-orange-500 transition-all ${inputBg}`}
+                      style={{ maxHeight: '96px' }}
+                    />
+                    <button
+                      onClick={handleSend}
+                      disabled={(!input.trim() && !attachedImage) || sending}
+                      className="p-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0 cursor-pointer"
+                    >
+                      {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

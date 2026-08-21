@@ -38,6 +38,10 @@ export function resolveNotificationLink(
     link = link.replace('/seeker/messages', '/provider/messages');
   } else if (currentRole === 'seeker' && link.startsWith('/provider/messages')) {
     link = link.replace('/provider/messages', '/seeker/messages');
+  } else if (currentRole === 'seeker' && link.startsWith('/provider/user-profile')) {
+    link = link.replace('/provider/user-profile', '/seeker/user-profile');
+  } else if (currentRole === 'provider' && link.startsWith('/seeker/user-profile')) {
+    link = link.replace('/seeker/user-profile', '/provider/user-profile');
   }
 
   // Ensure query parameters preserve tab & booking highlighting

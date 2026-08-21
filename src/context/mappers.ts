@@ -68,6 +68,18 @@ export function mapCompletedServiceToEngagement(cs: any): JobEngagement {
 }
 
 export function mapServiceToListing(item: any): ServiceListing {
+  const reviews = item.provider?.reviewsReceived || [];
+  const reviewCount = reviews.length;
+  let avgRating = 5.0;
+  if (reviewCount > 0) {
+    const sum = reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0);
+    avgRating = Number((sum / reviewCount).toFixed(1));
+  } else if (typeof item.rating === 'number' && item.rating <= 5) {
+    avgRating = item.rating;
+  }
+
+  const rawTrust = item.provider?.trustScore ?? (typeof item.trustScore === 'number' ? item.trustScore : 100);
+
   return {
     id: item.id,
     providerId: item.providerId || item.provider?.id,
@@ -77,14 +89,20 @@ export function mapServiceToListing(item: any): ServiceListing {
     category: item.category?.name || 'General',
     description: item.description,
     price: Number(item.price),
-    queueSize: item.queueEntries?.length || 0,
+    queueSize: (item.queueEntries?.length || 0) + (item.bookings?.length || 0),
+    queueLimit: item.queueLimit || 5,
     isPaused: !item.isAvailable,
     proofOfSkillUrl: '',
-    rating: item.provider?.trustScore ? item.provider.trustScore / 20 : 5.0,
+    rating: avgRating,
+    providerTrustScore: rawTrust,
+    reviewCount: reviewCount,
     // serviceType and priceType are passed through from the DB so UI can display
     // session-based badges and pricing unit labels (e.g. ₱200 / session).
     serviceType: item.serviceType || 'ONE_TIME',
     priceType: item.priceType || 'FIXED',
+    status: item.status || (item.isAvailable ? 'ACTIVE' : 'INACTIVE'),
+    adminNotes: item.adminNotes || null,
+    rejectionCount: item.rejectionCount || 0,
     paymentMethods: item.paymentMethods ? {
       cash: !!item.paymentMethods.cash,
       gcash: !!item.paymentMethods.gcash,
@@ -105,19 +123,27 @@ export function mapRequestToJobRequest(r: any): JobRequest {
     urgency: r.urgency || 'Medium Urgency (Next 1-2 days)',
     budget: Number(r.budgetMax || r.budgetMin || 0),
     description: r.description,
-    status: r.status === 'OPEN' ? 'open' : r.status === 'IN_PROGRESS' ? 'filled' : 'open',
+    status: r.status,
     createdAt: r.createdAt?.split('T')[0] || '',
+    offersCount: r.offers?.length || 0
   };
 }
 
 export function mapOfferToBid(o: any): Bid {
+  const reviews = o.provider?.reviewsReceived || [];
+  let avgRating = 5.0;
+  if (reviews.length > 0) {
+    const sum = reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0);
+    avgRating = Number((sum / reviews.length).toFixed(1));
+  }
+
   return {
     id: o.id,
     requestId: o.requestId,
     providerId: o.providerId || o.provider?.id,
     providerName: o.provider?.name || 'Provider',
     providerAvatar: o.provider?.avatarUrl || DEFAULT_AVATAR,
-    providerRating: o.provider?.trustScore ? o.provider.trustScore / 20 : 5.0,
+    providerRating: avgRating,
     price: Number(o.offeredPrice),
     message: o.message || '',
     status: o.status === 'PENDING' ? 'pending' : o.status === 'ACCEPTED' ? 'accepted' : 'declined',

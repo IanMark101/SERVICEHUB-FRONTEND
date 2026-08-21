@@ -40,7 +40,30 @@ export default function OfferServices() {
       // Mock skill proof url
       const mockProofUrl = 'cert_uploaded.jpg';
 
-      createServiceListing(providerId, title, category, price, description, mockProofUrl, { cash: acceptCash, gcash: acceptGCash });
+      // Parse estimated duration (e.g. "60", "60 mins", or "1 hour")
+      let durationMins = 60;
+      if (estTime.toLowerCase().includes('hour')) {
+        const hours = parseFloat(estTime) || 1;
+        durationMins = Math.round(hours * 60);
+      } else {
+        durationMins = parseInt(estTime, 10) || 60;
+      }
+
+      createServiceListing(
+        providerId,
+        title,
+        category,
+        price,
+        description,
+        mockProofUrl,
+        { cash: acceptCash, gcash: acceptGCash },
+        {
+          serviceType,
+          priceType,
+          estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
+          queueLimit: Math.max(1, Math.min(10, maxQueue)),
+        }
+      );
 
       setLoading(false);
       setSuccess(true);

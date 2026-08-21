@@ -3,9 +3,9 @@
 import { apiVerifyEmail } from "@/api/auth.api";
 import { CheckCircle2, CircleAlert, LoaderCircle, MailCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -163,5 +163,19 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-[#faf8f5]">
+          <LoaderCircle size={36} className="animate-spin text-orange-500" />
+        </main>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

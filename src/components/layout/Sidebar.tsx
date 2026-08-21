@@ -334,7 +334,7 @@ export default function Sidebar({
           <div className={`mx-1 p-2 rounded-xl border flex items-center space-x-2.5 transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-slate-50 border-slate-200/60'
             }`}>
             <img
-              src={user.avatarUrl}
+              src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`}
               alt="Avatar"
               className={`w-8 h-8 rounded-full object-cover border-2 ${currentRole === 'seeker'
                 ? isDark ? 'border-orange-500/40' : 'border-orange-600/30'

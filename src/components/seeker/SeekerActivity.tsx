@@ -18,7 +18,7 @@ import {
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import { apiCancelBooking, apiEscalateCancellationRequest } from '../../api/bookings.api';
-import { apiSubmitReview } from '../../api/reviews.api';
+import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ReviewModal from './ReviewModal';
 import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -238,15 +238,24 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     }
   };
 
-  const handleReviewSubmit = async (rating: number, comment: string, tags: string[]) => {
-    if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
-    await apiSubmitReview({
-      completedServiceId: reviewingEngagement.completedServiceId,
-      rating,
-      text: comment,
-      tags
-    });
-    success('Review Submitted! ⭐', 'Thank you for your feedback.');
+  const handleReviewSubmit = async (rating: number, comment: string, tags: string[], reviewId?: string) => {
+    if (reviewId) {
+      await apiUpdateReview(reviewId, {
+        rating,
+        text: comment,
+        tags
+      });
+      success('Review Updated! ⭐', 'Your review has been updated.');
+    } else {
+      if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
+      await apiSubmitReview({
+        completedServiceId: reviewingEngagement.completedServiceId,
+        rating,
+        text: comment,
+        tags
+      });
+      success('Review Submitted! ⭐', 'Thank you for your feedback.');
+    }
     refreshEngagements();
   };
 
@@ -520,13 +529,11 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
                     </h3>
 
                     <div className="flex items-center space-x-2.5">
-                      {je.providerAvatar && (
-                        <img
-                          src={je.providerAvatar}
-                          alt={je.providerName}
-                          className="w-7 h-7 rounded-full object-cover border border-slate-105 shadow-sm"
-                        />
-                      )}
+                      <img
+                        src={je.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(je.providerName || 'Provider')}&background=random`}
+                        alt={je.providerName}
+                        className="w-7 h-7 rounded-full object-cover border border-slate-105 shadow-sm"
+                      />
                       <div className="flex flex-wrap items-center gap-1 text-[11px] font-bold">
                         <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}>Provider:</span>
                         <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-700'}>{je.providerName}</span>
@@ -661,12 +668,31 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
                       )}
 
                       {je.status === 'completed' && (() => {
-                        const hasReviewed = je.reviews && je.reviews.some((r: any) => r.authorId === currentUserId);
-                        return hasReviewed ? (
-                          <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-emerald-455 bg-emerald-955/15 border-emerald-900/30' : 'text-emerald-700 bg-emerald-50 border-emerald-100'
-                            }`}>
-                            ✓ Reviewed
-                          </span>
+                        const myReview = je.reviews && je.reviews.find((r: any) => r.authorId === currentUserId);
+                        const canEdit = myReview && myReview.editableUntil
+                          ? new Date() < new Date(myReview.editableUntil)
+                          : myReview && myReview.createdAt
+                          ? new Date().getTime() - new Date(myReview.createdAt).getTime() < 24 * 60 * 60 * 1000
+                          : false;
+
+                        return myReview ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-emerald-455 bg-emerald-955/15 border-emerald-900/30' : 'text-emerald-700 bg-emerald-50 border-emerald-100'
+                              }`}>
+                              ✓ Reviewed ({myReview.rating}★)
+                            </span>
+                            {canEdit && (
+                              <button
+                                onClick={() => setReviewingEngagement(je)}
+                                className={`px-2.5 py-1.5 text-[10px] font-bold rounded-lg border transition-all hover:opacity-80 active:scale-95 cursor-pointer ${
+                                  isDark ? 'bg-neutral-800 border-neutral-700 text-neutral-300' : 'bg-slate-100 border-slate-200 text-slate-700'
+                                }`}
+                                title="Edit review (available within 24 hours of posting)"
+                              >
+                                Edit (24h)
+                              </button>
+                            )}
+                          </div>
                         ) : (
                           <button
                             onClick={() => setReviewingEngagement(je)}
@@ -971,15 +997,23 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           </div>
         </div>
       )}
-      {reviewingEngagement && (
-        <ReviewModal
-          isOpen={!!reviewingEngagement}
-          onClose={() => setReviewingEngagement(null)}
-          onSubmit={handleReviewSubmit}
-          providerName={reviewingEngagement.providerName}
-          isDark={isDark}
-        />
-      )}
+      {reviewingEngagement && (() => {
+        const existingReview = reviewingEngagement.reviews?.find((r: any) => r.authorId === currentUserId);
+        return (
+          <ReviewModal
+            isOpen={!!reviewingEngagement}
+            onClose={() => setReviewingEngagement(null)}
+            onSubmit={handleReviewSubmit}
+            providerName={reviewingEngagement.providerName}
+            isDark={isDark}
+            isEdit={!!existingReview}
+            reviewId={existingReview?.id}
+            initialRating={existingReview?.rating || 0}
+            initialComment={existingReview?.text || ''}
+            initialTags={Array.isArray(existingReview?.tags) ? existingReview.tags : []}
+          />
+        );
+      })()}
 
       {/* Confirmation Modal */}
       <ConfirmModal

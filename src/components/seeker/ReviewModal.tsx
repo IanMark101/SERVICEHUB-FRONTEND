@@ -4,18 +4,34 @@ import { Star, X, Check, Loader2 } from 'lucide-react';
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (rating: number, comment: string, tags: string[]) => Promise<void>;
+  onSubmit: (rating: number, comment: string, tags: string[], reviewId?: string) => Promise<void>;
   providerName: string;
   isDark?: boolean;
+  initialRating?: number;
+  initialComment?: string;
+  initialTags?: string[];
+  reviewId?: string;
+  isEdit?: boolean;
 }
 
 const POPULAR_TAGS = ["Punctual", "Skilled", "Friendly", "Professional", "Great Quality", "Fair Price", "Efficient"];
 
-export default function ReviewModal({ isOpen, onClose, onSubmit, providerName, isDark = false }: ReviewModalProps) {
-  const [rating, setRating] = useState<number>(0);
+export default function ReviewModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  providerName,
+  isDark = false,
+  initialRating = 0,
+  initialComment = '',
+  initialTags = [],
+  reviewId,
+  isEdit = false,
+}: ReviewModalProps) {
+  const [rating, setRating] = useState<number>(initialRating);
   const [hoverRating, setHoverRating] = useState<number>(0);
-  const [comment, setComment] = useState<string>('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [comment, setComment] = useState<string>(initialComment);
+  const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -38,12 +54,12 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, providerName, i
     setError('');
     setSubmitting(true);
     try {
-      await onSubmit(rating, comment, selectedTags);
+      await onSubmit(rating, comment, selectedTags, reviewId);
       setSubmitting(false);
       onClose();
     } catch (err: any) {
       setSubmitting(false);
-      setError(err.response?.data?.error || err.message || "Failed to submit review.");
+      setError(err.response?.data?.error || err.message || (isEdit ? "Failed to update review." : "Failed to submit review."));
     }
   };
 
@@ -59,10 +75,10 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, providerName, i
         }`}>
           <div>
             <h3 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-              Write a Review
+              {isEdit ? "Edit Your Review" : "Write a Review"}
             </h3>
             <p className={`text-[10px] ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-              For provider {providerName}
+              {isEdit ? "Editable within 24 hours of posting • " : ""}For provider {providerName}
             </p>
           </div>
           <button
@@ -170,10 +186,10 @@ export default function ReviewModal({ isOpen, onClose, onSubmit, providerName, i
             {submitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Submitting Review...</span>
+                <span>{isEdit ? "Updating Review..." : "Submitting Review..."}</span>
               </>
             ) : (
-              <span>Submit Review</span>
+              <span>{isEdit ? "Update Review" : "Submit Review"}</span>
             )}
           </button>
         </form>

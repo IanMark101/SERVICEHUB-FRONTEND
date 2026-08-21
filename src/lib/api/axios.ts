@@ -84,7 +84,11 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
-        const { accessToken } = refreshResponse.data;
+        // Refresh endpoint returns { success: true, data: { accessToken } }
+        const accessToken = refreshResponse.data?.data?.accessToken || refreshResponse.data?.accessToken;
+        if (!accessToken) {
+          throw new Error('No access token returned from refresh');
+        }
         localStorage.setItem('accessToken', accessToken);
 
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;

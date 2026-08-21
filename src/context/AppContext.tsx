@@ -17,7 +17,7 @@ import { apiGetRequests } from '../api/requests.api';
 import { apiGetReceivedOffers, apiGetMyOffers } from '../api/offers.api';
 import { apiGetMyEngagements, apiConfirmOnlineBooking } from '../api/bookings.api';
 import { apiGetNotifications } from '../api/notifications.api';
-import { apiBrowseServices } from '../api/services.api';
+import { apiBrowseServices, apiGetMyServices } from '../api/services.api';
 import { apiGetTransactions } from '../api/transactions.api';
 import { apiGetConversations } from '../api/messages.api';
 import { UserSession } from '../components/auth/LoginContainer';
@@ -43,6 +43,8 @@ import { useSharedActions } from '../hooks/useSharedActions';
 interface AppContextType {
   users: User[];
   services: ServiceListing[];
+  setServices: React.Dispatch<React.SetStateAction<ServiceListing[]>>;
+  refreshServices: () => void;
   jobRequests: JobRequest[];
   bids: Bid[];
   jobEngagements: JobEngagement[];
@@ -64,6 +66,7 @@ interface AppContextType {
   postJobRequest: (seekerId: string, title: string, category: string, urgency: string, budget: number, description: string) => void;
   editJobRequest: (requestId: string, title: string, budget: number, description: string) => void;
   deleteJobRequest: (requestId: string) => void;
+  toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
   acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => void;
   declineBid: (bidId: string) => void;
   confirmJobCompletion: (jobId: string) => void;
@@ -73,8 +76,31 @@ interface AppContextType {
   cancelQueue: (id: string) => void;
 
   // Provider actions
-  createServiceListing: (providerId: string, title: string, category: string, price: number, description: string, proofUrl: string, paymentMethods: { cash: boolean; gcash: boolean }) => void;
-  editServiceListing: (serviceId: string, title: string, price: number, description: string) => void;
+  createServiceListing: (
+    providerId: string,
+    title: string,
+    category: string,
+    price: number,
+    description: string,
+    proofUrl: string,
+    paymentMethods: { cash: boolean; gcash: boolean },
+    options?: {
+      serviceType?: string;
+      priceType?: string;
+      estimatedDurationMins?: number;
+      queueLimit?: number;
+    }
+  ) => void;
+  editServiceListing: (
+    serviceId: string,
+    title: string,
+    price: number,
+    description: string,
+    options?: {
+      priceType?: string;
+      serviceType?: string;
+    }
+  ) => void;
   toggleServiceListingStatus: (serviceId: string) => void;
   deleteServiceListing: (serviceId: string) => void;
   submitBid: (requestId: string, providerId: string, price: number, message: string) => void;
@@ -96,7 +122,7 @@ interface AppContextType {
   refreshEngagements: () => void;
   refreshAll: () => void;
   user: UserSession | null;
-  setUser: (user: UserSession | null) => void;
+  setUser: (user: UserSession | null | ((prev: UserSession | null) => UserSession | null)) => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (auth: boolean) => void;
   authLoading: boolean;
@@ -116,8 +142,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
 
   // Global Auth States
-  const [user, setUser] = useState<UserSession | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUserState] = useState<UserSession | null>(() => {
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('userSession');
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
+  });
+
+  const setUser = useCallback((valOrFn: UserSession | null | ((prev: UserSession | null) => UserSession | null)) => {
+    setUserState(prev => {
+      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
+      if (typeof window !== 'undefined') {
+        if (next) {
+          localStorage.setItem('userSession', JSON.stringify(next));
+        } else {
+          localStorage.removeItem('userSession');
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem('accessToken');
+    }
+    return false;
+  });
   const [authLoading, setAuthLoading] = useState<boolean>(true);
 
   // Data states — start with empty state, populated strictly by live database APIs
@@ -153,7 +211,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               firstName,
               lastName,
               role: finalRole,
-              avatarUrl: dbUser.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+              avatarUrl: dbUser.avatarUrl || '',
               bio: dbUser.bio || '',
               phone: dbUser.phone,
               trustScore: dbUser.trustScore,
@@ -164,11 +222,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem('accessToken');
+            localStorage.removeItem('userSession');
+            setUser(null);
           }
           setAuthLoading(false);
         })
         .catch(() => {
           localStorage.removeItem('accessToken');
+          localStorage.removeItem('userSession');
+          setUser(null);
           setAuthLoading(false);
         });
     } else {
@@ -178,6 +240,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const handleSessionExpired = () => {
       setIsAuthenticated(false);
       setUser(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('userSession');
+        localStorage.removeItem('accessToken');
+      }
     };
 
     window.addEventListener('auth_session_expired', handleSessionExpired);
@@ -208,10 +274,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const syncPublicServices = useCallback(async () => {
     try {
-      const res = await apiBrowseServices();
-      if (res.success && Array.isArray(res.data)) {
-        setServices(res.data.map(mapServiceToListing));
-      }
+      const [browseRes, mineRes] = await Promise.allSettled([
+        apiBrowseServices(),
+        apiGetMyServices(),
+      ]);
+
+      const publicServices: ServiceListing[] =
+        browseRes.status === 'fulfilled' && browseRes.value?.success && Array.isArray(browseRes.value.data)
+          ? browseRes.value.data.map(mapServiceToListing)
+          : [];
+
+      const myServices: ServiceListing[] =
+        mineRes.status === 'fulfilled' && mineRes.value?.success && Array.isArray(mineRes.value.data)
+          ? mineRes.value.data.map(mapServiceToListing)
+          : [];
+
+      const serviceMap = new Map<string, ServiceListing>();
+      publicServices.forEach(s => serviceMap.set(s.id, s));
+      myServices.forEach(s => serviceMap.set(s.id, s));
+
+      setServices(Array.from(serviceMap.values()));
     } catch {
       // ignore
     }
@@ -438,12 +520,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncUnreadMessages();
     });
 
+    // Real-time task request updates (active/paused toggles, new requests, cancellations)
+    sock.on('SERVICE_REQUEST_CREATED', () => {
+      syncRequests();
+    });
+    sock.on('SERVICE_REQUEST_UPDATED', () => {
+      syncRequests();
+    });
+    sock.on('SERVICE_REQUEST_DELETED', () => {
+      syncRequests();
+      syncBids();
+    });
+    sock.on('SERVICE_REQUESTS_CHANGED', () => {
+      syncRequests();
+    });
+
     return () => {
       sock.off('notification');
       sock.off('queue_update');
       sock.off('message_notification');
+      sock.off('SERVICE_REQUEST_CREATED');
+      sock.off('SERVICE_REQUEST_UPDATED');
+      sock.off('SERVICE_REQUEST_DELETED');
+      sock.off('SERVICE_REQUESTS_CHANGED');
     };
-  }, [isAuthenticated, syncNotifications, syncUnreadMessages]);
+  }, [isAuthenticated, syncNotifications, syncUnreadMessages, syncRequests, syncBids]);
 
   // Disconnect socket when user explicitly logs out
   useEffect(() => {
@@ -558,6 +659,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       users,
       services,
+      setServices,
+      refreshServices: syncPublicServices,
       jobRequests,
       bids,
       jobEngagements,

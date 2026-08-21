@@ -13,10 +13,12 @@ interface UseAuthFormProps {
 }
 
 export const avatars = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200', // Woman 1
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200', // Man 1
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200', // Woman 2
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200', // Man 2
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4,c0aede,d1d4f9',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Milo&backgroundColor=ffd5dc,ffdfbf',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Luna&backgroundColor=b6e3f4,ffd5dc',
+  'https://api.dicebear.com/7.x/adventurer/svg?seed=Jasper&backgroundColor=c0aede,ffdfbf',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=Sparky&backgroundColor=b6e3f4,d1d4f9',
+  'https://api.dicebear.com/7.x/lorelei/svg?seed=Bella&backgroundColor=ffd5dc,ffdfbf',
 ];
 
 export default function useAuthForm({
@@ -127,7 +129,7 @@ export default function useAuthForm({
             firstName,
             lastName,
             role: user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') as any || 'seeker'),
-            avatarUrl: user.avatarUrl || avatars[0],
+            avatarUrl: user.avatarUrl || '',
             bio: user.bio || '',
             phone: user.phone,
             trustScore: user.trustScore,
@@ -231,7 +233,7 @@ export default function useAuthForm({
               firstName,
               lastName,
               role: user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') as any || 'seeker'),
-              avatarUrl: user.avatarUrl || avatars[0],
+              avatarUrl: user.avatarUrl || '',
               bio: user.bio || '',
               phone: user.phone,
               trustScore: user.trustScore,

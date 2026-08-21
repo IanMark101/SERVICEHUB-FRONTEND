@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { UserSession } from '../auth/LoginContainer';
 import {
@@ -15,12 +16,14 @@ import { useToast } from '../ui/Toast';
 export interface UseUserProfileStateProps {
   targetUser: UserSession;
   isOwnProfile?: boolean;
+  initialTab?: 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
   onProfileUpdated?: (updated: Partial<UserSession>) => void;
 }
 
 export function useUserProfileState({
   targetUser,
   isOwnProfile = false,
+  initialTab,
   onProfileUpdated,
 }: UseUserProfileStateProps) {
   const { isDark, setUser, user, toggleTheme, services = [], jobRequests = [], bids = [] } = useApp();
@@ -47,16 +50,29 @@ export function useUserProfileState({
   const [trustHistoryLoading, setTrustHistoryLoading] = useState(false);
 
   // UI state
-  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'trust' | 'verification' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'trust' | 'verification' | 'settings'>(
+    initialTab || 'overview'
+  );
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    } else if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('verify') === 'true' || params.get('tab') === 'verification') {
+      const tab = params.get('tab');
+      if (params.get('verify') === 'true' || tab === 'verification') {
         setActiveTab('verification');
+      } else if (tab === 'reviews') {
+        setActiveTab('reviews');
+      } else if (tab === 'trust') {
+        setActiveTab('trust');
+      } else if (tab === 'settings') {
+        setActiveTab('settings');
+      } else if (tab === 'overview') {
+        setActiveTab('overview');
       }
     }
-  }, []);
+  }, [initialTab]);
   const [showEdit, setShowEdit] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -104,11 +120,28 @@ export function useUserProfileState({
             instagramUrl: res.data.instagramUrl || '',
             websiteUrl: res.data.websiteUrl || '',
           }));
+
+          if (isOwnProfile && setUser) {
+            setUser((prev: UserSession | null) => {
+              if (!prev) return prev;
+              const names = (res.data.name || '').split(' ');
+              return {
+                ...prev,
+                firstName: names[0] || prev.firstName,
+                lastName: names.slice(1).join(' ') || prev.lastName,
+                avatarUrl: res.data.avatarUrl !== undefined ? (res.data.avatarUrl || '') : prev.avatarUrl,
+                bio: res.data.bio !== undefined ? (res.data.bio || '') : prev.bio,
+                phone: res.data.phone !== undefined ? res.data.phone : prev.phone,
+                trustScore: res.data.trustScore !== undefined ? res.data.trustScore : prev.trustScore,
+                verificationStatus: res.data.verificationStatus || prev.verificationStatus,
+              };
+            });
+          }
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [targetUser?.id]);
+  }, [targetUser?.id, isOwnProfile, setUser]);
 
   // Fetch AI Summary for Provider
   useEffect(() => {
@@ -152,7 +185,12 @@ export function useUserProfileState({
   const location = profile?.location || targetUser?.location || '';
   const phone = profile?.phone || targetUser?.phone || '';
   const email = profile?.email || targetUser?.email || '';
-  const role = targetUser?.role || 'seeker';
+  
+  const pathname = usePathname();
+  const isProviderWorkspace = pathname?.startsWith('/provider') || targetUser?.role === 'provider';
+  const isAdminWorkspace = pathname?.startsWith('/admin') || targetUser?.role === 'admin';
+  const role = isProviderWorkspace ? 'provider' : isAdminWorkspace ? 'admin' : 'seeker';
+
   const createdAt = profile?.createdAt;
   const completedJobs = profile?.completedServiceCount || 0;
 

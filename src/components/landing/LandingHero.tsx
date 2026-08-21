@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowRight, Star, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Star, ChevronDown, ShieldCheck, CheckCircle2, RefreshCw, Banknote, Smartphone } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingHeroProps {
@@ -8,6 +8,21 @@ interface LandingHeroProps {
 }
 
 export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
+  const [providerAvatar, setProviderAvatar] = useState<string>('');
+  const [cardPov, setCardPov] = useState<'seeker' | 'provider'>('seeker');
+
+  useEffect(() => {
+    // Fetch live avatar for BUENAFLOR IAN MARK J. if available
+    fetch('http://localhost:3001/api/users?search=BUENAFLOR')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.data?.[0]?.avatarUrl) {
+          setProviderAvatar(data.data[0].avatarUrl);
+        }
+      })
+      .catch(() => { });
+  }, []);
+
   const scrollToNext = () => {
     const el = document.getElementById('problem');
     if (!el) return;
@@ -74,74 +89,290 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
             </ScrollReveal>
           </div>
 
-          {/* Right Column: Illustrative Card with premium float animation & glassmorphism */}
+          {/* Right Column: 3D Flip Showcase Card */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <ScrollReveal className="w-full max-w-[380px]">
-              <div className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-xl relative overflow-hidden transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 ${isDark ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 text-[#f2efe9]' : 'bg-white/45 border-white/20 text-[#1c1b18]'
-                }`}>
-                {/* Header / Badge */}
-                <div className="flex justify-between items-center mb-4">
-                  <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${isDark ? 'bg-provider-primary/25 text-emerald-400 border border-emerald-900/30' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                    }`}>
-                    ● Verified Provider
-                  </span>
-                  <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded ${isDark ? 'bg-neutral-855/60 text-neutral-400' : 'bg-slate-100/60 text-slate-500'
-                    }`}>
-                    Illustrative Mock
-                  </span>
-                </div>
-
-                {/* Profile info */}
-                <div className="flex items-center space-x-3.5 mb-5">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-lg shadow-inner shadow-black/10">
-                    JB
-                  </div>
-                  <div>
-                    <h4 className="font-extrabold text-sm tracking-tight">Junrel Bacalso</h4>
-                    <p className={`text-[11px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>Electrical & Appliance Repair</p>
-                  </div>
-                </div>
-
-                {/* Platform stats */}
-                <div className="grid grid-cols-2 gap-4 mb-5">
-                  <div className={`p-3 rounded-xl border ${isDark ? 'bg-neutral-850/45 border-neutral-855/50' : 'bg-slate-50/70 border-slate-100/50'}`}>
-                    <span className={`text-[10px] block font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Trust Score</span>
-                    <div className="flex items-center space-x-1.5">
-                      <span className="font-black text-lg text-emerald-500">85</span>
-                      <span className={`text-[10px] font-bold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>/100</span>
-                    </div>
-                  </div>
-                  <div className={`p-3 rounded-xl border ${isDark ? 'bg-neutral-850/45 border-neutral-855/50' : 'bg-slate-50/70 border-slate-100/50'}`}>
-                    <span className={`text-[10px] block font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Active Queue</span>
-                    <div className="flex items-center space-x-1.5">
-                      <span className="font-black text-lg text-seeker-primary">2</span>
-                      <span className={`text-[10px] font-bold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>in line</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Price & Rating */}
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <span className={`text-[10px] block font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Hourly Rate</span>
-                    <span className="font-black text-base">₱350/hr</span>
-                  </div>
-                  <div className="text-right">
-                    <span className={`text-[10px] block font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Rating</span>
-                    <div className="flex items-center justify-end space-x-1">
-                      <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                      <span className="font-extrabold text-sm">4.9</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action */}
-                <button
-                  onClick={onGetStarted}
-                  className="w-full bg-provider-primary hover:bg-provider-hover text-white font-bold text-xs py-3 rounded-xl transition-all duration-300 shadow-sm cursor-pointer"
+            <ScrollReveal className="w-full max-w-[390px] [perspective:1200px]">
+              <div
+                onClick={() => setCardPov(prev => prev === 'seeker' ? 'provider' : 'seeker')}
+                className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer select-none ${cardPov === 'provider' ? '[transform:rotateY(180deg)]' : ''
+                  }`}
+                title="Click anywhere on card to flip perspective"
+              >
+                {/* ─── FRONT FACE: SEEKER POV (SERVICE OFFER) ─── */}
+                <div
+                  className={`w-full p-5 rounded-[26px] border backdrop-blur-xl shadow-2xl relative overflow-hidden transition-all duration-300 hover:scale-[1.015] group/card [backface-visibility:hidden] flex flex-col justify-between ${isDark
+                      ? 'bg-[#22211e]/95 border-neutral-800 text-[#f2efe9] hover:border-orange-500/40'
+                      : 'bg-white/95 border-orange-500/30 text-slate-900 shadow-xl hover:border-orange-500/60'
+                    }`}
                 >
-                  Book Now
-                </button>
+                  <div>
+                    {/* Header: Provider Info */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3 select-none">
+                        <div className="relative flex-shrink-0">
+                          <img
+                            src={providerAvatar || "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff"}
+                            alt="BUENAFLOR IAN MARK J."
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff";
+                            }}
+                            className="w-11 h-11 rounded-2xl object-cover border-2 border-orange-500/40 shadow-sm group-hover/card:scale-105 transition-transform"
+                          />
+                        </div>
+                        <div>
+                          <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                            BUENAFLOR IAN MARK J.
+                          </h4>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                              <ShieldCheck className="w-3.5 h-3.5 mr-0.5 text-emerald-500 fill-emerald-500/20" />
+                              Verified
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-neutral-500">• Day-as</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Badges */}
+                      <div className="flex flex-col items-end gap-1 select-none">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                          NEW
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-neutral-400 flex items-center gap-1">
+                          🛡️ Verified Member
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Category & Tags */}
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="inline-block px-2.5 py-1 text-[9px] font-extrabold rounded-lg border uppercase tracking-wider text-orange-600 dark:text-orange-400 bg-orange-500/10 border-orange-500/30">
+                        TUTORING
+                      </span>
+                      <span className="text-[10.5px] font-bold text-amber-500 flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                        <span>5.0</span>
+                        <span className="text-slate-400 dark:text-neutral-500 font-normal">(12 reviews)</span>
+                      </span>
+                    </div>
+
+                    {/* Service Details */}
+                    <div className="mt-3">
+                      <h3 className={`font-black text-base leading-snug tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                        High School Math & Algebra Tutoring
+                      </h3>
+                      <p className={`text-xs mt-1.5 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                        One-on-one session covering algebra, trigonometry, or calculus fundamentals.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    {/* Divider Line */}
+                    <div className={`border-t my-3.5 ${isDark ? 'border-neutral-800/80' : 'border-slate-100'}`} />
+
+                    {/* Availability & Price */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col space-y-1">
+                        <div className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-500" />
+                          <span>Available Now</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+                          <RefreshCw className="w-2.5 h-2.5 animate-spin-slow" />
+                          Session-based
+                        </span>
+                      </div>
+
+                      <div className="text-right">
+                        <span className={`text-lg font-black ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                          ₱250
+                        </span>
+                        <span className={`text-[11px] font-bold ml-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
+                          / session
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Payment Options */}
+                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-slate-50 dark:bg-neutral-800/60 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300">
+                        <Banknote className="w-3 h-3 text-slate-400" />
+                        On-site Cash
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400">
+                        <Smartphone className="w-3 h-3 text-orange-500" />
+                        GCash
+                      </span>
+                    </div>
+
+                    {/* Action CTA */}
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onGetStarted();
+                        }}
+                        className="w-full bg-seeker-primary hover:bg-seeker-hover text-white font-extrabold text-xs py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-orange-500/20 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>Request Service</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Flip hint footer */}
+                    <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
+                      <span className="flex items-center gap-1 text-orange-500">
+                        <span>🍊</span> Seeker View
+                      </span>
+                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-orange-500 transition-colors">
+                        🔄 Click to flip card
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ─── BACK FACE: PROVIDER POV (JOB REQUEST) ─── */}
+                <div
+                  className={`absolute inset-0 w-full p-5 rounded-[26px] border backdrop-blur-xl shadow-2xl overflow-hidden transition-all duration-300 hover:scale-[1.015] group/card [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between ${
+                    isDark
+                      ? 'bg-[#22211e] border-neutral-855 text-[#f2efe9] hover:border-emerald-500/40'
+                      : 'bg-white border-slate-300 text-slate-900 shadow-xl hover:border-emerald-500/40'
+                  }`}
+                >
+                  <div>
+                    {/* Header: Client Info */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3 select-none">
+                        <div className="relative flex-shrink-0">
+                          <img
+                            src={providerAvatar || "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff"}
+                            alt="BUENAFLOR IAN MARK J."
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff";
+                            }}
+                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 shadow-sm"
+                          />
+                        </div>
+                        <div>
+                          <h4 className={`font-bold text-xs leading-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                            BUENAFLOR IAN MARK J.
+                          </h4>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className={`inline-flex items-center text-[10px] font-semibold border px-1.5 py-0.25 rounded-md ${
+                              isDark
+                                ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
+                                : 'text-orange-600 bg-orange-50 border-orange-200'
+                            }`}>
+                              <CheckCircle2 className={`w-3 h-3 mr-0.5 ${isDark ? 'fill-orange-950/20 text-orange-400' : 'fill-orange-50 text-orange-600'}`} />
+                              Client
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 dark:text-neutral-500">• Day-as</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Proposals counter & Trust */}
+                      <div className="text-right flex flex-col items-end gap-0.5 select-none">
+                        <span className={`text-[10px] font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
+                          0 proposals
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          🛡️ Verified Member
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Category & Urgency */}
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${
+                        isDark
+                          ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
+                          : 'text-emerald-600 bg-emerald-50 border-slate-300'
+                      }`}>
+                        PLUMBING
+                      </span>
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-lg border ${
+                        isDark
+                          ? 'text-amber-400 bg-amber-955/30 border-amber-900/40'
+                          : 'text-amber-700 bg-amber-50 border-amber-200'
+                      }`}>
+                        <span>⏰ Needed:</span>
+                        <span className="font-black">Needs Tomorrow</span>
+                      </span>
+                    </div>
+
+                    {/* Request Details */}
+                    <div className="mt-3">
+                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                        Need help fixing our pipe leaking
+                      </h3>
+                      <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
+                        Water pipe under kitchen sink is leaking and causing low pressure. Available after 5 PM in Day-as.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    {/* Divider Line */}
+                    <div className={`border-t my-3.5 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
+
+                    {/* Budget & Escrow status */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col space-y-0.5">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
+                          Client Budget
+                        </span>
+                        <span className={`text-lg font-black ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                          ₱350
+                        </span>
+                      </div>
+
+                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                        Escrow Protected
+                      </span>
+                    </div>
+
+                    {/* Payment Options */}
+                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-slate-50 dark:bg-neutral-800/60 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300">
+                        <Banknote className="w-3 h-3 text-slate-400" />
+                        On-site Cash
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                        <Smartphone className="w-3 h-3 text-emerald-500" />
+                        GCash Ready
+                      </span>
+                    </div>
+
+                    {/* Action CTA */}
+                    <div className="mt-3.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onGetStarted();
+                        }}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-emerald-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <span>Send Offer</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Flip hint footer */}
+                    <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
+                      <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-extrabold">
+                        <span>🛠️</span> Provider View
+                      </span>
+                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-emerald-500 transition-colors">
+                        🔄 Click to flip card
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </ScrollReveal>
           </div>

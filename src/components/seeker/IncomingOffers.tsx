@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { ShieldCheck, Star, Calendar, MessageSquare, Trash2, Check, Search, X, CreditCard, Loader2 } from 'lucide-react';
+import { ShieldCheck, Star, Calendar, MessageSquare, Trash2, Check, Search, X, CreditCard, Loader2, Sparkles } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
+  const router = useRouter();
   const { bids, jobRequests, acceptBid, declineBid, users, isDark } = useApp();
   const { canTransact } = useTransactionPermission();
   
@@ -179,8 +181,8 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
               const provider = getProviderDetails(bid.providerId);
               const isVerified = provider?.isVerified ?? false;
               
-              // Generate dynamic wait or trust rating matching screenshot aesthetics
-              const trustScore = provider?.email === 'johnfrans@gmail.com' ? '96%' : '92%';
+              // Dynamic trust rating from provider data
+              const trustScore = provider?.trustScore ? `${provider.trustScore}%` : '100%';
               const formattedDate = new Date(bid.createdAt).toLocaleDateString(undefined, {
                 month: 'short',
                 day: 'numeric',
@@ -210,17 +212,26 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-center">
                     
                     {/* Left Column (1/5): Provider profile card */}
-                    <div className={`lg:col-span-1 flex flex-row lg:flex-col items-center justify-between lg:justify-center p-3 lg:p-4 rounded-2xl border text-center space-y-0 lg:space-y-3 h-full ${
-                      isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-200'
-                    }`}>
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (bid.providerId) {
+                          router.push(`/seeker/user-profile?id=${bid.providerId}`);
+                        }
+                      }}
+                      className={`lg:col-span-1 flex flex-row lg:flex-col items-center justify-between lg:justify-center p-3 lg:p-4 rounded-2xl border text-center space-y-0 lg:space-y-3 h-full cursor-pointer group/provider transition-all select-none hover:border-orange-500/50 ${
+                        isDark ? 'bg-[#1c1b18] border-neutral-850 hover:bg-neutral-800/40' : 'bg-slate-50 border-slate-200 hover:bg-slate-100/70'
+                      }`}
+                      title={`View ${bid.providerName}'s profile`}
+                    >
                       <div className="flex flex-row lg:flex-col items-center lg:space-y-2 space-x-3 lg:space-x-0">
                         <img 
-                          src={bid.providerAvatar} 
+                          src={bid.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(bid.providerName || 'Provider')}&background=random`} 
                           alt={bid.providerName} 
-                          className="w-12 h-12 rounded-full object-cover border border-slate-100 shadow-sm"
+                          className="w-12 h-12 rounded-full object-cover border border-slate-100 dark:border-neutral-700 shadow-sm transition-transform duration-200 group-hover/provider:scale-105 group-hover/provider:ring-2 group-hover/provider:ring-orange-500/50"
                         />
                         <div className="text-left lg:text-center">
-                          <h4 className={`font-bold text-xs ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{bid.providerName}</h4>
+                          <h4 className={`font-bold text-xs transition-colors duration-200 group-hover/provider:text-orange-500 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{bid.providerName}</h4>
                           {isVerified && (
                             <span className="inline-flex items-center text-[9px] text-emerald-600 font-semibold mt-0.5">
                               <ShieldCheck className={`w-3.5 h-3.5 mr-0.5 ${isDark ? 'text-emerald-455 fill-emerald-955/25' : 'fill-emerald-50 text-emerald-600'}`} />
@@ -231,12 +242,22 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                       </div>
 
                       <div className="text-right lg:text-center flex flex-col items-end lg:items-center">
-                        <div className="flex items-center text-xs font-bold text-amber-500">
-                          <Star className="w-3.5 h-3.5 mr-0.5 fill-amber-500 text-amber-500" />
-                          <span>{bid.providerRating.toFixed(1)}</span>
-                        </div>
-                        <span className={`text-[9px] font-bold mt-0.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
-                          {trustScore} Trust Score
+                        {bid.providerRating && bid.providerRating > 0 && bid.providerRating !== 5.0 ? (
+                          <div className="flex items-center text-xs font-bold text-amber-500">
+                            <Star className="w-3.5 h-3.5 mr-0.5 fill-amber-500 text-amber-500" />
+                            <span>{bid.providerRating.toFixed(1)}</span>
+                          </div>
+                        ) : (
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[9px] font-extrabold uppercase tracking-wider ${
+                            isDark
+                              ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/40'
+                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          }`}>
+                            <span>NEW</span>
+                          </span>
+                        )}
+                        <span className={`text-[9px] font-bold mt-0.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                          {provider?.trustScore && provider.trustScore >= 85 ? `★ Top Rated (${provider.trustScore} pts)` : isVerified ? '🛡️ Verified Member' : '🛡️ Good Standing'}
                         </span>
                       </div>
                     </div>

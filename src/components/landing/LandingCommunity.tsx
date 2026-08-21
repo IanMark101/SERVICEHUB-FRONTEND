@@ -8,7 +8,7 @@ interface LandingCommunityProps {
 
 export default function LandingCommunity({ isDark }: LandingCommunityProps) {
   return (
-    <section id="community" className={`py-20 border-y transition-colors duration-500 px-6 md:px-12 w-full scroll-mt-20 ${
+    <section id="community" className={`py-20 border-y px-6 md:px-12 w-full scroll-mt-20 ${
       isDark ? 'bg-[#22211e]/40 border-neutral-855' : 'bg-slate-50/50 border-slate-200/60'
     }`}>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -16,12 +16,12 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
         <div className="lg:col-span-7 space-y-6 text-left">
           <ScrollReveal className="space-y-3">
             <span className="text-[10px] font-bold text-provider-primary uppercase tracking-widest block font-sans">Community Board</span>
-            <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${
+            <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${
               isDark ? 'text-[#f2efe9]' : 'text-slate-900'
             }`}>
               A real, active Cordova community
             </h2>
-            <p className={`text-sm leading-relaxed font-medium transition-colors duration-300 ${
+            <p className={`text-sm leading-relaxed font-medium ${
               isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
             }`}>
               See platform announcements, this week's top-rated providers, and real community stats — all in one place.
@@ -42,7 +42,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
         {/* Right Side: Static Preview Card with glassmorphism */}
         <div className="lg:col-span-5 flex justify-center lg:justify-end">
           <ScrollReveal className="w-full max-w-[380px]">
-            <div className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg relative overflow-hidden transition-all duration-500 hover:scale-[1.03] ${
+            <div className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg relative overflow-hidden transition-transform duration-200 hover:scale-[1.03] ${
               isDark
                 ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 text-[#f2efe9]'
                 : 'bg-white/45 border-white/20 text-[#1c1b18]'

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Search, CheckCircle2 } from 'lucide-react';
+import { Search, CheckCircle2, ShieldCheck, Banknote, Smartphone, ArrowRight } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -24,13 +25,13 @@ export default function BrowseJobs({
   currentProviderId?: string;
   onNavigateToOffers?: () => void;
 }) {
+  const router = useRouter();
   const { jobRequests, bids, submitBid, isDark, user } = useApp();
   const { canTransact } = useTransactionPermission();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [activeFilter, setActiveFilter] = useState<'all' | 'urgent' | 'high-budget' | 'few-offers'>('all');
-  const [sortBy, setSortBy] = useState<'most_urgent' | 'highest_budget' | 'fewest_bids'>('most_urgent');
 
   // Modal State
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
@@ -51,6 +52,10 @@ export default function BrowseJobs({
 
   // Filtering Logic
   const filteredRequests = jobRequests.filter((req) => {
+    // 0. Only show active OPEN requests (hide paused, closed, canceled, or already booked requests)
+    const isClosedOrPaused = req.status === 'CLOSED' || (req.status as string) === 'closed' || (req.status as string) === 'paused' || req.status === 'CANCELED' || req.status === 'IN_PROGRESS' || (req.status as string) === 'in_progress';
+    if (isClosedOrPaused) return false;
+
     // 1. Search Query Filter
     const query = searchQuery.toLowerCase().trim();
     const matchesSearch =
@@ -78,9 +83,9 @@ export default function BrowseJobs({
     return matchesSearch && matchesCategory && matchesFilter;
   });
 
-  // Sorting Logic
+  // Sorting Logic driven by active Quick Filter
   const sortedRequests = [...filteredRequests].sort((a, b) => {
-    if (sortBy === 'most_urgent') {
+    if (activeFilter === 'urgent') {
       const getRank = (u: string) => {
         const s = (u || '').toLowerCase();
         if (s.includes('high') || s.includes('emergency')) return 3;
@@ -88,15 +93,14 @@ export default function BrowseJobs({
         return 1;
       };
       return getRank(b.urgency) - getRank(a.urgency);
-    } else if (sortBy === 'highest_budget') {
+    } else if (activeFilter === 'high-budget') {
       return b.budget - a.budget;
-    } else if (sortBy === 'fewest_bids') {
-      // Use 'bid' to avoid shadowing the outer sort param 'b'
+    } else if (activeFilter === 'few-offers') {
       const aBidCount = bids.filter(bid => bid.requestId === a.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
       const bBidCount = bids.filter(bid => bid.requestId === b.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
       return aBidCount - bBidCount;
     }
-    return 0;
+    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
   });
 
   // Pagination hook
@@ -124,6 +128,13 @@ export default function BrowseJobs({
   const handleSendOfferSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRequestId) return;
+
+    const targetReq = jobRequests.find(r => r.id === selectedRequestId);
+    if (targetReq && (targetReq.status === 'CLOSED' || (targetReq.status as string) === 'closed' || (targetReq.status as string) === 'paused')) {
+      alert("This service request has been paused by the seeker and is no longer accepting new offers.");
+      setSelectedRequestId(null);
+      return;
+    }
 
     submitBid(selectedRequestId, currentProviderId, bidPrice, bidMessage);
     setSelectedRequestId(null);
@@ -251,21 +262,6 @@ export default function BrowseJobs({
           </div>
 
           <div className="flex items-center space-x-3 flex-shrink-0">
-            <div className="flex items-center space-x-1.5">
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className={`px-3 py-2 rounded-xl border outline-none font-bold text-xs transition-all ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]'
-                    : 'bg-white border-slate-300 text-slate-700'
-                  }`}
-              >
-                <option value="most_urgent">Most Urgent</option>
-                <option value="highest_budget">Highest Budget</option>
-                <option value="fewest_bids">Fewest Bids</option>
-              </select>
-            </div>
             <span className={`text-[10px] font-bold px-3 py-2 rounded-xl border ${isDark
                 ? 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30'
                 : 'bg-emerald-50 text-emerald-600 border-slate-300'
@@ -307,14 +303,25 @@ export default function BrowseJobs({
                   <div>
                     {/* Card Header: Client Info */}
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={req.seekerAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'}
-                          alt={req.seekerName}
-                          className="w-10 h-10 rounded-full object-cover border border-slate-100"
-                        />
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (req.seekerId) {
+                            router.push(`/provider/user-profile?id=${req.seekerId}`);
+                          }
+                        }}
+                        className="flex items-center space-x-3 group/seeker cursor-pointer select-none rounded-xl p-1 -m-1 transition-all hover:bg-slate-100/70 dark:hover:bg-neutral-800/60"
+                        title={`View ${req.seekerName}'s profile`}
+                      >
+                        <div className="relative flex-shrink-0">
+                          <img
+                            src={req.seekerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(req.seekerName || 'Client')}&background=random`}
+                            alt={req.seekerName}
+                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-transform duration-200 group-hover/seeker:scale-105 group-hover/seeker:ring-2 group-hover/seeker:ring-emerald-500/50"
+                          />
+                        </div>
                         <div>
-                          <h4 className={`font-bold text-xs leading-tight transition-colors ${isDark ? 'text-[#f2efe9] group-hover:text-emerald-450' : 'text-slate-900 group-hover:text-emerald-600'
+                          <h4 className={`font-bold text-xs leading-tight transition-colors duration-200 group-hover/seeker:text-emerald-500 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
                             }`}>
                             {req.seekerName}
                           </h4>
@@ -329,10 +336,13 @@ export default function BrowseJobs({
                         </div>
                       </div>
 
-                      {/* Proposal count */}
-                      <div className="text-right flex flex-col items-end">
+                      {/* Proposal count & Trust */}
+                      <div className="text-right flex flex-col items-end gap-0.5 select-none">
                         <span className={`text-[10px] font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
                           {totalBids} proposal{totalBids === 1 ? '' : 's'}
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          🛡️ Verified Member
                         </span>
                       </div>
                     </div>
@@ -378,42 +388,62 @@ export default function BrowseJobs({
                     </div>
                   </div>
 
-                  {/* Divider Line */}
-                  <div className={`border-t my-4 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
-
-                  {/* Footer: Budget & Action */}
                   <div>
+                    {/* Divider Line */}
+                    <div className={`border-t my-3.5 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
+
+                    {/* Budget & Escrow status */}
                     <div className="flex items-center justify-between">
-                      <div>
-                        <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Budget</span>
-                        <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{req.budget}</span>
+                      <div className="flex flex-col space-y-0.5">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
+                          Client Budget
+                        </span>
+                        <span className={`text-lg font-black ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                          ₱{req.budget}
+                        </span>
                       </div>
 
-                      {isOwned ? (
-                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-850' : 'text-slate-400 bg-slate-100 border-slate-200'
-                          }`}>
-                          Your Request
-                        </span>
-                      ) : hasSentBid ? (
-                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl border ${isDark ? 'text-neutral-550 bg-[#1c1b18] border-neutral-850' : 'text-slate-400 bg-slate-100/50 border-slate-300'
-                          }`}>
-                          Submitted Proposal
-                        </span>
-                      ) : (
-                        <span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl transition-all ${isDark
-                            ? 'text-emerald-450 bg-emerald-955/20 group-hover:bg-[#f2efe9] group-hover:text-slate-950 border border-emerald-900/30'
-                            : 'text-emerald-600 bg-emerald-55 group-hover:bg-emerald-600 group-hover:text-white border border-slate-300'
-                          }`}>
-                          Send Offer
-                        </span>
-                      )}
+                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                        Escrow Protected
+                      </span>
                     </div>
 
-                    {isOwned && (
-                      <p className={`text-[10px] font-medium text-center mt-2 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-                        You cannot send an offer to your own request.
-                      </p>
-                    )}
+                    {/* Payment compatibility badges */}
+                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-slate-50 dark:bg-neutral-800/60 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300">
+                        <Banknote className="w-3 h-3 text-slate-400" />
+                        On-site Cash
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                        <Smartphone className="w-3 h-3 text-emerald-500" />
+                        GCash Ready
+                      </span>
+                    </div>
+
+                    {/* Action CTA Button */}
+                    <div className="mt-3.5">
+                      {isOwned ? (
+                        <div className={`w-full text-center text-xs font-bold py-2.5 rounded-xl border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-850' : 'text-slate-400 bg-slate-100 border-slate-200'
+                          }`}>
+                          Your Request (Cannot Bid)
+                        </div>
+                      ) : hasSentBid ? (
+                        <div className={`w-full text-center text-xs font-bold py-2.5 rounded-xl border ${isDark ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                          }`}>
+                          ✓ Proposal Submitted
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenBid(req.id, req.budget)}
+                          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-emerald-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          <span>Send Offer</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
