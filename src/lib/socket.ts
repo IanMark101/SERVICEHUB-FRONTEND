@@ -1,7 +1,9 @@
 "use client";
 import { io, Socket } from "socket.io-client";
+import { api } from "./api/axios";
 
 let socket: Socket | null = null;
+let isRefreshingSocketAuth = false;
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:3001";
 
@@ -9,7 +11,9 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http
  * Connect to the Socket.io server with a JWT.
  * Idempotent — if already connected, returns the existing socket.
  */
-export function connectSocket(token: string): Socket {
+export function connectSocket(token: string): Socket | null {
+  if (!token) return null;
+
   if (socket) {
     // If socket is already created, update its auth token in case the token refreshed
     socket.auth = { token };
@@ -21,7 +25,7 @@ export function connectSocket(token: string): Socket {
 
   socket = io(SOCKET_URL, {
     auth: { token },
-    reconnectionAttempts: 10,
+    reconnectionAttempts: 5,
     reconnectionDelay: 2000,
   });
 
@@ -33,12 +37,39 @@ export function connectSocket(token: string): Socket {
     console.log("[Socket.io] Disconnected:", reason);
   });
 
-  // Automatically fetch fresh token on error/reconnect to prevent JWT expiration locks
-  socket.on("connect_error", (err) => {
-    console.warn("[Socket.io] Connection error:", err.message);
-    const freshToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (freshToken && socket) {
-      socket.auth = { token: freshToken };
+  // Automatically refresh expired token on authentication errors to prevent lockouts
+  socket.on("connect_error", async (err) => {
+    const isAuthError =
+      err.message.includes("Authentication error") ||
+      err.message.includes("invalid token") ||
+      err.message.includes("no token provided") ||
+      err.message.includes("jwt expired");
+
+    if (isAuthError) {
+      if (isRefreshingSocketAuth) return;
+      isRefreshingSocketAuth = true;
+
+      try {
+        const refreshResponse = await api.post('/auth/refresh', {});
+        const newAccessToken =
+          refreshResponse.data?.data?.accessToken ||
+          refreshResponse.data?.accessToken;
+
+        if (newAccessToken && socket) {
+          localStorage.setItem('accessToken', newAccessToken);
+          socket.auth = { token: newAccessToken };
+          socket.connect();
+        } else {
+          disconnectSocket();
+        }
+      } catch {
+        // Session expired or user logged out; cleanly disconnect without repeating errors
+        disconnectSocket();
+      } finally {
+        isRefreshingSocketAuth = false;
+      }
+    } else {
+      console.warn("[Socket.io] Connection error:", err.message);
     }
   });
 

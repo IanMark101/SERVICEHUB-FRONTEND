@@ -496,6 +496,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!token || !isAuthenticated) return;
 
     const sock = connectSocket(token);
+    if (!sock) return;
 
     // Real-time notification badge
     sock.on('notification', () => {
