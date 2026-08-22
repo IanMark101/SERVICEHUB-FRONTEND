@@ -94,6 +94,10 @@ export default function SeekerMessagesPage() {
     }
   }, []);
 
+  const selectedConvRef = useRef<Conversation | null>(null);
+  selectedConvRef.current = selectedConv;
+  const hasProcessedInitialDeepLink = useRef(false);
+
   // Load messages for chosen conversation
   const loadMessages = useCallback(async (bookingId: string) => {
     setLoading(true);
@@ -113,8 +117,6 @@ export default function SeekerMessagesPage() {
     }
   }, [syncUnreadMessages]);
 
-  const initialParamHandled = useRef<string | null>(null);
-
   // Select conversation & join room
   const selectConversation = useCallback((conv: Conversation) => {
     setSelectedConv(conv);
@@ -122,13 +124,6 @@ export default function SeekerMessagesPage() {
     setError('');
     loadMessages(conv.bookingId);
     joinBookingRoom(conv.bookingId);
-
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.set('booking', conv.bookingId);
-      window.history.replaceState({}, '', url.toString());
-      initialParamHandled.current = conv.bookingId;
-    }
 
     // Optimistically zero unread count
     setConversations(prev =>
@@ -141,18 +136,23 @@ export default function SeekerMessagesPage() {
     syncConversations();
   }, [syncConversations]);
 
-  // Handle deep-link query parameter (only runs when bookingParam changes or on first load)
+  // Handle deep-link query parameter (runs ONCE on first load of conversations)
   useEffect(() => {
-    if (bookingParam && conversations.length > 0) {
-      if (initialParamHandled.current !== bookingParam) {
-        const match = conversations.find(c => c.bookingId === bookingParam);
-        if (match) {
-          initialParamHandled.current = bookingParam;
-          selectConversation(match);
-        }
+    if (hasProcessedInitialDeepLink.current || conversations.length === 0) return;
+
+    hasProcessedInitialDeepLink.current = true;
+    if (bookingParam) {
+      const match = conversations.find(c => c.bookingId === bookingParam);
+      if (match) {
+        selectConversation(match);
+        return;
       }
     }
-  }, [bookingParam, conversations, selectConversation]);
+
+    if (!selectedConv) {
+      selectConversation(conversations[0]);
+    }
+  }, [bookingParam, conversations, selectConversation, selectedConv]);
 
   // Real-time listener
   useEffect(() => {
@@ -160,7 +160,7 @@ export default function SeekerMessagesPage() {
     if (!sock) return;
 
     const handler = (msg: DbMessage) => {
-      if (selectedConv && msg.bookingId === selectedConv.bookingId) {
+      if (selectedConvRef.current && msg.bookingId === selectedConvRef.current.bookingId) {
         setMessages(prev => {
           const exists = prev.some(m => m.id === msg.id);
           return exists ? prev : [...prev, msg];
@@ -182,7 +182,7 @@ export default function SeekerMessagesPage() {
       sock.off('new_message', handler);
       sock.off('message_notification', notifHandler);
     };
-  }, [selectedConv, syncConversations, syncUnreadMessages]);
+  }, [syncConversations, syncUnreadMessages]);
 
   // Scroll to bottom when messages update
   useEffect(() => {
@@ -310,8 +310,10 @@ export default function SeekerMessagesPage() {
                 <button
                   key={conv.bookingId}
                   onClick={() => selectConversation(conv)}
-                  className={`w-full text-left p-3.5 transition-all flex items-start gap-3 relative ${
-                    active ? (isDark ? 'bg-orange-950/20' : 'bg-orange-50/70') : (isDark ? 'hover:bg-neutral-800/20' : 'hover:bg-slate-50/50')
+                  className={`w-full text-left p-3.5 transition-all flex items-start gap-3 relative cursor-pointer ${
+                    active 
+                      ? (isDark ? 'bg-[#2a251e] border-l-4 border-orange-500 shadow-sm' : 'bg-orange-50/90 border-l-4 border-orange-500 shadow-sm') 
+                      : (isDark ? 'hover:bg-neutral-800/30' : 'hover:bg-slate-50/70')
                   }`}
                 >
                   {/* Left: Avatar */}
