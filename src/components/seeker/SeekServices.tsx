@@ -16,7 +16,7 @@ import { useToast } from '../ui/Toast';
 
 export default function SeekServices() {
   const router = useRouter();
-  const { services, users, isDark, user, dbCategories } = useApp();
+  const { services, users, isDark, user, dbCategories, jobEngagements } = useApp();
   const { canTransact } = useTransactionPermission();
   const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -45,6 +45,16 @@ export default function SeekServices() {
       toastError('This service is currently paused by the provider and is not accepting new bookings.');
       return;
     }
+    const existingActive = jobEngagements.find(je => 
+      je.seekerId === user?.id &&
+      je.serviceId === listing.id &&
+      ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+    );
+    if (existingActive) {
+      toastInfo('Active Booking', 'You already have an active booking for this service. Redirecting to Activity...');
+      router.push(`/seeker/seeker-activity?tab=all&booking=${existingActive.id}`);
+      return;
+    }
     setSelectedPaymentMethod(method);
     setSelectedListing(listing);
   };
@@ -56,6 +66,16 @@ export default function SeekServices() {
   const handleJoinWaitlist = async (listing: ServiceListing) => {
     if (!canTransact) {
       setBlockedModalOpen(true);
+      return;
+    }
+    const existingActive = jobEngagements.find(je => 
+      je.seekerId === user?.id &&
+      je.serviceId === listing.id &&
+      ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+    );
+    if (existingActive) {
+      toastInfo('Active Booking', 'You already have an active booking for this service.');
+      router.push(`/seeker/seeker-activity?tab=all&booking=${existingActive.id}`);
       return;
     }
     if (listing.isPaused) {
@@ -277,6 +297,11 @@ export default function SeekServices() {
               const { cash, gcash } = getServicePaymentMethods(service);
               const ctaText = getPrimaryBookingCTA(service);
               const isOwned = !!(user && service.providerId === user.id);
+              const activeEngagement = jobEngagements.find(je => 
+                je.seekerId === user?.id &&
+                je.serviceId === service.id &&
+                ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+              );
 
               return (
                 <div
@@ -495,6 +520,26 @@ export default function SeekServices() {
                         </div>
                         <p className={`text-[10px] font-medium text-center ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} title="Self-transaction policy: Marketplace transactions with your own account are not allowed.">
                           You cannot book your own service.
+                        </p>
+                      </div>
+                    ) : activeEngagement ? (
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/seeker/seeker-activity?tab=all&booking=${activeEngagement.id}`)}
+                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                        >
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>
+                            {activeEngagement.status === 'in_progress' ? 'Job In Progress — View Activity' :
+                             activeEngagement.status === 'queued' ? 'In Queue — View Activity' :
+                             activeEngagement.status === 'pending_provider' ? 'Pending Approval — View Activity' :
+                             activeEngagement.status === 'awaiting_seeker_approval' ? 'Approval Needed — View Activity' :
+                             'Active Booking — View Activity'}
+                          </span>
+                        </button>
+                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-emerald-400/90' : 'text-emerald-600'}`}>
+                          You have an active booking for this service.
                         </p>
                       </div>
                     ) : service.queueSize >= (service.queueLimit || 5) ? (

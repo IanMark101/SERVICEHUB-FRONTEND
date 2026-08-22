@@ -15,7 +15,7 @@ interface RequestServiceModalProps {
 
 export default function RequestServiceModal({ listing, onClose, initialPaymentMethod }: RequestServiceModalProps) {
   const router = useRouter();
-  const { user, bookProviderDirectly, isDark } = useApp();
+  const { user, bookProviderDirectly, isDark, jobEngagements } = useApp();
   const isOwned = !!(user && listing.providerId === user.id);
 
   // ── Payment method source of truth ──────────────────────────────────────────
@@ -104,6 +104,16 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
     if (!user) {
       setFormError('You must be logged in to book a service.');
+      return;
+    }
+
+    const existingActive = jobEngagements.find(je => 
+      je.seekerId === user.id &&
+      je.serviceId === listing.id &&
+      ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+    );
+    if (existingActive) {
+      setFormError('You already have an active booking for this service in progress. Please check your Activity tab.');
       return;
     }
 
