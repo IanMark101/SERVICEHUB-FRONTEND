@@ -99,6 +99,7 @@ interface AppContextType {
     options?: {
       priceType?: string;
       serviceType?: string;
+      estimatedDurationMins?: number;
     }
   ) => void;
   toggleServiceListingStatus: (serviceId: string) => void;

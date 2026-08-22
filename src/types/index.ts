@@ -56,6 +56,7 @@ export interface ServiceListing {
   serviceType?: 'ONE_TIME' | 'SESSION_BASED';
   // priceType controls how the price is displayed (e.g. ₱200 / session, ₱500 / project)
   priceType?: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
+  estimatedDurationMins?: number;
   status?: 'PENDING_REVIEW' | 'ACTIVE' | 'REJECTED' | 'INACTIVE' | 'SUSPENDED' | 'DELETED';
   adminNotes?: string | null;
   rejectionCount?: number;

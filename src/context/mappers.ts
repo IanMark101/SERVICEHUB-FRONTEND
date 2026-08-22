@@ -100,6 +100,7 @@ export function mapServiceToListing(item: any): ServiceListing {
     // session-based badges and pricing unit labels (e.g. ₱200 / session).
     serviceType: item.serviceType || 'ONE_TIME',
     priceType: item.priceType || 'FIXED',
+    estimatedDurationMins: Number(item.estimatedDurationMins || item.estimatedDuration || 60),
     status: item.status || (item.isAvailable ? 'ACTIVE' : 'INACTIVE'),
     adminNotes: item.adminNotes || null,
     rejectionCount: item.rejectionCount || 0,

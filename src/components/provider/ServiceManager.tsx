@@ -15,6 +15,7 @@ interface EditServiceState {
   price: number;
   priceType: string;
   serviceType: string;
+  estimatedDurationMins: number;
   description: string;
 }
 
@@ -152,6 +153,7 @@ export default function ServiceManager({
       price: s.price,
       priceType: s.priceType || 'FIXED',
       serviceType: s.serviceType || 'ONE_TIME',
+      estimatedDurationMins: Number(s.estimatedDurationMins || 60),
       description: s.description
     });
   };
@@ -168,6 +170,7 @@ export default function ServiceManager({
       {
         priceType: editingService.priceType,
         serviceType: editingService.serviceType,
+        estimatedDurationMins: Math.max(15, Math.min(480, Number(editingService.estimatedDurationMins) || 60)),
       }
     );
     setEditingService(null);
@@ -412,7 +415,7 @@ export default function ServiceManager({
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        ⏱️ 60m Duration
+                        ⏱️ {service.estimatedDurationMins ? `${service.estimatedDurationMins}m Duration` : '60m Duration'}
                       </span>
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
@@ -571,27 +574,48 @@ export default function ServiceManager({
                 />
               </div>
 
-              {/* Pricing Unit */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Pricing Unit
-                </label>
-                <select
-                  value={editingService.priceType}
-                  onChange={(e) => setEditingService({ ...editingService, priceType: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
-                    }`}
-                >
-                  <option value="FIXED">Fixed Price</option>
-                  <option value="PER_SESSION">Per Session</option>
-                  <option value="PER_HOUR">Per Hour</option>
-                  <option value="PER_DAY">Per Day</option>
-                  <option value="PER_PROJECT">Per Project</option>
-                  <option value="STARTS_AT">Starts At</option>
-                  <option value="CUSTOM">Custom</option>
-                </select>
+              {/* Pricing Unit & Duration side-by-side */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                    Pricing Unit
+                  </label>
+                  <select
+                    value={editingService.priceType}
+                    onChange={(e) => setEditingService({ ...editingService, priceType: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
+                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
+                      }`}
+                  >
+                    <option value="FIXED">Fixed Price</option>
+                    <option value="PER_SESSION">Per Session</option>
+                    <option value="PER_HOUR">Per Hour</option>
+                    <option value="PER_DAY">Per Day</option>
+                    <option value="PER_PROJECT">Per Project</option>
+                    <option value="STARTS_AT">Starts At</option>
+                    <option value="CUSTOM">Custom</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                    Est. Duration (Mins)
+                  </label>
+                  <input
+                    type="number"
+                    min={15}
+                    max={480}
+                    step={5}
+                    required
+                    value={editingService.estimatedDurationMins}
+                    onChange={(e) => setEditingService({ ...editingService, estimatedDurationMins: Math.max(15, Number(e.target.value)) })}
+                    className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${isDark
+                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
+                      }`}
+                  />
+                </div>
               </div>
 
               {/* Description */}

@@ -14,7 +14,7 @@ export default function OfferServices() {
   const [serviceType, setServiceType] = useState<string>('ONE_TIME');
   const [description, setDescription] = useState<string>('');
   const [maxQueue, setMaxQueue] = useState<number>(5);
-  const [estTime, setEstTime] = useState<string>('1 hour');
+  const [durationMins, setDurationMins] = useState<number>(30);
   const [availability, setAvailability] = useState<string>('Available Now');
 
   // Payment methods
@@ -39,15 +39,6 @@ export default function OfferServices() {
       const providerId = user?.id || '';
       // Mock skill proof url
       const mockProofUrl = 'cert_uploaded.jpg';
-
-      // Parse estimated duration (e.g. "60", "60 mins", or "1 hour")
-      let durationMins = 60;
-      if (estTime.toLowerCase().includes('hour')) {
-        const hours = parseFloat(estTime) || 1;
-        durationMins = Math.round(hours * 60);
-      } else {
-        durationMins = parseInt(estTime, 10) || 60;
-      }
 
       createServiceListing(
         providerId,
@@ -76,7 +67,7 @@ export default function OfferServices() {
       setServiceType('ONE_TIME');
       setPriceType('FIXED');
       setMaxQueue(5);
-      setEstTime('1 hour');
+      setDurationMins(30);
 
       setTimeout(() => {
         setSuccess(false);
@@ -324,19 +315,32 @@ export default function OfferServices() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-650'}`}>
-                    Est. Time
+                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-700'}`}>
+                    Est. Duration (Minutes)
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={estTime}
-                    onChange={(e) => setEstTime(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
-                        : 'bg-white border-slate-300 text-slate-700 focus:border-emerald-500'
-                      }`}
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={15}
+                      max={480}
+                      step={5}
+                      required
+                      value={durationMins}
+                      onChange={(e) => setDurationMins(Math.max(1, Number(e.target.value)))}
+                      className={`w-full px-4 py-3 pr-14 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
+                          ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
+                          : 'bg-white border-slate-300 text-slate-700 focus:border-emerald-500'
+                        }`}
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
+                      mins
+                    </span>
+                  </div>
+                  <p className={`text-[10px] mt-1.5 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    {durationMins >= 60
+                      ? `≈ ${Math.floor(durationMins / 60)} hr ${durationMins % 60 ? `${durationMins % 60} mins` : ''}`
+                      : `${durationMins} minutes`}
+                  </p>
                 </div>
               </div>
 

@@ -128,7 +128,9 @@ export function useProviderActions({
             price,
             serviceType: item.serviceType || (options?.serviceType as any) || 'ONE_TIME',
             priceType: item.priceType || (options?.priceType as any) || 'FIXED',
+            estimatedDurationMins: item.estimatedDurationMins || options?.estimatedDurationMins || 60,
             queueSize: 0,
+            queueLimit: item.queueLimit || options?.queueLimit || 5,
             isPaused: false,
             proofOfSkillUrl: proofUrl,
             rating: 5.0,
@@ -158,6 +160,7 @@ export function useProviderActions({
     options?: {
       priceType?: string;
       serviceType?: string;
+      estimatedDurationMins?: number;
     }
   ) => {
     try {
@@ -167,6 +170,7 @@ export function useProviderActions({
         description,
         ...(options?.priceType ? { priceType: options.priceType } : {}),
         ...(options?.serviceType ? { serviceType: options.serviceType } : {}),
+        ...(options?.estimatedDurationMins ? { estimatedDurationMins: options.estimatedDurationMins } : {}),
       });
       if (res.success) {
         setServices(prev =>
@@ -179,6 +183,7 @@ export function useProviderActions({
                   description,
                   ...(options?.priceType ? { priceType: options.priceType as any } : {}),
                   ...(options?.serviceType ? { serviceType: options.serviceType as any } : {}),
+                  ...(options?.estimatedDurationMins ? { estimatedDurationMins: options.estimatedDurationMins } : {}),
                 }
               : s
           )
