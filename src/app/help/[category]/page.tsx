@@ -1,10 +1,16 @@
 import React from 'react';
 import { Metadata } from 'next';
 import HelpCategoryPage from '@/features/help/pages/HelpCategoryPage';
-import { getCategoryBySlug } from '@/features/help/data';
+import { getCategoryBySlug, HELP_CATEGORIES } from '@/features/help/data';
 
 interface PageProps {
   params: Promise<{ category: string }>;
+}
+
+export async function generateStaticParams() {
+  return HELP_CATEGORIES.map((cat) => ({
+    category: cat.slug,
+  }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
