@@ -514,9 +514,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const sock = connectSocket(token);
     if (!sock) return;
 
-    // Real-time notification badge
+    // Real-time notification badge and data synchronization
     sock.on('notification', () => {
       syncNotifications();
+      syncEngagements();
+      syncBids();
+      syncRequests();
+      syncTransactions();
+    });
+
+    // Real-time booking / engagement status updates (create, accept, decline, cancel, start, complete, dispute)
+    sock.on('ENGAGEMENT_CHANGED', () => {
+      syncEngagements();
+      syncBids();
+      syncRequests();
+      syncNotifications();
+      syncTransactions();
     });
 
     // Real-time queue counter update — update the services list in place
@@ -530,11 +543,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
           return { ...s, queueSize: newSize };
         })
       );
+      syncEngagements();
     });
 
     // Unread message badge — re-sync unread messages count in real-time
     sock.on('message_notification', () => {
       syncUnreadMessages();
+    });
+
+    // Real-time service request / broadcast updates
+    sock.on('SERVICE_REQUEST_CREATED', () => {
+      syncRequests();
+      syncBids();
+    });
+    sock.on('SERVICE_REQUEST_UPDATED', () => {
+      syncRequests();
+      syncBids();
+    });
+    sock.on('SERVICE_REQUEST_DELETED', () => {
+      syncRequests();
+      syncBids();
+    });
+    sock.on('SERVICE_REQUESTS_CHANGED', () => {
+      syncRequests();
+      syncBids();
     });
 
     // Real-time service listing updates (active/paused toggles, edits, deletes, approvals)
@@ -560,6 +592,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     return () => {
       sock.off('notification');
+      sock.off('ENGAGEMENT_CHANGED');
       sock.off('queue_update');
       sock.off('message_notification');
       sock.off('SERVICE_REQUEST_CREATED');
@@ -572,7 +605,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sock.off('SERVICE_LISTING_APPROVED');
       sock.off('SERVICE_LISTINGS_CHANGED');
     };
-  }, [isAuthenticated, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices]);
+  }, [isAuthenticated, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices, syncEngagements, syncTransactions]);
 
   // Disconnect socket when user explicitly logs out
   useEffect(() => {
