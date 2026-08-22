@@ -105,9 +105,15 @@ export interface JobEngagement {
   seekerId: string;
   seekerName: string;
   seekerAvatar: string;
+  seekerTrustScore?: number;
+  seekerVerificationStatus?: string;
+  seekerLocation?: string;
   providerId: string;
   providerName: string;
   providerAvatar: string;
+  providerTrustScore?: number;
+  providerVerificationStatus?: string;
+  providerLocation?: string;
   serviceId: string | null; // null if matched from public bid
   price: number;
   status: 'pending_provider' | 'queued' | 'in_progress' | 'awaiting_seeker_approval' | 'completed' | 'disputed' | 'canceled';

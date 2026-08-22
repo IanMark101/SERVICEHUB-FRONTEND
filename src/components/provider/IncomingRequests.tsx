@@ -83,10 +83,10 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
       ) : (
         <div className="space-y-4">
           {pendingRequests.map((je) => {
-            const seekerUser = users.find(u => u.id === je.seekerId);
             const matchedService = services.find(s => s.id === je.serviceId);
-            const isVerified = seekerUser?.verificationStatus === 'APPROVED' || seekerUser?.isVerified;
-            const trustScore = seekerUser?.trustScore ?? 50;
+            const isVerified = je.seekerVerificationStatus === 'APPROVED';
+            const trustScore = typeof je.seekerTrustScore === 'number' ? je.seekerTrustScore : 50;
+            const location = je.seekerLocation || 'Cordova, Cebu';
 
             return (
               <div 
@@ -181,7 +181,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                         <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500 dark:text-neutral-400 font-medium">
                           <span className="inline-flex items-center gap-1">
                             <MapPin className="w-3 h-3 text-red-400" />
-                            Cordova, Cebu
+                            {location}
                           </span>
                           <span>•</span>
                           <span className="inline-flex items-center gap-1 font-semibold text-amber-600 dark:text-amber-400">
