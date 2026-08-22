@@ -224,8 +224,8 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
                     {/* Flip hint footer */}
                     <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
-                      <span className="flex items-center gap-1 text-orange-500">
-                        <span>🍊</span> Seeker View
+                      <span className="flex items-center gap-1.5 text-orange-500 font-extrabold">
+                        <span>👤</span> Seeker View
                       </span>
                       <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-orange-500 transition-colors">
                         🔄 Click to flip card
