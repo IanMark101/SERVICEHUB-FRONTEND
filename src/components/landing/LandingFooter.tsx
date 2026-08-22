@@ -77,8 +77,8 @@ const COLUMNS: { heading: string; links: { label: string; type: 'scroll' | 'rout
   {
     heading: 'Support',
     links: [
+      { label: 'Help Center',          type: 'route',  target: '/help' },
       { label: 'Contact Admin',        type: 'none', target: '' },
-      { label: 'Help Center',          type: 'none', target: '' },
       { label: 'System Status',        type: 'none', target: '' },
       { label: 'Report an Issue',      type: 'none', target: '' },
     ],

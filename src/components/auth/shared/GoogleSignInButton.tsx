@@ -32,18 +32,22 @@ export default function GoogleSignInButton({
     ) as HTMLScriptElement | null;
 
     const initializeGoogle = () => {
-      if (
-        !googleAccountsIdInitialized &&
-        clientId &&
-        (window as any).google
-      ) {
-        googleAccountsIdInitialized = true;
-        (window as any).google.accounts.id.initialize({
-          client_id: clientId,
-          callback: (response: any) => {
-            onSuccessRef.current(response.credential);
-          },
-        });
+      try {
+        if (
+          !googleAccountsIdInitialized &&
+          clientId &&
+          (window as any).google
+        ) {
+          googleAccountsIdInitialized = true;
+          (window as any).google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (response: any) => {
+              onSuccessRef.current(response.credential);
+            },
+          });
+        }
+      } catch (err) {
+        console.warn('[GoogleSignIn] GSI init warning:', err);
       }
     };
 
@@ -69,15 +73,19 @@ export default function GoogleSignInButton({
 
   useEffect(() => {
     const renderGoogleButton = () => {
-      const btnContainer = document.getElementById('google-signin-btn');
-      if (btnContainer && (window as any).google) {
-        btnContainer.innerHTML = '';
-        (window as any).google.accounts.id.renderButton(btnContainer, {
-          theme: isDark ? 'filled_black' : 'outline',
-          size: 'large',
-          shape: 'pill',
-          width: btnContainer.offsetWidth || 300,
-        });
+      try {
+        const btnContainer = document.getElementById('google-signin-btn');
+        if (btnContainer && (window as any).google) {
+          btnContainer.innerHTML = '';
+          (window as any).google.accounts.id.renderButton(btnContainer, {
+            theme: isDark ? 'filled_black' : 'outline',
+            size: 'large',
+            shape: 'pill',
+            width: btnContainer.offsetWidth || 300,
+          });
+        }
+      } catch (err) {
+        console.warn('[GoogleSignIn] GSI render warning:', err);
       }
     };
 

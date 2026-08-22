@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   User,
   Star,
@@ -532,10 +533,19 @@ export default function UserProfile({
             )}
           </div>
 
-          <div className={`p-4 rounded-2xl border ${innerBg} text-xs text-slate-500 dark:text-neutral-400 space-y-1`}>
-            <p className="font-bold flex items-center gap-1 text-emerald-500">
-              <TrendingUp size={14} /> How to increase your Trust Score:
-            </p>
+          <div className={`p-4 rounded-2xl border ${innerBg} text-xs text-slate-500 dark:text-neutral-400 space-y-1.5`}>
+            <div className="flex items-center justify-between">
+              <p className="font-bold flex items-center gap-1 text-emerald-500">
+                <TrendingUp size={14} /> How to increase your Trust Score:
+              </p>
+              <Link
+                href="/help/trust-reputation/what-is-trust-score"
+                className="text-[11px] font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>Read Help Guide</span>
+                <span>→</span>
+              </Link>
+            </div>
             <p className="text-[11px] leading-relaxed">
               Complete official Cordova residency verification, fulfill service bookings reliably, and maintain high client ratings. Cancellations at fault, valid reports, and repeated listing rejections will reduce your score.
             </p>

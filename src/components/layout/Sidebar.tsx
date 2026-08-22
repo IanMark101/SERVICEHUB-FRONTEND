@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import {
   Compass,
   PlusCircle,
@@ -17,7 +18,8 @@ import {
   History,
   BarChart2,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
+  HelpCircle,
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { useApp } from '../../context/AppContext';
@@ -347,6 +349,22 @@ export default function Sidebar({
             </div>
           </div>
         )}
+
+        {/* Help Center Link */}
+        <Link
+          href="/help"
+          className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl transition-all group ${
+            isDark
+              ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'
+              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
+          }`}
+          title="Help Center & User Documentation"
+        >
+          <HelpCircle className="w-4 h-4 flex-shrink-0 text-orange-500 group-hover:scale-110 transition-transform" />
+          {(!isCollapsed || isMobileOpen) && (
+            <span className="ml-3">Help Center</span>
+          )}
+        </Link>
 
         {/* Sign out */}
         <button

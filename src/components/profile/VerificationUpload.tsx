@@ -137,12 +137,23 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
       </div>
 
       {/* Current Status Badge */}
-      <div style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, borderRadius: '14px', padding: '14px 16px', marginBottom: '22px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ color: cfg.color }}>{cfg.icon}</span>
-        <div>
-          <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: cfg.color }}>{cfg.label}</p>
-          {adminNote && <p style={{ margin: '3px 0 0', fontSize: '11px', color: textMuted }}>Admin note: {adminNote}</p>}
+      <div style={{ background: cfg.bg, border: `1px solid ${cfg.border}`, borderRadius: '14px', padding: '14px 16px', marginBottom: '22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ color: cfg.color }}>{cfg.icon}</span>
+          <div>
+            <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: cfg.color }}>{cfg.label}</p>
+            {adminNote && <p style={{ margin: '3px 0 0', fontSize: '11px', color: textMuted }}>Admin note: {adminNote}</p>}
+          </div>
         </div>
+        <a
+          href="/help/verification/why-verification-is-required"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}
+        >
+          <span>Why Verify?</span>
+          <span>→</span>
+        </a>
       </div>
 
       {loadingStatus ? (
