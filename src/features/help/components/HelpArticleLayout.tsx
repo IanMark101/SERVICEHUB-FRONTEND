@@ -77,11 +77,11 @@ export default function HelpArticleLayout({
     const Icon = cfg.icon;
 
     return (
-      <div className={`my-6 p-4 rounded-r-xl ${cfg.border} ${cfg.bg}`}>
-        <div className="flex items-start gap-3">
-          <Icon className={`w-4 h-4 shrink-0 mt-0.5 ${cfg.iconColor}`} />
-          <div className="space-y-1 text-xs sm:text-sm leading-relaxed">
-            <p className="font-bold text-xs uppercase tracking-wider opacity-90">
+      <div className={`my-6 p-5 rounded-r-2xl ${cfg.border} ${cfg.bg}`}>
+        <div className="flex items-start gap-3.5">
+          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${cfg.iconColor}`} />
+          <div className="space-y-1 text-sm sm:text-base leading-relaxed">
+            <p className="font-bold text-xs sm:text-sm uppercase tracking-wider opacity-90">
               {callout.title || cfg.defaultTitle}
             </p>
             <p>{callout.text}</p>
@@ -93,11 +93,11 @@ export default function HelpArticleLayout({
 
   const renderExample = (example: ArticleExample) => {
     return (
-      <div className="my-6 p-4 sm:p-5 rounded-xl border bg-slate-50 dark:bg-[#201f1c] border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-neutral-300">
-        <p className="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-1.5">
+      <div className="my-6 p-5 sm:p-6 rounded-2xl border bg-slate-50 dark:bg-[#1a1916] border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-neutral-300 shadow-2xs">
+        <p className="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-2">
           {example.title}
         </p>
-        <p className="text-xs sm:text-sm leading-relaxed">
+        <p className="text-sm sm:text-base leading-relaxed">
           {example.description}
         </p>
       </div>
@@ -105,7 +105,7 @@ export default function HelpArticleLayout({
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-2">
+    <div className="max-w-4xl lg:max-w-5xl mx-auto py-2">
       {/* Breadcrumbs */}
       <HelpBreadcrumbs
         items={[
@@ -118,16 +118,16 @@ export default function HelpArticleLayout({
       />
 
       {/* Article Header */}
-      <header className="space-y-3 pb-6 border-b border-slate-200 dark:border-neutral-800">
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+      <header className="space-y-4 pb-8 border-b border-slate-200 dark:border-neutral-800">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
           {article.title}
         </h1>
 
-        <p className="text-sm sm:text-base text-slate-600 dark:text-neutral-400 leading-relaxed font-normal">
+        <p className="text-base sm:text-lg text-slate-600 dark:text-neutral-300 leading-relaxed font-normal">
           {article.description}
         </p>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 text-xs text-slate-500 dark:text-neutral-400">
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 text-xs sm:text-sm text-slate-500 dark:text-neutral-400">
           <div className="flex items-center gap-3">
             <span>Updated {article.lastUpdated}</span>
             <span>·</span>
@@ -136,20 +136,20 @@ export default function HelpArticleLayout({
 
           <button
             onClick={handleCopyLink}
-            className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-neutral-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 font-semibold text-slate-600 dark:text-neutral-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
             <span>{copied ? 'Link copied' : 'Share'}</span>
           </button>
         </div>
       </header>
 
       {/* Article Body */}
-      <div className="prose dark:prose-invert max-w-none pt-6 space-y-8">
+      <div className="prose dark:prose-invert max-w-none pt-8 space-y-10">
         {article.sections.map((section, idx) => (
-          <section key={idx} className="space-y-3">
+          <section key={idx} className="space-y-4">
             {section.heading && (
-              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight pt-2">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight pt-2">
                 {section.heading}
               </h2>
             )}
@@ -161,7 +161,7 @@ export default function HelpArticleLayout({
             ))}
 
             {section.bullets && (
-              <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-slate-700 dark:text-neutral-300">
+              <ul className="list-disc pl-6 space-y-2.5 text-sm sm:text-base text-slate-700 dark:text-neutral-300">
                 {section.bullets.map((bullet, bIdx) => (
                   <li key={bIdx} className="leading-relaxed">
                     {bullet}
@@ -171,7 +171,7 @@ export default function HelpArticleLayout({
             )}
 
             {section.steps && (
-              <ol className="list-decimal pl-5 space-y-2.5 text-sm sm:text-base text-slate-700 dark:text-neutral-300 my-4">
+              <ol className="list-decimal pl-6 space-y-3 text-sm sm:text-base text-slate-700 dark:text-neutral-300 my-4">
                 {section.steps.map((step, sIdx) => (
                   <li key={sIdx} className="leading-relaxed pl-1">
                     {step}
@@ -187,34 +187,34 @@ export default function HelpArticleLayout({
       </div>
 
       {/* Intercom / Sharetribe Style Feedback Box */}
-      <div className="mt-14 pt-8 border-t border-slate-200 dark:border-neutral-800 text-center space-y-3">
-        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+      <div className="mt-16 pt-10 border-t border-slate-200 dark:border-neutral-800 text-center space-y-4">
+        <p className="text-base font-bold text-slate-900 dark:text-white">
           Did this answer your question?
         </p>
 
         {feedbackGiven ? (
-          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
             Thank you for your feedback!
           </p>
         ) : (
           <div className="flex items-center justify-center gap-4 pt-1">
             <button
               onClick={() => setFeedbackGiven('negative')}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-red-500 transition-colors cursor-pointer"
+              className="p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-red-500 transition-colors cursor-pointer"
               title="Not helpful"
             >
               <Frown className="w-5 h-5" />
             </button>
             <button
               onClick={() => setFeedbackGiven('neutral')}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-amber-500 transition-colors cursor-pointer"
+              className="p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-amber-500 transition-colors cursor-pointer"
               title="Neutral"
             >
               <Meh className="w-5 h-5" />
             </button>
             <button
               onClick={() => setFeedbackGiven('positive')}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-emerald-500 transition-colors cursor-pointer"
+              className="p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-emerald-500 transition-colors cursor-pointer"
               title="Helpful"
             >
               <Smile className="w-5 h-5" />
@@ -223,29 +223,29 @@ export default function HelpArticleLayout({
         )}
       </div>
 
-      {/* Related Articles in Collection */}
+      {/* Related Articles in Collection (2-Column Grid) */}
       {relatedArticles.length > 0 && (
-        <div className="mt-12 pt-8 border-t border-slate-200 dark:border-neutral-800 space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
+        <div className="mt-14 pt-10 border-t border-slate-200 dark:border-neutral-800 space-y-5">
+          <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
             Related Articles in {category?.title || 'this collection'}
           </h3>
 
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {relatedArticles.map((rel) => (
               <Link
                 key={rel.slug}
                 href={`/help/${rel.category}/${rel.slug}`}
-                className="flex items-center justify-between p-3.5 rounded-xl border transition-colors group bg-white dark:bg-[#1c1b18] border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-800 dark:text-neutral-200 shadow-xs"
+                className="flex items-center justify-between p-5 rounded-2xl border transition-all duration-200 group bg-white dark:bg-[#1a1916] border-slate-200 dark:border-neutral-800 hover:border-orange-500/60 text-slate-800 dark:text-neutral-200 shadow-xs"
               >
                 <div className="min-w-0 pr-4">
-                  <p className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate">
+                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate">
                     {rel.title}
                   </p>
-                  <p className="text-[11px] text-slate-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
+                  <p className="text-xs text-slate-500 dark:text-neutral-400 line-clamp-1 mt-1">
                     {rel.description}
                   </p>
                 </div>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-500 group-hover:translate-x-1 transition-all shrink-0" />
               </Link>
             ))}
           </div>

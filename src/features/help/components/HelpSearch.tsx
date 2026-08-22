@@ -97,9 +97,9 @@ export default function HelpSearch({
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-2xl mx-auto">
+    <div ref={containerRef} className="relative w-full max-w-3xl mx-auto">
       <form onSubmit={handleSearchSubmit} className="relative w-full group">
-        <div className="flex items-center w-full rounded-xl border transition-all duration-200 shadow-xs bg-white dark:bg-[#201f1c] border-slate-200 dark:border-neutral-800 focus-within:border-orange-500/80 focus-within:ring-2 focus-within:ring-orange-500/20">
+        <div className="flex items-center w-full rounded-2xl border transition-all duration-200 shadow-sm bg-white dark:bg-[#1e1d1a] border-slate-200 dark:border-neutral-800 focus-within:border-orange-500/80 focus-within:ring-2 focus-within:ring-orange-500/20">
           <Search
             className={`ml-3.5 shrink-0 text-slate-400 dark:text-neutral-500 transition-colors ${
               size === 'lg' ? 'w-5 h-5' : 'w-4 h-4'

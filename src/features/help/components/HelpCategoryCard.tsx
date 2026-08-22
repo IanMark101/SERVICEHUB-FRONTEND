@@ -47,31 +47,31 @@ export default function HelpCategoryCard({ category, articleCount }: HelpCategor
   return (
     <Link
       href={`/help/${category.slug}`}
-      className="group p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:border-orange-500/60 bg-white dark:bg-[#1e1d1a] border-slate-200 dark:border-neutral-800/80 hover:bg-slate-50/50 dark:hover:bg-[#23221e] text-slate-800 dark:text-neutral-200 shadow-xs"
+      className="group p-6 rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:border-orange-500/60 hover:-translate-y-0.5 bg-white dark:bg-[#1a1916] border-slate-200 dark:border-neutral-800/80 hover:bg-slate-50/50 dark:hover:bg-[#201f1c] text-slate-800 dark:text-neutral-200 shadow-xs hover:shadow-md"
     >
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 group-hover:text-orange-500 transition-colors">
-            <IconComponent className="w-4 h-4" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-colors">
+            <IconComponent className="w-5 h-5" />
           </div>
           {articleCount !== undefined && (
-            <span className="text-[11px] font-medium text-slate-400 dark:text-neutral-500">
-              {articleCount} {articleCount === 1 ? 'article' : 'articles'}
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400">
+              {articleCount} {articleCount === 1 ? 'guide' : 'guides'}
             </span>
           )}
         </div>
 
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
           {category.title}
         </h3>
-        <p className="text-xs leading-relaxed text-slate-500 dark:text-neutral-400 mt-1.5 line-clamp-2">
+        <p className="text-xs sm:text-sm leading-relaxed text-slate-500 dark:text-neutral-400 mt-2 line-clamp-3">
           {category.description}
         </p>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-neutral-800/60 flex items-center justify-between text-xs font-semibold text-orange-600 dark:text-orange-400">
-        <span>View collection</span>
-        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-neutral-800/60 flex items-center justify-between text-xs font-bold text-orange-600 dark:text-orange-400">
+        <span>Explore collection</span>
+        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
       </div>
     </Link>
   );
