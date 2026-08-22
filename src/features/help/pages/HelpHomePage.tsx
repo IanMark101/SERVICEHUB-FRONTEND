@@ -1,24 +1,13 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import {
-  ShieldCheck,
-  Award,
-  Hourglass,
-  MessageSquare,
-  DollarSign,
-  Compass,
-  ArrowRight,
-  BookOpen,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import HelpSearch from '../components/HelpSearch';
 import HelpCategoryCard from '../components/HelpCategoryCard';
 import { HELP_CATEGORIES } from '../data/categories';
 import { getArticlesByCategory, getPopularArticles } from '../data';
-import { useApp } from '@/context/AppContext';
 
 export default function HelpHomePage() {
-  const { isDark } = useApp();
   const popularArticles = getPopularArticles(5);
 
   const quickTopics = [
@@ -54,11 +43,7 @@ export default function HelpHomePage() {
             <Link
               key={topic.label}
               href={topic.href}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
-                isDark
-                  ? 'bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-              }`}
+              className="px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors bg-slate-100 dark:bg-neutral-800/80 hover:bg-slate-200 dark:hover:bg-neutral-700 text-slate-700 dark:text-neutral-300"
             >
               {topic.label}
             </Link>
@@ -97,11 +82,7 @@ export default function HelpHomePage() {
             <Link
               key={article.slug}
               href={`/help/${article.category}/${article.slug}`}
-              className={`flex items-center justify-between p-4 rounded-xl border transition-colors group ${
-                isDark
-                  ? 'bg-[#1e1d1a] border-neutral-800/80 hover:border-neutral-700 text-neutral-200'
-                  : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
-              }`}
+              className="flex items-center justify-between p-4 rounded-xl border transition-colors group bg-white dark:bg-[#1e1d1a] border-slate-200 dark:border-neutral-800/80 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-800 dark:text-neutral-200 shadow-xs"
             >
               <div className="min-w-0 pr-4">
                 <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
@@ -118,9 +99,7 @@ export default function HelpHomePage() {
       </section>
 
       {/* Support footer note */}
-      <section className={`p-6 rounded-2xl border text-center space-y-2 ${
-        isDark ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
-      }`}>
+      <section className="p-6 rounded-2xl border text-center space-y-2 bg-slate-50 dark:bg-[#181818] border-slate-200 dark:border-neutral-800 text-slate-600 dark:text-neutral-300">
         <p className="text-xs font-semibold text-slate-900 dark:text-white">
           Still need assistance?
         </p>

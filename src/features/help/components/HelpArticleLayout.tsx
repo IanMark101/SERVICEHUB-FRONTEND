@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  Clock,
-  Calendar,
   Share2,
   Check,
   Smile,
@@ -18,7 +16,6 @@ import {
 import { HelpArticle, ArticleCallout, ArticleExample } from '../types/help.types';
 import { getCategoryBySlug, getRelatedArticles } from '../data';
 import HelpBreadcrumbs from './HelpBreadcrumbs';
-import { useApp } from '@/context/AppContext';
 
 interface HelpArticleLayoutProps {
   article: HelpArticle;
@@ -31,7 +28,6 @@ export default function HelpArticleLayout({
   prevArticle,
   nextArticle,
 }: HelpArticleLayoutProps) {
-  const { isDark } = useApp();
   const category = getCategoryBySlug(article.category);
   const relatedArticles = getRelatedArticles(article, 4);
   const [feedbackGiven, setFeedbackGiven] = useState<'positive' | 'neutral' | 'negative' | null>(null);
@@ -49,28 +45,28 @@ export default function HelpArticleLayout({
     const configs = {
       tip: {
         border: 'border-l-4 border-amber-500',
-        bg: isDark ? 'bg-amber-950/20 text-neutral-200' : 'bg-amber-50/70 text-slate-800',
+        bg: 'bg-amber-50/70 dark:bg-amber-950/20 text-slate-800 dark:text-neutral-200',
         icon: Lightbulb,
         iconColor: 'text-amber-500',
         defaultTitle: 'Tip',
       },
       info: {
         border: 'border-l-4 border-blue-500',
-        bg: isDark ? 'bg-blue-950/20 text-neutral-200' : 'bg-blue-50/70 text-slate-800',
+        bg: 'bg-blue-50/70 dark:bg-blue-950/20 text-slate-800 dark:text-neutral-200',
         icon: Info,
         iconColor: 'text-blue-500',
         defaultTitle: 'Note',
       },
       warning: {
         border: 'border-l-4 border-red-500',
-        bg: isDark ? 'bg-red-950/20 text-neutral-200' : 'bg-red-50/70 text-slate-800',
+        bg: 'bg-red-50/70 dark:bg-red-950/20 text-slate-800 dark:text-neutral-200',
         icon: AlertTriangle,
         iconColor: 'text-red-500',
         defaultTitle: 'Important',
       },
       important: {
         border: 'border-l-4 border-emerald-500',
-        bg: isDark ? 'bg-emerald-950/20 text-neutral-200' : 'bg-emerald-50/70 text-slate-800',
+        bg: 'bg-emerald-50/70 dark:bg-emerald-950/20 text-slate-800 dark:text-neutral-200',
         icon: CheckCircle2,
         iconColor: 'text-emerald-500',
         defaultTitle: 'Requirement',
@@ -97,11 +93,7 @@ export default function HelpArticleLayout({
 
   const renderExample = (example: ArticleExample) => {
     return (
-      <div className={`my-6 p-4 sm:p-5 rounded-xl border ${
-        isDark
-          ? 'bg-[#201f1c] border-neutral-800 text-neutral-300'
-          : 'bg-slate-50 border-slate-200 text-slate-700'
-      }`}>
+      <div className="my-6 p-4 sm:p-5 rounded-xl border bg-slate-50 dark:bg-[#201f1c] border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-neutral-300">
         <p className="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-1.5">
           {example.title}
         </p>
@@ -243,11 +235,7 @@ export default function HelpArticleLayout({
               <Link
                 key={rel.slug}
                 href={`/help/${rel.category}/${rel.slug}`}
-                className={`flex items-center justify-between p-3.5 rounded-xl border transition-colors group ${
-                  isDark
-                    ? 'bg-[#1c1b18] border-neutral-800 hover:border-neutral-700 text-neutral-200'
-                    : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
-                }`}
+                className="flex items-center justify-between p-3.5 rounded-xl border transition-colors group bg-white dark:bg-[#1c1b18] border-slate-200 dark:border-neutral-800 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-800 dark:text-neutral-200 shadow-xs"
               >
                 <div className="min-w-0 pr-4">
                   <p className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate">

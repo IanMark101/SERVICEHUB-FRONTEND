@@ -5,14 +5,12 @@ import { ArrowRight, ArrowLeft } from 'lucide-react';
 import HelpBreadcrumbs from '../components/HelpBreadcrumbs';
 import { HelpCategorySlug } from '../types/help.types';
 import { getCategoryBySlug, getArticlesByCategory } from '../data';
-import { useApp } from '@/context/AppContext';
 
 interface HelpCategoryPageProps {
   categorySlug: string;
 }
 
 export default function HelpCategoryPage({ categorySlug }: HelpCategoryPageProps) {
-  const { isDark } = useApp();
   const category = getCategoryBySlug(categorySlug);
   const articles = category ? getArticlesByCategory(category.slug as HelpCategorySlug) : [];
 
@@ -51,11 +49,7 @@ export default function HelpCategoryPage({ categorySlug }: HelpCategoryPageProps
           <Link
             key={article.slug}
             href={`/help/${article.category}/${article.slug}`}
-            className={`flex items-center justify-between p-4 sm:p-5 rounded-xl border transition-colors group ${
-              isDark
-                ? 'bg-[#1e1d1a] border-neutral-800/80 hover:border-neutral-700 text-neutral-200'
-                : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
-            }`}
+            className="flex items-center justify-between p-4 sm:p-5 rounded-xl border transition-colors group bg-white dark:bg-[#1e1d1a] border-slate-200 dark:border-neutral-800/80 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-800 dark:text-neutral-200 shadow-xs"
           >
             <div className="min-w-0 pr-4">
               <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">

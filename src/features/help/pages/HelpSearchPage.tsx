@@ -8,12 +8,10 @@ import HelpBreadcrumbs from '../components/HelpBreadcrumbs';
 import { searchHelpArticles } from '../utils/helpSearch';
 import { SearchResult } from '../types/help.types';
 import { HELP_CATEGORIES } from '../data/categories';
-import { useApp } from '@/context/AppContext';
 
 export default function HelpSearchPage() {
   const searchParams = useSearchParams();
   const rawQuery = searchParams.get('q') || '';
-  const { isDark } = useApp();
 
   const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -60,9 +58,7 @@ export default function HelpSearchPage() {
                     className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                       selectedCategory === 'all'
                         ? 'bg-orange-600 text-white'
-                        : isDark
-                        ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        : 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-700'
                     }`}
                   >
                     All ({results.length})
@@ -77,9 +73,7 @@ export default function HelpSearchPage() {
                         className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                           selectedCategory === cat.slug
                             ? 'bg-orange-600 text-white'
-                            : isDark
-                            ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            : 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-700'
                         }`}
                       >
                         {cat.shortTitle || cat.title} ({count})
@@ -96,11 +90,7 @@ export default function HelpSearchPage() {
                   <Link
                     key={res.article.slug}
                     href={`/help/${res.article.category}/${res.article.slug}`}
-                    className={`flex items-center justify-between p-4 sm:p-5 rounded-xl border transition-colors group ${
-                      isDark
-                        ? 'bg-[#1e1d1a] border-neutral-800/80 hover:border-neutral-700 text-neutral-200'
-                        : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
-                    }`}
+                    className="flex items-center justify-between p-4 sm:p-5 rounded-xl border transition-colors group bg-white dark:bg-[#1e1d1a] border-slate-200 dark:border-neutral-800/80 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-800 dark:text-neutral-200 shadow-xs"
                   >
                     <div className="min-w-0 pr-4">
                       <div className="flex items-center gap-2 mb-1">

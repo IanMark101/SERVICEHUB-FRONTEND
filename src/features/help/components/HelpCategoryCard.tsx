@@ -19,7 +19,6 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { HelpCategory } from '../types/help.types';
-import { useApp } from '@/context/AppContext';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Compass,
@@ -43,17 +42,12 @@ interface HelpCategoryCardProps {
 }
 
 export default function HelpCategoryCard({ category, articleCount }: HelpCategoryCardProps) {
-  const { isDark } = useApp();
   const IconComponent = ICON_MAP[category.iconName] || HelpCircle;
 
   return (
     <Link
       href={`/help/${category.slug}`}
-      className={`group p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:border-orange-500/60 ${
-        isDark
-          ? 'bg-[#1e1d1a] border-neutral-800/80 hover:bg-[#23221e] text-neutral-200'
-          : 'bg-white border-slate-200 hover:bg-slate-50/50 text-slate-800 shadow-xs'
-      }`}
+      className="group p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:border-orange-500/60 bg-white dark:bg-[#1e1d1a] border-slate-200 dark:border-neutral-800/80 hover:bg-slate-50/50 dark:hover:bg-[#23221e] text-slate-800 dark:text-neutral-200 shadow-xs"
     >
       <div>
         <div className="flex items-center justify-between mb-3">

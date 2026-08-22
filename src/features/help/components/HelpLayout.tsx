@@ -2,19 +2,14 @@
 import React from 'react';
 import Link from 'next/link';
 import HelpNavbar from './HelpNavbar';
-import { useApp } from '@/context/AppContext';
 
 interface HelpLayoutProps {
   children: React.ReactNode;
 }
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {
-  const { isDark } = useApp();
-
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-150 ${
-      isDark ? 'bg-[#151515] text-[#e8e6e3]' : 'bg-[#faf8f5] text-slate-800'
-    }`}>
+    <div className="min-h-screen flex flex-col font-sans transition-colors duration-150 bg-[#faf8f5] dark:bg-[#151515] text-slate-800 dark:text-[#e8e6e3]">
       {/* Top Header */}
       <HelpNavbar />
 
@@ -24,9 +19,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
       </main>
 
       {/* Minimalist Sharetribe Style Footer */}
-      <footer className={`border-t py-8 transition-colors ${
-        isDark ? 'bg-[#121212] border-neutral-800/80 text-neutral-400' : 'bg-white border-slate-200 text-slate-500'
-      }`}>
+      <footer className="border-t py-8 transition-colors bg-white dark:bg-[#121212] border-slate-200 dark:border-neutral-800/80 text-slate-500 dark:text-neutral-400">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="ServiceHub Logo" className="w-5 h-5 rounded object-contain opacity-80" />

@@ -1,11 +1,16 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Sun, Moon, Search, ExternalLink } from 'lucide-react';
+import { BookOpen, Sun, Moon, Search, ExternalLink } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
 export default function HelpNavbar() {
-  const { isDark, toggleTheme, isAuthenticated, user } = useApp();
+  const { toggleTheme, isAuthenticated, user, isDark } = useApp();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const backHref = isAuthenticated
     ? user?.role === 'admin'
@@ -16,11 +21,7 @@ export default function HelpNavbar() {
     : '/';
 
   return (
-    <header className={`sticky top-0 z-40 w-full border-b transition-colors duration-200 ${
-      isDark
-        ? 'bg-[#181818]/95 border-neutral-800 text-[#f2efe9]'
-        : 'bg-white/95 border-slate-200 text-slate-900'
-    } backdrop-blur-md`}>
+    <header className="sticky top-0 z-40 w-full border-b transition-colors duration-200 bg-white/95 dark:bg-[#181818]/95 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-[#f2efe9] backdrop-blur-md">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
@@ -41,11 +42,7 @@ export default function HelpNavbar() {
         <div className="flex items-center gap-3">
           <Link
             href="/help/search"
-            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all flex items-center gap-2 cursor-pointer ${
-              isDark
-                ? 'border-neutral-800 bg-[#22211e] hover:border-neutral-700 text-[#b4b0a9]'
-                : 'border-slate-200 bg-slate-50 hover:border-slate-300 text-slate-600'
-            }`}
+            className="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all flex items-center gap-2 cursor-pointer border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-[#22211e] hover:border-slate-300 dark:hover:border-neutral-700 text-slate-600 dark:text-[#b4b0a9]"
           >
             <Search className="w-3.5 h-3.5 text-slate-400" />
             <span className="hidden sm:inline text-xs">Search help articles...</span>
@@ -53,11 +50,7 @@ export default function HelpNavbar() {
 
           <Link
             href={backHref}
-            className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-              isDark
-                ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#d4cfc7] hover:text-white'
-                : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-            }`}
+            className="px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer border-slate-200 dark:border-neutral-800 bg-white dark:bg-[#22211e] hover:bg-slate-50 dark:hover:bg-[#2c2b27] text-slate-700 dark:text-[#d4cfc7] hover:text-slate-900 dark:hover:text-white"
           >
             <span>Go to ServiceHub</span>
             <ExternalLink className="w-3.5 h-3.5 opacity-60" />
@@ -66,13 +59,13 @@ export default function HelpNavbar() {
           <button
             onClick={toggleTheme}
             aria-label="Toggle Theme"
-            className={`p-2 rounded-lg border transition-all cursor-pointer ${
-              isDark
-                ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-amber-400'
-                : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
-            }`}
+            className="p-2 rounded-lg border transition-all cursor-pointer border-slate-200 dark:border-neutral-800 bg-white dark:bg-[#22211e] hover:bg-slate-50 dark:hover:bg-[#2c2b27] text-slate-700 dark:text-amber-400"
           >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {mounted ? (
+              isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />
+            ) : (
+              <span className="w-4 h-4 block" />
+            )}
           </button>
         </div>
       </div>
