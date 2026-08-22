@@ -50,6 +50,7 @@ export default function HelpNavbar() {
 
           <Link
             href={backHref}
+            suppressHydrationWarning
             className="px-3.5 py-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border-slate-200 dark:border-neutral-800 bg-white dark:bg-[#201f1c] hover:bg-slate-50 dark:hover:bg-[#282723] text-slate-700 dark:text-[#d4cfc7] hover:text-slate-900 dark:hover:text-white"
           >
             <span>Back to App</span>

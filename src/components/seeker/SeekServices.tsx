@@ -41,6 +41,10 @@ export default function SeekServices() {
       setBlockedModalOpen(true);
       return;
     }
+    if (listing.isPaused) {
+      toastError('This service is currently paused by the provider and is not accepting new bookings.');
+      return;
+    }
     setSelectedPaymentMethod(method);
     setSelectedListing(listing);
   };
@@ -52,6 +56,10 @@ export default function SeekServices() {
   const handleJoinWaitlist = async (listing: ServiceListing) => {
     if (!canTransact) {
       setBlockedModalOpen(true);
+      return;
+    }
+    if (listing.isPaused) {
+      toastError('This service is currently paused by the provider and is not accepting waitlist entries.');
       return;
     }
     setJoiningWaitlistId(listing.id);
@@ -71,6 +79,10 @@ export default function SeekServices() {
 
   // Filter listings based on category tabs, search strings, and quick filter options
   const filteredServices = services.filter(service => {
+    // 0. Marketplace visibility guard: hide paused or unapproved listings
+    if (service.isPaused) return false;
+    if (service.status && service.status !== 'ACTIVE') return false;
+
     // 1. Search Query filter
     const query = searchQuery.toLowerCase().trim();
     const matchesSearch = 

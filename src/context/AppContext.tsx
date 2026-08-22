@@ -537,19 +537,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncUnreadMessages();
     });
 
-    // Real-time task request updates (active/paused toggles, new requests, cancellations)
-    sock.on('SERVICE_REQUEST_CREATED', () => {
-      syncRequests();
+    // Real-time service listing updates (active/paused toggles, edits, deletes, approvals)
+    sock.on('SERVICE_LISTING_TOGGLED', (data: { id: string; isAvailable: boolean }) => {
+      setServices(prev =>
+        prev.map(s => (s.id === data.id ? { ...s, isPaused: !data.isAvailable } : s))
+      );
+      syncPublicServices();
     });
-    sock.on('SERVICE_REQUEST_UPDATED', () => {
-      syncRequests();
+    sock.on('SERVICE_LISTING_UPDATED', () => {
+      syncPublicServices();
     });
-    sock.on('SERVICE_REQUEST_DELETED', () => {
-      syncRequests();
-      syncBids();
+    sock.on('SERVICE_LISTING_DELETED', (data: { id: string }) => {
+      setServices(prev => prev.filter(s => s.id !== data.id));
+      syncPublicServices();
     });
-    sock.on('SERVICE_REQUESTS_CHANGED', () => {
-      syncRequests();
+    sock.on('SERVICE_LISTING_APPROVED', () => {
+      syncPublicServices();
+    });
+    sock.on('SERVICE_LISTINGS_CHANGED', () => {
+      syncPublicServices();
     });
 
     return () => {
@@ -560,8 +566,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sock.off('SERVICE_REQUEST_UPDATED');
       sock.off('SERVICE_REQUEST_DELETED');
       sock.off('SERVICE_REQUESTS_CHANGED');
+      sock.off('SERVICE_LISTING_TOGGLED');
+      sock.off('SERVICE_LISTING_UPDATED');
+      sock.off('SERVICE_LISTING_DELETED');
+      sock.off('SERVICE_LISTING_APPROVED');
+      sock.off('SERVICE_LISTINGS_CHANGED');
     };
-  }, [isAuthenticated, syncNotifications, syncUnreadMessages, syncRequests, syncBids]);
+  }, [isAuthenticated, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices]);
 
   // Disconnect socket when user explicitly logs out
   useEffect(() => {

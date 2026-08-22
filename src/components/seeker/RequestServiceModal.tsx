@@ -97,6 +97,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       }
     }
 
+    if (listing.isPaused) {
+      setFormError('This service is currently paused by the provider and cannot be booked at this time.');
+      return;
+    }
+
     if (!user) {
       setFormError('You must be logged in to book a service.');
       return;
