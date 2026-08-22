@@ -157,7 +157,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by provider name, task, or quote..."
-              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-orange-500 ${
                 isDark 
                   ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9] placeholder-neutral-500' 
                   : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
@@ -170,7 +170,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
             <select
               value={sortBy}
               onChange={(e: any) => setSortBy(e.target.value)}
-              className={`px-3 py-2 rounded-xl border text-xs font-bold transition-colors focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer ${
+              className={`px-3 py-2 rounded-xl border text-xs font-bold transition-colors focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer ${
                 isDark 
                   ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]' 
                   : 'bg-white border-slate-300 text-slate-700'
@@ -189,7 +189,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
         <div className={`rounded-[24px] p-12 border text-center transition-all ${
           isDark ? 'bg-[#22211e] border-neutral-850 text-[#b4b0a9]' : 'bg-white border-slate-200 shadow-sm text-slate-500'
         }`}>
-          <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-emerald-500/10 text-emerald-500">
+          <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-orange-500/10 text-orange-500">
             <Inbox className="w-6 h-6" />
           </div>
           <h3 className={`text-sm font-extrabold mb-1 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
