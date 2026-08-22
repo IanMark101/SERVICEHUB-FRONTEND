@@ -694,7 +694,7 @@ export default function Header({
                     <button
                       onClick={() => {
                         setShowProfileMenu(false);
-                        router.push('/help');
+                        window.open('/help', '_blank');
                       }}
                       className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         }`}

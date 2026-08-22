@@ -59,25 +59,35 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-0.5">
-          {NAV_LINKS.map((link) => (
-            <button
-              key={link.href}
-              onClick={() => {
-                if (link.isRoute) router.push(link.href);
-                else scrollTo(link.href);
-              }}
-              className={`text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${link.isRoute
-                  ? isDark
-                    ? 'text-orange-400 font-bold hover:bg-orange-500/10'
-                    : 'text-orange-600 font-bold hover:bg-orange-50'
-                  : isDark
+          {NAV_LINKS.map((link) =>
+            link.isRoute ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
+                  isDark
+                    ? 'text-orange-400 hover:bg-orange-500/10'
+                    : 'text-orange-600 hover:bg-orange-50'
+                }`}
+              >
+                {link.label}
+              </a>
+            ) : (
+              <button
+                key={link.href}
+                onClick={() => scrollTo(link.href)}
+                className={`text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
+                  isDark
                     ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
                 }`}
-            >
-              {link.label}
-            </button>
-          ))}
+              >
+                {link.label}
+              </button>
+            )
+          )}
         </nav>
 
         {/* Right controls */}
@@ -131,26 +141,39 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
             }`}
         >
           <nav className="flex flex-col px-6 py-4 gap-1">
-            {NAV_LINKS.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => {
-                  setMobileOpen(false);
-                  if (link.isRoute) router.push(link.href);
-                  else scrollTo(link.href);
-                }}
-                className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${link.isRoute
-                    ? isDark
-                      ? 'text-orange-400 font-bold bg-orange-500/10'
-                      : 'text-orange-600 font-bold bg-orange-50'
-                    : isDark
+            {NAV_LINKS.map((link) =>
+              link.isRoute ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileOpen(false)}
+                  className={`text-sm font-bold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                    isDark
+                      ? 'text-orange-400 bg-orange-500/10'
+                      : 'text-orange-600 bg-orange-50'
+                  }`}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <button
+                  key={link.href}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    scrollTo(link.href);
+                  }}
+                  className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                    isDark
                       ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
-              >
-                {link.label}
-              </button>
-            ))}
+                >
+                  {link.label}
+                </button>
+              )
+            )}
             <div className={`pt-3 mt-2 border-t flex gap-3 ${isDark ? 'border-neutral-700' : 'border-slate-200'}`}>
               <button
                 onClick={() => { router.push('/login'); setMobileOpen(false); }}

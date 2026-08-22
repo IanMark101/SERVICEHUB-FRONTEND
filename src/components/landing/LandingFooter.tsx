@@ -162,6 +162,15 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
                         <span className="text-[13px] text-slate-300">
                           {l.label}
                         </span>
+                      ) : l.target === '/help' ? (
+                        <a
+                          href="/help"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`text-[13px] text-left transition-colors cursor-pointer inline-block ${link}`}
+                        >
+                          {l.label}
+                        </a>
                       ) : (
                         <button
                           onClick={() => handleLink(l.type, l.target)}
