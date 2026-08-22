@@ -387,15 +387,10 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     });
   };
 
-  const getTabClass = (tab: typeof activeTab, count: number) => {
+  const getTabClass = (tab: typeof activeTab, _count: number) => {
     const isActive = activeTab === tab;
-    const isEmpty = count === 0;
 
     let baseStyles = "px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ";
-
-    if (isEmpty) {
-      baseStyles += "opacity-35 hover:opacity-60 ";
-    }
 
     if (isActive) {
       if (tab === 'all') {
