@@ -96,3 +96,8 @@ export async function apiAdminResolveCancellation(requestId: string, approve: bo
   const response = await api.patch(`/admin/cancellation-requests/${requestId}/resolve`, { approve, adminNote });
   return response.data;
 }
+
+export async function apiHideBooking(bookingId: string) {
+  const response = await api.patch(`/bookings/${bookingId}/hide`);
+  return response.data;
+}

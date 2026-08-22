@@ -13,11 +13,12 @@ import {
   AlertCircle,
   Search,
   ChevronDown,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
-import { apiCancelBooking, apiEscalateCancellationRequest } from '../../api/bookings.api';
+import { apiCancelBooking, apiEscalateCancellationRequest, apiHideBooking } from '../../api/bookings.api';
 import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ReviewModal from './ReviewModal';
 import { useToast } from '../ui/Toast';
@@ -29,7 +30,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
-  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | null>(null);
+  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | 'hide' | null>(null);
 
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
@@ -355,6 +356,36 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     });
   };
 
+  const handleDeleteClick = (je: JobEngagement) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Remove from Activity',
+      message: 'Are you sure you want to remove this record from your activity view? It will no longer be visible here.',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        setLoadingItemId(je.id);
+        setLoadingActionType('hide');
+        try {
+          const res = await apiHideBooking(je.id);
+          if (res.success) {
+            success('Removed', 'Record removed from your activity list.');
+            refreshEngagements();
+          } else {
+            toastError('Remove Failed', res.message || 'Failed to remove record.');
+          }
+        } catch (err: any) {
+          toastError('Remove Failed', err.response?.data?.message || 'Error removing record.');
+        } finally {
+          setLoadingItemId(null);
+          setLoadingActionType(null);
+          setConfirmModal(null);
+        }
+      }
+    });
+  };
 
   const getTabClass = (tab: typeof activeTab, count: number) => {
     const isActive = activeTab === tab;
@@ -704,10 +735,23 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
                       })()}
 
                       {je.status === 'canceled' && (
-                        <span className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-855' : 'text-slate-400 bg-slate-100 border border-slate-200'
-                          }`}>
-                          Canceled
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-855' : 'text-slate-400 bg-slate-100 border border-slate-200'
+                            }`}>
+                            Canceled
+                          </span>
+                          <button
+                            onClick={() => handleDeleteClick(je)}
+                            className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
+                              isDark
+                                ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-neutral-500'
+                                : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400'
+                            }`}
+                            title="Remove from activity view"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       )}
 
                       {/* Open Conversation — accessible on all non-pending booking statuses */}

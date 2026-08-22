@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { MessageSquare, Send, ChevronLeft, ImagePlus, Loader2, Lock, ShieldCheck, X } from 'lucide-react';
+import { MessageSquare, Send, ChevronLeft, ImagePlus, Loader2, Lock, ShieldCheck, X, Trash2 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { apiGetMessages, apiSendMessage, apiGetConversations } from '../../../api/messages.api';
+import { apiHideBooking } from '../../../api/bookings.api';
 import { joinBookingRoom, getSocket } from '../../../lib/socket';
 import { processMessageImage } from '../../../lib/imageUtils';
 
@@ -208,6 +209,20 @@ export default function SeekerMessagesPage() {
     }
   };
 
+  const handleHideConversation = async (bookingId: string) => {
+    if (!confirm('Remove this conversation from your list?')) return;
+    try {
+      await apiHideBooking(bookingId);
+      setConversations(prev => prev.filter(c => c.bookingId !== bookingId));
+      if (selectedConv?.bookingId === bookingId) {
+        setSelectedConv(null);
+        setMessages([]);
+      }
+    } catch (e) {
+      console.error('Failed to hide conversation:', e);
+    }
+  };
+
   const isReadOnly = selectedConv ? ['PENDING_APPROVAL', 'DECLINED', 'CANCELED', 'REMOVED', 'COMPLETED'].includes(selectedConv.status) : false;
 
   const cardBg = isDark ? 'bg-[#1c1b18] border-neutral-800/70' : 'bg-white border-slate-200';
@@ -345,16 +360,29 @@ export default function SeekerMessagesPage() {
                 </div>
               </div>
 
-              {/* Status Indicator */}
-              <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
-                ['COMPLETED'].includes(selectedConv.status)
-                  ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                  : ['CANCELED', 'DECLINED', 'REMOVED'].includes(selectedConv.status)
-                  ? 'bg-red-500/10 text-red-500 border-red-500/20'
-                  : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
-              }`}>
-                {selectedConv.status.replace('_', ' ')}
-              </span>
+              {/* Right actions: Status Indicator and Hide button */}
+              <div className="flex items-center gap-2">
+                <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                  ['COMPLETED'].includes(selectedConv.status)
+                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                    : ['CANCELED', 'DECLINED', 'REMOVED'].includes(selectedConv.status)
+                    ? 'bg-red-500/10 text-red-500 border-red-500/20'
+                    : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                }`}>
+                  {selectedConv.status.replace('_', ' ')}
+                </span>
+                <button
+                  onClick={() => handleHideConversation(selectedConv.bookingId)}
+                  className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                    isDark
+                      ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-neutral-400'
+                      : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400'
+                  }`}
+                  title="Remove conversation from view"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}

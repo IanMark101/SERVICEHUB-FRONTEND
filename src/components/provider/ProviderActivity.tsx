@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
-import { apiRespondCancellationRequest } from '../../api/bookings.api';
+import { apiRespondCancellationRequest, apiHideBooking } from '../../api/bookings.api';
 import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 
@@ -354,6 +354,36 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     });
   };
 
+  const handleDeleteClick = (je: JobEngagement) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Remove from Activity',
+      message: 'Are you sure you want to remove this record from your activity view? It will no longer be visible here.',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        setLoadingItemId(je.id);
+        setLoadingActionType('hide');
+        try {
+          const res = await apiHideBooking(je.id);
+          if (res.success) {
+            success('Removed', 'Record removed from your activity list.');
+            refreshEngagements();
+          } else {
+            toastError('Remove Failed', res.message || 'Failed to remove record.');
+          }
+        } catch (err: any) {
+          toastError('Remove Failed', err.response?.data?.message || 'Error removing record.');
+        } finally {
+          setLoadingItemId(null);
+          setLoadingActionType(null);
+          setConfirmModal(null);
+        }
+      }
+    });
+  };
 
   const handleDeclineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -805,10 +835,23 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
                           </span>
                         )}
                         {je.status === 'canceled' && (
-                          <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-855' : 'text-slate-400 bg-slate-100 border border-slate-200'
-                            }`}>
-                            Canceled
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-855' : 'text-slate-400 bg-slate-100 border border-slate-200'
+                              }`}>
+                              Canceled
+                            </span>
+                            <button
+                              onClick={() => handleDeleteClick(je)}
+                              className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
+                                isDark
+                                  ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-neutral-500'
+                                  : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400'
+                              }`}
+                              title="Remove from activity view"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         )}
 
                         {/* Open Conversation — accessible on all non-pending booking statuses */}
