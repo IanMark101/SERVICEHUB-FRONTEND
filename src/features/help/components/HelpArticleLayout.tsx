@@ -4,21 +4,20 @@ import Link from 'next/link';
 import {
   Clock,
   Calendar,
-  CheckCircle2,
+  Share2,
+  Check,
+  Smile,
+  Meh,
+  Frown,
+  ArrowRight,
   Info,
   AlertTriangle,
   Lightbulb,
-  ThumbsUp,
-  ThumbsDown,
-  Share2,
-  Sparkles,
-  BookOpen,
+  CheckCircle2,
 } from 'lucide-react';
 import { HelpArticle, ArticleCallout, ArticleExample } from '../types/help.types';
 import { getCategoryBySlug, getRelatedArticles } from '../data';
 import HelpBreadcrumbs from './HelpBreadcrumbs';
-import HelpArticleNavigation from './HelpArticleNavigation';
-import RelatedArticles from './RelatedArticles';
 import { useApp } from '@/context/AppContext';
 
 interface HelpArticleLayoutProps {
@@ -34,8 +33,8 @@ export default function HelpArticleLayout({
 }: HelpArticleLayoutProps) {
   const { isDark } = useApp();
   const category = getCategoryBySlug(article.category);
-  const relatedArticles = getRelatedArticles(article, 3);
-  const [feedbackGiven, setFeedbackGiven] = useState<'yes' | 'no' | null>(null);
+  const relatedArticles = getRelatedArticles(article, 4);
+  const [feedbackGiven, setFeedbackGiven] = useState<'positive' | 'neutral' | 'negative' | null>(null);
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
@@ -49,28 +48,32 @@ export default function HelpArticleLayout({
   const renderCallout = (callout: ArticleCallout) => {
     const configs = {
       tip: {
+        border: 'border-l-4 border-amber-500',
+        bg: isDark ? 'bg-amber-950/20 text-neutral-200' : 'bg-amber-50/70 text-slate-800',
         icon: Lightbulb,
-        bg: isDark ? 'bg-amber-950/20 border-amber-900/40 text-[#f2efe9]' : 'bg-amber-50/80 border-amber-200 text-amber-950',
         iconColor: 'text-amber-500',
-        titleDefault: 'Helpful Tip',
+        defaultTitle: 'Tip',
       },
       info: {
+        border: 'border-l-4 border-blue-500',
+        bg: isDark ? 'bg-blue-950/20 text-neutral-200' : 'bg-blue-50/70 text-slate-800',
         icon: Info,
-        bg: isDark ? 'bg-blue-950/20 border-blue-900/40 text-[#f2efe9]' : 'bg-blue-50/80 border-blue-200 text-blue-950',
         iconColor: 'text-blue-500',
-        titleDefault: 'Good to Know',
+        defaultTitle: 'Note',
       },
       warning: {
+        border: 'border-l-4 border-red-500',
+        bg: isDark ? 'bg-red-950/20 text-neutral-200' : 'bg-red-50/70 text-slate-800',
         icon: AlertTriangle,
-        bg: isDark ? 'bg-red-950/20 border-red-900/40 text-[#f2efe9]' : 'bg-red-50/80 border-red-200 text-red-950',
         iconColor: 'text-red-500',
-        titleDefault: 'Important Notice',
+        defaultTitle: 'Important',
       },
       important: {
+        border: 'border-l-4 border-emerald-500',
+        bg: isDark ? 'bg-emerald-950/20 text-neutral-200' : 'bg-emerald-50/70 text-slate-800',
         icon: CheckCircle2,
-        bg: isDark ? 'bg-emerald-950/20 border-emerald-900/40 text-[#f2efe9]' : 'bg-emerald-50/80 border-emerald-200 text-emerald-950',
         iconColor: 'text-emerald-500',
-        titleDefault: 'Key Requirement',
+        defaultTitle: 'Requirement',
       },
     };
 
@@ -78,12 +81,14 @@ export default function HelpArticleLayout({
     const Icon = cfg.icon;
 
     return (
-      <div className={`rounded-2xl p-4 sm:p-5 border my-5 ${cfg.bg}`}>
+      <div className={`my-6 p-4 rounded-r-xl ${cfg.border} ${cfg.bg}`}>
         <div className="flex items-start gap-3">
-          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${cfg.iconColor}`} />
-          <div className="space-y-1 text-xs leading-relaxed">
-            <h5 className="font-bold text-xs">{callout.title || cfg.titleDefault}</h5>
-            <p className="opacity-90">{callout.text}</p>
+          <Icon className={`w-4 h-4 shrink-0 mt-0.5 ${cfg.iconColor}`} />
+          <div className="space-y-1 text-xs sm:text-sm leading-relaxed">
+            <p className="font-bold text-xs uppercase tracking-wider opacity-90">
+              {callout.title || cfg.defaultTitle}
+            </p>
+            <p>{callout.text}</p>
           </div>
         </div>
       </div>
@@ -92,16 +97,15 @@ export default function HelpArticleLayout({
 
   const renderExample = (example: ArticleExample) => {
     return (
-      <div className={`rounded-2xl p-4 sm:p-5 border my-5 ${
+      <div className={`my-6 p-4 sm:p-5 rounded-xl border ${
         isDark
-          ? 'bg-neutral-800/30 border-neutral-700/60 text-[#f2efe9]'
-          : 'bg-slate-50 border-slate-200 text-slate-800'
+          ? 'bg-[#201f1c] border-neutral-800 text-neutral-300'
+          : 'bg-slate-50 border-slate-200 text-slate-700'
       }`}>
-        <div className="flex items-center gap-2 mb-2 text-xs font-bold text-orange-600 dark:text-orange-400">
-          <BookOpen className="w-4 h-4" />
-          <span>{example.title}</span>
-        </div>
-        <p className="text-xs leading-relaxed text-slate-600 dark:text-neutral-300">
+        <p className="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-1.5">
+          {example.title}
+        </p>
+        <p className="text-xs sm:text-sm leading-relaxed">
           {example.description}
         </p>
       </div>
@@ -109,118 +113,76 @@ export default function HelpArticleLayout({
   };
 
   return (
-    <article className="space-y-8">
+    <div className="max-w-3xl mx-auto py-2">
       {/* Breadcrumbs */}
       <HelpBreadcrumbs
         items={[
           {
-            label: category?.title || 'Category',
+            label: category?.title || 'Collection',
             href: category ? `/help/${category.slug}` : undefined,
           },
           { label: article.title },
         ]}
       />
 
-      {/* Article Header Card */}
-      <div className={`rounded-[26px] p-6 sm:p-8 border shadow-xs ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200 shadow-sm'
-      }`}>
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          {category && (
-            <Link
-              href={`/help/${category.slug}`}
-              className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
-            >
-              {category.title}
-            </Link>
-          )}
-
-          <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-neutral-500 font-medium">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{article.readTimeMinutes} min read</span>
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Updated {article.lastUpdated}</span>
-            </span>
-          </div>
-        </div>
-
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-[#f2efe9] leading-tight">
+      {/* Article Header */}
+      <header className="space-y-3 pb-6 border-b border-slate-200 dark:border-neutral-800">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
           {article.title}
         </h1>
 
-        <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-[#b4b0a9] mt-3 font-medium">
+        <p className="text-sm sm:text-base text-slate-600 dark:text-neutral-400 leading-relaxed font-normal">
           {article.description}
         </p>
 
-        {/* Share / Copy button */}
-        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-neutral-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500">
-              Keywords:
-            </span>
-            <div className="flex flex-wrap gap-1.5">
-              {article.keywords.slice(0, 4).map((kw) => (
-                <span
-                  key={kw}
-                  className="text-[10px] px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400"
-                >
-                  #{kw}
-                </span>
-              ))}
-            </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 text-xs text-slate-500 dark:text-neutral-400">
+          <div className="flex items-center gap-3">
+            <span>Updated {article.lastUpdated}</span>
+            <span>·</span>
+            <span>{article.readTimeMinutes} min read</span>
           </div>
 
           <button
             onClick={handleCopyLink}
-            className="flex items-center gap-1.5 text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
+            className="flex items-center gap-1.5 font-medium text-slate-600 dark:text-neutral-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"
           >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>{copied ? 'Link Copied!' : 'Share Article'}</span>
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
+            <span>{copied ? 'Link copied' : 'Share'}</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Main Article Body Sections */}
-      <div className={`rounded-[26px] p-6 sm:p-8 border shadow-xs space-y-8 ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200 shadow-sm'
-      }`}>
+      {/* Article Body */}
+      <div className="prose dark:prose-invert max-w-none pt-6 space-y-8">
         {article.sections.map((section, idx) => (
-          <section key={idx} className="space-y-4">
+          <section key={idx} className="space-y-3">
             {section.heading && (
-              <h3 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-[#f2efe9] border-b pb-2 border-slate-100 dark:border-neutral-800">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight pt-2">
                 {section.heading}
-              </h3>
+              </h2>
             )}
 
             {section.paragraphs && section.paragraphs.map((p, pIdx) => (
-              <p key={pIdx} className="text-sm leading-relaxed text-slate-700 dark:text-[#d4cfc7]">
+              <p key={pIdx} className="text-sm sm:text-base leading-relaxed text-slate-700 dark:text-neutral-300">
                 {p}
               </p>
             ))}
 
             {section.bullets && (
-              <ul className="space-y-2 text-sm text-slate-700 dark:text-[#d4cfc7] pl-1">
+              <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-slate-700 dark:text-neutral-300">
                 {section.bullets.map((bullet, bIdx) => (
-                  <li key={bIdx} className="flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 shrink-0" />
-                    <span className="leading-relaxed">{bullet}</span>
+                  <li key={bIdx} className="leading-relaxed">
+                    {bullet}
                   </li>
                 ))}
               </ul>
             )}
 
             {section.steps && (
-              <ol className="space-y-3 my-3">
+              <ol className="list-decimal pl-5 space-y-2.5 text-sm sm:text-base text-slate-700 dark:text-neutral-300 my-4">
                 {section.steps.map((step, sIdx) => (
-                  <li key={sIdx} className="flex items-start gap-3 text-sm text-slate-700 dark:text-[#d4cfc7]">
-                    <span className="w-6 h-6 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                      {sIdx + 1}
-                    </span>
-                    <span className="leading-relaxed pt-0.5">{step}</span>
+                  <li key={sIdx} className="leading-relaxed pl-1">
+                    {step}
                   </li>
                 ))}
               </ol>
@@ -230,52 +192,77 @@ export default function HelpArticleLayout({
             {section.example && renderExample(section.example)}
           </section>
         ))}
-
-        {/* Feedback Section */}
-        <div className={`mt-10 pt-6 border-t border-slate-100 dark:border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4`}>
-          <div>
-            <h5 className="font-bold text-xs text-slate-900 dark:text-[#f2efe9]">
-              Was this guide helpful to you?
-            </h5>
-            <p className="text-[11px] text-slate-400 dark:text-neutral-500">
-              Your feedback helps improve documentation for Cordova residents.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {feedbackGiven ? (
-              <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 animate-in fade-in">
-                ✓ Thank you for your feedback!
-              </span>
-            ) : (
-              <>
-                <button
-                  onClick={() => setFeedbackGiven('yes')}
-                  className="px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-slate-50 dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-600 hover:border-emerald-300"
-                >
-                  <ThumbsUp className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Yes</span>
-                </button>
-                <button
-                  onClick={() => setFeedbackGiven('no')}
-                  className="px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-slate-50 dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 hover:border-red-300"
-                >
-                  <ThumbsDown className="w-3.5 h-3.5 text-red-500" />
-                  <span>No</span>
-                </button>
-              </>
-            )}
-          </div>
-        </div>
       </div>
 
-      {/* Prev / Next Article Navigation */}
-      <HelpArticleNavigation prevArticle={prevArticle} nextArticle={nextArticle} />
+      {/* Intercom / Sharetribe Style Feedback Box */}
+      <div className="mt-14 pt-8 border-t border-slate-200 dark:border-neutral-800 text-center space-y-3">
+        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+          Did this answer your question?
+        </p>
 
-      {/* Related Articles */}
+        {feedbackGiven ? (
+          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            Thank you for your feedback!
+          </p>
+        ) : (
+          <div className="flex items-center justify-center gap-4 pt-1">
+            <button
+              onClick={() => setFeedbackGiven('negative')}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-red-500 transition-colors cursor-pointer"
+              title="Not helpful"
+            >
+              <Frown className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setFeedbackGiven('neutral')}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-amber-500 transition-colors cursor-pointer"
+              title="Neutral"
+            >
+              <Meh className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setFeedbackGiven('positive')}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-emerald-500 transition-colors cursor-pointer"
+              title="Helpful"
+            >
+              <Smile className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Related Articles in Collection */}
       {relatedArticles.length > 0 && (
-        <RelatedArticles articles={relatedArticles} />
+        <div className="mt-12 pt-8 border-t border-slate-200 dark:border-neutral-800 space-y-4">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px]">
+            Related Articles in {category?.title || 'this collection'}
+          </h3>
+
+          <div className="space-y-2">
+            {relatedArticles.map((rel) => (
+              <Link
+                key={rel.slug}
+                href={`/help/${rel.category}/${rel.slug}`}
+                className={`flex items-center justify-between p-3.5 rounded-xl border transition-colors group ${
+                  isDark
+                    ? 'bg-[#1c1b18] border-neutral-800 hover:border-neutral-700 text-neutral-200'
+                    : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
+                }`}
+              >
+                <div className="min-w-0 pr-4">
+                  <p className="text-xs font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate">
+                    {rel.title}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
+                    {rel.description}
+                  </p>
+                </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </Link>
+            ))}
+          </div>
+        </div>
       )}
-    </article>
+    </div>
   );
 }

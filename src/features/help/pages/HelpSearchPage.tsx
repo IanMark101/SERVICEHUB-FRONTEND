@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Search, FileText, ArrowRight, Sparkles, Filter, HelpCircle } from 'lucide-react';
+import { Search, ArrowRight } from 'lucide-react';
 import HelpSearch from '../components/HelpSearch';
 import HelpBreadcrumbs from '../components/HelpBreadcrumbs';
-import HelpArticleCard from '../components/HelpArticleCard';
 import { searchHelpArticles } from '../utils/helpSearch';
-import { SearchResult, HelpCategorySlug } from '../types/help.types';
+import { SearchResult } from '../types/help.types';
 import { HELP_CATEGORIES } from '../data/categories';
 import { useApp } from '@/context/AppContext';
 
@@ -32,59 +31,35 @@ export default function HelpSearchPage() {
     ? results
     : results.filter((r) => r.article.category === selectedCategory);
 
-  const popularQueries = ['Verification', 'Trust Score', 'Queue', 'GCash', 'Limited Mode', 'Direct Booking', 'Disputes'];
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-200">
+    <div className="max-w-3xl mx-auto py-2 space-y-8 animate-in fade-in duration-200">
       <HelpBreadcrumbs items={[{ label: 'Search Results' }]} />
 
       {/* Search Header */}
-      <div className="space-y-4 text-center max-w-2xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-[#f2efe9]">
-          Search Documentation
+      <div className="space-y-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Search Results
         </h1>
         <HelpSearch initialQuery={rawQuery} autoFocus={true} size="md" showLiveDropdown={false} />
-
-        {/* Quick query chips */}
-        <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
-          <span className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500">
-            Suggested:
-          </span>
-          {popularQueries.map((term) => (
-            <Link
-              key={term}
-              href={`/help/search?q=${encodeURIComponent(term)}`}
-              className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 hover:text-orange-500 transition-colors"
-            >
-              {term}
-            </Link>
-          ))}
-        </div>
       </div>
 
       {/* Results Section */}
       <div className="space-y-6">
         {rawQuery ? (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 border-slate-200 dark:border-neutral-800">
-              <div>
-                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-[#f2efe9]">
-                  {results.length} {results.length === 1 ? 'result' : 'results'} found for "{rawQuery}"
-                </h2>
-                <p className="text-xs text-slate-400 dark:text-neutral-500 mt-0.5">
-                  Ordered by relevance to your search terms.
-                </p>
-              </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-neutral-800 text-xs">
+              <span className="font-medium text-slate-600 dark:text-neutral-400">
+                {results.length} {results.length === 1 ? 'result' : 'results'} for "{rawQuery}"
+              </span>
 
               {/* Category Filter Pills */}
               {results.length > 0 && (
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
-                  <span className="text-[11px] font-bold text-slate-400 shrink-0">Filter:</span>
+                <div className="flex items-center gap-1.5 overflow-x-auto">
                   <button
                     onClick={() => setSelectedCategory('all')}
-                    className={`px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                       selectedCategory === 'all'
-                        ? 'bg-orange-500 text-white shadow-xs'
+                        ? 'bg-orange-600 text-white'
                         : isDark
                         ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -99,9 +74,9 @@ export default function HelpSearchPage() {
                       <button
                         key={cat.slug}
                         onClick={() => setSelectedCategory(cat.slug)}
-                        className={`px-3 py-1 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
                           selectedCategory === cat.slug
-                            ? 'bg-orange-500 text-white shadow-xs'
+                            ? 'bg-orange-600 text-white'
                             : isDark
                             ? 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
                             : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -116,51 +91,52 @@ export default function HelpSearchPage() {
             </div>
 
             {filteredResults.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="space-y-3">
                 {filteredResults.map((res) => (
-                  <HelpArticleCard
+                  <Link
                     key={res.article.slug}
-                    article={res.article}
-                    showCategory={true}
-                  />
+                    href={`/help/${res.article.category}/${res.article.slug}`}
+                    className={`flex items-center justify-between p-4 sm:p-5 rounded-xl border transition-colors group ${
+                      isDark
+                        ? 'bg-[#1e1d1a] border-neutral-800/80 hover:border-neutral-700 text-neutral-200'
+                        : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
+                    }`}
+                  >
+                    <div className="min-w-0 pr-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+                          {res.category.title}
+                        </span>
+                        <span className="text-slate-300 dark:text-neutral-700">·</span>
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {res.article.readTimeMinutes} min read
+                        </span>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                        {res.article.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-neutral-400 line-clamp-2 mt-1 leading-relaxed">
+                        {res.article.description}
+                      </p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+                  </Link>
                 ))}
               </div>
             ) : (
-              <div
-                className={`rounded-[26px] p-10 sm:p-14 border text-center space-y-4 ${
-                  isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-                }`}
-              >
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 mx-auto flex items-center justify-center">
-                  <Search className="w-6 h-6" />
-                </div>
-                <div className="space-y-1 max-w-md mx-auto">
-                  <h3 className="text-lg font-bold">No articles match your query</h3>
-                  <p className="text-xs text-slate-500 dark:text-neutral-400 leading-relaxed">
-                    Try checking your spelling, using more general keywords like "verification" or "queue", or browse topics by category.
-                  </p>
-                </div>
-                <Link
-                  href="/help"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
-                >
-                  <span>Browse All Categories</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+              <div className="p-8 text-center space-y-3 rounded-xl border border-dashed border-slate-200 dark:border-neutral-800">
+                <p className="text-sm font-semibold text-slate-700 dark:text-neutral-300">
+                  No articles matched your search query.
+                </p>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  Try searching for general terms like "verification", "queue", "escrow", or "trust score".
+                </p>
               </div>
             )}
           </>
         ) : (
-          <div
-            className={`rounded-[26px] p-10 border text-center space-y-3 ${
-              isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-            }`}
-          >
-            <HelpCircle className="w-8 h-8 text-orange-500 mx-auto" />
-            <h3 className="font-bold text-sm">Type a search query above to find guides</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Search by topics such as "How does escrow work", "Residency proof", or "Trust Score history".
-            </p>
+          <div className="p-8 text-center text-xs text-slate-400 border rounded-xl border-dashed border-slate-200 dark:border-neutral-800">
+            Type keywords above to search across all ServiceHub Cordova documentation.
           </div>
         )}
       </div>

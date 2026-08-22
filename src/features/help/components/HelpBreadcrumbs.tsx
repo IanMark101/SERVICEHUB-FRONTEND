@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { ChevronRight, Home } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
 export interface BreadcrumbItem {
@@ -17,30 +17,29 @@ export default function HelpBreadcrumbs({ items }: HelpBreadcrumbsProps) {
   const { isDark } = useApp();
 
   return (
-    <nav aria-label="Breadcrumbs" className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 dark:text-neutral-400 select-none">
+    <nav aria-label="Breadcrumbs" className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 dark:text-neutral-400 select-none mb-6">
       <Link
         href="/help"
-        className="flex items-center gap-1 hover:text-orange-500 transition-colors font-semibold"
+        className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors font-medium"
       >
-        <Home className="w-3.5 h-3.5" />
-        <span>Help Center</span>
+        All Collections
       </Link>
 
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
           <React.Fragment key={index}>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-neutral-600 shrink-0" />
+            <ChevronRight className="w-3 h-3 text-slate-400 dark:text-neutral-600 shrink-0" />
             {isLast || !item.href ? (
-              <span className={`font-bold truncate max-w-[240px] sm:max-w-md ${
-                isDark ? 'text-[#f2efe9]' : 'text-slate-900'
+              <span className={`font-medium truncate max-w-[280px] sm:max-w-md ${
+                isDark ? 'text-neutral-300' : 'text-slate-700'
               }`}>
                 {item.label}
               </span>
             ) : (
               <Link
                 href={item.href}
-                className="hover:text-orange-500 transition-colors font-semibold truncate max-w-[180px]"
+                className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors font-medium truncate max-w-[200px]"
               >
                 {item.label}
               </Link>

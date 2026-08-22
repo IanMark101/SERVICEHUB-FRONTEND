@@ -3,7 +3,6 @@ import React from 'react';
 import Link from 'next/link';
 import HelpNavbar from './HelpNavbar';
 import { useApp } from '@/context/AppContext';
-import { ShieldCheck, MapPin, Mail, BookOpen, ArrowRight } from 'lucide-react';
 
 interface HelpLayoutProps {
   children: React.ReactNode;
@@ -13,54 +12,46 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
   const { isDark } = useApp();
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors duration-200 font-sans ${
-      isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#fbfaf7] text-slate-800'
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-150 ${
+      isDark ? 'bg-[#151515] text-[#e8e6e3]' : 'bg-[#faf8f5] text-slate-800'
     }`}>
-      {/* Top Fixed Header */}
+      {/* Top Header */}
       <HelpNavbar />
 
-      {/* Decorative Orbs */}
-      <div className="fixed top-20 left-1/4 w-96 h-96 rounded-full bg-orange-500/5 dark:bg-orange-500/10 blur-3xl pointer-events-none -z-10" />
-      <div className="fixed bottom-20 right-1/4 w-96 h-96 rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 blur-3xl pointer-events-none -z-10" />
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
+      {/* Main Container */}
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12">
         {children}
       </main>
 
-      {/* Help Center Clean Footer */}
-      <footer className={`border-t mt-16 py-10 transition-colors ${
-        isDark ? 'bg-[#131312] border-neutral-850 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
+      {/* Minimalist Sharetribe Style Footer */}
+      <footer className={`border-t py-8 transition-colors ${
+        isDark ? 'bg-[#121212] border-neutral-800/80 text-neutral-400' : 'bg-white border-slate-200 text-slate-500'
       }`}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-xs">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="ServiceHub Cordova" className="w-8 h-8 rounded-lg object-contain" />
-            <div>
-              <p className="font-extrabold text-slate-900 dark:text-[#f2efe9]">
-                ServiceHub Cordova Help Center
-              </p>
-              <p className="text-[11px] text-slate-400 dark:text-neutral-500">
-                Official documentation for the Municipality of Cordova, Cebu.
-              </p>
-            </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="ServiceHub Logo" className="w-5 h-5 rounded object-contain opacity-80" />
+            <span className="font-semibold text-slate-700 dark:text-neutral-300">
+              ServiceHub Cordova
+            </span>
+            <span className="text-slate-400">·</span>
+            <span>Help Center for Cordova, Cebu</span>
           </div>
 
-          <div className="flex items-center flex-wrap gap-6 text-xs font-semibold">
-            <Link href="/help" className="hover:text-orange-500 transition-colors">
+          <div className="flex items-center gap-5 text-xs font-medium">
+            <Link href="/help" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
               Help Home
             </Link>
-            <Link href="/privacy" className="hover:text-orange-500 transition-colors">
+            <Link href="/privacy" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-orange-500 transition-colors">
-              Terms of Service
+            <Link href="/terms" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+              Terms
             </Link>
             <a
               href="mailto:admin@servicehub-cordova.local"
-              className="hover:text-orange-500 transition-colors flex items-center gap-1"
+              className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
             >
-              <Mail className="w-3.5 h-3.5" />
-              <span>Contact Support</span>
+              Contact Support
             </a>
           </div>
         </div>

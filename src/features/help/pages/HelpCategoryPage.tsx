@@ -1,45 +1,11 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import {
-  Compass,
-  ShieldCheck,
-  Award,
-  Briefcase,
-  CalendarCheck,
-  Inbox,
-  Hourglass,
-  MessageSquare,
-  DollarSign,
-  Star,
-  Bell,
-  TrendingUp,
-  AlertTriangle,
-  HelpCircle,
-  BookOpen,
-} from 'lucide-react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 import HelpBreadcrumbs from '../components/HelpBreadcrumbs';
-import HelpSidebar from '../components/HelpSidebar';
-import HelpArticleCard from '../components/HelpArticleCard';
 import { HelpCategorySlug } from '../types/help.types';
 import { getCategoryBySlug, getArticlesByCategory } from '../data';
 import { useApp } from '@/context/AppContext';
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Compass,
-  ShieldCheck,
-  Award,
-  Briefcase,
-  CalendarCheck,
-  Inbox,
-  Hourglass,
-  MessageSquare,
-  DollarSign,
-  Star,
-  Bell,
-  TrendingUp,
-  AlertTriangle,
-};
 
 interface HelpCategoryPageProps {
   categorySlug: string;
@@ -52,72 +18,70 @@ export default function HelpCategoryPage({ categorySlug }: HelpCategoryPageProps
 
   if (!category) {
     return (
-      <div className="space-y-6 text-center py-16">
-        <h1 className="text-2xl font-bold">Category Not Found</h1>
-        <p className="text-xs text-slate-500">The category you requested does not exist.</p>
-        <Link href="/help" className="inline-block px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold">
+      <div className="max-w-3xl mx-auto py-16 text-center space-y-4">
+        <h1 className="text-2xl font-bold">Collection Not Found</h1>
+        <p className="text-xs text-slate-500">The collection you requested does not exist.</p>
+        <Link href="/help" className="inline-block px-4 py-2 bg-orange-600 text-white rounded-lg text-xs font-bold">
           Return to Help Center
         </Link>
       </div>
     );
   }
 
-  const IconComponent = ICON_MAP[category.iconName] || HelpCircle;
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-200">
+    <div className="max-w-3xl mx-auto py-2 space-y-8 animate-in fade-in duration-200">
       <HelpBreadcrumbs items={[{ label: category.title }]} />
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-        {/* Left Navigation Sidebar */}
-        <HelpSidebar currentCategorySlug={category.slug} />
+      {/* Collection Header */}
+      <header className="space-y-2 pb-6 border-b border-slate-200 dark:border-neutral-800">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          {category.title}
+        </h1>
+        <p className="text-sm sm:text-base text-slate-600 dark:text-neutral-400 leading-relaxed font-normal">
+          {category.description}
+        </p>
+        <div className="pt-1 text-xs text-slate-400 font-medium">
+          {articles.length} {articles.length === 1 ? 'article' : 'articles'} in this collection
+        </div>
+      </header>
 
-        {/* Right Main Content */}
-        <div className="flex-1 w-full space-y-6">
-          {/* Category Banner Card */}
-          <div
-            className={`rounded-[26px] p-6 sm:p-8 border shadow-xs transition-colors ${
-              isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200 shadow-sm'
+      {/* Articles List */}
+      <div className="space-y-3">
+        {articles.map((article) => (
+          <Link
+            key={article.slug}
+            href={`/help/${article.category}/${article.slug}`}
+            className={`flex items-center justify-between p-4 sm:p-5 rounded-xl border transition-colors group ${
+              isDark
+                ? 'bg-[#1e1d1a] border-neutral-800/80 hover:border-neutral-700 text-neutral-200'
+                : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
             }`}
           >
-            <div className="flex items-center gap-4 mb-4">
-              <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center shadow-xs ${category.color}`}>
-                <IconComponent className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-500">
-                  Topic Guide ({articles.length} {articles.length === 1 ? 'Article' : 'Articles'})
-                </span>
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-[#f2efe9]">
-                  {category.title}
-                </h1>
-              </div>
+            <div className="min-w-0 pr-4">
+              <h3 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                {article.title}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-neutral-400 line-clamp-2 mt-1 leading-relaxed">
+                {article.description}
+              </p>
+              <span className="inline-block text-[11px] text-slate-400 dark:text-neutral-500 mt-2 font-medium">
+                {article.readTimeMinutes} min read
+              </span>
             </div>
+            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+          </Link>
+        ))}
+      </div>
 
-            <p className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-[#b4b0a9] font-medium max-w-2xl">
-              {category.description}
-            </p>
-          </div>
-
-          {/* Articles Grid */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-neutral-800">
-              <h2 className="text-sm font-extrabold text-slate-900 dark:text-[#f2efe9] uppercase tracking-wider text-[11px]">
-                Available Guides in this Section
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {articles.map((article) => (
-                <HelpArticleCard
-                  key={article.slug}
-                  article={article}
-                  showCategory={false}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
+      {/* Back to all collections */}
+      <div className="pt-4">
+        <Link
+          href="/help"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 dark:text-orange-400 hover:underline"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to All Collections</span>
+        </Link>
       </div>
     </div>
   );

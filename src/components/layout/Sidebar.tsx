@@ -353,6 +353,8 @@ export default function Sidebar({
         {/* Help Center Link */}
         <Link
           href="/help"
+          target="_blank"
+          rel="noopener noreferrer"
           className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl transition-all group ${
             isDark
               ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'

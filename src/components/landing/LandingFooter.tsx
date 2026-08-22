@@ -105,8 +105,15 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
   const muted   = 'text-slate-400';
 
   function handleLink(type: string, target: string) {
-    if (type === 'scroll') scrollTo(target);
-    else if (type === 'route') router.push(target);
+    if (type === 'scroll') {
+      scrollTo(target);
+    } else if (type === 'route') {
+      if (target === '/help') {
+        window.open('/help', '_blank');
+      } else {
+        router.push(target);
+      }
+    }
   }
 
   return (

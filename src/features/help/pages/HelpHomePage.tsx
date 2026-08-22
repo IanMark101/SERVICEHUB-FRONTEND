@@ -2,120 +2,77 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-  Compass,
   ShieldCheck,
   Award,
   Hourglass,
   MessageSquare,
   DollarSign,
-  Sparkles,
-  BookOpen,
-  HelpCircle,
+  Compass,
   ArrowRight,
+  BookOpen,
 } from 'lucide-react';
 import HelpSearch from '../components/HelpSearch';
 import HelpCategoryCard from '../components/HelpCategoryCard';
-import HelpArticleCard from '../components/HelpArticleCard';
 import { HELP_CATEGORIES } from '../data/categories';
 import { getArticlesByCategory, getPopularArticles } from '../data';
 import { useApp } from '@/context/AppContext';
 
 export default function HelpHomePage() {
   const { isDark } = useApp();
-  const popularArticles = getPopularArticles(6);
+  const popularArticles = getPopularArticles(5);
 
   const quickTopics = [
-    { label: 'Residency Verification', href: '/help/verification/why-verification-is-required', icon: ShieldCheck },
-    { label: 'Trust Score System', href: '/help/trust-reputation/what-is-trust-score', icon: Award },
-    { label: 'How the Queue Works', href: '/help/queue/how-the-queue-works', icon: Hourglass },
-    { label: 'Direct Booking Steps', href: '/help/bookings/how-direct-booking-works', icon: Compass },
-    { label: 'When Messaging Unlocks', href: '/help/messaging/when-messaging-unlocks', icon: MessageSquare },
-    { label: 'Escrow Payments', href: '/help/payments/how-escrow-works', icon: DollarSign },
+    { label: 'Residency Verification', href: '/help/verification/why-verification-is-required' },
+    { label: 'Trust Score System', href: '/help/trust-reputation/what-is-trust-score' },
+    { label: 'How the Queue Works', href: '/help/queue/how-the-queue-works' },
+    { label: 'Direct Bookings', href: '/help/bookings/how-direct-booking-works' },
+    { label: 'Messaging Rules', href: '/help/messaging/when-messaging-unlocks' },
+    { label: 'Escrow Payments', href: '/help/payments/how-escrow-works' },
   ];
 
   return (
-    <div className="space-y-12 sm:space-y-16 animate-in fade-in duration-300">
-      {/* ─── Hero Section ────────────────────────────────────────── */}
-      <section className="text-center space-y-6 pt-4 sm:pt-8 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>ServiceHub Cordova Documentation &amp; User Guides</span>
-        </div>
-
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 dark:text-[#f2efe9] leading-tight">
-          How can we help you today?
+    <div className="space-y-12 max-w-4xl mx-auto py-4">
+      {/* Hero Section */}
+      <section className="text-center space-y-5 pt-4 pb-2">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          Advice and answers from ServiceHub Cordova
         </h1>
 
-        <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-[#b4b0a9] max-w-xl mx-auto font-medium">
-          Everything you need to know about Cordova residency verification, Trust Scores, service queues, bookings, and payments.
+        <p className="text-sm sm:text-base text-slate-600 dark:text-neutral-400 max-w-lg mx-auto">
+          Learn how residency verification, Trust Scores, service queues, bookings, and escrow payments work.
         </p>
 
-        {/* Global Search Box */}
-        <div className="pt-2">
-          <HelpSearch size="lg" autoFocus={false} />
+        {/* Search */}
+        <div className="pt-2 max-w-xl mx-auto">
+          <HelpSearch size="md" autoFocus={false} />
         </div>
 
-        {/* Quick Topic Chips */}
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
-          <span className="text-xs font-bold text-slate-400 dark:text-neutral-500 mr-1">
-            Popular:
-          </span>
-          {quickTopics.map((topic) => {
-            const Icon = topic.icon;
-            return (
-              <Link
-                key={topic.label}
-                href={topic.href}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all hover:scale-105 cursor-pointer ${
-                  isDark
-                    ? 'bg-[#22211e] border-neutral-800 text-[#d4cfc7] hover:text-white hover:border-orange-500/50'
-                    : 'bg-white border-slate-200 text-slate-700 hover:text-orange-600 hover:border-orange-300 shadow-xs'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5 text-orange-500" />
-                <span>{topic.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ─── Popular Guides ─────────────────────────────────────── */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-neutral-800">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-orange-500" />
-            <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-[#f2efe9]">
-              Frequently Read Guides
-            </h2>
-          </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-neutral-500">
-            Top recommendations for new users
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {popularArticles.map((art) => (
-            <HelpArticleCard key={art.slug} article={art} showCategory={true} />
+        {/* Quick topic tags */}
+        <div className="pt-1 flex flex-wrap items-center justify-center gap-1.5 text-xs">
+          <span className="text-slate-400 dark:text-neutral-500 font-medium">Popular:</span>
+          {quickTopics.map((topic) => (
+            <Link
+              key={topic.label}
+              href={topic.href}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                isDark
+                  ? 'bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300'
+                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+              }`}
+            >
+              {topic.label}
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* ─── Browse by Category ─────────────────────────────────── */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-neutral-800">
-          <div className="flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-orange-500" />
-            <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-[#f2efe9]">
-              Browse by Category
-            </h2>
-          </div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-neutral-500">
-            {HELP_CATEGORIES.length} Help Topics
-          </span>
-        </div>
+      {/* Collections / Categories Grid */}
+      <section className="space-y-4">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-500">
+          All Collections ({HELP_CATEGORIES.length})
+        </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {HELP_CATEGORIES.map((category) => {
             const count = getArticlesByCategory(category.slug).length;
             return (
@@ -129,32 +86,53 @@ export default function HelpHomePage() {
         </div>
       </section>
 
-      {/* ─── Bottom Support Banner ──────────────────────────────── */}
-      <section
-        className={`rounded-[28px] p-8 sm:p-10 border shadow-xs relative overflow-hidden transition-colors ${
-          isDark
-            ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]'
-            : 'bg-white border-slate-200 text-slate-900 shadow-sm'
-        }`}
-      >
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <h3 className="text-xl font-black tracking-tight">
-              Can't find what you're looking for?
-            </h3>
-            <p className="text-xs sm:text-sm leading-relaxed text-slate-500 dark:text-neutral-400 font-medium">
-              The ServiceHub Cordova moderation and municipal admin team is here to help with verification issues, dispute arbitration, or account inquiries.
-            </p>
-          </div>
+      {/* Frequently Viewed Articles */}
+      <section className="space-y-4 pt-4 border-t border-slate-200 dark:border-neutral-800">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-500">
+          Featured Guides
+        </h2>
 
-          <a
-            href="mailto:admin@servicehub-cordova.local"
-            className="px-6 py-3.5 bg-orange-600 hover:bg-orange-500 text-white font-extrabold text-xs rounded-xl shadow-sm transition-all active:scale-95 cursor-pointer shrink-0 flex items-center gap-2"
-          >
-            <span>Contact Municipal Support</span>
-            <ArrowRight className="w-4 h-4" />
-          </a>
+        <div className="space-y-2">
+          {popularArticles.map((article) => (
+            <Link
+              key={article.slug}
+              href={`/help/${article.category}/${article.slug}`}
+              className={`flex items-center justify-between p-4 rounded-xl border transition-colors group ${
+                isDark
+                  ? 'bg-[#1e1d1a] border-neutral-800/80 hover:border-neutral-700 text-neutral-200'
+                  : 'bg-white border-slate-200 hover:border-slate-300 text-slate-800 shadow-xs'
+              }`}
+            >
+              <div className="min-w-0 pr-4">
+                <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                  {article.title}
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-neutral-400 line-clamp-1 mt-0.5">
+                  {article.description}
+                </p>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+            </Link>
+          ))}
         </div>
+      </section>
+
+      {/* Support footer note */}
+      <section className={`p-6 rounded-2xl border text-center space-y-2 ${
+        isDark ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
+      }`}>
+        <p className="text-xs font-semibold text-slate-900 dark:text-white">
+          Still need assistance?
+        </p>
+        <p className="text-[11px] text-slate-500 dark:text-neutral-400 max-w-md mx-auto">
+          Contact the Cordova Municipal Administrators regarding residency verification or dispute arbitration.
+        </p>
+        <a
+          href="mailto:admin@servicehub-cordova.local"
+          className="inline-block text-xs font-semibold text-orange-600 dark:text-orange-400 hover:underline pt-1"
+        >
+          admin@servicehub-cordova.local
+        </a>
       </section>
     </div>
   );
