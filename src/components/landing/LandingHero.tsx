@@ -7,8 +7,10 @@ interface LandingHeroProps {
   onGetStarted: () => void;
 }
 
+const IAN_AVATAR = "https://servicehub-uploads.s3.ap-southeast-1.amazonaws.com/avatars/avatar_1785501061989_n3q538.png";
+
 export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
-  const [providerAvatar, setProviderAvatar] = useState<string>('');
+  const [providerAvatar, setProviderAvatar] = useState<string>(IAN_AVATAR);
   const [cardPov, setCardPov] = useState<'seeker' | 'provider'>('seeker');
 
   useEffect(() => {
@@ -112,10 +114,10 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
                           <img
-                            src={providerAvatar || "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff"}
+                            src={providerAvatar || IAN_AVATAR}
                             alt="BUENAFLOR IAN MARK J."
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff";
+                              (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
                             className="w-11 h-11 rounded-2xl object-cover border-2 border-orange-500/40 shadow-sm group-hover/card:scale-105 transition-transform"
                           />
@@ -248,10 +250,10 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
                           <img
-                            src={providerAvatar || "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff"}
+                            src={providerAvatar || IAN_AVATAR}
                             alt="BUENAFLOR IAN MARK J."
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = "https://ui-avatars.com/api/?name=BUENAFLOR+IAN+MARK+J&background=0D8ABC&color=fff";
+                              (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
                             className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 shadow-sm"
                           />
