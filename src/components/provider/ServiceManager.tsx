@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Wrench, Edit3, Trash2, Plus, X, AlertTriangle, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Wrench, Edit3, Trash2, Plus, X, AlertTriangle, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -35,11 +35,23 @@ export default function ServiceManager({
 
   const effectiveProviderId = currentProviderId || user?.id;
 
+  const [togglingServiceId, setTogglingServiceId] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<ServiceFilterTab>(() => {
     if (initialStatus === 'rejected') return 'rejected';
     if (initialStatus === 'pending') return 'pending';
     return 'all';
   });
+
+  const handleToggleStatus = async (serviceId: string) => {
+    if (togglingServiceId) return;
+    setTogglingServiceId(serviceId);
+    try {
+      await toggleServiceListingStatus(serviceId);
+    } finally {
+      setTogglingServiceId(null);
+    }
+  };
 
   // Sync provider's own services (active, pending, rejected) from DB on mount
   useEffect(() => {
@@ -360,26 +372,44 @@ export default function ServiceManager({
                       </button>
 
                       {/* Toggle Status switch (only for active services) */}
-                      {!isRejected && !isPending && (
-                        <div className={`flex items-center space-x-2 border-l pl-3 ml-1 ${isDark ? 'border-neutral-850' : 'border-slate-200'}`}>
-                          <button
-                            type="button"
-                            onClick={() => toggleServiceListingStatus(service.id)}
-                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 ease-in-out focus:outline-none ${
-                              !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
-                            }`}
-                          >
-                            <span
-                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-250 ease-in-out ${
-                                !isPaused ? 'translate-x-4' : 'translate-x-0'
+                      {!isRejected && !isPending && (() => {
+                        const isToggling = togglingServiceId === service.id;
+                        return (
+                          <div className={`flex items-center space-x-2 border-l pl-3 ml-1 ${isDark ? 'border-neutral-850' : 'border-slate-200'}`}>
+                            <button
+                              type="button"
+                              disabled={isToggling}
+                              onClick={() => handleToggleStatus(service.id)}
+                              className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none ${
+                                isToggling ? 'opacity-80 cursor-wait' : 'cursor-pointer'
+                              } ${
+                                !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
                               }`}
-                            />
-                          </button>
-                          <span className={`text-xs font-bold ${!isPaused ? 'text-emerald-600 dark:text-emerald-400' : isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-                            {!isPaused ? 'Active' : 'Paused'}
-                          </span>
-                        </div>
-                      )}
+                            >
+                              <span
+                                className={`pointer-events-none flex items-center justify-center h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                                  !isPaused ? 'translate-x-4' : 'translate-x-0'
+                                }`}
+                              >
+                                {isToggling && (
+                                  <Loader2 className="w-2.5 h-2.5 text-emerald-600 animate-spin" />
+                                )}
+                              </span>
+                            </button>
+                            <span className={`text-xs font-bold transition-colors ${
+                              isToggling
+                                ? 'text-amber-500 dark:text-amber-400'
+                                : !isPaused
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : isDark
+                                ? 'text-neutral-500'
+                                : 'text-slate-400'
+                            }`}>
+                              {isToggling ? 'Updating...' : !isPaused ? 'Active' : 'Paused'}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
+import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -32,6 +32,7 @@ export default function RequestManager({
 
   // Fetch the seeker's own requests directly so all statuses show up
   const [myOwnRequests, setMyOwnRequests] = useState<JobRequest[] | null>(null);
+  const [togglingRequestId, setTogglingRequestId] = useState<string | null>(null);
 
   const fetchMyRequests = () => {
     apiGetMyRequests()
@@ -126,17 +127,23 @@ export default function RequestManager({
   };
 
   const handleToggleAccepting = async (req: JobRequest) => {
+    if (togglingRequestId) return;
+    setTogglingRequestId(req.id);
     const isCurrentlyPaused = req.status === 'CLOSED' || (req.status as string) === 'closed' || (req.status as string) === 'paused';
     const nextStatus: 'OPEN' | 'CLOSED' = isCurrentlyPaused ? 'OPEN' : 'CLOSED';
 
     // 1. Instant optimistic local update (0ms switch flip in advance, NO flicker!)
     setMyOwnRequests(prev => prev ? prev.map(r => r.id === req.id ? { ...r, status: nextStatus } : r) : null);
 
-    // 2. Dispatch background API update (toast notification fires when update is confirmed)
-    const ok = await toggleJobRequestStatus(req.id, req.status);
-    if (!ok) {
-      // Rollback on network failure
-      setMyOwnRequests(prev => prev ? prev.map(r => r.id === req.id ? { ...r, status: req.status } : r) : null);
+    try {
+      // 2. Dispatch background API update (toast notification fires when update is confirmed)
+      const ok = await toggleJobRequestStatus(req.id, req.status);
+      if (!ok) {
+        // Rollback on network failure
+        setMyOwnRequests(prev => prev ? prev.map(r => r.id === req.id ? { ...r, status: req.status } : r) : null);
+      }
+    } finally {
+      setTogglingRequestId(null);
     }
   };
 
@@ -325,27 +332,45 @@ export default function RequestManager({
                               </button>
                             )}
                           </div>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => handleToggleAccepting(req)}
-                              className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-250 ease-in-out focus:outline-none ${
-                                !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
-                              }`}
-                            >
-                              <span
-                                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-250 ease-in-out ${
-                                  !isPaused ? 'translate-x-4' : 'translate-x-0'
+                        ) : (() => {
+                          const isToggling = togglingRequestId === req.id;
+                          return (
+                            <>
+                              <button
+                                type="button"
+                                disabled={isToggling}
+                                onClick={() => handleToggleAccepting(req)}
+                                className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none ${
+                                  isToggling ? 'opacity-80 cursor-wait' : 'cursor-pointer'
+                                } ${
+                                  !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
                                 }`}
-                              />
-                            </button>
-                            
-                            <span className={`text-xs font-bold ${!isPaused ? 'text-emerald-600 dark:text-emerald-400' : isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-                              {!isPaused ? 'Active' : 'Paused'}
-                            </span>
-                          </>
-                        )}
+                              >
+                                <span
+                                  className={`pointer-events-none flex items-center justify-center h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                                    !isPaused ? 'translate-x-4' : 'translate-x-0'
+                                  }`}
+                                >
+                                  {isToggling && (
+                                    <Loader2 className="w-2.5 h-2.5 text-emerald-600 animate-spin" />
+                                  )}
+                                </span>
+                              </button>
+                              
+                              <span className={`text-xs font-bold transition-colors ${
+                                isToggling
+                                  ? 'text-amber-500 dark:text-amber-400'
+                                  : !isPaused
+                                  ? 'text-emerald-600 dark:text-emerald-400'
+                                  : isDark
+                                  ? 'text-neutral-500'
+                                  : 'text-slate-400'
+                              }`}>
+                                {isToggling ? 'Updating...' : !isPaused ? 'Active' : 'Paused'}
+                              </span>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

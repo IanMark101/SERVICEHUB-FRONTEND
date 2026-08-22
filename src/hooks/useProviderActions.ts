@@ -209,12 +209,19 @@ export function useProviderActions({
     try {
       const res = await apiToggleServiceAvailability(serviceId);
       if (res.success) {
-        setServices(prev => prev.map(s => s.id === serviceId ? { ...s, isPaused: !s.isPaused } : s));
-        success('Availability Toggled', 'Your service availability has been updated.');
-        return;
+        const isNowAvailable = res.data?.isAvailable;
+        setServices(prev => prev.map(s => s.id === serviceId ? { ...s, isPaused: !isNowAvailable } : s));
+        if (isNowAvailable) {
+          success('Service Activated 🟢', 'Your service listing is now active and visible on the marketplace.');
+        } else {
+          info('Service Paused ⏸️', 'Your service is paused. Seekers cannot send new bookings.');
+        }
+        return { success: true };
       }
+      return { success: false };
     } catch (err: any) {
       toastError('Action Failed', err.response?.data?.error || err.message);
+      return { success: false, error: err.response?.data?.error || err.message };
     }
   };
 
