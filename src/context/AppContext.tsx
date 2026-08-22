@@ -274,26 +274,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const syncPublicServices = useCallback(async () => {
     try {
-      const [browseRes, mineRes] = await Promise.allSettled([
-        apiBrowseServices(),
-        apiGetMyServices(),
-      ]);
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      if (token) {
+        const [browseRes, mineRes] = await Promise.allSettled([
+          apiBrowseServices(),
+          apiGetMyServices(),
+        ]);
 
-      const publicServices: ServiceListing[] =
-        browseRes.status === 'fulfilled' && browseRes.value?.success && Array.isArray(browseRes.value.data)
-          ? browseRes.value.data.map(mapServiceToListing)
-          : [];
+        const publicServices: ServiceListing[] =
+          browseRes.status === 'fulfilled' && browseRes.value?.success && Array.isArray(browseRes.value.data)
+            ? browseRes.value.data.map(mapServiceToListing)
+            : [];
 
-      const myServices: ServiceListing[] =
-        mineRes.status === 'fulfilled' && mineRes.value?.success && Array.isArray(mineRes.value.data)
-          ? mineRes.value.data.map(mapServiceToListing)
-          : [];
+        const myServices: ServiceListing[] =
+          mineRes.status === 'fulfilled' && mineRes.value?.success && Array.isArray(mineRes.value.data)
+            ? mineRes.value.data.map(mapServiceToListing)
+            : [];
 
-      const serviceMap = new Map<string, ServiceListing>();
-      publicServices.forEach(s => serviceMap.set(s.id, s));
-      myServices.forEach(s => serviceMap.set(s.id, s));
+        const serviceMap = new Map<string, ServiceListing>();
+        publicServices.forEach(s => serviceMap.set(s.id, s));
+        myServices.forEach(s => serviceMap.set(s.id, s));
 
-      setServices(Array.from(serviceMap.values()));
+        setServices(Array.from(serviceMap.values()));
+      } else {
+        // Unauthenticated visitor (landing page): fetch public active listings only
+        const browseRes = await apiBrowseServices();
+        if (browseRes?.success && Array.isArray(browseRes.data)) {
+          setServices(browseRes.data.map(mapServiceToListing));
+        }
+      }
     } catch {
       // ignore
     }
