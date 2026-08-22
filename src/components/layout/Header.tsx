@@ -15,7 +15,8 @@ import {
   MessageSquare,
   Sun,
   Moon,
-  X
+  X,
+  HelpCircle,
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { useToast } from '../ui/Toast';
@@ -688,6 +689,18 @@ export default function Header({
                     >
                       <Settings className="w-3.5 h-3.5 mr-2.5 text-slate-400" />
                       Account Settings
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        router.push('/help');
+                      }}
+                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                        }`}
+                    >
+                      <HelpCircle className="w-3.5 h-3.5 mr-2.5 text-orange-500" />
+                      Help & Documentation
                     </button>
                   </div>
 

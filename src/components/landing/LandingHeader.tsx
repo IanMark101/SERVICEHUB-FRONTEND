@@ -20,6 +20,7 @@ const NAV_LINKS = [
   { label: 'Community', href: 'community' },
   { label: 'Reviews', href: 'reviews' },
   { label: 'FAQ', href: 'faq' },
+  { label: 'Help Center', href: '/help', isRoute: true },
 ];
 
 function scrollTo(id: string) {
@@ -61,11 +62,19 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           {NAV_LINKS.map((link) => (
             <button
               key={link.href}
-              onClick={() => scrollTo(link.href)}
-              className={`text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDark
-                ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
-                }`}
+              onClick={() => {
+                if (link.isRoute) router.push(link.href);
+                else scrollTo(link.href);
+              }}
+              className={`text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${
+                link.isRoute
+                  ? isDark
+                    ? 'text-orange-400 font-bold hover:bg-orange-500/10'
+                    : 'text-orange-600 font-bold hover:bg-orange-50'
+                  : isDark
+                  ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
+              }`}
             >
               {link.label}
             </button>
@@ -126,11 +135,20 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
             {NAV_LINKS.map((link) => (
               <button
                 key={link.href}
-                onClick={() => { scrollTo(link.href); setMobileOpen(false); }}
-                className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${isDark
-                  ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                onClick={() => {
+                  setMobileOpen(false);
+                  if (link.isRoute) router.push(link.href);
+                  else scrollTo(link.href);
+                }}
+                className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                  link.isRoute
+                    ? isDark
+                      ? 'text-orange-400 font-bold bg-orange-500/10'
+                      : 'text-orange-600 font-bold bg-orange-50'
+                    : isDark
+                    ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
               >
                 {link.label}
               </button>
