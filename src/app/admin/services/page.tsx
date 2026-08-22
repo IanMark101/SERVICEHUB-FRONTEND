@@ -4,6 +4,7 @@ import { useApp } from '../../../context/AppContext';
 import { apiListPendingServices, apiReviewService } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
+import { getSocket } from '../../../lib/socket';
 
 interface ProviderInfo {
   id: string;
@@ -67,6 +68,18 @@ export default function AdminServices() {
 
   useEffect(() => {
     fetchServices();
+
+    // Real-time: auto-refresh when a new service listing is submitted
+    const socket = getSocket();
+    if (socket) {
+      const handleNewService = () => {
+        fetchServices();
+      };
+      socket.on('SERVICE_LISTING_SUBMITTED', handleNewService);
+      return () => {
+        socket.off('SERVICE_LISTING_SUBMITTED', handleNewService);
+      };
+    }
   }, []);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {

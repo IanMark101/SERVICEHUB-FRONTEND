@@ -134,6 +134,7 @@ export function useProviderActions({
             isPaused: false,
             proofOfSkillUrl: proofUrl,
             rating: 5.0,
+            status: 'PENDING_REVIEW',
             paymentMethods: {
               cash: paymentMethods.cash,
               gcash: paymentMethods.gcash,
@@ -141,14 +142,22 @@ export function useProviderActions({
             }
           };
           setServices(prev => [newListing, ...prev]);
-          success('Listing Created', 'Your service listing has been sent to admins for approval.');
-          return;
+          success('Listing Submitted', 'Your service listing has been sent to admins for approval.');
+          return { success: true, data: item };
         }
       } else {
-        toastError('Category Error', 'Selected category does not exist.');
+        toastError('Category Required', 'Please select a valid service category.');
+        return { success: false, error: 'Please select a valid service category.' };
       }
     } catch (err: any) {
-      toastError('Failed to create listing', err.response?.data?.error || err.message);
+      const errorMsg =
+        err.response?.data?.error ||
+        err.response?.data?.errors?.[0]?.message ||
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to create listing';
+      toastError('Failed to create listing', errorMsg);
+      return { success: false, error: errorMsg };
     }
   };
 

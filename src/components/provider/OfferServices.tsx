@@ -22,43 +22,53 @@ export default function OfferServices() {
   const [acceptGCash, setAcceptGCash] = useState<boolean>(true);
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
 
   const categories = dbCategories;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Auto-select first category when categories load
+  React.useEffect(() => {
+    if (!category && dbCategories.length > 0) {
+      setCategory(dbCategories[0].id);
+    }
+  }, [dbCategories, category]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     if (!acceptCash && !acceptGCash) {
       alert('Please select at least one accepted payment method.');
-      setLoading(false);
       return;
     }
 
-    setTimeout(() => {
-      const providerId = user?.id || '';
-      // Mock skill proof url
-      const mockProofUrl = 'cert_uploaded.jpg';
+    const selectedCategory = category || (dbCategories.length > 0 ? dbCategories[0].id : '');
+    if (!selectedCategory) {
+      alert('Please select a service category.');
+      return;
+    }
 
-      createServiceListing(
-        providerId,
-        title,
-        category,
-        price,
-        description,
-        mockProofUrl,
-        { cash: acceptCash, gcash: acceptGCash },
-        {
-          serviceType,
-          priceType,
-          estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
-          queueLimit: Math.max(1, Math.min(10, maxQueue)),
-        }
-      );
+    setLoading(true);
+    const providerId = user?.id || '';
+    // Mock skill proof url
+    const mockProofUrl = 'cert_uploaded.jpg';
 
-      setLoading(false);
-      setSuccess(true);
+    const res: any = await createServiceListing(
+      providerId,
+      title,
+      selectedCategory,
+      price,
+      description,
+      mockProofUrl,
+      { cash: acceptCash, gcash: acceptGCash },
+      {
+        serviceType,
+        priceType,
+        estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
+        queueLimit: Math.max(1, Math.min(10, maxQueue)),
+      }
+    );
 
+    setLoading(false);
+
+    if (res?.success) {
       // Reset form
       setTitle('');
       setDescription('');
@@ -68,11 +78,7 @@ export default function OfferServices() {
       setPriceType('FIXED');
       setMaxQueue(5);
       setDurationMins(30);
-
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
-    }, 800);
+    }
   };
 
   return (
@@ -114,15 +120,6 @@ export default function OfferServices() {
             >
               Verify Now
             </button>
-          </div>
-        )}
-
-        {/* Success Alert Banner */}
-        {success && (
-          <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 mb-6 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
-            }`}>
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span>
-            <span>Your service offering has been published and is now active on the marketplace!</span>
           </div>
         )}
 
@@ -404,7 +401,7 @@ export default function OfferServices() {
                     : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'
                 }`}
               >
-                {loading ? 'Publishing...' : 'Publish Service Listing'}
+                {loading ? 'Submitting...' : 'Submit Listing for Review'}
               </button>
             </div>
           </div>
@@ -418,7 +415,7 @@ export default function OfferServices() {
         }`}>
         <Info className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
         <p className="text-[10px] leading-relaxed">
-          Submitting a new service listing publishes your skills to the public Seeker Marketplace. Please check that your pricing is fair, and describe the tasks clearly to avoid disputes.
+          All service listings are submitted to municipal administrators for review before appearing on the public Seeker Marketplace. Please ensure your title, pricing, and description clearly reflect your services.
         </p>
       </div>
 
