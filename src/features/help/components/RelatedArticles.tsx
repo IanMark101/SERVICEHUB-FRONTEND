@@ -3,15 +3,11 @@ import React from 'react';
 import { BookOpen } from 'lucide-react';
 import { HelpArticle } from '../types/help.types';
 import HelpArticleCard from './HelpArticleCard';
-import { useApp } from '@/context/AppContext';
-
 interface RelatedArticlesProps {
   articles: HelpArticle[];
 }
 
 export default function RelatedArticles({ articles }: RelatedArticlesProps) {
-  const { isDark } = useApp();
-
   if (!articles || articles.length === 0) return null;
 
   return (

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { ArrowRight, Clock, FileText, Sparkles } from 'lucide-react';
 import { HelpArticle } from '../types/help.types';
 import { getCategoryBySlug } from '../data';
-import { useApp } from '@/context/AppContext';
 
 interface HelpArticleCardProps {
   article: HelpArticle;
@@ -12,17 +11,12 @@ interface HelpArticleCardProps {
 }
 
 export default function HelpArticleCard({ article, showCategory = true }: HelpArticleCardProps) {
-  const { isDark } = useApp();
   const category = getCategoryBySlug(article.category);
 
   return (
     <Link
       href={`/help/${article.category}/${article.slug}`}
-      className={`group rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between hover:shadow-md hover:scale-[1.01] ${
-        isDark
-          ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700 text-[#f2efe9]'
-          : 'bg-white border-slate-200 hover:border-slate-300 text-slate-900 shadow-xs'
-      }`}
+      className="group rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between hover:shadow-md hover:scale-[1.01] bg-white dark:bg-[#22211e] border-slate-200 dark:border-neutral-800/80 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-900 dark:text-[#f2efe9] shadow-xs"
     >
       <div>
         <div className="flex items-center justify-between gap-2 mb-2.5">

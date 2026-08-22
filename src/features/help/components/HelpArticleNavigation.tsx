@@ -3,7 +3,6 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { HelpArticle } from '../types/help.types';
-import { useApp } from '@/context/AppContext';
 
 interface HelpArticleNavigationProps {
   prevArticle?: HelpArticle;
@@ -14,8 +13,6 @@ export default function HelpArticleNavigation({
   prevArticle,
   nextArticle,
 }: HelpArticleNavigationProps) {
-  const { isDark } = useApp();
-
   if (!prevArticle && !nextArticle) return null;
 
   return (
@@ -23,9 +20,7 @@ export default function HelpArticleNavigation({
       {prevArticle ? (
         <Link
           href={`/help/${prevArticle.category}/${prevArticle.slug}`}
-          className={`p-4 rounded-2xl border transition-all flex flex-col justify-between group hover:border-orange-500/50 hover:scale-[1.01] ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200 shadow-xs'
-          }`}
+          className="p-4 rounded-2xl border transition-all flex flex-col justify-between group hover:border-orange-500/50 hover:scale-[1.01] bg-white dark:bg-[#22211e] border-slate-200 dark:border-neutral-800/80 shadow-xs"
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-500 flex items-center gap-1">
             <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
@@ -42,9 +37,7 @@ export default function HelpArticleNavigation({
       {nextArticle && (
         <Link
           href={`/help/${nextArticle.category}/${nextArticle.slug}`}
-          className={`p-4 rounded-2xl border transition-all flex flex-col justify-between items-end text-right group hover:border-orange-500/50 hover:scale-[1.01] ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200 shadow-xs'
-          }`}
+          className="p-4 rounded-2xl border transition-all flex flex-col justify-between items-end text-right group hover:border-orange-500/50 hover:scale-[1.01] bg-white dark:bg-[#22211e] border-slate-200 dark:border-neutral-800/80 shadow-xs"
         >
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-500 flex items-center gap-1">
             <span>Next Guide</span>

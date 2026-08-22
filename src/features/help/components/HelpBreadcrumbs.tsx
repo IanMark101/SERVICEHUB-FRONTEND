@@ -2,7 +2,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
-import { useApp } from '@/context/AppContext';
 
 export interface BreadcrumbItem {
   label: string;
@@ -14,8 +13,6 @@ interface HelpBreadcrumbsProps {
 }
 
 export default function HelpBreadcrumbs({ items }: HelpBreadcrumbsProps) {
-  const { isDark } = useApp();
-
   return (
     <nav aria-label="Breadcrumbs" className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 dark:text-neutral-400 select-none mb-6">
       <Link
@@ -31,9 +28,7 @@ export default function HelpBreadcrumbs({ items }: HelpBreadcrumbsProps) {
           <React.Fragment key={index}>
             <ChevronRight className="w-3 h-3 text-slate-400 dark:text-neutral-600 shrink-0" />
             {isLast || !item.href ? (
-              <span className={`font-medium truncate max-w-[280px] sm:max-w-md ${
-                isDark ? 'text-neutral-300' : 'text-slate-700'
-              }`}>
+              <span className="font-medium truncate max-w-[280px] sm:max-w-md text-slate-700 dark:text-neutral-300">
                 {item.label}
               </span>
             ) : (
