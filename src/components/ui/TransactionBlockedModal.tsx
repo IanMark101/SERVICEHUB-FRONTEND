@@ -62,7 +62,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
             className={`flex-1 py-3 font-bold text-xs rounded-xl border transition-all ${
               isDark
                 ? 'border-neutral-800 hover:bg-neutral-850 text-[#b4b0a9]'
-                : 'border-slate-200 hover:bg-slate-50 text-slate-550'
+                : 'border-slate-200 hover:bg-slate-50 text-slate-600'
             }`}
           >
             Maybe Later

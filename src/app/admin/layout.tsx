@@ -114,8 +114,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             
             <div className="flex items-center space-x-2.5">
-              <span className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Workspace:</span>
-              <span className="px-2.5 py-1 rounded-full text-xs font-semibold capitalize border bg-red-950/20 text-red-400 border-red-900/30">
+              <span className={`text-xs font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>Workspace:</span>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${
+                isDark
+                  ? 'bg-red-950/40 text-red-400 border-red-900/40'
+                  : 'bg-red-50 text-red-700 border-red-200 shadow-xs'
+              }`}>
                 Administrator
               </span>
             </div>

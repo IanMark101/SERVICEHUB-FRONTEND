@@ -105,7 +105,9 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
     bgLight: 'bg-emerald-500/5',
     text: 'text-emerald-500 dark:text-emerald-400',
     bgButton: 'bg-emerald-600 hover:bg-emerald-700 text-white',
-    badge: 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30',
+    badge: isDark
+      ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/40'
+      : 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-xs',
   };
 
   const currentRole = 'provider';
@@ -186,8 +188,8 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
             
             {/* Quick action buttons aligned with role */}
             <div className="flex items-center space-x-2.5">
-              <span className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>Viewing as:</span>
-              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize border ${accent.badge}`}>
+              <span className={`text-xs font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>Viewing as:</span>
+              <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${accent.badge}`}>
                 {currentRole}
               </span>
             </div>

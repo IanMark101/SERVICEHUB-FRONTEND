@@ -112,7 +112,7 @@ export default function ConfirmModal({ state, onClose }: ConfirmModalProps) {
             className={`flex-1 py-3 font-bold text-xs rounded-xl border transition-all ${
               isDark
                 ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                : 'border-slate-200 hover:bg-slate-50 text-slate-550'
+                : 'border-slate-200 hover:bg-slate-50 text-slate-600'
             } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {cancelText}
