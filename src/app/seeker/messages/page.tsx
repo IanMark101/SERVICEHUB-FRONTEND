@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { MessageSquare, Send, ChevronLeft, ImagePlus, Loader2, Lock, ShieldCheck, X, Trash2 } from 'lucide-react';
+import { MessageSquare, Send, ChevronLeft, ImagePlus, Loader2, Lock, ShieldCheck, X, Trash2, Search } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { apiGetMessages, apiSendMessage, apiGetConversations } from '../../../api/messages.api';
 import { apiHideBooking } from '../../../api/bookings.api';
@@ -39,12 +39,15 @@ function getRelativeTime(timeStr?: string) {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
   if (diffMins < 1) return 'Just now';
   if (diffMins < 60) return `${diffMins}m ago`;
-  const diffHrs = Math.floor(diffMins / 60);
-  if (diffHrs < 24) return `${diffHrs}h ago`;
-  const diffDays = Math.floor(diffHrs / 24);
-  return `${diffDays}d ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
 
 export default function SeekerMessagesPage() {
@@ -53,6 +56,7 @@ export default function SeekerMessagesPage() {
   const bookingParam = searchParams.get('booking');
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
   const [input, setInput] = useState('');
@@ -63,6 +67,16 @@ export default function SeekerMessagesPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const filteredConversations = conversations.filter(conv => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      conv.otherPartyName.toLowerCase().includes(q) ||
+      conv.title.toLowerCase().includes(q) ||
+      (conv.lastMessage && conv.lastMessage.toLowerCase().includes(q))
+    );
+  });
 
   // Sync conversation list from backend
   const syncConversations = useCallback(async () => {
@@ -234,12 +248,37 @@ export default function SeekerMessagesPage() {
     <div className={`rounded-2xl border shadow-sm overflow-hidden flex h-[600px] ${cardBg}`}>
       {/* Conversation Sidebar */}
       <aside className={`w-80 flex-shrink-0 border-r flex flex-col ${isDark ? 'border-neutral-800/70' : 'border-slate-200'}`}>
-        <div className={`p-4 border-b ${isDark ? 'border-neutral-800/70' : 'border-slate-200'}`}>
-          <div className="flex items-center gap-2">
-            <MessageSquare size={16} className="text-orange-500" />
-            <h2 className={`font-semibold text-sm ${textPrimary}`}>Conversations</h2>
+        <div className={`p-3.5 border-b ${isDark ? 'border-neutral-800/70' : 'border-slate-200'}`}>
+          <div className="flex items-center justify-between">
+            <h2 className={`font-extrabold text-sm ${textPrimary}`}>Conversations</h2>
+            <span className={`text-[10px] font-semibold ${textMuted}`}>
+              {filteredConversations.length} {filteredConversations.length === 1 ? 'chat' : 'chats'}
+            </span>
           </div>
-          <p className={`text-xs mt-0.5 ${textMuted}`}>{conversations.length} transaction chats</p>
+
+          {/* Search bar */}
+          <div className="mt-2.5 relative">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`w-full pl-8 pr-7 py-1.5 rounded-xl border text-xs outline-none transition-colors ${
+                isDark 
+                  ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9] placeholder-neutral-500 focus:border-orange-500/80' 
+                  : 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:border-orange-500'
+              }`}
+            />
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery('')} 
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-200 cursor-pointer"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-neutral-800/40">
@@ -247,8 +286,12 @@ export default function SeekerMessagesPage() {
             <div className={`p-6 text-center text-xs ${textMuted}`}>
               No active conversations yet. Book a service to start chatting.
             </div>
+          ) : filteredConversations.length === 0 ? (
+            <div className={`p-6 text-center text-xs ${textMuted}`}>
+              No conversations found matching "{searchQuery}".
+            </div>
           ) : (
-            conversations.map(conv => {
+            filteredConversations.map(conv => {
               const active = selectedConv?.bookingId === conv.bookingId;
               const hasUnread = conv.unreadCount > 0;
               return (
