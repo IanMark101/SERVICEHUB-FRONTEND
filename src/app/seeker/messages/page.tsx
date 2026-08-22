@@ -113,6 +113,8 @@ export default function SeekerMessagesPage() {
     }
   }, [syncUnreadMessages]);
 
+  const initialParamHandled = useRef<string | null>(null);
+
   // Select conversation & join room
   const selectConversation = useCallback((conv: Conversation) => {
     setSelectedConv(conv);
@@ -120,6 +122,13 @@ export default function SeekerMessagesPage() {
     setError('');
     loadMessages(conv.bookingId);
     joinBookingRoom(conv.bookingId);
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('booking', conv.bookingId);
+      window.history.replaceState({}, '', url.toString());
+      initialParamHandled.current = conv.bookingId;
+    }
 
     // Optimistically zero unread count
     setConversations(prev =>
@@ -132,15 +141,18 @@ export default function SeekerMessagesPage() {
     syncConversations();
   }, [syncConversations]);
 
-  // Handle deep-link query parameter
+  // Handle deep-link query parameter (only runs when bookingParam changes or on first load)
   useEffect(() => {
     if (bookingParam && conversations.length > 0) {
-      const match = conversations.find(c => c.bookingId === bookingParam);
-      if (match && selectedConv?.bookingId !== bookingParam) {
-        selectConversation(match);
+      if (initialParamHandled.current !== bookingParam) {
+        const match = conversations.find(c => c.bookingId === bookingParam);
+        if (match) {
+          initialParamHandled.current = bookingParam;
+          selectConversation(match);
+        }
       }
     }
-  }, [bookingParam, conversations, selectConversation, selectedConv]);
+  }, [bookingParam, conversations, selectConversation]);
 
   // Real-time listener
   useEffect(() => {
