@@ -187,9 +187,19 @@ export function useUserProfileState({
   const email = profile?.email || targetUser?.email || '';
   
   const pathname = usePathname();
-  const isProviderWorkspace = pathname?.startsWith('/provider') || targetUser?.role === 'provider';
-  const isAdminWorkspace = pathname?.startsWith('/admin') || targetUser?.role === 'admin';
-  const role = isProviderWorkspace ? 'provider' : isAdminWorkspace ? 'admin' : 'seeker';
+  const isProviderWorkspace = pathname?.startsWith('/provider');
+  const isAdminWorkspace = pathname?.startsWith('/admin');
+  const isSeekerWorkspace = pathname?.startsWith('/seeker');
+  const workspaceRole: 'seeker' | 'provider' | 'admin' = isProviderWorkspace
+    ? 'provider'
+    : isAdminWorkspace
+    ? 'admin'
+    : isSeekerWorkspace
+    ? 'seeker'
+    : (targetUser?.role as any) || 'seeker';
+
+  const role = workspaceRole;
+  const accountRole = targetUser?.role || profile?.role || 'seeker';
 
   const createdAt = profile?.createdAt;
   const completedJobs = profile?.completedServiceCount || 0;
@@ -206,7 +216,7 @@ export function useUserProfileState({
   // Provider Categories & Services
   const providerServices = services.filter(s => s.providerId === targetUser?.id);
   const providerCategories = Array.from(new Set(providerServices.map(s => s.category)));
-  const displayCategories = role === 'provider' ? providerCategories : [];
+  const displayCategories = (role === 'provider' || accountRole === 'provider') ? providerCategories : [];
 
   // Completion Score
   const missingItems: { label: string; key: string }[] = [];
@@ -314,12 +324,18 @@ export function useUserProfileState({
   const innerBg = isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-slate-50/70 border-slate-200/70';
   const labelText = isDark ? 'text-[#b4b0a9]' : 'text-slate-500';
   const headingText = isDark ? 'text-[#f2efe9]' : 'text-slate-900';
+  const focusBorder = workspaceRole === 'provider'
+    ? (isDark ? 'focus:border-emerald-600' : 'focus:border-emerald-500')
+    : workspaceRole === 'admin'
+    ? (isDark ? 'focus:border-blue-600' : 'focus:border-blue-500')
+    : (isDark ? 'focus:border-orange-600' : 'focus:border-orange-500');
+
   const inputClass = `w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors ${
-    isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9] placeholder-neutral-600 focus:border-emerald-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-emerald-500'
-  } focus:outline-none focus:ring-1`;
+    isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9] placeholder-neutral-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+  } ${focusBorder} focus:outline-none focus:ring-1`;
 
   const usernameHandle = `@${displayName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'cordova_user'}`;
-  const responseRate = role === 'provider' ? '< 1 hr' : 'Within minutes';
+  const responseRate = accountRole === 'provider' ? '< 1 hr' : 'Within minutes';
 
   return {
     isDark,
@@ -341,6 +357,8 @@ export function useUserProfileState({
     phone,
     email,
     role,
+    workspaceRole,
+    accountRole,
     availability,
     languages,
     createdAt,

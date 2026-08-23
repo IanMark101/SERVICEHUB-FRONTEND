@@ -492,16 +492,16 @@ export default function Header({
           </button>
         )}
 
-        {/* Global Messages & Activity Quick Access */}
+        {/* Global Messages Quick Access */}
         {currentRole !== 'admin' && (
           <button
             type="button"
-            onClick={() => setActiveTab(currentRole === 'seeker' ? 'seeker-activity' : 'provider-activity')}
-            className={`p-2.5 rounded-xl border transition-all relative ${isDark
+            onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
+            className={`p-2.5 rounded-xl border transition-all relative cursor-pointer ${isDark
                 ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
                 : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-655 hover:text-slate-800'
-              } ${activeTab.includes('activity') ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
-            title="Job Workspace & Messaging"
+              }`}
+            title="Direct Messages"
           >
             <MessageSquare className="w-4 h-4" />
             {unreadMessagesCount > 0 && (
