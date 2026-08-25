@@ -126,6 +126,7 @@ export interface JobEngagement {
   description?: string;
   started?: boolean;
   cancellationRequests?: any[];
+  queuePosition?: number;
 }
 
 export interface Transaction {

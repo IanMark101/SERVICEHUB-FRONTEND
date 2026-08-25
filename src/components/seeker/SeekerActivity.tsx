@@ -25,6 +25,7 @@ import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 import EmptyState from '../ui/EmptyState';
 import { ActivityItemSkeleton } from '../ui/SkeletonCard';
+import LifecycleStepper from '../ui/LifecycleStepper';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -646,6 +647,14 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
                       </div>
                     </div>
                   </div>
+
+                  {/* 5-Step Visual Lifecycle Stepper */}
+                  <LifecycleStepper
+                    status={je.status}
+                    role="seeker"
+                    queuePosition={je.queuePosition}
+                    isDark={isDark}
+                  />
 
                   {/* Escrow/Payment details banner */}
                   {hasEscrow && (

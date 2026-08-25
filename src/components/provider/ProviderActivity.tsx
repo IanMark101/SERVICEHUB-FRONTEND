@@ -25,6 +25,7 @@ import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 import EmptyState from '../ui/EmptyState';
 import { ActivityItemSkeleton } from '../ui/SkeletonCard';
+import LifecycleStepper from '../ui/LifecycleStepper';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
@@ -761,6 +762,14 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
                         </span>
                       </div>
                     </div>
+
+                    {/* 5-Step Visual Lifecycle Stepper */}
+                    <LifecycleStepper
+                      status={je.status}
+                      role="provider"
+                      queuePosition={je.queuePosition}
+                      isDark={isDark}
+                    />
 
                     {/* Escrow/Payment details banner */}
                     {hasEscrow && (
