@@ -23,6 +23,8 @@ import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ReviewModal from './ReviewModal';
 import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
+import EmptyState from '../ui/EmptyState';
+import { ActivityItemSkeleton } from '../ui/SkeletonCard';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -511,9 +513,65 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredEngagements.length === 0 ? (
-            <div className={`col-span-2 rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
-              }`}>
-              No active or historical engagements fit the selected category.
+            <div className="col-span-2">
+              <EmptyState
+                icon={
+                  activeTab === 'action_required'
+                    ? CheckCircle2
+                    : activeTab === 'waiting'
+                    ? Clock
+                    : activeTab === 'active'
+                    ? Play
+                    : activeTab === 'disputed'
+                    ? AlertTriangle
+                    : Search
+                }
+                title={
+                  activeTab === 'action_required'
+                    ? 'All Caught Up!'
+                    : activeTab === 'active'
+                    ? 'No Active Services In Progress'
+                    : activeTab === 'waiting'
+                    ? 'No Bookings Currently In Queue'
+                    : activeTab === 'disputed'
+                    ? 'No Active Disputes'
+                    : activeTab === 'canceled'
+                    ? 'No Canceled Bookings'
+                    : searchQuery
+                    ? 'No Matching Engagements Found'
+                    : 'No Activity History Yet'
+                }
+                description={
+                  activeTab === 'action_required'
+                    ? 'You have no service engagements requiring your confirmation or review right now.'
+                    : activeTab === 'active'
+                    ? 'None of your booked services are currently ongoing.'
+                    : activeTab === 'waiting'
+                    ? 'You are not waiting in any provider queues at the moment.'
+                    : activeTab === 'disputed'
+                    ? 'All your transactions are proceeding normally with zero dispute cases.'
+                    : activeTab === 'canceled'
+                    ? 'You have no canceled engagements in your records.'
+                    : searchQuery
+                    ? `No engagements matched your search "${searchQuery}". Try searching by a different provider name or job title.`
+                    : 'You haven’t booked any services or accepted any offers yet. Explore the marketplace to find trusted local providers!'
+                }
+                actionLabel={
+                  searchQuery
+                    ? 'Clear Search'
+                    : activeTab === 'all'
+                    ? 'Browse Available Services'
+                    : undefined
+                }
+                onAction={() => {
+                  if (searchQuery) {
+                    setSearchQuery('');
+                  } else {
+                    router.push('/seeker/seek-services');
+                  }
+                }}
+                accentColor="orange"
+              />
             </div>
           ) : (
             paginatedEngagements.map((je) => {

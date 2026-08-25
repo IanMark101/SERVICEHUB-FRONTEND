@@ -9,6 +9,7 @@ import { apiGetMyRequests } from '../../api/requests.api';
 import { mapRequestToJobRequest } from '../../context/mappers';
 import { JobRequest } from '../../types';
 import { formatUrgencyDisplay } from '../provider/BrowseJobs';
+import EmptyState from '../ui/EmptyState';
 
 interface EditModalState {
   requestId: string;
@@ -200,11 +201,16 @@ export default function RequestManager({
 
       {/* Requests Rows */}
       {myRequests.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
-        }`}>
-          You haven't broadcasted any public task requests yet. Click "+ New Request" to start.
-        </div>
+        <EmptyState
+          icon={ClipboardList}
+          title="No Active Service Requests"
+          description="You haven't broadcasted any custom service requests yet. Post a task with your budget and timeframe, and local Cordova providers will submit proposals directly to you!"
+          actionLabel="+ Broadcast a Request"
+          onAction={() => {
+            if (onNavigateToPost) onNavigateToPost();
+          }}
+          accentColor="orange"
+        />
       ) : (
         <div className="space-y-6">
           <div className="space-y-4">

@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
-import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -28,9 +28,7 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-// ── Icons & Styles ────────────────────────────────────────────────────────────
-
-// ── Icons & Styles ────────────────────────────────────────────────────────────
+// ── Configuration & Themes ───────────────────────────────────────────────────
 
 const TOAST_CONFIG: Record<
   ToastType,
@@ -40,35 +38,40 @@ const TOAST_CONFIG: Record<
     iconColor: string;
     titleColor: string;
     messageColor: string;
+    progressBar: string;
   }
 > = {
   success: {
-    icon: <CheckCircle size={18} />,
-    cardClasses: 'bg-white border-emerald-200 dark:bg-[#172620] dark:border-emerald-800/60 shadow-xl shadow-emerald-950/10 dark:shadow-black/50',
+    icon: <CheckCircle2 size={19} />,
+    cardClasses: 'bg-white/95 border-emerald-500/30 dark:bg-[#15231c]/95 dark:border-emerald-500/30 shadow-xl shadow-emerald-950/10 dark:shadow-black/60',
     iconColor: 'text-emerald-600 dark:text-emerald-400',
-    titleColor: 'text-emerald-950 dark:text-emerald-300 font-bold',
-    messageColor: 'text-emerald-900/90 dark:text-emerald-100/80',
+    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
+    messageColor: 'text-slate-600 dark:text-emerald-200/80',
+    progressBar: 'bg-emerald-500',
   },
   error: {
-    icon: <XCircle size={18} />,
-    cardClasses: 'bg-white border-red-200 dark:bg-[#281818] dark:border-red-800/60 shadow-xl shadow-red-950/10 dark:shadow-black/50',
+    icon: <XCircle size={19} />,
+    cardClasses: 'bg-white/95 border-red-500/30 dark:bg-[#261616]/95 dark:border-red-500/30 shadow-xl shadow-red-950/10 dark:shadow-black/60',
     iconColor: 'text-red-600 dark:text-red-400',
-    titleColor: 'text-red-950 dark:text-red-300 font-bold',
-    messageColor: 'text-red-900/90 dark:text-red-100/80',
+    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
+    messageColor: 'text-slate-600 dark:text-red-200/80',
+    progressBar: 'bg-red-500',
   },
   warning: {
-    icon: <AlertTriangle size={18} />,
-    cardClasses: 'bg-white border-amber-200 dark:bg-[#282216] dark:border-amber-800/60 shadow-xl shadow-amber-950/10 dark:shadow-black/50',
+    icon: <AlertTriangle size={19} />,
+    cardClasses: 'bg-white/95 border-amber-500/30 dark:bg-[#261f14]/95 dark:border-amber-500/30 shadow-xl shadow-amber-950/10 dark:shadow-black/60',
     iconColor: 'text-amber-600 dark:text-amber-400',
-    titleColor: 'text-amber-950 dark:text-amber-300 font-bold',
-    messageColor: 'text-amber-900/90 dark:text-amber-100/80',
+    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
+    messageColor: 'text-slate-600 dark:text-amber-200/80',
+    progressBar: 'bg-amber-500',
   },
   info: {
-    icon: <Info size={18} />,
-    cardClasses: 'bg-white border-indigo-200 dark:bg-[#1a1d29] dark:border-indigo-800/60 shadow-xl shadow-indigo-950/10 dark:shadow-black/50',
-    iconColor: 'text-indigo-600 dark:text-indigo-400',
-    titleColor: 'text-indigo-950 dark:text-indigo-300 font-bold',
-    messageColor: 'text-indigo-900/90 dark:text-indigo-100/80',
+    icon: <Info size={19} />,
+    cardClasses: 'bg-white/95 border-orange-500/30 dark:bg-[#241a14]/95 dark:border-orange-500/30 shadow-xl shadow-orange-950/10 dark:shadow-black/60',
+    iconColor: 'text-orange-600 dark:text-orange-400',
+    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
+    messageColor: 'text-slate-600 dark:text-orange-200/80',
+    progressBar: 'bg-orange-500',
   },
 };
 
@@ -76,19 +79,20 @@ const TOAST_CONFIG: Record<
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
   const cfg = TOAST_CONFIG[toast.type];
+  const duration = toast.duration || 4500;
 
   return (
     <div
       role="alert"
       aria-live="polite"
-      className={`flex items-start gap-3 p-4 rounded-2xl border backdrop-blur-md min-w-[290px] max-w-[390px] relative transition-all duration-200 select-none ${cfg.cardClasses}`}
+      className={`flex items-start gap-3 p-4 rounded-2xl border backdrop-blur-xl min-w-[300px] max-w-[400px] relative overflow-hidden transition-all duration-200 select-none shadow-lg ${cfg.cardClasses}`}
       style={{
-        animation: 'toast-slide-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        animation: 'toast-spring-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
     >
       <span className={`flex-shrink-0 mt-0.5 ${cfg.iconColor}`}>{cfg.icon}</span>
-      <div className="flex-1 min-w-0">
-        <p className={`m-0 text-xs leading-snug ${cfg.titleColor}`}>
+      <div className="flex-1 min-w-0 pr-2">
+        <p className={`m-0 text-xs tracking-tight leading-snug ${cfg.titleColor}`}>
           {toast.title}
         </p>
         {toast.message && (
@@ -99,11 +103,20 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="bg-transparent border-0 cursor-pointer p-1 text-slate-400 hover:text-slate-700 dark:text-neutral-500 dark:hover:text-neutral-200 flex-shrink-0 flex items-center justify-center rounded-lg transition-colors"
+        className="bg-transparent border-0 cursor-pointer p-1 text-slate-400 hover:text-slate-700 dark:text-neutral-500 dark:hover:text-neutral-200 flex-shrink-0 flex items-center justify-center rounded-lg transition-colors duration-150 active:scale-90"
         aria-label="Dismiss toast"
       >
         <X size={14} />
       </button>
+
+      {/* Auto-Dismiss Progress Bar */}
+      <div
+        className={`absolute bottom-0 left-0 h-[2.5px] ${cfg.progressBar} opacity-75`}
+        style={{
+          width: '100%',
+          animation: `toast-progress ${duration}ms linear forwards`,
+        }}
+      />
     </div>
   );
 }
@@ -116,20 +129,24 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
   return (
     <>
       <style>{`
-        @keyframes toast-slide-in {
-          from { opacity: 0; transform: translateX(110%); }
-          to   { opacity: 1; transform: translateX(0); }
+        @keyframes toast-spring-in {
+          0% { opacity: 0; transform: translateX(100%) scale(0.95); }
+          100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes toast-progress {
+          from { width: 100%; }
+          to { width: 0%; }
         }
       `}</style>
       <div
         style={{
           position: 'fixed',
-          top: '16px',
-          right: '16px',
+          top: '20px',
+          right: '20px',
           zIndex: 99999,
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px',
+          gap: '12px',
           pointerEvents: 'none',
         }}
       >

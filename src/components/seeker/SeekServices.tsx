@@ -13,6 +13,8 @@ import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { joinServiceRoom } from '../../lib/socket';
 import { apiJoinWaitlist } from '../../api/bookings.api';
 import { useToast } from '../ui/Toast';
+import EmptyState from '../ui/EmptyState';
+import { ServiceListingSkeleton } from '../ui/SkeletonCard';
 
 export default function SeekServices() {
   const router = useRouter();
@@ -283,10 +285,26 @@ export default function SeekServices() {
 
       {/* Provider Services Card Grid */}
       {filteredServices.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
-          }`}>
-          No service listings found matching the active criteria.
-        </div>
+        <EmptyState
+          icon={Search}
+          title="No Services Found"
+          description={
+            searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'
+              ? `No services matched your current filters ("${searchQuery || selectedCategory}"). Try adjusting your search keywords or clearing your category filters.`
+              : 'There are currently no active service listings published in Cordova. Check back soon or post a custom service request!'
+          }
+          actionLabel={searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all' ? 'Clear All Filters' : 'Post a Custom Request'}
+          onAction={() => {
+            if (searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all') {
+              setSearchQuery('');
+              setSelectedCategory('All Categories');
+              setActiveFilter('all');
+            } else {
+              router.push('/seeker/request-manager');
+            }
+          }}
+          accentColor="orange"
+        />
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -306,9 +324,9 @@ export default function SeekServices() {
               return (
                 <div
                   key={service.id}
-                  className={`rounded-[24px] p-5 border transition-all duration-200 flex flex-col justify-between h-full ${isDark
-                      ? 'bg-[#22211e] border-neutral-855 hover:border-orange-500/40 hover:shadow-lg'
-                      : 'bg-white border-slate-200 hover:border-orange-500/40 hover:shadow-md'
+                  className={`rounded-[24px] p-5 border transition-all duration-200 ease-out flex flex-col justify-between h-full hover:-translate-y-1 ${isDark
+                      ? 'bg-[#22211e] border-neutral-855 hover:border-orange-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)]'
+                      : 'bg-white border-slate-200 hover:border-orange-500/50 hover:shadow-xl'
                     }`}
                 >
                   <div>

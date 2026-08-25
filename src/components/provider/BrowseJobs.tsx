@@ -7,6 +7,8 @@ import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import EmptyState from '../ui/EmptyState';
+import { JobRequestSkeleton } from '../ui/SkeletonCard';
 
 export function formatUrgencyDisplay(urgency?: string): string {
   if (!urgency || !urgency.trim()) return 'Flexible Schedule';
@@ -274,10 +276,22 @@ export default function BrowseJobs({
 
       {/* Job Requests Card Grid */}
       {sortedRequests.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
-          }`}>
-          No open job requests found matching the active criteria.
-        </div>
+        <EmptyState
+          icon={Search}
+          title="No Open Job Requests"
+          description={
+            searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'
+              ? `No requests matched your current filters ("${searchQuery || selectedCategory}"). Try adjusting your keywords or category filters.`
+              : 'There are currently no open custom job requests posted by seekers in Cordova. Check back shortly!'
+          }
+          actionLabel={searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all' ? 'Clear All Filters' : undefined}
+          onAction={() => {
+            setSearchQuery('');
+            setSelectedCategory('All Categories');
+            setActiveFilter('all');
+          }}
+          accentColor="emerald"
+        />
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -292,12 +306,12 @@ export default function BrowseJobs({
                 <div
                   key={req.id}
                   onClick={() => !hasSentBid && !isOwned && handleOpenBid(req.id, req.budget)}
-                  className={`rounded-[24px] p-5 border transition-all duration-200 flex flex-col justify-between h-full group ${
+                  className={`rounded-[24px] p-5 border transition-all duration-200 ease-out flex flex-col justify-between h-full group ${
                     isOwned || hasSentBid
                       ? 'opacity-70 cursor-not-allowed border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
                       : isDark
-                        ? 'bg-[#22211e] border-neutral-855 hover:border-emerald-500/40 hover:shadow-lg hover:bg-[#2c2b27]/20 cursor-pointer'
-                        : 'bg-white border-slate-300 hover:border-emerald-500/40 hover:shadow-md cursor-pointer'
+                        ? 'bg-[#22211e] border-neutral-855 hover:border-emerald-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:-translate-y-1 hover:bg-[#2c2b27]/30 cursor-pointer'
+                        : 'bg-white border-slate-300 hover:border-emerald-500/50 hover:shadow-xl hover:-translate-y-1 cursor-pointer'
                     }`}
                 >
                   <div>

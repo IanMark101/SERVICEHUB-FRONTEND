@@ -21,6 +21,7 @@ import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import EmptyState from '../ui/EmptyState';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const router = useRouter();
@@ -186,25 +187,23 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
       )}
 
       {pendingBids.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center transition-all ${
-          isDark ? 'bg-[#22211e] border-neutral-850 text-[#b4b0a9]' : 'bg-white border-slate-200 shadow-sm text-slate-500'
-        }`}>
-          <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-orange-500/10 text-orange-500">
-            <Inbox className="w-6 h-6" />
-          </div>
-          <h3 className={`text-sm font-extrabold mb-1 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            No Incoming Proposals
-          </h3>
-          <p className="text-xs max-w-md mx-auto text-slate-500 dark:text-neutral-400">
-            When providers submit quotes and bids on your open job requests, they will appear here for comparison.
-          </p>
-        </div>
+        <EmptyState
+          icon={Inbox}
+          title="No Incoming Proposals Yet"
+          description="When local verified providers submit custom quotes on your open task requests, they will appear here with price breakdowns, estimated duration, and trust ratings."
+          actionLabel="Manage Your Requests"
+          onAction={() => router.push('/seeker/request-manager')}
+          accentColor="orange"
+        />
       ) : sortedBids.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
-        }`}>
-          No bids matched your search query. Try typing something else!
-        </div>
+        <EmptyState
+          icon={Search}
+          title="No Matching Offers"
+          description={`No proposals matched your search query "${searchQuery}". Try searching with different keywords.`}
+          actionLabel="Clear Search"
+          onAction={() => setSearchQuery('')}
+          accentColor="orange"
+        />
       ) : (
         <div className="space-y-3">
           {paginatedBids.map((bid) => {

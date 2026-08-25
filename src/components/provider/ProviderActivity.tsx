@@ -23,6 +23,8 @@ import PaginationBar from '../ui/PaginationBar';
 import { apiRespondCancellationRequest, apiHideBooking } from '../../api/bookings.api';
 import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
+import EmptyState from '../ui/EmptyState';
+import { ActivityItemSkeleton } from '../ui/SkeletonCard';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
@@ -559,9 +561,69 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredItems.length === 0 ? (
-            <div className={`col-span-2 rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
-              }`}>
-              No active jobs or proposals fit the selected category.
+            <div className="col-span-2">
+              <EmptyState
+                icon={
+                  activeTab === 'awaiting_approval'
+                    ? CheckCircle2
+                    : activeTab === 'waiting'
+                    ? Clock
+                    : activeTab === 'in_progress'
+                    ? Play
+                    : activeTab === 'pending_offers'
+                    ? Send
+                    : Search
+                }
+                title={
+                  activeTab === 'awaiting_approval'
+                    ? 'All Actions Addressed!'
+                    : activeTab === 'in_progress'
+                    ? 'No Active Jobs In Progress'
+                    : activeTab === 'waiting'
+                    ? 'No Bookings Waiting in Queue'
+                    : activeTab === 'pending_offers'
+                    ? 'No Submitted Proposals'
+                    : activeTab === 'disputed'
+                    ? 'No Active Disputes'
+                    : activeTab === 'canceled'
+                    ? 'No Canceled Engagements'
+                    : searchQuery
+                    ? 'No Matching Jobs Found'
+                    : 'No Activity History Yet'
+                }
+                description={
+                  activeTab === 'awaiting_approval'
+                    ? 'You have no pending direct requests or cancellation reviews needing response.'
+                    : activeTab === 'in_progress'
+                    ? 'You are not currently working on any active service engagements.'
+                    : activeTab === 'waiting'
+                    ? 'Your service queues currently have no clients waiting in line.'
+                    : activeTab === 'pending_offers'
+                    ? 'You haven’t submitted any offers to open seeker job requests yet.'
+                    : activeTab === 'disputed'
+                    ? 'All client transactions are operating smoothly with zero dispute reports.'
+                    : activeTab === 'canceled'
+                    ? 'You have no canceled engagements in your provider records.'
+                    : searchQuery
+                    ? `No jobs matched your search "${searchQuery}". Try adjusting your keywords.`
+                    : 'You have no active jobs or proposals yet. Check the job board to find clients looking for services!'
+                }
+                actionLabel={
+                  searchQuery
+                    ? 'Clear Search'
+                    : activeTab === 'pending_offers' || activeTab === 'all'
+                    ? 'Browse Open Client Requests'
+                    : undefined
+                }
+                onAction={() => {
+                  if (searchQuery) {
+                    setSearchQuery('');
+                  } else {
+                    router.push('/provider/browse-jobs');
+                  }
+                }}
+                accentColor="emerald"
+              />
             </div>
           ) : (
             paginatedItems.map((item) => {
