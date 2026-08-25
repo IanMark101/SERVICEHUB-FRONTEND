@@ -228,10 +228,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
           setAuthLoading(false);
         })
-        .catch(() => {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('userSession');
-          setUser(null);
+        .catch((err) => {
+          if (err.response?.status === 401 || err.response?.status === 403) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('userSession');
+            setUser(null);
+            setIsAuthenticated(false);
+          }
           setAuthLoading(false);
         });
     } else {
