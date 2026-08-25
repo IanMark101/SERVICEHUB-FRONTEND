@@ -1,16 +1,43 @@
-# React + Vite
+# ServiceHub Cordova — Frontend Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Hyperlocal Community Service Marketplace & Queue Management System for Cordova, Cebu, Philippines.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Technology Stack
+- **Framework:** Next.js (App Router)
+- **UI & Logic:** React 19, TypeScript
+- **Styling:** Tailwind CSS, Lucide Icons, Custom CSS tokens
+- **Forms & Validation:** React Hook Form, Zod
+- **Real-Time Gateway:** Socket.io Client
+- **HTTP Client:** Axios (with automatic token rotation & credentials)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Getting Started
 
-## Expanding the ESLint configuration
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 2. Environment Variables
+Create a `.env.local` file in the root of the frontend folder:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
+```
+
+### 3. Run the Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 📂 Key Workspaces & Features
+- **Seeker Workspace (`/seeker`):** Browse listings (Flow A), post custom requests (Flow B), manage bookings, live chat, and review completed jobs.
+- **Provider Workspace (`/provider`):** Manage up to 3 active services, submit proposals/offers on seeker requests, manage FCFS queues, and track wallet earnings.
+- **Admin Panel (`/admin`):** Review residency verification proofs, moderate service listings (3-strike policy), approve categories, and arbitrate dispute cases.
+- **Real-Time Messages (`/seeker/messages`, `/provider/messages`):** Real-time chat rooms scoped to `bookingId` via Socket.io.
