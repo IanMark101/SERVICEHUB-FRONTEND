@@ -88,9 +88,9 @@ export default function LifecycleStepper({
     },
     {
       id: 2,
-      label: 'In Queue',
-      sublabel: queuePosition ? `#${queuePosition} spot` : 'Positioned',
-      icon: Clock,
+      label: queuePosition ? 'In Queue' : 'Confirmed',
+      sublabel: queuePosition ? `#${queuePosition} spot` : 'Scheduled',
+      icon: queuePosition ? Clock : Check,
     },
     {
       id: 3,
@@ -187,9 +187,7 @@ export default function LifecycleStepper({
         {/* Dynamic Glowing Filled Progress Track */}
         <div
           className={`absolute top-3.5 left-3 h-[2.5px] -translate-y-1/2 z-0 rounded-full transition-all duration-700 ease-out ${
-            currentStep === 5
-              ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-              : role === 'provider'
+            role === 'provider'
               ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]'
               : 'bg-orange-500 shadow-[0_0_8px_rgba(217,119,87,0.4)]'
           }`}
@@ -200,7 +198,6 @@ export default function LifecycleStepper({
         {steps.map((step) => {
           const isPassed = currentStep > step.id;
           const isCurrent = currentStep === step.id;
-          const isFuture = currentStep < step.id;
           const Icon = step.icon;
 
           return (
@@ -222,11 +219,9 @@ export default function LifecycleStepper({
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-all duration-300 shadow-sm border ${
                     isPassed
-                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-500/20'
+                      ? `${accentBg} ${accentBorder} text-white`
                       : isCurrent
-                      ? currentStep === 5
-                        ? 'bg-emerald-600 border-emerald-600 text-white ring-4 ring-emerald-500/20 scale-110 shadow-md'
-                        : `${accentBg} ${accentBorder} text-white ring-4 ${accentPulse} scale-110 shadow-md`
+                      ? `${accentBg} ${accentBorder} text-white ring-4 ${accentPulse} scale-110 shadow-md`
                       : isDark
                       ? 'bg-[#22211e] border-neutral-700 text-neutral-500'
                       : 'bg-white border-slate-300 text-slate-400'
@@ -247,9 +242,7 @@ export default function LifecycleStepper({
                 <span
                   className={`block text-[10px] sm:text-[11px] font-bold leading-tight transition-colors ${
                     isCurrent
-                      ? currentStep === 5
-                        ? 'text-emerald-500 font-black'
-                        : `${accentText} font-black`
+                      ? `${accentText} font-black`
                       : isPassed
                       ? isDark
                         ? 'text-neutral-300'
