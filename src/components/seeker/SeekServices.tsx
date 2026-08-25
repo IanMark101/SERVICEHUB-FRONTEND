@@ -29,6 +29,26 @@ export default function SeekServices() {
 
   // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleCategoryChange = (cat: string) => {
+    if (cat === selectedCategory) return;
+    setIsLoading(true);
+    setSelectedCategory(cat);
+    setTimeout(() => setIsLoading(false), 300);
+  };
+
+  const handleFilterChange = (filter: typeof activeFilter) => {
+    if (filter === activeFilter) return;
+    setIsLoading(true);
+    setActiveFilter(filter);
+    setTimeout(() => setIsLoading(false), 250);
+  };
 
   const categories = [
     'All Categories',
@@ -207,7 +227,7 @@ export default function SeekServices() {
       <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>Quick Filters:</span>
         <button
-          onClick={() => setActiveFilter('all')}
+          onClick={() => handleFilterChange('all')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -220,7 +240,7 @@ export default function SeekServices() {
           All
         </button>
         <button
-          onClick={() => setActiveFilter('available')}
+          onClick={() => handleFilterChange('available')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'available'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -234,7 +254,7 @@ export default function SeekServices() {
           Available Now
         </button>
         <button
-          onClick={() => setActiveFilter('rated')}
+          onClick={() => handleFilterChange('rated')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'rated'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -248,7 +268,7 @@ export default function SeekServices() {
           Top Rated
         </button>
         <button
-          onClick={() => setActiveFilter('low-queue')}
+          onClick={() => handleFilterChange('low-queue')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'low-queue'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -268,7 +288,7 @@ export default function SeekServices() {
         {categories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() => handleCategoryChange(cat)}
             className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${selectedCategory === cat
                 ? isDark
                   ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950'
@@ -284,7 +304,9 @@ export default function SeekServices() {
       </div>
 
       {/* Provider Services Card Grid */}
-      {filteredServices.length === 0 ? (
+      {isLoading ? (
+        <ServiceListingSkeleton count={6} />
+      ) : filteredServices.length === 0 ? (
         <EmptyState
           icon={Search}
           title="No Services Found"

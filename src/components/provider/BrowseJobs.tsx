@@ -34,6 +34,26 @@ export default function BrowseJobs({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [activeFilter, setActiveFilter] = useState<'all' | 'urgent' | 'high-budget' | 'few-offers'>('all');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  React.useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleCategoryChange = (cat: string) => {
+    if (cat === selectedCategory) return;
+    setIsLoading(true);
+    setSelectedCategory(cat);
+    setTimeout(() => setIsLoading(false), 300);
+  };
+
+  const handleFilterChange = (filter: typeof activeFilter) => {
+    if (filter === activeFilter) return;
+    setIsLoading(true);
+    setActiveFilter(filter);
+    setTimeout(() => setIsLoading(false), 250);
+  };
 
   // Modal State
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
@@ -188,7 +208,7 @@ export default function BrowseJobs({
         <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-300'}`}>
           <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Quick Filters:</span>
           <button
-            onClick={() => setActiveFilter('all')}
+            onClick={() => handleFilterChange('all')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
                 ? isDark
                   ? 'bg-emerald-950/20 text-emerald-450 border-emerald-900/30'
@@ -201,7 +221,7 @@ export default function BrowseJobs({
             All
           </button>
           <button
-            onClick={() => setActiveFilter('urgent')}
+            onClick={() => handleFilterChange('urgent')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'urgent'
                 ? isDark
                   ? 'bg-emerald-950/20 text-emerald-450 border-emerald-900/30'
@@ -215,7 +235,7 @@ export default function BrowseJobs({
             Urgent
           </button>
           <button
-            onClick={() => setActiveFilter('high-budget')}
+            onClick={() => handleFilterChange('high-budget')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'high-budget'
                 ? isDark
                   ? 'bg-emerald-950/20 text-emerald-455 border-emerald-900/30'
@@ -229,7 +249,7 @@ export default function BrowseJobs({
             High Budget
           </button>
           <button
-            onClick={() => setActiveFilter('few-offers')}
+            onClick={() => handleFilterChange('few-offers')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'few-offers'
                 ? isDark
                   ? 'bg-emerald-950/20 text-emerald-455 border-emerald-900/30'
@@ -250,7 +270,7 @@ export default function BrowseJobs({
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => handleCategoryChange(cat)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedCategory === cat
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                     : isDark
@@ -275,7 +295,9 @@ export default function BrowseJobs({
       </div>
 
       {/* Job Requests Card Grid */}
-      {sortedRequests.length === 0 ? (
+      {isLoading ? (
+        <JobRequestSkeleton count={6} />
+      ) : sortedRequests.length === 0 ? (
         <EmptyState
           icon={Search}
           title="No Open Job Requests"
