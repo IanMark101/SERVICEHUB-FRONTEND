@@ -49,6 +49,19 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<'all' | 'action_required' | 'pending' | 'active' | 'waiting' | 'disputed' | 'canceled'>('all');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleTabChange = (tab: typeof activeTab) => {
+    if (tab === activeTab) return;
+    setIsLoading(true);
+    setActiveTab(tab);
+    setTimeout(() => setIsLoading(false), 250);
+  };
 
   // Debounced auto-refresh effect
   useEffect(() => {
@@ -421,49 +434,49 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
       {/* Filter pills at the top */}
       <div className={`flex flex-wrap gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         <button
-          onClick={() => setActiveTab('all')}
+          onClick={() => handleTabChange('all')}
           className={getTabClass('all', myEngagements.length)}
         >
           All ({myEngagements.length})
         </button>
 
         <button
-          onClick={() => setActiveTab('action_required')}
+          onClick={() => handleTabChange('action_required')}
           className={getTabClass('action_required', countStatus('action_required'))}
         >
           Action Required ({countStatus('action_required')})
         </button>
 
         <button
-          onClick={() => setActiveTab('pending')}
+          onClick={() => handleTabChange('pending')}
           className={getTabClass('pending', countStatus('pending_provider'))}
         >
           Pending Provider ({countStatus('pending_provider')})
         </button>
 
         <button
-          onClick={() => setActiveTab('active')}
+          onClick={() => handleTabChange('active')}
           className={getTabClass('active', countStatus('in_progress'))}
         >
           Active Now ({countStatus('in_progress')})
         </button>
 
         <button
-          onClick={() => setActiveTab('waiting')}
+          onClick={() => handleTabChange('waiting')}
           className={getTabClass('waiting', countStatus('queued'))}
         >
           In Queue ({countStatus('queued')})
         </button>
 
         <button
-          onClick={() => setActiveTab('disputed')}
+          onClick={() => handleTabChange('disputed')}
           className={getTabClass('disputed', countStatus('disputed'))}
         >
           Disputes ({countStatus('disputed')})
         </button>
 
         <button
-          onClick={() => setActiveTab('canceled')}
+          onClick={() => handleTabChange('canceled')}
           className={getTabClass('canceled', countStatus('canceled'))}
         >
           Canceled ({countStatus('canceled')})
@@ -512,7 +525,11 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredEngagements.length === 0 ? (
+          {isLoading ? (
+            <div className="col-span-2">
+              <ActivityItemSkeleton count={3} />
+            </div>
+          ) : filteredEngagements.length === 0 ? (
             <div className="col-span-2">
               <EmptyState
                 icon={

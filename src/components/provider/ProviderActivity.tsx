@@ -63,6 +63,19 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
   // Filter state
   const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'waiting' | 'pending_offers' | 'awaiting_approval' | 'disputed' | 'canceled'>('all');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleTabChange = (tab: typeof activeTab) => {
+    if (tab === activeTab) return;
+    setIsLoading(true);
+    setActiveTab(tab);
+    setTimeout(() => setIsLoading(false), 250);
+  };
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
 
@@ -419,7 +432,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       {/* Filter Pills */}
       <div className={`flex flex-wrap gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         <button
-          onClick={() => setActiveTab('all')}
+          onClick={() => handleTabChange('all')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'all'
               ? isDark
                 ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950 shadow-sm'
@@ -433,7 +446,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         </button>
 
         <button
-          onClick={() => setActiveTab('in_progress')}
+          onClick={() => handleTabChange('in_progress')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'in_progress'
               ? isDark
                 ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400 font-extrabold'
@@ -447,7 +460,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         </button>
 
         <button
-          onClick={() => setActiveTab('waiting')}
+          onClick={() => handleTabChange('waiting')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'waiting'
               ? isDark
                 ? 'bg-amber-955/20 border-amber-900/30 text-amber-450 font-extrabold'
@@ -461,7 +474,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         </button>
 
         <button
-          onClick={() => setActiveTab('pending_offers')}
+          onClick={() => handleTabChange('pending_offers')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'pending_offers'
               ? isDark
                 ? 'bg-orange-950/20 border-orange-900/30 text-orange-400 font-extrabold'
@@ -475,7 +488,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         </button>
 
         <button
-          onClick={() => setActiveTab('awaiting_approval')}
+          onClick={() => handleTabChange('awaiting_approval')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'awaiting_approval'
               ? isDark
                 ? 'bg-purple-950/20 border-purple-900/30 text-purple-400 font-extrabold'
@@ -489,7 +502,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         </button>
 
         <button
-          onClick={() => setActiveTab('disputed')}
+          onClick={() => handleTabChange('disputed')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'disputed'
               ? isDark
                 ? 'bg-red-955/20 border-red-900/30 text-red-400 font-extrabold'
@@ -503,7 +516,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         </button>
 
         <button
-          onClick={() => setActiveTab('canceled')}
+          onClick={() => handleTabChange('canceled')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'canceled'
               ? isDark
                 ? 'bg-neutral-800/40 border-neutral-750 text-[#f2efe9] font-extrabold'
@@ -560,7 +573,11 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredItems.length === 0 ? (
+          {isLoading ? (
+            <div className="col-span-2">
+              <ActivityItemSkeleton count={3} />
+            </div>
+          ) : filteredItems.length === 0 ? (
             <div className="col-span-2">
               <EmptyState
                 icon={
