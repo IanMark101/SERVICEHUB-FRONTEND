@@ -47,6 +47,69 @@
   --font-serif: var(--font-serif), 'Playfair Display', Georgia, serif;
 }
 
+/* Claude Signature Terracotta/Coral Core Theme Tokens */
+:root {
+  --color-orange-50: #faf5f2 !important;
+  --color-orange-100: #f5ebe6 !important;
+  --color-orange-200: #ecd9d0 !important;
+  --color-orange-300: #dec0b3 !important;
+  --color-orange-400: #d49b86 !important;
+  --color-orange-500: #d97757 !important;
+  --color-orange-600: #c86544 !important;
+  --color-orange-700: #aa5032 !important;
+  --color-orange-800: #8b3e25 !important;
+  --color-orange-900: #6d2e1a !important;
+  --color-orange-950: #3d160b !important;
+}
+
+/* Explicit Claude Terracotta Utility Overrides for Instant Browser Rendering */
+.bg-orange-600 {
+  background-color: #c86544 !important;
+}
+.hover\:bg-orange-700:hover,
+.bg-orange-700 {
+  background-color: #aa5032 !important;
+}
+.hover\:bg-orange-600:hover {
+  background-color: #c86544 !important;
+}
+.hover\:bg-orange-500:hover,
+.bg-orange-500 {
+  background-color: #d97757 !important;
+}
+.text-orange-600 {
+  color: #c86544 !important;
+}
+.text-orange-500 {
+  color: #d97757 !important;
+}
+.text-orange-400 {
+  color: #d49b86 !important;
+}
+.border-orange-500 {
+  border-color: #d97757 !important;
+}
+.border-orange-600 {
+  border-color: #c86544 !important;
+}
+.border-orange-200 {
+  border-color: #ecd9d0 !important;
+}
+.bg-orange-50 {
+  background-color: #faf5f2 !important;
+}
+.bg-orange-950\/20,
+.bg-orange-950\/30 {
+  background-color: rgba(61, 22, 11, 0.3) !important;
+}
+.border-orange-900\/30,
+.border-orange-900\/40 {
+  border-color: rgba(109, 46, 26, 0.35) !important;
+}
+.ring-orange-500 {
+  --tw-ring-color: #d97757 !important;
+}
+
 /* Global Scrollbar Definitions — Signature Claude Terracotta Thumb (#D97757), Theme-adaptive Track */
 *,
 html,
