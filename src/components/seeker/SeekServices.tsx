@@ -376,7 +376,7 @@ export default function SeekServices() {
                 <div
                   key={service.id}
                   className={`rounded-[24px] p-5 border transition-all duration-200 ease-out flex flex-col justify-between h-full hover:-translate-y-1 ${isDark
-                      ? 'bg-[#22211e] border-neutral-855 hover:border-orange-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)]'
+                      ? 'bg-[#22211e] border-neutral-800/80 hover:border-orange-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)]'
                       : 'bg-white border-slate-200 hover:border-orange-500/50 hover:shadow-xl'
                     }`}
                 >
