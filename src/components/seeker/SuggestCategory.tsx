@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Lightbulb, Send, Sparkles, CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
+import { Lightbulb, Send, Sparkles, CheckCircle2, XCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiGetMyCategorySuggestions } from '../../api/categories.api';
 
@@ -9,6 +9,7 @@ export default function SuggestCategory() {
   const { canTransact, navigateToVerification } = useTransactionPermission();
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const [expandedSuggestionId, setExpandedSuggestionId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -213,48 +214,100 @@ export default function SuggestCategory() {
                   const isApproved = statusNormalized === 'APPROVED';
                   const isRejected = statusNormalized === 'REJECTED';
                   const isPending = statusNormalized === 'PENDING';
+                  const isExpanded = expandedSuggestionId === suggestion.id;
+
+                  const formattedDate = suggestion.createdAt
+                    ? new Date(suggestion.createdAt).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })
+                    : 'Recently';
 
                   return (
                     <div
                       key={suggestion.id}
-                      className={`border rounded-2xl p-4 space-y-3 transition-colors duration-200 ${
-                        isDark 
-                          ? isRejected ? 'bg-[#1c1b18] border-red-900/40' : isApproved ? 'bg-[#1c1b18] border-emerald-900/40' : 'bg-[#1c1b18] border-neutral-850'
-                          : isRejected ? 'bg-red-50/20 border-red-200' : isApproved ? 'bg-emerald-50/20 border-emerald-200' : 'bg-slate-50 border-slate-200'
+                      onClick={() => setExpandedSuggestionId(isExpanded ? null : suggestion.id)}
+                      className={`border rounded-2xl p-4 space-y-3 transition-all duration-200 cursor-pointer select-none group ${
+                        isExpanded
+                          ? isDark
+                            ? 'bg-[#282723] border-orange-500/60 shadow-lg ring-1 ring-orange-500/20'
+                            : 'bg-white border-orange-500/60 shadow-md ring-1 ring-orange-500/20'
+                          : isDark
+                          ? isRejected
+                            ? 'bg-[#1c1b18] border-red-900/40 hover:border-red-700/60'
+                            : isApproved
+                            ? 'bg-[#1c1b18] border-emerald-900/40 hover:border-emerald-700/60'
+                            : 'bg-[#1c1b18] border-neutral-850 hover:border-neutral-700'
+                          : isRejected
+                          ? 'bg-red-50/20 border-red-200 hover:border-red-300'
+                          : isApproved
+                          ? 'bg-emerald-50/20 border-emerald-200 hover:border-emerald-300'
+                          : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <h4 className={`font-extrabold text-xs ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{suggestion.name}</h4>
-                          <p className={`text-[10px] leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className={`font-extrabold text-xs tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                              {suggestion.name}
+                            </h4>
+                            <span className="text-[9px] text-slate-400 font-medium">
+                              • {formattedDate}
+                            </span>
+                          </div>
+
+                          <p
+                            className={`text-[10px] leading-relaxed transition-all ${
+                              isExpanded
+                                ? isDark
+                                  ? 'text-[#e2ded6]'
+                                  : 'text-slate-700'
+                                : `line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`
+                            }`}
+                          >
                             {suggestion.description}
                           </p>
+
+                          {!isExpanded && (
+                            <span className="inline-block text-[9px] font-bold text-orange-500 opacity-80 group-hover:opacity-100 transition-opacity">
+                              Click to view full reasoning & details ↓
+                            </span>
+                          )}
                         </div>
 
-                        {isPending && (
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex-shrink-0 flex items-center gap-1 ${
-                            isDark ? 'text-amber-400 bg-amber-950/20 border-amber-900/30' : 'text-amber-600 bg-amber-50 border-amber-100'
-                          }`}>
-                            <Clock className="w-2.5 h-2.5" />
-                            Pending
-                          </span>
-                        )}
-                        {isApproved && (
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex-shrink-0 flex items-center gap-1 ${
-                            isDark ? 'text-emerald-450 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-600 bg-emerald-50 border-emerald-200'
-                          }`}>
-                            <CheckCircle2 className="w-2.5 h-2.5" />
-                            Approved
-                          </span>
-                        )}
-                        {isRejected && (
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex-shrink-0 flex items-center gap-1 ${
-                            isDark ? 'text-red-400 bg-red-950/20 border-red-900/30' : 'text-red-650 bg-red-50 border-red-200'
-                          }`}>
-                            <XCircle className="w-2.5 h-2.5" />
-                            Declined
-                          </span>
-                        )}
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {isPending && (
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
+                              isDark ? 'text-amber-400 bg-amber-950/20 border-amber-900/30' : 'text-amber-600 bg-amber-50 border-amber-100'
+                            }`}>
+                              <Clock className="w-2.5 h-2.5" />
+                              Pending
+                            </span>
+                          )}
+                          {isApproved && (
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
+                              isDark ? 'text-emerald-450 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-600 bg-emerald-50 border-emerald-200'
+                            }`}>
+                              <CheckCircle2 className="w-2.5 h-2.5" />
+                              Approved
+                            </span>
+                          )}
+                          {isRejected && (
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
+                              isDark ? 'text-red-400 bg-red-950/20 border-red-900/30' : 'text-red-650 bg-red-50 border-red-200'
+                            }`}>
+                              <XCircle className="w-2.5 h-2.5" />
+                              Declined
+                            </span>
+                          )}
+
+                          <ChevronDown
+                            className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                              isExpanded ? 'rotate-180 text-orange-500' : 'group-hover:text-slate-300'
+                            }`}
+                          />
+                        </div>
                       </div>
 
                       {/* Admin Feedback Box */}
