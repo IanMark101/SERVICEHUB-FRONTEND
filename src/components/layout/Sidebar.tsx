@@ -99,7 +99,6 @@ export default function Sidebar({
       { id: 'incoming-offers', label: 'Service Requests', icon: Inbox, badge: pendingBidsCount > 0 ? pendingBidsCount : undefined },
       { id: 'request-manager', label: 'Request Manager', icon: Layers },
       { id: 'seeker-activity', label: 'Activity', icon: TrendingUp },
-      { id: 'suggest-category', label: 'Suggest Category', icon: Tag },
     ],
     provider: [
       { id: 'browse-services', label: 'Browse Jobs', icon: Compass },

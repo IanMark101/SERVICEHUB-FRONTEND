@@ -164,8 +164,8 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               {listing.serviceType === 'SESSION_BASED' && (
                 <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${
                   isDark
-                    ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
-                    : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                    ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
+                    : 'text-orange-700 bg-orange-50 border-orange-200'
                 }`}>
                   ↺ Session-based
                 </span>
@@ -192,7 +192,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         {/* Success State */}
         {success ? (
           <div className="p-8 text-center space-y-3">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold border ${isDark ? 'bg-emerald-950/20 text-emerald-405 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold border ${isDark ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' : 'bg-orange-50 text-orange-600 border-orange-100'
               }`}>
               ✓
             </div>

@@ -97,9 +97,9 @@ export default function PostRequest() {
 
         {/* Success Alert Banner */}
         {success && (
-          <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 mb-6 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+          <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 mb-6 animate-in fade-in duration-205 ${isDark ? 'bg-orange-950/20 border-orange-900/30 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-800'
             }`}>
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span>
+            <span className="w-5 h-5 rounded-full bg-orange-600 text-white flex items-center justify-center text-[10px]">✓</span>
             <span>Your request has been broadcasted publicly. Providers can now submit bids!</span>
           </div>
         )}

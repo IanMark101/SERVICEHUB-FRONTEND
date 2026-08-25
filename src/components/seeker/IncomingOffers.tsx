@@ -223,7 +223,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
               >
                 {/* Accept Flash Overlay */}
                 {loadingBidId === bid.id && loadingAction === 'accepting' && (
-                  <div className="absolute inset-0 bg-emerald-600/90 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all animate-in fade-in duration-200">
+                  <div className="absolute inset-0 bg-orange-600/90 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all animate-in fade-in duration-200">
                     <div className="text-center text-white space-y-1">
                       <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mx-auto text-xl font-bold border border-white/30 animate-bounce">
                         ✓
@@ -249,7 +249,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                     />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className={`font-extrabold text-sm truncate group-hover:text-emerald-500 transition-colors ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                        <span className={`font-extrabold text-sm truncate group-hover:text-orange-500 transition-colors ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                           {bid.providerName}
                         </span>
                         {isVerified && (
@@ -275,7 +275,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                         {bid.providerRating && bid.providerRating > 0 && (
                           <>
                             <span>•</span>
-                            <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                            <span className="font-semibold text-amber-500">
                               ⭐ {bid.providerRating.toFixed(1)}
                             </span>
                           </>
@@ -295,48 +295,46 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                       <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-neutral-500 block">
                         Offered Bid
                       </span>
-                      <span className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400">
+                      <span className="text-lg sm:text-xl font-black text-orange-600 dark:text-orange-400">
                         ₱{Number(bid.price).toLocaleString()}
                       </span>
                     </div>
-                    <span className="px-2.5 py-1 rounded-xl text-[11px] font-extrabold border bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 shadow-xs">
-                      Provider Quote
-                    </span>
                   </div>
                 </div>
 
-                {/* Row 2: Message / Proposal Strip */}
-                {bid.message && (
-                  <div className={`mt-3 px-3.5 py-2.5 rounded-xl border flex items-start gap-2 text-xs leading-relaxed ${
-                    isDark ? 'bg-[#181714] border-neutral-850' : 'bg-slate-50 border-slate-200/80'
-                  }`}>
-                    <MessageSquare className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                    <span className="font-semibold text-slate-400 dark:text-neutral-500 shrink-0">Proposal:</span>
-                    <span className={`italic font-medium ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>
-                      "{bid.message}"
-                    </span>
-                  </div>
-                )}
-
-                {/* Row 3: Action Buttons Footer */}
-                <div className={`mt-3 pt-3 border-t flex items-center justify-between gap-3 ${
-                  isDark ? 'border-neutral-850/80' : 'border-slate-100'
+                {/* Row 2: Proposal Message Body */}
+                <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed mt-3 ${
+                  isDark 
+                    ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9]' 
+                    : 'bg-slate-50 border-slate-200 text-slate-700'
                 }`}>
-                  <span className="text-[11px] font-medium text-slate-400 dark:text-neutral-500 hidden sm:inline">
-                    Accepting awards the job and initiates payment setup.
-                  </span>
+                  <p className="whitespace-pre-wrap">{bid.message}</p>
+                </div>
 
-                  <div className="flex items-center gap-2 ml-auto">
+                {/* Row 3: Action Buttons */}
+                <div className={`flex items-center justify-between pt-3 mt-3 border-t ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+                  <button
+                    type="button"
+                    onClick={() => { /* Placeholder for handleStartChat */ }}
+                    className={`text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                      isDark ? 'text-[#b4b0a9] hover:text-orange-400' : 'text-slate-500 hover:text-orange-600'
+                    }`}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Message Provider</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       disabled={!!loadingBidId}
                       onClick={() => handleDeclineBid(bid.id)}
-                      className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all flex items-center gap-1 cursor-pointer ${
+                      className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
                         loadingBidId === bid.id && loadingAction === 'declining'
                           ? 'bg-neutral-800 border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                          : isDark 
-                            ? 'border-neutral-800 hover:bg-red-955/30 hover:text-red-400 hover:border-red-900/40 text-[#b4b0a9]' 
-                            : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-600'
+                          : isDark
+                            ? 'border-neutral-800 hover:bg-neutral-800 text-red-400'
+                            : 'border-slate-200 hover:bg-red-50 text-red-600'
                       }`}
                     >
                       {loadingBidId === bid.id && loadingAction === 'declining' ? (
@@ -359,7 +357,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                       className={`px-4 sm:px-5 py-1.5 font-extrabold text-xs rounded-xl shadow-xs transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
                         loadingBidId === bid.id && loadingAction === 'accepting'
                           ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                          : 'bg-orange-600 hover:bg-orange-700 text-white'
                       }`}
                     >
                       {loadingBidId === bid.id && loadingAction === 'accepting' ? (

@@ -15,6 +15,7 @@ import { apiJoinWaitlist } from '../../api/bookings.api';
 import { useToast } from '../ui/Toast';
 import EmptyState from '../ui/EmptyState';
 import { ServiceListingSkeleton } from '../ui/SkeletonCard';
+import SuggestCategoryModal from './SuggestCategoryModal';
 
 export default function SeekServices() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function SeekServices() {
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
   const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
+  const [isSuggestModalOpen, setIsSuggestModalOpen] = useState<boolean>(false);
 
   // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
@@ -307,26 +309,53 @@ export default function SeekServices() {
       {isLoading ? (
         <ServiceListingSkeleton count={6} />
       ) : filteredServices.length === 0 ? (
-        <EmptyState
-          icon={Search}
-          title="No Services Found"
-          description={
-            searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'
-              ? `No services matched your current filters ("${searchQuery || selectedCategory}"). Try adjusting your search keywords or clearing your category filters.`
-              : 'There are currently no active service listings published in Cordova. Check back soon or post a custom service request!'
-          }
-          actionLabel={searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all' ? 'Clear All Filters' : 'Post a Custom Request'}
-          onAction={() => {
-            if (searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all') {
-              setSearchQuery('');
-              setSelectedCategory('All Categories');
-              setActiveFilter('all');
-            } else {
-              router.push('/seeker/request-manager');
+        <div className="space-y-4">
+          <EmptyState
+            icon={Search}
+            title="No Services Found"
+            description={
+              searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'
+                ? `No services matched your current filters ("${searchQuery || selectedCategory}"). Try adjusting your search keywords or clearing your category filters.`
+                : 'There are currently no active service listings published in Cordova. Check back soon or post a custom service request!'
             }
-          }}
-          accentColor="orange"
-        />
+            actionLabel={searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all' ? 'Clear All Filters' : 'Post a Custom Request'}
+            onAction={() => {
+              if (searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all') {
+                setSearchQuery('');
+                setSelectedCategory('All Categories');
+                setActiveFilter('all');
+              } else {
+                router.push('/seeker/post-request');
+              }
+            }}
+            accentColor="orange"
+          />
+
+          {/* Contextual Category Suggestion Prompt */}
+          <div
+            className={`p-4 rounded-2xl border text-center flex flex-col sm:flex-row items-center justify-between gap-3 transition-colors ${
+              isDark
+                ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300'
+                : 'bg-slate-50 border-slate-200 text-slate-700'
+            }`}
+          >
+            <div className="text-left text-xs">
+              <span className="font-extrabold block text-slate-900 dark:text-[#f2efe9]">
+                Can't find what you're looking for?
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-[#b4b0a9]">
+                Suggest a new service category for Cordova, and we will source local providers.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsSuggestModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs transition-all shadow-sm active:scale-95 flex-shrink-0 cursor-pointer"
+            >
+              + Suggest a Category
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -567,7 +596,7 @@ export default function SeekServices() {
                         <button
                           type="button"
                           onClick={() => router.push(`/seeker/seeker-activity?tab=all&booking=${activeEngagement.id}`)}
-                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                          className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
                         >
                           <Clock className="w-3.5 h-3.5" />
                           <span>
@@ -578,7 +607,7 @@ export default function SeekServices() {
                              'Active Booking — View Activity'}
                           </span>
                         </button>
-                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-emerald-400/90' : 'text-emerald-600'}`}>
+                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-orange-400/90' : 'text-orange-600'}`}>
                           You have an active booking for this service.
                         </p>
                       </div>
@@ -661,6 +690,13 @@ export default function SeekServices() {
       <TransactionBlockedModal
         isOpen={blockedModalOpen}
         onClose={() => setBlockedModalOpen(false)}
+      />
+
+      {/* Suggest Category Modal */}
+      <SuggestCategoryModal
+        isOpen={isSuggestModalOpen}
+        onClose={() => setIsSuggestModalOpen(false)}
+        initialQuery={searchQuery}
       />
 
     </div>
