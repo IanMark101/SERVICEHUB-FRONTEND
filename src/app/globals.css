@@ -3,22 +3,34 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-orange-50: #faf5f2;
+  --color-orange-100: #f5ebe6;
+  --color-orange-200: #ecd9d0;
+  --color-orange-300: #dec0b3;
+  --color-orange-400: #d49b86;
+  --color-orange-500: #d97757;
+  --color-orange-600: #c86544;
+  --color-orange-700: #aa5032;
+  --color-orange-800: #8b3e25;
+  --color-orange-900: #6d2e1a;
+  --color-orange-950: #3d160b;
+
   --color-claude-50: #fdfbfa;
   --color-claude-100: #f9f6f0;
   --color-claude-200: #f1ebd9;
   --color-claude-300: #e2d7be;
-  --color-claude-400: #cca972;
-  --color-claude-500: #d97706;
-  --color-claude-600: #b45309;
-  --color-claude-700: #78350f;
-  --color-claude-800: #451a03;
-  --color-claude-900: #270f02;
+  --color-claude-400: #d49b86;
+  --color-claude-500: #d97757;
+  --color-claude-600: #c86544;
+  --color-claude-700: #aa5032;
+  --color-claude-800: #8b3e25;
+  --color-claude-900: #6d2e1a;
   --color-claude-cream: #fbfaf7;
   --color-claude-paper: #f7f4ed;
 
-  --color-seeker-light: #fff7ed;
-  --color-seeker-primary: #ea580c;
-  --color-seeker-hover: #c2410c;
+  --color-seeker-light: #faf5f2;
+  --color-seeker-primary: #c86544;
+  --color-seeker-hover: #aa5032;
 
   --color-provider-light: #ecfdf5;
   --color-provider-primary: #059669;
@@ -35,12 +47,12 @@
   --font-serif: var(--font-serif), 'Playfair Display', Georgia, serif;
 }
 
-/* Global Scrollbar Definitions — Signature Orange Thumb (#FF5A1F), Theme-adaptive Track */
+/* Global Scrollbar Definitions — Signature Claude Terracotta Thumb (#D97757), Theme-adaptive Track */
 *,
 html,
 body,
 :root {
-  scrollbar-color: #FF5A1F #fbfaf7;
+  scrollbar-color: #D97757 #fbfaf7;
 }
 
 html.dark,
@@ -48,7 +60,7 @@ body.dark,
 :root.dark,
 .dark,
 .dark * {
-  scrollbar-color: #FF5A1F #191919 !important;
+  scrollbar-color: #D97757 #191919 !important;
 }
 
 ::-webkit-scrollbar,
@@ -84,7 +96,7 @@ html.dark::-webkit-scrollbar-corner,
   background: #191919 !important;
 }
 
-/* Scrollbar Thumb — Signature Orange (#FF5A1F) for all pages including landing & register right side panel */
+/* Scrollbar Thumb — Signature Claude Terracotta (#D97757) */
 ::-webkit-scrollbar-thumb,
 *::-webkit-scrollbar-thumb,
 .dark ::-webkit-scrollbar-thumb,
@@ -92,7 +104,7 @@ html.dark::-webkit-scrollbar-corner,
 html.dark ::-webkit-scrollbar-thumb,
 html.dark::-webkit-scrollbar-thumb,
 .dark *::-webkit-scrollbar-thumb {
-  background: #FF5A1F !important;
+  background: #D97757 !important;
   border-radius: 9999px !important;
 }
 
@@ -103,7 +115,7 @@ html.dark::-webkit-scrollbar-thumb,
 html.dark ::-webkit-scrollbar-thumb:hover,
 html.dark::-webkit-scrollbar-thumb:hover,
 .dark *::-webkit-scrollbar-thumb:hover {
-  background: #e04f1a !important;
+  background: #C86544 !important;
 }
 
 /* Provider Workspace scrollbar accent (Green/Emerald) */
