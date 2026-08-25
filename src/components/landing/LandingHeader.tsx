@@ -115,7 +115,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
 
           <button
             onClick={() => router.push('/register')}
-            className="font-bold text-xs py-2.5 px-5 rounded-xl transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer bg-[#FF5A1F] hover:bg-[#e04f1a] text-white"
+            className="font-bold text-xs py-2.5 px-5 rounded-xl transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer bg-orange-600 hover:bg-orange-700 text-white"
           >
             Sign Up
           </button>
@@ -186,7 +186,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
               </button>
               <button
                 onClick={() => { router.push('/register'); setMobileOpen(false); }}
-                className="flex-1 font-bold text-xs py-3 px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#e04f1a] text-white transition-all duration-200 cursor-pointer"
+                className="flex-1 font-bold text-xs py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white transition-all duration-200 cursor-pointer"
               >
                 Sign Up
               </button>

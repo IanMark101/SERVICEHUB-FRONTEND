@@ -98,7 +98,7 @@ export default function SignupForm({
         {/* Dynamic Progress Indicator */}
         <div className="w-full flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
           <span>Registration Progress</span>
-          <span className="text-[#FF5A1F] font-extrabold">Step {step} of 3</span>
+          <span className="text-orange-600 dark:text-orange-400 font-extrabold">Step {step} of 3</span>
         </div>
 
         {/* Stepper cards container */}
@@ -112,14 +112,14 @@ export default function SignupForm({
               key={item.s}
               className={`border rounded-xl p-3 transition-all duration-300 cursor-default shadow-sm flex flex-col items-center text-center ${
                 step === item.s
-                  ? 'bg-white dark:bg-[#202022] border-[#FF5A1F]/50 dark:border-[#FF5A1F]/50 ring-1 ring-[#FF5A1F]/30 scale-[1.01]'
+                  ? 'bg-white dark:bg-[#202022] border-orange-500/50 dark:border-orange-500/50 ring-1 ring-orange-500/30 scale-[1.01]'
                   : 'bg-white/40 dark:bg-[#151517]/40 border-slate-200 dark:border-slate-800/80 opacity-75'
               }`}
             >
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mb-1.5 border shadow-inner mx-auto ${
                   step === item.s
-                    ? 'bg-[#FF5A1F] text-white border-[#FF5A1F]'
+                    ? 'bg-orange-600 text-white border-orange-600'
                     : 'bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-slate-400 border-slate-255 dark:border-slate-700'
                 }`}
               >
@@ -239,15 +239,15 @@ export default function SignupForm({
                 id="agreeTerms"
                 type="checkbox"
                 {...register('agreeTerms')}
-                className="h-4 w-4 text-[#FF5A1F] border-slate-300 dark:border-slate-800 rounded focus:ring-[#FF5A1F]/30 bg-white dark:bg-[#0c0c0e] cursor-pointer flex-shrink-0"
+                className="h-4 w-4 text-orange-600 border-slate-300 dark:border-slate-800 rounded focus:ring-orange-500/30 bg-white dark:bg-[#0c0c0e] cursor-pointer flex-shrink-0"
               />
               <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-500 dark:text-[#b4b0a9] select-none cursor-pointer leading-none">
                 I agree to the{' '}
-                <Link href="/terms" target="_blank" className="font-bold text-[#FF5A1F] hover:text-orange-400 transition-colors">
+                <Link href="/terms" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" target="_blank" className="font-bold text-[#FF5A1F] hover:text-orange-400 transition-colors">
+                <Link href="/privacy" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
                   Privacy Policy
                 </Link>.
               </label>
@@ -272,7 +272,7 @@ export default function SignupForm({
               </label>
               <select
                 {...register('location')}
-                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all cursor-pointer"
               >
                 <option value="Alegria, Cordova">Alegria</option>
                 <option value="Bangbang, Cordova">Bangbang</option>
@@ -318,7 +318,7 @@ export default function SignupForm({
                   <img
                     src={formData.avatarUrl || avatars[0]}
                     alt="Selected Profile"
-                    className="w-14 h-14 rounded-2xl object-cover border-2 border-[#FF5A1F] shadow-sm transition-transform duration-200 group-hover/avatar:scale-105"
+                    className="w-14 h-14 rounded-2xl object-cover border-2 border-orange-500 shadow-sm transition-transform duration-200 group-hover/avatar:scale-105"
                   />
                   <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity text-white">
                     <Camera size={18} />
@@ -331,16 +331,16 @@ export default function SignupForm({
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 text-slate-700 dark:text-neutral-200 hover:border-[#FF5A1F] hover:text-[#FF5A1F] transition-all shadow-sm active:scale-95"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 text-slate-700 dark:text-neutral-200 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400 transition-all shadow-sm active:scale-95"
                     >
                       {uploading ? (
                         <>
-                          <Loader2 size={13} className="animate-spin text-[#FF5A1F]" />
+                          <Loader2 size={13} className="animate-spin text-orange-500" />
                           <span>Uploading...</span>
                         </>
                       ) : (
                         <>
-                          <Upload size={13} className="text-[#FF5A1F]" />
+                          <Upload size={13} className="text-orange-500" />
                           <span>Upload Photo</span>
                         </>
                       )}
@@ -383,7 +383,7 @@ export default function SignupForm({
                       onClick={() => handleAvatarSelect(url)}
                       className={`relative aspect-square rounded-2xl p-1 border-2 transition-all duration-200 hover:scale-105 cursor-pointer flex items-center justify-center ${
                         isSelected
-                          ? 'border-[#FF5A1F] bg-orange-50/50 dark:bg-orange-950/20 shadow-md ring-2 ring-[#FF5A1F]/30 scale-105'
+                          ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/20 shadow-md ring-2 ring-orange-500/30 scale-105'
                           : 'border-slate-200 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-900 opacity-75 hover:opacity-100 hover:border-slate-300'
                       }`}
                       title={`Animated Avatar #${idx + 1}`}
@@ -394,7 +394,7 @@ export default function SignupForm({
                         className="w-full h-full object-cover rounded-xl"
                       />
                       {isSelected && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#FF5A1F] text-white flex items-center justify-center text-[9px] shadow-sm">
+                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-600 text-white flex items-center justify-center text-[9px] shadow-sm">
                           ✓
                         </span>
                       )}
@@ -412,7 +412,7 @@ export default function SignupForm({
                 rows={3}
                 placeholder="Tell the community a little about yourself, skills, or what you need..."
                 {...register('bio')}
-                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 resize-none transition-all"
+                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 resize-none transition-all"
               />
             </div>
           </div>
@@ -438,7 +438,7 @@ export default function SignupForm({
             className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all ${
               (step < 3 && isNextDisabled)
                 ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                : 'bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white cursor-pointer'
+                : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white cursor-pointer'
             }`}
           >
             {step === 3 ? 'Sign Up' : 'Next Step'}
@@ -481,7 +481,7 @@ export default function SignupForm({
         <button
           type="button"
           onClick={toggleMode}
-          className="font-bold text-[#FF5A1F] hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
         >
           Log in
         </button>

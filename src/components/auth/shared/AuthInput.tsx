@@ -46,7 +46,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
           onChange={onChange}
           onBlur={onBlur}
           required={required}
-          className={`w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#FF5A1F] focus:ring-1 focus:ring-[#FF5A1F]/30 transition-all ${
+          className={`w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all ${
             children ? 'pr-10' : ''
           } ${className}`}
         />

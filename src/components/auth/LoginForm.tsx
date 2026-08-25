@@ -63,7 +63,7 @@ export default function LoginForm({
             <button
               type="button"
               onClick={() => setMode('forgot')}
-              className="text-xs font-bold text-[#FF5A1F] hover:text-orange-400 transition-colors focus:outline-none cursor-pointer"
+              className="text-xs font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors focus:outline-none cursor-pointer"
             >
               Forgot password?
             </button>
@@ -89,7 +89,7 @@ export default function LoginForm({
         <div className="pt-1.5">
           <button
             type="submit"
-            className="w-full py-2.5 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
+            className="w-full py-2.5 bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
           >
             Sign In
           </button>
@@ -124,7 +124,7 @@ export default function LoginForm({
         <button
           type="button"
           onClick={toggleMode}
-          className="font-bold text-[#FF5A1F] hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
         >
           Register here
         </button>

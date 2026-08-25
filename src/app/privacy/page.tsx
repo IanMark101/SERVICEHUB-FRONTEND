@@ -9,7 +9,7 @@ export default function PrivacyPage() {
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-orange-500/10 dark:bg-orange-500/20 blur-[100px] pointer-events-none" />
 
       <div className="w-full max-w-md bg-white dark:bg-[#191919] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-8 text-center shadow-lg relative z-10 transition-all duration-300">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-500/10 text-[#FF5A1F] mb-6">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 mb-6">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
 
         <Link
           href="/register"
-          className="inline-block px-6 py-2.5 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
+          className="inline-block px-6 py-2.5 bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
         >
           Back to Sign Up
         </Link>

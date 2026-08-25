@@ -136,7 +136,7 @@ export default function RegistrationSuccess({ email, onGoToLogin }: Registration
         <button
           type="button"
           onClick={onGoToLogin}
-          className="w-full py-3 bg-[#FF5A1F] hover:bg-[#e04f1a] active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 cursor-pointer"
+          className="w-full py-3 bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 cursor-pointer"
         >
           <span>Go to Login</span>
           <ArrowRight className="w-4 h-4" />

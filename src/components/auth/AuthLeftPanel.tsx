@@ -73,19 +73,19 @@ export default function AuthLeftPanel({
         {mode === 'signup' && (
           <div className="flex flex-col items-start space-y-3 mx-auto mb-8 text-left text-xs text-slate-500 dark:text-[#b4b0a9] bg-white/40 dark:bg-slate-900/30 backdrop-blur-sm border border-slate-200 dark:border-slate-850 rounded-2xl p-5 shadow-sm max-w-md">
             <div className="flex items-start space-x-2">
-              <span className="text-[#FF5A1F] font-bold">✓</span>
+              <span className="text-orange-600 dark:text-orange-400 font-bold">✓</span>
               <div>
                 <strong className="text-slate-700 dark:text-slate-200">One Account</strong> — Switch between Seeker and Provider anytime.
               </div>
             </div>
             <div className="flex items-start space-x-2">
-              <span className="text-[#FF5A1F] font-bold">✓</span>
+              <span className="text-orange-600 dark:text-orange-400 font-bold">✓</span>
               <div>
                 <strong className="text-slate-700 dark:text-slate-200">Verified Community</strong> — Built exclusively for Cordova residents.
               </div>
             </div>
             <div className="flex items-start space-x-2">
-              <span className="text-[#FF5A1F] font-bold">✓</span>
+              <span className="text-orange-600 dark:text-orange-400 font-bold">✓</span>
               <div>
                 <strong className="text-slate-700 dark:text-slate-200">Safe Transactions</strong> — Resident verification and trust score system.
               </div>
