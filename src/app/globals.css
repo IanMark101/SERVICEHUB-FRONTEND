@@ -116,7 +116,7 @@ html,
 body,
 :root {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 html.dark,
@@ -124,7 +124,7 @@ body.dark,
 :root.dark,
 .dark,
 .dark * {
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
+  scrollbar-color: #3f3e3a transparent !important;
 }
 
 ::-webkit-scrollbar,
@@ -143,25 +143,26 @@ body.dark,
   background: transparent !important;
 }
 
-/* Translucent Floating Pill Thumb */
+/* Translucent Floating Pill Thumb - Clean Neutral (Light Mode) */
 ::-webkit-scrollbar-thumb,
 *::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.18) !important;
+  background: #cbd5e1 !important;
   border-radius: 9999px !important;
   transition: background-color 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover,
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.35) !important;
+  background: #94a3b8 !important;
 }
 
+/* Translucent Floating Pill Thumb - Clean Neutral (Dark Mode) */
 .dark ::-webkit-scrollbar-thumb,
 .dark::-webkit-scrollbar-thumb,
 html.dark ::-webkit-scrollbar-thumb,
 html.dark::-webkit-scrollbar-thumb,
 .dark *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18) !important;
+  background: #3f3e3a !important;
   border-radius: 9999px !important;
 }
 
@@ -170,7 +171,7 @@ html.dark::-webkit-scrollbar-thumb,
 html.dark ::-webkit-scrollbar-thumb:hover,
 html.dark::-webkit-scrollbar-thumb:hover,
 .dark *::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.35) !important;
+  background: #575550 !important;
 }
 
 @layer base {
