@@ -124,7 +124,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
     <div style={{ background: cardBg, border: `1px solid ${border}`, borderRadius: '24px', padding: '24px', maxWidth: '600px', width: '100%', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-        <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '14px', padding: '10px', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '14px', padding: '10px', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Shield size={22} />
         </div>
         <div>
@@ -259,7 +259,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                         onClick={() => fileInputRefs.current[i]?.click()}
                         style={{ border: `2px dashed ${isDark ? '#3a3730' : '#cbd5e1'}`, borderRadius: '14px', padding: '20px', textAlign: 'center', cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.015)' : '#ffffff', transition: 'all 0.2s' }}
                       >
-                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: isDark ? '#2a2927' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: isDark ? '#10b981' : '#059669' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: isDark ? '#2a2927' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: isDark ? '#f2efe9' : '#1e293b' }}>
                           <Camera size={22} />
                         </div>
                         <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: textPrimary }}>
@@ -303,14 +303,14 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
             <button
               type="button"
               onClick={addRow}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#10b981', background: 'none', border: 'none', cursor: 'pointer', padding: '10px 0 0', marginTop: '4px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: isDark ? '#f2efe9' : '#1e293b', background: 'none', border: 'none', cursor: 'pointer', padding: '10px 0 0', marginTop: '4px' }}
             >
               <Plus size={16} />
               <span>Add another document photo</span>
             </button>
           </div>
 
-          {/* Submit Action Button */}
+          {/* Submit Action Button - Clean High-Contrast Monochrome */}
           <button
             onClick={handleSubmit}
             disabled={submitting}
@@ -318,13 +318,13 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
               width: '100%',
               padding: '13px',
               borderRadius: '14px',
-              background: submitting ? '#4b5563' : 'linear-gradient(135deg, #10b981, #059669)',
+              background: submitting ? (isDark ? '#3a3835' : '#cbd5e1') : (isDark ? '#ffffff' : '#0f172a'),
               border: 'none',
-              color: '#fff',
+              color: submitting ? (isDark ? '#8a8780' : '#64748b') : (isDark ? '#0a0a0a' : '#ffffff'),
               fontWeight: 800,
               fontSize: '13.5px',
               cursor: submitting ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 12px rgba(16,185,129,0.3)',
+              boxShadow: isDark ? '0 4px 14px rgba(255,255,255,0.08)' : '0 4px 14px rgba(15,23,42,0.15)',
               transition: 'all 0.2s',
             }}
           >
