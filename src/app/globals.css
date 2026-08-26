@@ -110,12 +110,13 @@
   --tw-ring-color: #d97757 !important;
 }
 
-/* Global Scrollbar Definitions — Signature Claude Terracotta Thumb (#D97757), Theme-adaptive Track */
+/* ── Industry-Standard Minimalist Floating Scrollbar (Apple / Linear / Stripe style) ── */
 *,
 html,
 body,
 :root {
-  scrollbar-color: #D97757 #fbfaf7;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 html.dark,
@@ -123,152 +124,53 @@ body.dark,
 :root.dark,
 .dark,
 .dark * {
-  scrollbar-color: #D97757 #191919 !important;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent !important;
 }
 
 ::-webkit-scrollbar,
 *::-webkit-scrollbar {
-  width: 8px !important;
-  height: 8px !important;
+  width: 6px !important;
+  height: 6px !important;
 }
 
 ::-webkit-scrollbar-track,
 *::-webkit-scrollbar-track {
-  background: #fbfaf7 !important;
-}
-
-.dark ::-webkit-scrollbar-track,
-.dark::-webkit-scrollbar-track,
-html.dark ::-webkit-scrollbar-track,
-html.dark::-webkit-scrollbar-track,
-.dark *::-webkit-scrollbar-track,
-html.dark *::-webkit-scrollbar-track {
-  background: #191919 !important;
+  background: transparent !important;
 }
 
 ::-webkit-scrollbar-corner,
 *::-webkit-scrollbar-corner {
-  background: #fbfaf7 !important;
+  background: transparent !important;
 }
 
-.dark ::-webkit-scrollbar-corner,
-.dark::-webkit-scrollbar-corner,
-html.dark ::-webkit-scrollbar-corner,
-html.dark::-webkit-scrollbar-corner,
-.dark *::-webkit-scrollbar-corner {
-  background: #191919 !important;
-}
-
-/* Scrollbar Thumb — Signature Claude Terracotta (#D97757) */
+/* Translucent Floating Pill Thumb */
 ::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18) !important;
+  border-radius: 9999px !important;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35) !important;
+}
+
 .dark ::-webkit-scrollbar-thumb,
 .dark::-webkit-scrollbar-thumb,
 html.dark ::-webkit-scrollbar-thumb,
 html.dark::-webkit-scrollbar-thumb,
 .dark *::-webkit-scrollbar-thumb {
-  background: #D97757 !important;
+  background: rgba(255, 255, 255, 0.18) !important;
   border-radius: 9999px !important;
 }
 
-::-webkit-scrollbar-thumb:hover,
-*::-webkit-scrollbar-thumb:hover,
 .dark ::-webkit-scrollbar-thumb:hover,
 .dark::-webkit-scrollbar-thumb:hover,
 html.dark ::-webkit-scrollbar-thumb:hover,
 html.dark::-webkit-scrollbar-thumb:hover,
 .dark *::-webkit-scrollbar-thumb:hover {
-  background: #C86544 !important;
-}
-
-/* Provider Workspace scrollbar accent (Green/Emerald) */
-html.workspace-provider,
-body.workspace-provider,
-.workspace-provider,
-.workspace-provider * {
-  scrollbar-color: #059669 #fbfaf7 !important;
-}
-
-html.dark.workspace-provider,
-body.dark.workspace-provider,
-.dark .workspace-provider,
-.dark.workspace-provider,
-.dark.workspace-provider * {
-  scrollbar-color: #059669 #191919 !important;
-}
-
-.workspace-provider ::-webkit-scrollbar-thumb,
-.workspace-provider::-webkit-scrollbar-thumb,
-html.workspace-provider ::-webkit-scrollbar-thumb,
-html.workspace-provider::-webkit-scrollbar-thumb,
-.workspace-provider *::-webkit-scrollbar-thumb,
-.dark .workspace-provider ::-webkit-scrollbar-thumb,
-.dark .workspace-provider::-webkit-scrollbar-thumb,
-.dark.workspace-provider ::-webkit-scrollbar-thumb,
-.dark.workspace-provider::-webkit-scrollbar-thumb,
-.dark .workspace-provider *::-webkit-scrollbar-thumb,
-.dark.workspace-provider *::-webkit-scrollbar-thumb {
-  background: #059669 !important;
-  border-radius: 9999px !important;
-}
-
-.workspace-provider ::-webkit-scrollbar-thumb:hover,
-.workspace-provider::-webkit-scrollbar-thumb:hover,
-html.workspace-provider ::-webkit-scrollbar-thumb:hover,
-html.workspace-provider::-webkit-scrollbar-thumb:hover,
-.workspace-provider *::-webkit-scrollbar-thumb:hover,
-.dark .workspace-provider ::-webkit-scrollbar-thumb:hover,
-.dark .workspace-provider::-webkit-scrollbar-thumb:hover,
-.dark.workspace-provider ::-webkit-scrollbar-thumb:hover,
-.dark.workspace-provider::-webkit-scrollbar-thumb:hover,
-.dark .workspace-provider *::-webkit-scrollbar-thumb:hover,
-.dark.workspace-provider *::-webkit-scrollbar-thumb:hover {
-  background: #047857 !important;
-}
-
-/* Admin Workspace scrollbar accent (Red) */
-html.workspace-admin,
-body.workspace-admin,
-.workspace-admin,
-.workspace-admin * {
-  scrollbar-color: #dc2626 #fbfaf7 !important;
-}
-
-html.dark.workspace-admin,
-body.dark.workspace-admin,
-.dark .workspace-admin,
-.dark.workspace-admin,
-.dark.workspace-admin * {
-  scrollbar-color: #dc2626 #191919 !important;
-}
-
-.workspace-admin ::-webkit-scrollbar-thumb,
-.workspace-admin::-webkit-scrollbar-thumb,
-html.workspace-admin ::-webkit-scrollbar-thumb,
-html.workspace-admin::-webkit-scrollbar-thumb,
-.workspace-admin *::-webkit-scrollbar-thumb,
-.dark .workspace-admin ::-webkit-scrollbar-thumb,
-.dark .workspace-admin::-webkit-scrollbar-thumb,
-.dark.workspace-admin ::-webkit-scrollbar-thumb,
-.dark.workspace-admin::-webkit-scrollbar-thumb,
-.dark .workspace-admin *::-webkit-scrollbar-thumb,
-.dark.workspace-admin *::-webkit-scrollbar-thumb {
-  background: #dc2626 !important;
-  border-radius: 9999px !important;
-}
-
-.workspace-admin ::-webkit-scrollbar-thumb:hover,
-.workspace-admin::-webkit-scrollbar-thumb:hover,
-html.workspace-admin ::-webkit-scrollbar-thumb:hover,
-html.workspace-admin::-webkit-scrollbar-thumb:hover,
-.workspace-admin *::-webkit-scrollbar-thumb:hover,
-.dark .workspace-admin ::-webkit-scrollbar-thumb:hover,
-.dark .workspace-admin::-webkit-scrollbar-thumb:hover,
-.dark.workspace-admin ::-webkit-scrollbar-thumb:hover,
-.dark.workspace-admin::-webkit-scrollbar-thumb:hover,
-.dark .workspace-admin *::-webkit-scrollbar-thumb:hover,
-.dark.workspace-admin *::-webkit-scrollbar-thumb:hover {
-  background: #b91c1c !important;
+  background: rgba(255, 255, 255, 0.35) !important;
 }
 
 @layer base {
