@@ -8,7 +8,7 @@ interface RegistrationSuccessProps {
 }
 
 export default function RegistrationSuccess({ email, onGoToLogin }: RegistrationSuccessProps) {
-  const [cooldown, setCooldown] = useState<number>(0);
+  const [cooldown, setCooldown] = useState<number>(60);
   const [resendStatus, setResendStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function RegistrationSuccess({ email, onGoToLogin }: Registration
       if (err.response?.status === 429) {
         setResendStatus({
           type: 'error',
-          message: 'Too many requests. Please wait before trying again.',
+          message: err.response?.data?.error || 'Please wait 60 seconds before requesting another verification email.',
         });
         setCooldown(60); // Sync frontend with backend limit
       } else {
