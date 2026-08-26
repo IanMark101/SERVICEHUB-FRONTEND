@@ -34,6 +34,7 @@ export default function useAuthForm({
   const [error, setError] = useState<string>('');
   const [successMsg, setSuccessMsg] = useState<string>('');
   const [isRegisterSuccess, setIsRegisterSuccess] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
     register,
@@ -219,6 +220,7 @@ export default function useAuthForm({
         return;
       }
 
+      setIsLoading(true);
       apiLogin({ email: formData.email, password: formData.password })
         .then((res) => {
           if (res.success) {
@@ -246,6 +248,9 @@ export default function useAuthForm({
         })
         .catch((err) => {
           setError(err.response?.data?.error || 'Invalid email or password');
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     } else {
       if (step < 3) {
@@ -262,6 +267,7 @@ export default function useAuthForm({
         }
       }
 
+      setIsLoading(true);
       apiRegister({
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
@@ -286,6 +292,9 @@ export default function useAuthForm({
           } else {
             setError(err.response?.data?.error || 'Registration failed');
           }
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
   };
@@ -319,5 +328,6 @@ export default function useAuthForm({
     handlePrevStep,
     handleGoogleSuccessResponse,
     handleSubmit,
+    isLoading,
   };
 }

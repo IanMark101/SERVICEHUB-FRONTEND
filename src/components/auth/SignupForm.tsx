@@ -23,6 +23,7 @@ interface SignupFormProps {
   accentBg: string;
   toggleMode: () => void;
   register: any;
+  isLoading?: boolean;
 }
 
 export default function SignupForm({
@@ -42,6 +43,7 @@ export default function SignupForm({
   accentBg,
   toggleMode,
   register,
+  isLoading = false,
 }: SignupFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -434,14 +436,21 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            disabled={step < 3 ? isNextDisabled : false}
-            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all ${
-              (step < 3 && isNextDisabled)
+            disabled={isLoading || (step < 3 ? isNextDisabled : false)}
+            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 ${
+              (isLoading || (step < 3 && isNextDisabled))
                 ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
                 : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white cursor-pointer'
             }`}
           >
-            {step === 3 ? 'Sign Up' : 'Next Step'}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Creating Account...</span>
+              </>
+            ) : (
+              <span>{step === 3 ? 'Sign Up' : 'Next Step'}</span>
+            )}
           </button>
         </div>
       </form>

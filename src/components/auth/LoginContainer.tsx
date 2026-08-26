@@ -63,6 +63,7 @@ export default function LoginContainer({
     register,
     handleGoogleSuccessResponse,
     handleSubmit,
+    isLoading,
   } = useAuthForm({
     onLoginSuccess,
     mode,
@@ -123,6 +124,7 @@ export default function LoginContainer({
             setMode={setMode}
             toggleMode={toggleMode}
             register={register}
+            isLoading={isLoading}
           />
         )}
 

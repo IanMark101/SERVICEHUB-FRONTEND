@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import AuthInput from './shared/AuthInput';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 
@@ -16,6 +16,7 @@ interface LoginFormProps {
   setMode: (mode: 'login' | 'signup' | 'forgot' | 'reset') => void;
   toggleMode: () => void;
   register: any;
+  isLoading?: boolean;
 }
 
 export default function LoginForm({
@@ -31,6 +32,7 @@ export default function LoginForm({
   setMode,
   toggleMode,
   register,
+  isLoading = false,
 }: LoginFormProps) {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -89,9 +91,21 @@ export default function LoginForm({
         <div className="pt-1.5">
           <button
             type="submit"
-            className="w-full py-2.5 bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white rounded-lg font-bold text-sm shadow-sm transition-all cursor-pointer"
+            disabled={isLoading}
+            className={`w-full py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 ${
+              isLoading
+                ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white cursor-pointer'
+            }`}
           >
-            Sign In
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Signing In...</span>
+              </>
+            ) : (
+              <span>Sign In</span>
+            )}
           </button>
         </div>
       </form>

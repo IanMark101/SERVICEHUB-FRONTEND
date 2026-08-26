@@ -38,6 +38,7 @@ export default function RegisterContainer({
     handleNextStep,
     handleGoogleSuccessResponse,
     handleSubmit,
+    isLoading,
   } = useAuthForm({
     onLoginSuccess,
     mode,
@@ -107,6 +108,7 @@ export default function RegisterContainer({
               accentBg={accentBg}
               toggleMode={toggleMode}
               register={register}
+              isLoading={isLoading}
             />
           )}
         </div>
