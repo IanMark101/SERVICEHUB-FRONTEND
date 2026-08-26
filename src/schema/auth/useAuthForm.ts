@@ -329,5 +329,6 @@ export default function useAuthForm({
     handleGoogleSuccessResponse,
     handleSubmit,
     isLoading,
+    setValue,
   };
 }

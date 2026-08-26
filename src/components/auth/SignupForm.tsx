@@ -6,6 +6,25 @@ import GoogleSignInButton from './shared/GoogleSignInButton';
 import { avatars } from '../../schema/auth/useAuthForm';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 
+// High-fidelity Philippine Flag SVG for cross-platform rendering (Windows/macOS/mobile)
+function PhilippineFlag({ className = "w-5 h-3.5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 600 300" className={`rounded-[2px] shadow-xs object-cover flex-shrink-0 ${className}`}>
+      <rect width="600" height="150" fill="#0038A8" />
+      <rect y="150" width="600" height="150" fill="#CE1126" />
+      <polygon points="0,0 259.8,150 0,300" fill="#FFFFFF" />
+      <circle cx="86.6" cy="150" r="28" fill="#FCD116" />
+      <polygon points="86.6,105 91,140 82.2,140" fill="#FCD116" />
+      <polygon points="86.6,195 91,160 82.2,160" fill="#FCD116" />
+      <polygon points="41.6,150 76.6,154.4 76.6,145.6" fill="#FCD116" />
+      <polygon points="131.6,150 96.6,154.4 96.6,145.6" fill="#FCD116" />
+      <circle cx="36" cy="48" r="8" fill="#FCD116" />
+      <circle cx="36" cy="252" r="8" fill="#FCD116" />
+      <circle cx="218" cy="150" r="8" fill="#FCD116" />
+    </svg>
+  );
+}
+
 interface SignupFormProps {
   step: number;
   formData: any;
@@ -23,6 +42,7 @@ interface SignupFormProps {
   accentBg: string;
   toggleMode: () => void;
   register: any;
+  setValue: any;
   isLoading?: boolean;
 }
 
@@ -43,6 +63,7 @@ export default function SignupForm({
   accentBg,
   toggleMode,
   register,
+  setValue,
   isLoading = false,
 }: SignupFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -295,22 +316,21 @@ export default function SignupForm({
                   ? 'border-red-500 ring-1 ring-red-500/30'
                   : 'border-slate-300 dark:border-slate-800 focus-within:border-orange-500'
               }`}>
-                {/* PH Country Flag Badge */}
-                <div className="flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100/90 dark:bg-[#1c1b18] border-r border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-[#f2efe9] text-xs font-bold select-none flex-shrink-0">
-                  <span className="text-base leading-none">🇵🇭</span>
+                {/* Philippine Flag Badge with +63 */}
+                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-100/90 dark:bg-[#1c1b18] border-r border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-[#f2efe9] text-xs font-bold select-none flex-shrink-0">
+                  <PhilippineFlag className="w-5 h-3.5 rounded-[2px] shadow-xs" />
                   <span className="font-mono text-xs font-extrabold text-slate-800 dark:text-[#f2efe9] tracking-tight">+63</span>
                 </div>
 
                 {/* Formatted 10-digit Input */}
                 <input
                   type="tel"
+                  autoComplete="tel"
                   placeholder="917 123 4567"
                   value={formData.phone || ''}
                   onChange={(e) => {
                     const formatted = formatPhoneNumber(e.target.value);
-                    register('phone').onChange({
-                      target: { name: 'phone', value: formatted },
-                    });
+                    setValue('phone', formatted, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                   }}
                   onBlur={register('phone').onBlur}
                   name="phone"

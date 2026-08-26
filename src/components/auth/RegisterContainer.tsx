@@ -39,6 +39,7 @@ export default function RegisterContainer({
     handleGoogleSuccessResponse,
     handleSubmit,
     isLoading,
+    setValue,
   } = useAuthForm({
     onLoginSuccess,
     mode,
@@ -108,6 +109,7 @@ export default function RegisterContainer({
               accentBg={accentBg}
               toggleMode={toggleMode}
               register={register}
+              setValue={setValue}
               isLoading={isLoading}
             />
           )}
