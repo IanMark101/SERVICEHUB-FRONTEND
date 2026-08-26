@@ -67,6 +67,17 @@ export default function SignupForm({
     }
   };
 
+  // Helper to format Philippine Phone Numbers: auto-formats digits to '9XX XXX XXXX'
+  const formatPhoneNumber = (raw: string) => {
+    let digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('63')) digits = digits.slice(2);
+    if (digits.startsWith('0')) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+  };
+
   // Compute per-step validity for button state
   const isStep1Valid =
     formData.firstName?.trim().length > 0 &&
@@ -78,9 +89,8 @@ export default function SignupForm({
     formData.confirmPassword === formData.password &&
     formData.agreeTerms === true;
 
-  const isStep2Valid =
-    formData.phone?.trim().length > 0 &&
-    formData.location?.trim().length > 0;
+  const isPhoneValid = (formData.phone?.replace(/\D/g, '') || '').length === 10;
+  const isStep2Valid = isPhoneValid && (formData.location?.trim().length > 0);
 
   const isNextDisabled = (step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid);
 
@@ -260,13 +270,58 @@ export default function SignupForm({
         {/* STEP 2 */}
         {step === 2 && (
           <div className="space-y-4 animate-fade-in">
-            <AuthInput
-              label="Contact Number"
-              type="tel"
-              placeholder="eg. 0917 123 4567 or +63 917 123 4567"
-              error={fieldErrors.phone}
-              {...register('phone')}
-            />
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Contact Number
+              </label>
+              <div className={`flex items-center rounded-xl border bg-white dark:bg-[#0c0c0e] overflow-hidden transition-all focus-within:ring-2 focus-within:ring-orange-500/20 ${
+                fieldErrors.phone
+                  ? 'border-red-500 ring-1 ring-red-500/30'
+                  : 'border-slate-300 dark:border-slate-800 focus-within:border-orange-500'
+              }`}>
+                {/* PH Country Flag Badge */}
+                <div className="flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100/90 dark:bg-[#1c1b18] border-r border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-[#f2efe9] text-xs font-bold select-none flex-shrink-0">
+                  <span className="text-base leading-none">🇵🇭</span>
+                  <span className="font-mono text-xs font-extrabold text-slate-800 dark:text-[#f2efe9] tracking-tight">+63</span>
+                </div>
+
+                {/* Formatted 10-digit Input */}
+                <input
+                  type="tel"
+                  placeholder="917 123 4567"
+                  value={formData.phone || ''}
+                  onChange={(e) => {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    register('phone').onChange({
+                      target: { name: 'phone', value: formatted },
+                    });
+                  }}
+                  onBlur={register('phone').onBlur}
+                  name="phone"
+                  className="w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none tracking-wide font-medium"
+                />
+              </div>
+
+              {/* Helper or Error Message */}
+              <div className="min-h-5 mt-1 flex items-center justify-between text-[11px]">
+                {fieldErrors.phone ? (
+                  <span className="text-red-500 font-semibold animate-in fade-in duration-100">
+                    {fieldErrors.phone}
+                  </span>
+                ) : (
+                  <span className="text-slate-400 dark:text-neutral-500 font-medium">
+                    Philippine mobile number (e.g. 917 123 4567)
+                  </span>
+                )}
+                {formData.phone && (
+                  <span className={`text-[10px] font-mono font-bold ${
+                    isPhoneValid ? 'text-emerald-500' : 'text-slate-400 dark:text-neutral-500'
+                  }`}>
+                    {formData.phone.replace(/\D/g, '').length}/10 digits
+                  </span>
+                )}
+              </div>
+            </div>
 
             <div>
               <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-1.5">
