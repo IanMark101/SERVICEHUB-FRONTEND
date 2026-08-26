@@ -221,7 +221,7 @@ export default function UserProfile({
           }`}
         >
           <ShieldCheck size={15} />
-          <span>Verification</span>
+          <span>{isOwnProfile ? 'Verification' : 'Verification Status'}</span>
           {verStatus === 'APPROVED' && (
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
           )}
@@ -554,15 +554,18 @@ export default function UserProfile({
       )}
 
 
-      {/* TAB 4: VERIFICATION (Residency Verification ONLY) */}
+      {/* TAB 4: VERIFICATION (Residency Verification) */}
       {activeTab === 'verification' && (
         <div className={`${cardBg} rounded-[28px] p-6 sm:p-7 border space-y-6 shadow-sm`}>
           <div className="border-b border-slate-200/80 dark:border-neutral-800 pb-4">
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
-              <ShieldCheck size={18} className="text-emerald-500" /> Residency & Identity Verification
+              <ShieldCheck size={18} className={verStatus === 'APPROVED' ? "text-emerald-500" : "text-amber-500"} />
+              {isOwnProfile ? 'Residency & Identity Verification' : `${displayName}'s Verification Status`}
             </h3>
             <p className={`text-xs ${labelText} mt-0.5`}>
-              Verify your official Cordova residency to unlock trusted provider and seeker status.
+              {isOwnProfile
+                ? 'Verify your official Cordova residency to unlock trusted provider and seeker status.'
+                : `Official identity and Cordova residency credentials for ${displayName}.`}
             </p>
           </div>
 
@@ -577,10 +580,12 @@ export default function UserProfile({
                   APPROVED VERIFIED RESIDENT
                 </span>
                 <h4 className={`text-base font-extrabold ${headingText} pt-2`}>
-                  You are a Verified Resident of Cordova!
+                  {isOwnProfile ? 'You are a Verified Resident of Cordova!' : `${displayName} is a Verified Resident of Cordova!`}
                 </h4>
                 <p className={`text-xs ${labelText} max-w-md mx-auto leading-relaxed`}>
-                  Your PhilSys ID and Barangay Residency documents have been officially reviewed and verified by Cordova Marketplace Administrators.
+                  {isOwnProfile
+                    ? 'Your PhilSys ID and Barangay Residency documents have been officially reviewed and verified by Cordova Marketplace Administrators.'
+                    : `${displayName}'s PhilSys ID and Barangay Residency documents have been officially reviewed and verified by Cordova Marketplace Administrators.`}
                 </p>
               </div>
             </div>
@@ -597,10 +602,12 @@ export default function UserProfile({
                   UNDER REVIEW
                 </span>
                 <h4 className={`text-base font-extrabold ${headingText} pt-2`}>
-                  Verification Documents Submitted
+                  {isOwnProfile ? 'Verification Documents Submitted' : 'Verification Under Review'}
                 </h4>
                 <p className={`text-xs ${labelText} max-w-md mx-auto leading-relaxed`}>
-                  Your document photos are currently being reviewed by Cordova Administrators. Estimated review time: <strong className="text-amber-500">24 – 48 hours</strong>.
+                  {isOwnProfile
+                    ? 'Your document photos are currently being reviewed by Cordova Administrators. Estimated review time: 24 – 48 hours.'
+                    : `${displayName} has submitted residency documents and is currently awaiting administrative review.`}
                 </p>
               </div>
             </div>
@@ -615,36 +622,57 @@ export default function UserProfile({
                 </div>
                 <div className="space-y-1">
                   <span className="px-3 py-1 rounded-full text-xs font-black bg-rose-500/10 text-rose-500 border border-rose-500/20 uppercase tracking-wider">
-                    VERIFICATION REJECTED
+                    {isOwnProfile ? 'VERIFICATION REJECTED' : 'UNVERIFIED RESIDENT'}
                   </span>
                   <h4 className={`text-base font-extrabold ${headingText} pt-2`}>
-                    Document Photo Issues Detected
+                    {isOwnProfile ? 'Document Photo Issues Detected' : 'Residency Verification Incomplete'}
                   </h4>
-                  <p className={`text-xs text-rose-500 max-w-md mx-auto leading-relaxed font-medium`}>
-                    Reason: Uploaded photos were unreadable or incomplete. Please upload a clear photo of your government ID or Barangay certificate.
+                  <p className={`text-xs ${isOwnProfile ? 'text-rose-500 font-medium' : labelText} max-w-md mx-auto leading-relaxed`}>
+                    {isOwnProfile
+                      ? 'Reason: Uploaded photos were unreadable or incomplete. Please upload a clear photo of your government ID or Barangay certificate.'
+                      : `${displayName} has not yet completed Cordova residency verification. Keep all bookings and communication inside ServiceHub for protection.`}
                   </p>
                 </div>
               </div>
 
-              {/* Resubmission Uploader */}
+              {/* Resubmission Uploader ONLY FOR OWN PROFILE */}
               {isOwnProfile && <VerificationUpload isDark={isDark} />}
             </div>
           )}
 
-          {/* 4. UNVERIFIED STATUS */}
-          {(verStatus === 'UNVERIFIED' || verStatus === 'NOT_SUBMITTED') && (
+          {/* 4. UNVERIFIED / NOT SUBMITTED STATUS */}
+          {(verStatus === 'UNVERIFIED' || verStatus === 'NOT_SUBMITTED' || !verStatus) && (
             <div className="space-y-6">
-              <div className={`p-5 rounded-2xl border ${innerBg} space-y-2 text-xs`}>
-                <div className="flex items-center gap-2 font-bold text-amber-500">
-                  <AlertTriangle size={16} /> Residency Verification Requirements:
+              {isOwnProfile ? (
+                <>
+                  <div className={`p-5 rounded-2xl border ${innerBg} space-y-2 text-xs`}>
+                    <div className="flex items-center gap-2 font-bold text-amber-500">
+                      <AlertTriangle size={16} /> Residency Verification Requirements:
+                    </div>
+                    <p className={`${labelText} leading-relaxed`}>
+                      Upload clear photos of official documents (PhilSys ID, Driver's License, Barangay Certificate, or Utility Bill) to verify your Cordova address.
+                    </p>
+                  </div>
+                  <VerificationUpload isDark={isDark} />
+                </>
+              ) : (
+                <div className={`p-6 rounded-2xl border ${innerBg} text-center space-y-3`}>
+                  <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center mx-auto shadow-sm">
+                    <AlertTriangle size={36} />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase tracking-wider">
+                      UNVERIFIED RESIDENT
+                    </span>
+                    <h4 className={`text-base font-extrabold ${headingText} pt-2`}>
+                      Residency Verification Incomplete
+                    </h4>
+                    <p className={`text-xs ${labelText} max-w-md mx-auto leading-relaxed`}>
+                      {displayName} has not yet completed Cordova residency verification. Exercise standard precautions when arranging services, and keep all agreements and payments inside ServiceHub.
+                    </p>
+                  </div>
                 </div>
-                <p className={`${labelText} leading-relaxed`}>
-                  Upload clear photos of official documents (PhilSys ID, Driver's License, Barangay Certificate, or Utility Bill) to verify your Cordova address.
-                </p>
-              </div>
-
-              {/* Document Uploader */}
-              {isOwnProfile && <VerificationUpload isDark={isDark} />}
+              )}
             </div>
           )}
         </div>
