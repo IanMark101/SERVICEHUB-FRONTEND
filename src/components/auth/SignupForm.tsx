@@ -237,13 +237,29 @@ export default function SignupForm({
               </div>
             </div>
 
-            <AuthInput
-              label="Confirm Password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Confirm your password"
-              error={fieldErrors.confirmPassword}
-              {...register('confirmPassword')}
-            />
+            {/* Confirm Password with Live Matching Feedback */}
+            <div className="space-y-1">
+              <AuthInput
+                label="Confirm Password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Confirm your password"
+                error={
+                  fieldErrors.confirmPassword ||
+                  (formData.confirmPassword?.length > 0 && formData.password !== formData.confirmPassword
+                    ? 'Passwords do not match'
+                    : undefined)
+                }
+                {...register('confirmPassword')}
+              />
+
+              {/* Live Match Status Badge */}
+              {formData.confirmPassword?.length > 0 && formData.password === formData.confirmPassword && !fieldErrors.confirmPassword && (
+                <div className="flex items-center space-x-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 px-1 -mt-2 mb-1 animate-in fade-in">
+                  <span>✓</span>
+                  <span>Passwords match</span>
+                </div>
+              )}
+            </div>
 
             {/* Terms of Service agreement checkbox */}
             <div className="flex items-center space-x-2.5 pt-1.5 pb-1 px-1">
@@ -491,11 +507,13 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            disabled={isLoading || (step < 3 ? isNextDisabled : false)}
-            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 ${
-              (isLoading || (step < 3 && isNextDisabled))
+            disabled={isLoading}
+            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+              isLoading
                 ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white cursor-pointer'
+                : (step < 3 && isNextDisabled)
+                  ? 'bg-orange-600/75 dark:bg-orange-700/70 hover:bg-orange-600 text-white shadow-sm'
+                  : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white shadow-md'
             }`}
           >
             {isLoading ? (
