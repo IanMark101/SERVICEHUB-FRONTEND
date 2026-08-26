@@ -116,7 +116,7 @@ export default function OfferServices() {
             <button
               type="button"
               onClick={navigateToVerification}
-              className="bg-emerald-650 hover:bg-emerald-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer animate-none"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer"
             >
               Verify Now
             </button>

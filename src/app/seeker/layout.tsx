@@ -23,6 +23,10 @@ const tabDetails: Record<string, { title: string; desc: string }> = {
     title: 'Incoming Service Offers',
     desc: 'Review price quotes and proposals sent by providers for your posted jobs. Accept an offer to start your project safely.',
   },
+  'request-manager': {
+    title: 'Request Manager',
+    desc: 'Manage your broadcasted job requests. Edit budgets, close completed requests, and view incoming proposals from local providers.',
+  },
   'seeker-activity': {
     title: 'My Bookings & Tasks',
     desc: 'Track your ongoing services in real time, view your queue position, approve completed work, and leave provider reviews.',
