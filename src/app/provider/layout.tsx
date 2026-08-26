@@ -12,36 +12,40 @@ import { useRouteGuard } from '../../hooks/useRouteGuard';
 
 const tabDetails: Record<string, { title: string; desc: string }> = {
   'browse-services': {
-    title: 'Browse Service Requests Board',
-    desc: 'Community board displaying local client inquiries. Sort tasks by urgency, proximity, and submit proposals/bids immediately.',
+    title: 'Browse Client Job Requests',
+    desc: 'Browse open service tasks posted by Cordova clients. Filter by barangay or urgency and submit your price offers to get hired.',
   },
   'offer-services': {
-    title: 'Offer Active Services Listing',
-    desc: 'Create public service offerings. Key feature includes uploading proof of valid credentials/certificates for Admin validation review.',
+    title: 'Create a Service Listing',
+    desc: 'Publish a new service you offer to the Cordova marketplace. Detail your skills, set your rates, and upload certifications.',
   },
   'service-manager': {
-    title: 'Provider Service Manager',
-    desc: 'Control center for active service offerings. Toggle list status, edit descriptions, adjust listing rates, or remove offerings.',
+    title: 'My Service Listings',
+    desc: 'Manage your active service listings. Edit pricing, update descriptions, or pause listings when your schedule is booked up.',
   },
   'incoming-requests': {
-    title: 'Incoming Direct Bookings',
-    desc: 'Review direct job bookings from seekers. Evaluate custom job parameters, and accept bookings (adds to queue) or reject them.',
+    title: 'Direct Client Bookings',
+    desc: 'Review direct bookings sent to your services. Accept bookings to add clients to your queue, or decline if unavailable.',
   },
   'provider-activity': {
-    title: 'Provider Job Tracking & Queue',
-    desc: 'Workspace checklist to schedule active projects: In Progress, Waiting Queue position tracker, Pending Offers, Awaiting Seeker Approvals, and Disputes.',
+    title: 'Job Tracker & Queue',
+    desc: 'Manage your active workload, update booking statuses, notify clients when work is complete, and track approvals.',
   },
   'transaction-history': {
-    title: 'Transaction History & Financial Ledger',
-    desc: 'Detailed earnings record keeping track of payouts, services rendered, GCash/On-site tags, and mini-calendar date inputs for filters.',
+    title: 'Earnings & Payouts',
+    desc: 'Track your completed jobs, payout history, and incoming payments from clients across Cordova.',
   },
   'messages': {
-    title: 'Direct Split-Screen Chat Interface',
-    desc: 'Split-screen communications center allowing clients and providers to message, share file screenshots, and finalize transaction rates.',
+    title: 'Direct Messages',
+    desc: 'Chat directly with your clients to clarify task instructions, send progress photos, and coordinate arrival times.',
   },
   'community-hub': {
-    title: 'Community Announcement Hub & Leaderboard',
-    desc: 'Local announcement board showing platform news, safety guidelines, and the Weekly Top 10 High-Rated Providers leaderboards.',
+    title: 'Community Announcements & Leaders',
+    desc: 'Access local Cordova announcements, guidelines, and see how you rank among the top-rated providers this week.',
+  },
+  'user-profile': {
+    title: 'Provider Profile & Portfolio',
+    desc: 'View your public profile, ratings, badges, verified skills, and residency verification status.',
   }
 };
 
@@ -157,14 +161,19 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
                 <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
                   <span>{activeTab === 'user-profile' ? 'User Profile' : activeTab.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
                   {tabDetails[activeTab] && (
-                    <div className="relative group flex items-center">
+                    <div className="relative group flex items-center font-sans">
                       <HelpCircle className={`w-4 h-4 cursor-help transition-colors duration-150 ${isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-600'}`} />
-                      <div className={`absolute left-0 top-full mt-2 w-72 p-3 rounded-xl shadow-lg border text-xs font-normal leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 ${
+                      <div className={`absolute left-0 top-full mt-2.5 w-80 p-3.5 rounded-2xl shadow-2xl border text-xs font-sans font-normal leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none backdrop-blur-md ${
                         isDark 
-                          ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' 
-                          : 'bg-white border-slate-200 text-slate-700'
+                          ? 'bg-[#1c1b18]/95 border-neutral-800 text-[#f2efe9] shadow-black/60' 
+                          : 'bg-white/95 border-slate-200 text-slate-700 shadow-slate-200/80'
                       }`}>
-                        {tabDetails[activeTab].desc}
+                        <p className="font-bold text-xs text-slate-900 dark:text-[#f2efe9] mb-1">
+                          {tabDetails[activeTab].title}
+                        </p>
+                        <p className="text-slate-600 dark:text-[#b4b0a9] leading-relaxed">
+                          {tabDetails[activeTab].desc}
+                        </p>
                       </div>
                     </div>
                   )}

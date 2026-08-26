@@ -13,35 +13,35 @@ import { useRouteGuard } from '../../hooks/useRouteGuard';
 const tabDetails: Record<string, { title: string; desc: string }> = {
   'seek-services': {
     title: 'Seek Services Marketplace',
-    desc: 'Interactive grid displaying certified local providers. Features live custom request triggers, search sorting, and quick rating filters.',
+    desc: 'Browse and hire verified local service providers across Cordova. Filter by category, compare ratings, and book directly or join a queue.',
   },
   'post-request': {
-    title: 'Post Custom Job Request',
-    desc: 'Publish active job openings. Detail category, minimum-maximum budgets, schedule, and urgency to receive local worker applications.',
+    title: 'Post a Custom Job Request',
+    desc: 'Describe the task or repair you need and set your budget. Nearby Cordova providers will review your request and send you direct price offers.',
   },
   'incoming-offers': {
-    title: 'Incoming Provider Offers Board',
-    desc: 'Real-time overview of custom service quotes submitted by providers for your requests. Accept an offer to immediately start booking.',
+    title: 'Incoming Service Offers',
+    desc: 'Review price quotes and proposals sent by providers for your posted jobs. Accept an offer to start your project safely.',
   },
   'seeker-activity': {
-    title: 'Seeker Workspace & Job Tracker',
-    desc: 'Workspace checklist to schedule active projects: In Progress, Waiting Queue position tracker, Pending Offers, Awaiting Seeker Approvals, and Disputes.',
+    title: 'My Bookings & Tasks',
+    desc: 'Track your ongoing services in real time, view your queue position, approve completed work, and leave provider reviews.',
   },
   'transaction-history': {
-    title: 'Transaction History & Financial Ledger',
-    desc: 'Detailed transaction logs displaying escrow logs, wallet deposits/refunds, PayMongo checkout links, and mini-calendar filters.',
+    title: 'Transaction History & Receipts',
+    desc: 'View your complete payment records, receipts, wallet deposits, and refunds for completed Cordova marketplace services.',
   },
   'messages': {
-    title: 'Direct Split-Screen Chat Interface',
-    desc: 'Split-screen communications center allowing clients and providers to message, share file screenshots, and finalize transaction rates.',
+    title: 'Direct Messages',
+    desc: 'Chat directly with your service providers to ask questions, share task photos, and coordinate service schedules in real time.',
   },
   'community-hub': {
-    title: 'Community Announcement Hub & Leaderboard',
-    desc: 'Local announcement board showing platform news, safety guidelines, and the Weekly Top 10 High-Rated Providers leaderboards.',
+    title: 'Community Announcements & Leaders',
+    desc: 'Stay informed with Cordova town announcements, service guidelines, and view the top-rated local providers of the week.',
   },
   'user-profile': {
-    title: 'Provider Details Profile Canvas',
-    desc: 'Dynamic biography displaying verified credentials, portfolio images, customer reviews history, and real-time active queue position.',
+    title: 'User Profile & Verification',
+    desc: 'Manage your verified Cordova residency credentials, contact info, and account security preferences.',
   }
 };
 
@@ -157,14 +157,19 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
                 <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
                   <span>{activeTab === 'user-profile' ? 'User Profile' : activeTab.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
                   {tabDetails[activeTab] && (
-                    <div className="relative group flex items-center">
+                    <div className="relative group flex items-center font-sans">
                       <HelpCircle className={`w-4 h-4 cursor-help transition-colors duration-150 ${isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-600'}`} />
-                      <div className={`absolute left-0 top-full mt-2 w-72 p-3 rounded-xl shadow-lg border text-xs font-normal leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 ${
+                      <div className={`absolute left-0 top-full mt-2.5 w-80 p-3.5 rounded-2xl shadow-2xl border text-xs font-sans font-normal leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none backdrop-blur-md ${
                         isDark 
-                          ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' 
-                          : 'bg-white border-slate-200 text-slate-700'
+                          ? 'bg-[#1c1b18]/95 border-neutral-800 text-[#f2efe9] shadow-black/60' 
+                          : 'bg-white/95 border-slate-200 text-slate-700 shadow-slate-200/80'
                       }`}>
-                        {tabDetails[activeTab].desc}
+                        <p className="font-bold text-xs text-slate-900 dark:text-[#f2efe9] mb-1">
+                          {tabDetails[activeTab].title}
+                        </p>
+                        <p className="text-slate-600 dark:text-[#b4b0a9] leading-relaxed">
+                          {tabDetails[activeTab].desc}
+                        </p>
                       </div>
                     </div>
                   )}
