@@ -7,7 +7,7 @@ interface LandingHeroProps {
   onGetStarted: () => void;
 }
 
-const IAN_AVATAR = "https://servicehub-uploads.s3.ap-southeast-1.amazonaws.com/avatars/avatar_1785501061989_n3q538.png";
+const IAN_AVATAR = "/me.jpg";
 
 export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
   const [cardPov, setCardPov] = useState<'seeker' | 'provider'>('seeker');
