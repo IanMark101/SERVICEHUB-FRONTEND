@@ -16,11 +16,15 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
   useEffect(() => {
     // Fetch live avatar for BUENAFLOR IAN MARK J. if available
     const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-    fetch(`${apiBase}/users?search=BUENAFLOR`)
+    fetch(`${apiBase}/users?search=IAN+MARK`)
       .then(res => res.json())
       .then(data => {
-        if (data?.data?.[0]?.avatarUrl) {
-          setProviderAvatar(data.data[0].avatarUrl);
+        const match = data?.data?.find((u: any) => 
+          u.name?.toLowerCase().includes('ian mark') || 
+          u.name?.toLowerCase().includes('ian')
+        );
+        if (match?.avatarUrl) {
+          setProviderAvatar(match.avatarUrl);
         }
       })
       .catch(() => { });
