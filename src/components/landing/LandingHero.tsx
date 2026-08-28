@@ -10,25 +10,7 @@ interface LandingHeroProps {
 const IAN_AVATAR = "https://servicehub-uploads.s3.ap-southeast-1.amazonaws.com/avatars/avatar_1785501061989_n3q538.png";
 
 export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
-  const [providerAvatar, setProviderAvatar] = useState<string>(IAN_AVATAR);
   const [cardPov, setCardPov] = useState<'seeker' | 'provider'>('seeker');
-
-  useEffect(() => {
-    // Fetch live avatar for BUENAFLOR IAN MARK J. if available
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-    fetch(`${apiBase}/users?search=IAN+MARK`)
-      .then(res => res.json())
-      .then(data => {
-        const match = data?.data?.find((u: any) => 
-          u.name?.toLowerCase().includes('ian mark') || 
-          u.name?.toLowerCase().includes('ian')
-        );
-        if (match?.avatarUrl) {
-          setProviderAvatar(match.avatarUrl);
-        }
-      })
-      .catch(() => { });
-  }, []);
 
   const scrollToNext = () => {
     const el = document.getElementById('problem');
@@ -118,7 +100,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
                           <img
-                            src={providerAvatar || IAN_AVATAR}
+                            src={IAN_AVATAR}
                             alt="BUENAFLOR IAN MARK J."
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
@@ -254,7 +236,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
                           <img
-                            src={providerAvatar || IAN_AVATAR}
+                            src={IAN_AVATAR}
                             alt="BUENAFLOR IAN MARK J."
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
