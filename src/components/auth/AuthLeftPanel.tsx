@@ -35,7 +35,7 @@ export default function AuthLeftPanel({
           </button>
           <div className="flex items-center gap-3">
             <img 
-              src="/logo.png" 
+              src="/logo.svg" 
               alt="ServiceHub Cordova Logo" 
               className="h-10 w-10 object-contain rounded-lg shadow-md"
             />

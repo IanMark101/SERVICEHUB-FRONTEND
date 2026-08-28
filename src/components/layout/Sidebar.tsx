@@ -196,15 +196,22 @@ export default function Sidebar({
       <div>
         <div className="flex items-center justify-between px-2 mb-4">
           <div className="flex items-center space-x-2.5">
-            <div className={`p-1.5 rounded-lg text-white font-extrabold text-base flex items-center justify-center transition-all ${
-              currentRole === 'seeker' ? 'bg-orange-600' : currentRole === 'admin' ? 'bg-red-600' : 'bg-emerald-600'
-            }`}>
-              S
-            </div>
+            <img
+              src="/logo.svg"
+              alt="ServiceHub Cordova"
+              className="w-8 h-8 rounded-xl object-contain shadow-xs shrink-0"
+            />
             {(!isCollapsed || isMobileOpen) && (
-              <span className={`font-extrabold text-base tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                ServiceHub
-              </span>
+              <div className="flex flex-col">
+                <span className={`font-black text-sm tracking-tight leading-none ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                  ServiceHub
+                </span>
+                <span className={`text-[10px] font-extrabold tracking-wider uppercase mt-0.5 ${
+                  currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-blue-500' : 'text-emerald-500'
+                }`}>
+                  Cordova
+                </span>
+              </div>
             )}
           </div>
 

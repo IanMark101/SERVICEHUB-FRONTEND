@@ -121,7 +121,7 @@ export default function SignupForm({
       {/* Mobile-visible Logo Header */}
       <div className="md:hidden flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div className="flex items-center space-x-2.5">
-          <img src="/logo.png" alt="Logo" className="w-7 h-7 object-contain rounded-lg shadow-sm" />
+          <img src="/logo.svg" alt="Logo" className="w-7 h-7 object-contain rounded-lg shadow-sm" />
           <span className="text-sm font-extrabold tracking-tight text-slate-800 dark:text-white">ServiceHub Cordova</span>
         </div>
       </div>

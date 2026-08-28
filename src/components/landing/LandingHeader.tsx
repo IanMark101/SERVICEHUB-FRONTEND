@@ -51,7 +51,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
       >
         {/* Brand */}
         <div className="flex items-center space-x-2 shrink-0">
-          <img src="/logo.png" alt="ServiceHub Cordova Logo" className="h-8 w-8 object-contain rounded-lg shadow-sm" />
+          <img src="/logo.svg" alt="ServiceHub Cordova Logo" className="h-8 w-8 object-contain rounded-lg shadow-sm" />
           <span className={`font-extrabold text-base lg:text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             ServiceHub Cordova
           </span>

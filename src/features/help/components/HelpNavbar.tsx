@@ -26,7 +26,7 @@ export default function HelpNavbar() {
         {/* Brand */}
         <div className="flex items-center gap-3">
           <Link href="/help" className="flex items-center gap-3 group">
-            <img src="/logo.png" alt="ServiceHub Logo" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
+            <img src="/logo.svg" alt="ServiceHub Logo" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
             <div className="flex flex-col">
               <span className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">
                 ServiceHub Cordova
