@@ -241,7 +241,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
-                            className="w-11 h-11 rounded-2xl object-cover border-2 border-orange-500/40 shadow-sm group-hover/card:scale-105 transition-transform"
+                            className="w-11 h-11 rounded-2xl object-cover border-2 border-emerald-500/40 shadow-sm group-hover/card:scale-105 transition-transform"
                           />
                         </div>
                         <div>
