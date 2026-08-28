@@ -49,7 +49,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     : jobEngagements; // if no userId yet, show all (context already scopes to user)
 
   // Filter Tab State
-  const [activeTab, setActiveTab] = useState<'all' | 'action_required' | 'pending' | 'active' | 'waiting' | 'disputed' | 'canceled'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'action_required' | 'pending' | 'active' | 'waiting' | 'disputed' | 'completed' | 'canceled'>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -108,6 +108,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
         else if (found.status === 'awaiting_seeker_approval') targetTab = 'action_required';
         else if (found.status === 'disputed') targetTab = 'disputed';
+        else if (found.status === 'completed') targetTab = 'completed';
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         setActiveTab(targetTab);
@@ -181,6 +182,9 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         break;
       case 'disputed':
         list = myEngagements.filter(je => je.status === 'disputed');
+        break;
+      case 'completed':
+        list = myEngagements.filter(je => je.status === 'completed');
         break;
       case 'canceled':
         list = myEngagements.filter(je => je.status === 'canceled');
@@ -419,6 +423,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         return baseStyles + (isDark ? 'bg-amber-950/20 border-amber-900/30 text-amber-450 font-extrabold' : 'bg-amber-50 border-amber-200 text-amber-600 font-extrabold');
       } else if (tab === 'disputed') {
         return baseStyles + (isDark ? 'bg-red-950/20 border-red-900/30 text-red-400 font-extrabold' : 'bg-red-50 border-red-200 text-red-650 font-extrabold');
+      } else if (tab === 'completed') {
+        return baseStyles + (isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400 font-extrabold' : 'bg-emerald-50 border-emerald-200 text-emerald-600 font-extrabold');
       } else {
         return baseStyles + (isDark ? 'bg-neutral-800/40 border-neutral-750 text-[#f2efe9] font-extrabold' : 'bg-slate-100 border-slate-300 text-slate-700 font-extrabold');
       }
@@ -474,6 +480,13 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           className={getTabClass('disputed', countStatus('disputed'))}
         >
           Disputes ({countStatus('disputed')})
+        </button>
+
+        <button
+          onClick={() => handleTabChange('completed')}
+          className={getTabClass('completed', countStatus('completed'))}
+        >
+          Completed ({countStatus('completed')})
         </button>
 
         <button
@@ -536,6 +549,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
                 icon={
                   activeTab === 'action_required'
                     ? CheckCircle2
+                    : activeTab === 'completed'
+                    ? CheckCircle2
                     : activeTab === 'waiting'
                     ? Clock
                     : activeTab === 'active'
@@ -553,6 +568,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
                     ? 'No Bookings Currently In Queue'
                     : activeTab === 'disputed'
                     ? 'No Active Disputes'
+                    : activeTab === 'completed'
+                    ? 'No Completed Bookings'
                     : activeTab === 'canceled'
                     ? 'No Canceled Bookings'
                     : searchQuery
@@ -568,6 +585,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
                     ? 'You are not waiting in any provider queues at the moment.'
                     : activeTab === 'disputed'
                     ? 'All your transactions are proceeding normally with zero dispute cases.'
+                    : activeTab === 'completed'
+                    ? 'You have no completed service engagements in your records yet.'
                     : activeTab === 'canceled'
                     ? 'You have no canceled engagements in your records.'
                     : searchQuery

@@ -63,7 +63,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     : bids.filter(b => b.status === 'pending');
 
   // Filter state
-  const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'waiting' | 'pending_offers' | 'awaiting_approval' | 'disputed' | 'canceled'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'in_progress' | 'waiting' | 'pending_offers' | 'awaiting_approval' | 'disputed' | 'completed' | 'canceled'>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -127,6 +127,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
         else if (found.status === 'awaiting_seeker_approval') targetTab = 'awaiting_approval';
         else if (found.status === 'disputed') targetTab = 'disputed';
+        else if (found.status === 'completed') targetTab = 'completed';
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         setActiveTab(targetTab);
@@ -184,11 +185,13 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         return myEngagements.filter(je => je.status === 'awaiting_seeker_approval').length;
       case 'disputed':
         return myEngagements.filter(je => je.status === 'disputed').length;
+      case 'completed':
+        return myEngagements.filter(je => je.status === 'completed').length;
       case 'canceled':
         return myEngagements.filter(je => je.status === 'canceled').length;
       default:
-        // Exclude completed and canceled engagements from the 'all' counter
-        return myEngagements.filter(je => je.status !== 'completed' && je.status !== 'canceled').length + myPendingBids.length;
+        // Include non-canceled engagements + pending bids in All
+        return myEngagements.filter(je => je.status !== 'canceled').length + myPendingBids.length;
     }
   };
 
@@ -216,10 +219,10 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
     // Add engagements
     myEngagements.forEach(je => {
-      // Exclude completed engagements from ProviderActivity completely
-      if (je.status === 'completed') return;
       // Exclude canceled engagements from 'all' tab
       if (je.status === 'canceled' && activeTab !== 'canceled') return;
+      // In specific tabs, only show matching status
+      if (je.status === 'completed' && activeTab !== 'all' && activeTab !== 'completed') return;
 
       let matchesTab = false;
       if (activeTab === 'all') matchesTab = true;
@@ -227,6 +230,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       else if (activeTab === 'waiting' && (je.status === 'queued' || je.status === 'pending_provider')) matchesTab = true;
       else if (activeTab === 'awaiting_approval' && je.status === 'awaiting_seeker_approval') matchesTab = true;
       else if (activeTab === 'disputed' && je.status === 'disputed') matchesTab = true;
+      else if (activeTab === 'completed' && je.status === 'completed') matchesTab = true;
       else if (activeTab === 'canceled' && je.status === 'canceled') matchesTab = true;
 
       if (!matchesTab) return;
@@ -517,6 +521,20 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         </button>
 
         <button
+          onClick={() => handleTabChange('completed')}
+          className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'completed'
+              ? isDark
+                ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400 font-extrabold'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-600 font-extrabold'
+              : isDark
+                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-855 text-[#b4b0a9]'
+                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-550'
+            }`}
+        >
+          Completed ({countTabItems('completed')})
+        </button>
+
+        <button
           onClick={() => handleTabChange('canceled')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'canceled'
               ? isDark
@@ -603,6 +621,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
                     ? 'No Submitted Proposals'
                     : activeTab === 'disputed'
                     ? 'No Active Disputes'
+                    : activeTab === 'completed'
+                    ? 'No Completed Jobs Yet'
                     : activeTab === 'canceled'
                     ? 'No Canceled Engagements'
                     : searchQuery
@@ -620,6 +640,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
                     ? 'You haven’t submitted any offers to open seeker job requests yet.'
                     : activeTab === 'disputed'
                     ? 'All client transactions are operating smoothly with zero dispute reports.'
+                    : activeTab === 'completed'
+                    ? 'You have not completed any service bookings yet.'
                     : activeTab === 'canceled'
                     ? 'You have no canceled engagements in your provider records.'
                     : searchQuery
