@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState } from 'react';
-import { Edit3, X, Save, Camera, Upload, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Edit3, X, Save, Camera, Upload, Trash2, Image as ImageIcon, Lock } from 'lucide-react';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 
 const CORDOVA_BARANGAYS = [
@@ -25,7 +25,7 @@ interface ProfileEditFormProps {
   };
   setEditForm: React.Dispatch<React.SetStateAction<any>>;
   setShowEdit: (v: boolean) => void;
-  handleSaveProfile: () => Promise<void>;
+  handleSaveProfile: (confirmedPassword?: string) => Promise<void>;
   saving: boolean;
   isDark: boolean;
   cardBg: string;
@@ -33,6 +33,7 @@ interface ProfileEditFormProps {
   headingText: string;
   inputClass: string;
   role?: string;
+  hasActiveEngagements?: boolean;
 }
 
 export default function ProfileEditForm({
@@ -47,6 +48,7 @@ export default function ProfileEditForm({
   headingText,
   inputClass,
   role = 'seeker',
+  hasActiveEngagements = false,
 }: ProfileEditFormProps) {
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
@@ -94,13 +96,33 @@ export default function ProfileEditForm({
         </div>
 
         <div>
-          <label className={`block text-xs font-bold mb-1 ${labelText}`}>Phone Number</label>
-          <input
-            className={inputClass}
-            value={editForm.phone}
-            onChange={e => setEditForm((f: any) => ({ ...f, phone: e.target.value }))}
-            placeholder="+63 9XX XXX XXXX"
-          />
+          <div className="flex items-center justify-between mb-1">
+            <label className={`block text-xs font-bold ${labelText}`}>Phone Number (GCash Account)</label>
+            {hasActiveEngagements && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full border border-amber-500/20">
+                <Lock className="w-2.5 h-2.5" /> Locked: Active Job
+              </span>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              disabled={hasActiveEngagements}
+              className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-8' : ''}`}
+              value={editForm.phone}
+              onChange={e => setEditForm((f: any) => ({ ...f, phone: e.target.value }))}
+              placeholder="+63 9XX XXX XXXX"
+            />
+            {hasActiveEngagements && (
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400">
+                <Lock className="w-3.5 h-3.5" />
+              </div>
+            )}
+          </div>
+          {hasActiveEngagements && (
+            <p className="text-[10px] text-amber-500/90 font-medium mt-1">
+              🔒 Locked while jobs are in progress to safeguard your payout address.
+            </p>
+          )}
         </div>
 
         <div>
@@ -234,7 +256,7 @@ export default function ProfileEditForm({
           Cancel
         </button>
         <button
-          onClick={handleSaveProfile}
+          onClick={() => handleSaveProfile()}
           disabled={saving}
           className={`px-5 py-2 rounded-xl text-xs font-bold ${saveBtnBg} text-white flex items-center gap-1.5 disabled:opacity-60 transition-all shadow-sm active:scale-95`}
         >

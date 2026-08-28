@@ -129,11 +129,17 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
           '3. Escrow Release: The status transitions to RELEASED and COMPLETED. ServiceHub\'s ledger records an official "EARNING" transaction in the provider\'s digital wallet.',
           '4. Payout to GCash: The funds are dispatched to the provider\'s registered 11-digit mobile number via PayMongo Payouts and InstaPay, depositing the net earnings straight into the provider\'s real GCash app.',
         ],
-        callout: {
-          type: 'tip',
-          title: 'What Happens if the Provider Declines or Cancels?',
-          text: 'If a provider declines a booking request or if a job is cancelled before work begins, the Escrow deposit is automatically refunded back to the seeker’s GCash account.',
-        },
+      },
+      {
+        heading: 'Security Safeguards: Active Job Lock & Password Re-Authentication',
+        paragraphs: [
+          'To protect providers from account takeover and payout hijacking, ServiceHub enforces strict fintech-grade security safeguards around mobile phone numbers:',
+        ],
+        bullets: [
+          'Active Job Lock: The system automatically locks your mobile number while you have any ongoing service engagements in progress. It is impossible for anyone to alter your payout address mid-job.',
+          'Password Re-Authentication: To update your mobile/GCash number at any other time, you must re-enter your account password to confirm identity.',
+          'Security Alerts: Whenever a phone number is modified, an automated security notification is immediately logged on your account.',
+        ],
       },
     ],
   },

@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState } from 'react';
 import { useUserProfileState } from './useUserProfileState';
+import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
   User,
   Lock,
@@ -59,6 +60,11 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     setEditForm,
     saving,
     handleSaveProfile,
+    hasActiveEngagements,
+    phonePasswordModalOpen,
+    setPhonePasswordModalOpen,
+    phonePasswordError,
+    phone,
   } = useUserProfileState({ targetUser: user, isOwnProfile: true });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -177,14 +183,38 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
 
           <div className="space-y-1.5">
-            <label className={`block font-semibold ${labelText}`}>Phone Number</label>
-            <input
-              type="text"
-              value={editForm.phone}
-              onChange={e => setEditForm((f: any) => ({ ...f, phone: e.target.value }))}
-              placeholder="+63 9XX XXX XXXX"
-              className={inputClass}
-            />
+            <div className="flex items-center justify-between">
+              <label className={`block font-semibold ${labelText}`}>Phone Number (GCash Account)</label>
+              {hasActiveEngagements && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                  <Lock className="w-3 h-3" /> Locked: Active Job
+                </span>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                disabled={hasActiveEngagements}
+                value={editForm.phone}
+                onChange={e => setEditForm((f: any) => ({ ...f, phone: e.target.value }))}
+                placeholder="+63 9XX XXX XXXX"
+                className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-9' : ''}`}
+              />
+              {hasActiveEngagements && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                  <Lock className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+            {hasActiveEngagements ? (
+              <p className="text-[11px] text-amber-500/90 font-medium">
+                🔒 Payout mobile number is locked while you have active service engagements in progress to safeguard your funds.
+              </p>
+            ) : (
+              <p className={`text-[11px] ${labelText}`}>
+                This mobile number serves as your official GCash payout address.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -318,7 +348,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         <div className="flex justify-end pt-3 border-t dark:border-neutral-800">
           <button
             type="button"
-            onClick={handleSaveProfile}
+            onClick={() => handleSaveProfile()}
             disabled={saving}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold ${btnBg} text-white transition-all shadow-sm active:scale-95 disabled:opacity-50 flex items-center gap-1.5`}
           >
@@ -615,6 +645,17 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
         </div>
       )}
+
+      {/* Phone Password Confirmation Modal */}
+      <PhonePasswordConfirmModal
+        isOpen={phonePasswordModalOpen}
+        onClose={() => setPhonePasswordModalOpen(false)}
+        oldPhone={phone || user?.phone || ''}
+        newPhone={editForm.phone}
+        onConfirm={(password) => handleSaveProfile(password)}
+        isLoading={saving}
+        error={phonePasswordError}
+      />
     </div>
   );
 }

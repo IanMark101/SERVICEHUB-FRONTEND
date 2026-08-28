@@ -45,6 +45,7 @@ import InstagramProfileHeader, { getTrustBand } from './InstagramProfileHeader';
 import ProfileEditForm from './ProfileEditForm';
 import PlayStoreReviewsSection from './PlayStoreReviewsSection';
 import VerificationUpload from './VerificationUpload';
+import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 
 interface UserProfileProps {
   targetUser: UserSession;
@@ -99,6 +100,10 @@ export default function UserProfile({
     setEditForm,
     saving,
     handleSaveProfile,
+    hasActiveEngagements,
+    phonePasswordModalOpen,
+    setPhonePasswordModalOpen,
+    phonePasswordError,
     handleShareProfile,
     pwForm,
     setPwForm,
@@ -171,6 +176,7 @@ export default function UserProfile({
           headingText={headingText}
           inputClass={inputClass}
           role={role}
+          hasActiveEngagements={hasActiveEngagements}
         />
       )}
 
@@ -678,6 +684,16 @@ export default function UserProfile({
         </div>
       )}
 
+      {/* Phone Password Confirmation Modal */}
+      <PhonePasswordConfirmModal
+        isOpen={phonePasswordModalOpen}
+        onClose={() => setPhonePasswordModalOpen(false)}
+        oldPhone={phone || targetUser?.phone || ''}
+        newPhone={editForm.phone}
+        onConfirm={(password) => handleSaveProfile(password)}
+        isLoading={saving}
+        error={phonePasswordError}
+      />
     </div>
   );
 }

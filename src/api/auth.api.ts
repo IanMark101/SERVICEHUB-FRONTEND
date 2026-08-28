@@ -64,6 +64,7 @@ export async function apiUpdateProfile(data: {
   facebookUrl?: string;
   instagramUrl?: string;
   websiteUrl?: string;
+  currentPassword?: string;
 }) {
   const response = await api.put('/auth/profile', data);
   return response.data;

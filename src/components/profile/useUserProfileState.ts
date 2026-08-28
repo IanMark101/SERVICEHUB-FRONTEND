@@ -26,8 +26,20 @@ export function useUserProfileState({
   initialTab,
   onProfileUpdated,
 }: UseUserProfileStateProps) {
-  const { isDark, setUser, user, toggleTheme, services = [], jobRequests = [], bids = [] } = useApp();
+  const { isDark, setUser, user, toggleTheme, services = [], jobRequests = [], bids = [], jobEngagements = [] } = useApp();
   const { success: toastSuccess, error: toastError } = useToast();
+
+  // Active Job Lock: check if user has ongoing/in-progress service engagements
+  const hasActiveEngagements = jobEngagements.some(
+    (je: any) =>
+      (je.providerId === targetUser?.id || je.seekerId === targetUser?.id) &&
+      je.status !== 'completed' &&
+      je.status !== 'canceled'
+  );
+
+  // Phone Password Confirmation Modal state
+  const [phonePasswordModalOpen, setPhonePasswordModalOpen] = useState(false);
+  const [phonePasswordError, setPhonePasswordError] = useState<string | null>(null);
 
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -250,7 +262,23 @@ export function useUserProfileState({
     toastSuccess('Profile link copied to clipboard!');
   };
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = async (confirmedPassword?: string) => {
+    const originalPhone = (profile?.phone || targetUser?.phone || '').trim();
+    const newPhone = (editForm.phone || '').trim();
+    const isPhoneChanging = newPhone !== '' && newPhone !== originalPhone;
+
+    if (isPhoneChanging) {
+      if (hasActiveEngagements) {
+        toastError('Mobile number cannot be changed while you have active service engagements in progress.');
+        return;
+      }
+      if (!confirmedPassword) {
+        setPhonePasswordError(null);
+        setPhonePasswordModalOpen(true);
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       const res = await apiUpdateProfile({
@@ -262,9 +290,12 @@ export function useUserProfileState({
         facebookUrl: editForm.facebookUrl,
         instagramUrl: editForm.instagramUrl,
         websiteUrl: editForm.websiteUrl,
+        ...(confirmedPassword ? { currentPassword: confirmedPassword } : {}),
       });
       if (res.success) {
         setProfile((p: any) => ({ ...p, ...res.data }));
+        setPhonePasswordModalOpen(false);
+        setPhonePasswordError(null);
         if (onProfileUpdated) {
           const names = (res.data.name || '').split(' ');
           onProfileUpdated({
@@ -290,7 +321,11 @@ export function useUserProfileState({
         toastSuccess('Profile updated successfully');
       }
     } catch (err: any) {
-      toastError(err?.response?.data?.error || 'Failed to update profile');
+      const errMsg = err?.response?.data?.error || err?.response?.data?.message || 'Failed to update profile';
+      if (phonePasswordModalOpen) {
+        setPhonePasswordError(errMsg);
+      }
+      toastError(errMsg);
     } finally {
       setSaving(false);
     }
@@ -386,6 +421,11 @@ export function useUserProfileState({
     setEditForm,
     saving,
     handleSaveProfile,
+    hasActiveEngagements,
+    phonePasswordModalOpen,
+    setPhonePasswordModalOpen,
+    phonePasswordError,
+    setPhonePasswordError,
     pwForm,
     setPwForm,
     pwSaving,
