@@ -1,31 +1,33 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { useApp } from '../../context/AppContext';
-import { UserSession } from '../auth/LoginContainer';
+import { useApp } from '../context/AppContext';
+import { UserSession } from '../components/auth/LoginContainer';
 import {
   apiGetPublicProfile,
   apiUpdateProfile,
   apiChangePassword,
   apiGetTrustHistory,
   apiGetPublicTrustHistory,
-} from '../../api/auth.api';
-import { apiGetProviderSummary } from '../../api/ai.api';
-import { useToast } from '../ui/Toast';
+} from '../api/auth.api';
+import { apiGetProviderSummary } from '../api/ai.api';
+import { useToast } from '../components/ui/Toast';
 
-export interface UseUserProfileStateProps {
+export interface UseUserProfileProps {
   targetUser: UserSession;
   isOwnProfile?: boolean;
   initialTab?: 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
   onProfileUpdated?: (updated: Partial<UserSession>) => void;
 }
 
-export function useUserProfileState({
+export type UseUserProfileStateProps = UseUserProfileProps;
+
+export function useUserProfile({
   targetUser,
   isOwnProfile = false,
   initialTab,
   onProfileUpdated,
-}: UseUserProfileStateProps) {
+}: UseUserProfileProps) {
   const { isDark, setUser, user, toggleTheme, services = [], jobRequests = [], bids = [], jobEngagements = [] } = useApp();
   const { success: toastSuccess, error: toastError } = useToast();
 
@@ -450,3 +452,7 @@ export function useUserProfileState({
     inputClass,
   };
 }
+
+// Backward compatibility alias
+export const useUserProfileState = useUserProfile;
+export default useUserProfile;

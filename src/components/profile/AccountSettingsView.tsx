@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState } from 'react';
-import { useUserProfileState } from './useUserProfileState';
+import { useUserProfile } from '../../hooks/useUserProfile';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
   User,
@@ -65,7 +65,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     setPhonePasswordModalOpen,
     phonePasswordError,
     phone,
-  } = useUserProfileState({ targetUser: user, isOwnProfile: true });
+  } = useUserProfile({ targetUser: user, isOwnProfile: true });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');

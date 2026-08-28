@@ -14,7 +14,7 @@ interface ReviewItem {
   helpfulCount?: number;
 }
 
-interface PlayStoreReviewsSectionProps {
+interface ProfileReviewsSectionProps {
   initialReviews?: ReviewItem[];
   isDark: boolean;
   cardBg: string;
@@ -26,7 +26,7 @@ interface PlayStoreReviewsSectionProps {
   canReview?: boolean;
 }
 
-export default function PlayStoreReviewsSection({
+export default function ProfileReviewsSection({
   initialReviews = [],
   isDark,
   cardBg,
@@ -36,7 +36,7 @@ export default function PlayStoreReviewsSection({
   isOwnProfile = false,
   isVerified = false,
   canReview = false,
-}: PlayStoreReviewsSectionProps) {
+}: ProfileReviewsSectionProps) {
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>(initialReviews);
 
   React.useEffect(() => {

@@ -21,7 +21,7 @@ export function getTrustBand(score: number) {
   return { label: 'Needs Attention', color: 'text-rose-500', bg: 'bg-rose-500/10 border-rose-500/20' };
 }
 
-interface InstagramProfileHeaderProps {
+interface ProfileHeaderProps {
   displayName: string;
   usernameHandle: string;
   avatarUrl: string;
@@ -49,7 +49,7 @@ interface InstagramProfileHeaderProps {
   headingText: string;
 }
 
-export default function InstagramProfileHeader({
+export default function ProfileHeader({
   displayName,
   usernameHandle,
   avatarUrl,
@@ -75,7 +75,7 @@ export default function InstagramProfileHeader({
   innerBg,
   labelText,
   headingText,
-}: InstagramProfileHeaderProps) {
+}: ProfileHeaderProps) {
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
   const trustBand = getTrustBand(trustScore);

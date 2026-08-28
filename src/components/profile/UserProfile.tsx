@@ -38,12 +38,12 @@ const InstagramIcon = ({ size = 13 }: { size?: number }) => (
   </svg>
 );
 import { UserSession } from '../auth/LoginContainer';
-import { useUserProfileState } from './useUserProfileState';
+import { useUserProfile } from '../../hooks/useUserProfile';
 
 // Sub-components
-import InstagramProfileHeader, { getTrustBand } from './InstagramProfileHeader';
+import ProfileHeader, { getTrustBand } from './ProfileHeader';
 import ProfileEditForm from './ProfileEditForm';
-import PlayStoreReviewsSection from './PlayStoreReviewsSection';
+import ProfileReviewsSection from './ProfileReviewsSection';
 import VerificationUpload from './VerificationUpload';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 
@@ -120,7 +120,7 @@ export default function UserProfile({
     labelText,
     headingText,
     inputClass,
-  } = useUserProfileState({ targetUser, isOwnProfile, initialTab, onProfileUpdated });
+  } = useUserProfile({ targetUser, isOwnProfile, initialTab, onProfileUpdated });
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -135,7 +135,7 @@ export default function UserProfile({
     <div className={`max-w-5xl mx-auto space-y-6 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
       
       {/* 🌟 Profile Hero Header */}
-      <InstagramProfileHeader
+      <ProfileHeader
         displayName={displayName}
         usernameHandle={usernameHandle}
         avatarUrl={avatarUrl}
@@ -456,7 +456,7 @@ export default function UserProfile({
 
       {/* TAB 2: REVIEWS (Reviews & Ratings ONLY) */}
       {activeTab === 'reviews' && (
-        <PlayStoreReviewsSection
+        <ProfileReviewsSection
           initialReviews={reviews.map((r: any) => ({
             id: r.id,
             authorName: r.author?.name || r.authorName || 'Verified Client',
