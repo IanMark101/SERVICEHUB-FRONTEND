@@ -241,11 +241,11 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 shadow-sm"
+                            className="w-11 h-11 rounded-2xl object-cover border-2 border-orange-500/40 shadow-sm group-hover/card:scale-105 transition-transform"
                           />
                         </div>
                         <div>
-                          <h4 className={`font-bold text-xs leading-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                          <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                             BUENAFLOR IAN MARK J.
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
