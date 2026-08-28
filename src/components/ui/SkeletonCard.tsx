@@ -45,40 +45,67 @@ export function ServiceListingSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
-export function JobRequestSkeleton({ count = 4 }: { count?: number }) {
+export function JobRequestSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-[22px] p-6 border border-slate-200 dark:border-neutral-800/90 bg-white dark:bg-[#22211e] space-y-4 shadow-sm"
+          className="rounded-[24px] p-5 border border-slate-200 dark:border-neutral-800/80 bg-white dark:bg-[#22211e] flex flex-col justify-between shadow-sm"
         >
-          {/* Top Seeker info */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Skeleton variant="circular" className="w-10 h-10" />
-              <div className="space-y-1.5">
-                <Skeleton className="h-3.5 w-24" />
-                <Skeleton className="h-2.5 w-14" />
+          <div>
+            {/* Top Seeker info */}
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-3">
+                <Skeleton variant="circular" className="w-10 h-10 flex-shrink-0" />
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3.5 w-28" />
+                  <Skeleton className="h-2.5 w-14 rounded-md" />
+                </div>
+              </div>
+              <div className="flex flex-col items-end space-y-1">
+                <Skeleton className="h-2.5 w-16" />
+                <Skeleton className="h-2.5 w-20" />
               </div>
             </div>
-            <Skeleton className="h-5 w-20 rounded-md" />
-          </div>
 
-          {/* Title & Description */}
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-2/3" />
-          </div>
-
-          {/* Budget & Action */}
-          <div className="pt-3 border-t border-slate-100 dark:border-neutral-800/80 flex items-center justify-between">
-            <div className="space-y-1">
-              <Skeleton className="h-2.5 w-16" />
-              <Skeleton className="h-5 w-20" />
+            {/* Category & Urgency Badges */}
+            <div className="mt-4 flex items-center gap-2">
+              <Skeleton className="h-5 w-20 rounded-lg" />
+              <Skeleton className="h-5 w-28 rounded-lg" />
             </div>
-            <Skeleton className="h-9 w-28 rounded-xl" />
+
+            {/* Title & Description */}
+            <div className="mt-3 space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            {/* Divider */}
+            <div className="border-t border-slate-100 dark:border-neutral-800/80 my-3.5" />
+
+            {/* Budget & Escrow */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Skeleton className="h-2.5 w-16" />
+                <Skeleton className="h-6 w-20" />
+              </div>
+              <Skeleton className="h-5 w-24 rounded-md" />
+            </div>
+
+            {/* Payment Badges */}
+            <div className="mt-3 flex items-center gap-2">
+              <Skeleton className="h-5 w-20 rounded-lg" />
+              <Skeleton className="h-5 w-24 rounded-lg" />
+            </div>
+
+            {/* Action Button */}
+            <div className="mt-3.5">
+              <Skeleton className="h-10 w-full rounded-xl" />
+            </div>
           </div>
         </div>
       ))}
