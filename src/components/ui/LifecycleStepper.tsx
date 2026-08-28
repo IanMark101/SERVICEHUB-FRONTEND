@@ -107,7 +107,7 @@ export default function LifecycleStepper({
     {
       id: 5,
       label: 'Completed',
-      sublabel: 'Escrow Paid',
+      sublabel: 'Paid',
       icon: CheckCircle2,
     },
   ];

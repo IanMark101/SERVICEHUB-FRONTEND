@@ -900,7 +900,9 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
                     {/* Footer Rate and Actions */}
                     <div className={`border-t pt-4 flex items-center justify-between ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
                       <div>
-                        <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>Escrow Amount</span>
+                        <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+                          {je.paymentMethod === 'On-site Cash' ? 'Service Amount' : 'Escrow Amount'}
+                        </span>
                         <span className="text-sm font-extrabold text-emerald-500 dark:text-emerald-400">₱{je.price}</span>
                       </div>
 
