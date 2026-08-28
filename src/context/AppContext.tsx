@@ -39,6 +39,7 @@ import { useSeekerActions } from '../hooks/useSeekerActions';
 import { useProviderActions } from '../hooks/useProviderActions';
 import { useAdminActions } from '../hooks/useAdminActions';
 import { useSharedActions } from '../hooks/useSharedActions';
+import { useToast } from '../components/ui/Toast';
 
 interface AppContextType {
   users: User[];
@@ -178,6 +179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return false;
   });
   const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const { success: toastSuccess, error: toastError } = useToast();
 
   // Data states — start with empty state, populated strictly by live database APIs
   const [services, setServices] = useState<ServiceListing[]>([]);
@@ -494,15 +496,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
           })
             .then((res) => {
               if (res.success) {
-                alert("Payment completed and booking confirmed! " + (res.message || ""));
+                toastSuccess("Payment Secured in Escrow! 🔒", res.message || "Your booking request has been sent to the provider for confirmation.");
                 refreshAll();
               } else {
-                alert("Failed to confirm booking: " + (res.error || "Unknown error"));
+                toastError("Booking Verification Failed", res.error || "Payment could not be verified.");
               }
             })
             .catch((err) => {
               console.error("Error confirming online booking:", err);
-              alert("Error confirming online booking: " + (err.response?.data?.error || err.message));
+              toastError("Booking Verification Error", err.response?.data?.error || err.message);
+            })
+            .finally(() => {
+              // Smoothly remove payment_intent_id query param from address bar
+              if (typeof window !== "undefined" && window.history && window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+              }
             });
         }
       }
