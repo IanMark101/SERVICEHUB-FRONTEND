@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Premium Dark Background -->
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f1e1a"/>
+      <stop offset="100%" stop-color="#100f0d"/>
+    </linearGradient>
+
+    <!-- Warm Radiant Amber-Orange -->
+    <linearGradient id="hubOrange" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+
+    <!-- Vibrant Mint-Emerald -->
+    <linearGradient id="hubGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+
+    <!-- Hub Connection Gradient -->
+    <linearGradient id="hubBlend" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle App Icon Base -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad3)"/>
+  <rect width="508" height="508" x="2" y="2" rx="126" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.07"/>
+
+  <!-- Background Ambient Ray Glows -->
+  <circle cx="180" cy="180" r="140" fill="#f97316" opacity="0.08" filter="blur(40px)"/>
+  <circle cx="332" cy="332" r="140" fill="#10b981" opacity="0.08" filter="blur(40px)"/>
+
+  <!-- Minimalist Master Brand Mark: Clean Infinite Service Loop -->
+  <g filter="url(#softShadow)">
+    <!-- Seeker Arc (Upper Orange Loop) -->
+    <path d="M 370 180 C 370 125, 320 95, 256 95 C 190 95, 142 145, 142 210 C 142 270, 195 295, 256 310" 
+          fill="none" 
+          stroke="url(#hubOrange)" 
+          stroke-width="50" 
+          stroke-linecap="round"/>
+
+    <!-- Provider Arc (Lower Emerald Loop) -->
+    <path d="M 142 332 C 142 387, 192 417, 256 417 C 322 417, 370 367, 370 302 C 370 242, 317 217, 256 202" 
+          fill="none" 
+          stroke="url(#hubGreen)" 
+          stroke-width="50" 
+          stroke-linecap="round"/>
+
+    <!-- Central Intersection Connector Node -->
+    <circle cx="256" cy="256" r="28" fill="#1c1b18" stroke="url(#hubBlend)" stroke-width="8"/>
+    <circle cx="256" cy="256" r="12" fill="#ffffff"/>
+  </g>
+</svg>

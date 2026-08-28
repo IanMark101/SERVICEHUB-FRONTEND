@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ServiceHub Cordova - Brand Logo Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background: #141311;
+      color: #f2efe9;
+      padding: 40px 20px 80px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 48px; }
+    .header h1 { font-size: 32px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .header h1 span.orange { color: #f97316; }
+    .header h1 span.green { color: #10b981; }
+    .header p { color: #a8a29e; font-size: 14px; max-width: 600px; margin: 0 auto; line-height: 1.5; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; margin-bottom: 48px; }
+    
+    .card {
+      background: #1c1b18;
+      border: 1px solid #2e2c27;
+      border-radius: 28px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      border-color: rgba(249, 115, 22, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+    .badge-orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+
+    .preview-box {
+      width: 180px;
+      height: 180px;
+      margin: 20px 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 36px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    }
+    .preview-box img { width: 100%; height: 100%; object-fit: contain; }
+
+    .card h3 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .card p.desc { font-size: 12px; color: #a8a29e; text-align: center; line-height: 1.5; margin-bottom: 20px; min-height: 54px; }
+
+    .size-test {
+      width: 100%;
+      background: #141311;
+      border: 1px solid #282622;
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+    .size-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .size-label { font-size: 9.5px; font-weight: 700; color: #78716c; text-transform: uppercase; }
+
+    .comparison {
+      background: #1c1b18;
+      border: 1px solid #2e2c27;
+      border-radius: 28px;
+      padding: 32px;
+      text-align: center;
+    }
+    .comparison h2 { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+    .comparison p { font-size: 13px; color: #a8a29e; margin-bottom: 24px; max-width: 650px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .nav-mockup {
+      background: #141311;
+      border: 1px solid #2c2b27;
+      border-radius: 20px;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 700px;
+      margin: 0 auto 16px;
+    }
+    .nav-left { display: flex; align-items: center; gap: 12px; }
+    .nav-title { font-size: 15px; font-weight: 900; letter-spacing: -0.3px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>ServiceHub <span class="orange">Cordova</span> <span class="green">Identity</span></h1>
+      <p>Custom-crafted brand marks designed specifically around your dual-workspace theme: <strong>Warm Amber/Orange</strong> (Seeker Community) & <strong>Emerald Green</strong> (Verified Providers).</p>
+    </div>
+
+    <div class="grid">
+      <!-- CONCEPT 1 -->
+      <div class="card">
+        <span class="badge badge-orange">Concept 1</span>
+        <div class="preview-box">
+          <img src="/logo_concept_1_interlocking.svg" alt="Concept 1: Interlocking S-Mark">
+        </div>
+        <h3>The Interlocking S-Mark</h3>
+        <p class="desc">Two dynamic ribbons representing Seekers and Providers woven into an iconic "S" monogram, joined by an illuminated Cordova community hub core.</p>
+        <div class="size-test">
+          <div class="size-col">
+            <img src="/logo_concept_1_interlocking.svg" style="width: 24px; height: 24px;">
+            <span class="size-label">24px Favicon</span>
+          </div>
+          <div class="size-col">
+            <img src="/logo_concept_1_interlocking.svg" style="width: 36px; height: 36px;">
+            <span class="size-label">36px Navbar</span>
+          </div>
+          <div class="size-col">
+            <img src="/logo_concept_1_interlocking.svg" style="width: 56px; height: 56px;">
+            <span class="size-label">56px App Icon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 2 -->
+      <div class="card">
+        <span class="badge badge-green">Concept 2</span>
+        <div class="preview-box">
+          <img src="/logo_concept_2_shield.svg" alt="Concept 2: Cordova Trust Shield">
+        </div>
+        <h3>Cordova Trust Shield</h3>
+        <p class="desc">A high-authority security emblem with dual Orange & Emerald wings, integrated "S" flow, and a golden verified community star at the center.</p>
+        <div class="size-test">
+          <div class="size-col">
+            <img src="/logo_concept_2_shield.svg" style="width: 24px; height: 24px;">
+            <span class="size-label">24px Favicon</span>
+          </div>
+          <div class="size-col">
+            <img src="/logo_concept_2_shield.svg" style="width: 36px; height: 36px;">
+            <span class="size-label">36px Navbar</span>
+          </div>
+          <div class="size-col">
+            <img src="/logo_concept_2_shield.svg" style="width: 56px; height: 56px;">
+            <span class="size-label">56px App Icon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONCEPT 3 -->
+      <div class="card">
+        <span class="badge badge-cyan">Concept 3</span>
+        <div class="preview-box">
+          <img src="/logo_concept_3_modern_hub.svg" alt="Concept 3: Infinite Service Loop">
+        </div>
+        <h3>Infinite Service Loop</h3>
+        <p class="desc">Ultra-minimalist modern tech aesthetic (Linear / Stripe style). A clean continuous service loop showing ongoing transactions, fair queues, and trust.</p>
+        <div class="size-test">
+          <div class="size-col">
+            <img src="/logo_concept_3_modern_hub.svg" style="width: 24px; height: 24px;">
+            <span class="size-label">24px Favicon</span>
+          </div>
+          <div class="size-col">
+            <img src="/logo_concept_3_modern_hub.svg" style="width: 36px; height: 36px;">
+            <span class="size-label">36px Navbar</span>
+          </div>
+          <div class="size-col">
+            <img src="/logo_concept_3_modern_hub.svg" style="width: 56px; height: 56px;">
+            <span class="size-label">56px App Icon</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARISON WITH CURRENT LOGO -->
+    <div class="comparison">
+      <h2>Navbar Preview Comparison</h2>
+      <p>Notice how modern vector SVG marks remain razor-sharp at 32px on the top navigation bar, without blurry text clutter.</p>
+
+      <div class="nav-mockup">
+        <div class="nav-left">
+          <img src="/logo_concept_3_modern_hub.svg" style="width: 34px; height: 34px;">
+          <span class="nav-title">ServiceHub <span style="color: #f97316;">Cordova</span></span>
+        </div>
+        <span style="font-size: 11px; font-weight: 700; color: #10b981; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); padding: 4px 10px; border-radius: 8px;">Recommended (Concept 3)</span>
+      </div>
+
+      <div class="nav-mockup" style="opacity: 0.7;">
+        <div class="nav-left">
+          <img src="/logo.png" style="width: 34px; height: 34px; border-radius: 8px;">
+          <span class="nav-title">ServiceHub <span style="color: #f97316;">Cordova</span></span>
+        </div>
+        <span style="font-size: 11px; font-weight: 700; color: #a8a29e; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 8px;">Current Logo.png (Text becomes unreadable at 32px)</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
