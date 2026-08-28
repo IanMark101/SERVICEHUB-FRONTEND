@@ -277,8 +277,8 @@ export default function ProviderMessagesPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className={`w-full pl-8 pr-7 py-1.5 rounded-xl border text-xs outline-none transition-colors ${
                 isDark 
-                  ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9] placeholder-neutral-500 focus:border-orange-500/80' 
-                  : 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:border-orange-500'
+                  ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9] placeholder-neutral-500 focus:border-emerald-500/80' 
+                  : 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:border-emerald-500'
               }`}
             />
             {searchQuery && (
@@ -311,7 +311,7 @@ export default function ProviderMessagesPage() {
                   onClick={() => selectConversation(conv)}
                   className={`w-full text-left p-3.5 transition-all flex items-start gap-3 relative cursor-pointer ${
                     active 
-                      ? (isDark ? 'bg-[#2a251e] border-l-4 border-orange-500 shadow-sm' : 'bg-orange-50/90 border-l-4 border-orange-500 shadow-sm') 
+                      ? (isDark ? 'bg-emerald-950/20 border-l-4 border-emerald-500 shadow-sm' : 'bg-emerald-50/90 border-l-4 border-emerald-500 shadow-sm') 
                       : (isDark ? 'hover:bg-neutral-800/30' : 'hover:bg-slate-50/70')
                   }`}
                 >
@@ -324,12 +324,12 @@ export default function ProviderMessagesPage() {
                         className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-neutral-800"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500 font-bold text-sm">
+                      <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 font-bold text-sm">
                         {conv.otherPartyName.charAt(0).toUpperCase()}
                       </div>
                     )}
                     {hasUnread && (
-                      <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-orange-600 rounded-full border-2 border-white dark:border-[#1c1b18]" />
+                      <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-[#1c1b18]" />
                     )}
                   </div>
 
@@ -339,7 +339,7 @@ export default function ProviderMessagesPage() {
                       <span className={`text-xs font-bold truncate ${textPrimary}`}>
                         {conv.otherPartyName}
                       </span>
-                      <span className={`text-[9px] font-medium whitespace-nowrap pl-1 ${hasUnread ? 'text-orange-500 font-bold' : textMuted}`}>
+                      <span className={`text-[9px] font-medium whitespace-nowrap pl-1 ${hasUnread ? 'text-emerald-400 font-bold' : textMuted}`}>
                         {getRelativeTime(conv.lastMessageTime)}
                       </span>
                     </div>
@@ -347,8 +347,8 @@ export default function ProviderMessagesPage() {
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className={`text-[8.5px] font-bold px-1 py-0.2 rounded-md ${
                         conv.otherPartyRole === 'Provider'
-                          ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                          : 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          : 'bg-neutral-800 text-neutral-300 border border-neutral-700/60'
                       }`}>
                         {conv.otherPartyRole}
                       </span>
@@ -387,7 +387,7 @@ export default function ProviderMessagesPage() {
             {/* Header */}
             <div className={`flex items-center gap-3 px-4 py-3.5 border-b justify-between ${isDark ? 'border-neutral-800/70' : 'border-slate-200'}`}>
               <div className="flex items-center gap-3">
-                <button onClick={() => setSelectedConv(null)} className={`md:hidden ${textMuted} hover:text-orange-500`}>
+                <button onClick={() => setSelectedConv(null)} className={`md:hidden ${textMuted} hover:text-emerald-400`}>
                   <ChevronLeft size={18} />
                 </button>
                 {selectedConv.otherPartyAvatar ? (
@@ -397,7 +397,7 @@ export default function ProviderMessagesPage() {
                     className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-neutral-800"
                   />
                 ) : (
-                  <div className="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-500 font-bold text-sm">
+                  <div className="w-9 h-9 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400 font-bold text-sm">
                     {selectedConv.otherPartyName.charAt(0)}
                   </div>
                 )}
@@ -406,8 +406,8 @@ export default function ProviderMessagesPage() {
                     <p className={`text-sm font-extrabold leading-none ${textPrimary}`}>{selectedConv.otherPartyName}</p>
                     <span className={`text-[8.5px] font-bold px-1 py-0.2 rounded-md ${
                       selectedConv.otherPartyRole === 'Provider'
-                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                        : 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-neutral-800 text-neutral-300 border border-neutral-700/60'
                     }`}>
                       {selectedConv.otherPartyRole}
                     </span>
@@ -423,7 +423,7 @@ export default function ProviderMessagesPage() {
                     ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                     : ['CANCELED', 'DECLINED', 'REMOVED'].includes(selectedConv.status)
                     ? 'bg-red-500/10 text-red-500 border-red-500/20'
-                    : 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                    : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                 }`}>
                   {selectedConv.status.replace('_', ' ')}
                 </span>
@@ -445,11 +445,11 @@ export default function ProviderMessagesPage() {
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5 bg-slate-50/30 dark:bg-[#151412]/20">
               {loading && (
                 <div className={`flex justify-center py-8 ${textMuted}`}>
-                  <Loader2 size={20} className="animate-spin text-orange-500" />
+                  <Loader2 size={20} className="animate-spin text-emerald-500" />
                 </div>
               )}
               {error && !loading && (
-                <div className="flex items-center gap-2 text-xs text-orange-400 bg-orange-900/10 border border-orange-900/20 rounded-xl p-3">
+                <div className="flex items-center gap-2 text-xs text-rose-400 bg-rose-900/10 border border-rose-900/20 rounded-xl p-3">
                   <Lock size={14} />
                   {error}
                 </div>
@@ -464,12 +464,12 @@ export default function ProviderMessagesPage() {
                 if (msg.isSystem) {
                   return (
                     <div key={msg.id} className="flex justify-center my-2 select-none animate-in fade-in zoom-in-95 duration-200">
-                      <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-colors flex items-center gap-1.5 ${
+                      <div className={`px-4 py-1.5 rounded-full text-[10px] font-semibold border transition-colors flex items-center gap-1.5 ${
                         isDark 
-                          ? 'bg-neutral-800/90 border-neutral-700/60 text-orange-400' 
-                          : 'bg-orange-50 border-orange-100 text-orange-700'
+                          ? 'bg-neutral-800/90 border-neutral-700/60 text-neutral-300' 
+                          : 'bg-slate-100 border-slate-200 text-slate-700'
                       }`}>
-                        <ShieldCheck size={12} className="text-orange-500" />
+                        <ShieldCheck size={12} className="text-emerald-500" />
                         <span>{msg.content}</span>
                       </div>
                     </div>
@@ -487,7 +487,7 @@ export default function ProviderMessagesPage() {
                             alt=""
                           />
                         ) : (
-                          <div className="w-6 h-6 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center text-[10px] font-bold">
+                          <div className="w-6 h-6 rounded-full bg-neutral-800 text-neutral-300 border border-neutral-700/50 flex items-center justify-center text-[10px] font-bold">
                             {selectedConv.otherPartyName.charAt(0)}
                           </div>
                         )}
@@ -495,7 +495,7 @@ export default function ProviderMessagesPage() {
                     )}
                     <div className={`max-w-[70%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-sm ${
                       isMe
-                        ? 'bg-orange-600 text-white rounded-br-sm'
+                        ? 'bg-emerald-600 text-white rounded-br-sm'
                         : isDark 
                         ? 'bg-neutral-800 text-[#f2efe9] rounded-bl-sm border border-neutral-750' 
                         : 'bg-white text-slate-800 rounded-bl-sm border border-slate-200'

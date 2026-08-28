@@ -93,7 +93,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -104,14 +104,14 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
   const activeTab = pathname.split('/').pop() || 'seek-services';
 
   const accent = {
-    border: 'border-orange-500/20',
-    borderFocus: 'focus:border-orange-500 focus:ring-orange-500',
-    bgLight: 'bg-orange-500/5',
-    text: 'text-orange-500 dark:text-orange-400',
-    bgButton: 'bg-orange-600 hover:bg-orange-700 text-white',
+    border: 'border-emerald-500/20',
+    borderFocus: 'focus:border-emerald-500 focus:ring-emerald-500',
+    bgLight: 'bg-emerald-500/5',
+    text: 'text-emerald-500 dark:text-emerald-400',
+    bgButton: 'bg-emerald-600 hover:bg-emerald-700 text-white',
     badge: isDark
-      ? 'bg-orange-950/40 text-orange-400 border-orange-900/40'
-      : 'bg-orange-50 text-orange-700 border-orange-200 shadow-xs',
+      ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/40'
+      : 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-xs',
   };
 
   const currentRole = 'seeker';
@@ -186,8 +186,8 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
                   return pendingBidsCount > 0 ? (
                     <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                       isDark 
-                        ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
-                        : 'bg-orange-50 text-orange-600 border-orange-200'
+                        ? 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30' 
+                        : 'bg-emerald-50 text-emerald-600 border-emerald-200'
                     }`}>
                       {pendingBidsCount} Pending
                     </span>

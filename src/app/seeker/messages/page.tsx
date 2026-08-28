@@ -348,8 +348,8 @@ export default function SeekerMessagesPage() {
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className={`text-[8.5px] font-bold px-1 py-0.2 rounded-md ${
                         conv.otherPartyRole === 'Provider'
-                          ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                          : 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          : 'bg-neutral-800 text-neutral-300 border border-neutral-700/60'
                       }`}>
                         {conv.otherPartyRole}
                       </span>
@@ -407,8 +407,8 @@ export default function SeekerMessagesPage() {
                     <p className={`text-sm font-extrabold leading-none ${textPrimary}`}>{selectedConv.otherPartyName}</p>
                     <span className={`text-[8.5px] font-bold px-1 py-0.2 rounded-md ${
                       selectedConv.otherPartyRole === 'Provider'
-                        ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                        : 'bg-orange-500/10 text-orange-500 border border-orange-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-neutral-800 text-neutral-300 border border-neutral-700/60'
                     }`}>
                       {selectedConv.otherPartyRole}
                     </span>
@@ -465,12 +465,12 @@ export default function SeekerMessagesPage() {
                 if (msg.isSystem) {
                   return (
                     <div key={msg.id} className="flex justify-center my-2 select-none animate-in fade-in zoom-in-95 duration-200">
-                      <div className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-colors flex items-center gap-1.5 ${
+                      <div className={`px-4 py-1.5 rounded-full text-[10px] font-semibold border transition-colors flex items-center gap-1.5 ${
                         isDark 
-                          ? 'bg-neutral-800/90 border-neutral-700/60 text-orange-400' 
-                          : 'bg-orange-50 border-orange-100 text-orange-700'
+                          ? 'bg-neutral-800/90 border-neutral-700/60 text-neutral-300' 
+                          : 'bg-slate-100 border-slate-200 text-slate-700'
                       }`}>
-                        <ShieldCheck size={12} className="text-orange-500" />
+                        <ShieldCheck size={12} className="text-emerald-500" />
                         <span>{msg.content}</span>
                       </div>
                     </div>
