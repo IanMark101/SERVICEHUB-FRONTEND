@@ -1146,7 +1146,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
             isOpen={!!reviewingEngagement}
             onClose={() => setReviewingEngagement(null)}
             onSubmit={handleReviewSubmit}
-            providerName={reviewingEngagement.providerName}
+            targetName={reviewingEngagement.providerName}
+            targetRole="provider"
             isDark={isDark}
             isEdit={!!existingReview}
             reviewId={existingReview?.id}

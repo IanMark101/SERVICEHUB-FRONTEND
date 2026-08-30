@@ -5,7 +5,9 @@ interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (rating: number, comment: string, tags: string[], reviewId?: string) => Promise<void>;
-  providerName: string;
+  targetName?: string;
+  providerName?: string;
+  targetRole?: 'provider' | 'client' | 'seeker';
   isDark?: boolean;
   initialRating?: number;
   initialComment?: string;
@@ -14,13 +16,16 @@ interface ReviewModalProps {
   isEdit?: boolean;
 }
 
-const POPULAR_TAGS = ["Punctual", "Skilled", "Friendly", "Professional", "Great Quality", "Fair Price", "Efficient"];
+const PROVIDER_TAGS = ["Punctual", "Skilled", "Friendly", "Professional", "Great Quality", "Fair Price", "Efficient"];
+const CLIENT_TAGS = ["Prompt Payment", "Respectful", "Clear Instructions", "Pleasant to Work With", "Responsive", "Accurate Job Scope"];
 
 export default function ReviewModal({
   isOpen,
   onClose,
   onSubmit,
+  targetName,
   providerName,
+  targetRole = 'provider',
   isDark = false,
   initialRating = 0,
   initialComment = '',
@@ -36,6 +41,10 @@ export default function ReviewModal({
   const [error, setError] = useState<string>('');
 
   if (!isOpen) return null;
+
+  const isClientTarget = targetRole === 'client' || targetRole === 'seeker';
+  const nameToDisplay = targetName || providerName || (isClientTarget ? 'Client' : 'Provider');
+  const availableTags = isClientTarget ? CLIENT_TAGS : PROVIDER_TAGS;
 
   const handleTagToggle = (tag: string) => {
     if (selectedTags.includes(tag)) {
@@ -64,7 +73,7 @@ export default function ReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className={`rounded-[24px] max-w-md w-full overflow-hidden shadow-2xl border animate-in zoom-in-95 duration-200 ${
         isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
       }`}>
@@ -75,10 +84,10 @@ export default function ReviewModal({
         }`}>
           <div>
             <h3 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-              {isEdit ? "Edit Your Review" : "Write a Review"}
+              {isEdit ? "Edit Your Review" : isClientTarget ? "Rate & Review Client" : "Write a Review"}
             </h3>
             <p className={`text-[10px] ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-              {isEdit ? "Editable within 24 hours of posting • " : ""}For provider {providerName}
+              {isEdit ? "Editable within 24 hours of posting • " : ""}For {isClientTarget ? "client" : "provider"} <strong className="font-bold">{nameToDisplay}</strong>
             </p>
           </div>
           <button
@@ -102,7 +111,7 @@ export default function ReviewModal({
           {/* Rating */}
           <div className="flex flex-col items-center justify-center space-y-2">
             <span className={`text-xs font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-              How was your overall service?
+              {isClientTarget ? "How was your experience working with this client?" : "How was your overall service?"}
             </span>
             <div className="flex items-center space-x-1.5">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -112,7 +121,7 @@ export default function ReviewModal({
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="p-1 transition-transform hover:scale-110 active:scale-95"
+                  className="p-1 transition-transform hover:scale-110 active:scale-95 cursor-pointer"
                 >
                   <Star
                     className={`w-8 h-8 transition-colors ${
@@ -134,18 +143,22 @@ export default function ReviewModal({
               Select tags that apply
             </label>
             <div className="flex flex-wrap gap-1.5">
-              {POPULAR_TAGS.map((tag) => {
+              {availableTags.map((tag) => {
                 const isSelected = selectedTags.includes(tag);
                 return (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => handleTagToggle(tag)}
-                    className={`px-3 py-1.5 text-[10px] font-bold rounded-xl border transition-all flex items-center space-x-1 ${
+                    className={`px-3 py-1.5 text-[10px] font-bold rounded-xl border transition-all flex items-center space-x-1 cursor-pointer ${
                       isSelected
-                        ? isDark
-                          ? 'bg-orange-500/15 border-orange-500/30 text-orange-400'
-                          : 'bg-orange-50 border-orange-200 text-orange-600'
+                        ? isClientTarget
+                          ? isDark
+                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400'
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                          : isDark
+                            ? 'bg-orange-500/15 border-orange-500/30 text-orange-400'
+                            : 'bg-orange-50 border-orange-200 text-orange-600'
                         : isDark
                           ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9] hover:bg-[#2c2b27]'
                           : 'bg-slate-50 border-slate-200 text-slate-550 hover:bg-slate-100'
@@ -168,7 +181,10 @@ export default function ReviewModal({
               rows={3}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Provide details about the provider's performance, skill quality, and general conduct..."
+              placeholder={isClientTarget 
+                ? "Share details about the client's communication, promptness, and cooperation..." 
+                : "Provide details about the provider's performance, skill quality, and general conduct..."
+              }
               className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed transition-all ${
                 isDark
                   ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-neutral-700'
@@ -181,7 +197,11 @@ export default function ReviewModal({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 rounded-xl font-extrabold text-xs tracking-wider uppercase text-white bg-orange-600 hover:bg-orange-700 transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50 cursor-pointer shadow-sm"
+            className={`w-full py-3 rounded-xl font-extrabold text-xs tracking-wider uppercase text-white transition-all flex items-center justify-center space-x-2 active:scale-95 disabled:opacity-50 cursor-pointer shadow-sm ${
+              isClientTarget
+                ? 'bg-emerald-600 hover:bg-emerald-700'
+                : 'bg-orange-600 hover:bg-orange-700'
+            }`}
           >
             {submitting ? (
               <>
