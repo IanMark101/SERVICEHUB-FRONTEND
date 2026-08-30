@@ -77,6 +77,7 @@ export default function CommunityHub() {
         loading={loading}
         isDark={isDark}
         workspaceRole={workspaceRole}
+        currentUserId={user?.id}
       />
 
     </div>
