@@ -50,9 +50,9 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
         heading: 'Ways to Gain Trust Points (+)',
         bullets: [
           '+5 Points (One-time): Completing and getting approved for Cordova Residency Verification.',
-          '+3 Points: Successfully completing a service transaction with confirmation and escrow release.',
+          '+3 Points: Successfully completing a service transaction upon seeker confirmation (applies to both Cash and Online bookings).',
           '+2 Points: Receiving a 5-star customer review from a confirmed seeker (+1 point for a 4-star review).',
-          'Smooth Transactions: Undisputed payments and prompt completion confirmations build long-term reputation.',
+          'Smooth Transactions: Undisputed payments, on-time service delivery, and prompt completion confirmations build long-term reputation.',
         ],
       },
       {
