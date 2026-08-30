@@ -22,10 +22,10 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'Trust Score Tiers',
         bullets: [
-          '80 – 100 (High Trust / Green): Highly trusted community member with consistent positive reviews, approved residency, and zero unexcused cancellations.',
-          '50 – 79 (Standard Trust / Amber): Regular standing. Default starting score for all new accounts is 50.',
-          'Below 50 (Low Standing / Red): Accounts with multiple penalties, no-shows, or unresolved disputes. May face posting restrictions.',
-          'Below 20: Automatically flagged for administrative moderation review.',
+          '90 – 100 (Highly Trusted / Green): Top-tier standing with consistent positive reviews, approved Cordova residency, and a flawless transaction record.',
+          '70 – 89 (Trusted / Blue): High standing with reliable completed services, verified residency, and strong client feedback.',
+          '50 – 69 (Average / Amber): Standard baseline standing. Default starting score for all new accounts is 50.',
+          'Below 50 (Needs Attention / Red): Accounts impacted by at-fault cancellations, validated reports, or repeated listing rejections.',
         ],
         callout: {
           type: 'info',
@@ -50,22 +50,21 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
         heading: 'Ways to Gain Trust Points (+)',
         bullets: [
           '+5 Points (One-time): Completing and getting approved for Cordova Residency Verification.',
-          '+2 Points: Successfully completing a service transaction with on-time delivery and confirmation.',
-          '+1 Point: Receiving a 5-star customer review from a confirmed seeker.',
-          '+1 Point (Seeker): Promptly confirming service completion within 24 hours of provider delivery.',
+          '+3 Points: Successfully completing a service transaction with confirmation and escrow release.',
+          '+2 Points: Receiving a 5-star customer review from a confirmed seeker (+1 point for a 4-star review).',
+          'Smooth Transactions: Undisputed payments and prompt completion confirmations build long-term reputation.',
         ],
       },
       {
         heading: 'Actions that Deduct Trust Points (-)',
         bullets: [
-          '-10 Points: Confirmed No-Show (failing to arrive for a scheduled booking without notice).',
-          '-5 Points: Unjustified last-minute cancellation after a booking has already been accepted.',
-          '-5 Points: Repeated listing rejections due to misleading or prohibited service descriptions.',
-          '-10 Points: Upheld dispute or report filed against your account by a moderator.',
+          '-5 Points: At-fault cancellation after an active service has already been started by the provider.',
+          '-5 Points: Second repeated service listing rejection due to non-compliant or misleading descriptions.',
+          '-10 Points: Valid report or dispute upheld against your account by an administrator.',
         ],
         example: {
           title: 'Example: Positive Reputation Growth',
-          description: 'Juan registers with 50 points. He verifies his Cordova residency (+5 -> 55). He completes 5 plumbing jobs with 5-star ratings (+15 -> 70). He now appears as a High-Trust provider in local search results.',
+          description: 'Juan registers with 50 points. He verifies his Cordova residency (+5 -> 55). He completes 3 plumbing jobs with 5-star ratings (+15 -> 70). He now reaches the "Trusted" tier (70+) in local search results.',
         },
       },
     ],
