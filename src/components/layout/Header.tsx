@@ -574,7 +574,11 @@ export default function Header({
                       if (notif.link) {
                         const path = notif.link.toLowerCase();
                         if (path.includes("messages")) ctaText = "Open Conversation";
-                        else if (path.includes("incoming-offers")) ctaText = "View Offer";
+                        else if (path.includes("incoming-requests")) ctaText = "Review Request";
+                        else if (path.includes("incoming-offers")) ctaText = "Review Offers";
+                        else if (path.includes("service-manager")) ctaText = "Manage Listing";
+                        else if (path.includes("suggest-category")) ctaText = "View Category";
+                        else if (path.includes("account-settings") || path.includes("settings")) ctaText = "Open Settings";
                         else if (path.includes("verification")) ctaText = "Open Verification";
                         else if (path.includes("reviews")) ctaText = "View Review";
                         else if (path.includes("transaction-history") || path.includes("transaction")) ctaText = "View Transaction";
