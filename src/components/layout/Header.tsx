@@ -65,28 +65,28 @@ export default function Header({
   const unreadCount = userNotifications.filter(n => !n.read).length;
 
 
-  // Unified professional theme styling
+  // Theme styling helpers based on active role
   const roleThemes = {
     seeker: {
-      accent: 'text-emerald-600 dark:text-emerald-400',
-      ring: 'focus:ring-emerald-500 focus:border-emerald-500',
-      borderHover: 'hover:border-emerald-500/50',
-      badge: 'bg-emerald-600 text-white',
-      badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      accent: 'text-orange-600',
+      ring: 'focus:ring-orange-500 focus:border-orange-500',
+      borderHover: 'hover:border-orange-500/50',
+      badge: 'bg-orange-600 text-white',
+      badgeBg: 'bg-orange-50 text-orange-600 border-orange-100',
     },
     provider: {
-      accent: 'text-emerald-600 dark:text-emerald-400',
+      accent: 'text-emerald-600',
       ring: 'focus:ring-emerald-500 focus:border-emerald-500',
       borderHover: 'hover:border-emerald-500/50',
       badge: 'bg-emerald-600 text-white',
-      badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      badgeBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     admin: {
-      accent: 'text-blue-500 dark:text-blue-400',
-      ring: 'focus:ring-blue-500 focus:border-blue-500',
-      borderHover: 'hover:border-blue-500/50',
-      badge: 'bg-blue-600 text-white',
-      badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
+      accent: 'text-red-500',
+      ring: 'focus:ring-red-500 focus:border-red-500',
+      borderHover: 'hover:border-red-500/50',
+      badge: 'bg-red-600 text-white',
+      badgeBg: 'bg-red-50 text-red-500 border-red-100',
     }
   };
 
@@ -312,12 +312,20 @@ export default function Header({
         </button>
         <div className="flex items-center space-x-3">
           <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider flex items-center gap-1.5 ${isDark
-              ? (currentRole === 'admin'
-                  ? 'bg-blue-950/25 text-blue-400 border-blue-900/40'
+              ? (currentRole === 'seeker' 
+                  ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
+                  : currentRole === 'admin'
+                  ? 'bg-red-950/20 text-red-400 border-red-900/30'
                   : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
               : theme.badgeBg
             }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${currentRole === 'admin' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              currentRole === 'seeker' 
+                ? 'bg-orange-500' 
+                : currentRole === 'admin' 
+                ? 'bg-red-500' 
+                : 'bg-emerald-500'
+            }`} />
             {currentRole} Workspace
           </span>
 

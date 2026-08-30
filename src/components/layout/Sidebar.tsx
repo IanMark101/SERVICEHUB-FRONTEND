@@ -67,13 +67,13 @@ export default function Sidebar({
   const pendingBidsCount = bids.filter(b => b.status === 'pending' && jobRequests.some(r => r.id === b.requestId && r.seekerId === currentUserId)).length;
   const pendingRequestsCount = jobEngagements.filter(je => je.providerId === currentUserId && je.status === 'pending_provider').length;
 
-  // Unified platform role styling configs
+  // Role styling configs
   const roleThemes = {
     seeker: {
-      accent: isDark ? 'text-emerald-400' : 'text-emerald-600',
-      bgActive: isDark ? 'bg-emerald-950/20' : 'bg-emerald-50/70',
-      borderActive: 'border-emerald-500',
-      badge: isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+      accent: isDark ? 'text-orange-400' : 'text-orange-600',
+      bgActive: isDark ? 'bg-orange-950/20' : 'bg-orange-50/70',
+      borderActive: 'border-orange-500',
+      badge: isDark ? 'bg-orange-950/40 text-orange-400 border-orange-900/30' : 'bg-orange-50 text-orange-600 border-orange-200'
     },
     provider: {
       accent: isDark ? 'text-emerald-400' : 'text-emerald-600',
@@ -82,10 +82,10 @@ export default function Sidebar({
       badge: isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
     },
     admin: {
-      accent: isDark ? 'text-blue-400' : 'text-blue-600',
-      bgActive: isDark ? 'bg-blue-950/20' : 'bg-blue-50/70',
-      borderActive: 'border-blue-500',
-      badge: isDark ? 'bg-blue-950/40 text-blue-400 border-blue-900/30' : 'bg-blue-50 text-blue-600 border-blue-200'
+      accent: isDark ? 'text-red-400' : 'text-red-655',
+      bgActive: isDark ? 'bg-red-950/20' : 'bg-red-50/70',
+      borderActive: 'border-red-500',
+      badge: isDark ? 'bg-red-950/40 text-red-400 border-red-900/30' : 'bg-red-50 text-red-655 border-red-200'
     }
   };
 
@@ -170,7 +170,7 @@ export default function Sidebar({
 
         {/* Collapsed Badge Dot indicator */}
         {item.badge !== undefined && isCollapsed && !isMobileOpen && (
-          <span className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${currentRole === 'admin' ? 'bg-blue-500' : 'bg-emerald-500'}`} />
+          <span className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${currentRole === 'seeker' ? 'bg-orange-500' : 'bg-emerald-500'}`} />
         )}
 
         {/* Tooltip on Hover when Collapsed */}
@@ -253,8 +253,8 @@ export default function Sidebar({
                     onClick={() => handleRoleChange('seeker')}
                     className={`w-full flex items-center px-3 py-2 rounded-xl text-xs font-semibold transition-all ${currentRole === 'seeker'
                       ? isDark
-                        ? 'bg-[#1c1b18] text-emerald-400 shadow-sm border border-neutral-800/40'
-                        : 'bg-white text-emerald-700 shadow-sm border border-slate-100'
+                        ? 'bg-[#1c1b18] text-orange-400 shadow-sm border border-neutral-800/40'
+                        : 'bg-white text-orange-600 shadow-sm border border-slate-100'
                       : isDark
                         ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
                         : 'text-slate-500 hover:text-slate-800'
@@ -268,7 +268,7 @@ export default function Sidebar({
                     className={`w-full flex items-center px-3 py-2 rounded-xl text-xs font-semibold transition-all ${currentRole === 'provider'
                       ? isDark
                         ? 'bg-[#1c1b18] text-emerald-400 shadow-sm border border-neutral-800/40'
-                        : 'bg-white text-emerald-700 shadow-sm border border-slate-100'
+                        : 'bg-white text-emerald-600 shadow-sm border border-slate-100'
                       : isDark
                         ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
                         : 'text-slate-500 hover:text-slate-800'
@@ -286,7 +286,7 @@ export default function Sidebar({
                 <button
                   onClick={() => handleRoleChange('seeker')}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${currentRole === 'seeker'
-                    ? isDark ? 'bg-[#1c1b18] text-emerald-400 shadow-sm' : 'bg-white text-emerald-700 shadow-sm'
+                    ? isDark ? 'bg-[#1c1b18] text-orange-400 shadow-sm' : 'bg-white text-orange-600 shadow-sm'
                     : isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-700'
                     }`}
                   title="Switch to Seeker"
@@ -344,9 +344,10 @@ export default function Sidebar({
             <img
               src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`}
               alt="Avatar"
-              className={`w-8 h-8 rounded-full object-cover border-2 ${
-                isDark ? 'border-emerald-500/40' : 'border-emerald-600/30'
-              }`}
+              className={`w-8 h-8 rounded-full object-cover border-2 ${currentRole === 'seeker'
+                ? isDark ? 'border-orange-500/40' : 'border-orange-600/30'
+                : isDark ? 'border-emerald-500/40' : 'border-emerald-600/30'
+                }`}
             />
             <div className="min-w-0 flex-1">
               <h4 className={`text-xs font-bold truncate ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>{user.firstName} {user.lastName}</h4>
@@ -367,7 +368,9 @@ export default function Sidebar({
           }`}
           title="Help Center & User Documentation"
         >
-          <HelpCircle className="w-4 h-4 flex-shrink-0 text-emerald-500 group-hover:scale-110 transition-transform" />
+          <HelpCircle className={`w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform ${
+            currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-red-500' : 'text-emerald-500'
+          }`} />
           {(!isCollapsed || isMobileOpen) && (
             <span className="ml-3">Help Center</span>
           )}
