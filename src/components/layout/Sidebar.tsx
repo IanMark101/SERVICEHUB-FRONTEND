@@ -96,7 +96,7 @@ export default function Sidebar({
     seeker: [
       { id: 'seek-services', label: 'Seek Services', icon: Compass },
       { id: 'post-request', label: 'Post Request', icon: PlusCircle },
-      { id: 'incoming-offers', label: 'Service Requests', icon: Inbox, badge: pendingBidsCount > 0 ? pendingBidsCount : undefined },
+      { id: 'incoming-offers', label: 'Incoming Offers', icon: Inbox, badge: pendingBidsCount > 0 ? pendingBidsCount : undefined },
       { id: 'request-manager', label: 'Request Manager', icon: Layers },
       { id: 'seeker-activity', label: 'Activity', icon: TrendingUp },
     ],
