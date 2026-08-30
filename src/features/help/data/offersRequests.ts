@@ -44,7 +44,7 @@ export const OFFERS_REQUESTS_ARTICLES: HelpArticle[] = [
           'Providers in Cordova will review your open request and submit competitive bids including their offered price, estimated completion time, and an introductory message.',
         ],
         steps: [
-          'Go to "Incoming Offers" in your Seeker Workspace.',
+          'Go to "Service Requests" (Incoming Offers) in your Seeker Workspace.',
           'Compare the provider bids side-by-side, checking their offered price, Trust Score, and past customer reviews.',
           'When you find the best offer, click "Accept Offer".',
           'Choose your payment method (GCash or On-site Cash).',

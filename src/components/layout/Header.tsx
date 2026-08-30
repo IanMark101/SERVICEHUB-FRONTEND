@@ -107,7 +107,7 @@ export default function Header({
     if (!tabId) return 'ServiceHub';
     if (tabId === 'seek-services') return 'Seek Services';
     if (tabId === 'browse-services') return 'Browse Jobs';
-    if (tabId === 'incoming-offers') return 'Incoming Offers';
+    if (tabId === 'incoming-offers') return 'Service Requests';
     if (tabId === 'provider-activity' || tabId === 'seeker-activity') return 'Activity Tracker';
     if (tabId === 'transaction-history') return 'Transaction History';
 
