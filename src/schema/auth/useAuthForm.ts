@@ -275,7 +275,10 @@ export default function useAuthForm({
         phone: phoneFormatted || '+63 917 000 0000',
         location: formData.location || 'Poblacion, Cordova',
         bio: formData.bio,
-        avatarUrl: formData.avatarUrl,
+        // Avatar uploads require an authenticated account. Do not send a local
+        // data URL to the API during registration; the user can upload it after
+        // signing in and verifying their email.
+        avatarUrl: formData.avatarUrl?.startsWith('data:') ? undefined : formData.avatarUrl,
       })
         .then((res) => {
           if (res.success) {

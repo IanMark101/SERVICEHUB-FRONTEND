@@ -2,7 +2,6 @@ import { api } from '../lib/api/axios';
 
 export async function apiBookDirect(data: {
   serviceId: string;
-  agreedPrice: number;
   schedule?: string;
   message?: string;
   scheduledDate?: string;
@@ -12,7 +11,7 @@ export async function apiBookDirect(data: {
   return response.data;
 }
 
-export async function apiInitiatePayment(data: { serviceId: string; amount: number; description?: string; paymentMethodType?: string; returnUrl?: string }) {
+export async function apiInitiatePayment(data: { serviceId: string; offerId?: string; paymentMethodType?: 'gcash' | 'paymaya' | 'card' }) {
   const response = await api.post('/bookings/initiate-payment', data);
   return response.data;
 }
@@ -21,7 +20,6 @@ export async function apiConfirmOnlineBooking(data: {
   serviceId: string;
   paymentIntentId: string;
   offerId?: string;
-  paymentMethod?: string;
 }) {
   const response = await api.post('/bookings/confirm-online', data);
   return response.data;

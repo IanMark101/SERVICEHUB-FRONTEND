@@ -202,7 +202,6 @@ export function useSeekerActions({
       if (paymentMethod === 'On-site Cash') {
         const res = await apiBookDirect({
           serviceId,
-          agreedPrice: price,
           schedule: 'Immediate',
           message: description,
         });
@@ -215,8 +214,6 @@ export function useSeekerActions({
       } else {
         const payRes = await apiInitiatePayment({
           serviceId,
-          amount: price,
-          description: `Direct Booking payment escrow`,
           paymentMethodType: 'gcash',
         });
         if (payRes.success) {
@@ -273,8 +270,7 @@ export function useSeekerActions({
 
         const payRes = await apiInitiatePayment({
           serviceId,
-          amount: targetBid.price,
-          description: `Online escrow hold for bid acceptance on: ${targetRequest.title}`,
+          offerId: bidId,
           paymentMethodType: 'gcash',
         });
 

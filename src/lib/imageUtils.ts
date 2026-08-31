@@ -95,6 +95,14 @@ export async function processMessageImage(file: File, maxDim: number = 1200, qua
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
+function authHeaders(): HeadersInit {
+  const token = typeof window === 'undefined' ? null : localStorage.getItem('accessToken');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 /**
  * Upload an avatar to Cloudinary via the backend /api/upload/avatar endpoint.
  * Returns the optimized Cloudinary CDN URL (e.g. https://res.cloudinary.com/...).
@@ -111,9 +119,7 @@ export async function uploadAvatarToCloudinary(fileOrDataUrl: File | string): Pr
   try {
     const res = await fetch(`${API_BASE}/upload/avatar`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: authHeaders(),
       body: JSON.stringify({ image: dataUrl }),
     });
 
@@ -131,7 +137,7 @@ export async function uploadAvatarToCloudinary(fileOrDataUrl: File | string): Pr
 /**
  * Upload a general image attachment to Cloudinary via /api/upload/image endpoint.
  */
-export async function uploadAttachmentToCloudinary(fileOrDataUrl: File | string, folder: string = 'servicehub/attachments'): Promise<string> {
+export async function uploadAttachmentToCloudinary(fileOrDataUrl: File | string): Promise<string> {
   let dataUrl: string;
   if (typeof fileOrDataUrl !== 'string') {
     dataUrl = await processMessageImage(fileOrDataUrl, 1200, 0.85);
@@ -142,10 +148,8 @@ export async function uploadAttachmentToCloudinary(fileOrDataUrl: File | string,
   try {
     const res = await fetch(`${API_BASE}/upload/image`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ image: dataUrl, folder }),
+      headers: authHeaders(),
+      body: JSON.stringify({ image: dataUrl }),
     });
 
     const data = await res.json();
@@ -158,4 +162,3 @@ export async function uploadAttachmentToCloudinary(fileOrDataUrl: File | string,
     return dataUrl;
   }
 }
-

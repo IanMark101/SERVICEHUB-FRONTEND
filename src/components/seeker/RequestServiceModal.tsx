@@ -123,7 +123,6 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         // Cash path — call apiBookDirect directly to pass scheduledDate/Time
         await apiBookDirect({
           serviceId: listing.id,
-          agreedPrice: price,
           message: description,
           scheduledDate: scheduledDate || undefined,
           scheduledTime: scheduledTime || undefined,
