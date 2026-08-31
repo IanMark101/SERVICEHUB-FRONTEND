@@ -41,8 +41,12 @@ export default function GoogleSignInButton({
           googleAccountsIdInitialized = true;
           (window as any).google.accounts.id.initialize({
             client_id: clientId,
+            auto_select: false,
+            cancel_on_tap_outside: true,
             callback: (response: any) => {
-              onSuccessRef.current(response.credential);
+              if (response?.credential) {
+                onSuccessRef.current(response.credential);
+              }
             },
           });
         }
