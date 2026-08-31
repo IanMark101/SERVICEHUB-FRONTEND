@@ -169,13 +169,11 @@ export function useUserProfile({
       .finally(() => { setAiLoading(false); setAiLoaded(true); });
   }, [targetUser?.id, targetUser?.role]);
 
-  // Fetch trust history only when viewing own profile.
-  // Detailed event logs are private to the account owner — public profiles
-  // expose only the aggregate trustScore via the profile endpoint.
+  // Fetch trust score history & milestones for the viewed profile
   useEffect(() => {
-    if (!targetUser?.id || !isOwnProfile) return;
+    if (!targetUser?.id) return;
     setTrustHistoryLoading(true);
-    apiGetTrustHistory()
+    apiGetTrustHistory(targetUser.id)
       .then(res => {
         if (res.success && Array.isArray(res.data)) {
           setTrustHistory(res.data);
@@ -183,7 +181,7 @@ export function useUserProfile({
       })
       .catch(() => {})
       .finally(() => setTrustHistoryLoading(false));
-  }, [targetUser?.id, isOwnProfile]);
+  }, [targetUser?.id]);
 
   // Derived Properties
   const displayName = profile?.name || `${targetUser?.firstName || ''} ${targetUser?.lastName || ''}`.trim() || 'ServiceHub User';

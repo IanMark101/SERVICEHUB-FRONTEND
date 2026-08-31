@@ -7,6 +7,7 @@ import { apiGetMessages, apiSendMessage, apiGetConversations } from '../../../ap
 import { apiHideBooking } from '../../../api/bookings.api';
 import { joinBookingRoom, getSocket } from '../../../lib/socket';
 import { processMessageImage } from '../../../lib/imageUtils';
+import ConfirmModal, { ConfirmModalState } from '../../../components/ui/ConfirmModal';
 
 interface DbMessage {
   id: string;
@@ -64,6 +65,7 @@ export default function ProviderMessagesPage() {
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -234,18 +236,33 @@ export default function ProviderMessagesPage() {
     }
   };
 
-  const handleHideConversation = async (bookingId: string) => {
-    if (!confirm('Remove this conversation from your list?')) return;
-    try {
-      await apiHideBooking(bookingId);
-      setConversations(prev => prev.filter(c => c.bookingId !== bookingId));
-      if (selectedConv?.bookingId === bookingId) {
-        setSelectedConv(null);
-        setMessages([]);
-      }
-    } catch (e) {
-      console.error('Failed to hide conversation:', e);
-    }
+  const handleHideConversation = (bookingId: string) => {
+    const targetConv = conversations.find(c => c.bookingId === bookingId);
+    const targetName = targetConv?.otherPartyName || 'this conversation';
+
+    setConfirmModal({
+      isOpen: true,
+      title: 'Remove Conversation',
+      message: `Are you sure you want to remove your conversation with ${targetName}? It will be hidden from your inbox list.`,
+      confirmText: 'Remove',
+      cancelText: 'Keep',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
+        try {
+          await apiHideBooking(bookingId);
+          setConversations(prev => prev.filter(c => c.bookingId !== bookingId));
+          if (selectedConv?.bookingId === bookingId) {
+            setSelectedConv(null);
+            setMessages([]);
+          }
+        } catch (e) {
+          console.error('Failed to hide conversation:', e);
+        } finally {
+          setConfirmModal(null);
+        }
+      },
+    });
   };
 
   const isReadOnly = selectedConv ? ['PENDING_APPROVAL', 'DECLINED', 'CANCELED', 'REMOVED', 'COMPLETED'].includes(selectedConv.status) : false;
@@ -576,6 +593,11 @@ export default function ProviderMessagesPage() {
           </>
         )}
       </main>
+
+      <ConfirmModal
+        state={confirmModal}
+        onClose={() => setConfirmModal(null)}
+      />
     </div>
   );
 }
