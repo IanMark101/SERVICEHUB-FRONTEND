@@ -76,13 +76,8 @@ export async function apiChangePassword(data: { currentPassword?: string; newPas
 }
 
 // Trust Score History — reads real TrustScoreEvent records from DB.
-// This is the ONLY function that should feed the Trust History tab.
+// Only accessible by the authenticated account owner via /auth/trust-history.
 export async function apiGetTrustHistory() {
   const response = await api.get('/auth/trust-history');
-  return response.data;
-}
-
-export async function apiGetPublicTrustHistory(userId: string) {
-  const response = await api.get(`/auth/trust-history/${userId}`);
   return response.data;
 }

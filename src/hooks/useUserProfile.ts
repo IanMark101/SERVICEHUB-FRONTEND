@@ -8,7 +8,6 @@ import {
   apiUpdateProfile,
   apiChangePassword,
   apiGetTrustHistory,
-  apiGetPublicTrustHistory,
 } from '../api/auth.api';
 import { apiGetProviderSummary } from '../api/ai.api';
 import { useToast } from '../components/ui/Toast';
@@ -170,14 +169,13 @@ export function useUserProfile({
       .finally(() => { setAiLoading(false); setAiLoaded(true); });
   }, [targetUser?.id, targetUser?.role]);
 
-  // Fetch real trust history from DB whenever target user changes
+  // Fetch trust history only when viewing own profile.
+  // Detailed event logs are private to the account owner — public profiles
+  // expose only the aggregate trustScore via the profile endpoint.
   useEffect(() => {
-    if (!targetUser?.id) return;
+    if (!targetUser?.id || !isOwnProfile) return;
     setTrustHistoryLoading(true);
-    const fetchFn = isOwnProfile
-      ? apiGetTrustHistory
-      : () => apiGetPublicTrustHistory(targetUser.id);
-    fetchFn()
+    apiGetTrustHistory()
       .then(res => {
         if (res.success && Array.isArray(res.data)) {
           setTrustHistory(res.data);
