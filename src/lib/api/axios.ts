@@ -61,6 +61,14 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      const hadToken = typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false;
+      const hadAuthHeader = !!originalRequest.headers?.Authorization;
+
+      // If the request had no token and no session exists in storage, do not attempt refresh
+      if (!hadToken && !hadAuthHeader) {
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

@@ -330,6 +330,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [syncCategories]);
 
   const syncRequests = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) {
+      setJobRequests([]);
+      return;
+    }
     try {
       const res = await apiGetRequests();
       if (res.success && Array.isArray(res.data)) {
@@ -341,6 +346,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const syncBids = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) {
+      setBids([]);
+      return;
+    }
     try {
       const [receivedRes, mineBidsRes] = await Promise.allSettled([
         apiGetReceivedOffers(),
@@ -362,6 +372,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const syncEngagements = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    if (!token) {
+      setJobEngagements([]);
+      setTransactions([]);
+      return;
+    }
     try {
       const res = await apiGetMyEngagements();
       if (res.success) {
@@ -396,7 +412,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const syncNotifications = useCallback(async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token) return;
+    if (!token) {
+      setNotifications([]);
+      return;
+    }
     try {
       const res = await apiGetNotifications();
       if (res.success && Array.isArray(res.data)) {
@@ -409,7 +428,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const syncUnreadMessages = useCallback(async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token) return;
+    if (!token) {
+      setUnreadMessagesCount(0);
+      return;
+    }
     try {
       const res = await apiGetConversations();
       if (res.success && Array.isArray(res.data)) {
@@ -423,7 +445,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const syncTransactions = useCallback(async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token) return;
+    if (!token) {
+      setTransactions([]);
+      return;
+    }
     try {
       const res = await apiGetTransactions();
       if (res.success && Array.isArray(res.data)) {
