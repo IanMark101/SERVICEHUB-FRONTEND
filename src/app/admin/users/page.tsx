@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser } from '../../../api/admin.api';
-import { Loader2, Search, Award, ShieldAlert, Ban, RotateCcw, AlertCircle, Filter } from 'lucide-react';
+import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser, apiRestorePostingPrivilege, apiPromoteUserToAdmin } from '../../../api/admin.api';
+import { Loader2, Search, Award, ShieldAlert, Ban, RotateCcw, AlertCircle, Filter, UserPlus } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import PaginationBar from '../../../components/ui/PaginationBar';
+import { useSearchParams } from 'next/navigation';
 
 interface UserItem {
   id: string;
@@ -16,11 +17,17 @@ interface UserItem {
   verificationStatus: string;
   emailVerified: boolean;
   isActive: boolean;
+  moderationStatus: 'ACTIVE' | 'SUSPENDED' | 'BANNED';
+  suspendedUntil?: string | null;
+  moderationReason?: string | null;
+  postingSuspended: boolean;
+  postingSuspendReason?: string | null;
   createdAt: string;
 }
 
 export default function AdminUsers() {
-  const { isDark } = useApp();
+  const searchParams = useSearchParams();
+  const { isDark, user: currentUser } = useApp();
   const { success: toastSuccess, error: toastError } = useToast();
 
   const [users, setUsers] = useState<UserItem[]>([]);
@@ -28,8 +35,9 @@ export default function AdminUsers() {
   const [error, setError] = useState<string>('');
   
   // Search and filter states
-  const [search, setSearch] = useState<string>('');
-  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+  const initialSearch = searchParams.get('search') || '';
+  const [search, setSearch] = useState<string>(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState<string>(initialSearch);
   const [roleFilter, setRoleFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
 
@@ -52,6 +60,8 @@ export default function AdminUsers() {
   const [banReason, setBanReason] = useState<string>('');
 
   const [confirmRestoreUserId, setConfirmRestoreUserId] = useState<string | null>(null);
+  const [promotingUser, setPromotingUser] = useState<UserItem | null>(null);
+  const [promotionReason, setPromotionReason] = useState('');
 
   // Search Debouncing
   useEffect(() => {
@@ -155,6 +165,30 @@ export default function AdminUsers() {
     }
   };
 
+  const handleRestorePosting = async (userId: string) => {
+    try {
+      await apiRestorePostingPrivilege(userId);
+      toastSuccess("Posting Restored", "The user may submit service listings again.");
+      fetchUsers();
+    } catch (err: any) {
+      toastError("Restoration Failed", err.response?.data?.error || err.message);
+    }
+  };
+
+  const handlePromote = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!promotingUser || promotionReason.trim().length < 3) return;
+    try {
+      await apiPromoteUserToAdmin(promotingUser.id, promotionReason.trim());
+      toastSuccess("Administrator Added", `${promotingUser.name} must sign in again to use the Admin workspace.`);
+      setPromotingUser(null);
+      setPromotionReason('');
+      fetchUsers();
+    } catch (err: any) {
+      toastError("Promotion Failed", err.response?.data?.error || err.message);
+    }
+  };
+
   // Pagination bounds
   const startIndex = (page - 1) * limit + 1;
   const endIndex = Math.min(page * limit, total);
@@ -167,7 +201,7 @@ export default function AdminUsers() {
         
         {/* Search */}
         <div className={`flex items-center rounded-xl px-3 py-2 w-full md:max-w-xs border transition-all ${
-          isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-200'
+          isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-slate-50 border-slate-200'
         }`}>
           <Search className={`w-4 h-4 mr-2 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} />
           <input
@@ -182,7 +216,7 @@ export default function AdminUsers() {
         {/* Filters */}
         <div className="flex flex-wrap gap-2 w-full md:w-auto items-center justify-end">
           
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-450">
+          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-400">
             <Filter className="w-3.5 h-3.5" />
             <span>Filters:</span>
           </div>
@@ -210,7 +244,8 @@ export default function AdminUsers() {
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
-            <option value="suspended">Suspended / Banned</option>
+            <option value="suspended">Suspended</option>
+            <option value="banned">Banned</option>
           </select>
 
           {/* Limit selector */}
@@ -277,7 +312,7 @@ export default function AdminUsers() {
               <div
                 key={u.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors ${
-                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200 hover:shadow-md'
+                  isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200 hover:shadow-md'
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -303,7 +338,7 @@ export default function AdminUsers() {
                 }`}>
                   <div className="flex items-center space-x-1.5 font-semibold">
                     <span className={`w-2.5 h-2.5 rounded-full ${u.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-                    <span>Status: {u.isActive ? "Active" : "Suspended / Banned"}</span>
+                    <span>Status: {u.moderationStatus === 'BANNED' ? 'Banned' : u.moderationStatus === 'SUSPENDED' ? 'Suspended' : 'Active'}</span>
                   </div>
                   <div className="flex items-center space-x-1 font-bold">
                     <span>Trust Score:</span>
@@ -313,11 +348,22 @@ export default function AdminUsers() {
                   </div>
                 </div>
 
+                {u.postingSuspended && (
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[10px] font-semibold text-amber-800">
+                    <span>Service-listing privilege suspended: {u.postingSuspendReason || 'Pending administrator review'}</span>
+                    <button onClick={() => handleRestorePosting(u.id)} className="shrink-0 rounded-lg bg-amber-700 px-2.5 py-1.5 font-bold text-white">Restore posting</button>
+                  </div>
+                )}
+
                 {/* Moderation Actions */}
                 <div className={`border-t pt-4 flex items-center justify-end gap-2 ${
-                  isDark ? 'border-neutral-850' : 'border-slate-100'
+                  isDark ? 'border-neutral-800' : 'border-slate-100'
                 }`}>
-                  {u.isActive ? (
+                  {u.role === 'admin' || u.id === currentUser?.id ? (
+                    <span className="rounded-lg border border-slate-200 px-3 py-1.5 text-[10px] font-bold uppercase text-slate-400 dark:border-neutral-700">
+                      Protected administrator
+                    </span>
+                  ) : u.isActive ? (
                     <>
                       <button
                         onClick={() => {
@@ -343,6 +389,13 @@ export default function AdminUsers() {
                       >
                         <Ban className="w-3.5 h-3.5" />
                         <span>Ban</span>
+                      </button>
+                      <button
+                        onClick={() => { setPromotingUser(u); setPromotionReason(''); }}
+                        className="px-2.5 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-neutral-700 dark:text-slate-300 dark:hover:bg-neutral-800"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Make Admin</span>
                       </button>
                     </>
                   ) : (
@@ -564,6 +617,22 @@ export default function AdminUsers() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {promotingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+          <form onSubmit={handlePromote} className={`rounded-[24px] max-w-sm w-full p-5 space-y-4 border shadow-2xl ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
+            <div>
+              <h4 className="font-extrabold text-sm">Promote to Administrator</h4>
+              <p className="mt-1 text-[10px] leading-4 text-slate-400">Grant {promotingUser.name} permanent access to protected moderation tools. This action is audited.</p>
+            </div>
+            <textarea required minLength={3} maxLength={500} rows={3} value={promotionReason} onChange={(event) => setPromotionReason(event.target.value)} placeholder="Explain why this account requires administrator access..." className={`w-full rounded-xl p-3 border text-xs outline-none ${isDark ? 'bg-[#1c1b18] border-neutral-700' : 'bg-slate-50 border-slate-300'}`} />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setPromotingUser(null)} className="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
+              <button disabled={promotionReason.trim().length < 3} className="px-4 py-2 rounded-xl bg-red-600 text-xs font-bold text-white disabled:opacity-50">Confirm promotion</button>
+            </div>
+          </form>
         </div>
       )}
 

@@ -1,25 +1,11 @@
 import React from 'react';
-import { Globe, Users } from 'lucide-react';
+import { Globe, ShieldCheck } from 'lucide-react';
 
 interface CommunityHeaderProps {
   isDark?: boolean;
-  workspaceRole?: 'seeker' | 'provider' | 'admin';
 }
 
-export default function CommunityHeader({ isDark = false, workspaceRole = 'seeker' }: CommunityHeaderProps) {
-  const roleBadgeStyle =
-    workspaceRole === 'provider'
-      ? isDark
-        ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400'
-        : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-      : workspaceRole === 'admin'
-      ? isDark
-        ? 'bg-red-950/30 border-red-800/40 text-red-400'
-        : 'bg-red-50 border-red-200 text-red-700'
-      : isDark
-      ? 'bg-orange-950/30 border-orange-800/40 text-orange-400'
-      : 'bg-orange-50 border-orange-200 text-orange-600';
-
+export default function CommunityHeader({ isDark = false }: CommunityHeaderProps) {
   return (
     <div
       className={`rounded-[24px] p-6 border flex items-start justify-between relative overflow-hidden transition-all duration-200 ${
@@ -42,21 +28,23 @@ export default function CommunityHeader({ isDark = false, workspaceRole = 'seeke
             <h1 className="text-xl font-extrabold tracking-tight leading-none">
               Community Hub
             </h1>
-            <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${roleBadgeStyle}`}>
-              {workspaceRole} View
+            <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
+              isDark ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+            }`}>
+              Official Updates
             </span>
           </div>
           <p className={`text-xs font-semibold leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
-            Discover what's happening across the ServiceHub Cordova community.
+            Official notices, provider recognition, and marketplace progress for Cordova, Cebu.
           </p>
           <p className={`text-[11px] leading-relaxed hidden sm:block ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-            Explore new services, community updates, and trusted local providers.
+            This is an information space managed by ServiceHub Cordova—not a public social feed.
           </p>
         </div>
       </div>
 
       <div className="opacity-[0.03] pointer-events-none hidden md:block select-none">
-        <Users className="w-28 h-28" />
+        <ShieldCheck className="w-28 h-28" />
       </div>
     </div>
   );

@@ -64,7 +64,7 @@ export default function PodiumChampions({
                 {secondPlace.primaryService || 'Cordova Resident'}
               </p>
               <p className="text-xs font-black text-blue-500 pt-0.5">
-                {secondPlace.trustScore}% Trust
+                Trust score {secondPlace.trustScore}
               </p>
               <div className="flex items-center justify-center space-x-2 text-[10px] pt-1">
                 <span className="flex items-center text-amber-500 font-bold">
@@ -88,7 +88,7 @@ export default function PodiumChampions({
             title={`Rank #1 Champion: ${firstPlace.name}`}
           >
             <div className="relative mb-3 flex flex-col items-center">
-              <div className="animate-pulse mb-1">
+              <div className="mb-1">
                 <Crown className="w-8 h-8 text-amber-400 fill-amber-400 drop-shadow-md" />
               </div>
 
@@ -126,12 +126,12 @@ export default function PodiumChampions({
                 {firstPlace.primaryService || 'Top Service Provider'}
               </p>
               <p className="text-sm font-black text-amber-500 pt-0.5">
-                {firstPlace.trustScore}% Trust
+                Trust score {firstPlace.trustScore}
               </p>
               <div className="flex items-center justify-center space-x-2 text-[10.5px] pt-1">
                 <span className="flex items-center text-amber-500 font-bold">
                   <Star className="w-3.5 h-3.5 mr-0.5 fill-amber-500 text-amber-500" />
-                  {firstPlace.avgRating ? firstPlace.avgRating.toFixed(1) : '5.0'}
+                  {firstPlace.avgRating ? firstPlace.avgRating.toFixed(1) : '—'}
                 </span>
                 <span className={isDark ? 'text-neutral-500' : 'text-slate-400'}>•</span>
                 <span className={`font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
@@ -183,7 +183,7 @@ export default function PodiumChampions({
                 {thirdPlace.primaryService || 'Cordova Resident'}
               </p>
               <p className="text-xs font-black text-emerald-500 pt-0.5">
-                {thirdPlace.trustScore}% Trust
+                Trust score {thirdPlace.trustScore}
               </p>
               <div className="flex items-center justify-center space-x-2 text-[10px] pt-1">
                 <span className="flex items-center text-amber-500 font-bold">

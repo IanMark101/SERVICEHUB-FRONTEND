@@ -27,7 +27,7 @@ export default function CommunityStats({
       <div
         className={`rounded-2xl p-4 border flex items-center justify-between text-xs font-semibold ${
           isDark
-            ? 'bg-red-955/20 border-red-900/30 text-red-400'
+            ? 'bg-red-950/20 border-red-900/30 text-red-400'
             : 'bg-red-50 border-red-200 text-red-600'
         }`}
       >

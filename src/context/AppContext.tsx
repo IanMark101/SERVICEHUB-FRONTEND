@@ -21,8 +21,9 @@ import { apiBrowseServices, apiGetMyServices } from '../api/services.api';
 import { apiGetTransactions } from '../api/transactions.api';
 import { apiGetConversations } from '../api/messages.api';
 import { UserSession } from '../components/auth/LoginContainer';
-import { apiGetMe } from '../api/auth.api';
+import { apiRecoverSession } from '../api/auth.api';
 import { connectSocket, disconnectSocket } from '../lib/socket';
+import { clearAccessToken } from '../lib/api/axios';
 
 
 // Modular Helpers and Hooks
@@ -37,7 +38,6 @@ import {
 } from './mappers';
 import { useSeekerActions } from '../hooks/useSeekerActions';
 import { useProviderActions } from '../hooks/useProviderActions';
-import { useAdminActions } from '../hooks/useAdminActions';
 import { useSharedActions } from '../hooks/useSharedActions';
 import { useToast } from '../components/ui/Toast';
 
@@ -112,9 +112,6 @@ interface AppContextType {
   providerRemoveFromQueue: (id: string) => void;
 
   // Admin actions
-  verifyProvider: (providerId: string, approve: boolean) => void;
-  approveCategorySuggestion: (suggestionId: string, approve: boolean) => void;
-  resolveDispute: (jobId: string, payoutToProvider: boolean) => void;
 
   // Shared actions
   sendMessage: (senderId: string, receiverId: string, text: string) => void;
@@ -172,12 +169,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return !!localStorage.getItem('accessToken');
-    }
-    return false;
-  });
+  // A cached token is only a session candidate. Protected data must wait until
+  // /auth/me has validated it (and refreshed it when possible).
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
   const { success: toastSuccess, error: toastError } = useToast();
 
@@ -194,12 +188,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [userReports, setUserReports] = useState<UserReport[]>([]);
   const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
 
+  const clearPrivateData = useCallback(() => {
+    setJobRequests([]);
+    setBids([]);
+    setJobEngagements([]);
+    setTransactions([]);
+    setNotifications([]);
+    setMessages([]);
+    setUnreadMessagesCount(0);
+    setCategorySuggestions([]);
+    setUserReports([]);
+  }, []);
+
   // ─── Session Recovery ──────────────────────────────────────────
   useEffect(() => {
+    let active = true;
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (token) {
-      apiGetMe()
+    if (!token) {
+      setUser(null);
+      setIsAuthenticated(false);
+      setAuthLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
+    apiRecoverSession()
         .then((res) => {
+          if (!active) return;
           if (res.success) {
             const dbUser = res.data.user;
             const names = (dbUser.name || '').split(' ');
@@ -224,39 +240,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setUser(sessionData);
             setIsAuthenticated(true);
           } else {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('userSession');
-            setUser(null);
-          }
-          setAuthLoading(false);
-        })
-        .catch((err) => {
-          if (err.response?.status === 401 || err.response?.status === 403) {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('userSession');
+            clearAccessToken();
             setUser(null);
             setIsAuthenticated(false);
           }
-          setAuthLoading(false);
+        })
+        .catch(() => {
+          if (!active) return;
+          // Fail closed: cached identity/role data must never render a protected
+          // workspace when the authoritative /auth/me check did not succeed.
+          clearAccessToken();
+          setUser(null);
+          setIsAuthenticated(false);
+        })
+        .finally(() => {
+          if (active) setAuthLoading(false);
         });
-    } else {
-      setAuthLoading(false);
-    }
 
+    return () => {
+      active = false;
+    };
+  }, [setUser]);
+
+  useEffect(() => {
     const handleSessionExpired = () => {
+      clearAccessToken();
       setIsAuthenticated(false);
       setUser(null);
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('userSession');
-        localStorage.removeItem('accessToken');
-      }
+      clearPrivateData();
     };
 
     window.addEventListener('auth_session_expired', handleSessionExpired);
     return () => {
       window.removeEventListener('auth_session_expired', handleSessionExpired);
     };
-  }, []);
+  }, [clearPrivateData, setUser]);
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -280,8 +298,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const syncPublicServices = useCallback(async () => {
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-      if (token) {
+      if (isAuthenticated) {
         const [browseRes, mineRes] = await Promise.allSettled([
           apiBrowseServices(),
           apiGetMyServices(),
@@ -312,7 +329,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const syncCategories = useCallback(async () => {
     try {
@@ -464,9 +481,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [syncEngagements]);
 
   const refreshAll = useCallback(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     syncPublicServices();
-    if (token) {
+    if (isAuthenticated && !authLoading) {
       syncRequests();
       syncBids();
       syncEngagements();
@@ -474,28 +490,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       syncTransactions();
       syncUnreadMessages();
     }
-  }, [syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
+  }, [isAuthenticated, authLoading, syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
 
   // ─── Initial Data Load on Mount ────────────────────────────────
   useEffect(() => {
-    // Restore theme
-    if (typeof window !== "undefined") {
-      const savedDark = localStorage.getItem("theme") === "dark";
-      setIsDark(savedDark);
-      if (savedDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-
     // Always load categories and public services
     syncCategories();
     syncPublicServices();
+  }, [syncCategories, syncPublicServices]);
 
-    // Load private data only if authenticated
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (token) {
+  useEffect(() => {
+    // Load private data only after the authoritative session check succeeds.
+    if (authLoading) return;
+    if (!isAuthenticated || !user?.id) {
+      clearPrivateData();
+      return;
+    }
+
+    {
       syncRequests();
       syncBids();
       syncEngagements();
@@ -540,32 +552,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       }
     }
-  }, [refreshAll]);
+  }, [authLoading, isAuthenticated, user?.id, clearPrivateData, refreshAll, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages, toastError, toastSuccess]);
 
   // ─── Socket.io — connect when authenticated, disconnect on logout ───
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token || !isAuthenticated) return;
+    if (!token || authLoading || !isAuthenticated || !user?.id) return;
 
     const sock = connectSocket(token);
     if (!sock) return;
 
+    // Bursts often contain both `notification` and `ENGAGEMENT_CHANGED` for
+    // the same mutation. Coalesce each resource refresh so one action does not
+    // fan out into repeated identical API calls and visible dashboard lag.
+    const refreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+    const scheduleRefresh = (key: string, refresh: () => void) => {
+      const pending = refreshTimers.get(key);
+      if (pending) clearTimeout(pending);
+      refreshTimers.set(key, setTimeout(() => {
+        refreshTimers.delete(key);
+        refresh();
+      }, 180));
+    };
+    const scheduleOperationalRefresh = () => {
+      scheduleRefresh('notifications', syncNotifications);
+      scheduleRefresh('engagements', syncEngagements);
+      scheduleRefresh('bids', syncBids);
+      scheduleRefresh('requests', syncRequests);
+      scheduleRefresh('transactions', syncTransactions);
+    };
+
     // Real-time notification badge and data synchronization
     sock.on('notification', () => {
-      syncNotifications();
-      syncEngagements();
-      syncBids();
-      syncRequests();
-      syncTransactions();
+      scheduleOperationalRefresh();
     });
 
     // Real-time booking / engagement status updates (create, accept, decline, cancel, start, complete, dispute)
     sock.on('ENGAGEMENT_CHANGED', () => {
-      syncEngagements();
-      syncBids();
-      syncRequests();
-      syncNotifications();
-      syncTransactions();
+      scheduleOperationalRefresh();
     });
 
     // Real-time queue counter update — update the services list in place
@@ -579,30 +603,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
           return { ...s, queueSize: newSize };
         })
       );
-      syncEngagements();
+      scheduleRefresh('engagements', syncEngagements);
     });
 
     // Unread message badge — re-sync unread messages count in real-time
     sock.on('message_notification', () => {
-      syncUnreadMessages();
+      scheduleRefresh('unreadMessages', syncUnreadMessages);
     });
 
     // Real-time service request / broadcast updates
     sock.on('SERVICE_REQUEST_CREATED', () => {
-      syncRequests();
-      syncBids();
+      scheduleRefresh('requests', syncRequests);
+      scheduleRefresh('bids', syncBids);
     });
     sock.on('SERVICE_REQUEST_UPDATED', () => {
-      syncRequests();
-      syncBids();
+      scheduleRefresh('requests', syncRequests);
+      scheduleRefresh('bids', syncBids);
     });
     sock.on('SERVICE_REQUEST_DELETED', () => {
-      syncRequests();
-      syncBids();
+      scheduleRefresh('requests', syncRequests);
+      scheduleRefresh('bids', syncBids);
     });
     sock.on('SERVICE_REQUESTS_CHANGED', () => {
-      syncRequests();
-      syncBids();
+      scheduleRefresh('requests', syncRequests);
+      scheduleRefresh('bids', syncBids);
     });
 
     // Real-time service listing updates (active/paused toggles, edits, deletes, approvals)
@@ -610,23 +634,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setServices(prev =>
         prev.map(s => (s.id === data.id ? { ...s, isPaused: !data.isAvailable } : s))
       );
-      syncPublicServices();
+      scheduleRefresh('publicServices', syncPublicServices);
     });
     sock.on('SERVICE_LISTING_UPDATED', () => {
-      syncPublicServices();
+      scheduleRefresh('publicServices', syncPublicServices);
     });
     sock.on('SERVICE_LISTING_DELETED', (data: { id: string }) => {
       setServices(prev => prev.filter(s => s.id !== data.id));
-      syncPublicServices();
+      scheduleRefresh('publicServices', syncPublicServices);
     });
     sock.on('SERVICE_LISTING_APPROVED', () => {
-      syncPublicServices();
+      scheduleRefresh('publicServices', syncPublicServices);
     });
     sock.on('SERVICE_LISTINGS_CHANGED', () => {
-      syncPublicServices();
+      scheduleRefresh('publicServices', syncPublicServices);
     });
 
     return () => {
+      refreshTimers.forEach(clearTimeout);
       sock.off('notification');
       sock.off('ENGAGEMENT_CHANGED');
       sock.off('queue_update');
@@ -641,7 +666,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       sock.off('SERVICE_LISTING_APPROVED');
       sock.off('SERVICE_LISTINGS_CHANGED');
     };
-  }, [isAuthenticated, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices, syncEngagements, syncTransactions]);
+  }, [authLoading, isAuthenticated, user?.id, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices, syncEngagements, syncTransactions]);
 
   // Disconnect socket when user explicitly logs out
   useEffect(() => {
@@ -650,23 +675,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated]);
 
-  // Sync data automatically upon successful login
-  useEffect(() => {
-    if (isAuthenticated) {
-      syncPublicServices();
-      syncRequests();
-      syncBids();
-      syncEngagements();
-      syncNotifications();
-      syncTransactions();
-      syncUnreadMessages();
-    }
-  }, [isAuthenticated, syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
-
   // ─── Notification polling every 60 seconds when authenticated ──
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return;
+    if (authLoading || !isAuthenticated || !user?.id) return;
 
     const interval = setInterval(() => {
       syncNotifications();
@@ -674,7 +685,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [syncNotifications, syncUnreadMessages]);
+  }, [authLoading, isAuthenticated, user?.id, syncNotifications, syncUnreadMessages]);
 
 
   // ─── Shared helper ─────────────────────────────────────────────
@@ -735,15 +746,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
 
   // ─── Modularize Admin Actions ───────────────────────────────────
-  const adminActions = useAdminActions({
-    jobEngagements,
-    setUsers,
-    setCategorySuggestions,
-    setJobEngagements,
-    setTransactions,
-    setUserReports,
-    helperAddNotification
-  });
 
   // ─── Modularize Shared Actions ──────────────────────────────────
   const sharedActions = useSharedActions({
@@ -771,7 +773,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateUserProfile,
       ...seekerActions,
       ...providerActions,
-      ...adminActions,
       ...sharedActions,
       isDark,
       toggleTheme,

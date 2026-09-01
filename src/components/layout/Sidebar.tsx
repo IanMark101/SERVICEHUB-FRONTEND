@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   AlertTriangle,
   HelpCircle,
+  Megaphone,
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { useApp } from '../../context/AppContext';
@@ -82,10 +83,10 @@ export default function Sidebar({
       badge: isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
     },
     admin: {
-      accent: isDark ? 'text-red-400' : 'text-red-655',
+      accent: isDark ? 'text-red-400' : 'text-red-600',
       bgActive: isDark ? 'bg-red-950/20' : 'bg-red-50/70',
       borderActive: 'border-red-500',
-      badge: isDark ? 'bg-red-950/40 text-red-400 border-red-900/30' : 'bg-red-50 text-red-655 border-red-200'
+      badge: isDark ? 'bg-red-950/40 text-red-400 border-red-900/30' : 'bg-red-50 text-red-600 border-red-200'
     }
   };
 
@@ -114,6 +115,7 @@ export default function Sidebar({
       { id: 'verifications', label: 'Verifications', icon: ShieldCheck },
       { id: 'services', label: 'Pending Services', icon: Briefcase },
       { id: 'categories', label: 'Category Suggestions', icon: Tag },
+      { id: 'announcements', label: 'Announcements', icon: Megaphone },
       { id: 'reports', label: 'Disputes & Reports', icon: AlertTriangle },
     ]
   };
@@ -351,7 +353,7 @@ export default function Sidebar({
             />
             <div className="min-w-0 flex-1">
               <h4 className={`text-xs font-bold truncate ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>{user.firstName} {user.lastName}</h4>
-              <p className={`text-[9px] truncate tracking-wider uppercase font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>{currentRole}</p>
+              <p className={`text-[9px] truncate tracking-wider uppercase font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>{currentRole}</p>
             </div>
           </div>
         )}
@@ -379,7 +381,7 @@ export default function Sidebar({
         {/* Sign out */}
         <button
           onClick={onSignOut}
-          className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl text-red-655 hover:text-red-500 border border-transparent transition-all group ${isDark ? 'hover:bg-red-950/20 hover:border-red-950/30' : 'hover:bg-red-50 hover:border-red-100'
+          className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl text-red-600 hover:text-red-500 border border-transparent transition-all group ${isDark ? 'hover:bg-red-950/20 hover:border-red-950/30' : 'hover:bg-red-50 hover:border-red-100'
             }`}
         >
           <LogOut className="w-4 h-4 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />

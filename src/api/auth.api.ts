@@ -1,5 +1,7 @@
 import { api } from '../lib/api/axios';
 
+let sessionRecoveryRequest: ReturnType<typeof apiGetMe> | null = null;
+
 export async function apiRegister(data: any) {
   const response = await api.post('/auth/register', data);
   return response.data;
@@ -23,6 +25,20 @@ export async function apiRefresh() {
 export async function apiGetMe() {
   const response = await api.get('/auth/me');
   return response.data;
+}
+
+/**
+ * Deduplicate the initial session check. React intentionally mounts effects
+ * twice in development, but session recovery must still issue only one /me
+ * request and one refresh attempt.
+ */
+export function apiRecoverSession() {
+  if (!sessionRecoveryRequest) {
+    sessionRecoveryRequest = apiGetMe().finally(() => {
+      sessionRecoveryRequest = null;
+    });
+  }
+  return sessionRecoveryRequest;
 }
 
 export async function apiVerifyEmail(token: string) {

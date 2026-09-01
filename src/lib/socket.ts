@@ -1,6 +1,6 @@
 "use client";
 import { io, Socket } from "socket.io-client";
-import { api } from "./api/axios";
+import { api, clearAccessToken, setAccessToken } from "./api/axios";
 
 let socket: Socket | null = null;
 let isRefreshingSocketAuth = false;
@@ -37,6 +37,14 @@ export function connectSocket(token: string): Socket | null {
     console.log("[Socket.io] Disconnected:", reason);
   });
 
+  socket.on("forceLogout", () => {
+    clearAccessToken();
+    localStorage.removeItem("userSession");
+    localStorage.removeItem("workspaceRole");
+    window.dispatchEvent(new Event("auth_session_expired"));
+    disconnectSocket();
+  });
+
   // Automatically refresh expired token on authentication errors to prevent lockouts
   socket.on("connect_error", async (err) => {
     const isAuthError =
@@ -56,7 +64,7 @@ export function connectSocket(token: string): Socket | null {
           refreshResponse.data?.accessToken;
 
         if (newAccessToken && socket) {
-          localStorage.setItem('accessToken', newAccessToken);
+          setAccessToken(newAccessToken);
           socket.auth = { token: newAccessToken };
           socket.connect();
         } else {
@@ -64,6 +72,9 @@ export function connectSocket(token: string): Socket | null {
         }
       } catch {
         // Session expired or user logged out; cleanly disconnect without repeating errors
+        clearAccessToken();
+        localStorage.removeItem("userSession");
+        window.dispatchEvent(new Event("auth_session_expired"));
         disconnectSocket();
       } finally {
         isRefreshingSocketAuth = false;

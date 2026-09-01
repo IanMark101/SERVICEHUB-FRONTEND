@@ -98,7 +98,7 @@ export default function NewServicesSection({
                   {service.provider?.name || 'Local Provider'}
                 </span>
                 <span className={`text-[8px] font-extrabold px-1 rounded border ml-auto ${
-                  isDark ? 'bg-emerald-955/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-100 text-emerald-700'
+                  isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-100 text-emerald-700'
                 }`}>
                   {service.provider?.trustScore || 50}%
                 </span>

@@ -33,6 +33,9 @@ export default function AdminVerifications() {
   const [verifications, setVerifications] = useState<VerificationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [reviewingItem, setReviewingItem] = useState<VerificationItem | null>(null);
   const [isApproveMode, setIsApproveMode] = useState<boolean>(true);
@@ -43,10 +46,12 @@ export default function AdminVerifications() {
 
   const fetchVerifications = () => {
     setLoading(true);
-    apiListPendingVerifications()
+    apiListPendingVerifications({ page, limit: 10 })
       .then(res => {
         if (res.success) {
           setVerifications(res.data);
+          setTotal(res.pagination?.total || 0);
+          setTotalPages(Math.max(1, res.pagination?.totalPages || 1));
           setError('');
         } else {
           setError("Failed to fetch pending verifications queue.");
@@ -73,7 +78,7 @@ export default function AdminVerifications() {
         socket.off('verification_submitted', handleNewVerification);
       };
     }
-  }, []);
+  }, [page]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,11 +143,11 @@ export default function AdminVerifications() {
             return (
               <div
                 key={item.id}
-                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
+                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200'
                   }`}
               >
                 {/* Header info */}
-                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-850">
+                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div>
                     <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {item.user?.name}
@@ -151,14 +156,14 @@ export default function AdminVerifications() {
                       Provider ID: {item.userId} • Email: {item.user?.email}
                     </p>
                   </div>
-                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-450' : 'text-amber-600'}`}>
+                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                     📅 Submitted: {formattedDate}
                   </span>
                 </div>
 
                 {/* Proofs documents grid */}
                 <div className="space-y-2">
-                  <span className={`text-xs font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  <span className={`text-xs font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
                     Document Proofs:
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -179,7 +184,7 @@ export default function AdminVerifications() {
                               href={proof.fileUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-red-500 hover:text-red-655 flex items-center space-x-0.5 text-[10px] flex-shrink-0"
+                              className="text-red-500 hover:text-red-600 flex items-center space-x-0.5 text-[10px] flex-shrink-0"
                             >
                               <span>Open</span>
                               <ExternalLink className="w-3 h-3" />
@@ -212,7 +217,7 @@ export default function AdminVerifications() {
                 </div>
 
                 {/* Audit Action panel */}
-                <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'
+                <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${isDark ? 'border-neutral-800' : 'border-slate-100'
                   }`}>
                   <button
                     onClick={() => {
@@ -243,6 +248,17 @@ export default function AdminVerifications() {
         )}
       </div>
 
+      {total > 0 && (
+        <div className="flex items-center justify-between text-xs">
+          <span className={isDark ? 'text-neutral-400' : 'text-slate-500'}>{total} pending verification{total === 1 ? '' : 's'}</span>
+          <div className="flex items-center gap-3">
+            <button type="button" disabled={page === 1} onClick={() => setPage(value => value - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button>
+            <span className="font-bold">Page {page} of {totalPages}</span>
+            <button type="button" disabled={page >= totalPages} onClick={() => setPage(value => value + 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Next</button>
+          </div>
+        </div>
+      )}
+
       {/* Review Dialog Overlay */}
       {reviewingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
@@ -264,6 +280,8 @@ export default function AdminVerifications() {
                   className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
                     }`}
                   rows={4}
+                  required={!isApproveMode}
+                  minLength={isApproveMode ? undefined : 3}
                 />
               </div>
               <div className="flex items-center justify-end space-x-2">
@@ -276,7 +294,7 @@ export default function AdminVerifications() {
                 </button>
                 <button
                   type="submit"
-                  disabled={submittingReview}
+                  disabled={submittingReview || (!isApproveMode && adminNotes.trim().length < 3)}
                   className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${submittingReview
                       ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                       : isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'

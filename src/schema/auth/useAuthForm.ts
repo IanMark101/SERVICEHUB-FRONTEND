@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '@/api/auth.api';
 import { UserSession } from '../../components/auth/LoginContainer';
 import { signupStep1Schema, signupStep2Schema, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
+import { setAccessToken } from '@/lib/api/axios';
 
 interface UseAuthFormProps {
   onLoginSuccess: (userData: UserSession) => void;
@@ -120,7 +121,7 @@ export default function useAuthForm({
       .then((res) => {
         if (res.success) {
           const user = res.data.user;
-          localStorage.setItem('accessToken', res.data.accessToken);
+          setAccessToken(res.data.accessToken);
           const names = (user.name || '').split(' ');
           const firstName = names[0] || '';
           const lastName = names.slice(1).join(' ') || '';
@@ -225,7 +226,7 @@ export default function useAuthForm({
         .then((res) => {
           if (res.success) {
             const user = res.data.user;
-            localStorage.setItem('accessToken', res.data.accessToken);
+            setAccessToken(res.data.accessToken);
             const names = (user.name || '').split(' ');
             const firstName = names[0] || '';
             const lastName = names.slice(1).join(' ') || '';

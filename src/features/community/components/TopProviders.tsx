@@ -13,6 +13,7 @@ interface TopProvidersProps {
   isDark?: boolean;
   workspaceRole?: 'seeker' | 'provider' | 'admin';
   currentUserId?: string;
+  leaderboardPeriod?: { start: string; end: string };
 }
 
 export default function TopProviders({
@@ -21,6 +22,7 @@ export default function TopProviders({
   isDark = false,
   workspaceRole = 'seeker',
   currentUserId,
+  leaderboardPeriod,
 }: TopProvidersProps) {
   const router = useRouter();
 
@@ -30,7 +32,7 @@ export default function TopProviders({
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
           <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Local Providers Leaderboard
+            Top Providers of the Week
           </h2>
         </div>
         <TopProvidersSkeleton isDark={isDark} />
@@ -44,13 +46,13 @@ export default function TopProviders({
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
           <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Local Providers Leaderboard
+            Top Providers of the Week
           </h2>
         </div>
         <CommunityEmptyState
           icon={Users}
-          title="No providers are currently available"
-          description="Verified providers with completed services will appear here."
+          title="No provider recognition is available this week"
+          description="Providers with verified services completed this week will appear here."
           isDark={isDark}
         />
       </div>
@@ -74,11 +76,13 @@ export default function TopProviders({
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
           <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Local Providers Leaderboard
+            Top Providers of the Week
           </h2>
         </div>
         <span className={`text-[10px] font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-          Ranked deterministically by Trust Score, completed jobs, and client reviews
+          {leaderboardPeriod
+            ? `Week of ${new Date(leaderboardPeriod.start).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} · Ranked by trust, completed work, and client ratings`
+            : 'Ranked by trust, completed work, and client ratings'}
         </span>
       </div>
 

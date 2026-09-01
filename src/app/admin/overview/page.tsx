@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { useRouter } from 'next/navigation';
 import { apiGetAdminOverview } from '../../../api/admin.api';
-import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, Loader2, RefreshCw, Activity, Database, Radio } from 'lucide-react';
 
 interface StatsData {
   totalUsers: number;
@@ -12,6 +12,14 @@ interface StatsData {
   openReports: number;
   pendingListings: number;
   categorySuggestions: number;
+  recentAuditLogs: Array<{
+    id: string;
+    action: string;
+    reason: string;
+    createdAt: string;
+    actor: { id: string; name: string };
+    targetUser?: { id: string; name: string } | null;
+  }>;
 }
 
 export default function AdminOverview() {
@@ -64,7 +72,7 @@ export default function AdminOverview() {
       title: "Total Users",
       value: stats?.totalUsers || 0,
       icon: Users,
-      color: "bg-blue-550/10 text-blue-500 border-blue-500/20",
+      color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
       desc: "All registered Seekers & Providers.",
       href: '/admin/users',
     },
@@ -72,7 +80,7 @@ export default function AdminOverview() {
       title: "Active Listings",
       value: stats?.activeServices || 0,
       icon: Briefcase,
-      color: "bg-emerald-550/10 text-emerald-500 border-emerald-500/20",
+      color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
       desc: "Verified & running marketplace listings.",
       href: '/admin/services',
     },
@@ -80,7 +88,7 @@ export default function AdminOverview() {
       title: "Verification Queue",
       value: stats?.pendingVerifications || 0,
       icon: Shield,
-      color: "bg-orange-550/10 text-orange-500 border-orange-500/20",
+      color: "bg-orange-500/10 text-orange-500 border-orange-500/20",
       desc: "Pending provider document submissions.",
       href: '/admin/verifications',
     },
@@ -88,7 +96,7 @@ export default function AdminOverview() {
       title: "Open Reports & Disputes",
       value: stats?.openReports || 0,
       icon: AlertTriangle,
-      color: "bg-red-550/10 text-red-500 border-red-500/20",
+      color: "bg-red-500/10 text-red-500 border-red-500/20",
       desc: "Pending moderator arbitration cases.",
       href: '/admin/reports',
     },
@@ -96,7 +104,7 @@ export default function AdminOverview() {
       title: "Suggested Categories",
       value: stats?.categorySuggestions || 0,
       icon: HelpCircle,
-      color: "bg-purple-550/10 text-purple-500 border-purple-500/20",
+      color: "bg-purple-500/10 text-purple-500 border-purple-500/20",
       desc: "New category requests from seekers.",
       href: '/admin/categories',
     },
@@ -104,7 +112,7 @@ export default function AdminOverview() {
       title: "Pending Listings Review",
       value: stats?.pendingListings || 0,
       icon: Briefcase,
-      color: "bg-amber-550/10 text-amber-500 border-amber-500/20",
+      color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
       desc: "Services awaiting admin verification.",
       href: '/admin/services',
     }
@@ -155,13 +163,29 @@ export default function AdminOverview() {
         })}
       </div>
 
-      <div className={`rounded-[24px] p-6 border shadow-sm transition-all ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-      }`}>
-        <h4 className="font-extrabold text-sm mb-3">System Health Overview</h4>
-        <p className={`text-xs leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>
-          Welcome to the ServiceHub Admin Panel. Here you can perform verification audits, service catalog moderation, custom category provisioning, user trust engine tuning, and active contract arbitration. Select a tab from the sidebar to begin moderating.
-        </p>
+      <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <section className={`rounded-[24px] p-6 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
+          <h4 className="font-extrabold text-sm mb-4">Operational Status</h4>
+          <div className="space-y-3 text-xs">
+            <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-800"><span className="flex items-center gap-2 font-bold"><Radio className="h-4 w-4" /> Admin API</span><span>Online</span></div>
+            <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-800"><span className="flex items-center gap-2 font-bold"><Database className="h-4 w-4" /> PostgreSQL</span><span>Connected</span></div>
+            <p className="text-[10px] leading-4 text-slate-500">Statuses reflect this successful authenticated overview request and its database queries.</p>
+          </div>
+        </section>
+
+        <section className={`rounded-[24px] p-6 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
+          <div className="mb-4 flex items-center gap-2"><Activity className="h-4 w-4 text-red-600" /><h4 className="font-extrabold text-sm">Recent Administrator Actions</h4></div>
+          {!stats?.recentAuditLogs?.length ? <p className="text-xs text-slate-500">No administrator actions have been recorded yet.</p> : (
+            <div className="divide-y divide-slate-100 dark:divide-neutral-800">
+              {stats.recentAuditLogs.map((log) => (
+                <div key={log.id} className="py-2.5 first:pt-0 last:pb-0">
+                  <div className="flex items-start justify-between gap-3"><p className="text-[11px] font-bold">{log.action.replace(/_/g, ' ')}</p><time className="shrink-0 text-[9px] text-slate-400">{new Date(log.createdAt).toLocaleString()}</time></div>
+                  <p className="mt-0.5 text-[10px] text-slate-500">{log.actor.name}{log.targetUser ? ` → ${log.targetUser.name}` : ''}: {log.reason}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

@@ -10,12 +10,26 @@ export const api = axios.create({
   },
 });
 
+export function setAccessToken(token: string): void {
+  localStorage.setItem('accessToken', token);
+  api.defaults.headers.common.Authorization = `Bearer ${token}`;
+}
+
+export function clearAccessToken(): void {
+  localStorage.removeItem('accessToken');
+  delete api.defaults.headers.common.Authorization;
+}
+
 // Attach access token to every outgoing request
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else if (config.headers) {
+      // Axios defaults survive client-side navigation and hot reloads. Never
+      // allow a token removed during logout to remain on later requests.
+      delete config.headers.Authorization;
     }
     return config;
   },
@@ -47,14 +61,18 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     // Avoid infinite loop if auth/refresh or login fails
-    if (originalRequest.url?.includes('/auth/refresh') || originalRequest.url?.includes('/auth/login')) {
+    if (
+      originalRequest.url?.includes('/auth/refresh') ||
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/auth/google-login')
+    ) {
       return Promise.reject(error);
     }
 
     if (error.response?.status === 403) {
       const errData = error.response.data;
       if (errData?.error === "Account suspended" || errData?.code === "EMAIL_NOT_VERIFIED") {
-        localStorage.removeItem('accessToken');
+        clearAccessToken();
         window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(error);
       }
@@ -97,9 +115,7 @@ api.interceptors.response.use(
         if (!accessToken) {
           throw new Error('No access token returned from refresh');
         }
-        localStorage.setItem('accessToken', accessToken);
-
-        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        setAccessToken(accessToken);
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         processQueue(null, accessToken);
@@ -110,7 +126,7 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         isRefreshing = false;
         // Clean up token and trigger redirect or logout event
-        localStorage.removeItem('accessToken');
+        clearAccessToken();
         window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(refreshError);
       }

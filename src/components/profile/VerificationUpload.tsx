@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Shield, Upload, CheckCircle2, Clock, XCircle, ExternalLink, AlertTriangle, Image as ImageIcon, FileCheck, Trash2, Camera, Plus, Eye } from 'lucide-react';
-import { apiSubmitVerification, apiGetVerificationStatus } from '../../api/verifications.api';
+import { apiSubmitVerification, apiGetVerificationStatus, apiUploadVerificationImage } from '../../api/verifications.api';
 import { useToast } from '../ui/Toast';
 
 interface VerificationUploadProps {
@@ -13,14 +13,12 @@ interface DocumentRow {
   fileUrl: string;
   fileName?: string;
   documentType: string;
-  isCustomUrl?: boolean;
 }
 
 const DOCUMENT_TYPES = [
   { value: 'GOVERNMENT_ID', label: 'Government-Issued ID (PhilSys, Driver\'s License, Passport)' },
+  { value: 'BARANGAY_ID', label: 'Barangay ID' },
   { value: 'PROOF_OF_RESIDENCE', label: 'Proof of Residence (Barangay Cert, Utility Bill)' },
-  { value: 'SKILL_CERTIFICATE', label: 'Skill Certificate or Diploma' },
-  { value: 'BUSINESS_PERMIT', label: 'Business Permit (if applicable)' },
 ];
 
 const STATUS_CONFIG = {
@@ -63,8 +61,15 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 12 * 1024 * 1024) {
-      toastError('File too large', 'Please upload a photo under 12MB.');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toastError('Unsupported file', 'Use a JPG, PNG, or WEBP image. PDF files are not accepted for identity verification.');
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toastError('File too large', 'Please upload a photo under 5MB.');
+      e.target.value = '';
       return;
     }
 
@@ -74,8 +79,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
       setRows(prev => prev.map((row, idx) => idx === i ? {
         ...row,
         fileUrl: dataUrl,
-        fileName: file.name,
-        isCustomUrl: false
+        fileName: file.name
       } : row));
     };
     reader.readAsDataURL(file);
@@ -89,7 +93,15 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
     }
     setSubmitting(true);
     try {
-      const res = await apiSubmitVerification(valid.map(v => ({ fileUrl: v.fileUrl, documentType: v.documentType })));
+      if (valid.some((item) => !item.fileUrl.startsWith('data:image/'))) {
+        toastError('Upload required', 'For privacy, verification documents must be uploaded from your device.');
+        return;
+      }
+      const uploaded = await Promise.all(valid.map(async (item) => {
+        const upload = await apiUploadVerificationImage(item.fileUrl);
+        return { storageKey: upload.data.storageKey, documentType: item.documentType };
+      }));
+      const res = await apiSubmitVerification(uploaded);
       if (res.success) {
         success('Verification Submitted!', 'Admin will review your photos & documents.');
         setStatus('PENDING_REVIEW');
@@ -212,7 +224,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                   <div>
                     <input
                       type="file"
-                      accept="image/*,.pdf"
+                      accept="image/jpeg,image/png,image/webp"
                       ref={el => { fileInputRefs.current[i] = el; }}
                       style={{ display: 'none' }}
                       onChange={e => handleFileUpload(i, e)}
@@ -266,33 +278,10 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                           Click to Upload Photo / File
                         </p>
                         <p style={{ margin: '4px 0 0', fontSize: '11px', color: textMuted }}>
-                          Supports JPG, PNG, WEBP, or PDF (up to 12MB)
+                          Supports JPG, PNG, or WEBP (up to 5MB)
                         </p>
                       </div>
                     )}
-
-                    {/* Fallback URL Toggle */}
-                    <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'flex-end' }}>
-                      {!row.isCustomUrl ? (
-                        <button
-                          type="button"
-                          onClick={() => updateRow(i, 'isCustomUrl', true)}
-                          style={{ background: 'none', border: 'none', color: textMuted, fontSize: '10.5px', cursor: 'pointer', textDecoration: 'underline' }}
-                        >
-                          Or paste a web document link instead
-                        </button>
-                      ) : (
-                        <div style={{ width: '100%', marginTop: '6px' }}>
-                          <input
-                            type="url"
-                            placeholder="https://..."
-                            value={row.fileUrl}
-                            onChange={e => updateRow(i, 'fileUrl', e.target.value)}
-                            style={inputStyle}
-                          />
-                        </div>
-                      )}
-                    </div>
 
                   </div>
                 </div>

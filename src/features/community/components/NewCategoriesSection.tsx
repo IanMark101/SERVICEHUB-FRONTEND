@@ -40,10 +40,11 @@ export default function NewCategoriesSection({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {categories.map((cat) => (
-            <div
+            <button
+              type="button"
               key={cat.id}
               onClick={() => onSelectCategory(cat.name)}
-              className={`border rounded-xl p-3.5 space-y-1.5 transition-all duration-200 cursor-pointer select-none group/cat hover:border-orange-500/50 hover:shadow-sm ${
+              className={`w-full text-left border rounded-xl p-3.5 space-y-1.5 transition-all duration-200 cursor-pointer select-none group/cat hover:border-orange-500/50 hover:shadow-sm ${
                 isDark
                   ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/40 text-[#f2efe9]'
                   : 'bg-slate-50 border-slate-200/80 hover:bg-white text-slate-900'
@@ -57,7 +58,7 @@ export default function NewCategoriesSection({
                 <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover/cat:text-orange-500 transition-colors" />
               </div>
               {cat.description && (
-                <p className={`text-[10.5px] font-medium leading-relaxed line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>
+                <p className={`text-[10.5px] font-medium leading-relaxed line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
                   {cat.description}
                 </p>
               )}
@@ -69,7 +70,7 @@ export default function NewCategoriesSection({
                   </span>
                 </div>
               )}
-            </div>
+            </button>
           ))}
         </div>
       )}

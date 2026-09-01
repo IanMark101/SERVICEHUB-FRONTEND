@@ -27,12 +27,13 @@ export default function LeaderboardTable({
         {providers.map((prov) => {
           const isUser = prov.id === currentUserId;
           return (
-            <div
+            <button
+              type="button"
               key={prov.id}
               onClick={() => onSelect(prov.id)}
-              className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none group/row hover:border-orange-500/50 hover:shadow-sm ${
+              className={`w-full text-left flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none group/row hover:border-orange-500/50 hover:shadow-sm ${
                 isUser
-                  ? (isDark ? 'bg-orange-955/20 border-orange-800/40' : 'bg-orange-50/70 border-orange-200')
+                  ? (isDark ? 'bg-orange-950/20 border-orange-800/40' : 'bg-orange-50/70 border-orange-200')
                   : (isDark ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/50' : 'bg-slate-50 border-slate-200/80 hover:bg-white')
               }`}
             >
@@ -71,7 +72,7 @@ export default function LeaderboardTable({
                     </h5>
                     {isUser && (
                       <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-orange-600 text-white">
-                        ★ You
+                        You
                       </span>
                     )}
                   </div>
@@ -88,11 +89,11 @@ export default function LeaderboardTable({
                 <span
                   className={`text-[9.5px] font-extrabold px-2 py-0.5 rounded-md border ${
                     isDark
-                      ? 'bg-emerald-955/20 border-emerald-900/30 text-emerald-400'
+                      ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400'
                       : 'bg-emerald-50 border-emerald-100 text-emerald-700'
                   }`}
                 >
-                  {prov.trustScore}% Trust
+                  Trust score {prov.trustScore}
                 </span>
 
                 <div className="hidden sm:flex items-center space-x-2 text-[10px]">
@@ -107,7 +108,7 @@ export default function LeaderboardTable({
                   )}
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

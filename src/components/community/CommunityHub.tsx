@@ -11,22 +11,19 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 export default function CommunityHub() {
   const { isDark, user } = useApp();
   const workspaceRole = user?.role || 'seeker';
-  const { data, loading, error, refetch, communityUpdates } = useCommunityHub(workspaceRole);
+  const { data, loading, error, refetch } = useCommunityHub();
 
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       {/* A. Community Hub Header */}
-      <CommunityHeader
-        isDark={isDark}
-        workspaceRole={workspaceRole}
-      />
+      <CommunityHeader isDark={isDark} />
 
       {/* Global Error Alert (if entire fetch failed) */}
       {error && !data && (
         <div
           className={`rounded-2xl p-6 border text-center flex flex-col items-center justify-center space-y-3 shadow-sm ${
-            isDark ? 'bg-red-955/20 border-red-900/30 text-red-400' : 'bg-red-50 border-red-200 text-red-700'
+            isDark ? 'bg-red-950/20 border-red-900/30 text-red-400' : 'bg-red-50 border-red-200 text-red-700'
           }`}
         >
           <AlertCircle className="w-8 h-8 opacity-90" />
@@ -55,17 +52,16 @@ export default function CommunityHub() {
         isDark={isDark}
       />
 
-      {/* C. Community Updates (Main Feature Section) */}
+      {/* C. Official Announcements (admin/system content only) */}
       <CommunityUpdates
-        updates={communityUpdates}
+        announcements={data?.announcements || []}
         loading={loading}
         isDark={isDark}
       />
 
-      {/* D. Recently Added (New Categories & New Services) */}
+      {/* D. Newly Added Categories */}
       <RecentlyAdded
         categories={data?.recentCategories || []}
-        services={data?.recentServices || []}
         loading={loading}
         isDark={isDark}
         workspaceRole={workspaceRole}
@@ -78,6 +74,7 @@ export default function CommunityHub() {
         isDark={isDark}
         workspaceRole={workspaceRole}
         currentUserId={user?.id}
+        leaderboardPeriod={data?.leaderboardPeriod}
       />
 
     </div>

@@ -146,17 +146,14 @@ export default function Header({
     const timer = window.setTimeout(async () => {
       // Debug: log query
       // eslint-disable-next-line no-console
-      console.log('[Header] search query:', query);
 
       // Try global search API first (non-admin endpoint) if enabled. If it returns results, use them.
       if (serverSearchEnabled) {
         try {
           const res = await apiSearchUsers({ search: query, page: 1, limit: 6 });
           // eslint-disable-next-line no-console
-          console.log('[Header] apiSearchUsers response:', res);
           if (res && res.success && Array.isArray(res.data)) {
             // eslint-disable-next-line no-console
-            console.log('[Header] apiSearchUsers results length:', (res.data || []).length);
             setUserSearchResults(res.data as AppUser[]);
             setShowUserSearchResults((res.data as AppUser[]).length > 0);
             setUserSearchLoading(false);
@@ -230,7 +227,6 @@ export default function Header({
           .slice(0, 6);
 
         // eslint-disable-next-line no-console
-        console.log('[Header] client filtered results count:', filtered.length, filtered.map(f => ({ id: f.id, name: `${f.firstName} ${f.lastName}` }))); 
         setUserSearchResults(filtered);
         setShowUserSearchResults(filtered.length > 0);
         setUserSearchLoading(false);
@@ -255,7 +251,7 @@ export default function Header({
     setIsMobileSearchOpen(false);
 
     const targetUrl = currentRole === 'admin'
-      ? `/admin/users?id=${selectedUser.id}`
+      ? `/admin/users?search=${encodeURIComponent(selectedUser.email || `${selectedUser.firstName} ${selectedUser.lastName}`)}`
       : `/${currentRole}/user-profile?id=${selectedUser.id}`;
 
     if (onViewProfile) {
@@ -336,10 +332,10 @@ export default function Header({
               className={`cursor-pointer px-2.5 py-1 text-[9px] font-extrabold rounded-lg border flex items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] ${
                 user.verificationStatus === 'PENDING_REVIEW'
                   ? isDark
-                    ? 'bg-amber-955/20 border-amber-900/30 text-amber-400'
-                    : 'bg-amber-50 border-amber-250 text-amber-700'
+                    ? 'bg-amber-950/20 border-amber-900/30 text-amber-400'
+                    : 'bg-amber-50 border-amber-200 text-amber-700'
                   : isDark
-                    ? 'bg-red-955/20 border-red-900/30 text-red-450'
+                    ? 'bg-red-950/20 border-red-900/30 text-red-400'
                     : 'bg-red-50 border-red-200 text-red-700'
               }`}
             >
@@ -478,7 +474,7 @@ export default function Header({
           className={`sm:hidden p-2.5 rounded-xl border transition-all ${
             isMobileSearchOpen
               ? isDark ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' : 'bg-orange-50 border-orange-200 text-orange-600'
-              : isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#b4b0a9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-655'
+              : isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#b4b0a9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600'
           }`}
           title="Search Users"
         >
@@ -506,7 +502,7 @@ export default function Header({
             onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
             className={`p-2.5 rounded-xl border transition-all relative cursor-pointer ${isDark
                 ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
-                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-655 hover:text-slate-800'
+                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
               }`}
             title="Direct Messages"
           >
@@ -538,7 +534,7 @@ export default function Header({
             onClick={handleToggleNotifications}
             className={`p-2.5 rounded-xl border transition-all relative ${isDark
                 ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
-                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-650 hover:text-slate-800'
+                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
               } ${showNotifications ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}
           >
             <Bell className="w-4 h-4" />
@@ -604,7 +600,7 @@ export default function Header({
                                 )}
                               </div>
                             </h5>
-                            <p className={`text-[10.5px] mt-1 leading-normal ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>{notif.desc}</p>
+                            <p className={`text-[10.5px] mt-1 leading-normal ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>{notif.desc}</p>
                             {notif.link && (
                               <div className="mt-2 flex justify-start">
                                 <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md border transition-all ${
@@ -683,7 +679,7 @@ export default function Header({
                         setShowProfileMenu(false);
                         if (onViewProfile) onViewProfile(user);
                       }}
-                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-300 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         }`}
                     >
                       <User className="w-3.5 h-3.5 mr-2.5 text-slate-400" />
@@ -695,7 +691,7 @@ export default function Header({
                         setShowProfileMenu(false);
                         router.push(`/${currentRole}/account-settings`);
                       }}
-                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-300 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         }`}
                     >
                       <Settings className="w-3.5 h-3.5 mr-2.5 text-slate-400" />
@@ -707,7 +703,7 @@ export default function Header({
                         setShowProfileMenu(false);
                         window.open('/help', '_blank');
                       }}
-                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-350 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      className={`w-full flex items-center px-4 py-2 text-xs font-semibold transition-colors ${isDark ? 'text-slate-300 hover:text-white hover:bg-[#2c2b27]' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         }`}
                     >
                       <HelpCircle className="w-3.5 h-3.5 mr-2.5 text-orange-500" />
@@ -718,7 +714,7 @@ export default function Header({
                   <div className={`border-t py-1 ${isDark ? 'border-neutral-800 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/40'}`}>
                     <button
                       onClick={onSignOut}
-                      className="w-full flex items-center px-4 py-2 text-xs font-bold text-red-655 hover:text-red-550 hover:bg-red-950/20 transition-colors"
+                      className="w-full flex items-center px-4 py-2 text-xs font-bold text-red-600 hover:text-red-500 hover:bg-red-950/20 transition-colors"
                     >
                       <LogOut className="w-3.5 h-3.5 mr-2.5" />
                       Sign Out

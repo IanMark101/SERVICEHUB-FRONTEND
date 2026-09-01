@@ -47,21 +47,23 @@ export interface RecentService {
   };
 }
 
-export interface CommunityUpdateItem {
+export interface CommunityAnnouncement {
   id: string;
   title: string;
-  summary: string;
-  category: 'feature' | 'security' | 'milestone' | 'guide';
-  badgeLabel: string;
-  isLiveMilestone: boolean;
-  eventDate?: string;
-  actionText?: string;
-  actionLink?: string;
+  body: string;
+  publishedAt: string;
+  author: {
+    name: string;
+  };
 }
 
 export interface CommunityHubData {
   leaderboard: TopProvider[];
   stats: CommunityStatsData;
   recentCategories: RecentCategory[];
-  recentServices: RecentService[];
+  announcements: CommunityAnnouncement[];
+  leaderboardPeriod: {
+    start: string;
+    end: string;
+  };
 }

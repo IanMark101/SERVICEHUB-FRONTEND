@@ -108,7 +108,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Page Title Header */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 border-b pb-4 border-slate-200 dark:border-neutral-800/80">
             <div>
-              <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-955'} flex items-center gap-2`}>
+              <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
                 🛡️ Admin Dashboard: {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
               </h2>
             </div>

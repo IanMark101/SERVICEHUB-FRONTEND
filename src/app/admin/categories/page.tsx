@@ -26,16 +26,22 @@ export default function AdminCategories() {
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Reusable custom overlay confirm state
   const [pendingAction, setPendingAction] = useState<{ id: string; approve: boolean; name: string } | null>(null);
+  const [adminNotes, setAdminNotes] = useState('');
 
   const fetchSuggestions = () => {
     setLoading(true);
-    apiListCategorySuggestions()
+    apiListCategorySuggestions({ page, limit: 10 })
       .then(res => {
         if (res.success) {
           setSuggestions(res.data);
+          setTotal(res.pagination?.total || 0);
+          setTotalPages(Math.max(1, res.pagination?.totalPages || 1));
           setError('');
         } else {
           setError("Failed to fetch suggested categories.");
@@ -50,17 +56,19 @@ export default function AdminCategories() {
 
   useEffect(() => {
     fetchSuggestions();
-  }, []);
+  }, [page]);
 
   const handleResolveAction = async (id: string, approve: boolean) => {
     try {
-      const res = await apiResolveCategorySuggestion(id, approve);
+      const res = await apiResolveCategorySuggestion(id, approve, adminNotes.trim() || undefined);
       if (res.success) {
         toastSuccess(
           "Category Resolved", 
           `Suggestion has been successfully ${approve ? 'APPROVED & PUBLISHED' : 'REJECTED'}.`
         );
         fetchSuggestions();
+        setPendingAction(null);
+        setAdminNotes('');
       }
     } catch (err: any) {
       toastError("Failed to resolve", err.response?.data?.error || err.message);
@@ -110,13 +118,13 @@ export default function AdminCategories() {
               <div
                 key={item.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
-                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
+                  isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200'
                 }`}
               >
                 {/* Header Info */}
-                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-850">
+                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div className="flex items-center space-x-2.5">
-                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-450 border border-purple-500/20">
+                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
                       <Tag className="w-4 h-4" />
                     </div>
                     <div>
@@ -128,7 +136,7 @@ export default function AdminCategories() {
                       </p>
                     </div>
                   </div>
-                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-450' : 'text-amber-600'}`}>
+                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                     📅 Suggested: {formattedDate}
                   </span>
                 </div>
@@ -157,7 +165,7 @@ export default function AdminCategories() {
 
                 {/* Actions panel */}
                 <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${
-                  isDark ? 'border-neutral-850' : 'border-slate-100'
+                  isDark ? 'border-neutral-800' : 'border-slate-100'
                 }`}>
                   <button
                     onClick={() => setPendingAction({ id: item.id, approve: false, name: item.name })}
@@ -180,6 +188,17 @@ export default function AdminCategories() {
         )}
       </div>
 
+      {total > 0 && (
+        <div className="flex items-center justify-between text-xs">
+          <span className={isDark ? 'text-neutral-400' : 'text-slate-500'}>{total} pending suggestion{total === 1 ? '' : 's'}</span>
+          <div className="flex items-center gap-3">
+            <button type="button" disabled={page === 1} onClick={() => setPage(value => value - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button>
+            <span className="font-bold">Page {page} of {totalPages}</span>
+            <button type="button" disabled={page >= totalPages} onClick={() => setPage(value => value + 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Next</button>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Dialog Overlay */}
       {pendingAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
@@ -194,18 +213,25 @@ export default function AdminCategories() {
               <p className="text-xs leading-relaxed">
                 Are you sure you want to {pendingAction.approve ? 'approve and publish' : 'reject'} the suggested category "{pendingAction.name}"?
               </p>
+              <textarea
+                value={adminNotes}
+                onChange={(event) => setAdminNotes(event.target.value)}
+                required={!pendingAction.approve}
+                minLength={pendingAction.approve ? undefined : 3}
+                rows={3}
+                placeholder={pendingAction.approve ? 'Optional review notes...' : 'Explain why this category is not appropriate...'}
+                className={`w-full rounded-xl border p-3 text-xs outline-none ${isDark ? 'bg-[#1c1b18] border-neutral-700' : 'bg-slate-50 border-slate-300'}`}
+              />
               <div className="flex items-center justify-end space-x-2">
                 <button
-                  onClick={() => setPendingAction(null)}
+                  onClick={() => { setPendingAction(null); setAdminNotes(''); }}
                   className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={() => {
-                    handleResolveAction(pendingAction.id, pendingAction.approve);
-                    setPendingAction(null);
-                  }}
+                  disabled={!pendingAction.approve && adminNotes.trim().length < 3}
+                  onClick={() => handleResolveAction(pendingAction.id, pendingAction.approve)}
                   className={`px-4 py-2 text-white rounded-xl text-xs font-bold cursor-pointer ${pendingAction.approve ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
                 >
                   Confirm

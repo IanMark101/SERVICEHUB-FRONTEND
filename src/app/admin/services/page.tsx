@@ -42,6 +42,9 @@ export default function AdminServices() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [reviewingItem, setReviewingItem] = useState<ServiceItem | null>(null);
   const [isApproveMode, setIsApproveMode] = useState<boolean>(true);
@@ -50,10 +53,12 @@ export default function AdminServices() {
 
   const fetchServices = () => {
     setLoading(true);
-    apiListPendingServices()
+    apiListPendingServices({ page, limit: 10 })
       .then(res => {
         if (res.success) {
           setServices(res.data);
+          setTotal(res.pagination?.total || 0);
+          setTotalPages(Math.max(1, res.pagination?.totalPages || 1));
           setError('');
         } else {
           setError("Failed to fetch pending service listings.");
@@ -80,7 +85,7 @@ export default function AdminServices() {
         socket.off('SERVICE_LISTING_SUBMITTED', handleNewService);
       };
     }
-  }, []);
+  }, [page]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,17 +172,17 @@ export default function AdminServices() {
               <div
                 key={item.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
-                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
+                  isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200'
                 }`}
               >
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b pb-3 border-slate-100 dark:border-neutral-850">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div>
                     <h3 className={`font-extrabold text-base ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {item.title}
                     </h3>
                     <div className="flex flex-wrap gap-2 items-center mt-1.5">
-                      <span className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-red-500/10 text-red-405 border-red-900/30`}>
+                      <span className="text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-red-500/10 text-red-400 border-red-900/30">
                         📁 {item.category?.name || 'Uncategorized'}
                       </span>
                       {item.serviceType === 'SESSION_BASED' && (
@@ -189,7 +194,7 @@ export default function AdminServices() {
                         ⏱️ {item.estimatedDurationMins} mins
                       </span>
                       {methods.map((method, idx) => (
-                        <span key={idx} className={`text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-purple-500/10 text-purple-455 border-purple-900/30`}>
+                        <span key={idx} className="text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-purple-500/10 text-purple-400 border-purple-900/30">
                           💵 {method}
                         </span>
                       ))}
@@ -250,7 +255,7 @@ export default function AdminServices() {
 
                 {/* Audit Action panel */}
                 <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${
-                  isDark ? 'border-neutral-850' : 'border-slate-100'
+                  isDark ? 'border-neutral-800' : 'border-slate-100'
                 }`}>
                   <span className={`text-[9px] mr-auto font-bold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
                     Created: {formattedDate}
@@ -284,6 +289,17 @@ export default function AdminServices() {
         )}
       </div>
 
+      {total > 0 && (
+        <div className="flex items-center justify-between text-xs">
+          <span className={isDark ? 'text-neutral-400' : 'text-slate-500'}>{total} pending listing{total === 1 ? '' : 's'}</span>
+          <div className="flex items-center gap-3">
+            <button type="button" disabled={page === 1} onClick={() => setPage(value => value - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button>
+            <span className="font-bold">Page {page} of {totalPages}</span>
+            <button type="button" disabled={page >= totalPages} onClick={() => setPage(value => value + 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Next</button>
+          </div>
+        </div>
+      )}
+
       {/* Review Dialog Overlay */}
       {reviewingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
@@ -307,6 +323,8 @@ export default function AdminServices() {
                     isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
                   }`}
                   rows={4}
+                  required={!isApproveMode}
+                  minLength={isApproveMode ? undefined : 3}
                 />
               </div>
               <div className="flex items-center justify-end space-x-2">
@@ -319,7 +337,7 @@ export default function AdminServices() {
                 </button>
                  <button
                   type="submit"
-                  disabled={submittingReview}
+                  disabled={submittingReview || (!isApproveMode && adminNotes.trim().length < 3)}
                   className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${
                     submittingReview
                       ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
