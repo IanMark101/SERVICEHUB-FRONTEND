@@ -8,7 +8,6 @@ import {
   Clock,
   Play,
   HelpCircle,
-  X,
   MessageSquare,
   AlertCircle,
   Search,
@@ -18,7 +17,7 @@ import {
 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
-import { apiCancelBooking, apiEscalateCancellationRequest, apiHideBooking } from '../../api/bookings.api';
+import { apiCancelBooking, apiEscalateCancellationRequest, apiHideBooking, apiRespondCancellationRequest } from '../../api/bookings.api';
 import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ReviewModal from './ReviewModal';
 import { useToast } from '../ui/Toast';
@@ -26,6 +25,16 @@ import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 import EmptyState from '../ui/EmptyState';
 import { ActivityItemSkeleton } from '../ui/SkeletonCard';
 import LifecycleStepper from '../ui/LifecycleStepper';
+import SeekerActivityTabs from './activity/SeekerActivityTabs';
+import SeekerCancellationRequestModal from './activity/SeekerCancellationRequestModal';
+import SeekerDisputeModal from './activity/SeekerDisputeModal';
+import {
+  countSeekerActivityStatus,
+  filterSeekerActivityEngagements
+} from './activity/seekerActivity.utils';
+import { SeekerActivitySort, SeekerActivityTab } from './activity/types';
+import SeekerActivityItem from './activity/SeekerActivityItem';
+import SeekerActivityList from './activity/SeekerActivityList';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -33,7 +42,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
-  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | 'hide' | null>(null);
+  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | 'hide' | 'respond_cancellation' | null>(null);
 
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
@@ -49,7 +58,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     : jobEngagements; // if no userId yet, show all (context already scopes to user)
 
   // Filter Tab State
-  const [activeTab, setActiveTab] = useState<'all' | 'action_required' | 'pending' | 'active' | 'waiting' | 'disputed' | 'completed' | 'canceled'>('all');
+  const [activeTab, setActiveTab] = useState<SeekerActivityTab>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -92,9 +101,9 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   useEffect(() => {
     if (tabParam) {
-      const allowed = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'canceled'];
-      if (allowed.includes(tabParam)) {
-        setActiveTab(tabParam as any);
+      const allowed: SeekerActivityTab[] = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'canceled'];
+      if (allowed.includes(tabParam as SeekerActivityTab)) {
+        setActiveTab(tabParam as SeekerActivityTab);
       }
     }
   }, [tabParam]);
@@ -135,7 +144,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'price_desc' | 'price_asc'>('newest');
+  const [sortBy, setSortBy] = useState<SeekerActivitySort>('newest');
 
   // Helper to resolve category of a job engagement
   const getCategoryForEngagement = (je: JobEngagement) => {
@@ -155,66 +164,16 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   // Review Modal State
   const [reviewingEngagement, setReviewingEngagement] = useState<JobEngagement | null>(null);
 
-  // Counts helper
-  const countStatus = (status: JobEngagement['status'] | 'action_required') => {
-    if (status === 'action_required') {
-      return myEngagements.filter(je => je.status === 'awaiting_seeker_approval').length;
-    }
-    return myEngagements.filter(je => je.status === status).length;
-  };
+  const countStatus = (status: JobEngagement['status'] | 'action_required') =>
+    countSeekerActivityStatus(myEngagements, status);
 
-  const getFilteredEngagements = () => {
-    let list = myEngagements;
-
-    // Filter by tab status
-    switch (activeTab) {
-      case 'action_required':
-        list = myEngagements.filter(je => je.status === 'awaiting_seeker_approval');
-        break;
-      case 'pending':
-        list = myEngagements.filter(je => je.status === 'pending_provider');
-        break;
-      case 'active':
-        list = myEngagements.filter(je => je.status === 'in_progress');
-        break;
-      case 'waiting':
-        list = myEngagements.filter(je => je.status === 'queued');
-        break;
-      case 'disputed':
-        list = myEngagements.filter(je => je.status === 'disputed');
-        break;
-      case 'completed':
-        list = myEngagements.filter(je => je.status === 'completed');
-        break;
-      case 'canceled':
-        list = myEngagements.filter(je => je.status === 'canceled');
-        break;
-      default:
-        list = myEngagements;
-    }
-
-    // Filter by search query
-    if (searchQuery.trim() !== '') {
-      list = list.filter(je =>
-        je.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        je.providerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        getCategoryForEngagement(je).toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Sort list
-    return [...list].sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      if (sortBy === 'newest') return dateB - dateA;
-      if (sortBy === 'oldest') return dateA - dateB;
-      if (sortBy === 'price_desc') return Number(b.price) - Number(a.price);
-      if (sortBy === 'price_asc') return Number(a.price) - Number(b.price);
-      return 0;
-    });
-  };
-
-  const filteredEngagements = getFilteredEngagements();
+  const filteredEngagements = filterSeekerActivityEngagements({
+    activeTab,
+    engagements: myEngagements,
+    searchQuery,
+    sortBy,
+    categoryForEngagement: getCategoryForEngagement
+  });
 
 
   // Pagination
@@ -285,39 +244,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const [cancelReason, setCancelReason] = useState<string>('');
 
   const handleCancelClick = async (je: JobEngagement) => {
-    if (!je.started) {
-      setConfirmModal({
-        isOpen: true,
-        title: 'Cancel Booking',
-        message: 'Are you sure you want to cancel this booking? You will be fully refunded since the provider has not started work.',
-        confirmText: 'Cancel Booking',
-        cancelText: 'Keep Booking',
-        variant: 'danger',
-        onConfirm: async () => {
-          setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
-          setLoadingItemId(je.id);
-          setLoadingActionType('cancel');
-          try {
-            const res = await apiCancelBooking(je.id);
-            if (res.success) {
-              success('Booking Cancelled', 'You will be refunded since the provider had not started the job.');
-              refreshEngagements();
-            } else {
-              toastError('Cancel Failed', res.message || 'Failed to cancel booking.');
-            }
-          } catch (err: any) {
-            toastError('Cancel Failed', err.response?.data?.message || 'Error canceling booking.');
-          } finally {
-            setLoadingItemId(null);
-            setLoadingActionType(null);
-            setConfirmModal(null);
-          }
-        }
-      });
-    } else {
-      setCancelingJob(je);
-      setCancelReason('');
-    }
+    setCancelingJob(je);
+    setCancelReason('');
   };
 
 
@@ -329,7 +257,11 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     try {
       const res = await apiCancelBooking(cancelingJob.id, cancelReason);
       if (res.success) {
-        info('Cancellation Request Sent', 'The provider will review your request.');
+        if (cancelingJob.started) {
+          info('Cancellation Request Sent', 'The provider will review your request.');
+        } else {
+          success('Booking Cancelled', 'The reason was recorded and any eligible online refund was submitted.');
+        }
         setCancelingJob(null);
         setCancelReason('');
         refreshEngagements();
@@ -376,6 +308,23 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     });
   };
 
+  const handleRespondCancellation = async (requestId: string, approve: boolean) => {
+    const note = approve ? undefined : window.prompt('Explain why you are declining this cancellation request:')?.trim();
+    if (!approve && (!note || note.length < 3)) return;
+    setLoadingItemId(requestId);
+    setLoadingActionType('respond_cancellation');
+    try {
+      await apiRespondCancellationRequest(requestId, approve, note);
+      success(approve ? 'Cancellation Approved' : 'Cancellation Declined', approve ? 'The booking was cancelled and any eligible refund was submitted.' : 'The provider may escalate the decision to Admin.');
+      refreshEngagements();
+    } catch (err: any) {
+      toastError('Response failed', err.response?.data?.error || err.message);
+    } finally {
+      setLoadingItemId(null);
+      setLoadingActionType(null);
+    }
+  };
+
   const handleDeleteClick = (je: JobEngagement) => {
     setConfirmModal({
       isOpen: true,
@@ -407,738 +356,53 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     });
   };
 
-  const getTabClass = (tab: typeof activeTab, _count: number) => {
-    const isActive = activeTab === tab;
-
-    let baseStyles = "px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all cursor-pointer ";
-
-    if (isActive) {
-      if (tab === 'all') {
-        return baseStyles + (isDark ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950 shadow-sm' : 'bg-slate-900 border-slate-900 text-white shadow-sm');
-      } else if (tab === 'action_required') {
-        return baseStyles + (isDark ? 'bg-orange-950/20 border-orange-900/30 text-orange-400 font-extrabold' : 'bg-orange-50 border-orange-200 text-orange-600 font-extrabold');
-      } else if (tab === 'active') {
-        return baseStyles + (isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-455 font-extrabold' : 'bg-emerald-50 border-emerald-200 text-emerald-600 font-extrabold');
-      } else if (tab === 'waiting') {
-        return baseStyles + (isDark ? 'bg-amber-950/20 border-amber-900/30 text-amber-450 font-extrabold' : 'bg-amber-50 border-amber-200 text-amber-600 font-extrabold');
-      } else if (tab === 'disputed') {
-        return baseStyles + (isDark ? 'bg-red-950/20 border-red-900/30 text-red-400 font-extrabold' : 'bg-red-50 border-red-200 text-red-650 font-extrabold');
-      } else if (tab === 'completed') {
-        return baseStyles + (isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400 font-extrabold' : 'bg-emerald-50 border-emerald-200 text-emerald-600 font-extrabold');
-      } else {
-        return baseStyles + (isDark ? 'bg-neutral-800/40 border-neutral-750 text-[#f2efe9] font-extrabold' : 'bg-slate-100 border-slate-300 text-slate-700 font-extrabold');
-      }
-    } else {
-      return baseStyles + (isDark ? 'bg-[#22211e] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]' : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50');
-    }
-  };
-
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
 
 
-      {/* Filter pills at the top */}
-      <div className={`flex flex-wrap gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
-        <button
-          onClick={() => handleTabChange('all')}
-          className={getTabClass('all', myEngagements.length)}
-        >
-          All ({myEngagements.length})
-        </button>
+      <SeekerActivityTabs
+        activeTab={activeTab}
+        isDark={isDark}
+        totalCount={myEngagements.length}
+        countStatus={countStatus}
+        onTabChange={handleTabChange}
+      />
 
-        <button
-          onClick={() => handleTabChange('action_required')}
-          className={getTabClass('action_required', countStatus('action_required'))}
-        >
-          Action Required ({countStatus('action_required')})
-        </button>
+      <SeekerActivityList
+        model={{
+          myEngagements, isDark, searchQuery, setSearchQuery, sortBy, setSortBy,
+          isLoading, filteredEngagements, activeTab, router, paginatedEngagements,
+          highlightedBookingId, getCategoryForEngagement,
+          loadingItemId, loadingActionType, setReviewingEngagement,
+          handleDeleteClick, setDisputingJob, setConfirmModal,
+          handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
+          currentUserId: resolvedUserId,
+          currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
+        }}
+      />
 
-        <button
-          onClick={() => handleTabChange('pending')}
-          className={getTabClass('pending', countStatus('pending_provider'))}
-        >
-          Pending Provider ({countStatus('pending_provider')})
-        </button>
+      <SeekerDisputeModal
+        engagement={disputingJob}
+        reason={disputeReason}
+        isDark={isDark}
+        isSubmitting={loadingItemId === disputingJob?.id && loadingActionType === 'dispute'}
+        isActionDisabled={!!loadingItemId}
+        onReasonChange={setDisputeReason}
+        onClose={() => setDisputingJob(null)}
+        onSubmit={handleDisputeSubmit}
+      />
 
-        <button
-          onClick={() => handleTabChange('active')}
-          className={getTabClass('active', countStatus('in_progress'))}
-        >
-          Active Now ({countStatus('in_progress')})
-        </button>
-
-        <button
-          onClick={() => handleTabChange('waiting')}
-          className={getTabClass('waiting', countStatus('queued'))}
-        >
-          In Queue ({countStatus('queued')})
-        </button>
-
-        <button
-          onClick={() => handleTabChange('disputed')}
-          className={getTabClass('disputed', countStatus('disputed'))}
-        >
-          Disputes ({countStatus('disputed')})
-        </button>
-
-        <button
-          onClick={() => handleTabChange('completed')}
-          className={getTabClass('completed', countStatus('completed'))}
-        >
-          Completed ({countStatus('completed')})
-        </button>
-
-        <button
-          onClick={() => handleTabChange('canceled')}
-          className={getTabClass('canceled', countStatus('canceled'))}
-        >
-          Canceled ({countStatus('canceled')})
-        </button>
-      </div>
-
-      {/* Cards list matching filters */}
-      <div className="space-y-6">
-
-        {/* Search & Sort Panel */}
-        {myEngagements.length > 0 && (
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-            {/* Search Box */}
-            <div className={`flex items-center rounded-xl px-3 py-2 w-full sm:max-w-md border transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-800/80' : 'bg-slate-50 border-slate-300'
-              }`}>
-              <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
-                <Search className="w-4 h-4 mr-2" />
-              </span>
-              <input
-                type="text"
-                placeholder="Search by job title or provider name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs w-full text-slate-800 dark:text-[#f2efe9] placeholder-slate-400"
-              />
-            </div>
-
-            {/* Sort Dropdown */}
-            <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-              <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className={`px-3 py-2 rounded-xl border outline-none font-bold text-xs transition-all ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]'
-                    : 'bg-white border-slate-300 text-slate-700'
-                  }`}
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="price_desc">Budget: High to Low</option>
-                <option value="price_asc">Budget: Low to High</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {isLoading ? (
-            <div className="col-span-2">
-              <ActivityItemSkeleton count={3} />
-            </div>
-          ) : filteredEngagements.length === 0 ? (
-            <div className="col-span-2">
-              <EmptyState
-                icon={
-                  activeTab === 'action_required'
-                    ? CheckCircle2
-                    : activeTab === 'completed'
-                    ? CheckCircle2
-                    : activeTab === 'waiting'
-                    ? Clock
-                    : activeTab === 'active'
-                    ? Play
-                    : activeTab === 'disputed'
-                    ? AlertTriangle
-                    : Search
-                }
-                title={
-                  activeTab === 'action_required'
-                    ? 'All Caught Up!'
-                    : activeTab === 'active'
-                    ? 'No Active Services In Progress'
-                    : activeTab === 'waiting'
-                    ? 'No Bookings Currently In Queue'
-                    : activeTab === 'disputed'
-                    ? 'No Active Disputes'
-                    : activeTab === 'completed'
-                    ? 'No Completed Bookings'
-                    : activeTab === 'canceled'
-                    ? 'No Canceled Bookings'
-                    : searchQuery
-                    ? 'No Matching Engagements Found'
-                    : 'No Activity History Yet'
-                }
-                description={
-                  activeTab === 'action_required'
-                    ? 'You have no service engagements requiring your confirmation or review right now.'
-                    : activeTab === 'active'
-                    ? 'None of your booked services are currently ongoing.'
-                    : activeTab === 'waiting'
-                    ? 'You are not waiting in any provider queues at the moment.'
-                    : activeTab === 'disputed'
-                    ? 'All your transactions are proceeding normally with zero dispute cases.'
-                    : activeTab === 'completed'
-                    ? 'You have no completed service engagements in your records yet.'
-                    : activeTab === 'canceled'
-                    ? 'You have no canceled engagements in your records.'
-                    : searchQuery
-                    ? `No engagements matched your search "${searchQuery}". Try searching by a different provider name or job title.`
-                    : 'You haven’t booked any services or accepted any offers yet. Explore the marketplace to find trusted local providers!'
-                }
-                actionLabel={
-                  searchQuery
-                    ? 'Clear Search'
-                    : activeTab === 'all'
-                    ? 'Browse Available Services'
-                    : undefined
-                }
-                onAction={() => {
-                  if (searchQuery) {
-                    setSearchQuery('');
-                  } else {
-                    router.push('/seeker/seek-services');
-                  }
-                }}
-                accentColor="orange"
-              />
-            </div>
-          ) : (
-            paginatedEngagements.map((je) => {
-              const formattedDate = new Date(je.createdAt).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              });
-
-              const hasEscrow = ['in_progress', 'awaiting_seeker_approval', 'queued', 'disputed'].includes(je.status);
-
-              return (
-                <div
-                  key={je.id}
-                  id={`booking-${je.id}`}
-                  className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 ${
-                    je.id === highlightedBookingId
-                      ? 'ring-2 ring-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.6)] border-orange-500 scale-[1.01]'
-                      : isDark
-                        ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
-                        : 'bg-white border-slate-300 hover:shadow-md'
-                  }`}
-                >
-
-                  {/* Top Line: Category & Date */}
-                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
-                    <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
-                      📁 {getCategoryForEngagement(je)}
-                    </span>
-                    <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
-                      📅 {formattedDate}
-                    </span>
-                  </div>
-
-                  {/* Title & Provider Info */}
-                  <div className="space-y-2.5">
-                    <h3 className={`font-extrabold text-sm leading-snug tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                      {je.title}
-                    </h3>
-
-                    <div className="flex items-center space-x-2.5">
-                      <img
-                        src={je.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(je.providerName || 'Provider')}&background=random`}
-                        alt={je.providerName}
-                        className="w-7 h-7 rounded-full object-cover border border-slate-105 shadow-sm"
-                      />
-                      <div className="flex flex-wrap items-center gap-1 text-[11px] font-bold">
-                        <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}>Provider:</span>
-                        <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-700'}>{je.providerName}</span>
-                        <span className="text-slate-300 dark:text-neutral-800">•</span>
-                        <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-bold ${isDark ? 'bg-orange-500/10 text-orange-400' : 'bg-orange-50 text-orange-600'
-                          }`}>
-                          92% Trust
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 5-Step Visual Lifecycle Stepper */}
-                  <LifecycleStepper
-                    status={je.status}
-                    role="seeker"
-                    queuePosition={je.queuePosition}
-                    isDark={isDark}
-                  />
-
-                  {/* Escrow/Payment details banner */}
-                  {hasEscrow && (
-                    je.paymentMethod === 'GCash' ? (
-                      <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-orange-950/15 border-orange-900/20 text-orange-400' : 'bg-orange-50/40 border-orange-100 text-orange-700'
-                        }`}>
-                        <span className="font-semibold">🔒 Escrow Protected (GCash Hold)</span>
-                        <span className="font-extrabold">₱{je.price} Secured</span>
-                      </div>
-                    ) : (
-                      <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'
-                        }`}>
-                        <span className="font-semibold">💵 On-Site Cash Payment</span>
-                        <span className="font-extrabold">₱{je.price} Payable</span>
-                      </div>
-                    )
-                  )}
-
-                  {/* Dispute note inside card */}
-                  {je.status === 'disputed' && je.disputeReason && (
-                    <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-red-955/15 border-red-900/30 text-red-400' : 'bg-red-50/50 border-red-200 text-red-750'
-                      }`}>
-                      <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                      <span>Dispute Filed: "{je.disputeReason}" (Awaiting Moderator review)</span>
-                    </div>
-                  )}
-
-                  {/* Cancellation Request status inside card */}
-                  {je.cancellationRequests && je.cancellationRequests.length > 0 && (() => {
-                    const activeReq = je.cancellationRequests[0];
-                    if (activeReq.status === 'PENDING') {
-                      return (
-                        <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-orange-950/15 border-orange-900/20 text-orange-400' : 'bg-orange-50/50 border-orange-200 text-orange-700'
-                          }`}>
-                          <Clock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                          <span>Cancellation Requested: Awaiting provider response.</span>
-                        </div>
-                      );
-                    }
-                    if (activeReq.status === 'DECLINED') {
-                      return (
-                        <div className={`border rounded-xl p-3 text-[10px] flex flex-col space-y-2 ${isDark ? 'bg-red-950/15 border-red-900/20 text-red-400' : 'bg-red-50/50 border-red-200 text-red-700'
-                          }`}>
-                          <div className="flex items-start space-x-2">
-                            <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                            <span>Cancellation Declined by Provider: "{activeReq.providerNote || 'No explanation provided'}"</span>
-                          </div>
-                          <button
-                            disabled={!!loadingItemId}
-                            onClick={() => handleEscalateClick(activeReq.id)}
-                            className={`self-start px-2.5 py-1 font-extrabold text-[9px] rounded-lg transition-all active:scale-95 cursor-pointer flex items-center space-x-1 ${
-                              loadingItemId === activeReq.id && loadingActionType === 'escalate'
-                                ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                                : 'bg-red-650 hover:bg-red-750 text-white'
-                            }`}
-                          >
-                            {loadingItemId === activeReq.id && loadingActionType === 'escalate' ? (
-                              <>
-                                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                <span>Escalating...</span>
-                              </>
-                            ) : (
-                              <span>Escalate to Admin</span>
-                            )}
-                          </button>
-                        </div>
-                      );
-                    }
-                    if (activeReq.status === 'ESCALATED') {
-                      return (
-                        <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-amber-950/15 border-amber-900/20 text-amber-400' : 'bg-amber-50/50 border-amber-200 text-amber-700'
-                          }`}>
-                          <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-amber-500" />
-                          <span>Dispute Escalated to Admin: Awaiting administrator review.</span>
-                        </div>
-                      );
-                    }
-                    if (activeReq.status === 'RESOLVED') {
-                      return (
-                        <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-neutral-800/40 border-neutral-700 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-500'
-                          }`}>
-                          <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                          <span>Dispute Resolved: Cancellation Request Rejected by Admin. Note: "{activeReq.adminNote || 'None'}"</span>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
-
-                  {/* Footer details & Context Actions */}
-                  <div className={`border-t pt-4 flex items-center justify-between ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                    <div>
-                      <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>Contract Rate</span>
-                      <span className={`text-sm font-extrabold ${isDark ? 'text-orange-500' : 'text-orange-600'}`}>₱{je.price}</span>
-                    </div>
-
-                    {/* Context actions */}
-                    <div className="flex items-center space-x-2">
-
-                      {/* Status Pills */}
-                      {je.status === 'in_progress' && (
-                        <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border flex items-center ${isDark ? 'bg-emerald-955/15 border-emerald-900/30 text-emerald-450' : 'bg-emerald-50 border-emerald-100 text-emerald-600'
-                          }`}>
-                          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 animate-pulse" />
-                          In Progress
-                        </span>
-                      )}
-
-                      {je.status === 'queued' && (
-                        <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-amber-450 bg-amber-955/20 border-amber-900/30' : 'text-amber-700 bg-amber-50 border border-amber-100'
-                          }`}>
-                          Queued
-                        </span>
-                      )}
-
-                      {je.status === 'pending_provider' && (
-                        <span className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-450'
-                          }`}>
-                          Awaiting Accept
-                        </span>
-                      )}
-
-                      {je.status === 'completed' && (() => {
-                        const myReview = je.reviews && je.reviews.find((r: any) => r.authorId === currentUserId);
-                        const canEdit = myReview && myReview.editableUntil
-                          ? new Date() < new Date(myReview.editableUntil)
-                          : myReview && myReview.createdAt
-                          ? new Date().getTime() - new Date(myReview.createdAt).getTime() < 24 * 60 * 60 * 1000
-                          : false;
-
-                        return myReview ? (
-                          <div className="flex items-center gap-1.5">
-                            <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-emerald-455 bg-emerald-955/15 border-emerald-900/30' : 'text-emerald-700 bg-emerald-50 border-emerald-100'
-                              }`}>
-                              ✓ Reviewed ({myReview.rating}★)
-                            </span>
-                            {canEdit && (
-                              <button
-                                onClick={() => setReviewingEngagement(je)}
-                                className={`px-2.5 py-1.5 text-[10px] font-bold rounded-lg border transition-all hover:opacity-80 active:scale-95 cursor-pointer ${
-                                  isDark ? 'bg-neutral-800 border-neutral-700 text-neutral-300' : 'bg-slate-100 border-slate-200 text-slate-700'
-                                }`}
-                                title="Edit review (available within 24 hours of posting)"
-                              >
-                                Edit (24h)
-                              </button>
-                            )}
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setReviewingEngagement(je)}
-                            className="px-3.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-[10px] rounded-xl transition-all active:scale-95 shadow-sm cursor-pointer"
-                          >
-                            Leave Review
-                          </button>
-                        );
-                      })()}
-
-                      {je.status === 'canceled' && (
-                        <div className="flex items-center gap-1.5">
-                          <span className={`text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-855' : 'text-slate-400 bg-slate-100 border border-slate-200'
-                            }`}>
-                            Canceled
-                          </span>
-                          <button
-                            onClick={() => handleDeleteClick(je)}
-                            className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
-                              isDark
-                                ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-neutral-500'
-                                : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400'
-                            }`}
-                            title="Remove from activity view"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Open Conversation — accessible on all non-pending booking statuses */}
-                      {je.status !== 'pending_provider' && (
-                        <button
-                          onClick={() => router.push(`/seeker/messages?booking=${je.id}`)}
-                          className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-[#f2efe9]' : 'border-slate-300 hover:bg-slate-50 text-slate-700'
-                          }`}
-                          title="Open Conversation"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-
-                      {/* Explicit Action Triggers */}
-                      {je.status === 'awaiting_seeker_approval' && (
-                        <div className="flex flex-col items-end space-y-2">
-                          <p className="text-[10px] text-orange-500 font-semibold text-right max-w-xs">
-                            {je.paymentMethod === 'GCash'
-                              ? '⚠️ Releasing funds is final. Verify the service is fully completed to your satisfaction before releasing payment.'
-                              : '⚠️ Please ensure you pay the provider the agreed cash amount on-site. Confirming completes the transaction.'}
-                          </p>
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => setDisputingJob(je)}
-                              className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all cursor-pointer ${isDark
-                                  ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]'
-                                  : 'border-slate-300 hover:bg-red-50 hover:text-red-655 hover:border-red-200 text-slate-550'
-                                }`}
-                            >
-                              Report Issue
-                            </button>
-                            <button
-                              disabled={!!loadingItemId}
-                              onClick={() => {
-                                const isOnline = je.paymentMethod === 'GCash';
-                                setConfirmModal({
-                                  isOpen: true,
-                                  title: isOnline ? 'Release Escrowed Funds' : 'Complete Transaction',
-                                  message: isOnline
-                                    ? 'Are you sure you want to release escrowed funds to the provider? This action is final and cannot be undone.'
-                                    : 'Have you paid the provider on-site and want to complete this transaction?',
-                                  confirmText: isOnline ? 'Release Cash' : 'Complete Transaction',
-                                  cancelText: 'Cancel',
-                                  variant: 'warning',
-                                  onConfirm: async () => {
-                                    setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
-                                    try {
-                                      await handleConfirmJobCompletion(je.id);
-                                    } finally {
-                                      setConfirmModal(null);
-                                    }
-                                  }
-                                });
-                              }}
-                              className={`px-3.5 py-1.5 font-extrabold text-[10px] rounded-xl transition-all active:scale-95 shadow-sm flex items-center justify-center space-x-1.5 cursor-pointer ${
-                                loadingItemId === je.id && loadingActionType === 'complete'
-                                  ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                                  : 'bg-orange-600 hover:bg-orange-700 text-white'
-                              }`}
-                            >
-                              {loadingItemId === je.id && loadingActionType === 'complete' ? (
-                                <>
-                                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                                  <span>{je.paymentMethod === 'GCash' ? 'Releasing Funds...' : 'Completing...'}</span>
-                                </>
-                              ) : (
-                                <span>{je.paymentMethod === 'GCash' ? 'Release Cash' : 'Complete Transaction'}</span>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Cancellation Actions */}
-                      {['queued', 'pending_provider', 'in_progress'].includes(je.status) && (() => {
-                        const activeReq = je.cancellationRequests?.[0];
-                        // If there is an active request that is pending or escalated, do not show cancellation trigger buttons
-                        if (activeReq && ['PENDING', 'ESCALATED'].includes(activeReq.status)) {
-                          return null;
-                        }
-
-                        // Otherwise, show the cancel button
-                        const isStarted = !!je.started;
-                        return (
-                          <button
-                            disabled={!!loadingItemId}
-                            onClick={() => handleCancelClick(je)}
-                            className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
-                              loadingItemId === je.id && loadingActionType === 'cancel'
-                                ? 'bg-[#1c1b18] border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                                : isDark
-                                  ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                                  : 'border-slate-300 hover:bg-slate-50 text-slate-550'
-                            }`}
-                          >
-                            {loadingItemId === je.id && loadingActionType === 'cancel' ? (
-                              <>
-                                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                                <span>Cancelling...</span>
-                              </>
-                            ) : (
-                              <span>{isStarted ? "Request Cancellation" : "Cancel Booking"}</span>
-                            )}
-                          </button>
-                        );
-                      })()}
-
-                    </div>
-                  </div>
-
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        <PaginationBar
-          currentPage={currentPage}
-          totalPages={totalPages}
-          goToPage={goToPage}
-          nextPage={nextPage}
-          prevPage={prevPage}
-          startIndex={startIndex}
-          endIndex={endIndex}
-          totalItems={filteredEngagements.length}
-          variant="seeker"
-        />
-      </div>
-
-      {/* Dispute filing popup overlay */}
-      {disputingJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-            }`}>
-
-            <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-850 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
-              }`}>
-              <h3 className={`font-extrabold text-sm flex items-center space-x-1.5 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                <AlertTriangle className="w-4 h-4 text-red-500" />
-                <span>File a Service Dispute</span>
-              </h3>
-              <button
-                onClick={() => setDisputingJob(null)}
-                className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'
-                  }`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleDisputeSubmit} className="p-5 space-y-4">
-              <p className={`text-[10px] leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                Disputing will freeze this contract and alert a ServiceHub administrator. Describe the issues with the provider's work in detail.
-              </p>
-
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Reason for Dispute
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder="Describe what went wrong (e.g. work not finished, poor quality, provider did not show up)..."
-                  value={disputeReason}
-                  onChange={(e) => setDisputeReason(e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
-                    }`}
-                />
-              </div>
-
-              {/* Actions */}
-              <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                <button
-                  type="button"
-                  onClick={() => setDisputingJob(null)}
-                  className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${isDark
-                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                      : 'border-slate-200 hover:bg-slate-50 text-slate-500'
-                    }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={!!loadingItemId}
-                  className={`px-5 py-2.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer ${
-                    loadingItemId === disputingJob.id && loadingActionType === 'dispute'
-                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                      : 'bg-red-600 hover:bg-red-700'
-                  }`}
-                >
-                  {loadingItemId === disputingJob.id && loadingActionType === 'dispute' ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-                      <span>Filing Dispute...</span>
-                    </>
-                  ) : (
-                    <span>File Dispute</span>
-                  )}
-                </button>
-              </div>
-            </form>
-
-          </div>
-        </div>
-      )}
-
-      {/* Cancellation request reason popup overlay */}
-      {cancelingJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-            }`}>
-
-            <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-850 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
-              }`}>
-              <h3 className={`font-extrabold text-sm flex items-center space-x-1.5 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                <AlertCircle className="w-4 h-4 text-orange-500" />
-                <span>Submit Cancellation Request</span>
-              </h3>
-              <button
-                onClick={() => setCancelingJob(null)}
-                className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'
-                  }`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCancelSubmit} className="p-5 space-y-4">
-              <p className={`text-[10px] leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                Since the provider has already started the work, you must submit a cancellation request. The provider will review your request and can choose to approve or decline it.
-              </p>
-
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Reason for Cancellation
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder="Explain why you want to cancel this service booking..."
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
-                    }`}
-                />
-              </div>
-
-              {/* Actions */}
-              <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                <button
-                  type="button"
-                  onClick={() => setCancelingJob(null)}
-                  className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${isDark
-                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                      : 'border-slate-200 hover:bg-slate-50 text-slate-500'
-                    }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={!!loadingItemId}
-                  className={`px-5 py-2.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer ${
-                    loadingItemId === cancelingJob.id && loadingActionType === 'cancel_submit'
-                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                      : 'bg-orange-600 hover:bg-orange-700'
-                  }`}
-                >
-                  {loadingItemId === cancelingJob.id && loadingActionType === 'cancel_submit' ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-                      <span>Cancelling...</span>
-                    </>
-                  ) : (
-                    <span>Submit Request</span>
-                  )}
-                </button>
-              </div>
-            </form>
-
-          </div>
-        </div>
-      )}
+      <SeekerCancellationRequestModal
+        engagement={cancelingJob}
+        reason={cancelReason}
+        isDark={isDark}
+        isSubmitting={loadingItemId === cancelingJob?.id && loadingActionType === 'cancel_submit'}
+        isActionDisabled={!!loadingItemId}
+        onReasonChange={setCancelReason}
+        onClose={() => setCancelingJob(null)}
+        onSubmit={handleCancelSubmit}
+      />
       {reviewingEngagement && (() => {
         const existingReview = reviewingEngagement.reviews?.find((r: any) => r.authorId === currentUserId);
         return (

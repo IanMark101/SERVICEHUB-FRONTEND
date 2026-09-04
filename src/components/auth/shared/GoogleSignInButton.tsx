@@ -38,6 +38,9 @@ export default function GoogleSignInButton({
             client_id: clientId,
             auto_select: false,
             cancel_on_tap_outside: true,
+            // Let supported browsers mediate the account chooser instead of
+            // relying on cross-origin popup postMessage communication.
+            use_fedcm_for_button: true,
             callback: (response: any) => {
               if (response?.credential) {
                 onSuccessRef.current(response.credential);

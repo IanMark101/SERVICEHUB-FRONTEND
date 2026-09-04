@@ -64,13 +64,13 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
             <li><strong>You confirm the booking details</strong> — the price, the schedule, and any message to the provider.</li>
             <li><strong>You're taken to the payment screen</strong> and complete the GCash checkout.</li>
             <li><strong>You complete the payment</strong> through the secure checkout.</li>
-            <li><strong>Your payment is held, not released</strong> — it sits safely in escrow. The provider does not get paid yet, and you don't lose your money either; it's just held by the platform until the job is actually finished.</li>
-            <li><strong>You're placed into the queue</strong> (if the provider is busy) or the job starts immediately (if they're free) — but only after payment succeeds. This is intentional: a queue spot is only given to people who've actually committed to paying, so no one's time gets wasted on a no-show.</li>
+            <li><strong>ServiceHub records an internal payment hold</strong> — PAID_HELD is a capstone workflow status, not a licensed escrow account.</li>
+            <li><strong>You're placed into the queue</strong> only after the signed PayMongo webhook confirms payment. The provider still chooses when to start the first eligible booking.</li>
             <li><strong>The provider does the work</strong>, then marks it complete.</li>
-            <li><strong>You confirm the job is done</strong> — only then does your held payment get released to the provider's wallet.</li>
+            <li><strong>You confirm the job is done</strong> — ServiceHub then records RELEASED in its internal provider ledger.</li>
             <li><strong>If something's wrong instead of confirming</strong>, you report the issue. Your payment stays frozen — not released to the provider, not refunded to you yet — until an admin reviews the situation and decides the outcome, including a refund if it's warranted.</li>
           </ol>
-          <p>Cash payments skip the escrow steps entirely: you just confirm a direct arrangement with the provider and pay them in person when the job is done. There's no queue spot for cash bookings, since there's no way to guarantee commitment without a payment behind it.</p>
+          <p>This capstone uses PayMongo Test Mode and does not perform real provider payouts. Cash payments remain direct arrangements outside ServiceHub and never receive an online queue position.</p>
         </div>
       )
     },

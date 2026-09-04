@@ -90,8 +90,43 @@ export async function apiListReports(params?: { page?: number; limit?: number })
   return response.data;
 }
 
-export async function apiResolveReport(id: string, action: 'warn' | 'trust_deduct' | 'suspend' | 'ban' | 'approve_refund' | 'dismiss', adminNotes?: string) {
+export async function apiResolveReport(id: string, action: 'warn' | 'trust_deduct' | 'suspend' | 'ban' | 'approve_refund' | 'release_provider_and_complete' | 'dismiss', adminNotes?: string) {
   const response = await api.patch(`/admin/reports/${id}/resolve`, { action, adminNotes });
+  return response.data;
+}
+
+export async function apiListCompletionEscalations(params?: { page?: number; limit?: number }) {
+  const response = await api.get('/admin/completion-escalations', { params });
+  return response.data;
+}
+
+export async function apiResolveCompletionEscalation(id: string, action: 'release_provider_and_complete' | 'dismiss', resolution: string) {
+  const response = await api.patch(`/admin/completion-escalations/${id}/resolve`, { action, resolution });
+  return response.data;
+}
+
+export async function apiListPaymentReconciliation() {
+  const response = await api.get('/admin/payments/reconciliation');
+  return response.data;
+}
+
+export async function apiRetryPaymentReconciliation(id: string) {
+  const response = await api.post(`/admin/payments/reconciliation/${id}/retry`);
+  return response.data;
+}
+
+export async function apiListAdminBookings(params?: { page?: number; limit?: number; status?: string }) {
+  const response = await api.get('/admin/bookings', { params });
+  return response.data;
+}
+
+export async function apiCancelAdminBooking(bookingId: string, reason: string) {
+  const response = await api.post(`/admin/bookings/${bookingId}/cancel`, { reason });
+  return response.data;
+}
+
+export async function apiListAdminPaymentAttempts(params?: { page?: number; limit?: number; status?: string }) {
+  const response = await api.get('/admin/payment-attempts', { params });
   return response.data;
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ClipboardList, Trash2, Edit2, Check, X, MessageSquare, Sparkles, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { ClipboardList, Trash2, Edit2, Check, MessageSquare, Sparkles, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -8,15 +8,9 @@ import { apiMatchProviders } from '../../api/ai.api';
 import { apiGetMyRequests } from '../../api/requests.api';
 import { mapRequestToJobRequest } from '../../context/mappers';
 import { JobRequest } from '../../types';
-import { formatUrgencyDisplay } from '../provider/BrowseJobs';
+import { formatUrgencyDisplay } from '../provider/browse-jobs/browseJobs.utils';
 import EmptyState from '../ui/EmptyState';
-
-interface EditModalState {
-  requestId: string;
-  title: string;
-  budget: number;
-  description: string;
-}
+import EditRequestModal, { EditRequestState } from './request-manager/EditRequestModal';
 
 export default function RequestManager({ 
   currentUserId = 'u1',
@@ -100,7 +94,7 @@ export default function RequestManager({
   } = usePagination(myRequests, 8);
 
   // Edit State
-  const [editingRequest, setEditingRequest] = useState<EditModalState | null>(null);
+  const [editingRequest, setEditingRequest] = useState<EditRequestState | null>(null);
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
   const handleDeleteRequest = async (requestId: string) => {
@@ -495,111 +489,13 @@ export default function RequestManager({
         </div>
       )}
 
-      {/* Edit Form Modal Overlay */}
-      {editingRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-          }`}>
-            
-            {/* Header */}
-            <div className={`p-5 border-b flex justify-between items-center ${
-              isDark ? 'border-neutral-855 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
-            }`}>
-              <h3 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                Edit Request details
-              </h3>
-              <button 
-                onClick={() => setEditingRequest(null)}
-                className={`p-1.5 rounded-lg border transition-colors ${
-                  isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'
-                }`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveEdit} className="p-5 space-y-4">
-              {/* Title */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Request Title
-                </label>
-                <input 
-                  type="text"
-                  required
-                  value={editingRequest.title}
-                  onChange={(e) => setEditingRequest({ ...editingRequest, title: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${
-                    isDark 
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500' 
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
-                  }`}
-                />
-              </div>
- 
-              {/* Budget */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Estimated Budget (₱)
-                </label>
-                <input 
-                  type="number"
-                  required
-                  min={1}
-                  value={editingRequest.budget}
-                  onChange={(e) => setEditingRequest({ ...editingRequest, budget: Number(e.target.value) })}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${
-                    isDark 
-                      ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-orange-500/80' 
-                      : 'bg-slate-50 border-slate-200 text-slate-750 focus:border-orange-500'
-                  }`}
-                />
-              </div>
- 
-              {/* Description */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Description
-                </label>
-                <textarea 
-                  rows={4}
-                  required
-                  value={editingRequest.description}
-                  onChange={(e) => setEditingRequest({ ...editingRequest, description: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${
-                    isDark 
-                      ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-orange-500' 
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
-                  }`}
-                />
-              </div>
-
-              {/* Actions */}
-              <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                <button
-                  type="button"
-                  onClick={() => setEditingRequest(null)}
-                  className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${
-                    isDark 
-                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]' 
-                      : 'border-slate-200 hover:bg-slate-50 text-slate-500'
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-
-          </div>
-        </div>
-      )}
+      <EditRequestModal
+        value={editingRequest}
+        isDark={isDark}
+        onChange={setEditingRequest}
+        onClose={() => setEditingRequest(null)}
+        onSubmit={handleSaveEdit}
+      />
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal state={confirmModal} onClose={() => setConfirmModal(null)} />

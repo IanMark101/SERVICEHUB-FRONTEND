@@ -16,7 +16,7 @@ export default function HelpHomePage() {
     { label: 'How the Queue Works', href: '/help/queue/how-the-queue-works' },
     { label: 'Direct Bookings', href: '/help/bookings/how-direct-booking-works' },
     { label: 'Messaging Rules', href: '/help/messaging/when-messaging-unlocks' },
-    { label: 'Escrow Payments', href: '/help/payments/how-escrow-works' },
+    { label: 'Internal Payment Holds', href: '/help/payments/how-escrow-works' },
   ];
 
   return (
@@ -28,7 +28,7 @@ export default function HelpHomePage() {
         </h1>
 
         <p className="text-base sm:text-lg text-slate-600 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed font-normal">
-          Learn how Cordova residency verification, Trust Scores, service queues, direct bookings, and escrow payments work.
+          Learn how Cordova residency verification, Trust Scores, service queues, direct bookings, and Test Mode payment records work.
         </p>
 
         {/* Big Prominent Search Bar */}

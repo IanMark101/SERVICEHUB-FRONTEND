@@ -9,6 +9,7 @@ import { HelpCircle, LogOut } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
 import { useRouteGuard } from '../../hooks/useRouteGuard';
+import { clearAccessToken } from '../../lib/api/axios';
 
 const tabDetails: Record<string, { title: string; desc: string }> = {
   'seek-services': {
@@ -33,7 +34,7 @@ const tabDetails: Record<string, { title: string; desc: string }> = {
   },
   'transaction-history': {
     title: 'Transaction History & Receipts',
-    desc: 'View your complete payment records, receipts, wallet deposits, and refunds for completed Cordova marketplace services.',
+    desc: 'View payment records, internal ledger status, cash confirmations, and submitted online refunds for your bookings.',
   },
   'messages': {
     title: 'Direct Messages',
@@ -81,7 +82,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
         try {
           await apiLogout();
         } catch (_) {}
-        localStorage.removeItem('accessToken');
+        clearAccessToken();
         setIsAuthenticated(false);
         setUser(null);
         setConfirmModal(null);

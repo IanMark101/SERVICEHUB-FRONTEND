@@ -3,143 +3,82 @@ import { HelpArticle } from '../types/help.types';
 export const PAYMENTS_ARTICLES: HelpArticle[] = [
   {
     slug: 'payment-methods-overview',
-    title: 'Payment Methods: GCash Online vs. On-Site Cash',
+    title: 'Payment Methods: GCash Test Mode vs. On-Site Cash',
     category: 'payments',
-    description: 'An overview of available payment methods on ServiceHub Cordova and when to use each.',
-    lastUpdated: 'August 2026',
+    description: 'When each ServiceHub Cordova payment workflow applies.',
+    lastUpdated: 'September 2026',
     readTimeMinutes: 3,
     popular: true,
-    keywords: ['payment methods', 'gcash', 'cash', 'on-site cash', 'paymongo', 'escrow'],
+    keywords: ['payment methods', 'gcash', 'cash', 'on-site cash', 'paymongo', 'payment hold'],
     relatedArticleSlugs: ['how-escrow-works', 'payment-release-and-refunds'],
-    sections: [
-      {
-        heading: 'Two Flexible Ways to Pay',
-        paragraphs: [
-          'ServiceHub accommodates local Philippine payment habits by supporting both automated online payments and traditional cash arrangements.',
-        ],
-        bullets: [
-          'GCash (Online E-Wallet): Powered by PayMongo secure gateway. Funds are held in escrow and only released when the seeker confirms satisfactory job completion.',
-          'On-site Cash (Direct Arrangement): Pay the provider directly in cash upon on-site service delivery after inspecting the finished work.',
-        ],
-        callout: {
-          type: 'tip',
-          title: 'Provider Payment Settings',
-          text: 'Providers can choose to accept GCash, On-site Cash, or both when configuring their service listings.',
-        },
-      },
-    ],
+    sections: [{
+      heading: 'Two Ways to Complete a Booking',
+      paragraphs: ['ServiceHub supports PayMongo GCash Test Mode for fixed-price queue bookings and a separate direct on-site cash arrangement.'],
+      bullets: [
+        'GCash Test Mode: PayMongo confirms the simulated payment by a signed server webhook. Only then is an accepted booking added to the listing queue.',
+        'On-site Cash: The seeker pays the provider outside ServiceHub. Cash bookings never enter the online-payment queue or provider wallet ledger.',
+      ],
+      callout: { type: 'important', title: 'Capstone payment scope', text: 'ServiceHub currently demonstrates PayMongo Test Mode. No real-money provider payout or regulated escrow service is implemented.' },
+    }],
   },
   {
     slug: 'how-escrow-works',
-    title: 'How Escrow Protection Works',
+    title: 'How the Internal Payment Hold Works',
     category: 'payments',
-    description: 'Learn how ServiceHub’s escrow holding mechanism protects seekers from unfinished jobs and protects providers from non-payment.',
-    lastUpdated: 'August 2026',
+    description: 'What PAID_HELD means inside this capstone system.',
+    lastUpdated: 'September 2026',
     readTimeMinutes: 3,
     popular: true,
-    keywords: ['escrow', 'funds protection', 'held payment', 'safety guarantee', 'payment security'],
+    keywords: ['payment hold', 'paid held', 'payment status', 'payment security'],
     relatedArticleSlugs: ['payment-methods-overview', 'payment-release-and-refunds'],
-    sections: [
-      {
-        heading: 'What is Escrow?',
-        paragraphs: [
-          'Escrow means that when you pay online via GCash, your money is NOT immediately transferred to the provider\'s personal account. Instead, it is safely held in a protected platform holding state (PAID_HELD).',
-        ],
-        bullets: [
-          'For Seekers: You never have to worry about a provider taking your money and disappearing without doing the work.',
-          'For Providers: You know with 100% certainty that the client has already funded the job before you begin traveling or purchasing supplies.',
-        ],
-      },
-    ],
+    sections: [{
+      heading: 'An Internal Workflow State',
+      paragraphs: ['After PayMongo Test Mode confirms a payment, ServiceHub records PAID_HELD while the service is unfinished. This is a platform bookkeeping state—not a licensed escrow account or a guarantee of real-money custody.'],
+      bullets: [
+        'The browser redirect does not confirm payment or create a booking.',
+        'A signed, deduplicated PayMongo webhook is the authoritative confirmation.',
+        'If a capture cannot be converted into a queue booking, it is marked for refund reconciliation instead of overfilling the queue.',
+      ],
+    }],
   },
   {
     slug: 'payment-release-and-refunds',
-    title: 'Payment Release, Confirmations, and Refunds',
+    title: 'Completion, Internal Release, and Refunds',
     category: 'payments',
-    description: 'How escrow funds transition from held to released upon completion, and how dispute refunds work.',
-    lastUpdated: 'August 2026',
+    description: 'How online and cash bookings reach their final payment states.',
+    lastUpdated: 'September 2026',
     readTimeMinutes: 3,
-    keywords: ['payment release', 'refund', 'cancellation refund', 'wallet payout', 'completion confirmation'],
+    keywords: ['payment release', 'refund', 'cancellation refund', 'completion confirmation'],
     relatedArticleSlugs: ['how-escrow-works', 'how-paymongo-gcash-payouts-work'],
-    sections: [
-      {
-        heading: 'When are Funds Released?',
-        paragraphs: [
-          'Held escrow funds are released to the provider\'s ServiceHub balance under the following conditions:',
-        ],
-        bullets: [
-          '1. Immediate Seeker Confirmation: When the seeker clicks "Confirm Completion" on the booking.',
-          '2. Approved Cancellation / Refund: If a booking is cancelled before service delivery or if an administrator approves a dispute refund, escrowed funds are returned directly to the seeker.',
-        ],
-      },
-    ],
+    sections: [{
+      heading: 'Final States',
+      paragraphs: ['When the seeker confirms completed work, an online booking becomes RELEASED in ServiceHub’s internal ledger. A cash booking becomes CASH_CONFIRMED and does not increase the provider wallet.'],
+      bullets: [
+        'Cancellation before completion keeps cash external and submits eligible online refunds through PayMongo Test Mode.',
+        'A disputed online payment remains FROZEN_HELD until an administrator refunds it or completes and releases the booking.',
+        'Administrator decisions and refund attempts are retained for audit and retry.',
+      ],
+    }],
   },
   {
     slug: 'how-paymongo-gcash-payouts-work',
-    title: 'How PayMongo GCash & Provider Payouts Work',
+    title: 'PayMongo GCash Test Mode and Provider Records',
     category: 'payments',
-    description: 'Learn how PayMongo processes GCash payments, how Escrow safeguards your money, and how earnings are delivered directly to the provider’s registered mobile number.',
-    lastUpdated: 'August 2026',
+    description: 'The implemented capstone payment flow and its boundaries.',
+    lastUpdated: 'September 2026',
     readTimeMinutes: 4,
     popular: true,
-    keywords: [
-      'paymongo',
-      'gcash',
-      'payout',
-      'mobile number',
-      'escrow',
-      'disbursement',
-      'earnings',
-      'wallet',
-      'transfer'
-    ],
+    keywords: ['paymongo', 'gcash', 'test mode', 'webhook', 'provider ledger'],
     relatedArticleSlugs: ['how-escrow-works', 'payment-release-and-refunds', 'payment-methods-overview'],
     sections: [
       {
-        heading: 'How PayMongo Handles the Seeker\'s Payment',
-        paragraphs: [
-          'PayMongo serves as ServiceHub’s official Philippine payment gateway. When a seeker pays for a booking or accepts a bid using GCash, PayMongo processes the transaction directly through the official GCash system using a secure One-Time PIN (OTP).',
-          'Once authorized, the funds are deposited into ServiceHub’s secure Escrow holding vault (status: PAID_HELD). Neither the seeker nor the provider can prematurely move these funds while the service is pending.',
-        ],
-        bullets: [
-          'Guaranteed Payment: Providers can proceed with confidence knowing that 100% of the contract amount is already secured.',
-          'Fraud Prevention: Seekers are protected because money is never handed directly to a provider before the job is done.',
-        ],
+        heading: 'Payment Confirmation',
+        paragraphs: ['ServiceHub creates a durable local attempt, sends the seeker to PayMongo Test Mode, and waits for a signed webhook. It validates the amount, currency, user, listing, offer, and provider intent before creating the booking.'],
       },
       {
-        heading: 'Why Your Registered Mobile Number is Your GCash Account',
-        paragraphs: [
-          'In the Philippines, a GCash account number is literally the user\'s 11-digit mobile phone number (e.g., 0917-XXX-XXXX or 0918-XXX-XXXX). There are no complex routing numbers or 16-digit bank codes required.',
-          'When you create a profile or verify your identity on ServiceHub, the mobile number saved to your account serves as your official GCash recipient address. This mobile number is what PayMongo uses to deliver earnings directly to your personal GCash e-wallet.',
-        ],
-        callout: {
-          type: 'important',
-          title: 'Provider Account Verification',
-          text: 'Providers must ensure that the mobile phone number registered on their ServiceHub profile is active and matches their verified GCash account so payouts arrive instantly without disruption.',
-        },
-      },
-      {
-        heading: 'How the Money is Delivered Upon Job Completion',
-        paragraphs: [
-          'Here is the complete delivery lifecycle from the moment work begins to money landing in the provider’s GCash app:',
-        ],
-        steps: [
-          '1. Provider Finishes Work: The provider completes the requested task and clicks "Mark Completed" on their Activity dashboard.',
-          '2. Seeker Inspection & Approval: The seeker inspects the finished work and clicks "Release Cash / Escrow".',
-          '3. Escrow Release: The status transitions to RELEASED and COMPLETED. ServiceHub\'s ledger records an official "EARNING" transaction in the provider\'s digital wallet.',
-          '4. Payout to GCash: The funds are dispatched to the provider\'s registered 11-digit mobile number via PayMongo Payouts and InstaPay, depositing the net earnings straight into the provider\'s real GCash app.',
-        ],
-      },
-      {
-        heading: 'Security Safeguards: Active Job Lock & Password Re-Authentication',
-        paragraphs: [
-          'To protect providers from account takeover and payout hijacking, ServiceHub enforces strict fintech-grade security safeguards around mobile phone numbers:',
-        ],
-        bullets: [
-          'Active Job Lock: The system automatically locks your mobile number while you have any ongoing service engagements in progress. It is impossible for anyone to alter your payout address mid-job.',
-          'Password Re-Authentication: To update your mobile/GCash number at any other time, you must re-enter your account password to confirm identity.',
-          'Security Alerts: Whenever a phone number is modified, an automated security notification is immediately logged on your account.',
-        ],
+        heading: 'Provider Earnings in This Capstone',
+        paragraphs: ['Completion creates an internal provider earning record for online bookings. ServiceHub does not currently disburse money to a provider phone number, bank, or personal GCash account.'],
+        callout: { type: 'important', title: 'No real payout claim', text: 'A RELEASED status demonstrates application workflow only. Production settlement would require a separately designed and approved payout integration.' },
       },
     ],
   },

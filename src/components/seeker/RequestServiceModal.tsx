@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { X, CreditCard, MapPin, Smartphone, Sparkles } from 'lucide-react';
-import { apiGetProviderSummary } from '../../api/ai.api';
+import { apiGetProviderSummary, getCachedProviderSummary } from '../../api/ai.api';
 import { apiBookDirect } from '../../api/bookings.api';
 import { getServicePaymentMethods, shouldShowPaymentSelector } from '../../lib/paymentUtils';
 
@@ -47,22 +47,43 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
     : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
 
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
-  const [aiReason, setAiReason] = useState<string | null>(null);
-  const [loadingAi, setLoadingAi] = useState<boolean>(false);
+  const initialSummary = getCachedProviderSummary(listing.providerId)?.data;
+  const [aiSummary, setAiSummary] = useState<string | null>(initialSummary?.summary || null);
+  const [aiReason, setAiReason] = useState<string | null>(initialSummary?.reason || null);
+  const [aiSource, setAiSource] = useState<'gemini' | 'computed' | 'empty'>(initialSummary?.source || 'empty');
+  const [loadingAi, setLoadingAi] = useState<boolean>(!initialSummary);
 
   useEffect(() => {
     let active = true;
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+    const applySummary = (res: Awaited<ReturnType<typeof apiGetProviderSummary>>) => {
+      if (!active || !res.success) return;
+      setAiSource(res.data?.source || 'computed');
+      if (res.data?.summary) {
+        setAiSummary(res.data.summary);
+        setAiReason(null);
+      } else if (res.data?.reason) {
+        setAiSummary(null);
+        setAiReason(res.data.reason);
+      }
+    };
+
     if (listing.providerId) {
-      setLoadingAi(true);
-      apiGetProviderSummary(listing.providerId)
+      const cached = getCachedProviderSummary(listing.providerId);
+      if (!cached) setLoadingAi(true);
+      setAiReason(null);
+      apiGetProviderSummary(listing.providerId, listing.id)
         .then((res) => {
-          if (active && res.success) {
-            if (res.data?.summary) {
-              setAiSummary(res.data.summary);
-            } else if (res.data?.reason) {
-              setAiReason(res.data.reason);
-            }
+          applySummary(res);
+          if (active && res.data?.refreshing) {
+            refreshTimer = setTimeout(() => {
+              apiGetProviderSummary(listing.providerId, listing.id, {
+                force: true,
+                waitForFresh: true,
+              })
+                .then(applySummary)
+                .catch(() => {});
+            }, 1800);
           }
         })
         .catch((err) => {
@@ -74,8 +95,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     }
     return () => {
       active = false;
+      if (refreshTimer) clearTimeout(refreshTimer);
     };
-  }, [listing.providerId]);
+  }, [listing.id, listing.providerId]);
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,14 +109,13 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     }
 
     if (listing.serviceType === 'SESSION_BASED') {
-      if (!scheduledDate) {
-        setFormError('Please select a session date.');
-        return;
-      }
-      if (!scheduledTime) {
-        setFormError('Please select a session start time.');
-        return;
-      }
+      setFormError('Session booking is not available until conflict-safe scheduling is enabled.');
+      return;
+    }
+
+    if (listing.priceType && listing.priceType !== 'FIXED') {
+      setFormError('This listing requires a provider quote. Create a service request instead of booking the displayed estimate.');
+      return;
     }
 
     if (listing.isPaused) {
@@ -230,7 +251,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   <h4 className={`text-[11px] uppercase tracking-wider font-extrabold ${
                     isDark ? 'text-orange-400' : 'text-orange-755'
                   }`}>
-                    AI-Generated Feedback Digest
+                    {aiSource === 'gemini' ? 'AI-Generated Feedback Digest' : 'Client Feedback Digest'}
                   </h4>
                 </div>
                 <div className="flex items-center space-x-2 py-1">

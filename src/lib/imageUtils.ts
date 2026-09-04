@@ -1,3 +1,5 @@
+import { getAccessToken } from './api/axios';
+
 /**
  * Utility to process and compress an uploaded image file into a square avatar data URL.
  * Automatically crops from center and resizes to specified dimensions (default: 400x400).
@@ -96,7 +98,7 @@ export async function processMessageImage(file: File, maxDim: number = 1200, qua
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 function authHeaders(): HeadersInit {
-  const token = typeof window === 'undefined' ? null : localStorage.getItem('accessToken');
+  const token = getAccessToken();
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),

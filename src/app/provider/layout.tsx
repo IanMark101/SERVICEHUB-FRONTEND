@@ -9,6 +9,7 @@ import { HelpCircle, LogOut } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
 import { useRouteGuard } from '../../hooks/useRouteGuard';
+import { clearAccessToken } from '../../lib/api/axios';
 
 const tabDetails: Record<string, { title: string; desc: string }> = {
   'browse-services': {
@@ -81,7 +82,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         try {
           await apiLogout();
         } catch (_) {}
-        localStorage.removeItem('accessToken');
+        clearAccessToken();
         setIsAuthenticated(false);
         setUser(null);
         setConfirmModal(null);

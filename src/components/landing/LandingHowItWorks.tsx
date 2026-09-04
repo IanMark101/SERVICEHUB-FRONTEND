@@ -69,9 +69,9 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
     },
     {
       title: "Pay securely with GCash, or choose cash",
-      desc: "Pay online via GCash to lock in a fair queue spot, with your payment safely held in escrow until the job is done — or choose cash and arrange the visit directly with the provider.",
+      desc: "Pay online via GCash Test Mode to enter the fair queue after provider confirmation, or choose cash and arrange the visit directly with the provider.",
       icon: Lock,
-      badge: "Escrow & Safety",
+      badge: "Payments & Safety",
       visual: (isDark: boolean) => (
         <div className={`p-3 rounded-xl border flex flex-col w-full max-w-[200px] space-y-1.5 text-center items-center transition-colors duration-300 ${
           isDark ? 'bg-neutral-855 border-neutral-855' : 'bg-slate-100/85 border-slate-200'
@@ -79,7 +79,7 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
           <div className="p-2 rounded-full bg-emerald-500/10 text-emerald-500">
             <Lock size={14} />
           </div>
-          <p className="text-[8px] font-black text-emerald-500 uppercase tracking-wider">Escrow Active</p>
+          <p className="text-[8px] font-black text-emerald-500 uppercase tracking-wider">Payment Confirmed</p>
           <div className={`w-full h-1 rounded-full overflow-hidden ${isDark ? 'bg-neutral-850' : 'bg-slate-200'}`}>
             <div className="bg-emerald-500 h-full w-[80%]" />
           </div>
@@ -209,8 +209,8 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
       )
     },
     {
-      title: "Get paid, safely",
-      desc: "Online payments are held securely until the seeker confirms the job is done — then released straight to your wallet.",
+      title: "Track online payments",
+      desc: "PayMongo Test Mode payments remain PAID_HELD in ServiceHub's internal ledger until completion is confirmed, then change to RELEASED.",
       icon: Lock,
       badge: "Protected Earnings",
       visual: (isDark: boolean) => (
@@ -220,9 +220,9 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
           <div className="p-2 rounded-full bg-emerald-500/10 text-emerald-500">
             <Lock size={14} />
           </div>
-          <p className="text-[8px] font-black text-emerald-500 uppercase tracking-wider">Released Payout</p>
+          <p className="text-[8px] font-black text-emerald-500 uppercase tracking-wider">Released Ledger Entry</p>
           <span className="text-xs font-black text-emerald-500">+₱700.00</span>
-          <p className="text-[7.5px] font-semibold text-slate-400">GCash payout processed</p>
+          <p className="text-[7.5px] font-semibold text-slate-400">Test Mode status updated</p>
         </div>
       )
     }

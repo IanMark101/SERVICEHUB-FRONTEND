@@ -75,7 +75,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
   },
   {
     slug: 'payments',
-    title: 'Payments & Escrow Protection',
+    title: 'Payments & Internal Hold Records',
     shortTitle: 'Payments',
     description: 'GCash online payments, on-site cash arrangements, and payment security.',
     iconName: 'DollarSign',

@@ -427,7 +427,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
               >
                 <div>
                   <span className="font-extrabold text-xs block text-slate-955 dark:text-[#f2efe9]">GCash Online</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Secure escrow hold until task complete</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">Online payment tracked until task completion</span>
                 </div>
                 <span className="text-blue-550 font-extrabold text-xs">GCash</span>
               </button>

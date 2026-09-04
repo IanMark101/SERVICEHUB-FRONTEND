@@ -23,7 +23,7 @@ const mockReviews: Review[] = [
     name: 'Junrel Bacalso',
     role: 'Electrical & Aircon Expert',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
-    feedback: 'Managing my local bookings and job queues here in Cordova is incredibly smooth. I switch to my provider workspace to service appliances, and switch back to seeker when I need laundry services. The GCash escrow system works perfectly on both sides. A secure, neighborly ecosystem that makes local transactions safe!'
+    feedback: 'Managing local bookings and job queues in Cordova is straightforward. I can switch between provider and seeker workspaces and clearly see whether a booking uses on-site cash or the online payment workflow.'
   },
   {
     id: 'rev-3',

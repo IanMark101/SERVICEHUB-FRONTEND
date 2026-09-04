@@ -1,6 +1,6 @@
 "use client";
 import { io, Socket } from "socket.io-client";
-import { api, clearAccessToken, setAccessToken } from "./api/axios";
+import { api, clearAccessToken, getAccessToken, setAccessToken } from "./api/axios";
 
 let socket: Socket | null = null;
 let isRefreshingSocketAuth = false;
@@ -85,7 +85,7 @@ export function connectSocket(token: string): Socket | null {
   });
 
   socket.on("reconnect_attempt", () => {
-    const freshToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+    const freshToken = getAccessToken();
     if (freshToken && socket) {
       socket.auth = { token: freshToken };
     }

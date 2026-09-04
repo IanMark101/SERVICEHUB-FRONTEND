@@ -1,4 +1,5 @@
 import { api } from '../lib/api/axios';
+import { invalidateProviderSummaryCache } from './ai.api';
 
 export async function apiSubmitReview(data: {
   completedServiceId: string;
@@ -7,6 +8,7 @@ export async function apiSubmitReview(data: {
   tags?: string[];
 }) {
   const response = await api.post('/reviews', data);
+  invalidateProviderSummaryCache(response.data?.data?.targetId);
   return response.data;
 }
 
@@ -24,6 +26,6 @@ export async function apiUpdateReview(
   }
 ) {
   const response = await api.patch(`/reviews/${id}`, data);
+  invalidateProviderSummaryCache(response.data?.data?.targetId);
   return response.data;
 }
-

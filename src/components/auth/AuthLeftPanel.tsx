@@ -65,7 +65,7 @@ export default function AuthLeftPanel({
           <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md leading-relaxed text-center">
             {mode === 'signup'
               ? 'Create your account to connect with verified residents of Cordova, Cebu.'
-              : 'Connect with trusted local talent, request community services, or showcase your skills within the Cordova community—all through secure escrow-protected transactions.'}
+              : 'Connect with trusted local talent, request community services, or showcase your skills within the Cordova community with clear cash and test-mode online payment workflows.'}
           </p>
         </div>
 

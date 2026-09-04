@@ -16,12 +16,12 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { apiListReports, apiResolveReport } from "../../../api/admin.api";
+import { apiCancelAdminBooking, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
 import { useApp } from "../../../context/AppContext";
 import { getSocket } from "../../../lib/socket";
 import { useToast } from "../../../components/ui/Toast";
 
-type ResolutionAction = "warn" | "trust_deduct" | "suspend" | "ban" | "approve_refund" | "dismiss";
+type ResolutionAction = "warn" | "trust_deduct" | "suspend" | "ban" | "approve_refund" | "release_provider_and_complete" | "dismiss";
 
 interface Party {
   id: string;
@@ -69,6 +69,44 @@ interface ReportCase {
   };
 }
 
+interface CompletionEscalationCase {
+  id: string;
+  reason: string;
+  createdAt: string;
+  booking: {
+    id: string;
+    paymentMethod: string;
+    agreedAmount: number | string;
+    seeker: { name: string };
+    provider: { name: string };
+    service?: { title: string } | null;
+  } | null;
+}
+
+interface AdminBookingItem {
+  id: string;
+  status: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  agreedAmount?: number | string | null;
+  started: boolean;
+  seeker: { name: string };
+  provider: { name: string };
+  service?: { title: string } | null;
+  queue?: { status: string; position: number } | null;
+}
+
+interface AdminPaymentAttemptItem {
+  id: string;
+  amount: number | string;
+  currency: string;
+  paymentMethod: string;
+  status: string;
+  failureReason?: string | null;
+  providerIntentId?: string | null;
+  booking?: { id: string; status: string; paymentStatus: string } | null;
+}
+
 const ACTION_LABELS: Record<ResolutionAction, string> = {
   dismiss: "Dismiss report",
   warn: "Issue formal warning",
@@ -76,12 +114,17 @@ const ACTION_LABELS: Record<ResolutionAction, string> = {
   suspend: "Suspend account for 7 days",
   ban: "Permanently ban account",
   approve_refund: "Cancel booking and issue PayMongo refund",
+  release_provider_and_complete: "Complete booking and release provider payment",
 };
 
 export default function AdminReportsPage() {
   const { isDark } = useApp();
   const { success, error: showError } = useToast();
   const [cases, setCases] = useState<ReportCase[]>([]);
+  const [completionEscalations, setCompletionEscalations] = useState<CompletionEscalationCase[]>([]);
+  const [paymentReconciliation, setPaymentReconciliation] = useState<any[]>([]);
+  const [recentBookings, setRecentBookings] = useState<AdminBookingItem[]>([]);
+  const [recentPaymentAttempts, setRecentPaymentAttempts] = useState<AdminPaymentAttemptItem[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -96,8 +139,18 @@ export default function AdminReportsPage() {
   const loadCases = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiListReports({ page, limit: 10 });
+      const [response, escalationResponse, paymentResponse, bookingsResponse, attemptsResponse] = await Promise.all([
+        apiListReports({ page, limit: 10 }),
+        apiListCompletionEscalations({ page: 1, limit: 50 }),
+        apiListPaymentReconciliation(),
+        apiListAdminBookings({ page: 1, limit: 10 }),
+        apiListAdminPaymentAttempts({ page: 1, limit: 10 }),
+      ]);
       setCases(response.data || []);
+      setCompletionEscalations(escalationResponse.data || []);
+      setPaymentReconciliation(paymentResponse.data || []);
+      setRecentBookings(bookingsResponse.data || []);
+      setRecentPaymentAttempts(attemptsResponse.data || []);
       setTotal(response.pagination?.total || 0);
       setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
       setLoadError("");
@@ -107,6 +160,20 @@ export default function AdminReportsPage() {
       setLoading(false);
     }
   }, [page]);
+
+  const resolveCompletion = async (item: CompletionEscalationCase, action: 'release_provider_and_complete' | 'dismiss') => {
+    const resolution = window.prompt(action === 'release_provider_and_complete'
+      ? 'Explain why the booking should be completed and provider payment released:'
+      : 'Explain why this escalation is dismissed:');
+    if (!resolution || resolution.trim().length < 3) return;
+    try {
+      await apiResolveCompletionEscalation(item.id, action, resolution.trim());
+      success('Escalation resolved', 'The decision was recorded in the administrator audit log.');
+      await loadCases();
+    } catch (cause: any) {
+      showError('Resolution failed', cause.response?.data?.error || cause.message);
+    }
+  };
 
   useEffect(() => void loadCases(), [loadCases]);
   useEffect(() => {
@@ -158,6 +225,88 @@ export default function AdminReportsPage() {
               <RefreshCw className="h-3.5 w-3.5" /> Refresh
             </button>
           </div>
+        </div>
+      </section>
+
+      {completionEscalations.length > 0 && (
+        <section className={`rounded-2xl border p-5 ${surface}`}>
+          <h3 className="text-sm font-extrabold">Completion escalations</h3>
+          <p className="mt-1 text-xs text-slate-500">Provider requests submitted after the 72-hour seeker response window.</p>
+          <div className="mt-4 space-y-3">
+            {completionEscalations.map((item) => (
+              <div key={item.id} className={`rounded-xl border p-4 ${mutedSurface}`}>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold">{item.booking?.service?.title || 'Service engagement'}</p>
+                    <p className="mt-1 text-[10px] text-slate-500">{item.booking?.provider.name} · Provider / {item.booking?.seeker.name} · Seeker</p>
+                    <p className="mt-2 text-xs">{item.reason}</p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <button onClick={() => resolveCompletion(item, 'dismiss')} className="rounded-lg border px-3 py-2 text-[10px] font-bold">Dismiss</button>
+                    <button onClick={() => resolveCompletion(item, 'release_provider_and_complete')} className="rounded-lg bg-emerald-600 px-3 py-2 text-[10px] font-bold text-white">Complete and release</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {paymentReconciliation.length > 0 && (
+        <section className={`rounded-2xl border p-5 ${surface}`}>
+          <h3 className="text-sm font-extrabold">Payment reconciliation required</h3>
+          <p className="mt-1 text-xs text-slate-500">Captured Test Mode payments that could not be booked and still need a confirmed refund.</p>
+          <div className="mt-4 space-y-3">
+            {paymentReconciliation.map((attempt) => (
+              <div key={attempt.id} className={`flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between ${mutedSurface}`}>
+                <div>
+                  <p className="text-xs font-extrabold">₱{Number(attempt.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })} · {attempt.paymentMethod.toUpperCase()}</p>
+                  <p className="mt-1 text-[10px] text-slate-500">{attempt.failureReason || 'Captured payment requires reconciliation'} · Attempt {attempt.id.slice(0, 10)}</p>
+                </div>
+                <button onClick={async () => {
+                  try { await apiRetryPaymentReconciliation(attempt.id); success('Refund retried', 'The reconciliation state was refreshed.'); await loadCases(); }
+                  catch (cause: any) { showError('Refund retry failed', cause.response?.data?.error || cause.message); }
+                }} className="rounded-lg bg-red-600 px-3 py-2 text-[10px] font-bold text-white">Retry refund</button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className={`rounded-2xl border p-5 ${surface}`}>
+        <h3 className="text-sm font-extrabold">Recent booking operations</h3>
+        <p className="mt-1 text-xs text-slate-500">Lifecycle, payment, and queue state needed for moderation and reconciliation.</p>
+        <div className="mt-4 space-y-2">
+          {recentBookings.length === 0 ? <p className="text-xs text-slate-400">No bookings found.</p> : recentBookings.map((booking) => (
+            <div key={booking.id} className={`flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between ${mutedSurface}`}>
+              <div>
+                <p className="text-xs font-extrabold">{booking.service?.title || "Service engagement"} · ₱{Number(booking.agreedAmount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</p>
+                <p className="mt-1 text-[10px] text-slate-500">{booking.seeker.name} → {booking.provider.name} · {booking.status.replace(/_/g, " ")} · {booking.paymentStatus.replace(/_/g, " ")} · {booking.paymentMethod}{booking.queue ? ` · Queue ${booking.queue.position} (${booking.queue.status})` : " · No queue"}</p>
+              </div>
+              {!booking.started && ["PENDING_APPROVAL", "WAITING", "ACCEPTED"].includes(booking.status) && (
+                <button onClick={async () => {
+                  const reason = window.prompt("Explain why this unstarted booking must be cancelled:");
+                  if (!reason || reason.trim().length < 3) return;
+                  try { await apiCancelAdminBooking(booking.id, reason.trim()); success("Booking cancelled", "Queue and payment reconciliation were applied and audited."); await loadCases(); }
+                  catch (cause: any) { showError("Cancellation failed", cause.response?.data?.error || cause.message); }
+                }} className="shrink-0 rounded-lg bg-red-600 px-3 py-2 text-[10px] font-bold text-white">Cancel and reconcile</button>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className={`rounded-2xl border p-5 ${surface}`}>
+        <h3 className="text-sm font-extrabold">Recent PayMongo Test Mode attempts</h3>
+        <p className="mt-1 text-xs text-slate-500">Safe operational identifiers and state only; credentials and client secrets are never returned.</p>
+        <div className="mt-4 grid gap-2 md:grid-cols-2">
+          {recentPaymentAttempts.length === 0 ? <p className="text-xs text-slate-400">No payment attempts found.</p> : recentPaymentAttempts.map((attempt) => (
+            <div key={attempt.id} className={`rounded-xl border p-3 ${mutedSurface}`}>
+              <p className="text-xs font-extrabold">₱{Number(attempt.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })} {attempt.currency} · {attempt.status.replace(/_/g, " ")}</p>
+              <p className="mt-1 text-[10px] text-slate-500">{attempt.paymentMethod.toUpperCase()} · Attempt {attempt.id.slice(0, 10)}{attempt.providerIntentId ? ` · Intent ${attempt.providerIntentId.slice(0, 12)}` : ""}</p>
+              {attempt.failureReason && <p className="mt-2 text-[10px] text-red-600">{attempt.failureReason}</p>}
+            </div>
+          ))}
         </div>
       </section>
 
@@ -294,6 +443,7 @@ export default function AdminReportsPage() {
                 <textarea required minLength={3} maxLength={2000} value={notes} onChange={(event) => setNotes(event.target.value)} rows={5} placeholder="State the evidence considered and explain the final decision..." className={`mt-1.5 w-full resize-none rounded-xl border p-3 text-xs normal-case leading-5 ${mutedSurface}`} />
               </label>
               {action === "approve_refund" && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] leading-4 text-amber-800">This submits a real refund through PayMongo and only applies to held online payments.</p>}
+              {action === "release_provider_and_complete" && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[10px] leading-4 text-emerald-800">This completes the disputed booking. Online funds enter the provider ledger; cash is recorded only as externally confirmed.</p>}
             </div>
             <div className="flex justify-end gap-2 border-t border-slate-200 p-5 dark:border-neutral-800">
               <button type="button" onClick={() => setSelected(null)} className="rounded-xl border px-4 py-2 text-xs font-bold">Cancel</button>

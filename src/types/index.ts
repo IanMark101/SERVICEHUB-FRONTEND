@@ -87,12 +87,13 @@ export interface Bid {
   id: string;
   requestId: string;
   providerId: string;
+  serviceId?: string;
   providerName: string;
   providerAvatar: string;
   providerRating: number;
   price: number;
   message: string;
-  status: 'pending' | 'accepted' | 'declined' | 'canceled' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELED';
+  status: 'pending' | 'accepted' | 'declined' | 'canceled' | 'PENDING' | 'PENDING_PAYMENT' | 'ACCEPTED' | 'REJECTED' | 'CANCELED';
   createdAt: string;
   requestTitle?: string;
   seekerName?: string;

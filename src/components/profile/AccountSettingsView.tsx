@@ -29,6 +29,8 @@ import {
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
+import TrustScoreGuide from './account-settings/TrustScoreGuide';
+import AccountDangerZone from './account-settings/AccountDangerZone';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -476,175 +478,33 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         </div>
       </div>
 
-      {/* 🛡️ How Trust Score Works Guide (Masterprompt Part 15) */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
-        <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={18} className={accentColor} />
-            <h3 className={`font-black text-sm uppercase tracking-wider ${headingText}`}>
-              How Trust Score Works
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowTrustGuide(!showTrustGuide)}
-            className={`text-xs font-bold flex items-center gap-1 ${labelText} hover:opacity-80 transition-opacity`}
-          >
-            <span>{showTrustGuide ? 'Hide Guide' : 'Show Guide'}</span>
-            {showTrustGuide ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
-        </div>
+      <TrustScoreGuide
+        isDark={isDark}
+        isOpen={showTrustGuide}
+        cardBg={cardBg}
+        accentColor={accentColor}
+        headingText={headingText}
+        labelText={labelText}
+        onToggle={() => setShowTrustGuide(!showTrustGuide)}
+      />
 
-        {showTrustGuide && (
-          <div className="space-y-4 text-xs leading-relaxed">
-            <p className={labelText}>
-              Your Trust Score (0–100) reflects your reliability, transparency, and history in the Cordova marketplace. All accounts start at a baseline of 50.
-            </p>
-
-            {/* Score Bands */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              <div className={`p-3 rounded-2xl border ${isDark ? 'bg-emerald-950/20 border-emerald-900/30' : 'bg-emerald-50 border-emerald-200'}`}>
-                <div className="text-emerald-500 font-extrabold text-[11px]">90 – 100</div>
-                <div className={`font-bold text-xs ${headingText}`}>Highly Trusted</div>
-                <div className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">Top-tier marketplace standing</div>
-              </div>
-              <div className={`p-3 rounded-2xl border ${isDark ? 'bg-blue-950/20 border-blue-900/30' : 'bg-blue-50 border-blue-200'}`}>
-                <div className="text-blue-500 font-extrabold text-[11px]">70 – 89</div>
-                <div className={`font-bold text-xs ${headingText}`}>Trusted</div>
-                <div className="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5">Consistent positive track record</div>
-              </div>
-              <div className={`p-3 rounded-2xl border ${isDark ? 'bg-amber-950/20 border-amber-900/30' : 'bg-amber-50 border-amber-200'}`}>
-                <div className="text-amber-500 font-extrabold text-[11px]">50 – 69</div>
-                <div className={`font-bold text-xs ${headingText}`}>Average</div>
-                <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5">New or standard activity level</div>
-              </div>
-              <div className={`p-3 rounded-2xl border ${isDark ? 'bg-rose-950/20 border-rose-900/30' : 'bg-rose-50 border-rose-200'}`}>
-                <div className="text-rose-500 font-extrabold text-[11px]">Below 50</div>
-                <div className={`font-bold text-xs ${headingText}`}>Needs Attention</div>
-                <div className="text-[10px] text-rose-600 dark:text-rose-400 mt-0.5">Impacted by cancellations or issues</div>
-              </div>
-            </div>
-
-            {/* Principles: What Helps vs What Hurts */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#191919] border-neutral-800/80' : 'bg-slate-50/80 border-slate-200/80'} space-y-2`}>
-                <div className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400">
-                  <TrendingUp size={15} />
-                  <span>What Increases Your Score</span>
-                </div>
-                <ul className={`space-y-1 text-[11px] ${labelText}`}>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-emerald-500 font-bold">•</span>
-                    <span>Admin verification of residency and identity credentials</span>
-                  </li>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-emerald-500 font-bold">•</span>
-                    <span>Successfully completing and confirming service bookings</span>
-                  </li>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-emerald-500 font-bold">•</span>
-                    <span>Receiving positive (4-star & 5-star) client reviews</span>
-                  </li>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-emerald-500 font-bold">•</span>
-                    <span>Smooth, undisputed escrow payments and confirmations</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#191919] border-neutral-800/80' : 'bg-slate-50/80 border-slate-200/80'} space-y-2`}>
-                <div className="flex items-center gap-1.5 font-bold text-rose-600 dark:text-rose-400">
-                  <TrendingDown size={15} />
-                  <span>What Decreases Your Score</span>
-                </div>
-                <ul className={`space-y-1 text-[11px] ${labelText}`}>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-rose-500 font-bold">•</span>
-                    <span>Cancelling bookings at fault after work has already started</span>
-                  </li>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-rose-500 font-bold">•</span>
-                    <span>Valid disputes or complaints confirmed by admin moderators</span>
-                  </li>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-rose-500 font-bold">•</span>
-                    <span>Receiving low-rating reviews (1-star or 2-star)</span>
-                  </li>
-                  <li className="flex items-start gap-1.5">
-                    <span className="text-rose-500 font-bold">•</span>
-                    <span>Repeated service listing rejections for policy violations</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className={`p-3 rounded-xl border flex items-center gap-2 text-[11px] ${isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-400' : 'bg-amber-50/60 border-amber-200/60 text-amber-900'}`}>
-              <HelpCircle size={15} className="flex-shrink-0 text-amber-500" />
-              <span>
-                To prevent gaming and ensure authentic interactions, exact mathematical formulas are not published. Earning trust is based on genuine reliability.
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Danger Zone Card */}
-      <div className="bg-rose-500/5 border border-rose-500/20 rounded-[24px] p-6 space-y-3">
-        <h3 className="font-black text-sm uppercase tracking-wider text-rose-500 flex items-center gap-2">
-          <Trash2 size={17} /> Danger Zone
-        </h3>
-        <p className="text-xs text-rose-400/90 leading-relaxed">
-          Deleting your ServiceHub account will permanently erase your profile, booking records, trust score, and message history. This action cannot be undone.
-        </p>
-        <button
-          type="button"
-          onClick={() => setShowDeleteModal(true)}
-          className="px-4 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-sm active:scale-95"
-        >
-          Delete Account
-        </button>
-      </div>
-
-      {/* Delete Account Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className={`${cardBg} max-w-md w-full rounded-3xl p-6 border shadow-2xl space-y-4`}>
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center">
-              <Trash2 size={24} />
-            </div>
-            <h4 className={`text-base font-black ${headingText}`}>Confirm Account Deletion</h4>
-            <p className={`text-xs ${labelText} leading-relaxed`}>
-              Type <strong className="text-rose-500">DELETE</strong> below to permanently erase your ServiceHub profile and account data.
-            </p>
-
-            <input
-              type="text"
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder="Type DELETE"
-              className={inputClass}
-            />
-
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-bold border ${innerBg} ${headingText}`}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={deleteConfirmText !== 'DELETE' || deleting}
-                onClick={handleDeleteAccount}
-                className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white transition-all disabled:opacity-50"
-              >
-                {deleting ? 'Deleting...' : 'Permanently Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AccountDangerZone
+        isOpen={showDeleteModal}
+        confirmation={deleteConfirmText}
+        deleting={deleting}
+        cardBg={cardBg}
+        innerBg={innerBg}
+        headingText={headingText}
+        labelText={labelText}
+        inputClass={inputClass}
+        onOpen={() => setShowDeleteModal(true)}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteConfirmText('');
+        }}
+        onConfirmationChange={setDeleteConfirmText}
+        onDelete={handleDeleteAccount}
+      />
 
       {/* Phone Password Confirmation Modal */}
       <PhonePasswordConfirmModal

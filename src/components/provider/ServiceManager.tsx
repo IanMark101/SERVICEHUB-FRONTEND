@@ -1,23 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Wrench, Edit3, Trash2, Plus, X, AlertTriangle, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Wrench, Edit3, Trash2, Plus, AlertTriangle, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
 import { apiGetMyServices } from '../../api/services.api';
 import { mapServiceToListing } from '../../context/mappers';
 import type { ServiceListing } from '../../types';
-
-interface EditServiceState {
-  serviceId: string;
-  title: string;
-  price: number;
-  priceType: string;
-  serviceType: string;
-  estimatedDurationMins: number;
-  description: string;
-}
+import EditServiceModal, { EditServiceState } from './service-manager/EditServiceModal';
 
 type ServiceFilterTab = 'all' | 'active' | 'pending' | 'rejected';
 
@@ -525,170 +516,13 @@ export default function ServiceManager({
         </div>
       )}
 
-      {/* Edit Listing dialog */}
-      {editingService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-955/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-            }`}>
-
-            <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-855 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
-              }`}>
-              <h3 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                Edit Listing Rates
-              </h3>
-              <button
-                onClick={() => setEditingService(null)}
-                className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'
-                  }`}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveEdit} className="p-5 space-y-4">
-              {/* Title */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Listing Title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingService.title}
-                  onChange={(e) => setEditingService({ ...editingService, title: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
-                    }`}
-                />
-              </div>
-
-              {/* Service Type */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Service Type
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(['ONE_TIME', 'SESSION_BASED'] as const).map((st) => (
-                    <button
-                      key={st}
-                      type="button"
-                      onClick={() => setEditingService({ ...editingService, serviceType: st })}
-                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                        editingService.serviceType === st
-                          ? isDark ? 'bg-emerald-950/30 border-emerald-700/40 text-emerald-400' : 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                          : isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
-                      }`}
-                    >
-                      {st === 'ONE_TIME' ? 'One-time' : 'Session-based'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Price (₱)
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={1}
-                  value={editingService.price}
-                  onChange={(e) => setEditingService({ ...editingService, price: Number(e.target.value) })}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                      : 'bg-slate-50 border-slate-200 text-slate-755 focus:border-emerald-500'
-                    }`}
-                />
-              </div>
-
-              {/* Pricing Unit & Duration side-by-side */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                    Pricing Unit
-                  </label>
-                  <select
-                    value={editingService.priceType}
-                    onChange={(e) => setEditingService({ ...editingService, priceType: e.target.value })}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
-                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
-                      }`}
-                  >
-                    <option value="FIXED">Fixed Price</option>
-                    <option value="PER_SESSION">Per Session</option>
-                    <option value="PER_HOUR">Per Hour</option>
-                    <option value="PER_DAY">Per Day</option>
-                    <option value="PER_PROJECT">Per Project</option>
-                    <option value="STARTS_AT">Starts At</option>
-                    <option value="CUSTOM">Custom</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                    Est. Duration (Mins)
-                  </label>
-                  <input
-                    type="number"
-                    min={15}
-                    max={480}
-                    step={5}
-                    required
-                    value={editingService.estimatedDurationMins}
-                    onChange={(e) => setEditingService({ ...editingService, estimatedDurationMins: Math.max(15, Number(e.target.value)) })}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${isDark
-                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
-                      }`}
-                  />
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Description
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  value={editingService.description}
-                  onChange={(e) => setEditingService({ ...editingService, description: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'
-                    }`}
-                />
-              </div>
-
-              {/* Actions */}
-              <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                <button
-                  type="button"
-                  onClick={() => setEditingService(null)}
-                  className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${isDark
-                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                      : 'border-slate-200 hover:bg-slate-50 text-slate-500'
-                    }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-
-          </div>
-        </div>
-      )}
+      <EditServiceModal
+        value={editingService}
+        isDark={isDark}
+        onChange={setEditingService}
+        onClose={() => setEditingService(null)}
+        onSubmit={handleSaveEdit}
+      />
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal state={confirmModal} onClose={() => setConfirmModal(null)} />

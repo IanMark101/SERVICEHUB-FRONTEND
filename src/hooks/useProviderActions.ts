@@ -227,8 +227,19 @@ export function useProviderActions({
 
   const submitBid = async (requestId: string, providerId: string, price: number, message: string) => {
     try {
+      const request = jobRequests.find(item => item.id === requestId);
+      const listing = services.find(item =>
+        item.providerId === providerId &&
+        item.category.trim().toLowerCase() === request?.category.trim().toLowerCase() &&
+        !item.isPaused && item.status === 'ACTIVE' && (item.priceType || 'FIXED') === 'FIXED'
+      );
+      if (!listing) {
+        toastError('Cannot submit offer', 'Create or activate a fixed-price listing in this request category first.');
+        return;
+      }
       const res = await apiSubmitOffer({
         requestId,
+        serviceId: listing.id,
         offeredPrice: price,
         estimatedDuration: 60,
         message,
@@ -239,6 +250,7 @@ export function useProviderActions({
           id: p.id,
           requestId,
           providerId,
+          serviceId: listing.id,
           providerName: 'Me',
           providerAvatar: '',
           providerRating: 5.0,
@@ -300,8 +312,10 @@ export function useProviderActions({
   };
 
   const providerRemoveFromQueue = async (id: string) => {
+    const reason = window.prompt('Why are you cancelling this booking?');
+    if (!reason?.trim()) return;
     try {
-      const res = await apiProviderRemoveQueue(id);
+      const res = await apiProviderRemoveQueue(id, reason.trim());
       if (res.success) {
         await syncEngagements();
         success('Queue Entry Removed', 'Booking was removed from queue.');

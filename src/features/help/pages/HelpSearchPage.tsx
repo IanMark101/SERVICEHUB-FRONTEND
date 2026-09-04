@@ -122,7 +122,7 @@ export default function HelpSearchPage() {
                   No articles matched your search query.
                 </p>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-                  Try searching for general terms like "verification", "queue", "escrow", or "trust score".
+                  Try searching for general terms like "verification", "queue", "payment hold", or "trust score".
                 </p>
               </div>
             )}

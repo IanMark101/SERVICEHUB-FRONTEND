@@ -1,4 +1,4 @@
-import { api } from '../lib/api/axios';
+import { api, setAccessToken } from '../lib/api/axios';
 
 let sessionRecoveryRequest: ReturnType<typeof apiGetMe> | null = null;
 
@@ -34,7 +34,15 @@ export async function apiGetMe() {
  */
 export function apiRecoverSession() {
   if (!sessionRecoveryRequest) {
-    sessionRecoveryRequest = apiGetMe().finally(() => {
+    sessionRecoveryRequest = (async () => {
+      // Access tokens are intentionally memory-only. Restore a browser session
+      // from the rotated HttpOnly refresh cookie before requesting /auth/me.
+      const refreshResult = await apiRefresh();
+      const accessToken = refreshResult?.data?.accessToken || refreshResult?.accessToken;
+      if (!accessToken) throw new Error('No access token returned from refresh');
+      setAccessToken(accessToken);
+      return apiGetMe();
+    })().finally(() => {
       sessionRecoveryRequest = null;
     });
   }

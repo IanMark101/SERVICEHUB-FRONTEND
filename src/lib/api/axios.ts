@@ -10,20 +10,29 @@ export const api = axios.create({
   },
 });
 
+// Keep the short-lived access token in memory. The long-lived refresh token is
+// an HttpOnly cookie, so injected browser scripts cannot copy either credential
+// from localStorage and reuse it outside this browser session.
+let accessToken: string | null = null;
+
+export function getAccessToken(): string | null {
+  return accessToken;
+}
+
 export function setAccessToken(token: string): void {
-  localStorage.setItem('accessToken', token);
+  accessToken = token;
   api.defaults.headers.common.Authorization = `Bearer ${token}`;
 }
 
 export function clearAccessToken(): void {
-  localStorage.removeItem('accessToken');
+  accessToken = null;
   delete api.defaults.headers.common.Authorization;
 }
 
 // Attach access token to every outgoing request
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     } else if (config.headers) {
@@ -79,7 +88,7 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const hadToken = typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false;
+      const hadToken = !!getAccessToken();
       const hadAuthHeader = !!originalRequest.headers?.Authorization;
 
       // If the request had no token and no session exists in storage, do not attempt refresh

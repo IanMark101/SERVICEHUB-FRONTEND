@@ -320,7 +320,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
                       <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
                         <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                        Escrow Protected
+                        Test Payment Workflow
                       </span>
                     </div>
 

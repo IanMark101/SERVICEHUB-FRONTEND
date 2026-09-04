@@ -6,6 +6,7 @@ import {
 } from '../types';
 import { apiSendMessage } from '../api/messages.api';
 import { apiMarkNotificationsRead } from '../api/notifications.api';
+import { getAccessToken } from '../lib/api/axios';
 
 interface SharedActionsDeps {
   jobEngagements: JobEngagement[];
@@ -44,7 +45,7 @@ export function useSharedActions({
   const markNotificationsRead = async (userId: string) => {
     try {
       // Skip API call if no auth token is available (e.g. during role switch transitions)
-      const token = localStorage.getItem('accessToken');
+      const token = getAccessToken();
       if (!token) return;
 
       const res = await apiMarkNotificationsRead();

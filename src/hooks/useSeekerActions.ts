@@ -229,10 +229,10 @@ export function useSeekerActions({
             serviceId,
             paymentIntentId: payRes.data.paymentIntentId,
           });
-          if (confirmRes.success) {
+          if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
             await syncEngagements();
             await syncNotifications();
-            success('Payment Confirmed', 'Booking escrow held and entered queue successfully.');
+            success('Payment Confirmed', 'Your paid booking entered the provider queue.');
             return;
           }
         }
@@ -260,8 +260,7 @@ export function useSeekerActions({
           return;
         }
       } else {
-        const providerListing = services.find(s => s.providerId === targetBid.providerId && s.category === targetRequest.category);
-        const serviceId = providerListing?.id;
+        const serviceId = targetBid.serviceId;
 
         if (!serviceId) {
           toastError('Error accepting bid', 'This provider does not have an active listing in this category to hold online queue.');
@@ -289,11 +288,11 @@ export function useSeekerActions({
             offerId: bidId
           });
 
-          if (confirmRes.success) {
+          if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
             await syncEngagements();
             await syncBids();
             await syncRequests();
-            success('Bid Accepted & Escrow Held', 'Queue booking confirmed.');
+            success('Bid Accepted', 'Payment confirmed and queue booking created.');
             return;
           }
         }
@@ -349,8 +348,10 @@ export function useSeekerActions({
   };
 
   const cancelQueue = async (id: string) => {
+    const reason = window.prompt('Why are you cancelling this booking?');
+    if (!reason?.trim()) return;
     try {
-      const res = await apiCancelQueue(id);
+      const res = await apiCancelQueue(id, reason.trim());
       if (res.success) {
         await syncEngagements();
         success('Queue Entry Cancelled', 'You left the service queue.');

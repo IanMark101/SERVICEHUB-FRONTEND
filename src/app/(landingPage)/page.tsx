@@ -1,34 +1,20 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LandingPage from '@/components/landing/LandingPage';
-import { apiGetMe } from '@/api/auth.api';
+import { useApp } from '@/context/AppContext';
 
 export default function Home() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const { authLoading, isAuthenticated, user } = useApp();
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      apiGetMe()
-        .then((res) => {
-          if (res.success) {
-            const finalRole = res.data.user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
-            router.push(`/${finalRole}`);
-          } else {
-            setLoading(false);
-          }
-        })
-        .catch(() => {
-          setLoading(false);
-        });
-    } else {
-      setLoading(false);
+    if (!authLoading && isAuthenticated && user) {
+      router.replace(`/${user.role}`);
     }
-  }, [router]);
+  }, [authLoading, isAuthenticated, router, user]);
 
-  if (loading) {
+  if (authLoading || (isAuthenticated && user)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
         <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
