@@ -172,6 +172,11 @@ export function useUserProfile({
   // Fetch trust score history & milestones for the viewed profile
   useEffect(() => {
     if (!targetUser?.id) return;
+    if (user?.id !== targetUser.id && user?.role !== 'admin') {
+      setTrustHistory([]);
+      setTrustHistoryLoading(false);
+      return;
+    }
     setTrustHistoryLoading(true);
     apiGetTrustHistory(targetUser.id)
       .then(res => {
@@ -181,7 +186,7 @@ export function useUserProfile({
       })
       .catch(() => {})
       .finally(() => setTrustHistoryLoading(false));
-  }, [targetUser?.id]);
+  }, [targetUser?.id, user?.id, user?.role]);
 
   // Derived Properties
   const displayName = profile?.name || `${targetUser?.firstName || ''} ${targetUser?.lastName || ''}`.trim() || 'ServiceHub User';
@@ -216,9 +221,9 @@ export function useUserProfile({
 
   const rawRating = profile?.averageRating;
   const reviews: any[] = Array.isArray(profile?.reviews) ? profile.reviews : [];
-  const averageRating: number = typeof rawRating === 'number' && !isNaN(rawRating) && rawRating > 0
+  const averageRating: number = typeof rawRating === 'number' && Number.isFinite(rawRating) && rawRating >= 0
     ? rawRating
-    : (reviews.length > 0 ? (reviews.reduce((acc, r) => acc + (r.rating || 5), 0) / reviews.length) : 0);
+    : 0;
 
   const availability = profile?.availability || '';
   const languages = profile?.languages || '';

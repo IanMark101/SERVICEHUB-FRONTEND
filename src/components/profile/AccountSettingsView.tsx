@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
@@ -31,6 +31,8 @@ import { UserSession } from '../auth/LoginContainer';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import TrustScoreGuide from './account-settings/TrustScoreGuide';
 import AccountDangerZone from './account-settings/AccountDangerZone';
+import { apiGetAccountDeletionRequest, apiRequestAccountDeletion, type AccountDeletionRequest } from '../../api/users.api';
+import { useToast } from '../ui/Toast';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -43,6 +45,7 @@ interface AccountSettingsViewProps {
 }
 
 export default function AccountSettingsView({ user }: AccountSettingsViewProps) {
+  const { success: toastSuccess, error: toastError } = useToast();
   const {
     isDark,
     toggleTheme,
@@ -72,11 +75,18 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [deletionRequest, setDeletionRequest] = useState<AccountDeletionRequest | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [processingImage, setProcessingImage] = useState(false);
   const [showTrustGuide, setShowTrustGuide] = useState(true);
+
+  useEffect(() => {
+    apiGetAccountDeletionRequest()
+      .then((response) => setDeletionRequest(response.data))
+      .catch(() => setDeletionRequest(null));
+  }, []);
 
   const handleAvatarFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -94,13 +104,23 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     }
   };
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = async () => {
     setDeleting(true);
-    setTimeout(() => {
-      alert('Account deletion request submitted to ServiceHub Administrators.');
-      setDeleting(false);
+    try {
+      const response = await apiRequestAccountDeletion();
+      setDeletionRequest(response.data);
       setShowDeleteModal(false);
-    }, 1000);
+      setDeleteConfirmText('');
+      if (response.data.status === 'BLOCKED') {
+        toastError('Deletion request blocked', 'Resolve the listed active marketplace or moderation obligations, then submit again.');
+      } else {
+        toastSuccess('Deletion request submitted', 'Your request is pending guarded administrator processing.');
+      }
+    } catch (cause: any) {
+      toastError('Request failed', cause.response?.data?.error || cause.message || 'Unable to submit account deletion request.');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const isProvider = role === 'provider';
@@ -492,6 +512,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         isOpen={showDeleteModal}
         confirmation={deleteConfirmText}
         deleting={deleting}
+        request={deletionRequest}
         cardBg={cardBg}
         innerBg={innerBg}
         headingText={headingText}

@@ -51,12 +51,12 @@ interface AppContextType {
   editJobRequest: (requestId: string, title: string, budget: number, description: string) => void;
   deleteJobRequest: (requestId: string) => void;
   toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
-  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => void;
+  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'Maya' | 'On-site Cash') => void;
   declineBid: (bidId: string) => void;
   confirmJobCompletion: (jobId: string) => void;
   disputeJob: (jobId: string, reason: string) => void;
   suggestCategory: (seekerName: string, name: string, description: string) => void;
-  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash') => void;
+  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'Maya' | 'On-site Cash') => void;
   cancelQueue: (id: string) => void;
 
   // Provider actions
@@ -66,8 +66,7 @@ interface AppContextType {
     category: string,
     price: number,
     description: string,
-    proofUrl: string,
-    paymentMethods: { cash: boolean; gcash: boolean },
+    paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean },
     options?: {
       serviceType?: string;
       priceType?: string;
@@ -84,6 +83,7 @@ interface AppContextType {
       priceType?: string;
       serviceType?: string;
       estimatedDurationMins?: number;
+      paymentMethods?: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
     }
   ) => void;
   toggleServiceListingStatus: (serviceId: string) => void;

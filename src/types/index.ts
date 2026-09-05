@@ -64,6 +64,7 @@ export interface ServiceListing {
     cash: boolean;
     gcash: boolean;
     maya?: boolean;
+    card?: boolean;
   };
 }
 

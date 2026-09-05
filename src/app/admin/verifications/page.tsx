@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
+import { apiAccessVerificationProof, apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import { getSocket } from '../../../lib/socket';
@@ -9,7 +9,7 @@ import { getSocket } from '../../../lib/socket';
 interface VerificationProof {
   id: string;
   documentType: string;
-  fileUrl: string;
+  fileUrl?: string;
 }
 
 interface VerificationItem {
@@ -43,6 +43,22 @@ export default function AdminVerifications() {
   const [submittingReview, setSubmittingReview] = useState<boolean>(false);
 
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [accessingProofId, setAccessingProofId] = useState<string | null>(null);
+
+  const accessProof = async (item: VerificationItem, proof: VerificationProof, action: 'view' | 'download') => {
+    setAccessingProofId(proof.id);
+    try {
+      const response = await apiAccessVerificationProof(item.id, proof.id, action);
+      const url = response.data?.url;
+      if (!url) throw new Error('No secure document URL was returned.');
+      if (action === 'view') setZoomImage(url);
+      else window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (cause: any) {
+      toastError('Document access failed', cause.response?.data?.error || cause.message);
+    } finally {
+      setAccessingProofId(null);
+    }
+  };
 
   const fetchVerifications = () => {
     setLoading(true);
@@ -168,7 +184,7 @@ export default function AdminVerifications() {
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {item.proofs && item.proofs.map((proof) => {
-                      const isImage = proof.fileUrl.startsWith('data:image/') || proof.fileUrl.match(/\.(png|jpg|jpeg|webp|gif)$/i) || proof.fileUrl.startsWith('http');
+                      const isImage = false;
                       return (
                         <div
                           key={proof.id}
@@ -180,20 +196,20 @@ export default function AdminVerifications() {
                               <FileText className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
                               <span className="truncate">{proof.documentType}</span>
                             </div>
-                            <a
-                              href={proof.fileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <button
+                              type="button"
+                              disabled={accessingProofId === proof.id}
+                              onClick={() => accessProof(item, proof, 'view')}
                               className="text-red-500 hover:text-red-600 flex items-center space-x-0.5 text-[10px] flex-shrink-0"
                             >
-                              <span>Open</span>
+                              <span>{accessingProofId === proof.id ? 'Authorizing...' : 'View securely'}</span>
                               <ExternalLink className="w-3 h-3" />
-                            </a>
+                            </button>
                           </div>
 
                           {isImage ? (
                             <div
-                              onClick={() => setZoomImage(proof.fileUrl)}
+                              onClick={() => proof.fileUrl && setZoomImage(proof.fileUrl)}
                               className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-700/50 cursor-pointer group bg-black/40"
                             >
                               <img
@@ -207,7 +223,14 @@ export default function AdminVerifications() {
                             </div>
                           ) : (
                             <div className="p-3 text-center text-slate-400 text-[10px]">
-                              Non-image document attached
+                              <button
+                                type="button"
+                                disabled={accessingProofId === proof.id}
+                                onClick={() => accessProof(item, proof, 'download')}
+                                className="font-bold text-slate-500 hover:text-red-500 disabled:opacity-50"
+                              >
+                                Download (audit logged)
+                              </button>
                             </div>
                           )}
                         </div>

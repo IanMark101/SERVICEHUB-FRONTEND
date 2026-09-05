@@ -1,5 +1,27 @@
 import { api } from '../lib/api/axios';
 
+export interface AccountDeletionRequest {
+  id: string;
+  status: 'PENDING' | 'BLOCKED' | 'CANCELLED' | 'COMPLETED';
+  blockers?: Array<{ type: string; count: number }>;
+  requestedAt: string;
+}
+
+export async function apiRequestAccountDeletion() {
+  const response = await api.post('/users/me/account-deletion', { confirmation: 'DELETE' });
+  return response.data as { success: true; data: AccountDeletionRequest };
+}
+
+export async function apiGetAccountDeletionRequest() {
+  const response = await api.get('/users/me/account-deletion');
+  return response.data as { success: true; data: AccountDeletionRequest | null };
+}
+
+export async function apiCancelAccountDeletionRequest() {
+  const response = await api.delete('/users/me/account-deletion');
+  return response.data as { success: true; data: AccountDeletionRequest };
+}
+
 const CANDIDATE_PATHS = ['/users', '/user', '/users/search', '/user/search'];
 const CACHE_KEY = 'users_api_path';
 

@@ -101,7 +101,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         <div className="relative flex-shrink-0">
                           <img
                             src={IAN_AVATAR}
-                            alt="BUENAFLOR IAN MARK J."
+                            alt="DEMO PROVIDER"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
@@ -110,7 +110,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            BUENAFLOR IAN MARK J.
+                            DEMO PROVIDER
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
@@ -141,7 +141,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                       <span className="text-[10.5px] font-bold text-amber-500 flex items-center gap-1">
                         <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                         <span>5.0</span>
-                        <span className="text-slate-400 dark:text-neutral-500 font-normal">(12 reviews)</span>
+                        <span className="text-slate-400 dark:text-neutral-500 font-normal">(sample rating)</span>
                       </span>
                     </div>
 
@@ -237,7 +237,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         <div className="relative flex-shrink-0">
                           <img
                             src={IAN_AVATAR}
-                            alt="BUENAFLOR IAN MARK J."
+                            alt="DEMO PROVIDER"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
@@ -246,7 +246,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            BUENAFLOR IAN MARK J.
+                            DEMO PROVIDER
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className={`inline-flex items-center text-[10px] font-semibold border px-1.5 py-0.25 rounded-md ${

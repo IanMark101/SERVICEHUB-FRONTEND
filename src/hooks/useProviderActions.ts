@@ -91,8 +91,7 @@ export function useProviderActions({
     category: string,
     price: number,
     description: string,
-    proofUrl: string,
-    paymentMethods: { cash: boolean; gcash: boolean },
+    paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean },
     options?: {
       serviceType?: string;
       priceType?: string;
@@ -107,11 +106,11 @@ export function useProviderActions({
           categoryId: catId,
           title,
           description,
-          price,
+          ...(options?.priceType === 'CUSTOM' ? {} : { price }),
           serviceType: options?.serviceType || 'ONE_TIME',
           priceType: options?.priceType || 'FIXED',
           estimatedDurationMins: options?.estimatedDurationMins || 60,
-          paymentMethods: { cash: paymentMethods.cash, gcash: paymentMethods.gcash, maya: false },
+          paymentMethods,
           queueLimit: options?.queueLimit || 5,
         });
 
@@ -132,13 +131,14 @@ export function useProviderActions({
             queueSize: 0,
             queueLimit: item.queueLimit || options?.queueLimit || 5,
             isPaused: false,
-            proofOfSkillUrl: proofUrl,
+            proofOfSkillUrl: '',
             rating: 5.0,
             status: 'PENDING_REVIEW',
             paymentMethods: {
               cash: paymentMethods.cash,
               gcash: paymentMethods.gcash,
-              maya: false
+              maya: paymentMethods.maya,
+              card: paymentMethods.card
             }
           };
           setServices(prev => [newListing, ...prev]);
@@ -170,16 +170,18 @@ export function useProviderActions({
       priceType?: string;
       serviceType?: string;
       estimatedDurationMins?: number;
+      paymentMethods?: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
     }
   ) => {
     try {
       const res = await apiUpdateService(serviceId, {
         title,
-        price,
+        ...(options?.priceType === 'CUSTOM' ? { price: null } : { price }),
         description,
         ...(options?.priceType ? { priceType: options.priceType } : {}),
         ...(options?.serviceType ? { serviceType: options.serviceType } : {}),
         ...(options?.estimatedDurationMins ? { estimatedDurationMins: options.estimatedDurationMins } : {}),
+        ...(options?.paymentMethods ? { paymentMethods: options.paymentMethods } : {}),
       });
       if (res.success) {
         setServices(prev =>
@@ -187,12 +189,15 @@ export function useProviderActions({
             s.id === serviceId
               ? {
                   ...s,
+                  status: res.data.status,
+                  isPaused: !res.data.isAvailable,
                   title,
                   price,
                   description,
                   ...(options?.priceType ? { priceType: options.priceType as any } : {}),
                   ...(options?.serviceType ? { serviceType: options.serviceType as any } : {}),
                   ...(options?.estimatedDurationMins ? { estimatedDurationMins: options.estimatedDurationMins } : {}),
+                  ...(options?.paymentMethods ? { paymentMethods: options.paymentMethods } : {}),
                 }
               : s
           )
@@ -210,7 +215,7 @@ export function useProviderActions({
       const res = await apiToggleServiceAvailability(serviceId);
       if (res.success) {
         const isNowAvailable = res.data?.isAvailable;
-        setServices(prev => prev.map(s => s.id === serviceId ? { ...s, isPaused: !isNowAvailable } : s));
+        setServices(prev => prev.map(s => s.id === serviceId ? { ...s, status: res.data.status, isPaused: !isNowAvailable } : s));
         if (isNowAvailable) {
           success('Service Activated 🟢', 'Your service listing is now active and visible on the marketplace.');
         } else {
@@ -231,10 +236,10 @@ export function useProviderActions({
       const listing = services.find(item =>
         item.providerId === providerId &&
         item.category.trim().toLowerCase() === request?.category.trim().toLowerCase() &&
-        !item.isPaused && item.status === 'ACTIVE' && (item.priceType || 'FIXED') === 'FIXED'
+        !item.isPaused && item.status === 'ACTIVE'
       );
       if (!listing) {
-        toastError('Cannot submit offer', 'Create or activate a fixed-price listing in this request category first.');
+        toastError('Cannot submit offer', 'Create or activate a listing in this request category first.');
         return;
       }
       const res = await apiSubmitOffer({

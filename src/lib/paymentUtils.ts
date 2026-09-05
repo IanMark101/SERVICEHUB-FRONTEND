@@ -3,25 +3,27 @@ import { ServiceListing } from '../types';
 export interface ResolvedPaymentMethods {
   cash: boolean;
   gcash: boolean;
+  maya: boolean;
 }
 
 export function getServicePaymentMethods(service: ServiceListing | any): ResolvedPaymentMethods {
-  if (!service) return { cash: true, gcash: false };
+  if (!service) return { cash: false, gcash: false, maya: false };
   
   // Resolve paymentMethods from mapping or fallback to raw backend json or pricing logic
   const rawMethods = service.paymentMethods;
   if (rawMethods && (typeof rawMethods.cash === 'boolean' || typeof rawMethods.gcash === 'boolean')) {
     return {
       cash: !!rawMethods.cash,
-      gcash: !!rawMethods.gcash
+      gcash: !!rawMethods.gcash,
+      maya: !!rawMethods.maya
     };
   }
 
   // Fallback to price-based logic or default if not set
-  const supportsGCash = Number(service.price) >= 1000;
   return {
-    cash: true,
-    gcash: supportsGCash
+    cash: false,
+    gcash: false,
+    maya: false
   };
 }
 
@@ -30,8 +32,7 @@ export function getPrimaryBookingCTA(service: ServiceListing | any): string {
 }
 
 export function shouldShowPaymentSelector(service: ServiceListing | any): boolean {
-  const { cash, gcash } = getServicePaymentMethods(service);
-  return cash && gcash;
+  return Object.values(getServicePaymentMethods(service)).filter(Boolean).length > 1;
 }
 
 // Returns a human-readable pricing unit label for display.
@@ -59,4 +60,3 @@ export function getFormattedPrice(price: number | string, priceType?: string): s
 export function getServiceTypeLabel(serviceType?: string): string {
   return serviceType === 'SESSION_BASED' ? 'Session-based' : 'One-time';
 }
-

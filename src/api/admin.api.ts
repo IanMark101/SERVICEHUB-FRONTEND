@@ -5,8 +5,28 @@ export async function apiGetAdminOverview() {
   return response.data;
 }
 
-export async function apiListAnnouncements() {
-  const response = await api.get('/admin/announcements');
+export async function apiListAdminAuditLogs(params?: { page?: number; limit?: number; action?: string }) {
+  const response = await api.get('/admin/audit-logs', { params });
+  return response.data;
+}
+
+export async function apiListAdminReviews(params?: { page?: number; limit?: number; visibility?: 'VISIBLE' | 'HIDDEN' }) {
+  const response = await api.get('/admin/reviews', { params });
+  return response.data;
+}
+
+export async function apiModerateReview(id: string, action: 'hide' | 'restore', reason: string) {
+  const response = await api.patch(`/admin/reviews/${id}/moderation`, { action, reason });
+  return response.data;
+}
+
+export async function apiAccessReportEvidence(id: string, action: 'view' | 'download' = 'view') {
+  const response = await api.get(`/admin/reports/${id}/evidence/access`, { params: { action } });
+  return response.data;
+}
+
+export async function apiListAnnouncements(params?: { page?: number; limit?: number }) {
+  const response = await api.get('/admin/announcements', { params });
   return response.data;
 }
 
@@ -50,8 +70,8 @@ export async function apiRestorePostingPrivilege(userId: string, reason = 'Admin
   return response.data;
 }
 
-export async function apiPromoteUserToAdmin(userId: string, reason: string) {
-  const response = await api.patch(`/admin/users/${userId}/promote`, { reason });
+export async function apiPromoteUserToAdmin(userId: string, reason: string, currentPassword: string) {
+  const response = await api.patch(`/admin/users/${userId}/promote`, { reason, currentPassword });
   return response.data;
 }
 
@@ -62,6 +82,17 @@ export async function apiListPendingVerifications(params?: { page?: number; limi
 
 export async function apiReviewVerification(id: string, approve: boolean, adminNotes?: string) {
   const response = await api.patch(`/admin/verifications/${id}`, { approve, adminNotes });
+  return response.data;
+}
+
+export async function apiAccessVerificationProof(
+  verificationId: string,
+  proofId: string,
+  action: 'view' | 'download' = 'view',
+) {
+  const response = await api.get(`/admin/verifications/${verificationId}/proofs/${proofId}/access`, {
+    params: { action },
+  });
   return response.data;
 }
 
@@ -100,13 +131,13 @@ export async function apiListCompletionEscalations(params?: { page?: number; lim
   return response.data;
 }
 
-export async function apiResolveCompletionEscalation(id: string, action: 'release_provider_and_complete' | 'dismiss', resolution: string) {
+export async function apiResolveCompletionEscalation(id: string, action: 'release_provider_and_complete' | 'keep_awaiting', resolution: string) {
   const response = await api.patch(`/admin/completion-escalations/${id}/resolve`, { action, resolution });
   return response.data;
 }
 
-export async function apiListPaymentReconciliation() {
-  const response = await api.get('/admin/payments/reconciliation');
+export async function apiListPaymentReconciliation(params?: { page?: number; limit?: number }) {
+  const response = await api.get('/admin/payments/reconciliation', { params });
   return response.data;
 }
 
@@ -130,10 +161,20 @@ export async function apiListAdminPaymentAttempts(params?: { page?: number; limi
   return response.data;
 }
 
+export async function apiListAccountDeletionRequests(params?: { page?: number; limit?: number; status?: string }) {
+  const response = await api.get('/admin/account-deletions', { params });
+  return response.data;
+}
+
+export async function apiFinalizeAccountDeletion(userId: string, reason: string) {
+  const response = await api.post(`/admin/account-deletions/${userId}/finalize`, { reason });
+  return response.data;
+}
+
 // ── Cancellation Escalations ──────────────────────────────────────────────────
 
-export async function apiListEscalatedCancellations() {
-  const response = await api.get('/admin/cancellations/escalated');
+export async function apiListEscalatedCancellations(params?: { page?: number; limit?: number }) {
+  const response = await api.get('/admin/cancellations/escalated', { params });
   return response.data;
 }
 

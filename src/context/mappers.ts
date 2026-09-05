@@ -119,7 +119,8 @@ export function mapServiceToListing(item: any): ServiceListing {
     paymentMethods: item.paymentMethods ? {
       cash: !!item.paymentMethods.cash,
       gcash: !!item.paymentMethods.gcash,
-      maya: !!item.paymentMethods.maya
+      maya: !!item.paymentMethods.maya,
+      card: !!item.paymentMethods.card
     } : undefined
   };
 }

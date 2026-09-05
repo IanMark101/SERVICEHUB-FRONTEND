@@ -9,9 +9,10 @@ export interface EditServiceState {
   serviceType: string;
   estimatedDurationMins: number;
   description: string;
+  paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
 }
 
-interface EditServiceModalProps {
+interface Props {
   value: EditServiceState | null;
   isDark: boolean;
   onChange: (value: EditServiceState) => void;
@@ -19,37 +20,38 @@ interface EditServiceModalProps {
   onSubmit: (event: FormEvent) => void;
 }
 
-export default function EditServiceModal({ value, isDark, onChange, onClose, onSubmit }: EditServiceModalProps) {
+export default function EditServiceModal({ value, isDark, onChange, onClose, onSubmit }: Props) {
   if (!value) return null;
-  const fieldClass = `w-full px-4 py-3 rounded-xl border outline-none text-sm transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500' : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-emerald-500'}`;
-  const labelClass = `text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`;
+  const field = `w-full px-4 py-3 rounded-xl border outline-none text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'}`;
+  const label = `text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`;
+  const hasPaymentMethod = Object.values(value.paymentMethods).some(Boolean);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-955/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
-      <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
-        <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-855 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'}`}>
-          <h3 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Edit Listing Rates</h3>
-          <button onClick={onClose} className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'}`}><X className="w-4 h-4" /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+      <div className={`rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-xl border ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
+        <div className="p-5 border-b flex justify-between items-center">
+          <h3 className="font-extrabold text-sm">Edit Service Listing</h3>
+          <button type="button" onClick={onClose} aria-label="Close" className="p-1.5 rounded-lg border"><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={onSubmit} className="p-5 space-y-4">
-          <div><label className={labelClass}>Listing Title</label><input type="text" required value={value.title} onChange={(event) => onChange({ ...value, title: event.target.value })} className={`${fieldClass} font-medium`} /></div>
-          <div>
-            <label className={labelClass}>Service Type</label>
-            <div className="grid grid-cols-2 gap-2">
-              {(['ONE_TIME', 'SESSION_BASED'] as const).map((serviceType) => (
-                <button key={serviceType} type="button" onClick={() => onChange({ ...value, serviceType })} className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${value.serviceType === serviceType ? isDark ? 'bg-emerald-950/30 border-emerald-700/40 text-emerald-400' : 'bg-emerald-50 border-emerald-300 text-emerald-700' : isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}`}>{serviceType === 'ONE_TIME' ? 'One-time' : 'Session-based'}</button>
-              ))}
-            </div>
-          </div>
-          <div><label className={labelClass}>Price (₱)</label><input type="number" required min={1} value={value.price} onChange={(event) => onChange({ ...value, price: Number(event.target.value) })} className={`${fieldClass} font-semibold`} /></div>
+          <div><label className={label}>Listing Title</label><input className={field} required minLength={10} maxLength={100} value={value.title} onChange={(e) => onChange({ ...value, title: e.target.value })} /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className={labelClass}>Pricing Unit</label><select value={value.priceType} onChange={(event) => onChange({ ...value, priceType: event.target.value })} className={`${fieldClass} font-medium`}><option value="FIXED">Fixed Price</option><option value="PER_SESSION">Per Session</option><option value="PER_HOUR">Per Hour</option><option value="PER_DAY">Per Day</option><option value="PER_PROJECT">Per Project</option><option value="STARTS_AT">Starts At</option><option value="CUSTOM">Custom</option></select></div>
-            <div><label className={labelClass}>Est. Duration (Mins)</label><input type="number" min={15} max={480} step={5} required value={value.estimatedDurationMins} onChange={(event) => onChange({ ...value, estimatedDurationMins: Math.max(15, Number(event.target.value)) })} className={`${fieldClass} font-semibold`} /></div>
+            <div><label className={label}>Service Type</label><select className={field} value={value.serviceType} onChange={(e) => onChange({ ...value, serviceType: e.target.value })}><option value="ONE_TIME">One-time</option><option value="SESSION_BASED">Session-based (coming later)</option></select></div>
+            <div><label className={label}>Pricing Unit</label><select className={field} value={value.priceType} onChange={(e) => onChange({ ...value, priceType: e.target.value })}><option value="FIXED">Fixed Price</option><option value="STARTS_AT">Starts At</option><option value="PER_HOUR">Per Hour</option><option value="PER_DAY">Per Day</option><option value="PER_PROJECT">Per Project</option><option value="PER_SESSION">Per Session</option><option value="CUSTOM">Custom quotation</option></select></div>
           </div>
-          <div><label className={labelClass}>Description</label><textarea rows={4} required value={value.description} onChange={(event) => onChange({ ...value, description: event.target.value })} className={`${fieldClass} font-medium resize-none`} /></div>
-          <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-            <button type="button" onClick={onClose} className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]' : 'border-slate-200 hover:bg-slate-50 text-slate-500'}`}>Cancel</button>
-            <button type="submit" className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95">Save Changes</button>
+          <div><label className={label}>Price (PHP)</label><input className={field} type="number" min={50} max={50000} required={value.priceType !== 'CUSTOM'} disabled={value.priceType === 'CUSTOM'} value={value.price} onChange={(e) => onChange({ ...value, price: Number(e.target.value) })} /></div>
+          <div><label className={label}>Estimated Duration (minutes)</label><input className={field} type="number" min={15} max={480} required value={value.estimatedDurationMins} onChange={(e) => onChange({ ...value, estimatedDurationMins: Number(e.target.value) })} /></div>
+          <div><label className={label}>Description</label><textarea className={field} rows={4} required minLength={30} maxLength={1000} value={value.description} onChange={(e) => onChange({ ...value, description: e.target.value })} /></div>
+          <div>
+            <span className={label}>Accepted Payment Methods</span>
+            <div className="grid grid-cols-2 gap-2">
+              {([['cash', 'On-site Cash'], ['gcash', 'GCash'], ['maya', 'Maya'], ['card', 'Card (unavailable)']] as const).map(([key, text]) => <label key={key} className={`${field} flex items-center gap-2 cursor-pointer`}><input type="checkbox" disabled={key === 'card'} checked={key === 'card' ? false : value.paymentMethods[key]} onChange={(e) => onChange({ ...value, paymentMethods: { ...value.paymentMethods, [key]: e.target.checked } })} />{text}</label>)}
+            </div>
+            {!hasPaymentMethod && <p className="mt-1 text-xs text-red-500">Select at least one payment method.</p>}
+          </div>
+          <div className="pt-3 border-t flex justify-end gap-2">
+            <button type="button" onClick={onClose} className="px-4 py-2.5 border font-bold text-xs rounded-xl">Cancel</button>
+            <button type="submit" disabled={!hasPaymentMethod} className="px-5 py-2.5 bg-emerald-600 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl">Save Changes</button>
           </div>
         </form>
       </div>

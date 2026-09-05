@@ -157,7 +157,8 @@ export default function ServiceManager({
       priceType: s.priceType || 'FIXED',
       serviceType: s.serviceType || 'ONE_TIME',
       estimatedDurationMins: Number(s.estimatedDurationMins || 60),
-      description: s.description
+      description: s.description,
+      paymentMethods: { cash: !!s.paymentMethods?.cash, gcash: !!s.paymentMethods?.gcash, maya: !!s.paymentMethods?.maya, card: false }
     });
   };
 
@@ -174,6 +175,7 @@ export default function ServiceManager({
         priceType: editingService.priceType,
         serviceType: editingService.serviceType,
         estimatedDurationMins: Math.max(15, Math.min(480, Number(editingService.estimatedDurationMins) || 60)),
+        paymentMethods: editingService.paymentMethods,
       }
     );
     setEditingService(null);

@@ -19,7 +19,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
             <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${
               isDark ? 'text-[#f2efe9]' : 'text-slate-900'
             }`}>
-              A real, active Cordova community
+              Connect with the Cordova community
             </h2>
             <p className={`text-sm leading-relaxed font-medium ${
               isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
@@ -27,6 +27,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
               See platform announcements, this week's top-rated providers, and real community stats — all in one place.
             </p>
             <div className="flex items-center space-x-6 pt-2">
+              <span className="text-xs text-slate-500">Illustrative demo figures:</span>
               <div>
                 <span className="block font-black text-2xl text-seeker-primary">150+</span>
                 <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Verified Members</span>
@@ -66,7 +67,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
                   MS
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-sm tracking-tight">Maria Santos</h4>
+                  <h4 className="font-extrabold text-sm tracking-tight">Demo Cleaning Provider</h4>
                   <p className={`text-[11px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>Home Cleaning & Organizing</p>
                 </div>
               </div>

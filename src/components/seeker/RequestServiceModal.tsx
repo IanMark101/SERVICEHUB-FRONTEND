@@ -10,7 +10,7 @@ import { getServicePaymentMethods, shouldShowPaymentSelector } from '../../lib/p
 interface RequestServiceModalProps {
   listing: ServiceListing;
   onClose: () => void;
-  initialPaymentMethod?: 'GCash' | 'On-site Cash';
+  initialPaymentMethod?: 'GCash' | 'Maya' | 'On-site Cash';
 }
 
 export default function RequestServiceModal({ listing, onClose, initialPaymentMethod }: RequestServiceModalProps) {
@@ -19,20 +19,21 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const isOwned = !!(user && listing.providerId === user.id);
 
   // ── Payment method source of truth ──────────────────────────────────────────
-  const { cash, gcash } = getServicePaymentMethods(listing);
+  const { cash, gcash, maya } = getServicePaymentMethods(listing);
   const showSelector = shouldShowPaymentSelector(listing); // true only when BOTH are supported
 
   // Resolve a valid default: if the caller passed a method not supported, fall back to supported one
-  const resolveDefault = (): 'GCash' | 'On-site Cash' => {
+  const resolveDefault = (): 'GCash' | 'Maya' | 'On-site Cash' => {
     if (initialPaymentMethod === 'GCash' && gcash) return 'GCash';
+    if (initialPaymentMethod === 'Maya' && maya) return 'Maya';
     if (initialPaymentMethod === 'On-site Cash' && cash) return 'On-site Cash';
     if (cash) return 'On-site Cash';
-    return 'GCash';
+    return gcash ? 'GCash' : 'Maya';
   };
 
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(listing.price);
-  const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(resolveDefault);
+  const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'Maya' | 'On-site Cash'>(resolveDefault);
   const [scheduledDate, setScheduledDate] = useState<string>('');
   const [scheduledTime, setScheduledTime] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -101,6 +102,10 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!cash && !gcash && !maya) {
+      setFormError('This listing has no available payment method.');
+      return;
+    }
     setFormError(null);
 
     if (!description.trim()) {
@@ -375,58 +380,21 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               <span className={`block text-[10px] mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>Base listing rate: ₱{listing.price}</span>
             </div>
 
-            {/* Payment Method Badge Selector — only shown when provider supports BOTH methods */}
-            {showSelector ? (
-              <div>
-                <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Preferred Payment Method
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => !isOwned && setPaymentMethod('GCash')}
-                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${
-                      paymentMethod === 'GCash'
-                        ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-                        : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold')
-                    } ${isOwned ? 'opacity-65 cursor-not-allowed' : ''}`}
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span className="text-xs">GCash</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => !isOwned && setPaymentMethod('On-site Cash')}
-                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${
-                      paymentMethod === 'On-site Cash'
-                        ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-                        : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold')
-                    } ${isOwned ? 'opacity-65 cursor-not-allowed' : ''}`}
-                  >
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-xs">On-site Cash</span>
-                  </button>
-                </div>
+            <div>
+              <label className="text-xs font-semibold mb-2 block">Payment Method</label>
+              <div className="grid grid-cols-2 gap-3">
+                {([['On-site Cash', cash], ['GCash', gcash], ['Maya', maya]] as const)
+                  .filter(([, accepted]) => accepted)
+                  .map(([method]) => (
+                    <button key={method} type="button" disabled={isOwned}
+                      onClick={() => setPaymentMethod(method)}
+                      className={`p-3 rounded-xl border text-xs ${paymentMethod === method ? 'border-orange-500 text-orange-500 font-bold' : 'border-slate-300'}`}>
+                      {method}
+                    </button>
+                  ))}
               </div>
-            ) : (
-              /* Single method — show read-only badge, no selector */
-              <div>
-                <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Payment Method
-                </label>
-                <div className={`p-3 rounded-xl border flex items-center space-x-2 ${
-                  isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-600'
-                }`}>
-                  {gcash && !cash
-                    ? <><Smartphone className="w-4 h-4 text-orange-500" /><span className="text-xs font-semibold">GCash Online</span></>
-                    : <><MapPin className="w-4 h-4" /><span className="text-xs font-semibold">On-site Cash</span></>}
-                  <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-md border ${
-                    isDark ? 'border-neutral-800 text-neutral-500' : 'border-slate-200 text-slate-400'
-                  }`}>Provider's only accepted method</span>
-                </div>
-              </div>
-            )}
+              {!cash && !gcash && !maya && <p className="text-xs text-red-500">No supported payment method is available.</p>}
+            </div>
 
             {/* Spec Part 5 Cancellation Policy Disclaimer */}
             <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${

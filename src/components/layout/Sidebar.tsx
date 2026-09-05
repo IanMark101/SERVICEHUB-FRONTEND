@@ -117,6 +117,9 @@ export default function Sidebar({
       { id: 'categories', label: 'Category Suggestions', icon: Tag },
       { id: 'announcements', label: 'Announcements', icon: Megaphone },
       { id: 'reports', label: 'Disputes & Reports', icon: AlertTriangle },
+      { id: 'reviews', label: 'Review Moderation', icon: ShieldCheck },
+      { id: 'audit-logs', label: 'Audit Log', icon: History },
+      { id: 'account-deletions', label: 'Deletion Requests', icon: AlertTriangle },
     ]
   };
 

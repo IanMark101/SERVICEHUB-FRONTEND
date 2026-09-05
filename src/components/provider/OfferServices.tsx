@@ -20,6 +20,8 @@ export default function OfferServices() {
   // Payment methods
   const [acceptCash, setAcceptCash] = useState<boolean>(true);
   const [acceptGCash, setAcceptGCash] = useState<boolean>(true);
+  const [acceptMaya, setAcceptMaya] = useState<boolean>(false);
+  const [acceptCard, setAcceptCard] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -34,7 +36,7 @@ export default function OfferServices() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!acceptCash && !acceptGCash) {
+    if (!acceptCash && !acceptGCash && !acceptMaya && !acceptCard) {
       alert('Please select at least one accepted payment method.');
       return;
     }
@@ -47,17 +49,13 @@ export default function OfferServices() {
 
     setLoading(true);
     const providerId = user?.id || '';
-    // Mock skill proof url
-    const mockProofUrl = 'cert_uploaded.jpg';
-
     const res: any = await createServiceListing(
       providerId,
       title,
       selectedCategory,
       price,
       description,
-      mockProofUrl,
-      { cash: acceptCash, gcash: acceptGCash },
+      { cash: acceptCash, gcash: acceptGCash, maya: acceptMaya, card: acceptCard },
       {
         serviceType,
         priceType,
@@ -138,6 +136,8 @@ export default function OfferServices() {
                 disabled={!canTransact}
                 placeholder="e.g. Lawn Mowing and Edge Trimming"
                 value={title}
+                minLength={10}
+                maxLength={100}
                 onChange={(e) => setTitle(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
                     ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-emerald-500/80'
@@ -157,6 +157,8 @@ export default function OfferServices() {
                 disabled={!canTransact}
                 placeholder="Describe what you will do, tools you will use, and what is included in the service..."
                 value={description}
+                minLength={30}
+                maxLength={1000}
                 onChange={(e) => setDescription(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
                     ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-emerald-500/80'
@@ -252,8 +254,10 @@ export default function OfferServices() {
                 </label>
                 <input
                   type="number"
-                  min={1}
-                  required
+                  min={50}
+                  max={50000}
+                  required={priceType !== 'CUSTOM'}
+                  disabled={priceType === 'CUSTOM'}
                   placeholder="e.g. 500"
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
@@ -385,6 +389,16 @@ export default function OfferServices() {
                       className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300"
                     />
                     <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-800'}>GCash</span>
+                  </label>
+
+                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
+                    <input type="checkbox" checked={acceptMaya} onChange={(e) => setAcceptMaya(e.target.checked)} className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300" />
+                    <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-800'}>Maya</span>
+                  </label>
+
+                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
+                    <input type="checkbox" disabled checked={false} className="w-4 h-4 rounded border-slate-300" />
+                    <span className="text-slate-400">Card (unavailable)</span>
                   </label>
                 </div>
               </div>

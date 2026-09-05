@@ -22,10 +22,11 @@ import PaginationBar from '../ui/PaginationBar';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import EmptyState from '../ui/EmptyState';
+import { getServicePaymentMethods } from '../../lib/paymentUtils';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const router = useRouter();
-  const { bids, jobRequests, acceptBid, declineBid, users, isDark } = useApp();
+  const { bids, jobRequests, acceptBid, declineBid, users, isDark, services } = useApp();
   const { canTransact } = useTransactionPermission();
   
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -34,6 +35,8 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   const [loadingBidId, setLoadingBidId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
+  const selectedOffer = bids.find((bid) => bid.id === selectingPaymentBidId);
+  const acceptedMethods = getServicePaymentMethods(services.find((service) => service.id === selectedOffer?.serviceId));
 
   // Compute relative time from a full ISO timestamp
   const formatTimeAgo = (isoStr: string): string => {
@@ -65,7 +68,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     setSelectingPaymentBidId(bidId);
   };
 
-  const handleSelectPaymentMethod = async (paymentMethod: 'GCash' | 'On-site Cash') => {
+  const handleSelectPaymentMethod = async (paymentMethod: 'GCash' | 'Maya' | 'On-site Cash') => {
     if (!selectingPaymentBidId) return;
     const bidId = selectingPaymentBidId;
     setSelectingPaymentBidId(null);
@@ -421,27 +424,15 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 Choose how you want to coordinate payment for this booking:
               </p>
 
-              <button
-                onClick={() => handleSelectPaymentMethod('GCash')}
-                className="w-full flex items-center justify-between p-4 border rounded-2xl hover:border-emerald-500 text-left transition-all active:scale-98 bg-[#0084FF]/5 border-blue-500/20 hover:bg-blue-500/10 cursor-pointer"
-              >
-                <div>
-                  <span className="font-extrabold text-xs block text-slate-955 dark:text-[#f2efe9]">GCash Online</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Online payment tracked until task completion</span>
-                </div>
-                <span className="text-blue-550 font-extrabold text-xs">GCash</span>
-              </button>
-
-              <button
-                onClick={() => handleSelectPaymentMethod('On-site Cash')}
-                className="w-full flex items-center justify-between p-4 border rounded-2xl hover:border-orange-500 text-left transition-all active:scale-98 bg-orange-500/5 border-orange-500/20 hover:bg-orange-500/10 cursor-pointer"
-              >
-                <div>
-                  <span className="font-extrabold text-xs block text-slate-955 dark:text-[#f2efe9]">On-site Cash</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Pay provider directly in cash at location</span>
-                </div>
-                <span className="text-orange-500 font-extrabold text-xs">Cash</span>
-              </button>
+              {([['On-site Cash', acceptedMethods.cash], ['GCash', acceptedMethods.gcash], ['Maya', acceptedMethods.maya]] as const)
+                .filter(([, accepted]) => accepted)
+                .map(([method]) => (
+                  <button key={method} onClick={() => handleSelectPaymentMethod(method)}
+                    className="w-full p-4 border rounded-2xl text-left text-sm hover:border-emerald-500">
+                    {method}
+                  </button>
+                ))}
+              {!Object.values(acceptedMethods).some(Boolean) && <p className="text-xs text-red-500">This listing has no available payment method. Refresh the page or choose another offer.</p>}
 
               {/* Spec Part 5 Cancellation Policy Disclaimer */}
               <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${

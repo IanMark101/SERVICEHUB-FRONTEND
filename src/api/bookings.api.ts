@@ -80,6 +80,20 @@ export async function apiDisputeJob(bookingId: string, reason: string, descripti
   return response.data;
 }
 
+export async function apiUploadBookingEvidence(bookingId: string, image: string) {
+  const response = await api.post('/upload/booking-evidence', { bookingId, image });
+  return response.data;
+}
+
+export async function apiSubmitSafetyReport(bookingId: string, data: {
+  reason: 'POOR_SERVICE_QUALITY' | 'INCOMPLETE_SERVICE' | 'SCAM_OR_FRAUD' | 'INAPPROPRIATE_BEHAVIOR' | 'OVERPRICING' | 'NO_SHOW';
+  description: string;
+  evidenceStorageKey?: string;
+}) {
+  const response = await api.post(`/bookings/${bookingId}/reports`, data);
+  return response.data;
+}
+
 export async function apiCancelBooking(bookingId: string, reason: string) {
   const response = await api.post(`/bookings/${bookingId}/cancel`, { reason });
   return response.data;

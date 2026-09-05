@@ -31,6 +31,8 @@ export default function AdminUserModals({ model }: { model: any }) {
     setPromotingUser,
     promotionReason,
     setPromotionReason,
+    promotionPassword,
+    setPromotionPassword,
     handlePromote
   } = model;
 
@@ -237,9 +239,10 @@ export default function AdminUserModals({ model }: { model: any }) {
               <p className="mt-1 text-[10px] leading-4 text-slate-400">Grant {promotingUser.name} permanent access to protected moderation tools. This action is audited.</p>
             </div>
             <textarea required minLength={3} maxLength={500} rows={3} value={promotionReason} onChange={(event) => setPromotionReason(event.target.value)} placeholder="Explain why this account requires administrator access..." className={`w-full rounded-xl p-3 border text-xs outline-none ${isDark ? 'bg-[#1c1b18] border-neutral-700' : 'bg-slate-50 border-slate-300'}`} />
+            <input required minLength={8} maxLength={200} type="password" autoComplete="current-password" value={promotionPassword} onChange={(event) => setPromotionPassword(event.target.value)} placeholder="Confirm your current administrator password" className={`w-full rounded-xl p-3 border text-xs outline-none ${isDark ? 'bg-[#1c1b18] border-neutral-700' : 'bg-slate-50 border-slate-300'}`} />
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setPromotingUser(null)} className="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
-              <button disabled={promotionReason.trim().length < 3} className="px-4 py-2 rounded-xl bg-red-600 text-xs font-bold text-white disabled:opacity-50">Confirm promotion</button>
+              <button type="button" onClick={() => { setPromotingUser(null); setPromotionPassword(''); }} className="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
+              <button disabled={promotionReason.trim().length < 3 || promotionPassword.length < 8} className="px-4 py-2 rounded-xl bg-red-600 text-xs font-bold text-white disabled:opacity-50">Confirm promotion</button>
             </div>
           </form>
         </div>

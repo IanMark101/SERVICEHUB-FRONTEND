@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Shield, Upload, CheckCircle2, Clock, XCircle, ExternalLink, AlertTriangle, Image as ImageIcon, FileCheck, Trash2, Camera, Plus, Eye } from 'lucide-react';
-import { apiSubmitVerification, apiGetVerificationStatus, apiUploadVerificationImage } from '../../api/verifications.api';
+import { apiSubmitVerification, apiGetVerificationStatus, apiUploadVerificationImage, apiGetVerificationPrivacyNotice } from '../../api/verifications.api';
 import { useToast } from '../ui/Toast';
 
 interface VerificationUploadProps {
@@ -36,6 +36,8 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
   const [submitting, setSubmitting] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [previewModalUrl, setPreviewModalUrl] = useState<string | null>(null);
+  const [privacyNotice, setPrivacyNotice] = useState<{ version: string; notice: string; minimumRetentionDays: number } | null>(null);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -49,6 +51,12 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
       })
       .catch(() => {})
       .finally(() => setLoadingStatus(false));
+  }, []);
+
+  useEffect(() => {
+    apiGetVerificationPrivacyNotice()
+      .then(res => setPrivacyNotice(res.data || null))
+      .catch(() => setPrivacyNotice(null));
   }, []);
 
   const addRow = () => setRows(r => [...r, { fileUrl: '', documentType: 'GOVERNMENT_ID' }]);
@@ -91,6 +99,10 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
       toastError('No documents', 'Please upload or attach at least one document photo.');
       return;
     }
+    if (!privacyNotice || !privacyAccepted) {
+      toastError('Privacy acknowledgement required', 'Read and accept the verification privacy notice before submitting.');
+      return;
+    }
     setSubmitting(true);
     try {
       if (valid.some((item) => !item.fileUrl.startsWith('data:image/'))) {
@@ -101,7 +113,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
         const upload = await apiUploadVerificationImage(item.fileUrl);
         return { storageKey: upload.data.storageKey, documentType: item.documentType };
       }));
-      const res = await apiSubmitVerification(uploaded);
+      const res = await apiSubmitVerification(uploaded, privacyNotice.version);
       if (res.success) {
         success('Verification Submitted!', 'Admin will review your photos & documents.');
         setStatus('PENDING_REVIEW');
@@ -175,6 +187,14 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
           <CheckCircle2 size={48} color="#10b981" style={{ margin: '0 auto 12px' }} />
           <p style={{ color: '#10b981', fontWeight: 800, fontSize: '14px' }}>You are a Verified Resident User!</p>
           <p style={{ color: textMuted, fontSize: '12px', marginTop: '6px' }}>Your account is fully verified and unrestricted on Cordova ServiceHub.</p>
+        </div>
+      ) : status === 'PENDING_REVIEW' ? (
+        <div style={{ textAlign: 'center', padding: '24px 0' }}>
+          <Clock size={44} color="#f59e0b" style={{ margin: '0 auto 12px' }} />
+          <p style={{ color: '#f59e0b', fontWeight: 800, fontSize: '14px' }}>Review in progress</p>
+          <p style={{ color: textMuted, fontSize: '12px', marginTop: '6px' }}>
+            Your private documents were submitted successfully. A new submission cannot replace evidence while this review is pending.
+          </p>
         </div>
       ) : (
         <>
@@ -299,10 +319,25 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
             </button>
           </div>
 
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '14px', marginBottom: '12px', borderRadius: '12px', border: `1px solid ${border}`, background: isDark ? '#23221e' : '#f8fafc', cursor: privacyNotice ? 'pointer' : 'not-allowed' }}>
+            <input
+              type="checkbox"
+              checked={privacyAccepted}
+              disabled={!privacyNotice || submitting}
+              onChange={(event) => setPrivacyAccepted(event.target.checked)}
+              style={{ marginTop: '2px' }}
+            />
+            <span style={{ fontSize: '11px', lineHeight: 1.5, color: textMuted }}>
+              {privacyNotice
+                ? `I acknowledge privacy notice ${privacyNotice.version}. ${privacyNotice.notice}`
+                : 'Loading the current verification privacy notice...'}
+            </span>
+          </label>
+
           {/* Submit Action Button - Clean High-Contrast Monochrome */}
           <button
             onClick={handleSubmit}
-            disabled={submitting}
+            disabled={submitting || !privacyNotice || !privacyAccepted}
             style={{
               width: '100%',
               padding: '13px',
@@ -312,7 +347,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
               color: submitting ? (isDark ? '#8a8780' : '#64748b') : (isDark ? '#0a0a0a' : '#ffffff'),
               fontWeight: 800,
               fontSize: '13.5px',
-              cursor: submitting ? 'not-allowed' : 'pointer',
+              cursor: submitting || !privacyNotice || !privacyAccepted ? 'not-allowed' : 'pointer',
               boxShadow: isDark ? '0 4px 14px rgba(255,255,255,0.08)' : '0 4px 14px rgba(15,23,42,0.15)',
               transition: 'all 0.2s',
             }}

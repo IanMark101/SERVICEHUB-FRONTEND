@@ -63,6 +63,7 @@ export default function AdminUsers() {
   const [confirmRestoreUserId, setConfirmRestoreUserId] = useState<string | null>(null);
   const [promotingUser, setPromotingUser] = useState<UserItem | null>(null);
   const [promotionReason, setPromotionReason] = useState('');
+  const [promotionPassword, setPromotionPassword] = useState('');
 
   // Search Debouncing
   useEffect(() => {
@@ -178,12 +179,13 @@ export default function AdminUsers() {
 
   const handlePromote = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!promotingUser || promotionReason.trim().length < 3) return;
+    if (!promotingUser || promotionReason.trim().length < 3 || promotionPassword.length < 8) return;
     try {
-      await apiPromoteUserToAdmin(promotingUser.id, promotionReason.trim());
+      await apiPromoteUserToAdmin(promotingUser.id, promotionReason.trim(), promotionPassword);
       toastSuccess("Administrator Added", `${promotingUser.name} must sign in again to use the Admin workspace.`);
       setPromotingUser(null);
       setPromotionReason('');
+      setPromotionPassword('');
       fetchUsers();
     } catch (err: any) {
       toastError("Promotion Failed", err.response?.data?.error || err.message);
@@ -457,6 +459,8 @@ export default function AdminUsers() {
           setPromotingUser,
           promotionReason,
           setPromotionReason,
+          promotionPassword,
+          setPromotionPassword,
           handlePromote
         }}
       />

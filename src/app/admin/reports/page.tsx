@@ -16,7 +16,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { apiCancelAdminBooking, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
+import { apiAccessReportEvidence, apiCancelAdminBooking, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
 import { useApp } from "../../../context/AppContext";
 import { getSocket } from "../../../lib/socket";
 import { useToast } from "../../../components/ui/Toast";
@@ -45,6 +45,7 @@ interface ReportCase {
   reason: string;
   description: string;
   evidenceUrl?: string | null;
+  hasPrivateEvidence?: boolean;
   status: string;
   createdAt: string;
   reporter: Party;
@@ -161,10 +162,10 @@ export default function AdminReportsPage() {
     }
   }, [page]);
 
-  const resolveCompletion = async (item: CompletionEscalationCase, action: 'release_provider_and_complete' | 'dismiss') => {
+  const resolveCompletion = async (item: CompletionEscalationCase, action: 'release_provider_and_complete' | 'keep_awaiting') => {
     const resolution = window.prompt(action === 'release_provider_and_complete'
       ? 'Explain why the booking should be completed and provider payment released:'
-      : 'Explain why this escalation is dismissed:');
+      : 'Explain why the booking should keep awaiting seeker confirmation:');
     if (!resolution || resolution.trim().length < 3) return;
     try {
       await apiResolveCompletionEscalation(item.id, action, resolution.trim());
@@ -198,6 +199,15 @@ export default function AdminReportsPage() {
       showError("Resolution failed", cause.response?.data?.error || cause.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const openPrivateEvidence = async (reportId: string) => {
+    try {
+      const response = await apiAccessReportEvidence(reportId, 'view');
+      window.open(response.data.url, '_blank', 'noopener,noreferrer');
+    } catch (cause: any) {
+      showError('Evidence access failed', cause.response?.data?.error || cause.message);
     }
   };
 
@@ -242,7 +252,7 @@ export default function AdminReportsPage() {
                     <p className="mt-2 text-xs">{item.reason}</p>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <button onClick={() => resolveCompletion(item, 'dismiss')} className="rounded-lg border px-3 py-2 text-[10px] font-bold">Dismiss</button>
+                    <button onClick={() => resolveCompletion(item, 'keep_awaiting')} className="rounded-lg border px-3 py-2 text-[10px] font-bold">Keep awaiting</button>
                     <button onClick={() => resolveCompletion(item, 'release_provider_and_complete')} className="rounded-lg bg-emerald-600 px-3 py-2 text-[10px] font-bold text-white">Complete and release</button>
                   </div>
                 </div>
@@ -378,6 +388,11 @@ export default function AdminReportsPage() {
                       <a href={item.evidenceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-red-600 hover:bg-red-50 dark:border-neutral-700">
                         <FileImage className="h-4 w-4" /> Open submitted evidence
                       </a>
+                    )}
+                    {item.hasPrivateEvidence && (
+                      <button type="button" onClick={() => void openPrivateEvidence(item.id)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-red-600 hover:bg-red-50 dark:border-neutral-700">
+                        <FileImage className="h-4 w-4" /> View private evidence (audit logged)
+                      </button>
                     )}
                   </div>
 
