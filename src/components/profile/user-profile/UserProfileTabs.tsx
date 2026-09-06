@@ -277,7 +277,6 @@ export default function UserProfileTabs({ model }: { model: any }) {
             rating: r.rating || 5,
             comment: r.text || r.comment || '',
             createdAt: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently',
-            helpfulCount: r.helpfulCount || 0,
           }))}
           isDark={isDark}
           cardBg={cardBg}

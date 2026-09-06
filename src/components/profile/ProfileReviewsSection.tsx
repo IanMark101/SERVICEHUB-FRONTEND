@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Star, ThumbsUp, MessageSquare, Send, Lock } from 'lucide-react';
+import { Star, MessageSquare, Send, Lock } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 
@@ -11,7 +11,6 @@ interface ReviewItem {
   rating: number;
   comment: string;
   createdAt: string;
-  helpfulCount?: number;
 }
 
 interface ProfileReviewsSectionProps {
@@ -46,42 +45,6 @@ export default function ProfileReviewsSection({
   const [showAddForm, setShowAddForm] = useState(false);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
-  const [votedMap, setVotedMap] = useState<Record<string, boolean>>({});
-  const [helpfulMap, setHelpfulMap] = useState<Record<string, number>>({});
-
-  // Initialize from localStorage on client mount
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem('sh_helpful_reviews');
-      if (stored) {
-        setVotedMap(JSON.parse(stored));
-      }
-    } catch {
-      // Ignore JSON parse errors
-    }
-  }, []);
-
-  const handleToggleHelpful = (id: string, initialCount: number = 0) => {
-    const isCurrentlyVoted = !!votedMap[id];
-    const newVoted = !isCurrentlyVoted;
-
-    // Update voted map and persist
-    setVotedMap(prev => {
-      const updated = { ...prev, [id]: newVoted };
-      try {
-        localStorage.setItem('sh_helpful_reviews', JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
-
-    // Update count: +1 if newly voted, -1 if unvoting
-    setHelpfulMap(prev => {
-      const current = prev[id] !== undefined ? prev[id] : initialCount;
-      const nextCount = Math.max(0, isCurrentlyVoted ? current - 1 : current + 1);
-      return { ...prev, [id]: nextCount };
-    });
-  };
-
   // Pagination hook — 3 reviews per page
   const {
     currentPage,
@@ -104,7 +67,6 @@ export default function ProfileReviewsSection({
       rating: newRating,
       comment: newComment.trim(),
       createdAt: 'Just now',
-      helpfulCount: 0,
     };
 
     setReviewsList([created, ...reviewsList]);
@@ -238,31 +200,8 @@ export default function ProfileReviewsSection({
 
               <p className={`leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>{r.comment}</p>
 
-              <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 dark:border-neutral-800">
+              <div className="pt-1 border-t border-slate-200/80 dark:border-neutral-800">
                 <span className="text-[10px] text-emerald-500 font-semibold">Verified Booking Completed</span>
-                {(() => {
-                  const isVoted = !!votedMap[r.id];
-                  const count = helpfulMap[r.id] !== undefined ? helpfulMap[r.id] : (r.helpfulCount || 0);
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => handleToggleHelpful(r.id, r.helpfulCount || 0)}
-                      title={isVoted ? "Click to remove helpful vote" : "Mark this review as helpful"}
-                      className={`text-[10px] font-bold flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-all active:scale-95 cursor-pointer ${
-                        isVoted
-                          ? (isDark
-                              ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-400'
-                              : 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-sm')
-                          : (isDark
-                              ? 'border-neutral-800 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200'
-                              : 'border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-700')
-                      }`}
-                    >
-                      <ThumbsUp size={11} className={isVoted ? 'text-emerald-500 fill-emerald-500' : 'text-emerald-500'} />
-                      <span>Helpful {count > 0 ? `(${count})` : ''}</span>
-                    </button>
-                  );
-                })()}
               </div>
             </div>
           ))
