@@ -53,7 +53,7 @@ export default function AdminServices() {
   const [totalPages, setTotalPages] = useState(1);
   const requestedStatus = searchParams.get('status')?.toUpperCase();
   const [status, setStatus] = useState(
-    requestedStatus && ['ALL', 'PENDING_REVIEW', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED'].includes(requestedStatus)
+    requestedStatus && ['ALL', 'LIVE', 'PENDING_REVIEW', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED'].includes(requestedStatus)
       ? requestedStatus
       : 'PENDING_REVIEW',
   );
@@ -154,14 +154,14 @@ export default function AdminServices() {
       </div>
 
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter service listings by status">
-        {['PENDING_REVIEW', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED', 'ALL'].map((option) => (
+        {['PENDING_REVIEW', 'LIVE', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED', 'ALL'].map((option) => (
           <button key={option} type="button" role="tab" aria-selected={status === option}
             onClick={() => { setStatus(option); setPage(1); }}
             className={`rounded-xl border px-3 py-2 text-[10px] font-bold transition-colors ${status === option
               ? 'border-violet-500 bg-violet-500 text-white'
               : isDark ? 'border-neutral-700 text-neutral-300 hover:bg-neutral-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}>
-            {option === 'ALL' ? 'All Listings' : option.replace(/_/g, ' ')}
+            {option === 'ALL' ? 'All Listings' : option === 'LIVE' ? 'Live Marketplace' : option.replace(/_/g, ' ')}
           </button>
         ))}
       </div>

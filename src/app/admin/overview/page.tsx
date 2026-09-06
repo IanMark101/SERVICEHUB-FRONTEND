@@ -95,7 +95,7 @@ export default function AdminOverview() {
       icon: Briefcase,
       color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
       desc: "Approved, available listings owned by eligible providers.",
-      href: '/admin/services?status=ACTIVE',
+      href: '/admin/services?status=LIVE',
     },
     {
       title: "Verification Queue",
