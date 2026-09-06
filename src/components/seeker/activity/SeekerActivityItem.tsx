@@ -95,13 +95,13 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                     isDark={isDark}
                   />
 
-                  {/* Escrow/Payment details banner */}
+                  {/* Internal payment-status details */}
                   {hasEscrow && (
-                    je.paymentMethod === 'GCash' ? (
+                    je.paymentMethod !== 'On-site Cash' ? (
                       <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-orange-950/15 border-orange-900/20 text-orange-400' : 'bg-orange-50/40 border-orange-100 text-orange-700'
                         }`}>
-                        <span className="font-semibold">GCash Payment Confirmed</span>
-                        <span className="font-extrabold">₱{je.price} Paid Online</span>
+                        <span className="font-semibold">{je.paymentMethod} Test Payment Recorded</span>
+                        <span className="font-extrabold">₱{je.price} Internal PAID_HELD</span>
                       </div>
                     ) : (
                       <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'
@@ -290,8 +290,8 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                       {je.status === 'awaiting_seeker_approval' && (
                         <div className="flex flex-col items-end space-y-2">
                           <p className="text-[10px] text-orange-500 font-semibold text-right max-w-xs">
-                            {je.paymentMethod === 'GCash'
-                              ? '⚠️ Releasing funds is final. Verify the service is fully completed to your satisfaction before releasing payment.'
+                            {je.paymentMethod !== 'On-site Cash'
+                              ? 'Confirming completion is final. It changes the internal Test Mode ledger to RELEASED; it does not perform a provider payout.'
                               : '⚠️ Please ensure you pay the provider the agreed cash amount on-site. Confirming completes the transaction.'}
                           </p>
                           <div className="flex items-center space-x-2">
@@ -307,14 +307,14 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                             <button
                               disabled={!!loadingItemId}
                               onClick={() => {
-                                const isOnline = je.paymentMethod === 'GCash';
+                                const isOnline = je.paymentMethod !== 'On-site Cash';
                                 setConfirmModal({
                                   isOpen: true,
                                   title: isOnline ? 'Confirm Online Booking Completion' : 'Complete Transaction',
                                   message: isOnline
-                                    ? 'Confirm that the work is complete? This releases ServiceHub’s internal payment hold and records the provider earning. This action is final.'
+                                    ? 'Confirm that the work is complete? This changes ServiceHub’s internal Test Mode record to RELEASED. It does not perform a provider payout, and this action is final.'
                                     : 'Have you paid the provider on-site and want to complete this transaction?',
-                                  confirmText: isOnline ? 'Release Cash' : 'Complete Transaction',
+                                  confirmText: isOnline ? 'Confirm Completion' : 'Complete Transaction',
                                   cancelText: 'Cancel',
                                   variant: 'warning',
                                   onConfirm: async () => {
@@ -336,10 +336,10 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                               {loadingItemId === je.id && loadingActionType === 'complete' ? (
                                 <>
                                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                                  <span>{je.paymentMethod === 'GCash' ? 'Releasing Funds...' : 'Completing...'}</span>
+                                  <span>{je.paymentMethod !== 'On-site Cash' ? 'Confirming...' : 'Completing...'}</span>
                                 </>
                               ) : (
-                                <span>{je.paymentMethod === 'GCash' ? 'Release Cash' : 'Complete Transaction'}</span>
+                                <span>{je.paymentMethod !== 'On-site Cash' ? 'Confirm Completion' : 'Complete Transaction'}</span>
                               )}
                             </button>
                           </div>

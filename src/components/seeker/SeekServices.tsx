@@ -60,9 +60,9 @@ export default function SeekServices() {
   ];
 
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'On-site Cash'>('On-site Cash');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'Maya' | 'On-site Cash'>('On-site Cash');
 
-  const handleBookListing = (listing: ServiceListing, method: 'GCash' | 'On-site Cash' = 'On-site Cash') => {
+  const handleBookListing = (listing: ServiceListing, method: 'GCash' | 'Maya' | 'On-site Cash' = 'On-site Cash') => {
     if (!canTransact) {
       setBlockedModalOpen(true);
       return;

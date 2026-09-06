@@ -156,11 +156,11 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                       </span>
                     </div>
                     <div className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold border flex items-center gap-1 shadow-xs ${
-                      je.paymentMethod === 'GCash'
+                      je.paymentMethod !== 'On-site Cash'
                         ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
                         : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
                     }`}>
-                      {je.paymentMethod === 'GCash' ? <CreditCard className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
+                      {je.paymentMethod !== 'On-site Cash' ? <CreditCard className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
                       <span>{je.paymentMethod || 'On-site Cash'}</span>
                     </div>
                   </div>

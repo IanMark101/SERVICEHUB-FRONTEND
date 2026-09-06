@@ -193,7 +193,7 @@ export function useAppDataSync({
           seekerId: cs.seekerId,
           providerId: cs.providerId,
           amount: Number(cs.finalPrice),
-          paymentMethod: cs.booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
+          paymentMethod: cs.booking?.paymentMethod === 'Maya' ? 'Maya' : cs.booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
           serviceTitle: cs.booking?.service?.title || cs.booking?.offer?.request?.title || cs.booking?.directRequest?.service?.title || 'Service Payout',
           createdAt: cs.completedAt?.split('T')[0] || '',
         }));

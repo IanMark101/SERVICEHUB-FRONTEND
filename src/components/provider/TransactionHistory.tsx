@@ -164,13 +164,13 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
                       </span>
                       <span>•</span>
                       
-                      {tx.paymentMethod === 'GCash' ? (
+                      {tx.paymentMethod !== 'On-site Cash' ? (
                         <span className={`inline-flex items-center text-[9px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold ${
                           isDark 
                             ? 'text-blue-400 bg-blue-950/20 border-blue-900/30' 
                             : 'text-blue-600 bg-blue-50 border-blue-100'
                         }`}>
-                          GCash
+                          {tx.paymentMethod}
                         </span>
                       ) : (
                         <span className={`inline-flex items-center text-[9px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold ${

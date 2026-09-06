@@ -167,13 +167,13 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                       isDark={isDark}
                     />
 
-                    {/* Escrow/Payment details banner */}
+                    {/* Internal payment-status details */}
                     {hasEscrow && (
-                      je.paymentMethod === 'GCash' ? (
+                      je.paymentMethod !== 'On-site Cash' ? (
                         <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-emerald-955/15 border-emerald-900/20 text-emerald-400' : 'bg-emerald-50/40 border-emerald-100 text-emerald-700'
                           }`}>
-                          <span className="font-semibold">GCash Payment Confirmed</span>
-                          <span className="font-extrabold">₱{je.price} Paid Online</span>
+                          <span className="font-semibold">{je.paymentMethod} Test Payment Recorded</span>
+                          <span className="font-extrabold">₱{je.price} Internal PAID_HELD</span>
                         </div>
                       ) : (
                         <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'

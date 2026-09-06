@@ -221,7 +221,7 @@ export function useSeekerActions({
             localStorage.setItem('pending_service_id', serviceId);
             localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
             localStorage.removeItem('pending_offer_id');
-            info('Redirecting to Payment', 'Please complete the GCash transaction.');
+            info('Redirecting to PayMongo Test Mode', `Please complete the ${paymentMethod} test transaction.`);
             window.location.href = payRes.data.redirectUrl;
             return;
           }
@@ -232,7 +232,7 @@ export function useSeekerActions({
           if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
             await syncEngagements();
             await syncNotifications();
-            success('Payment Confirmed', 'Your paid booking entered the provider queue.');
+            success('Test Payment Recorded', 'The internal payment ledger was updated and your booking entered the provider queue.');
             return;
           }
         }
@@ -278,7 +278,7 @@ export function useSeekerActions({
             localStorage.setItem('pending_service_id', serviceId);
             localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
             localStorage.setItem('pending_offer_id', bidId);
-            info('Redirecting to Payment', 'Redirecting you to paymongo...');
+            info('Redirecting to PayMongo Test Mode', `Please complete the ${paymentMethod} test transaction.`);
             window.location.href = payRes.data.redirectUrl;
             return;
           }
@@ -292,7 +292,7 @@ export function useSeekerActions({
             await syncEngagements();
             await syncBids();
             await syncRequests();
-            success('Bid Accepted', 'Payment confirmed and queue booking created.');
+            success('Bid Accepted', 'The Test Mode payment was recorded and the queue booking was created.');
             return;
           }
         }
@@ -324,7 +324,7 @@ export function useSeekerActions({
         await syncEngagements();
         await syncNotifications();
         await syncTransactions();
-        success('Service Completed', 'Funds released to the provider.');
+        success('Service Completed', 'The internal payment ledger was marked RELEASED. No provider payout is performed by this capstone.');
         return;
       }
     } catch (err: any) {

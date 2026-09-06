@@ -394,6 +394,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   ))}
               </div>
               {!cash && !gcash && !maya && <p className="text-xs text-red-500">No supported payment method is available.</p>}
+              {(gcash || maya) && (
+                <p className={`mt-2 text-[10px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                  Online checkout uses PayMongo Test Mode. PAID_HELD and RELEASED are internal workflow records, not regulated escrow or a real provider payout.
+                </p>
+              )}
             </div>
 
             {/* Spec Part 5 Cancellation Policy Disclaimer */}

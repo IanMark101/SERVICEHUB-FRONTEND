@@ -100,7 +100,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
               const provider = getProviderDetails(service.providerId);
               const trustScore = service.providerTrustScore ?? provider?.trustScore ?? 100;
               const isVerified = (service as any).providerVerificationStatus === 'APPROVED' || provider?.isVerified || true;
-              const { cash, gcash } = getServicePaymentMethods(service);
+              const { cash, gcash, maya } = getServicePaymentMethods(service);
               const ctaText = getPrimaryBookingCTA(service);
               const isOwned = !!(user && service.providerId === user.id);
               const activeEngagement = jobEngagements.find((je: any) =>
@@ -296,6 +296,12 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
                         <span>GCash</span>
                       </span>
                     )}
+                    {maya && (
+                      <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
+                        <Smartphone className="w-3 h-3" />
+                        <span>Maya</span>
+                      </span>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -412,7 +418,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
+                        onClick={() => handleBookListing(service, cash ? 'On-site Cash' : gcash ? 'GCash' : 'Maya')}
                         onMouseEnter={() => prefetchProviderSummary(service)}
                         onFocus={() => prefetchProviderSummary(service)}
                         className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"

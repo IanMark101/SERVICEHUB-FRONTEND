@@ -433,6 +433,11 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   </button>
                 ))}
               {!Object.values(acceptedMethods).some(Boolean) && <p className="text-xs text-red-500">This listing has no available payment method. Refresh the page or choose another offer.</p>}
+              {(acceptedMethods.gcash || acceptedMethods.maya) && (
+                <p className={`text-[10px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                  Online checkout uses PayMongo Test Mode. Payment statuses are internal workflow records, not regulated escrow or a real provider payout.
+                </p>
+              )}
 
               {/* Spec Part 5 Cancellation Policy Disclaimer */}
               <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${

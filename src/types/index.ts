@@ -119,7 +119,7 @@ export interface JobEngagement {
   serviceId: string | null; // null if matched from public bid
   price: number;
   status: 'pending_provider' | 'queued' | 'in_progress' | 'awaiting_seeker_approval' | 'completed' | 'disputed' | 'canceled';
-  paymentMethod: 'GCash' | 'On-site Cash';
+  paymentMethod: 'GCash' | 'Maya' | 'On-site Cash';
   createdAt: string;
   completedServiceId?: string;
   reviews?: any[];
@@ -137,7 +137,7 @@ export interface Transaction {
   seekerId: string;
   providerId: string;
   amount: number;
-  paymentMethod: 'GCash' | 'On-site Cash';
+  paymentMethod: 'GCash' | 'Maya' | 'On-site Cash';
   serviceTitle: string;
   createdAt: string; // exact date (YYYY-MM-DD)
 }
