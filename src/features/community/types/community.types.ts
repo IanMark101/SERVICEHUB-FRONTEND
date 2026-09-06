@@ -30,7 +30,8 @@ export interface RecentService {
   title: string;
   description: string;
   price: string | number;
-  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION';
+  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM' | 'PER_SESSION';
+  /** Legacy API values are normalized to ONE_TIME by the shared mapper. */
   serviceType: 'ONE_TIME' | 'SESSION_BASED';
   createdAt: string;
   updatedAt: string;

@@ -154,8 +154,8 @@ export default function ServiceManager({
       serviceId: s.id,
       title: s.title,
       price: s.price,
-      priceType: s.priceType || 'FIXED',
-      serviceType: s.serviceType || 'ONE_TIME',
+      priceType: s.priceType === 'PER_SESSION' ? 'FIXED' : s.priceType || 'FIXED',
+      serviceType: 'ONE_TIME',
       estimatedDurationMins: Number(s.estimatedDurationMins || 60),
       description: s.description,
       paymentMethods: { cash: !!s.paymentMethods?.cash, gcash: !!s.paymentMethods?.gcash, maya: !!s.paymentMethods?.maya, card: false }
@@ -313,14 +313,6 @@ export default function ServiceManager({
                         📁 {service.category}
                       </span>
 
-                      {(service as any).serviceType === 'SESSION_BASED' && (
-                        <span className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 border ${
-                          isDark ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-400' : 'bg-emerald-50/80 border-emerald-200 text-emerald-700'
-                        }`}>
-                          ↺ Session-based
-                        </span>
-                      )}
-
                       {isRejected && (
                         <span className="px-2.5 py-1 rounded-xl text-xs font-extrabold uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/30 flex items-center gap-1">
                           <AlertCircle className="w-3.5 h-3.5" />
@@ -428,7 +420,7 @@ export default function ServiceManager({
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         ₱{service.price}
                         <span className="text-xs font-semibold ml-0.5 text-slate-400">
-                          {(service as any).priceType === 'PER_SESSION' ? ' / session' : (service as any).priceType === 'PER_HOUR' ? ' / hr' : (service as any).priceType === 'PER_DAY' ? ' / day' : (service as any).priceType === 'PER_PROJECT' ? ' / project' : ' base price'}
+                          {(service as any).priceType === 'PER_HOUR' ? ' / hr' : (service as any).priceType === 'PER_DAY' ? ' / day' : (service as any).priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}
                         </span>
                       </span>
                     </div>

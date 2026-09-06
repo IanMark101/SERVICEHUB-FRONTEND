@@ -179,12 +179,22 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                   </div>
                 )}
 
+                {je.preferredSchedule && (
+                  <div className={`mt-2 px-3.5 py-2.5 rounded-xl border flex items-start gap-2 text-xs leading-relaxed ${
+                    isDark ? 'bg-[#181714] border-neutral-850' : 'bg-slate-50 border-slate-200/80'
+                  }`}>
+                    <Clock className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="font-semibold text-slate-400 dark:text-neutral-500 shrink-0">Preferred schedule:</span>
+                    <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-700'}>{je.preferredSchedule}</span>
+                  </div>
+                )}
+
                 {/* Row 3: Action Buttons Footer */}
                 <div className={`mt-3 pt-3 border-t flex items-center justify-between gap-3 ${
                   isDark ? 'border-neutral-850/80' : 'border-slate-100'
                 }`}>
                   <span className="text-[11px] font-medium text-slate-400 dark:text-neutral-500 hidden sm:inline">
-                    Accepting unlocks private messaging & initiates the job contract.
+                    Accepting confirms this booking and unlocks private messaging. Starting the job remains a separate action.
                   </span>
 
                   <div className="flex items-center gap-2 ml-auto">

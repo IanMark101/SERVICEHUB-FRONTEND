@@ -32,10 +32,8 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   };
 
   const [description, setDescription] = useState<string>('');
-  const [price, setPrice] = useState<number>(listing.price);
   const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'Maya' | 'On-site Cash'>(resolveDefault);
-  const [scheduledDate, setScheduledDate] = useState<string>('');
-  const [scheduledTime, setScheduledTime] = useState<string>('');
+  const [preferredSchedule, setPreferredSchedule] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -113,12 +111,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       return;
     }
 
-    if (listing.serviceType === 'SESSION_BASED') {
-      setFormError('Session booking is not available until conflict-safe scheduling is enabled.');
-      return;
-    }
-
-    if (listing.priceType && listing.priceType !== 'FIXED') {
+    if (listing.priceType && !['FIXED', 'PER_SESSION'].includes(listing.priceType)) {
       setFormError('This listing requires a provider quote. Create a service request instead of booking the displayed estimate.');
       return;
     }
@@ -146,16 +139,16 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     setLoading(true);
     try {
       if (paymentMethod === 'On-site Cash') {
-        // Cash path — call apiBookDirect directly to pass scheduledDate/Time
+        // Cash requests are provider-confirmed. The preferred schedule is a
+        // proposal and does not reserve provider availability.
         await apiBookDirect({
           serviceId: listing.id,
           message: description,
-          scheduledDate: scheduledDate || undefined,
-          scheduledTime: scheduledTime || undefined,
+          schedule: preferredSchedule.trim() || undefined,
         });
       } else {
         // GCash/online path — use the existing hook
-        await bookProviderDirectly(user.id, listing.id, price, description, paymentMethod);
+        await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod);
       }
       setLoading(false);
       setSuccess(true);
@@ -186,22 +179,13 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 }`}>
                 Direct Booking
               </span>
-              {listing.serviceType === 'SESSION_BASED' && (
-                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${
-                  isDark
-                    ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                    : 'text-orange-700 bg-orange-50 border-orange-200'
-                }`}>
-                  ↺ Session-based
-                </span>
-              )}
             </div>
             <h3 className={`font-extrabold text-sm mt-1.5 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
               Request {listing.title}
             </h3>
-            {listing.priceType && listing.priceType !== 'FIXED' && (
+            {listing.priceType && !['FIXED', 'PER_SESSION'].includes(listing.priceType) && (
               <p className={`text-[10px] font-semibold mt-0.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                ₱{listing.price}{listing.priceType === 'PER_SESSION' ? ' / session' : listing.priceType === 'PER_HOUR' ? ' / hour' : listing.priceType === 'PER_DAY' ? ' / day' : listing.priceType === 'PER_PROJECT' ? ' / project' : ''}
+                ₱{listing.price}{listing.priceType === 'PER_HOUR' ? ' / hour' : listing.priceType === 'PER_DAY' ? ' / day' : listing.priceType === 'PER_PROJECT' ? ' / project' : ''}
               </p>
             )}
           </div>
@@ -221,9 +205,13 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               }`}>
               ✓
             </div>
-            <h4 className={`font-bold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Booking Sent Successfully!</h4>
+            <h4 className={`font-bold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+              {paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}
+            </h4>
             <p className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-              The booking request has been sent to {listing.providerName} for review.
+              {paymentMethod === 'On-site Cash'
+                ? `The request was sent to ${listing.providerName} for acceptance. Your preferred schedule is a proposal until the provider accepts it.`
+                : 'Your verified online booking has entered this service listing\'s queue.'}
             </p>
           </div>
         ) : (
@@ -321,63 +309,35 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               />
             </div>
 
-            {/* Session Scheduling — only for SESSION_BASED services */}
-            {listing.serviceType === 'SESSION_BASED' && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                    Session Date
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    disabled={isOwned}
-                    value={scheduledDate}
-                    min={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setScheduledDate(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
-                    } ${isOwned ? 'opacity-65' : ''}`}
-                  />
-                </div>
-                <div>
-                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                    Session Start Time
-                  </label>
-                  <input
-                    type="time"
-                    required
-                    disabled={isOwned}
-                    value={scheduledTime}
-                    onChange={(e) => setScheduledTime(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
-                      : 'bg-slate-50 border-slate-200 text-slate-700 focus:border-orange-500'
-                    } ${isOwned ? 'opacity-65' : ''}`}
-                  />
-                </div>
+            {paymentMethod === 'On-site Cash' && (
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Preferred schedule (optional)
+                </label>
+                <input
+                  type="text"
+                  maxLength={500}
+                  disabled={isOwned}
+                  value={preferredSchedule}
+                  onChange={(event) => setPreferredSchedule(event.target.value)}
+                  placeholder="e.g. Saturday afternoon; please confirm availability"
+                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'}`}
+                />
+                <p className={`mt-1 text-[10px] ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                  This is a proposal, not a reserved appointment. The provider must accept the request.
+                </p>
               </div>
             )}
 
-            {/* Price offer / Budget */}
+            {/* Server-authoritative fixed listing price */}
             <div>
               <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                Your Budget Offer (₱)
+                Agreed listing price
               </label>
-              <input
-                type="number"
-                min={1}
-                required
-                disabled={isOwned}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
-                    : 'bg-slate-50 border-slate-200 text-slate-750 focus:border-orange-500'
-                  } ${isOwned ? 'opacity-65' : ''}`}
-              />
-              <span className={`block text-[10px] mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>Base listing rate: ₱{listing.price}</span>
+              <div className={`w-full px-4 py-3 rounded-xl border font-semibold text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-750'}`}>
+                ₱{Number(listing.price).toLocaleString()}
+              </div>
+              <span className={`block text-[10px] mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>The server records this exact amount. Use a public request when a provider quotation is needed.</span>
             </div>
 
             <div>

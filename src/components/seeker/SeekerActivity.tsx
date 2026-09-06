@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { JobEngagement } from '../../types';
+import { JobEngagement, ServiceListing } from '../../types';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -36,6 +36,7 @@ import { SeekerActivitySort, SeekerActivityTab } from './activity/types';
 import SeekerActivityItem from './activity/SeekerActivityItem';
 import SeekerActivityList from './activity/SeekerActivityList';
 import ReasonModal from '../ui/ReasonModal';
+import RequestServiceModal from './RequestServiceModal';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -53,6 +54,16 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
   const [decliningCancellationId, setDecliningCancellationId] = useState<string | null>(null);
   const [declineCancellationReason, setDeclineCancellationReason] = useState('');
+  const [repeatListing, setRepeatListing] = useState<ServiceListing | null>(null);
+
+  const handleRequestAgain = (engagement: JobEngagement) => {
+    const listing = services.find((service) => service.id === engagement.serviceId);
+    if (!listing || listing.isPaused || listing.status !== 'ACTIVE') {
+      info('Listing unavailable', 'This provider is not currently accepting requests for that listing. You can browse other available providers.');
+      return;
+    }
+    setRepeatListing(listing);
+  };
 
   // Active user is the authenticated user — use prop if passed (e.g. admin view), otherwise fall back to current user from context
   const resolvedUserId = currentUserId || user?.id;
@@ -387,10 +398,13 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           loadingItemId, loadingActionType, setReviewingEngagement,
           handleDeleteClick, setDisputingJob, setConfirmModal,
           handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
+          handleRequestAgain,
           currentUserId: resolvedUserId,
           currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
         }}
       />
+
+      {repeatListing && <RequestServiceModal listing={repeatListing} onClose={() => setRepeatListing(null)} />}
 
       <SeekerDisputeModal
         engagement={disputingJob}

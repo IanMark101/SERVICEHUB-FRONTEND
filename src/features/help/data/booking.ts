@@ -21,7 +21,7 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
           'Locate the service card on the "Seek Services" marketplace page.',
           'Click "Request Service" on the listing.',
           'Choose your preferred payment method (GCash or On-site Cash).',
-          'For session-based services, optionally select your preferred date and time.',
+          'For an on-site cash request, optionally propose a preferred schedule. It is not reserved until the provider accepts.',
           'Add a short description of the problem or task details.',
           'Submit your booking request.',
         ],

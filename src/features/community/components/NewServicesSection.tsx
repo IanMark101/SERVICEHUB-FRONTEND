@@ -23,7 +23,7 @@ export default function NewServicesSection({
       case 'PER_HOUR':
         return `${formatted} / hr`;
       case 'PER_SESSION':
-        return `${formatted} / session`;
+        return formatted;
       case 'STARTS_AT':
         return `From ${formatted}`;
       default:

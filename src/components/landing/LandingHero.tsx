@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Star, ChevronDown, ShieldCheck, CheckCircle2, RefreshCw, Banknote, Smartphone } from 'lucide-react';
+import { ArrowRight, Star, ChevronDown, ShieldCheck, CheckCircle2, Banknote, Smartphone } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingHeroProps {
@@ -168,8 +168,8 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                           <span>Available Now</span>
                         </div>
                         <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-                          <RefreshCw className="w-2.5 h-2.5 animate-spin-slow" />
-                          Session-based
+                          <CheckCircle2 className="w-2.5 h-2.5" />
+                          Reusable listing
                         </span>
                       </div>
 
@@ -178,7 +178,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                           ₱250
                         </span>
                         <span className={`text-[11px] font-bold ml-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                          / session
+                          fixed price
                         </span>
                       </div>
                     </div>

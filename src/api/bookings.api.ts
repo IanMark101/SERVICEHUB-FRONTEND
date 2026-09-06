@@ -4,8 +4,6 @@ export async function apiBookDirect(data: {
   serviceId: string;
   schedule?: string;
   message?: string;
-  scheduledDate?: string;
-  scheduledTime?: string;
 }) {
   const response = await api.post('/bookings/direct', data);
   return response.data;

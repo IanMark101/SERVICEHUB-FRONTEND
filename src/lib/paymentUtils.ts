@@ -41,10 +41,10 @@ export function shouldShowPaymentSelector(service?: ServicePaymentSource | null)
 }
 
 // Returns a human-readable pricing unit label for display.
-// e.g. priceType "PER_SESSION" → "/ session", "PER_HOUR" → "/ hour"
+// PER_SESSION is decoded as a fixed price for legacy records.
 export function getPriceLabel(priceType?: string): string {
   switch (priceType) {
-    case 'PER_SESSION':  return '/ session';
+    case 'PER_SESSION':  return '';
     case 'PER_HOUR':     return '/ hour';
     case 'PER_DAY':      return '/ day';
     case 'PER_PROJECT':  return '/ project';
@@ -55,7 +55,7 @@ export function getPriceLabel(priceType?: string): string {
   }
 }
 
-// Returns the full formatted price string, e.g. "₱200 / session" or "₱500".
+// Returns the full formatted price string.
 export function getFormattedPrice(price: number | string, priceType?: string): string {
   const label = getPriceLabel(priceType);
   return label ? `₱${price} ${label}` : `₱${price}`;
@@ -63,5 +63,6 @@ export function getFormattedPrice(price: number | string, priceType?: string): s
 
 // Returns a display label for the service type badge.
 export function getServiceTypeLabel(serviceType?: string): string {
-  return serviceType === 'SESSION_BASED' ? 'Session-based' : 'One-time';
+  void serviceType;
+  return 'Reusable one-time listing';
 }

@@ -8,6 +8,7 @@ import {
   Loader2,
   MessageSquare,
   Play,
+  RotateCcw,
   Trash2
 } from 'lucide-react';
 import LifecycleStepper from '../../ui/LifecycleStepper';
@@ -29,7 +30,8 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
     handleConfirmJobCompletion,
     handleEscalateClick,
     handleCancelClick,
-    handleRespondCancellation
+    handleRespondCancellation,
+    handleRequestAgain
   } = model;
 
               const formattedDate = new Date(je.createdAt).toLocaleDateString(undefined, {
@@ -253,6 +255,17 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                           </button>
                         );
                       })()}
+
+                      {je.status === 'completed' && je.serviceId && (
+                        <button
+                          type="button"
+                          onClick={() => handleRequestAgain(je)}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-3.5 py-1.5 text-[10px] font-extrabold text-orange-700 transition-colors hover:bg-orange-100 dark:border-orange-900/30 dark:bg-orange-950/20 dark:text-orange-400"
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                          Request Again
+                        </button>
+                      )}
 
                       {je.status === 'canceled' && (
                         <div className="flex items-center gap-1.5">

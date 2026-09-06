@@ -15,6 +15,7 @@ export default function SeekerActivityList({ model }: { model: any }) {
     loadingItemId, loadingActionType, setReviewingEngagement,
     handleDeleteClick, setDisputingJob, setConfirmModal,
     handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
+    handleRequestAgain,
     currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
   } = model;
 
@@ -153,7 +154,8 @@ export default function SeekerActivityList({ model }: { model: any }) {
                   handleConfirmJobCompletion,
                   handleEscalateClick,
                   handleCancelClick,
-                  handleRespondCancellation
+                  handleRespondCancellation,
+                  handleRequestAgain
                 }}
               />
             ))

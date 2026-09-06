@@ -32,7 +32,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     slug: 'services',
     title: 'Services & Listings',
     shortTitle: 'Services',
-    description: 'Browsing listings, posting provider services, and session-based options.',
+    description: 'Browsing reusable listings, submitting requests, and managing provider availability.',
     iconName: 'Briefcase',
     color: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
     popular: false,

@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
-  CalendarDays,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
@@ -60,8 +59,6 @@ interface ReportCase {
     paymentMethod: string;
     paymentStatus: string;
     status: string;
-    scheduledDate?: string | null;
-    scheduledTime?: string | null;
     messageCount: number;
     escalatedCancellation?: {
       id: string;
@@ -434,7 +431,6 @@ export default function AdminReportsPage() {
                       <div><p className="text-[9px] font-bold uppercase text-slate-400">Booking</p><p className="mt-1 font-bold">{item.booking.status.replace(/_/g, " ")}</p></div>
                       <div><p className="text-[9px] font-bold uppercase text-slate-400">Payment</p><p className="mt-1 font-bold">{item.booking.paymentStatus.replace(/_/g, " ")}</p></div>
                       <div className="flex items-center gap-1.5"><PhilippinePeso className="h-3.5 w-3.5 text-red-600" /> <span className="font-bold">{item.booking.amount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-                      <div className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5 text-red-600" /> <span>{item.booking.scheduledDate || "No schedule"} {item.booking.scheduledTime || ""}</span></div>
                       <div className="col-span-2 text-[10px] text-slate-500">Method: {item.booking.paymentMethod}</div>
                     </div>
 

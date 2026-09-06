@@ -44,6 +44,7 @@ export function mapBookingToEngagement(b: any): JobEngagement {
     createdAt: b.createdAt || '',
     completedAt: b.updatedAt || '',
     description: b.directRequest?.message || b.offer?.message || b.description || '',
+    preferredSchedule: b.directRequest?.schedule || '',
     disputeReason: b.reports?.[0]?.description || '',
     started: b.started,
     cancellationRequests: b.cancellationRequests || []
@@ -108,10 +109,10 @@ export function mapServiceToListing(item: any): ServiceListing {
     rating: avgRating,
     providerTrustScore: rawTrust,
     reviewCount: reviewCount,
-    // serviceType and priceType are passed through from the DB so UI can display
-    // session-based badges and pricing unit labels (e.g. ₱200 / session).
-    serviceType: item.serviceType || 'ONE_TIME',
-    priceType: item.priceType || 'FIXED',
+    // Legacy session enum values are decoded into the current reusable
+    // one-time model until the normalization migration is deployed.
+    serviceType: 'ONE_TIME',
+    priceType: item.priceType === 'PER_SESSION' ? 'FIXED' : item.priceType || 'FIXED',
     estimatedDurationMins: Number(item.estimatedDurationMins || item.estimatedDuration || 60),
     status: item.status || (item.isAvailable ? 'ACTIVE' : 'INACTIVE'),
     adminNotes: item.adminNotes || null,

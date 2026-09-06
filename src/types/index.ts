@@ -51,8 +51,8 @@ export interface ServiceListing {
   rating: number;
   providerTrustScore?: number;
   reviewCount?: number;
-  // serviceType: ONE_TIME = single engagement, SESSION_BASED = repeatable sessions
-  // (e.g. tutoring, fitness coaching). Defaults to ONE_TIME for all existing listings.
+  // SESSION_BASED is retained only for decoding legacy server records. New
+  // listings and bookings are reusable ONE_TIME engagements.
   serviceType?: 'ONE_TIME' | 'SESSION_BASED';
   // priceType controls how the price is displayed (e.g. ₱200 / session, ₱500 / project)
   priceType?: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
@@ -135,6 +135,7 @@ export interface JobEngagement {
   completedAt?: string;
   disputeReason?: string;
   description?: string;
+  preferredSchedule?: string;
   started?: boolean;
   cancellationRequests?: Array<{
     id: string;

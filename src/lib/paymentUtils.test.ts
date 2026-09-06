@@ -23,7 +23,7 @@ describe('service booking presentation rules', () => {
     expect(getPrimaryBookingCTA({})).toBe('Book Service');
     expect(getPriceLabel('PER_HOUR')).toBe('/ hour');
     expect(getPriceLabel('CUSTOM')).toBe('');
-    expect(getServiceTypeLabel('SESSION_BASED')).toBe('Session-based');
-    expect(getServiceTypeLabel('ONE_TIME')).toBe('One-time');
+    expect(getServiceTypeLabel('SESSION_BASED')).toBe('Reusable one-time listing');
+    expect(getServiceTypeLabel('ONE_TIME')).toBe('Reusable one-time listing');
   });
 });

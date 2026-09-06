@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, CheckCircle2, Clock, MapPin, RefreshCw, Search, ShieldCheck, Smartphone, Sparkles, Star } from 'lucide-react';
+import { Bell, CheckCircle2, Clock, MapPin, Search, ShieldCheck, Smartphone, Sparkles, Star } from 'lucide-react';
 import type { ServiceListing } from '../../../types';
 import PaginationBar from '../../ui/PaginationBar';
 import LimitedModeDashboardCard from '../../landing/LimitedModeDashboardCard';
@@ -242,29 +242,17 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
                           <span>Available Now</span>
                         </div>
                       )}
-                      {/* Service type badge — only shown for SESSION_BASED */}
-                      {service.serviceType === 'SESSION_BASED' && (
-                        <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-md border w-fit ${
-                          isDark
-                            ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400'
-                            : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                        }`}>
-                          <RefreshCw className="w-2.5 h-2.5" />
-                          Session-based
-                        </span>
-                      )}
                     </div>
 
                     {/* Right: Price */}
                     <div className="text-right">
-                      {service.priceType && service.priceType !== 'FIXED' ? (
+                      {service.priceType && !['FIXED', 'PER_SESSION'].includes(service.priceType) ? (
                         <>
                           <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                             ₱{service.price}
                           </span>
                           <span className={`text-[10px] font-bold ml-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                            {service.priceType === 'PER_SESSION' ? '/ session'
-                              : service.priceType === 'PER_HOUR' ? '/ hour'
+                            {service.priceType === 'PER_HOUR' ? '/ hour'
                               : service.priceType === 'PER_DAY' ? '/ day'
                               : service.priceType === 'PER_PROJECT' ? '/ project'
                               : service.priceType === 'STARTS_AT' ? 'starting at'
@@ -354,23 +342,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
                           You have an active booking for this service.
                         </p>
                       </div>
-                    ) : service.serviceType === 'SESSION_BASED' ? (
-                      <div className="space-y-2">
-                        <button
-                          type="button"
-                          disabled
-                          className={`w-full font-extrabold text-xs py-3 rounded-xl border cursor-not-allowed opacity-75 ${isDark
-                              ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9]'
-                              : 'bg-slate-100 border-slate-200 text-slate-500'
-                            }`}
-                        >
-                          Session booking coming soon
-                        </button>
-                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                          Time-slot conflict protection must be enabled before sessions can be booked.
-                        </p>
-                      </div>
-                    ) : service.priceType && service.priceType !== 'FIXED' ? (
+                    ) : service.priceType && !['FIXED', 'PER_SESSION'].includes(service.priceType) ? (
                       <button
                         type="button"
                         onClick={() => router.push('/seeker/post-request')}

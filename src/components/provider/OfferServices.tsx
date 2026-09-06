@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Briefcase, Info, RefreshCw } from 'lucide-react';
+import { Briefcase, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
 
@@ -13,7 +13,6 @@ export default function OfferServices() {
   const [category, setCategory] = useState<string>('');
   const [price, setPrice] = useState<number>(500);
   const [priceType, setPriceType] = useState<string>('FIXED');
-  const [serviceType, setServiceType] = useState<string>('ONE_TIME');
   const [description, setDescription] = useState<string>('');
   const [maxQueue, setMaxQueue] = useState<number>(5);
   const [durationMins, setDurationMins] = useState<number>(30);
@@ -59,7 +58,7 @@ export default function OfferServices() {
       description,
       { cash: acceptCash, gcash: acceptGCash, maya: acceptMaya, card: acceptCard },
       {
-        serviceType,
+        serviceType: 'ONE_TIME',
         priceType,
         estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
         queueLimit: Math.max(1, Math.min(10, maxQueue)),
@@ -74,7 +73,6 @@ export default function OfferServices() {
       setDescription('');
       setPrice(500);
       setCategory(dbCategories.length > 0 ? dbCategories[0].id : '');
-      setServiceType('ONE_TIME');
       setPriceType('FIXED');
       setMaxQueue(5);
       setDurationMins(30);
@@ -200,52 +198,14 @@ export default function OfferServices() {
               </div>
 
 
-              {/* Service Type */}
+              {/* Engagement model */}
               <div>
                 <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Service Type
+                  Booking Model
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setServiceType('ONE_TIME')}
-                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
-                      serviceType === 'ONE_TIME'
-                        ? isDark
-                          ? 'bg-emerald-950/30 border-emerald-700/40 text-emerald-400'
-                          : 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                        : isDark
-                          ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]'
-                          : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50'
-                    }`}
-                  >
-                    One-time
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setServiceType('SESSION_BASED');
-                      // Auto-suggest PER_SESSION pricing when session-based is selected
-                      if (priceType === 'FIXED') setPriceType('PER_SESSION');
-                    }}
-                    className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                      serviceType === 'SESSION_BASED'
-                        ? isDark
-                          ? 'bg-emerald-950/30 border-emerald-700/40 text-emerald-400'
-                          : 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                        : isDark
-                          ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9] hover:bg-[#2c2b27]'
-                          : 'bg-white border-slate-300 text-slate-500 hover:bg-slate-50'
-                    }`}
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    Session-based
-                  </button>
-                </div>
+                <div className={`rounded-xl border px-3 py-2.5 text-xs font-bold ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>Reusable one-time listing</div>
                 <p className={`text-[10px] mt-1.5 leading-relaxed ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-                  {serviceType === 'SESSION_BASED'
-                    ? 'Seeker can book multiple individual sessions (e.g. tutoring, coaching).'
-                    : 'A single engagement per booking (e.g. plumbing, cleaning).'}
+                  Each accepted request is an independent booking. A satisfied seeker may request this listing again after the previous booking closes.
                 </p>
               </div>
 
@@ -284,7 +244,6 @@ export default function OfferServices() {
                     }`}
                 >
                   <option value="FIXED" className={isDark ? 'bg-[#1c1b18]' : ''}>Fixed Price</option>
-                  <option value="PER_SESSION" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Session</option>
                   <option value="PER_HOUR" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Hour</option>
                   <option value="PER_DAY" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Day</option>
                   <option value="PER_PROJECT" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Project</option>
@@ -293,7 +252,7 @@ export default function OfferServices() {
                 </select>
                 {price > 0 && (
                   <p className={`text-[10px] mt-1.5 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                    Preview: ₱{price}{priceType === 'PER_SESSION' ? ' / session' : priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : priceType === 'STARTS_AT' ? ' starting at' : ''}
+                    Preview: ₱{price}{priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : priceType === 'STARTS_AT' ? ' starting at' : ''}
                   </p>
                 )}
               </div>
