@@ -1,4 +1,5 @@
 import { api } from '../lib/api/axios';
+import { isAxiosError } from 'axios';
 
 export interface AccountDeletionRequest {
   id: string;
@@ -25,23 +26,20 @@ export async function apiCancelAccountDeletionRequest() {
 const CANDIDATE_PATHS = ['/users', '/user', '/users/search', '/user/search'];
 const CACHE_KEY = 'users_api_path';
 
-async function tryPath(path: string, params?: any) {
-  try {
-    const res = await api.get(path, { params });
-    return res.data;
-  } catch (err: any) {
-    // propagate 404/other to caller
-    throw err;
-  }
+type UserSearchParams = { search?: string; page?: number; limit?: number };
+
+async function tryPath(path: string, params?: UserSearchParams) {
+  const res = await api.get(path, { params });
+  return res.data;
 }
 
-export async function apiSearchUsers(params?: { search?: string; page?: number; limit?: number }) {
+export async function apiSearchUsers(params?: UserSearchParams) {
   // Check cache first
   const cached = typeof window !== 'undefined' ? localStorage.getItem(CACHE_KEY) : null;
   if (cached) {
     try {
       return await tryPath(cached, params);
-    } catch (e) {
+    } catch {
       // fall through to try candidates
     }
   }
@@ -51,15 +49,15 @@ export async function apiSearchUsers(params?: { search?: string; page?: number; 
       const data = await tryPath(p, params);
       if (typeof window !== 'undefined') localStorage.setItem(CACHE_KEY, p);
       return data;
-    } catch (err: any) {
-      if (err?.response?.status === 404) continue;
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 404) continue;
       // For non-404, still continue to let other paths try
       continue;
     }
   }
 
   // As a last resort throw an error indicating not found
-  const e: any = new Error('Users endpoint not found');
+  const e = new Error('Users endpoint not found') as Error & { response: { status: number } };
   e.response = { status: 404 };
   throw e;
 }
@@ -73,12 +71,12 @@ export async function apiGetUserById(id: string) {
       const res = await api.get(path);
       if (typeof window !== 'undefined') localStorage.setItem(CACHE_KEY, base);
       return res.data;
-    } catch (err: any) {
-      if (err?.response?.status === 404) continue;
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 404) continue;
       continue;
     }
   }
-  const e: any = new Error('User detail endpoint not found');
+  const e = new Error('User detail endpoint not found') as Error & { response: { status: number } };
   e.response = { status: 404 };
   throw e;
 }

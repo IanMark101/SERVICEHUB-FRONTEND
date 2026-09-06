@@ -16,11 +16,11 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
           <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Platform Innovation</span>
           <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
             }`}>
-            A queue that's actually fair
+            A queue that&apos;s actually fair
           </h2>
           <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
             }`}>
-            When a provider is busy, ServiceHub Cordova places you in a real first-come, first-served line — not "whoever texts back fastest." You'll always see your exact position and how long you're likely to wait.
+            When a provider is busy, ServiceHub Cordova places you in a first-come, first-served line — not &quot;whoever texts back fastest.&quot; You&apos;ll see your current position and estimated wait time.
           </p>
         </ScrollReveal>
 

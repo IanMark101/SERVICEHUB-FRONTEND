@@ -48,10 +48,14 @@ api.interceptors.request.use(
 );
 
 let isRefreshing = false;
-let failedQueue: any[] = [];
+type PendingRequest = {
+  resolve: (token: string | null) => void;
+  reject: (error: unknown) => void;
+};
 
+let failedQueue: PendingRequest[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -82,7 +86,7 @@ api.interceptors.response.use(
       const errData = error.response.data;
       if (errData?.error === "Account suspended" || errData?.code === "EMAIL_NOT_VERIFIED") {
         clearAccessToken();
-        window.dispatchEvent(new Event('auth_session_expired'));
+        if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(error);
       }
     }
@@ -97,7 +101,7 @@ api.interceptors.response.use(
       }
 
       if (isRefreshing) {
-        return new Promise((resolve, reject) => {
+        return new Promise<string | null>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
@@ -136,7 +140,7 @@ api.interceptors.response.use(
         isRefreshing = false;
         // Clean up token and trigger redirect or logout event
         clearAccessToken();
-        window.dispatchEvent(new Event('auth_session_expired'));
+        if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(refreshError);
       }
     }

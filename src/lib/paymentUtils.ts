@@ -6,7 +6,11 @@ export interface ResolvedPaymentMethods {
   maya: boolean;
 }
 
-export function getServicePaymentMethods(service: ServiceListing | any): ResolvedPaymentMethods {
+type ServicePaymentSource = {
+  paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>>;
+};
+
+export function getServicePaymentMethods(service?: ServicePaymentSource | null): ResolvedPaymentMethods {
   if (!service) return { cash: false, gcash: false, maya: false };
   
   // Resolve paymentMethods from mapping or fallback to raw backend json or pricing logic
@@ -27,11 +31,12 @@ export function getServicePaymentMethods(service: ServiceListing | any): Resolve
   };
 }
 
-export function getPrimaryBookingCTA(service: ServiceListing | any): string {
+export function getPrimaryBookingCTA(service?: unknown): string {
+  void service;
   return 'Book Service';
 }
 
-export function shouldShowPaymentSelector(service: ServiceListing | any): boolean {
+export function shouldShowPaymentSelector(service?: ServicePaymentSource | null): boolean {
   return Object.values(getServicePaymentMethods(service)).filter(Boolean).length > 1;
 }
 

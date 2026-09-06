@@ -2,12 +2,22 @@ import { api, setAccessToken } from '../lib/api/axios';
 
 let sessionRecoveryRequest: ReturnType<typeof apiGetMe> | null = null;
 
-export async function apiRegister(data: any) {
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  location: string;
+  bio?: string;
+  avatarUrl?: string;
+}
+
+export async function apiRegister(data: RegisterPayload) {
   const response = await api.post('/auth/register', data);
   return response.data;
 }
 
-export async function apiLogin(data: any) {
+export async function apiLogin(data: { email: string; password: string }) {
   const response = await api.post('/auth/login', data);
   return response.data;
 }
@@ -64,7 +74,7 @@ export async function apiForgotPassword(email: string) {
   return response.data;
 }
 
-export async function apiResetPassword(data: any) {
+export async function apiResetPassword(data: { token: string; password: string }) {
   const response = await api.post('/auth/reset-password', data);
   return response.data;
 }

@@ -122,12 +122,29 @@ export interface JobEngagement {
   paymentMethod: 'GCash' | 'Maya' | 'On-site Cash';
   createdAt: string;
   completedServiceId?: string;
-  reviews?: any[];
+  reviews?: Array<{
+    id: string;
+    authorId: string;
+    rating?: number;
+    comment?: string;
+    text?: string;
+    tags?: string[];
+    createdAt?: string;
+    editableUntil?: string;
+  }>;
   completedAt?: string;
   disputeReason?: string;
   description?: string;
   started?: boolean;
-  cancellationRequests?: any[];
+  cancellationRequests?: Array<{
+    id: string;
+    status: string;
+    requestedBy: string;
+    reason?: string | null;
+    responderNote?: string | null;
+    providerNote?: string | null;
+    adminNote?: string | null;
+  }>;
   queuePosition?: number;
 }
 
