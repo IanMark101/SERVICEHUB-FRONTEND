@@ -22,7 +22,7 @@ export default function CommunityUpdateCard({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className={`text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border flex items-center space-x-1 ${
-            isDark ? 'bg-orange-950/30 border-orange-800/40 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-700'
+            isDark ? 'bg-blue-950/30 border-blue-800/40 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-700'
           }`}>
             <Megaphone className="w-3 h-3 mr-1" />
             <span>Official Notice</span>
@@ -44,7 +44,7 @@ export default function CommunityUpdateCard({
       </div>
 
       <div className={`pt-3 mt-4 border-t text-[10px] font-semibold flex items-center gap-1.5 ${isDark ? 'border-neutral-800 text-[#b4b0a9]' : 'border-slate-100 text-slate-500'}`}>
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+        <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
         <span>Posted by {item.author?.name || 'ServiceHub Cordova Administration'}</span>
       </div>
     </div>

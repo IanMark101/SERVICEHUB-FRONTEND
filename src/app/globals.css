@@ -36,6 +36,10 @@
   --color-provider-primary: #059669;
   --color-provider-hover: #047857;
 
+  --color-community-light: #eff6ff;
+  --color-community-primary: #2563eb;
+  --color-community-hover: #1d4ed8;
+
   --color-admin-light: #f3e8ff;
   --color-admin-primary: #9333ea;
   --color-admin-hover: #7e22ce;
@@ -45,6 +49,22 @@
 
   --font-sans: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-serif: var(--font-serif), 'Playfair Display', Georgia, serif;
+}
+
+/* Shared workspace surfaces keep hierarchy consistent while each workspace
+   retains its own semantic accent color. */
+@layer components {
+  .workspace-panel {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-neutral-800/80 dark:bg-[#22211e];
+  }
+
+  .workspace-section-title {
+    @apply text-xs font-bold uppercase tracking-[0.12em] text-slate-800 dark:text-[#f2efe9];
+  }
+
+  .workspace-caption {
+    @apply text-xs leading-5 text-slate-500 dark:text-[#b4b0a9];
+  }
 }
 
 /* Claude Signature Terracotta/Coral Core Theme Tokens */

@@ -50,6 +50,7 @@ export default function Header({
   const userId = user?.id || '';
   const userNotifications = notifications.filter(n => n.userId === userId);
   const unreadCount = userNotifications.filter(n => !n.read).length;
+  const isCommunityHub = activeTab === 'community-hub';
 
 
   // Theme styling helpers based on active role
@@ -74,10 +75,17 @@ export default function Header({
       borderHover: 'hover:border-red-500/50',
       badge: 'bg-red-600 text-white',
       badgeBg: 'bg-red-50 text-red-500 border-red-100',
+    },
+    community: {
+      accent: 'text-blue-600',
+      ring: 'focus:ring-blue-500 focus:border-blue-500',
+      borderHover: 'hover:border-blue-500/50',
+      badge: 'bg-blue-600 text-white',
+      badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
     }
   };
 
-  const theme = roleThemes[currentRole];
+  const theme = isCommunityHub ? roleThemes.community : roleThemes[currentRole];
 
   // Resolve a safe display name from various possible server shapes
   const getDisplayName = (r: AppUser) => {
@@ -280,7 +288,9 @@ export default function Header({
         </button>
         <div className="flex items-center space-x-3">
           <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider flex items-center gap-1.5 ${isDark
-              ? (currentRole === 'seeker' 
+              ? (isCommunityHub
+                  ? 'bg-blue-950/20 text-blue-400 border-blue-900/30'
+                  : currentRole === 'seeker'
                   ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
                   : currentRole === 'admin'
                   ? 'bg-red-950/20 text-red-400 border-red-900/30'
@@ -288,13 +298,15 @@ export default function Header({
               : theme.badgeBg
             }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${
-              currentRole === 'seeker' 
+              isCommunityHub
+                ? 'bg-blue-500'
+                : currentRole === 'seeker'
                 ? 'bg-orange-500' 
                 : currentRole === 'admin' 
                 ? 'bg-red-500' 
                 : 'bg-emerald-500'
             }`} />
-            {currentRole} Workspace
+            {isCommunityHub ? 'Community Hub' : `${currentRole} Workspace`}
           </span>
 
           {user && user.role !== 'admin' && user.verificationStatus !== 'APPROVED' && (

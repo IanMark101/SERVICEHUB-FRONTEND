@@ -14,7 +14,7 @@ export default function CommunityHub() {
   const { data, loading, error, refetch } = useCommunityHub();
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`space-y-8 pb-8 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       {/* A. Community Hub Header */}
       <CommunityHeader isDark={isDark} />

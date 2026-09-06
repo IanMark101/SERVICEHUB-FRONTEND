@@ -110,9 +110,13 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
     bgLight: 'bg-orange-500/5',
     text: 'text-orange-500 dark:text-orange-400',
     bgButton: 'bg-orange-600 hover:bg-orange-700 text-white',
-    badge: isDark
-      ? 'bg-orange-950/40 text-orange-400 border-orange-900/40'
-      : 'bg-orange-50 text-orange-700 border-orange-200 shadow-xs',
+    badge: activeTab === 'community-hub'
+      ? isDark
+        ? 'bg-blue-950/40 text-blue-300 border-blue-900/40'
+        : 'bg-blue-50 text-blue-700 border-blue-200 shadow-xs'
+      : isDark
+        ? 'bg-orange-950/40 text-orange-400 border-orange-900/40'
+        : 'bg-orange-50 text-orange-700 border-orange-200 shadow-xs',
   };
 
   const currentRole = 'seeker';
@@ -201,7 +205,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
             <div className="flex items-center space-x-2.5">
               <span className={`text-xs font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>Viewing as:</span>
               <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${accent.badge}`}>
-                {currentRole}
+                {activeTab === 'community-hub' ? 'Community' : currentRole}
               </span>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Star, ShieldCheck } from 'lucide-react';
 import { TopProvider } from '../types/community.types';
 
@@ -31,9 +32,9 @@ export default function LeaderboardTable({
               type="button"
               key={prov.id}
               onClick={() => onSelect(prov.id)}
-              className={`w-full text-left flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none group/row hover:border-orange-500/50 hover:shadow-sm ${
+              className={`w-full text-left flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none group/row hover:border-blue-500/50 hover:shadow-sm ${
                 isUser
-                  ? (isDark ? 'bg-orange-950/20 border-orange-800/40' : 'bg-orange-50/70 border-orange-200')
+                  ? (isDark ? 'bg-blue-950/20 border-blue-800/40' : 'bg-blue-50/70 border-blue-200')
                   : (isDark ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/50' : 'bg-slate-50 border-slate-200/80 hover:bg-white')
               }`}
             >
@@ -45,9 +46,12 @@ export default function LeaderboardTable({
 
                 <div className="relative flex-shrink-0">
                   {prov.avatarUrl ? (
-                    <img
+                    <Image
                       src={prov.avatarUrl}
                       alt={prov.name}
+                      width={32}
+                      height={32}
+                      unoptimized
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
@@ -67,11 +71,11 @@ export default function LeaderboardTable({
 
                 <div className="min-w-0">
                   <div className="flex items-center space-x-1.5">
-                    <h5 className="font-extrabold text-xs leading-none truncate group-hover/row:text-orange-500 transition-colors">
+                    <h5 className="font-extrabold text-xs leading-none truncate group-hover/row:text-blue-600 dark:group-hover/row:text-blue-400 transition-colors">
                       {prov.name}
                     </h5>
                     {isUser && (
-                      <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-orange-600 text-white">
+                      <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-blue-600 text-white">
                         You
                       </span>
                     )}

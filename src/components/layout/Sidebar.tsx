@@ -107,7 +107,7 @@ export default function Sidebar({
       { id: 'incoming-requests', label: 'Incoming Requests', icon: Inbox, badge: pendingRequestsCount > 0 ? pendingRequestsCount : undefined },
       { id: 'service-manager', label: 'Service Manager', icon: Layers },
       { id: 'provider-activity', label: 'Activity', icon: TrendingUp },
-      { id: 'transaction-history', label: 'Earnings', icon: History },
+      { id: 'transaction-history', label: 'Payment Records', icon: History },
     ],
     admin: [
       { id: 'overview', label: 'Overview', icon: BarChart2 },
@@ -143,13 +143,21 @@ export default function Sidebar({
   const renderMenuItem = (item: MenuItem) => {
     const Icon = item.icon;
     const isActive = activeTab === item.id;
+    const itemTheme = item.id === 'community-hub'
+      ? {
+          accent: isDark ? 'text-blue-400' : 'text-blue-700',
+          bgActive: isDark ? 'bg-blue-950/25' : 'bg-blue-50',
+          borderActive: 'border-blue-500',
+          badge: isDark ? 'bg-blue-950/40 text-blue-400 border-blue-900/30' : 'bg-blue-50 text-blue-700 border-blue-200',
+        }
+      : theme;
 
     return (
       <button
         key={item.id}
         onClick={() => handleTabClick(item.id)}
         className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl transition-all group relative ${isActive
-          ? `${theme.accent} ${theme.bgActive} border-l-4 ${theme.borderActive}`
+          ? `${itemTheme.accent} ${itemTheme.bgActive} border-l-4 ${itemTheme.borderActive}`
           : isDark
             ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'
             : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
@@ -168,7 +176,7 @@ export default function Sidebar({
 
         {/* Badge Indicator */}
         {item.badge !== undefined && (!isCollapsed || isMobileOpen) && (
-          <span className={`ml-auto px-1.5 py-0.5 text-[9px] font-bold rounded-full border ${theme.badge}`}>
+          <span className={`ml-auto px-1.5 py-0.5 text-[9px] font-bold rounded-full border ${itemTheme.badge}`}>
             {item.badge}
           </span>
         )}

@@ -44,7 +44,7 @@ export default function CommunityEmptyState({
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="mt-1 px-3.5 py-1.5 rounded-xl font-extrabold text-[10px] bg-orange-600 hover:bg-orange-700 text-white transition-all active:scale-95 cursor-pointer shadow-sm"
+          className="mt-1 px-3.5 py-1.5 rounded-xl font-bold text-[10px] bg-blue-600 hover:bg-blue-700 text-white transition-colors cursor-pointer shadow-sm"
         >
           {actionText}
         </button>

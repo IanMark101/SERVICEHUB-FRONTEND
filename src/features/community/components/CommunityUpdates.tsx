@@ -20,8 +20,8 @@ export default function CommunityUpdates({
     return (
       <div className="space-y-3.5">
         <div className="flex items-center space-x-2">
-          <Megaphone className="w-4 h-4 text-orange-500" />
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <Megaphone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Official Announcements
           </h2>
         </div>
@@ -34,8 +34,8 @@ export default function CommunityUpdates({
     <div className="space-y-3.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Megaphone className="w-4 h-4 text-orange-500" />
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <Megaphone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Official Announcements
           </h2>
         </div>

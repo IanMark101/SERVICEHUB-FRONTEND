@@ -31,7 +31,7 @@ export default function TopProviders({
       <div className="space-y-3.5">
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Top Providers of the Week
           </h2>
         </div>
@@ -45,7 +45,7 @@ export default function TopProviders({
       <div className="space-y-3.5">
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Top Providers of the Week
           </h2>
         </div>
@@ -75,7 +75,7 @@ export default function TopProviders({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Top Providers of the Week
           </h2>
         </div>

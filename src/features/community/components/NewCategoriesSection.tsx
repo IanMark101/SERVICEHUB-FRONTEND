@@ -22,7 +22,7 @@ export default function NewCategoriesSection({
     >
       <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800/80">
         <h3 className={`font-extrabold text-xs uppercase tracking-wider flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-          <Tag className="w-3.5 h-3.5 text-orange-500" />
+          <Tag className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
           <span>New Categories</span>
         </h3>
         <span className={`text-[10px] font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
@@ -44,7 +44,7 @@ export default function NewCategoriesSection({
               type="button"
               key={cat.id}
               onClick={() => onSelectCategory(cat.name)}
-              className={`w-full text-left border rounded-xl p-3.5 space-y-1.5 transition-all duration-200 cursor-pointer select-none group/cat hover:border-orange-500/50 hover:shadow-sm ${
+              className={`w-full text-left border rounded-xl p-3.5 space-y-1.5 transition-all duration-200 cursor-pointer select-none group/cat hover:border-blue-500/50 hover:shadow-sm ${
                 isDark
                   ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/40 text-[#f2efe9]'
                   : 'bg-slate-50 border-slate-200/80 hover:bg-white text-slate-900'
@@ -52,10 +52,10 @@ export default function NewCategoriesSection({
               title={`Browse ${cat.name} services`}
             >
               <div className="flex items-center justify-between">
-                <h4 className="font-extrabold text-xs uppercase tracking-wide truncate group-hover/cat:text-orange-500 transition-colors">
+                <h4 className="font-extrabold text-xs uppercase tracking-wide truncate group-hover/cat:text-blue-600 dark:group-hover/cat:text-blue-400 transition-colors">
                   {cat.name}
                 </h4>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover/cat:text-orange-500 transition-colors" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover/cat:text-blue-600 dark:group-hover/cat:text-blue-400 transition-colors" />
               </div>
               {cat.description && (
                 <p className={`text-[10.5px] font-medium leading-relaxed line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>

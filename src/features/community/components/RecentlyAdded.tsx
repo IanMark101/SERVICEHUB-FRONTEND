@@ -25,7 +25,7 @@ export default function RecentlyAdded({
       <div className="space-y-6">
         <div className="space-y-3">
           <h2 className={`font-extrabold text-sm uppercase tracking-wider flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            <Sparkles className="w-4 h-4 text-orange-500" />
+            <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             <span>Newly Added Categories</span>
           </h2>
           <RecentGridSkeleton isDark={isDark} />
@@ -43,8 +43,8 @@ export default function RecentlyAdded({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Sparkles className="w-4 h-4 text-orange-500" />
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Newly Added Categories
           </h2>
         </div>
@@ -53,7 +53,7 @@ export default function RecentlyAdded({
         </span>
       </div>
 
-      <div className="max-w-3xl">
+      <div>
         <NewCategoriesSection
           categories={categories}
           isDark={isDark}

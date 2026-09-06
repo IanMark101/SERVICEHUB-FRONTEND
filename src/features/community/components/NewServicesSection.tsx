@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Wrench } from 'lucide-react';
 import { RecentService } from '../types/community.types';
 import CommunityEmptyState from './CommunityEmptyState';
@@ -84,9 +85,12 @@ export default function NewServicesSection({
               {/* Provider Info */}
               <div className="flex items-center space-x-2 pt-1 border-t border-neutral-700/20 dark:border-neutral-800/60">
                 {service.provider?.avatarUrl ? (
-                  <img
+                  <Image
                     src={service.provider.avatarUrl}
                     alt={service.provider.name}
+                    width={20}
+                    height={20}
+                    unoptimized
                     className="w-5 h-5 rounded-full object-cover flex-shrink-0"
                   />
                 ) : (

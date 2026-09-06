@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Crown, Star } from 'lucide-react';
 import { TopProvider } from '../types/community.types';
 
@@ -33,9 +34,12 @@ export default function PodiumChampions({
             <div className="relative mb-2.5">
               <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full ring-3 ring-blue-400/80 p-0.5 shadow-md bg-neutral-800 flex items-center justify-center overflow-hidden">
                 {secondPlace.avatarUrl ? (
-                  <img
+                  <Image
                     src={secondPlace.avatarUrl}
                     alt={secondPlace.name}
+                    width={72}
+                    height={72}
+                    unoptimized
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
@@ -94,9 +98,12 @@ export default function PodiumChampions({
 
               <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full ring-4 ring-amber-400 p-0.5 shadow-xl shadow-amber-500/20 bg-neutral-800 flex items-center justify-center overflow-hidden">
                 {firstPlace.avatarUrl ? (
-                  <img
+                  <Image
                     src={firstPlace.avatarUrl}
                     alt={firstPlace.name}
+                    width={88}
+                    height={88}
+                    unoptimized
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
@@ -152,9 +159,12 @@ export default function PodiumChampions({
             <div className="relative mb-2.5">
               <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full ring-3 ring-emerald-500/80 p-0.5 shadow-md bg-neutral-800 flex items-center justify-center overflow-hidden">
                 {thirdPlace.avatarUrl ? (
-                  <img
+                  <Image
                     src={thirdPlace.avatarUrl}
                     alt={thirdPlace.name}
+                    width={72}
+                    height={72}
+                    unoptimized
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (

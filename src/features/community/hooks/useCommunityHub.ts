@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../lib/api/axios';
 import { CommunityHubData } from '../types/community.types';
 import { getSocket } from '../../../lib/socket';
+import { getApiErrorMessage } from '../../../lib/api/errors';
+
+async function requestCommunityData(): Promise<CommunityHubData> {
+  const response = await api.get('/community/stats');
+  if (!response.data?.success || !response.data?.data) {
+    throw new Error('Unable to load community data. Please try again.');
+  }
+  return response.data.data as CommunityHubData;
+}
 
 export function useCommunityHub() {
   const [data, setData] = useState<CommunityHubData | null>(null);
@@ -12,22 +21,33 @@ export function useCommunityHub() {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get('/community/stats');
-      if (res.data?.success && res.data?.data) {
-        setData(res.data.data);
-      } else {
-        setError('Unable to load community data. Please try again.');
-      }
-    } catch (err: any) {
-      setError(err?.response?.data?.error || err?.message || 'Unable to load community data. Please check your connection.');
+      setData(await requestCommunityData());
+    } catch (error: unknown) {
+      setError(getApiErrorMessage(error, 'Unable to load community data. Please check your connection.'));
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCommunityData();
-  }, [fetchCommunityData]);
+    let active = true;
+    void requestCommunityData()
+      .then((nextData) => {
+        if (!active) return;
+        setData(nextData);
+        setError(null);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setError(getApiErrorMessage(error, 'Unable to load community data. Please check your connection.'));
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Official announcements update immediately for users already viewing the Hub.
   useEffect(() => {
