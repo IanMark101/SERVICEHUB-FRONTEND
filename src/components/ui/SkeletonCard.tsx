@@ -87,7 +87,7 @@ export function JobRequestSkeleton({ count = 6 }: { count?: number }) {
             {/* Divider */}
             <div className="border-t border-slate-100 dark:border-neutral-800/80 my-3.5" />
 
-            {/* Budget & Escrow */}
+            {/* Budget and payment status */}
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <Skeleton className="h-2.5 w-16" />

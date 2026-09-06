@@ -230,11 +230,11 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             </div>
             {hasActiveEngagements ? (
               <p className="text-[11px] text-amber-500/90 font-medium">
-                🔒 Payout mobile number is locked while you have active service engagements in progress to safeguard your funds.
+                This mobile number is locked while service engagements are active to preserve transaction records.
               </p>
             ) : (
               <p className={`text-[11px] ${labelText}`}>
-                This mobile number serves as your official GCash payout address.
+                This number is used as your account and service contact information.
               </p>
             )}
           </div>

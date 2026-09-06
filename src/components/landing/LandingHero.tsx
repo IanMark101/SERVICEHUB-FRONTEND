@@ -307,7 +307,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     {/* Divider Line */}
                     <div className={`border-t my-3.5 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
 
-                    {/* Budget & Escrow status */}
+                    {/* Budget and payment status */}
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col space-y-0.5">
                         <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>

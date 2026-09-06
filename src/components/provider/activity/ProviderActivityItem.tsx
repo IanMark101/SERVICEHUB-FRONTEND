@@ -120,7 +120,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                   day: 'numeric',
                   year: 'numeric'
                 });
-                const hasEscrow = ['in_progress', 'awaiting_seeker_approval', 'queued', 'disputed'].includes(je.status);
+                const showsPaymentStatus = ['in_progress', 'awaiting_seeker_approval', 'queued', 'disputed'].includes(je.status);
 
                 return (
                   <div
@@ -168,7 +168,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                     />
 
                     {/* Internal payment-status details */}
-                    {hasEscrow && (
+                    {showsPaymentStatus && (
                       je.paymentMethod !== 'On-site Cash' ? (
                         <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-emerald-955/15 border-emerald-900/20 text-emerald-400' : 'bg-emerald-50/40 border-emerald-100 text-emerald-700'
                           }`}>

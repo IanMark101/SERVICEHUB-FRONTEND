@@ -120,7 +120,7 @@ export default function ProfileEditForm({
           </div>
           {hasActiveEngagements && (
             <p className="text-[10px] text-amber-500/90 font-medium mt-1">
-              🔒 Locked while jobs are in progress to safeguard your payout address.
+              Locked while jobs are in progress to preserve transaction records.
             </p>
           )}
         </div>

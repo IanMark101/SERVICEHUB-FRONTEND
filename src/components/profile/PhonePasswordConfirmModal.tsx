@@ -66,7 +66,7 @@ export default function PhonePasswordConfirmModal({
           <div>
             <h3 className="text-lg font-bold">Security Verification</h3>
             <p className={`text-xs mt-0.5 ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
-              Please verify your identity to change your GCash & Mobile payout number.
+              Verify your identity before changing the mobile number associated with your account.
             </p>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function PhonePasswordConfirmModal({
             </span>
           </div>
           <div className="flex items-center justify-between text-emerald-500 font-semibold">
-            <span>New Payout GCash:</span>
+            <span>New Mobile Number:</span>
             <span className="font-bold text-emerald-400">{newPhone}</span>
           </div>
         </div>

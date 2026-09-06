@@ -107,9 +107,9 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
     },
     {
       title: "Confirm the job, then it's done",
-      desc: "Once the service is finished, confirm it's complete to release payment — or report an issue if something went wrong.",
+      desc: "Once the service is finished, confirm completion to update the Test Mode payment record, or report an issue for review.",
       icon: Check,
-      badge: "Disbursement",
+      badge: "Completion",
       visual: (isDark: boolean) => (
         <div className={`p-3 rounded-xl border flex flex-col w-full max-w-[200px] space-y-1.5 text-center items-center transition-colors duration-300 ${
           isDark ? 'bg-neutral-855 border-neutral-855' : 'bg-slate-100/85 border-slate-200'
@@ -117,7 +117,7 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
           <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md">
             <Check size={14} />
           </div>
-          <p className="text-[8px] font-black text-emerald-500 uppercase tracking-wider">Released Payout</p>
+          <p className="text-[8px] font-black text-emerald-500 uppercase tracking-wider">Completion Recorded</p>
           <div className="flex space-x-0.5 text-amber-500">
             <Star size={8} className="fill-amber-500 text-amber-500" />
             <Star size={8} className="fill-amber-500 text-amber-500" />

@@ -38,7 +38,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                 year: 'numeric'
               });
 
-              const hasEscrow = ['in_progress', 'awaiting_seeker_approval', 'queued', 'disputed'].includes(je.status);
+              const showsPaymentStatus = ['in_progress', 'awaiting_seeker_approval', 'queued', 'disputed'].includes(je.status);
 
               return (
                 <div
@@ -96,7 +96,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                   />
 
                   {/* Internal payment-status details */}
-                  {hasEscrow && (
+                  {showsPaymentStatus && (
                     je.paymentMethod !== 'On-site Cash' ? (
                       <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-orange-950/15 border-orange-900/20 text-orange-400' : 'bg-orange-50/40 border-orange-100 text-orange-700'
                         }`}>
