@@ -90,11 +90,6 @@ export function useUserProfile({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Settings states
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [publicProfileVisible, setPublicProfileVisible] = useState(true);
-
   // Forms
   const [editForm, setEditForm] = useState({
     name: '',
@@ -434,12 +429,6 @@ export function useUserProfile({
     pwSaving,
     handleChangePassword,
     handleShareProfile,
-    emailNotifications,
-    setEmailNotifications,
-    pushNotifications,
-    setPushNotifications,
-    publicProfileVisible,
-    setPublicProfileVisible,
     aiSummary,
     aiReason,
     aiLoading,

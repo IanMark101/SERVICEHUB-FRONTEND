@@ -5,7 +5,6 @@ import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
   User,
   Lock,
-  Bell,
   Sun,
   Moon,
   Trash2,
@@ -55,12 +54,6 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     setPwForm,
     pwSaving,
     handleChangePassword,
-    emailNotifications,
-    setEmailNotifications,
-    pushNotifications,
-    setPushNotifications,
-    publicProfileVisible,
-    setPublicProfileVisible,
     editForm,
     setEditForm,
     saving,
@@ -435,52 +428,13 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         </form>
       </div>
 
-      {/* Preferences & Appearance Card */}
+      {/* Appearance Card */}
       <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
         <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
-          <Bell size={17} className="text-emerald-500" /> Preferences & Appearance
+          <Moon size={17} className="text-emerald-500" /> Appearance
         </h3>
 
         <div className="space-y-3 text-xs">
-          <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
-            <div>
-              <div className={`font-bold ${headingText}`}>Email Notifications</div>
-              <div className={labelText}>Receive updates on bookings and reviews</div>
-            </div>
-            <input
-              type="checkbox"
-              checked={emailNotifications}
-              onChange={(e) => setEmailNotifications(e.target.checked)}
-              className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
-            />
-          </div>
-
-          <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
-            <div>
-              <div className={`font-bold ${headingText}`}>Push & In-App Notifications</div>
-              <div className={labelText}>Alerts for messages and direct requests</div>
-            </div>
-            <input
-              type="checkbox"
-              checked={pushNotifications}
-              onChange={(e) => setPushNotifications(e.target.checked)}
-              className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
-            />
-          </div>
-
-          <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
-            <div>
-              <div className={`font-bold ${headingText}`}>Public Profile Visibility</div>
-              <div className={labelText}>Allow users to view your public profile</div>
-            </div>
-            <input
-              type="checkbox"
-              checked={publicProfileVisible}
-              onChange={(e) => setPublicProfileVisible(e.target.checked)}
-              className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
-            />
-          </div>
-
           <div className="flex items-center justify-between py-2">
             <div>
               <div className={`font-bold ${headingText}`}>Appearance Theme</div>
