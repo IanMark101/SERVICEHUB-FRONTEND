@@ -8,11 +8,12 @@ import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModa
 import { apiLogout } from '../../api/auth.api';
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 import { clearAccessToken } from '../../lib/api/axios';
+import { ShieldCheck } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, authLoading, user, isDark, setUser, setIsAuthenticated } = useApp();
+  const { authLoading, user, isDark, setUser, setIsAuthenticated } = useApp();
   const { shouldRender } = useRouteGuard(['admin']);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
@@ -37,10 +38,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       cancelText: 'Stay Logged In',
       variant: 'danger',
       onConfirm: async () => {
-        setConfirmModal((prev: any) => prev ? { ...prev, isLoading: true } : null);
+        setConfirmModal((prev) => prev ? { ...prev, isLoading: true } : null);
         try {
           await apiLogout();
-        } catch (_) {}
+        } catch {}
         clearAccessToken();
         setIsAuthenticated(false);
         setUser(null);
@@ -53,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -94,13 +95,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           setIsMobileOpen={setIsMobileSidebarOpen}
           user={user}
           onSignOut={handleSignOut}
-          onViewProfile={(u: any) => router.push(`/admin/users`)}
+          onViewProfile={() => router.push('/admin/users')}
         />
 
         {/* Warning strip */}
-        <div className="bg-red-700 text-white font-extrabold text-[10px] tracking-wider uppercase py-1.5 px-4 text-center select-none shadow-sm flex items-center justify-center space-x-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-          <span>SECURITY ACCESS: Administrator Workspace — All actions are audited.</span>
+        <div className="flex items-center justify-center gap-2 border-b border-violet-200 bg-violet-50 px-4 py-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-violet-800 dark:border-violet-900/30 dark:bg-violet-950/20 dark:text-violet-300">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          <span>Restricted administrator workspace · Actions are recorded in the audit log</span>
         </div>
  
         {/* Scrollable Layout Content Canvas */}
@@ -110,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 border-b pb-4 border-slate-200 dark:border-neutral-800/80">
             <div>
               <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
-                🛡️ Admin Dashboard: {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                Administration · {activeTab.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </h2>
             </div>
             
@@ -118,8 +119,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className={`text-xs font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>Workspace:</span>
               <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${
                 isDark
-                  ? 'bg-red-950/40 text-red-400 border-red-900/40'
-                  : 'bg-red-50 text-red-700 border-red-200 shadow-xs'
+                  ? 'bg-violet-950/40 text-violet-300 border-violet-900/40'
+                  : 'bg-violet-50 text-violet-700 border-violet-200 shadow-xs'
               }`}>
                 Administrator
               </span>

@@ -83,10 +83,10 @@ export default function Sidebar({
       badge: isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
     },
     admin: {
-      accent: isDark ? 'text-red-400' : 'text-red-600',
-      bgActive: isDark ? 'bg-red-950/20' : 'bg-red-50/70',
-      borderActive: 'border-red-500',
-      badge: isDark ? 'bg-red-950/40 text-red-400 border-red-900/30' : 'bg-red-50 text-red-600 border-red-200'
+      accent: isDark ? 'text-violet-300' : 'text-violet-700',
+      bgActive: isDark ? 'bg-violet-950/20' : 'bg-violet-50/70',
+      borderActive: 'border-violet-500',
+      badge: isDark ? 'bg-violet-950/40 text-violet-300 border-violet-900/30' : 'bg-violet-50 text-violet-700 border-violet-200'
     }
   };
 
@@ -220,7 +220,7 @@ export default function Sidebar({
                   ServiceHub
                 </span>
                 <span className={`text-[10px] font-extrabold tracking-wider uppercase mt-0.5 ${
-                  currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-blue-500' : 'text-emerald-500'
+                  currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-violet-500' : 'text-emerald-500'
                 }`}>
                   Cordova
                 </span>
@@ -322,8 +322,8 @@ export default function Sidebar({
         ) : (
           (!isCollapsed || isMobileOpen) && (
             <div className="mb-6 px-1">
-              <div className={`px-3 py-2.5 rounded-xl border text-center text-[10px] font-extrabold tracking-wider uppercase border-red-500/25 bg-red-500/5 text-red-500`}>
-                🛡️ Admin Area
+              <div className="px-3 py-2.5 rounded-xl border text-center text-[10px] font-bold tracking-[0.12em] uppercase border-violet-500/25 bg-violet-500/5 text-violet-600 dark:text-violet-300">
+                Administrator
               </div>
             </div>
           )
@@ -382,7 +382,7 @@ export default function Sidebar({
           title="Help Center & User Documentation"
         >
           <HelpCircle className={`w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform ${
-            currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-red-500' : 'text-emerald-500'
+            currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-violet-500' : 'text-emerald-500'
           }`} />
           {(!isCollapsed || isMobileOpen) && (
             <span className="ml-3">Help Center</span>
