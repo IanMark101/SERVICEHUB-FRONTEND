@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Menu, MessageSquare, Sun, Moon, X } from 'lucide-react';
+import { Search, Menu, MessageSquare, Sun, Moon } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
-import { useToast } from '../ui/Toast';
 import { resolveNotificationLink } from '../../lib/notificationRoutes';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
@@ -21,6 +20,12 @@ interface HeaderProps {
   user: UserSession | null;
   onSignOut: () => void;
   onViewProfile?: (user: UserSession) => void;
+}
+
+function getResponseStatus(error: unknown): number | undefined {
+  if (typeof error !== 'object' || error === null || !('response' in error)) return undefined;
+  const response = (error as { response?: { status?: unknown } }).response;
+  return typeof response?.status === 'number' ? response.status : undefined;
 }
 
 export default function Header({
@@ -93,8 +98,7 @@ export default function Header({
     const last = r.lastName || '';
     const full = `${first} ${last}`.trim();
     if (full) return full;
-    const anyR = r as any;
-    return anyR.name || anyR.fullName || anyR.displayName || 'Unknown';
+    return 'Unknown user';
   };
 
   // Helper to format tab ID into human-readable Title
@@ -116,34 +120,24 @@ export default function Header({
 
   useEffect(() => {
     const query = userSearch.trim();
-    if (!query) {
-      setUserSearchResults([]);
-      setUserSearchLoading(false);
-      return;
-    }
+    if (!query) return;
 
-    setUserSearchLoading(true);
     const timer = window.setTimeout(async () => {
-      // Debug: log query
-      // eslint-disable-next-line no-console
+      setUserSearchLoading(true);
 
       // Try global search API first (non-admin endpoint) if enabled. If it returns results, use them.
       if (serverSearchEnabled) {
         try {
           const res = await apiSearchUsers({ search: query, page: 1, limit: 6 });
-          // eslint-disable-next-line no-console
           if (res && res.success && Array.isArray(res.data)) {
-            // eslint-disable-next-line no-console
             setUserSearchResults(res.data as AppUser[]);
             setShowUserSearchResults((res.data as AppUser[]).length > 0);
             setUserSearchLoading(false);
             return;
           }
-        } catch (e: any) {
-          // eslint-disable-next-line no-console
-          console.warn('[Header] apiSearchUsers error, falling back to client search', e);
+        } catch (error: unknown) {
           // If endpoint missing (404), disable further server calls to avoid console noise
-          if (e?.response?.status === 404) {
+          if (getResponseStatus(error) === 404) {
             setServerSearchEnabled(false);
           }
         }
@@ -206,14 +200,22 @@ export default function Header({
         .filter((u, index, self) => self.findIndex((item) => item.id === u.id) === index)
           .slice(0, 6);
 
-        // eslint-disable-next-line no-console
         setUserSearchResults(filtered);
         setShowUserSearchResults(filtered.length > 0);
         setUserSearchLoading(false);
     }, 300);
 
     return () => window.clearTimeout(timer);
-  }, [userSearch, currentRole, users, services, jobRequests, userId]);
+  }, [userSearch, users, services, jobRequests, userId, serverSearchEnabled]);
+
+  const handleSearchChange = (query: string) => {
+    setUserSearch(query);
+    if (!query.trim()) {
+      setUserSearchResults([]);
+      setUserSearchLoading(false);
+      setShowUserSearchResults(false);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -339,7 +341,7 @@ export default function Header({
         model={{
           userSearchRef,
           userSearch,
-          setUserSearch,
+          setUserSearch: handleSearchChange,
           setShowUserSearchResults,
           showUserSearchResults,
           userSearchLoading,
@@ -458,7 +460,7 @@ export default function Header({
         results={userSearchResults}
         ringClass={theme.ring}
         getDisplayName={getDisplayName}
-        onQueryChange={setUserSearch}
+        onQueryChange={handleSearchChange}
         onShowResultsChange={setShowUserSearchResults}
         onClose={() => {
           setUserSearch('');

@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/layout/Sidebar';
 import Header from '../../components/layout/Header';
 import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModal';
-import { HelpCircle, LogOut } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
 import { useRouteGuard } from '../../hooks/useRouteGuard';
@@ -18,7 +18,7 @@ const tabDetails: Record<string, { title: string; desc: string }> = {
   },
   'offer-services': {
     title: 'Create a Service Listing',
-    desc: 'Publish a new service you offer to the Cordova marketplace. Detail your skills, set your rates, and upload certifications.',
+    desc: 'Submit a service for administrator review with a clear scope, pricing model, availability, and accepted payment methods.',
   },
   'service-manager': {
     title: 'My Service Listings',
@@ -26,7 +26,7 @@ const tabDetails: Record<string, { title: string; desc: string }> = {
   },
   'incoming-requests': {
     title: 'Direct Client Bookings',
-    desc: 'Review direct bookings sent to your services. Accept bookings to add clients to your queue, or decline if unavailable.',
+    desc: 'Review direct booking requests. Confirmed online payments enter the service queue; onsite-cash bookings remain direct arrangements.',
   },
   'provider-activity': {
     title: 'Job Tracker & Queue',
@@ -38,7 +38,7 @@ const tabDetails: Record<string, { title: string; desc: string }> = {
   },
   'messages': {
     title: 'Direct Messages',
-    desc: 'Chat directly with your clients to clarify task instructions, send progress photos, and coordinate arrival times.',
+    desc: 'Chat directly with clients to clarify task instructions and coordinate arrival or service times.',
   },
   'community-hub': {
     title: 'Community Announcements & Leaders',
@@ -53,7 +53,7 @@ const tabDetails: Record<string, { title: string; desc: string }> = {
 export default function ProviderLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, authLoading, user, isDark, setUser, setIsAuthenticated, jobEngagements } = useApp();
+  const { authLoading, user, isDark, setUser, setIsAuthenticated, jobEngagements } = useApp();
   const { shouldRender } = useRouteGuard(['user']);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
@@ -78,10 +78,10 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
       cancelText: 'Stay Logged In',
       variant: 'danger',
       onConfirm: async () => {
-        setConfirmModal((prev: any) => prev ? { ...prev, isLoading: true } : null);
+        setConfirmModal((prev) => prev ? { ...prev, isLoading: true } : null);
         try {
           await apiLogout();
-        } catch (_) {}
+        } catch {}
         clearAccessToken();
         setIsAuthenticated(false);
         setUser(null);
@@ -153,7 +153,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
           setIsMobileOpen={setIsMobileSidebarOpen}
           user={user}
           onSignOut={handleSignOut}
-          onViewProfile={(u: any) => router.push(`/provider/user-profile?id=${u.id}`)}
+          onViewProfile={(selectedUser) => router.push(`/provider/user-profile?id=${selectedUser.id}`)}
         />
  
         {/* Scrollable Layout Content Canvas */}

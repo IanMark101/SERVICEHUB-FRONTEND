@@ -1,10 +1,25 @@
 "use client";
 
 import type { RefObject } from 'react';
-import { Search, X } from 'lucide-react';
+import Image from 'next/image';
+import { MapPin, Search, X } from 'lucide-react';
 import type { User } from '../../../types';
 
-export default function HeaderDesktopSearch({ model }: { model: any }) {
+interface HeaderDesktopSearchModel {
+  userSearchRef: RefObject<HTMLDivElement | null>;
+  userSearch: string;
+  setUserSearch: (value: string) => void;
+  setShowUserSearchResults: (value: boolean) => void;
+  showUserSearchResults: boolean;
+  userSearchLoading: boolean;
+  userSearchResults: User[];
+  isDark: boolean;
+  theme: { ring: string };
+  getDisplayName: (user: User) => string;
+  handleOpenUserProfile: (user: User) => void;
+}
+
+export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSearchModel }) {
   const {
     userSearchRef,
     userSearch,
@@ -17,19 +32,7 @@ export default function HeaderDesktopSearch({ model }: { model: any }) {
     theme,
     getDisplayName,
     handleOpenUserProfile
-  } = model as {
-    userSearchRef: RefObject<HTMLDivElement | null>;
-    userSearch: string;
-    setUserSearch: (value: string) => void;
-    setShowUserSearchResults: (value: boolean) => void;
-    showUserSearchResults: boolean;
-    userSearchLoading: boolean;
-    userSearchResults: User[];
-    isDark: boolean;
-    theme: any;
-    getDisplayName: (user: User) => string;
-    handleOpenUserProfile: (user: User) => void;
-  };
+  } = model;
 
   return (
     <>
@@ -53,7 +56,7 @@ export default function HeaderDesktopSearch({ model }: { model: any }) {
           }}
           placeholder="Search users..."
           className={`w-full border rounded-xl pl-9 pr-8 py-2 text-xs transition-all ${isDark
-              ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 focus:ring-amber-500/30 focus:border-amber-500/50'
+              ? `bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 ${theme.ring}`
               : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${theme.ring}`
             }`}
         />
@@ -100,9 +103,12 @@ export default function HeaderDesktopSearch({ model }: { model: any }) {
                       className={`w-full text-left px-3.5 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-[#242424]' : 'border-slate-100 hover:bg-slate-50'}`}
                     >
                       <div className="flex items-start gap-2.5">
-                        <img
+                        <Image
                           src={result.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`}
                           alt={`${getDisplayName(result)} avatar`}
+                          width={36}
+                          height={36}
+                          unoptimized
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`;
                           }}
@@ -122,12 +128,13 @@ export default function HeaderDesktopSearch({ model }: { model: any }) {
                           {emailToShow ? (
                             <div className="text-[10px] text-slate-500 dark:text-neutral-400 truncate">{emailToShow}</div>
                           ) : result.location ? (
-                            <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">
-                              📍 {result.location}, Cordova
+                            <div className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-neutral-500 truncate">
+                              <MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
+                              <span>{result.location}, Cordova</span>
                             </div>
                           ) : null}
                           {result.bio && result.bio !== 'N/A' && (
-                            <div className="mt-0.5 text-[10px] text-slate-400 dark:text-neutral-400 italic line-clamp-1">"{result.bio}"</div>
+                            <div className="mt-0.5 text-[10px] text-slate-400 dark:text-neutral-400 line-clamp-1">{result.bio}</div>
                           )}
                         </div>
                       </div>

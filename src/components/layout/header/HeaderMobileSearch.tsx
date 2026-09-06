@@ -1,4 +1,5 @@
-import { Search, X } from 'lucide-react';
+import { MapPin, Search, X } from 'lucide-react';
+import Image from 'next/image';
 import type { User } from '../../../types';
 
 interface HeaderMobileSearchProps {
@@ -32,7 +33,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
             onShowResultsChange(Boolean(event.target.value.trim()));
           }}
           placeholder="Search users..."
-          className={`w-full border rounded-xl pl-9 pr-9 py-2 text-xs transition-all ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 focus:ring-amber-500/30' : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${ringClass}`}`}
+          className={`w-full border rounded-xl pl-9 pr-9 py-2 text-xs transition-all ${isDark ? `bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 ${ringClass}` : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${ringClass}`}`}
         />
         <button type="button" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
       </div>
@@ -53,13 +54,13 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
                 className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-[#2c2b27]' : 'border-slate-100 hover:bg-slate-50'}`}
               >
                 <div className="flex items-center gap-2.5">
-                  <img src={result.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`} alt={getDisplayName(result)} className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-neutral-700" />
+                  <Image src={result.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`} alt={`${getDisplayName(result)} avatar`} width={32} height={32} unoptimized className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-neutral-700" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-bold text-xs truncate">{getDisplayName(result)}</div>
                       <span className={`text-[9px] font-extrabold uppercase ${result.role === 'provider' ? 'text-emerald-500' : 'text-orange-500'}`}>{result.role}</span>
                     </div>
-                    {email ? <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">{email}</div> : result.location ? <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">📍 {result.location}</div> : null}
+                    {email ? <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">{email}</div> : result.location ? <div className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-neutral-500 truncate"><MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" /><span>{result.location}</span></div> : null}
                   </div>
                 </div>
               </button>
