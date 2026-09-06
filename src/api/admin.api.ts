@@ -161,6 +161,11 @@ export async function apiListAdminPaymentAttempts(params?: { page?: number; limi
   return response.data;
 }
 
+export async function apiGetAdminBookingMessages(bookingId: string) {
+  const response = await api.get(`/admin/bookings/${bookingId}/messages`);
+  return response.data;
+}
+
 export async function apiListAccountDeletionRequests(params?: { page?: number; limit?: number; status?: string }) {
   const response = await api.get('/admin/account-deletions', { params });
   return response.data;

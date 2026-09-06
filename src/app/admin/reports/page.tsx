@@ -16,7 +16,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { apiAccessReportEvidence, apiCancelAdminBooking, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
+import { apiAccessReportEvidence, apiCancelAdminBooking, apiGetAdminBookingMessages, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
 import { useApp } from "../../../context/AppContext";
 import { getSocket } from "../../../lib/socket";
 import { useToast } from "../../../components/ui/Toast";
@@ -62,7 +62,7 @@ interface ReportCase {
     status: string;
     scheduledDate?: string | null;
     scheduledTime?: string | null;
-    messages: CaseMessage[];
+    messageCount: number;
     escalatedCancellation?: {
       id: string;
       reason?: string | null;
@@ -137,6 +137,8 @@ export default function AdminReportsPage() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [messagesByBooking, setMessagesByBooking] = useState<Record<string, CaseMessage[]>>({});
+  const [messageLoadingId, setMessageLoadingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<ReportCase | null>(null);
   const [action, setAction] = useState<ResolutionAction>("dismiss");
   const [notes, setNotes] = useState("");
@@ -223,6 +225,26 @@ export default function AdminReportsPage() {
       window.open(response.data.url, '_blank', 'noopener,noreferrer');
     } catch (cause: any) {
       showError('Evidence access failed', cause.response?.data?.error || cause.message);
+    }
+  };
+
+  const toggleMessages = async (item: ReportCase) => {
+    if (expandedId === item.id) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(item.id);
+    if (messagesByBooking[item.booking.id]) return;
+
+    setMessageLoadingId(item.id);
+    try {
+      const response = await apiGetAdminBookingMessages(item.booking.id);
+      setMessagesByBooking((current) => ({ ...current, [item.booking.id]: response.data?.messages || [] }));
+    } catch (cause: any) {
+      showError('Unable to load booking messages', cause.response?.data?.error || cause.message);
+      setExpandedId(null);
+    } finally {
+      setMessageLoadingId(null);
     }
   };
 
@@ -343,6 +365,7 @@ export default function AdminReportsPage() {
         <div className="space-y-4">
           {cases.map((item) => {
             const expanded = expandedId === item.id;
+            const bookingMessages = messagesByBooking[item.booking.id] || [];
             return (
               <article key={item.id} className={`overflow-hidden rounded-2xl border shadow-sm ${surface}`}>
                 <div className="border-b border-slate-100 p-5 dark:border-neutral-800">
@@ -415,13 +438,13 @@ export default function AdminReportsPage() {
                       <div className="col-span-2 text-[10px] text-slate-500">Method: {item.booking.paymentMethod}</div>
                     </div>
 
-                    <button onClick={() => setExpandedId(expanded ? null : item.id)} className={`flex w-full items-center justify-between rounded-xl border p-3 text-xs font-bold ${mutedSurface}`}>
-                      <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-red-600" /> Booking chat ({item.booking.messages.length})</span>
-                      {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    <button onClick={() => void toggleMessages(item)} disabled={messageLoadingId === item.id} className={`flex w-full items-center justify-between rounded-xl border p-3 text-xs font-bold disabled:opacity-60 ${mutedSurface}`}>
+                      <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-red-600" /> Booking chat ({item.booking.messageCount})</span>
+                      {messageLoadingId === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
                     {expanded && (
                       <div className={`max-h-72 space-y-2 overflow-y-auto rounded-xl border p-3 ${mutedSurface}`}>
-                        {item.booking.messages.length === 0 ? <p className="py-6 text-center text-xs text-slate-400">No messages for this booking.</p> : item.booking.messages.map((message) => (
+                        {bookingMessages.length === 0 ? <p className="py-6 text-center text-xs text-slate-400">No messages for this booking.</p> : bookingMessages.map((message) => (
                           <div key={message.id} className={`rounded-xl border p-2.5 text-xs ${message.isSystem ? "border-amber-200 bg-amber-50 text-amber-900" : "border-slate-200 bg-white dark:border-neutral-700 dark:bg-neutral-900"}`}>
                             <div className="mb-1 flex justify-between text-[9px] font-bold text-slate-400"><span>{message.senderId === item.reporter.id ? item.reporter.name : item.reportedUser.name}</span><span>{new Date(message.createdAt).toLocaleString()}</span></div>
                             <p className="whitespace-pre-wrap leading-5">{message.text || message.content}</p>
