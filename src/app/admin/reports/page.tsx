@@ -467,7 +467,7 @@ export default function AdminReportsPage() {
               <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Decision explanation
                 <textarea required minLength={3} maxLength={2000} value={notes} onChange={(event) => setNotes(event.target.value)} rows={5} placeholder="State the evidence considered and explain the final decision..." className={`mt-1.5 w-full resize-none rounded-xl border p-3 text-xs normal-case leading-5 ${mutedSurface}`} />
               </label>
-              {action === "approve_refund" && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] leading-4 text-amber-800">This submits a real refund through PayMongo and only applies to held online payments.</p>}
+              {action === "approve_refund" && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] leading-4 text-amber-800">This submits a refund through the configured PayMongo Test Mode account and applies only to held online test payments.</p>}
               {action === "release_provider_and_complete" && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[10px] leading-4 text-emerald-800">This completes the disputed booking. Online funds enter the provider ledger; cash is recorded only as externally confirmed.</p>}
             </div>
             <div className="flex justify-end gap-2 border-t border-slate-200 p-5 dark:border-neutral-800">

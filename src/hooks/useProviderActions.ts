@@ -293,7 +293,7 @@ export function useProviderActions({
       if (res.success) {
         await syncEngagements();
         await syncNotifications();
-        success('Job Completed', 'Awaiting seeker approval and release of payment.');
+        success('Completion submitted', 'Awaiting seeker confirmation before the Test Mode payment record is updated.');
         return;
       }
     } catch (err: any) {
