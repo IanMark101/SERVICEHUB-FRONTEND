@@ -35,10 +35,11 @@ import {
 import { SeekerActivitySort, SeekerActivityTab } from './activity/types';
 import SeekerActivityItem from './activity/SeekerActivityItem';
 import SeekerActivityList from './activity/SeekerActivityList';
+import ReasonModal from '../ui/ReasonModal';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
-  const { jobEngagements, confirmJobCompletion, disputeJob, cancelQueue, services, jobRequests, isDark, refreshEngagements, refreshAll, notifications, user } = useApp();
+  const { jobEngagements, confirmJobCompletion, disputeJob, services, jobRequests, isDark, refreshEngagements, refreshAll, notifications, user } = useApp();
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
@@ -50,6 +51,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+  const [decliningCancellationId, setDecliningCancellationId] = useState<string | null>(null);
+  const [declineCancellationReason, setDeclineCancellationReason] = useState('');
 
   // Active user is the authenticated user — use prop if passed (e.g. admin view), otherwise fall back to current user from context
   const resolvedUserId = currentUserId || user?.id;
@@ -308,8 +311,13 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     });
   };
 
-  const handleRespondCancellation = async (requestId: string, approve: boolean) => {
-    const note = approve ? undefined : window.prompt('Explain why you are declining this cancellation request:')?.trim();
+  const handleRespondCancellation = async (requestId: string, approve: boolean, suppliedNote?: string) => {
+    if (!approve && !suppliedNote) {
+      setDecliningCancellationId(requestId);
+      setDeclineCancellationReason('');
+      return;
+    }
+    const note = approve ? undefined : suppliedNote?.trim();
     if (!approve && (!note || note.length < 3)) return;
     setLoadingItemId(requestId);
     setLoadingActionType('respond_cancellation');
@@ -317,6 +325,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
       await apiRespondCancellationRequest(requestId, approve, note);
       success(approve ? 'Cancellation Approved' : 'Cancellation Declined', approve ? 'The booking was cancelled and any eligible refund was submitted.' : 'The provider may escalate the decision to Admin.');
       refreshEngagements();
+      setDecliningCancellationId(null);
+      setDeclineCancellationReason('');
     } catch (err: any) {
       toastError('Response failed', err.response?.data?.error || err.message);
     } finally {
@@ -402,6 +412,18 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         onReasonChange={setCancelReason}
         onClose={() => setCancelingJob(null)}
         onSubmit={handleCancelSubmit}
+      />
+      <ReasonModal
+        isOpen={!!decliningCancellationId}
+        title="Decline cancellation request"
+        description="Explain why the booking should continue. The provider may review this response and escalate it to an administrator."
+        value={declineCancellationReason}
+        onChange={setDeclineCancellationReason}
+        onClose={() => { if (!loadingItemId) { setDecliningCancellationId(null); setDeclineCancellationReason(''); } }}
+        onSubmit={() => decliningCancellationId ? handleRespondCancellation(decliningCancellationId, false, declineCancellationReason) : undefined}
+        confirmText="Decline request"
+        variant="danger"
+        isSubmitting={loadingItemId === decliningCancellationId && loadingActionType === 'respond_cancellation'}
       />
       {reviewingEngagement && (() => {
         const existingReview = reviewingEngagement.reviews?.find((r: any) => r.authorId === currentUserId);

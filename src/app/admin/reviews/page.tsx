@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { EyeOff, RotateCcw, Star } from 'lucide-react';
 import { apiListAdminReviews, apiModerateReview } from '../../../api/admin.api';
 import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../components/ui/Toast';
+import ReasonModal from '../../../components/ui/ReasonModal';
+import { getApiErrorMessage } from '../../../lib/api/errors';
 
 interface ReviewItem {
   id: string;
@@ -23,28 +25,38 @@ export default function AdminReviewsPage() {
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedReview, setSelectedReview] = useState<ReviewItem | null>(null);
+  const [reason, setReason] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const response = await apiListAdminReviews({ page, limit: 20 });
       setItems(response.data || []);
       setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
-    } catch (cause: any) {
-      error('Unable to load reviews', cause.response?.data?.error || cause.message);
+    } catch (cause: unknown) {
+      error('Unable to load reviews', getApiErrorMessage(cause, 'The review list could not be loaded.'));
     }
-  };
-  useEffect(() => { void load(); }, [page]);
+  }, [error, page]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
+  }, [load]);
 
-  const moderate = async (item: ReviewItem) => {
-    const action = item.visibility === 'VISIBLE' ? 'hide' : 'restore';
-    const reason = window.prompt(`Explain why this review should be ${action === 'hide' ? 'hidden' : 'restored'}:`);
-    if (!reason || reason.trim().length < 3) return;
+  const moderate = async () => {
+    if (!selectedReview || reason.trim().length < 3) return;
+    const action = selectedReview.visibility === 'VISIBLE' ? 'hide' : 'restore';
+    setSubmitting(true);
     try {
-      await apiModerateReview(item.id, action, reason.trim());
+      await apiModerateReview(selectedReview.id, action, reason.trim());
       success('Review updated', `The review was ${action === 'hide' ? 'hidden' : 'restored'} and audited.`);
+      setSelectedReview(null);
+      setReason('');
       await load();
-    } catch (cause: any) {
-      error('Moderation failed', cause.response?.data?.error || cause.message);
+    } catch (cause: unknown) {
+      error('Moderation failed', getApiErrorMessage(cause, 'The moderation decision could not be saved.'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -64,7 +76,7 @@ export default function AdminReviewsPage() {
                 <p className="mt-2 text-xs">{item.text || 'No written feedback.'}</p>
                 {item.moderationReason && <p className="mt-2 text-[10px] text-slate-500">Last moderation reason: {item.moderationReason}</p>}
               </div>
-              <button onClick={() => void moderate(item)} className="flex shrink-0 items-center gap-1 rounded-lg border px-3 py-2 text-[10px] font-bold">
+              <button onClick={() => { setSelectedReview(item); setReason(''); }} className="flex shrink-0 items-center gap-1 rounded-lg border px-3 py-2 text-[10px] font-bold">
                 {item.visibility === 'VISIBLE' ? <EyeOff className="h-3 w-3" /> : <RotateCcw className="h-3 w-3" />}
                 {item.visibility === 'VISIBLE' ? 'Hide' : 'Restore'}
               </button>
@@ -77,6 +89,18 @@ export default function AdminReviewsPage() {
         <span className="py-2">Page {page} of {totalPages}</span>
         <button disabled={page >= totalPages} onClick={() => setPage((value) => value + 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Next</button>
       </div>
+      <ReasonModal
+        isOpen={!!selectedReview}
+        title={selectedReview?.visibility === 'VISIBLE' ? 'Hide review' : 'Restore review'}
+        description="Explain this moderation decision. The reason is stored in the administrator audit log."
+        value={reason}
+        onChange={setReason}
+        onClose={() => { if (!submitting) { setSelectedReview(null); setReason(''); } }}
+        onSubmit={moderate}
+        confirmText={selectedReview?.visibility === 'VISIBLE' ? 'Hide review' : 'Restore review'}
+        variant={selectedReview?.visibility === 'VISIBLE' ? 'danger' : 'primary'}
+        isSubmitting={submitting}
+      />
     </div>
   );
 }

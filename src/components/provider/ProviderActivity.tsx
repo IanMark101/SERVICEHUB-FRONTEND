@@ -36,6 +36,7 @@ import {
 import type { ProviderActivitySort, ProviderActivityTab } from './activity/types';
 import ProviderActivityItem from './activity/ProviderActivityItem';
 import ProviderActivityList from './activity/ProviderActivityList';
+import ReasonModal from '../ui/ReasonModal';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
@@ -87,6 +88,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
+  const [cancelingBookingId, setCancelingBookingId] = useState<string | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
 
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
@@ -270,17 +273,24 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
 
   const handleProviderRemoveFromQueue = async (id: string) => {
-    const reason = window.prompt('Explain why you need to cancel this booking:');
-    if (!reason || reason.trim().length < 3) return;
+    setCancelingBookingId(id);
+    setCancelReason('');
+  };
+
+  const submitProviderCancellation = async () => {
+    if (!cancelingBookingId || cancelReason.trim().length < 3) return;
+    const id = cancelingBookingId;
     setLoadingItemId(id);
     setLoadingActionType('remove');
     try {
-      const response = await apiCancelBooking(id, reason.trim());
+      const response = await apiCancelBooking(id, cancelReason.trim());
       if (response.data?.immediate) {
         success('Booking Cancelled', 'The reason was recorded and any eligible online refund was submitted.');
       } else {
         info('Cancellation Request Sent', 'The seeker must review the request because work has started.');
       }
+      setCancelingBookingId(null);
+      setCancelReason('');
       refreshEngagements();
     } catch (err: any) {
       toastError('Cancellation failed', err.response?.data?.error || err.message);
@@ -442,6 +452,19 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         onDeclineNoteChange={setDeclineNote}
         onClose={() => setRespondingReqId(null)}
         onSubmit={handleDeclineSubmit}
+      />
+
+      <ReasonModal
+        isOpen={!!cancelingBookingId}
+        title="Request booking cancellation"
+        description="Explain why this booking should be cancelled. If work has started, the seeker must review the request."
+        value={cancelReason}
+        onChange={setCancelReason}
+        onClose={() => { if (!loadingItemId) { setCancelingBookingId(null); setCancelReason(''); } }}
+        onSubmit={submitProviderCancellation}
+        confirmText="Submit request"
+        variant="danger"
+        isSubmitting={loadingItemId === cancelingBookingId && loadingActionType === 'remove'}
       />
 
       {/* Review Modal for Rating Clients */}

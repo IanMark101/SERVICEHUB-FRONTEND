@@ -57,7 +57,6 @@ interface AppContextType {
   disputeJob: (jobId: string, reason: string) => void;
   suggestCategory: (seekerName: string, name: string, description: string) => void;
   bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'Maya' | 'On-site Cash') => void;
-  cancelQueue: (id: string) => void;
 
   // Provider actions
   createServiceListing: (
@@ -92,7 +91,6 @@ interface AppContextType {
   respondToDirectBooking: (jobId: string, accept: boolean) => void;
   requestJobApproval: (jobId: string) => void;
   providerStartJob: (id: string) => void;
-  providerRemoveFromQueue: (id: string) => void;
 
   // Admin actions
 

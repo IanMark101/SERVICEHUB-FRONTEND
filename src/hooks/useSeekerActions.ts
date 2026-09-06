@@ -17,8 +17,7 @@ import {
   apiConfirmOnlineBooking,
   apiBookDirectFromOffer,
   apiConfirmCompletion,
-  apiDisputeJob,
-  apiCancelQueue
+  apiDisputeJob
 } from '../api/bookings.api';
 import { apiRejectOffer } from '../api/offers.api';
 import { apiSuggestCategory } from '../api/categories.api';
@@ -347,21 +346,6 @@ export function useSeekerActions({
     }
   };
 
-  const cancelQueue = async (id: string) => {
-    const reason = window.prompt('Why are you cancelling this booking?');
-    if (!reason?.trim()) return;
-    try {
-      const res = await apiCancelQueue(id, reason.trim());
-      if (res.success) {
-        await syncEngagements();
-        success('Queue Entry Cancelled', 'You left the service queue.');
-      }
-    } catch (err: any) {
-      toastError('Cancellation Failed', err.response?.data?.error || err.message);
-      throw err;
-    }
-  };
-
   const suggestCategory = async (seekerName: string, name: string, description: string) => {
     try {
       const res = await apiSuggestCategory({ name, description });
@@ -391,7 +375,6 @@ export function useSeekerActions({
     declineBid,
     confirmJobCompletion,
     disputeJob,
-    cancelQueue,
     suggestCategory,
     bookProviderDirectly
   };

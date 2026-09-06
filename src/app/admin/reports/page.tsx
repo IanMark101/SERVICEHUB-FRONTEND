@@ -20,6 +20,7 @@ import { apiAccessReportEvidence, apiCancelAdminBooking, apiListAdminBookings, a
 import { useApp } from "../../../context/AppContext";
 import { getSocket } from "../../../lib/socket";
 import { useToast } from "../../../components/ui/Toast";
+import ReasonModal from "../../../components/ui/ReasonModal";
 
 type ResolutionAction = "warn" | "trust_deduct" | "suspend" | "ban" | "approve_refund" | "release_provider_and_complete" | "dismiss";
 
@@ -115,8 +116,12 @@ const ACTION_LABELS: Record<ResolutionAction, string> = {
   suspend: "Suspend account for 7 days",
   ban: "Permanently ban account",
   approve_refund: "Cancel booking and issue PayMongo refund",
-  release_provider_and_complete: "Complete booking and release provider payment",
+  release_provider_and_complete: "Complete booking and update payment record",
 };
+
+type PendingReasonAction =
+  | { kind: 'completion'; item: CompletionEscalationCase; action: 'release_provider_and_complete' | 'keep_awaiting' }
+  | { kind: 'cancel-booking'; booking: AdminBookingItem };
 
 export default function AdminReportsPage() {
   const { isDark } = useApp();
@@ -136,6 +141,9 @@ export default function AdminReportsPage() {
   const [action, setAction] = useState<ResolutionAction>("dismiss");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [pendingReasonAction, setPendingReasonAction] = useState<PendingReasonAction | null>(null);
+  const [operationReason, setOperationReason] = useState('');
+  const [operationSubmitting, setOperationSubmitting] = useState(false);
 
   const loadCases = useCallback(async () => {
     setLoading(true);
@@ -162,17 +170,24 @@ export default function AdminReportsPage() {
     }
   }, [page]);
 
-  const resolveCompletion = async (item: CompletionEscalationCase, action: 'release_provider_and_complete' | 'keep_awaiting') => {
-    const resolution = window.prompt(action === 'release_provider_and_complete'
-      ? 'Explain why the booking should be completed and provider payment released:'
-      : 'Explain why the booking should keep awaiting seeker confirmation:');
-    if (!resolution || resolution.trim().length < 3) return;
+  const submitReasonAction = async () => {
+    if (!pendingReasonAction || operationReason.trim().length < 3) return;
+    setOperationSubmitting(true);
     try {
-      await apiResolveCompletionEscalation(item.id, action, resolution.trim());
-      success('Escalation resolved', 'The decision was recorded in the administrator audit log.');
+      if (pendingReasonAction.kind === 'completion') {
+        await apiResolveCompletionEscalation(pendingReasonAction.item.id, pendingReasonAction.action, operationReason.trim());
+        success('Escalation resolved', 'The decision was recorded in the administrator audit log.');
+      } else {
+        await apiCancelAdminBooking(pendingReasonAction.booking.id, operationReason.trim());
+        success('Booking cancelled', 'Queue and payment reconciliation were applied and audited.');
+      }
+      setPendingReasonAction(null);
+      setOperationReason('');
       await loadCases();
     } catch (cause: any) {
-      showError('Resolution failed', cause.response?.data?.error || cause.message);
+      showError('Action failed', cause.response?.data?.error || cause.message);
+    } finally {
+      setOperationSubmitting(false);
     }
   };
 
@@ -252,8 +267,8 @@ export default function AdminReportsPage() {
                     <p className="mt-2 text-xs">{item.reason}</p>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <button onClick={() => resolveCompletion(item, 'keep_awaiting')} className="rounded-lg border px-3 py-2 text-[10px] font-bold">Keep awaiting</button>
-                    <button onClick={() => resolveCompletion(item, 'release_provider_and_complete')} className="rounded-lg bg-emerald-600 px-3 py-2 text-[10px] font-bold text-white">Complete and release</button>
+                    <button onClick={() => { setPendingReasonAction({ kind: 'completion', item, action: 'keep_awaiting' }); setOperationReason(''); }} className="rounded-lg border px-3 py-2 text-[10px] font-bold">Keep awaiting</button>
+                    <button onClick={() => { setPendingReasonAction({ kind: 'completion', item, action: 'release_provider_and_complete' }); setOperationReason(''); }} className="rounded-lg bg-emerald-600 px-3 py-2 text-[10px] font-bold text-white">Record completion</button>
                   </div>
                 </div>
               </div>
@@ -294,12 +309,7 @@ export default function AdminReportsPage() {
                 <p className="mt-1 text-[10px] text-slate-500">{booking.seeker.name} → {booking.provider.name} · {booking.status.replace(/_/g, " ")} · {booking.paymentStatus.replace(/_/g, " ")} · {booking.paymentMethod}{booking.queue ? ` · Queue ${booking.queue.position} (${booking.queue.status})` : " · No queue"}</p>
               </div>
               {!booking.started && ["PENDING_APPROVAL", "WAITING", "ACCEPTED"].includes(booking.status) && (
-                <button onClick={async () => {
-                  const reason = window.prompt("Explain why this unstarted booking must be cancelled:");
-                  if (!reason || reason.trim().length < 3) return;
-                  try { await apiCancelAdminBooking(booking.id, reason.trim()); success("Booking cancelled", "Queue and payment reconciliation were applied and audited."); await loadCases(); }
-                  catch (cause: any) { showError("Cancellation failed", cause.response?.data?.error || cause.message); }
-                }} className="shrink-0 rounded-lg bg-red-600 px-3 py-2 text-[10px] font-bold text-white">Cancel and reconcile</button>
+                <button onClick={() => { setPendingReasonAction({ kind: 'cancel-booking', booking }); setOperationReason(''); }} className="shrink-0 rounded-lg bg-red-600 px-3 py-2 text-[10px] font-bold text-white">Cancel and reconcile</button>
               )}
             </div>
           ))}
@@ -469,6 +479,20 @@ export default function AdminReportsPage() {
           </form>
         </div>
       )}
+      <ReasonModal
+        isOpen={!!pendingReasonAction}
+        title={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel and reconcile booking' : pendingReasonAction?.action === 'keep_awaiting' ? 'Keep awaiting confirmation' : 'Record booking completion'}
+        description={pendingReasonAction?.kind === 'cancel-booking'
+          ? 'Explain why this unstarted booking must be cancelled. Queue and eligible Test Mode payment reconciliation will be applied.'
+          : 'Explain the evidence supporting this completion-escalation decision. The decision is audit logged.'}
+        value={operationReason}
+        onChange={setOperationReason}
+        onClose={() => { if (!operationSubmitting) { setPendingReasonAction(null); setOperationReason(''); } }}
+        onSubmit={submitReasonAction}
+        confirmText={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel booking' : 'Save decision'}
+        variant={pendingReasonAction?.kind === 'cancel-booking' ? 'danger' : 'primary'}
+        isSubmitting={operationSubmitting}
+      />
     </div>
   );
 }

@@ -16,8 +16,7 @@ import { apiSubmitOffer } from '../api/offers.api';
 import {
   apiRespondDirectRequest,
   apiCompleteJob,
-  apiStartJob,
-  apiProviderRemoveQueue
+  apiStartJob
 } from '../api/bookings.api';
 import { useToast } from '../components/ui/Toast';
 
@@ -316,21 +315,6 @@ export function useProviderActions({
     }
   };
 
-  const providerRemoveFromQueue = async (id: string) => {
-    const reason = window.prompt('Why are you cancelling this booking?');
-    if (!reason?.trim()) return;
-    try {
-      const res = await apiProviderRemoveQueue(id, reason.trim());
-      if (res.success) {
-        await syncEngagements();
-        success('Queue Entry Removed', 'Booking was removed from queue.');
-      }
-    } catch (err: any) {
-      toastError('Failed to remove from queue', err.response?.data?.error || err.message);
-      throw err;
-    }
-  };
-
   const deleteServiceListing = async (serviceId: string) => {
     try {
       const res = await apiDeleteService(serviceId);
@@ -352,7 +336,6 @@ export function useProviderActions({
     submitBid,
     respondToDirectBooking,
     requestJobApproval,
-    providerStartJob,
-    providerRemoveFromQueue
+    providerStartJob
   };
 }
