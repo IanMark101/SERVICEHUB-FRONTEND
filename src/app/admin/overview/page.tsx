@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { useRouter } from 'next/navigation';
 import { apiGetAdminOverview } from '../../../api/admin.api';
 import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, Loader2, RefreshCw, Activity, Database, Radio } from 'lucide-react';
+import { getSocket } from '../../../lib/socket';
 
 interface StatsData {
   totalUsers: number;
@@ -30,7 +31,7 @@ export default function AdminOverview() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  const fetchStats = (isRefresh = false) => {
+  const fetchStats = useCallback((isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true);
     apiGetAdminOverview()
       .then(res => {
@@ -45,11 +46,23 @@ export default function AdminOverview() {
         setError(err.message || "An error occurred.");
       })
       .finally(() => { setLoading(false); setRefreshing(false); });
-  };
+  }, []);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    const initialFetch = setTimeout(fetchStats, 0);
+    const socket = getSocket();
+    if (!socket) return () => clearTimeout(initialFetch);
+    const refresh = () => fetchStats(true);
+    socket.on('SERVICE_LISTING_SUBMITTED', refresh);
+    socket.on('SERVICE_LISTINGS_CHANGED', refresh);
+    socket.on('ADMIN_MODERATION_CHANGED', refresh);
+    return () => {
+      clearTimeout(initialFetch);
+      socket.off('SERVICE_LISTING_SUBMITTED', refresh);
+      socket.off('SERVICE_LISTINGS_CHANGED', refresh);
+      socket.off('ADMIN_MODERATION_CHANGED', refresh);
+    };
+  }, [fetchStats]);
 
   if (loading) {
     return (
@@ -77,12 +90,12 @@ export default function AdminOverview() {
       href: '/admin/users',
     },
     {
-      title: "Active Listings",
-      value: stats?.activeServices || 0,
+      title: "Live Marketplace Listings",
+      value: stats?.activeServices ?? 0,
       icon: Briefcase,
       color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-      desc: "Verified & running marketplace listings.",
-      href: '/admin/services',
+      desc: "Approved, available listings owned by eligible providers.",
+      href: '/admin/services?status=ACTIVE',
     },
     {
       title: "Verification Queue",
@@ -114,7 +127,7 @@ export default function AdminOverview() {
       icon: Briefcase,
       color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
       desc: "Services awaiting admin verification.",
-      href: '/admin/services',
+      href: '/admin/services?status=PENDING_REVIEW',
     }
   ];
 

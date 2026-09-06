@@ -354,8 +354,7 @@ export function useAppDataSync({
         refresh();
       }, 180));
     };
-    const scheduleOperationalRefresh = () => {
-      scheduleRefresh('notifications', syncNotifications);
+    const scheduleEngagementRefresh = () => {
       scheduleRefresh('engagements', syncEngagements);
       scheduleRefresh('bids', syncBids);
       scheduleRefresh('requests', syncRequests);
@@ -364,12 +363,12 @@ export function useAppDataSync({
 
     // Real-time notification badge and data synchronization
     sock.on('notification', () => {
-      scheduleOperationalRefresh();
+      scheduleRefresh('notifications', syncNotifications);
     });
 
     // Real-time booking / engagement status updates (create, accept, decline, cancel, start, complete, dispute)
     sock.on('ENGAGEMENT_CHANGED', () => {
-      scheduleOperationalRefresh();
+      scheduleEngagementRefresh();
     });
 
     // Real-time queue counter update — update the services list in place

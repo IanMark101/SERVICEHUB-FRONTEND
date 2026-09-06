@@ -113,7 +113,7 @@ export default function Sidebar({
       { id: 'overview', label: 'Overview', icon: BarChart2 },
       { id: 'users', label: 'User Management', icon: Users },
       { id: 'verifications', label: 'Verifications', icon: ShieldCheck },
-      { id: 'services', label: 'Pending Services', icon: Briefcase },
+      { id: 'services', label: 'Service Listings', icon: Briefcase },
       { id: 'categories', label: 'Category Suggestions', icon: Tag },
       { id: 'announcements', label: 'Announcements', icon: Megaphone },
       { id: 'reports', label: 'Disputes & Reports', icon: AlertTriangle },

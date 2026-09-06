@@ -1,10 +1,12 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { apiListPendingServices, apiReviewService } from '../../../api/admin.api';
+import { apiListAdminServices, apiReviewService } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import { getSocket } from '../../../lib/socket';
+import { useSearchParams } from 'next/navigation';
+import { getApiErrorMessage } from '../../../lib/api/errors';
 
 interface ProviderInfo {
   id: string;
@@ -28,14 +30,18 @@ interface ServiceItem {
   serviceType?: 'ONE_TIME' | 'SESSION_BASED';
   estimatedDurationMins: number;
   queueLimit: number;
-  paymentMethods: any;
+  paymentMethods?: { cash?: boolean; gcash?: boolean; maya?: boolean; card?: boolean };
   status: string;
   createdAt: string;
+  updatedAt: string;
+  reviewedAt?: string | null;
+  adminNotes?: string | null;
   provider: ProviderInfo;
   category: CategoryInfo;
 }
 
 export default function AdminServices() {
+  const searchParams = useSearchParams();
   const { isDark } = useApp();
   const { success: toastSuccess, error: toastError } = useToast();
 
@@ -45,15 +51,21 @@ export default function AdminServices() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const requestedStatus = searchParams.get('status')?.toUpperCase();
+  const [status, setStatus] = useState(
+    requestedStatus && ['ALL', 'PENDING_REVIEW', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED'].includes(requestedStatus)
+      ? requestedStatus
+      : 'PENDING_REVIEW',
+  );
 
   const [reviewingItem, setReviewingItem] = useState<ServiceItem | null>(null);
   const [isApproveMode, setIsApproveMode] = useState<boolean>(true);
   const [adminNotes, setAdminNotes] = useState<string>('');
   const [submittingReview, setSubmittingReview] = useState<boolean>(false);
 
-  const fetchServices = () => {
+  const fetchServices = useCallback(() => {
     setLoading(true);
-    apiListPendingServices({ page, limit: 10 })
+    apiListAdminServices({ page, limit: 10, status: status === 'ALL' ? undefined : status })
       .then(res => {
         if (res.success) {
           setServices(res.data);
@@ -61,18 +73,18 @@ export default function AdminServices() {
           setTotalPages(Math.max(1, res.pagination?.totalPages || 1));
           setError('');
         } else {
-          setError("Failed to fetch pending service listings.");
+          setError("Failed to fetch service listings.");
         }
         setLoading(false);
       })
-      .catch(err => {
-        setError(err.message || "An error occurred.");
+      .catch((err: unknown) => {
+        setError(getApiErrorMessage(err, "An error occurred."));
         setLoading(false);
       });
-  };
+  }, [page, status]);
 
   useEffect(() => {
-    fetchServices();
+    const initialFetch = setTimeout(fetchServices, 0);
 
     // Real-time: auto-refresh when a new service listing is submitted
     const socket = getSocket();
@@ -81,11 +93,15 @@ export default function AdminServices() {
         fetchServices();
       };
       socket.on('SERVICE_LISTING_SUBMITTED', handleNewService);
+      socket.on('SERVICE_LISTINGS_CHANGED', handleNewService);
       return () => {
+        clearTimeout(initialFetch);
         socket.off('SERVICE_LISTING_SUBMITTED', handleNewService);
+        socket.off('SERVICE_LISTINGS_CHANGED', handleNewService);
       };
     }
-  }, [page]);
+    return () => clearTimeout(initialFetch);
+  }, [fetchServices]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,8 +118,8 @@ export default function AdminServices() {
         setAdminNotes('');
         fetchServices();
       }
-    } catch (err: any) {
-      toastError("Review Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Review Failed", getApiErrorMessage(err, "The listing review could not be saved."));
     } finally {
       setSubmittingReview(false);
     }
@@ -126,15 +142,28 @@ export default function AdminServices() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-          Pending Service Listings Review
+          Service Listing Administration
         </h4>
         <button
           onClick={fetchServices}
           className="px-4 py-2 border rounded-xl font-bold text-xs bg-red-500/5 text-red-500 border-red-500/25 cursor-pointer hover:bg-red-500/10 transition-colors flex items-center space-x-1.5"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>Refresh Queue</span>
+          <span>Refresh Listings</span>
         </button>
+      </div>
+
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter service listings by status">
+        {['PENDING_REVIEW', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED', 'ALL'].map((option) => (
+          <button key={option} type="button" role="tab" aria-selected={status === option}
+            onClick={() => { setStatus(option); setPage(1); }}
+            className={`rounded-xl border px-3 py-2 text-[10px] font-bold transition-colors ${status === option
+              ? 'border-violet-500 bg-violet-500 text-white'
+              : isDark ? 'border-neutral-700 text-neutral-300 hover:bg-neutral-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}>
+            {option === 'ALL' ? 'All Listings' : option.replace(/_/g, ' ')}
+          </button>
+        ))}
       </div>
 
       {error && (
@@ -153,7 +182,7 @@ export default function AdminServices() {
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
           }`}>
-            There are no services currently pending approval.
+            No {status === 'ALL' ? '' : status.toLowerCase().replace(/_/g, ' ')} service listings were found.
           </div>
         ) : (
           services.map((item) => {
@@ -161,7 +190,7 @@ export default function AdminServices() {
               month: 'short', day: 'numeric', year: 'numeric'
             });
 
-            let methods = [];
+            const methods = [];
             if (item.paymentMethods) {
               if (item.paymentMethods.gcash) methods.push("GCash");
               if (item.paymentMethods.maya) methods.push("Maya");
@@ -260,7 +289,7 @@ export default function AdminServices() {
                   <span className={`text-[9px] mr-auto font-bold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
                     Created: {formattedDate}
                   </span>
-                  <button
+                  {item.status === 'PENDING_REVIEW' ? <><button
                     onClick={() => {
                       setReviewingItem(item);
                       setIsApproveMode(false);
@@ -281,7 +310,12 @@ export default function AdminServices() {
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Approve Listing</span>
-                  </button>
+                  </button></> : (
+                    <div className="text-right">
+                      <span className="rounded-lg border border-slate-200 px-2 py-1 text-[9px] font-bold">{item.status.replace(/_/g, ' ')}</span>
+                      {item.adminNotes && <p className="mt-2 max-w-sm text-[10px] text-slate-500">Administrator note: {item.adminNotes}</p>}
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -291,7 +325,7 @@ export default function AdminServices() {
 
       {total > 0 && (
         <div className="flex items-center justify-between text-xs">
-          <span className={isDark ? 'text-neutral-400' : 'text-slate-500'}>{total} pending listing{total === 1 ? '' : 's'}</span>
+          <span className={isDark ? 'text-neutral-400' : 'text-slate-500'}>{total} listing{total === 1 ? '' : 's'} in this view</span>
           <div className="flex items-center gap-3">
             <button type="button" disabled={page === 1} onClick={() => setPage(value => value - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button>
             <span className="font-bold">Page {page} of {totalPages}</span>
@@ -312,19 +346,19 @@ export default function AdminServices() {
                 <span>{isApproveMode ? "Approve Service Listing" : "Reject Service Listing"}</span>
               </h4>
               <p className="text-[10px] text-slate-400">
-                Confirm action for service listing: "{reviewingItem.title}".
+                Confirm action for service listing: &quot;{reviewingItem.title}&quot;.
               </p>
               <div>
                 <textarea
-                  placeholder="Explain rejection reason or add approval remarks here..."
+                  placeholder="Write the decision message the provider will receive..."
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
                   className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
                     isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
                   }`}
                   rows={4}
-                  required={!isApproveMode}
-                  minLength={isApproveMode ? undefined : 3}
+                  required
+                  minLength={3}
                 />
               </div>
               <div className="flex items-center justify-end space-x-2">
@@ -337,7 +371,7 @@ export default function AdminServices() {
                 </button>
                  <button
                   type="submit"
-                  disabled={submittingReview || (!isApproveMode && adminNotes.trim().length < 3)}
+                  disabled={submittingReview || adminNotes.trim().length < 3}
                   className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${
                     submittingReview
                       ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'

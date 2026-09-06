@@ -101,6 +101,11 @@ export async function apiListPendingServices(params?: { page?: number; limit?: n
   return response.data;
 }
 
+export async function apiListAdminServices(params?: { page?: number; limit?: number; status?: string }) {
+  const response = await api.get('/admin/services', { params });
+  return response.data;
+}
+
 export async function apiReviewService(id: string, approve: boolean, adminNotes?: string) {
   const response = await api.patch(`/admin/services/${id}/review`, { approve, adminNotes });
   return response.data;
