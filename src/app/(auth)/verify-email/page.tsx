@@ -1,6 +1,7 @@
 "use client";
 
 import { apiVerifyEmail } from "@/api/auth.api";
+import { getApiErrorMessage } from "@/lib/api/errors";
 import { CheckCircle2, CircleAlert, LoaderCircle, MailCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -8,20 +9,17 @@ import { Suspense, useEffect, useState } from "react";
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const token = searchParams.get("token");
 
   const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
+    token ? "loading" : "error"
   );
-  const [message, setMessage] = useState("We’re confirming your email address...");
+  const [message, setMessage] = useState(
+    token ? "We’re confirming your email address..." : "Verification token is missing."
+  );
 
   useEffect(() => {
-    const token = searchParams.get("token");
-
-    if (!token) {
-      setStatus("error");
-      setMessage("Verification token is missing.");
-      return;
-    }
+    if (!token) return;
 
     let isMounted = true;
     let timeoutId: number | undefined;
@@ -40,14 +38,11 @@ function VerifyEmailContent() {
         timeoutId = window.setTimeout(() => {
           if (isMounted) router.push("/login");
         }, 3000);
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!isMounted) return;
 
         setStatus("error");
-        setMessage(
-          error.response?.data?.message ||
-            "Verification link is invalid or has expired."
-        );
+        setMessage(getApiErrorMessage(error, "Verification link is invalid or has expired."));
       }
     };
 
@@ -59,7 +54,7 @@ function VerifyEmailContent() {
         window.clearTimeout(timeoutId);
       }
     };
-  }, [router, searchParams]);
+  }, [router, token]);
 
   const isSuccess = status === "success";
   const isError = status === "error";

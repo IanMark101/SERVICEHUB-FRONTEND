@@ -1,6 +1,7 @@
 "use client";
 
 import { apiResetPassword } from "@/api/auth.api";
+import { getApiErrorMessage } from "@/lib/api/errors";
 import { CheckCircle2, CircleAlert, KeyRound, LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -37,13 +38,9 @@ function ResetPasswordContent() {
       setStatus("success");
       setMessage(res.message || "Password reset successfully. You can now log in.");
       setTimeout(() => router.push("/login"), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStatus("error");
-      setMessage(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Reset link is invalid or has expired. Please request a new one."
-      );
+      setMessage(getApiErrorMessage(error, "Reset link is invalid or has expired. Please request a new one."));
     }
   };
 
