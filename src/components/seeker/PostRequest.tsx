@@ -2,10 +2,12 @@ import React, { useState, FormEvent } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PlusCircle, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import { useToast } from '../ui/Toast';
 
 export default function PostRequest() {
   const { user, postJobRequest, isDark } = useApp();
   const { canTransact, navigateToVerification } = useTransactionPermission();
+  const { error } = useToast();
   const [title, setTitle] = useState<string>('');
   const [category, setCategory] = useState<string>('Plumbing');
   const [urgency, setUrgency] = useState<string>('');
@@ -29,7 +31,7 @@ export default function PostRequest() {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title.trim() || !description.trim()) {
-      alert('Please fill out all fields.');
+      error('Request details required', 'Enter a request title and a clear description before publishing.');
       return;
     }
 

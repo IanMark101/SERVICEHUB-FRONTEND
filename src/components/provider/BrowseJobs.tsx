@@ -11,6 +11,7 @@ import EmptyState from '../ui/EmptyState';
 import { JobRequestSkeleton } from '../ui/SkeletonCard';
 import ProposalModal from './browse-jobs/ProposalModal';
 import { formatUrgencyDisplay } from './browse-jobs/browseJobs.utils';
+import { useToast } from '../ui/Toast';
 
 export default function BrowseJobs({
   currentProviderId = 'u3',
@@ -22,6 +23,7 @@ export default function BrowseJobs({
   const router = useRouter();
   const { jobRequests, bids, submitBid, isDark, user } = useApp();
   const { canTransact } = useTransactionPermission();
+  const { warning } = useToast();
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
@@ -145,7 +147,7 @@ export default function BrowseJobs({
 
     const targetReq = jobRequests.find(r => r.id === selectedRequestId);
     if (targetReq && (targetReq.status === 'CLOSED' || (targetReq.status as string) === 'closed' || (targetReq.status as string) === 'paused')) {
-      alert("This service request has been paused by the seeker and is no longer accepting new offers.");
+      warning('Request unavailable', 'The seeker paused this request, so it is no longer accepting offers.');
       setSelectedRequestId(null);
       return;
     }

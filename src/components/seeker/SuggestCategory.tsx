@@ -3,10 +3,12 @@ import { useApp } from '../../context/AppContext';
 import { Lightbulb, Send, Sparkles, CheckCircle2, XCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiGetMyCategorySuggestions } from '../../api/categories.api';
+import { useToast } from '../ui/Toast';
 
 export default function SuggestCategory() {
   const { categorySuggestions, suggestCategory, isDark, user } = useApp();
   const { canTransact, navigateToVerification } = useTransactionPermission();
+  const { error } = useToast();
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [expandedSuggestionId, setExpandedSuggestionId] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function SuggestCategory() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !description.trim()) {
-      alert('Please fill out all fields.');
+      error('Incomplete suggestion', 'Enter a category name and a short explanation before submitting.');
       return;
     }
 

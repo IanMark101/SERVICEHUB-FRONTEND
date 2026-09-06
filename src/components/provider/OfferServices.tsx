@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Briefcase, Info, RefreshCw } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import { useToast } from '../ui/Toast';
 
 export default function OfferServices() {
   const { user, createServiceListing, isDark, dbCategories } = useApp();
   const { canTransact, navigateToVerification } = useTransactionPermission();
+  const { error } = useToast();
 
   const [title, setTitle] = useState<string>('');
   const [category, setCategory] = useState<string>('');
@@ -37,13 +39,13 @@ export default function OfferServices() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptCash && !acceptGCash && !acceptMaya && !acceptCard) {
-      alert('Please select at least one accepted payment method.');
+      error('Payment method required', 'Select at least one supported payment method for this listing.');
       return;
     }
 
     const selectedCategory = category || (dbCategories.length > 0 ? dbCategories[0].id : '');
     if (!selectedCategory) {
-      alert('Please select a service category.');
+      error('Category required', 'Select the category that best matches this service.');
       return;
     }
 
