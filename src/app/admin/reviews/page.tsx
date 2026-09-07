@@ -7,6 +7,9 @@ import { useApp } from '../../../context/AppContext';
 import { useToast } from '../../../components/ui/Toast';
 import ReasonModal from '../../../components/ui/ReasonModal';
 import { getApiErrorMessage } from '../../../lib/api/errors';
+import AdminPagination from '../../../components/admin/AdminPagination';
+
+const PAGE_SIZE = 12;
 
 interface ReviewItem {
   id: string;
@@ -25,14 +28,16 @@ export default function AdminReviewsPage() {
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [selectedReview, setSelectedReview] = useState<ReviewItem | null>(null);
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const response = await apiListAdminReviews({ page, limit: 20 });
+      const response = await apiListAdminReviews({ page, limit: PAGE_SIZE });
       setItems(response.data || []);
+      setTotal(response.pagination?.total || 0);
       setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
     } catch (cause: unknown) {
       error('Unable to load reviews', getApiErrorMessage(cause, 'The review list could not be loaded.'));
@@ -84,11 +89,7 @@ export default function AdminReviewsPage() {
           </article>
         ))}
       </div>
-      <div className="flex justify-end gap-3 text-xs font-bold">
-        <button disabled={page === 1} onClick={() => setPage((value) => value - 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Previous</button>
-        <span className="py-2">Page {page} of {totalPages}</span>
-        <button disabled={page >= totalPages} onClick={() => setPage((value) => value + 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Next</button>
-      </div>
+      <AdminPagination page={page} totalPages={totalPages} totalItems={total} pageSize={PAGE_SIZE} onPageChange={setPage} itemLabel="reviews" />
       <ReasonModal
         isOpen={!!selectedReview}
         title={selectedReview?.visibility === 'VISIBLE' ? 'Hide review' : 'Restore review'}

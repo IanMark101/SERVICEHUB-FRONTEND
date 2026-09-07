@@ -152,13 +152,18 @@ export default function Sidebar({
           badge: isDark ? 'bg-blue-950/40 text-blue-400 border-blue-900/30' : 'bg-blue-50 text-blue-700 border-blue-200',
         }
       : theme;
+    const activeClasses = currentRole === 'admin' && item.id !== 'community-hub'
+      ? isDark
+        ? 'bg-neutral-100 text-neutral-950'
+        : 'bg-slate-950 text-white'
+      : `${itemTheme.accent} ${itemTheme.bgActive} border-l-4 ${itemTheme.borderActive}`;
 
     return (
       <button
         key={item.id}
         onClick={() => handleTabClick(item.id)}
         className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl transition-all group relative ${isActive
-          ? `${itemTheme.accent} ${itemTheme.bgActive} border-l-4 ${itemTheme.borderActive}`
+          ? activeClasses
           : isDark
             ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'
             : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
@@ -323,7 +328,7 @@ export default function Sidebar({
         ) : (
           (!isCollapsed || isMobileOpen) && (
             <div className="mb-6 px-1">
-              <div className="px-3 py-2.5 rounded-xl border text-center text-[10px] font-bold tracking-[0.12em] uppercase border-violet-500/25 bg-violet-500/5 text-violet-600 dark:text-violet-300">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-slate-600 dark:border-neutral-800 dark:bg-[#22211e] dark:text-neutral-300">
                 Administrator
               </div>
             </div>

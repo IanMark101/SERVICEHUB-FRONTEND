@@ -9,6 +9,9 @@ import {
   apiUpdateAnnouncement,
 } from '../../../api/admin.api';
 import { getApiErrorMessage } from '../../../lib/api/errors';
+import AdminPagination from '../../../components/admin/AdminPagination';
+
+const PAGE_SIZE = 8;
 
 interface AdminAnnouncement {
   id: string;
@@ -30,19 +33,24 @@ export default function AdminAnnouncementsPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const loadAnnouncements = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiListAnnouncements();
+      const response = await apiListAnnouncements({ page, limit: PAGE_SIZE });
       setAnnouncements(response.success && Array.isArray(response.data) ? response.data : []);
+      setTotal(response.pagination?.total || 0);
+      setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
       setError('');
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, 'Unable to load announcements.'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void loadAnnouncements(), 0);
@@ -66,7 +74,8 @@ export default function AdminAnnouncementsPage() {
       setTitle('');
       setBody('');
       setNotice('Announcement published to the Community Hub.');
-      await loadAnnouncements();
+      if (page === 1) await loadAnnouncements();
+      else setPage(1);
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, 'Unable to publish the announcement.'));
     } finally {
@@ -100,7 +109,7 @@ export default function AdminAnnouncementsPage() {
     <div className="space-y-6">
       <div className={`rounded-2xl border p-6 shadow-sm ${card}`}>
         <div className="flex items-start gap-3 mb-5">
-          <div className={`p-2.5 rounded-xl ${isDark ? 'bg-red-950/30 text-red-400' : 'bg-red-50 text-red-600'}`}>
+          <div className={`p-2.5 rounded-xl ${isDark ? 'bg-violet-950/30 text-violet-400' : 'bg-violet-50 text-violet-700'}`}>
             <Megaphone className="w-5 h-5" />
           </div>
           <div>
@@ -119,7 +128,7 @@ export default function AdminAnnouncementsPage() {
               onChange={(event) => setTitle(event.target.value)}
               maxLength={120}
               placeholder="Example: Scheduled maintenance notice"
-              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 ${input}`}
+              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 ${input}`}
             />
           </div>
           <div>
@@ -133,7 +142,7 @@ export default function AdminAnnouncementsPage() {
               maxLength={1500}
               rows={4}
               placeholder="State what residents need to know, when it applies, and any action they should take."
-              className={`w-full resize-y rounded-xl border px-3.5 py-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 ${input}`}
+              className={`w-full resize-y rounded-xl border px-3.5 py-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 ${input}`}
             />
           </div>
 
@@ -141,7 +150,7 @@ export default function AdminAnnouncementsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-60 px-4 py-2.5 text-xs font-bold text-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-slate-800 disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-950 dark:hover:bg-white"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               <span>{saving ? 'Publishing…' : 'Publish announcement'}</span>
@@ -177,7 +186,7 @@ export default function AdminAnnouncementsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-red-500" /></div>
+          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-violet-500" /></div>
         ) : announcements.length === 0 ? (
           <div className={`rounded-2xl border p-8 text-center ${card}`}>
             <Megaphone className="w-8 h-8 mx-auto text-slate-400 mb-3" />
@@ -227,6 +236,15 @@ export default function AdminAnnouncementsPage() {
           </div>
         )}
       </section>
+
+      <AdminPagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={total}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        itemLabel="announcements"
+      />
     </div>
   );
 }

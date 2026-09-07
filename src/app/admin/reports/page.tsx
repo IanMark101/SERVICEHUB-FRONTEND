@@ -21,6 +21,9 @@ import { getSocket } from "../../../lib/socket";
 import { useToast } from "../../../components/ui/Toast";
 import ReasonModal from "../../../components/ui/ReasonModal";
 import { getApiErrorMessage } from "../../../lib/api/errors";
+import AdminPagination from "../../../components/admin/AdminPagination";
+
+const REPORT_PAGE_SIZE = 10;
 
 type ResolutionAction = "warn" | "trust_deduct" | "suspend" | "ban" | "approve_refund" | "release_provider_and_complete" | "dismiss";
 
@@ -156,7 +159,7 @@ export default function AdminReportsPage() {
     setLoading(true);
     try {
       const [response, escalationResponse, paymentResponse, bookingsResponse, attemptsResponse] = await Promise.all([
-        apiListReports({ page, limit: 10 }),
+        apiListReports({ page, limit: REPORT_PAGE_SIZE }),
         apiListCompletionEscalations({ page: 1, limit: 50 }),
         apiListPaymentReconciliation(),
         apiListAdminBookings({ page: 1, limit: 10 }),
@@ -265,7 +268,7 @@ export default function AdminReportsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Scale className="h-5 w-5 text-red-600" />
+              <Scale className="h-5 w-5 text-violet-600" />
               <h3 className="text-base font-extrabold">Moderation Case Queue</h3>
             </div>
             <p className="mt-1 text-xs text-slate-500">
@@ -362,7 +365,7 @@ export default function AdminReportsPage() {
 
       {loadError && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</div>}
       {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-7 w-7 animate-spin text-red-600" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-7 w-7 animate-spin text-violet-600" /></div>
       ) : cases.length === 0 ? (
         <div className={`rounded-2xl border p-12 text-center ${surface}`}>
           <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
@@ -426,12 +429,12 @@ export default function AdminReportsPage() {
                       </div>
                     )}
                     {item.evidenceUrl && (
-                      <a href={item.evidenceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-red-600 hover:bg-red-50 dark:border-neutral-700">
+                      <a href={item.evidenceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-violet-700 hover:bg-violet-50 dark:border-neutral-700 dark:text-violet-400 dark:hover:bg-violet-950/20">
                         <FileImage className="h-4 w-4" /> Open submitted evidence
                       </a>
                     )}
                     {item.hasPrivateEvidence && (
-                      <button type="button" onClick={() => void openPrivateEvidence(item.id)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-red-600 hover:bg-red-50 dark:border-neutral-700">
+                      <button type="button" onClick={() => void openPrivateEvidence(item.id)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-violet-700 hover:bg-violet-50 dark:border-neutral-700 dark:text-violet-400 dark:hover:bg-violet-950/20">
                         <FileImage className="h-4 w-4" /> View private evidence (audit logged)
                       </button>
                     )}
@@ -441,12 +444,12 @@ export default function AdminReportsPage() {
                     <div className={`grid grid-cols-2 gap-3 rounded-xl border p-3 text-xs ${mutedSurface}`}>
                       <div><p className="text-[9px] font-bold uppercase text-slate-400">Booking</p><p className="mt-1 font-bold">{item.booking.status.replace(/_/g, " ")}</p></div>
                       <div><p className="text-[9px] font-bold uppercase text-slate-400">Payment</p><p className="mt-1 font-bold">{item.booking.paymentStatus.replace(/_/g, " ")}</p></div>
-                      <div className="flex items-center gap-1.5"><PhilippinePeso className="h-3.5 w-3.5 text-red-600" /> <span className="font-bold">{item.booking.amount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
+                      <div className="flex items-center gap-1.5"><PhilippinePeso className="h-3.5 w-3.5 text-slate-500" /> <span className="font-bold">{item.booking.amount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
                       <div className="col-span-2 text-[10px] text-slate-500">Method: {item.booking.paymentMethod}</div>
                     </div>
 
                     <button onClick={() => void toggleMessages(item)} disabled={messageLoadingId === item.id} className={`flex w-full items-center justify-between rounded-xl border p-3 text-xs font-bold disabled:opacity-60 ${mutedSurface}`}>
-                      <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-red-600" /> Booking chat ({item.booking.messageCount})</span>
+                      <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-violet-600" /> Booking chat ({item.booking.messageCount})</span>
                       {messageLoadingId === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
                     {expanded && (
@@ -460,7 +463,7 @@ export default function AdminReportsPage() {
                         ))}
                       </div>
                     )}
-                    <button onClick={() => { setSelected(item); setNotes(""); setAction("dismiss"); }} className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-xs font-extrabold text-white hover:bg-red-700">
+                    <button onClick={() => { setSelected(item); setNotes(""); setAction("dismiss"); }} className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950">
                       <Scale className="h-4 w-4" /> Review and resolve
                     </button>
                   </div>
@@ -471,13 +474,7 @@ export default function AdminReportsPage() {
         </div>
       )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 text-xs">
-          <button disabled={page === 1} onClick={() => setPage((value) => value - 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Previous</button>
-          <span className="font-bold">Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => setPage((value) => value + 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Next</button>
-        </div>
-      )}
+      <AdminPagination page={page} totalPages={totalPages} totalItems={total} pageSize={REPORT_PAGE_SIZE} onPageChange={setPage} itemLabel="moderation cases" />
 
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true">
@@ -502,7 +499,7 @@ export default function AdminReportsPage() {
             </div>
             <div className="flex justify-end gap-2 border-t border-slate-200 p-5 dark:border-neutral-800">
               <button type="button" onClick={() => setSelected(null)} className="rounded-xl border px-4 py-2 text-xs font-bold">Cancel</button>
-              <button disabled={submitting || notes.trim().length < 3} className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-extrabold text-white disabled:opacity-50">
+              <button disabled={submitting || notes.trim().length < 3} className="flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-950">
                 {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Confirm resolution
               </button>
             </div>

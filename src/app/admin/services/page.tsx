@@ -7,6 +7,9 @@ import { useToast } from '../../../components/ui/Toast';
 import { getSocket } from '../../../lib/socket';
 import { useSearchParams } from 'next/navigation';
 import { getApiErrorMessage } from '../../../lib/api/errors';
+import AdminPagination from '../../../components/admin/AdminPagination';
+
+const PAGE_SIZE = 10;
 
 interface ProviderInfo {
   id: string;
@@ -65,7 +68,7 @@ export default function AdminServices() {
 
   const fetchServices = useCallback(() => {
     setLoading(true);
-    apiListAdminServices({ page, limit: 10, status: status === 'ALL' ? undefined : status })
+    apiListAdminServices({ page, limit: PAGE_SIZE, status: status === 'ALL' ? undefined : status })
       .then(res => {
         if (res.success) {
           setServices(res.data);
@@ -146,7 +149,7 @@ export default function AdminServices() {
         </h4>
         <button
           onClick={fetchServices}
-          className="px-4 py-2 border rounded-xl font-bold text-xs bg-red-500/5 text-red-500 border-red-500/25 cursor-pointer hover:bg-red-500/10 transition-colors flex items-center space-x-1.5"
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh Listings</span>
@@ -176,7 +179,7 @@ export default function AdminServices() {
       <div className="space-y-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-red-500" />
+            <Loader2 className="w-7 h-7 animate-spin text-violet-500" />
           </div>
         ) : services.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
@@ -301,7 +304,7 @@ export default function AdminServices() {
                       setIsApproveMode(true);
                       setAdminNotes('');
                     }}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[10px] rounded-xl transition-all active:scale-95 cursor-pointer flex items-center space-x-1"
+                    className="flex items-center space-x-1 rounded-lg bg-emerald-600 px-4 py-2 text-[10px] font-extrabold text-white transition-colors hover:bg-emerald-700"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Approve Listing</span>
@@ -318,16 +321,7 @@ export default function AdminServices() {
         )}
       </div>
 
-      {total > 0 && (
-        <div className="flex items-center justify-between text-xs">
-          <span className={isDark ? 'text-neutral-400' : 'text-slate-500'}>{total} listing{total === 1 ? '' : 's'} in this view</span>
-          <div className="flex items-center gap-3">
-            <button type="button" disabled={page === 1} onClick={() => setPage(value => value - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button>
-            <span className="font-bold">Page {page} of {totalPages}</span>
-            <button type="button" disabled={page >= totalPages} onClick={() => setPage(value => value + 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Next</button>
-          </div>
-        </div>
-      )}
+      <AdminPagination page={page} totalPages={totalPages} totalItems={total} pageSize={PAGE_SIZE} onPageChange={setPage} itemLabel="listings" />
 
       {/* Review Dialog Overlay */}
       {reviewingItem && (

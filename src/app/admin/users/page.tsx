@@ -4,7 +4,7 @@ import { useApp } from '../../../context/AppContext';
 import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser, apiRestorePostingPrivilege, apiPromoteUserToAdmin } from '../../../api/admin.api';
 import { Search, Award, ShieldAlert, Ban, RotateCcw, Filter, UserPlus } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
-import PaginationBar from '../../../components/ui/PaginationBar';
+import AdminPagination from '../../../components/admin/AdminPagination';
 import { useSearchParams } from 'next/navigation';
 import AdminUserModals from '../../../components/admin/users/AdminUserModals';
 import { getApiErrorMessage } from '../../../lib/api/errors';
@@ -179,10 +179,6 @@ export default function AdminUsers() {
     }
   };
 
-  // Pagination bounds
-  const startIndex = (page - 1) * limit + 1;
-  const endIndex = Math.min(page * limit, total);
-
   return (
     <div className="space-y-6">
       
@@ -254,7 +250,7 @@ export default function AdminUsers() {
 
           <button
             onClick={fetchUsers}
-            className="px-4 py-2 border rounded-xl font-bold text-xs bg-red-500/5 text-red-500 border-red-500/25 cursor-pointer hover:bg-red-500/10 transition-colors"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200"
           >
             Refresh
           </button>
@@ -361,7 +357,7 @@ export default function AdminUsers() {
                           setTrustDelta(0);
                           setTrustReason('');
                         }}
-                        className="px-2.5 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
+                        className="flex items-center space-x-1 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-violet-700 transition-colors hover:bg-violet-100 dark:border-violet-900/40 dark:bg-violet-950/20 dark:text-violet-300"
                       >
                         <Award className="w-3.5 h-3.5" />
                         <span>Set Trust</span>
@@ -403,16 +399,13 @@ export default function AdminUsers() {
           </div>
 
           {/* Pagination controls */}
-          <PaginationBar
-            currentPage={page}
+          <AdminPagination
+            page={page}
             totalPages={totalPages}
-            goToPage={(p) => setPage(p)}
-            nextPage={() => setPage(prev => Math.min(prev + 1, totalPages))}
-            prevPage={() => setPage(prev => Math.max(prev - 1, 1))}
-            startIndex={startIndex}
-            endIndex={endIndex}
             totalItems={total}
-            variant="admin"
+            pageSize={limit}
+            onPageChange={setPage}
+            itemLabel="users"
           />
         </div>
       )}

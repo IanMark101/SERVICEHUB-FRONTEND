@@ -4,6 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { History, RefreshCw } from 'lucide-react';
 import { apiListAdminAuditLogs } from '../../../api/admin.api';
 import { useApp } from '../../../context/AppContext';
+import AdminPagination from '../../../components/admin/AdminPagination';
+
+const PAGE_SIZE = 20;
 
 interface AuditLog {
   id: string;
@@ -21,13 +24,15 @@ export default function AdminAuditLogsPage() {
   const [items, setItems] = useState<AuditLog[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await apiListAdminAuditLogs({ page, limit: 25 });
+      const response = await apiListAdminAuditLogs({ page, limit: PAGE_SIZE });
       setItems(response.data || []);
+      setTotal(response.pagination?.total || 0);
       setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
     } finally {
       setLoading(false);
@@ -44,7 +49,7 @@ export default function AdminAuditLogsPage() {
       <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="flex items-center gap-2 text-base font-extrabold"><History className="h-5 w-5 text-red-600" /> Administrator Audit Log</h2>
+            <h2 className="flex items-center gap-2 text-base font-extrabold"><History className="h-5 w-5 text-violet-600" /> Administrator Audit Log</h2>
             <p className="mt-1 text-xs text-slate-500">Immutable history of privileged moderation, private-document access, and account actions.</p>
           </div>
           <button type="button" onClick={() => void load()} className="rounded-xl border px-3 py-2 text-xs font-bold"><RefreshCw className="mr-1 inline h-3.5 w-3.5" />Refresh</button>
@@ -63,11 +68,7 @@ export default function AdminAuditLogsPage() {
           </div>
         )}
       </section>
-      <div className="flex items-center justify-end gap-3 text-xs font-bold">
-        <button disabled={page === 1} onClick={() => setPage((value) => value - 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Previous</button>
-        <span>Page {page} of {totalPages}</span>
-        <button disabled={page >= totalPages} onClick={() => setPage((value) => value + 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Next</button>
-      </div>
+      <AdminPagination page={page} totalPages={totalPages} totalItems={total} pageSize={PAGE_SIZE} onPageChange={setPage} itemLabel="audit records" />
     </div>
   );
 }
