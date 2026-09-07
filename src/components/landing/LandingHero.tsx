@@ -102,7 +102,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         <div className="relative flex-shrink-0">
                           <Image unoptimized width={44} height={44}
                             src={IAN_AVATAR}
-                            alt="DEMO PROVIDER"
+                            alt="Ian Mark Buenaflor"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
@@ -111,7 +111,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            DEMO PROVIDER
+                            IAN MARK BUENAFLOR
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
@@ -238,7 +238,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         <div className="relative flex-shrink-0">
                           <Image unoptimized width={44} height={44}
                             src={IAN_AVATAR}
-                            alt="DEMO PROVIDER"
+                            alt="Ian Mark Buenaflor"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = IAN_AVATAR;
                             }}
@@ -247,7 +247,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            DEMO PROVIDER
+                            IAN MARK BUENAFLOR
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className={`inline-flex items-center text-[10px] font-semibold border px-1.5 py-0.25 rounded-md ${
