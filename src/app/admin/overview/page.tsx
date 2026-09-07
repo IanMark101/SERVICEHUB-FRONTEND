@@ -67,7 +67,7 @@ export default function AdminOverview() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-7 h-7 animate-spin text-violet-500" />
+        <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function AdminOverview() {
       title: "Suggested Categories",
       value: stats?.categorySuggestions || 0,
       icon: HelpCircle,
-      color: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+      color: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700",
       desc: "New category requests from seekers.",
       href: '/admin/categories',
     },
@@ -187,7 +187,7 @@ export default function AdminOverview() {
         </section>
 
         <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
-          <div className="mb-4 flex items-center gap-2"><Activity className="h-4 w-4 text-violet-600" /><h4 className="font-extrabold text-sm">Recent Administrator Actions</h4></div>
+          <div className="mb-4 flex items-center gap-2"><Activity className="h-4 w-4 text-slate-600 dark:text-neutral-400" /><h4 className="font-extrabold text-sm">Recent Administrator Actions</h4></div>
           {!stats?.recentAuditLogs?.length ? <p className="text-xs text-slate-500">No administrator actions have been recorded yet.</p> : (
             <div className="divide-y divide-slate-100 dark:divide-neutral-800">
               {stats.recentAuditLogs.map((log) => (

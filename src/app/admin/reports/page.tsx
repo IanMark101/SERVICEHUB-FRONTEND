@@ -268,7 +268,7 @@ export default function AdminReportsPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Scale className="h-5 w-5 text-violet-600" />
+              <Scale className="h-5 w-5 text-slate-600 dark:text-neutral-400" />
               <h3 className="text-base font-extrabold">Moderation Case Queue</h3>
             </div>
             <p className="mt-1 text-xs text-slate-500">
@@ -365,7 +365,7 @@ export default function AdminReportsPage() {
 
       {loadError && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</div>}
       {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-7 w-7 animate-spin text-violet-600" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="h-7 w-7 animate-spin text-slate-900 dark:text-neutral-100" /></div>
       ) : cases.length === 0 ? (
         <div className={`rounded-2xl border p-12 text-center ${surface}`}>
           <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
@@ -429,12 +429,12 @@ export default function AdminReportsPage() {
                       </div>
                     )}
                     {item.evidenceUrl && (
-                      <a href={item.evidenceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-violet-700 hover:bg-violet-50 dark:border-neutral-700 dark:text-violet-400 dark:hover:bg-violet-950/20">
+                      <a href={item.evidenceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white">
                         <FileImage className="h-4 w-4" /> Open submitted evidence
                       </a>
                     )}
                     {item.hasPrivateEvidence && (
-                      <button type="button" onClick={() => void openPrivateEvidence(item.id)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-violet-700 hover:bg-violet-50 dark:border-neutral-700 dark:text-violet-400 dark:hover:bg-violet-950/20">
+                      <button type="button" onClick={() => void openPrivateEvidence(item.id)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white">
                         <FileImage className="h-4 w-4" /> View private evidence (audit logged)
                       </button>
                     )}
@@ -449,7 +449,7 @@ export default function AdminReportsPage() {
                     </div>
 
                     <button onClick={() => void toggleMessages(item)} disabled={messageLoadingId === item.id} className={`flex w-full items-center justify-between rounded-xl border p-3 text-xs font-bold disabled:opacity-60 ${mutedSurface}`}>
-                      <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-violet-600" /> Booking chat ({item.booking.messageCount})</span>
+                      <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-slate-600 dark:text-neutral-400" /> Booking chat ({item.booking.messageCount})</span>
                       {messageLoadingId === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
                     {expanded && (

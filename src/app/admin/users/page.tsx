@@ -357,7 +357,7 @@ export default function AdminUsers() {
                           setTrustDelta(0);
                           setTrustReason('');
                         }}
-                        className="flex items-center space-x-1 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-violet-700 transition-colors hover:bg-violet-100 dark:border-violet-900/40 dark:bg-violet-950/20 dark:text-violet-300"
+                        className="flex items-center space-x-1 rounded-lg border border-slate-300 bg-slate-100 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                       >
                         <Award className="w-3.5 h-3.5" />
                         <span>Set Trust</span>

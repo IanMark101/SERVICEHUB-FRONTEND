@@ -41,7 +41,7 @@ export default function ReasonModal({
   const isValid = trimmedLength >= minLength;
   const buttonClass = variant === 'danger'
     ? 'bg-red-600 hover:bg-red-700'
-    : 'bg-violet-600 hover:bg-violet-700';
+    : 'bg-slate-950 hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950 dark:hover:bg-white';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="reason-modal-title">
@@ -51,7 +51,7 @@ export default function ReasonModal({
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <span className={`rounded-xl p-2.5 ${variant === 'danger' ? 'bg-red-500/10 text-red-500' : 'bg-violet-500/10 text-violet-500'}`}>
+            <span className={`rounded-xl p-2.5 ${variant === 'danger' ? 'bg-red-500/10 text-red-500' : 'bg-slate-100 text-slate-600 dark:bg-neutral-800 dark:text-neutral-300'}`}>
               <MessageSquareText className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
@@ -74,7 +74,7 @@ export default function ReasonModal({
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           disabled={isSubmitting}
-          className={`mt-2 w-full resize-none rounded-xl border px-3 py-2.5 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/15 ${isDark ? 'border-neutral-700 bg-[#191919]' : 'border-slate-300 bg-white'}`}
+          className={`mt-2 w-full resize-none rounded-xl border px-3 py-2.5 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-500/15 ${isDark ? 'border-neutral-700 bg-[#191919]' : 'border-slate-300 bg-white'}`}
         />
         <div className="mt-1 flex justify-between text-[10px] text-slate-500">
           <span>{isValid ? 'Ready to submit.' : `Enter at least ${minLength} characters.`}</span>

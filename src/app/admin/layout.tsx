@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin dark:border-neutral-100 dark:border-t-transparent"></div>
       </div>
     );
   }
@@ -110,7 +110,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Page Title Header */}
           <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div className="space-y-1">
-              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-400">Admin control center</p>
+              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-neutral-400">Admin control center</p>
               <h2 className={`admin-page-title text-2xl font-bold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
                 Administration · {activeTab.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </h2>
@@ -121,8 +121,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className={`text-[10px] font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Workspace</span>
               <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold capitalize border ${
                 isDark
-                  ? 'bg-violet-950/40 text-violet-300 border-violet-900/40'
-                  : 'bg-violet-50 text-violet-700 border-violet-200 shadow-xs'
+                  ? 'bg-neutral-100 text-neutral-950 border-neutral-200'
+                  : 'bg-slate-950 text-white border-slate-950 shadow-xs'
               }`}>
                 Administrator
               </span>

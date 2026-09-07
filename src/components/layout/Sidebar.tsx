@@ -84,10 +84,10 @@ export default function Sidebar({
       badge: isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
     },
     admin: {
-      accent: isDark ? 'text-violet-300' : 'text-violet-700',
-      bgActive: isDark ? 'bg-violet-950/20' : 'bg-violet-50/70',
-      borderActive: 'border-violet-500',
-      badge: isDark ? 'bg-violet-950/40 text-violet-300 border-violet-900/30' : 'bg-violet-50 text-violet-700 border-violet-200'
+      accent: isDark ? 'text-neutral-100' : 'text-slate-950',
+      bgActive: isDark ? 'bg-neutral-100' : 'bg-slate-950',
+      borderActive: isDark ? 'border-neutral-100' : 'border-slate-950',
+      badge: isDark ? 'bg-neutral-100 text-neutral-950 border-neutral-200' : 'bg-slate-950 text-white border-slate-950'
     }
   };
 
@@ -189,7 +189,7 @@ export default function Sidebar({
 
         {/* Collapsed Badge Dot indicator */}
         {item.badge !== undefined && isCollapsed && !isMobileOpen && (
-          <span className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${currentRole === 'seeker' ? 'bg-orange-500' : 'bg-emerald-500'}`} />
+          <span className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${currentRole === 'seeker' ? 'bg-orange-500' : currentRole === 'admin' ? 'bg-slate-950 dark:bg-neutral-100' : 'bg-emerald-500'}`} />
         )}
 
         {/* Tooltip on Hover when Collapsed */}
@@ -226,7 +226,7 @@ export default function Sidebar({
                   ServiceHub
                 </span>
                 <span className={`text-[10px] font-extrabold tracking-wider uppercase mt-0.5 ${
-                  currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-violet-500' : 'text-emerald-500'
+                  currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-slate-500 dark:text-neutral-400' : 'text-emerald-500'
                 }`}>
                   Cordova
                 </span>
@@ -388,7 +388,7 @@ export default function Sidebar({
           title="Help Center & User Documentation"
         >
           <HelpCircle className={`w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform ${
-            currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-violet-500' : 'text-emerald-500'
+              currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-slate-500 dark:text-neutral-400' : 'text-emerald-500'
           }`} />
           {(!isCollapsed || isMobileOpen) && (
             <span className="ml-3">Help Center</span>

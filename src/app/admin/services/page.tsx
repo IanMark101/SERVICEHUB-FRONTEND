@@ -161,7 +161,7 @@ export default function AdminServices() {
           <button key={option} type="button" role="tab" aria-selected={status === option}
             onClick={() => { setStatus(option); setPage(1); }}
             className={`rounded-xl border px-3 py-2 text-[10px] font-bold transition-colors ${status === option
-              ? 'border-violet-500 bg-violet-500 text-white'
+              ? 'border-slate-950 bg-slate-950 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950'
               : isDark ? 'border-neutral-700 text-neutral-300 hover:bg-neutral-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}>
             {option === 'ALL' ? 'All Listings' : option === 'LIVE' ? 'Live Marketplace' : option.replace(/_/g, ' ')}
@@ -179,7 +179,7 @@ export default function AdminServices() {
       <div className="space-y-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-7 h-7 animate-spin text-violet-500" />
+            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
           </div>
         ) : services.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
@@ -221,7 +221,7 @@ export default function AdminServices() {
                         ⏱️ {item.estimatedDurationMins} mins
                       </span>
                       {methods.map((method, idx) => (
-                        <span key={idx} className="text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-purple-500/10 text-purple-400 border-purple-900/30">
+                        <span key={idx} className="text-[9px] px-2 py-0.5 font-bold uppercase rounded-md border bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700">
                           💵 {method}
                         </span>
                       ))}

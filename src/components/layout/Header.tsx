@@ -75,11 +75,11 @@ export default function Header({
       badgeBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     admin: {
-      accent: 'text-violet-600',
-      ring: 'focus:ring-violet-500 focus:border-violet-500',
-      borderHover: 'hover:border-violet-500/50',
-      badge: 'bg-violet-600 text-white',
-      badgeBg: 'bg-violet-50 text-violet-700 border-violet-200',
+      accent: 'text-slate-900 dark:text-neutral-100',
+      ring: 'focus:ring-slate-500 focus:border-slate-500',
+      borderHover: 'hover:border-slate-500/50',
+      badge: 'bg-slate-950 text-white dark:bg-neutral-100 dark:text-neutral-950',
+      badgeBg: 'bg-slate-950 text-white border-slate-950',
     },
     community: {
       accent: 'text-blue-600',
@@ -295,7 +295,7 @@ export default function Header({
                   : currentRole === 'seeker'
                   ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
                   : currentRole === 'admin'
-                  ? 'bg-violet-950/20 text-violet-300 border-violet-900/30'
+                  ? 'bg-neutral-100 text-neutral-950 border-neutral-200'
                   : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
               : theme.badgeBg
             }`}>
@@ -305,7 +305,7 @@ export default function Header({
                 : currentRole === 'seeker'
                 ? 'bg-orange-500' 
                 : currentRole === 'admin' 
-                ? 'bg-violet-500'
+                ? 'bg-slate-950 dark:bg-neutral-100'
                 : 'bg-emerald-500'
             }`} />
             {isCommunityHub ? 'Community Hub' : `${currentRole} Workspace`}

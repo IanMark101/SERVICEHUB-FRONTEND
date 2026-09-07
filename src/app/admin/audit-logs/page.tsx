@@ -49,7 +49,7 @@ export default function AdminAuditLogsPage() {
       <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="flex items-center gap-2 text-base font-extrabold"><History className="h-5 w-5 text-violet-600" /> Administrator Audit Log</h2>
+            <h2 className="flex items-center gap-2 text-base font-extrabold"><History className="h-5 w-5 text-slate-600 dark:text-neutral-400" /> Administrator Audit Log</h2>
             <p className="mt-1 text-xs text-slate-500">Immutable history of privileged moderation, private-document access, and account actions.</p>
           </div>
           <button type="button" onClick={() => void load()} className="rounded-xl border px-3 py-2 text-xs font-bold"><RefreshCw className="mr-1 inline h-3.5 w-3.5" />Refresh</button>

@@ -40,9 +40,9 @@
   --color-community-primary: #2563eb;
   --color-community-hover: #1d4ed8;
 
-  --color-admin-light: #f3e8ff;
-  --color-admin-primary: #9333ea;
-  --color-admin-hover: #7e22ce;
+  --color-admin-light: #f1f5f9;
+  --color-admin-primary: #0f172a;
+  --color-admin-hover: #1e293b;
 
   --color-neutral-850: #2c2b27;
   --color-neutral-855: #33322e;
@@ -109,8 +109,13 @@
 
 .admin-workspace .admin-page-body button:focus-visible,
 .admin-workspace .admin-page-body a:focus-visible {
-  outline: 2px solid #7c3aed;
+  outline: 2px solid #0f172a;
   outline-offset: 2px;
+}
+
+.dark .admin-workspace .admin-page-body button:focus-visible,
+.dark .admin-workspace .admin-page-body a:focus-visible {
+  outline-color: #f5f5f5;
 }
 
 /* Claude Signature Terracotta/Coral Core Theme Tokens */

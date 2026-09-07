@@ -150,7 +150,7 @@ export default function AdminVerifications() {
       <div className="space-y-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-7 h-7 animate-spin text-violet-500" />
+            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
           </div>
         ) : verifications.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
@@ -200,14 +200,14 @@ export default function AdminVerifications() {
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5 truncate">
-                              <FileText className="w-3.5 h-3.5 text-violet-500 flex-shrink-0" />
+                              <FileText className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
                               <span className="truncate">{proof.documentType}</span>
                             </div>
                             <button
                               type="button"
                               disabled={accessingProofId === proof.id}
                               onClick={() => accessProof(item, proof, 'view')}
-                              className="flex flex-shrink-0 items-center space-x-0.5 text-[10px] text-violet-600 hover:text-violet-800 dark:text-violet-400"
+                              className="flex flex-shrink-0 items-center space-x-0.5 text-[10px] text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white"
                             >
                               <span>{accessingProofId === proof.id ? 'Authorizing...' : 'View securely'}</span>
                               <ExternalLink className="w-3 h-3" />
@@ -237,7 +237,7 @@ export default function AdminVerifications() {
                                 type="button"
                                 disabled={accessingProofId === proof.id}
                                 onClick={() => accessProof(item, proof, 'download')}
-                                className="font-bold text-slate-500 hover:text-violet-600 disabled:opacity-50"
+                                className="font-bold text-slate-500 hover:text-slate-950 disabled:opacity-50 dark:hover:text-white"
                               >
                                 Download (audit logged)
                               </button>

@@ -109,7 +109,7 @@ export default function AdminAnnouncementsPage() {
     <div className="space-y-6">
       <div className={`rounded-2xl border p-6 shadow-sm ${card}`}>
         <div className="flex items-start gap-3 mb-5">
-          <div className={`p-2.5 rounded-xl ${isDark ? 'bg-violet-950/30 text-violet-400' : 'bg-violet-50 text-violet-700'}`}>
+          <div className={`p-2.5 rounded-xl ${isDark ? 'bg-neutral-800 text-neutral-300' : 'bg-slate-100 text-slate-700'}`}>
             <Megaphone className="w-5 h-5" />
           </div>
           <div>
@@ -128,7 +128,7 @@ export default function AdminAnnouncementsPage() {
               onChange={(event) => setTitle(event.target.value)}
               maxLength={120}
               placeholder="Example: Scheduled maintenance notice"
-              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 ${input}`}
+              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 ${input}`}
             />
           </div>
           <div>
@@ -142,7 +142,7 @@ export default function AdminAnnouncementsPage() {
               maxLength={1500}
               rows={4}
               placeholder="State what residents need to know, when it applies, and any action they should take."
-              className={`w-full resize-y rounded-xl border px-3.5 py-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 ${input}`}
+              className={`w-full resize-y rounded-xl border px-3.5 py-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 ${input}`}
             />
           </div>
 
@@ -186,7 +186,7 @@ export default function AdminAnnouncementsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-violet-500" /></div>
+          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-slate-900 dark:text-neutral-100" /></div>
         ) : announcements.length === 0 ? (
           <div className={`rounded-2xl border p-8 text-center ${card}`}>
             <Megaphone className="w-8 h-8 mx-auto text-slate-400 mb-3" />

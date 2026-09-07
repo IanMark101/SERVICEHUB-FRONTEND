@@ -105,7 +105,7 @@ export default function AdminCategories() {
       <div className="space-y-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-7 h-7 animate-spin text-violet-500" />
+            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
           </div>
         ) : suggestions.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
@@ -129,7 +129,7 @@ export default function AdminCategories() {
                 {/* Header Info */}
                 <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div className="flex items-center space-x-2.5">
-                    <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    <div className="p-2 rounded-xl bg-slate-100 text-slate-600 border border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700">
                       <Tag className="w-4 h-4" />
                     </div>
                     <div>
@@ -161,7 +161,7 @@ export default function AdminCategories() {
                   <div className={`rounded-xl p-2.5 border flex items-center space-x-2 text-[10px] ${
                     isDark ? 'bg-neutral-800/40 border-neutral-800 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
                   }`}>
-                    <User className="w-3.5 h-3.5 text-violet-500" />
+                    <User className="w-3.5 h-3.5 text-slate-500" />
                     <span className="font-semibold text-slate-400">Suggested By:</span>
                     <span className="font-bold">{item.submitter?.name}</span>
                     <span className="text-slate-400 font-medium">({item.submitter?.id})</span>

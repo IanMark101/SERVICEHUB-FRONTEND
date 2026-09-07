@@ -25,7 +25,7 @@ function getNotificationIcon(title: string) {
     return { icon: ShieldAlert, color: 'text-red-500 bg-red-50' };
   }
   if (text.includes('payout') || text.includes('paid') || text.includes('transaction')) {
-    return { icon: DollarSign, color: 'text-purple-500 bg-purple-50' };
+    return { icon: DollarSign, color: 'text-slate-700 bg-slate-100' };
   }
   return { icon: Bell, color: 'text-slate-500 bg-slate-100' };
 }
@@ -95,7 +95,7 @@ export default function HeaderNotifications({
                 const Icon = iconDetails.icon;
                 const iconBg = isDark ? 'bg-neutral-800/80' : iconDetails.color;
                 return (
-                  <div key={notification.id} onClick={() => onNotificationClick(notification.link)} className={`px-4 py-3.5 cursor-pointer flex space-x-3 transition-colors ${isDark ? 'hover:bg-neutral-800/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-violet-950/10' : 'bg-violet-50/35') : ''}`}>
+                  <div key={notification.id} onClick={() => onNotificationClick(notification.link)} className={`px-4 py-3.5 cursor-pointer flex space-x-3 transition-colors ${isDark ? 'hover:bg-neutral-800/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-neutral-800/35' : 'bg-slate-50') : ''}`}>
                     <div className={`rounded-lg ${iconBg} h-8 w-8 flex-shrink-0 flex items-center justify-center`}>
                       <Icon className={`w-4 h-4 ${isDark ? 'text-slate-300' : ''}`} />
                     </div>
@@ -130,12 +130,12 @@ export default function HeaderNotifications({
                   <button type="button" onClick={() => setPage((value) => Math.min(totalPages, value + 1))} disabled={visiblePage >= totalPages} aria-label="Next notification page" className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-500 disabled:opacity-30 dark:border-neutral-700 dark:text-neutral-300">
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
-                  {hasMore && visiblePage === totalPages && <button type="button" onClick={onLoadMore} className="ml-1 text-[9px] font-bold text-violet-600 dark:text-violet-400">Load older</button>}
+                  {hasMore && visiblePage === totalPages && <button type="button" onClick={onLoadMore} className="ml-1 text-[9px] font-bold text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white">Load older</button>}
                 </div>
               </div>
             </div>
             <div className={`px-3.5 py-2.5 border-t flex items-center justify-between ${isDark ? 'border-neutral-800 bg-[#1b1b1b]' : 'border-slate-100 bg-slate-50/60'}`}>
-              {unreadCount > 0 ? <button onClick={onMarkAllRead} className={`text-[10px] font-bold transition-colors ${isDark ? 'text-violet-400 hover:text-violet-300' : 'text-violet-700 hover:text-violet-900'}`}>Mark all read</button> : <span />}
+              {unreadCount > 0 ? <button onClick={onMarkAllRead} className={`text-[10px] font-bold transition-colors ${isDark ? 'text-neutral-300 hover:text-white' : 'text-slate-700 hover:text-slate-950'}`}>Mark all read</button> : <span />}
               <button onClick={onClose} className="text-[10px] font-bold text-slate-400 hover:text-slate-800 transition-colors dark:hover:text-white">Close</button>
             </div>
           </div>
