@@ -1,4 +1,5 @@
 import { ChevronDown, HelpCircle, LogOut, Settings, User } from 'lucide-react';
+import Image from 'next/image';
 import type { UserSession } from '../../auth/LoginContainer';
 
 interface HeaderProfileMenuProps {
@@ -19,7 +20,7 @@ export default function HeaderProfileMenu({ currentRole, user, isDark, isOpen, b
   return (
     <div className="relative">
       <button onClick={onToggle} className={`flex items-center space-x-2 p-1 rounded-xl border border-transparent ${borderHoverClass} transition-all ${isOpen ? (isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-slate-50 border-slate-200') : ''}`}>
-        <img src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`} alt="Profile Avatar" className={`w-7 h-7 rounded-full object-cover border ${currentRole === 'seeker' ? 'border-orange-500/30' : 'border-emerald-600/30'}`} />
+        <Image unoptimized width={28} height={28} src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`} alt="Profile Avatar" className={`w-7 h-7 rounded-full object-cover border ${currentRole === 'seeker' ? 'border-orange-500/30' : 'border-emerald-600/30'}`} />
         <span className={`hidden sm:inline-block text-xs font-bold truncate max-w-[80px] ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{user.firstName}</span>
         <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
       </button>

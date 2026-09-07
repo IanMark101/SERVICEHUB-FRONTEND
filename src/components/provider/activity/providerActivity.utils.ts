@@ -1,16 +1,16 @@
-import type { JobEngagement } from "../../../types";
+import type { Bid, JobEngagement, JobRequest, ServiceListing } from "../../../types";
 import type { ProviderActivitySort, ProviderActivityTab } from "./types";
 
-type ProviderActivityItem =
-  | { type: "bid"; data: any }
+export type ProviderActivityItemData =
+  | { type: "bid"; data: Bid }
   | { type: "engagement"; data: JobEngagement };
 
 interface FilterProviderActivityItemsParams {
   activeTab: ProviderActivityTab;
   engagements: JobEngagement[];
-  pendingBids: any[];
-  jobRequests: any[];
-  services: any[];
+  pendingBids: Bid[];
+  jobRequests: JobRequest[];
+  services: ServiceListing[];
   searchQuery: string;
   sortBy: ProviderActivitySort;
 }
@@ -18,7 +18,7 @@ interface FilterProviderActivityItemsParams {
 export function countProviderActivityTab(
   tab: ProviderActivityTab,
   engagements: JobEngagement[],
-  pendingBids: any[],
+  pendingBids: Bid[],
 ): number {
   switch (tab) {
     case "in_progress":
@@ -50,10 +50,10 @@ export function filterProviderActivityItems({
   services,
   searchQuery,
   sortBy,
-}: FilterProviderActivityItemsParams): ProviderActivityItem[] {
+}: FilterProviderActivityItemsParams): ProviderActivityItemData[] {
   const isSearchEmpty = searchQuery.trim() === "";
   const normalizedSearch = searchQuery.toLowerCase();
-  const items: ProviderActivityItem[] = [];
+  const items: ProviderActivityItemData[] = [];
 
   const requestForBid = (requestId: string) =>
     jobRequests.find((request) => request.id === requestId);

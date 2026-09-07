@@ -20,6 +20,7 @@ import { useApp } from "../../../context/AppContext";
 import { getSocket } from "../../../lib/socket";
 import { useToast } from "../../../components/ui/Toast";
 import ReasonModal from "../../../components/ui/ReasonModal";
+import { getApiErrorMessage } from "../../../lib/api/errors";
 
 type ResolutionAction = "warn" | "trust_deduct" | "suspend" | "ban" | "approve_refund" | "release_provider_and_complete" | "dismiss";
 
@@ -106,6 +107,13 @@ interface AdminPaymentAttemptItem {
   booking?: { id: string; status: string; paymentStatus: string } | null;
 }
 
+interface PaymentReconciliationItem {
+  id: string;
+  amount: number | string;
+  paymentMethod: string;
+  failureReason?: string | null;
+}
+
 const ACTION_LABELS: Record<ResolutionAction, string> = {
   dismiss: "Dismiss report",
   warn: "Issue formal warning",
@@ -125,7 +133,7 @@ export default function AdminReportsPage() {
   const { success, error: showError } = useToast();
   const [cases, setCases] = useState<ReportCase[]>([]);
   const [completionEscalations, setCompletionEscalations] = useState<CompletionEscalationCase[]>([]);
-  const [paymentReconciliation, setPaymentReconciliation] = useState<any[]>([]);
+  const [paymentReconciliation, setPaymentReconciliation] = useState<PaymentReconciliationItem[]>([]);
   const [recentBookings, setRecentBookings] = useState<AdminBookingItem[]>([]);
   const [recentPaymentAttempts, setRecentPaymentAttempts] = useState<AdminPaymentAttemptItem[]>([]);
   const [page, setPage] = useState(1);
@@ -162,8 +170,8 @@ export default function AdminReportsPage() {
       setTotal(response.pagination?.total || 0);
       setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
       setLoadError("");
-    } catch (cause: any) {
-      setLoadError(cause.response?.data?.error || cause.message || "Unable to load moderation cases.");
+    } catch (cause: unknown) {
+      setLoadError(getApiErrorMessage(cause, "Unable to load moderation cases."));
     } finally {
       setLoading(false);
     }
@@ -183,14 +191,17 @@ export default function AdminReportsPage() {
       setPendingReasonAction(null);
       setOperationReason('');
       await loadCases();
-    } catch (cause: any) {
-      showError('Action failed', cause.response?.data?.error || cause.message);
+    } catch (cause: unknown) {
+      showError('Action failed', getApiErrorMessage(cause, 'The administrator action could not be saved.'));
     } finally {
       setOperationSubmitting(false);
     }
   };
 
-  useEffect(() => void loadCases(), [loadCases]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void loadCases(), 0);
+    return () => window.clearTimeout(timer);
+  }, [loadCases]);
   useEffect(() => {
     const socket = getSocket();
     if (!socket) return;
@@ -209,8 +220,8 @@ export default function AdminReportsPage() {
       setNotes("");
       setAction("dismiss");
       await loadCases();
-    } catch (cause: any) {
-      showError("Resolution failed", cause.response?.data?.error || cause.message);
+    } catch (cause: unknown) {
+      showError("Resolution failed", getApiErrorMessage(cause, 'The resolution could not be saved.'));
     } finally {
       setSubmitting(false);
     }
@@ -220,8 +231,8 @@ export default function AdminReportsPage() {
     try {
       const response = await apiAccessReportEvidence(reportId, 'view');
       window.open(response.data.url, '_blank', 'noopener,noreferrer');
-    } catch (cause: any) {
-      showError('Evidence access failed', cause.response?.data?.error || cause.message);
+    } catch (cause: unknown) {
+      showError('Evidence access failed', getApiErrorMessage(cause, 'The evidence could not be opened.'));
     }
   };
 
@@ -237,8 +248,8 @@ export default function AdminReportsPage() {
     try {
       const response = await apiGetAdminBookingMessages(item.booking.id);
       setMessagesByBooking((current) => ({ ...current, [item.booking.id]: response.data?.messages || [] }));
-    } catch (cause: any) {
-      showError('Unable to load booking messages', cause.response?.data?.error || cause.message);
+    } catch (cause: unknown) {
+      showError('Unable to load booking messages', getApiErrorMessage(cause, 'The booking messages could not be loaded.'));
       setExpandedId(null);
     } finally {
       setMessageLoadingId(null);
@@ -309,7 +320,7 @@ export default function AdminReportsPage() {
                 </div>
                 <button onClick={async () => {
                   try { await apiRetryPaymentReconciliation(attempt.id); success('Refund retried', 'The reconciliation state was refreshed.'); await loadCases(); }
-                  catch (cause: any) { showError('Refund retry failed', cause.response?.data?.error || cause.message); }
+                  catch (cause: unknown) { showError('Refund retry failed', getApiErrorMessage(cause, 'The refund retry failed.')); }
                 }} className="rounded-lg bg-red-600 px-3 py-2 text-[10px] font-bold text-white">Retry refund</button>
               </div>
             ))}

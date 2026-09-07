@@ -19,6 +19,7 @@ import {
   apiStartJob
 } from '../api/bookings.api';
 import { useToast } from '../components/ui/Toast';
+import { getApiErrorBody, getApiErrorMessage } from '../lib/api/errors';
 
 interface ProviderActionsDeps {
   users: User[];
@@ -37,19 +38,13 @@ interface ProviderActionsDeps {
 }
 
 export function useProviderActions({
-  users,
   services,
   jobRequests,
-  bids,
-  jobEngagements,
   dbCategories,
   setServices,
   setBids,
-  setJobEngagements,
   syncEngagements,
   syncNotifications,
-  syncBids,
-  helperAddNotification
 }: ProviderActionsDeps) {
   const { success, error: toastError, info } = useToast();
 
@@ -92,8 +87,8 @@ export function useProviderActions({
     description: string,
     paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean },
     options?: {
-      serviceType?: string;
-      priceType?: string;
+      serviceType?: ServiceListing['serviceType'];
+      priceType?: ServiceListing['priceType'];
       estimatedDurationMins?: number;
       queueLimit?: number;
     }
@@ -124,8 +119,8 @@ export function useProviderActions({
             category: item.category?.name || category,
             description,
             price,
-            serviceType: item.serviceType || (options?.serviceType as any) || 'ONE_TIME',
-            priceType: item.priceType || (options?.priceType as any) || 'FIXED',
+            serviceType: item.serviceType || options?.serviceType || 'ONE_TIME',
+            priceType: item.priceType || options?.priceType || 'FIXED',
             estimatedDurationMins: item.estimatedDurationMins || options?.estimatedDurationMins || 60,
             queueSize: 0,
             queueLimit: item.queueLimit || options?.queueLimit || 5,
@@ -148,13 +143,9 @@ export function useProviderActions({
         toastError('Category Required', 'Please select a valid service category.');
         return { success: false, error: 'Please select a valid service category.' };
       }
-    } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.error ||
-        err.response?.data?.errors?.[0]?.message ||
-        err.response?.data?.message ||
-        err.message ||
-        'Failed to create listing';
+    } catch (err: unknown) {
+      const body = getApiErrorBody(err);
+      const errorMsg = body?.errors?.[0]?.message || getApiErrorMessage(err, 'Failed to create listing');
       toastError('Failed to create listing', errorMsg);
       return { success: false, error: errorMsg };
     }
@@ -166,8 +157,8 @@ export function useProviderActions({
     price: number,
     description: string,
     options?: {
-      priceType?: string;
-      serviceType?: string;
+      priceType?: ServiceListing['priceType'];
+      serviceType?: ServiceListing['serviceType'];
       estimatedDurationMins?: number;
       paymentMethods?: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
     }
@@ -193,8 +184,8 @@ export function useProviderActions({
                   title,
                   price,
                   description,
-                  ...(options?.priceType ? { priceType: options.priceType as any } : {}),
-                  ...(options?.serviceType ? { serviceType: options.serviceType as any } : {}),
+                  ...(options?.priceType ? { priceType: options.priceType } : {}),
+                  ...(options?.serviceType ? { serviceType: options.serviceType } : {}),
                   ...(options?.estimatedDurationMins ? { estimatedDurationMins: options.estimatedDurationMins } : {}),
                   ...(options?.paymentMethods ? { paymentMethods: options.paymentMethods } : {}),
                 }
@@ -204,8 +195,8 @@ export function useProviderActions({
         success('Listing Updated', 'Service details modified successfully.');
         return;
       }
-    } catch (err: any) {
-      toastError('Update Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Update Failed', getApiErrorMessage(err, 'Unable to update the listing.'));
     }
   };
 
@@ -223,9 +214,10 @@ export function useProviderActions({
         return { success: true };
       }
       return { success: false };
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.error || err.message);
-      return { success: false, error: err.response?.data?.error || err.message };
+    } catch (err: unknown) {
+      const message = getApiErrorMessage(err, 'Unable to update listing availability.');
+      toastError('Action Failed', message);
+      return { success: false, error: message };
     }
   };
 
@@ -267,8 +259,8 @@ export function useProviderActions({
         success('Bid Submitted', 'Your proposal was sent to the seeker.');
         return;
       }
-    } catch (err: any) {
-      toastError('Failed to submit bid', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Failed to submit bid', getApiErrorMessage(err, 'Unable to submit the offer.'));
     }
   };
 
@@ -281,8 +273,8 @@ export function useProviderActions({
         success(accept ? 'Booking Accepted' : 'Booking Declined', 'Seeker has been notified.');
         return;
       }
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Action Failed', getApiErrorMessage(err, 'Unable to respond to the booking.'));
       throw err;
     }
   };
@@ -296,8 +288,8 @@ export function useProviderActions({
         success('Completion submitted', 'Awaiting seeker confirmation before the Test Mode payment record is updated.');
         return;
       }
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Action Failed', getApiErrorMessage(err, 'Unable to submit completion.'));
       throw err;
     }
   };
@@ -309,8 +301,8 @@ export function useProviderActions({
         await syncEngagements();
         success('Job Started', 'You began the service booking.');
       }
-    } catch (err: any) {
-      toastError('Failed to start job', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Failed to start job', getApiErrorMessage(err, 'Unable to start the job.'));
       throw err;
     }
   };
@@ -323,8 +315,8 @@ export function useProviderActions({
         success('Listing Deleted', 'Your service listing has been removed.');
         return;
       }
-    } catch (err: any) {
-      toastError('Deletion Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Deletion Failed', getApiErrorMessage(err, 'Unable to delete the listing.'));
     }
   };
 

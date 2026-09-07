@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Search, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import HelpSearch from '../components/HelpSearch';
 import HelpBreadcrumbs from '../components/HelpBreadcrumbs';
 import { searchHelpArticles } from '../utils/helpSearch';
@@ -13,17 +13,8 @@ export default function HelpSearchPage() {
   const searchParams = useSearchParams();
   const rawQuery = searchParams.get('q') || '';
 
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const results: SearchResult[] = rawQuery ? searchHelpArticles(rawQuery) : [];
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  useEffect(() => {
-    if (rawQuery) {
-      const res = searchHelpArticles(rawQuery);
-      setResults(res);
-    } else {
-      setResults([]);
-    }
-  }, [rawQuery]);
 
   const filteredResults = selectedCategory === 'all'
     ? results
@@ -47,7 +38,7 @@ export default function HelpSearchPage() {
           <>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-neutral-800 text-xs">
               <span className="font-semibold text-slate-700 dark:text-neutral-300 text-sm">
-                {results.length} {results.length === 1 ? 'result' : 'results'} found for "{rawQuery}"
+                {results.length} {results.length === 1 ? 'result' : 'results'} found for &quot;{rawQuery}&quot;
               </span>
 
               {/* Category Filter Pills */}
@@ -122,7 +113,7 @@ export default function HelpSearchPage() {
                   No articles matched your search query.
                 </p>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-                  Try searching for general terms like "verification", "queue", "payment hold", or "trust score".
+                  Try searching for general terms like &quot;verification&quot;, &quot;queue&quot;, &quot;payment hold&quot;, or &quot;trust score&quot;.
                 </p>
               </div>
             )}

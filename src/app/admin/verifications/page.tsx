@@ -1,10 +1,12 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiAccessVerificationProof, apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import { getSocket } from '../../../lib/socket';
+import { getApiErrorMessage } from '../../../lib/api/errors';
+import Image from 'next/image';
 
 interface VerificationProof {
   id: string;
@@ -53,14 +55,14 @@ export default function AdminVerifications() {
       if (!url) throw new Error('No secure document URL was returned.');
       if (action === 'view') setZoomImage(url);
       else window.open(url, '_blank', 'noopener,noreferrer');
-    } catch (cause: any) {
-      toastError('Document access failed', cause.response?.data?.error || cause.message);
+    } catch (cause: unknown) {
+      toastError('Document access failed', getApiErrorMessage(cause, 'The document could not be opened.'));
     } finally {
       setAccessingProofId(null);
     }
   };
 
-  const fetchVerifications = () => {
+  const fetchVerifications = useCallback(() => {
     setLoading(true);
     apiListPendingVerifications({ page, limit: 10 })
       .then(res => {
@@ -78,10 +80,10 @@ export default function AdminVerifications() {
         setError(err.message || "An error occurred.");
         setLoading(false);
       });
-  };
+  }, [page]);
 
   useEffect(() => {
-    fetchVerifications();
+    const timer = window.setTimeout(fetchVerifications, 0);
 
     // Real-time: auto-refresh when a new verification is submitted
     const socket = getSocket();
@@ -91,10 +93,12 @@ export default function AdminVerifications() {
       };
       socket.on('verification_submitted', handleNewVerification);
       return () => {
+        window.clearTimeout(timer);
         socket.off('verification_submitted', handleNewVerification);
       };
     }
-  }, [page]);
+    return () => window.clearTimeout(timer);
+  }, [fetchVerifications]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,8 +115,8 @@ export default function AdminVerifications() {
         setAdminNotes('');
         fetchVerifications();
       }
-    } catch (err: any) {
-      toastError("Failed to update", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Failed to update", getApiErrorMessage(err, 'The verification decision could not be saved.'));
     } finally {
       setSubmittingReview(false);
     }
@@ -212,10 +216,13 @@ export default function AdminVerifications() {
                               onClick={() => proof.fileUrl && setZoomImage(proof.fileUrl)}
                               className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-700/50 cursor-pointer group bg-black/40"
                             >
-                              <img
-                                src={proof.fileUrl}
+                              <Image
+                                src={proof.fileUrl || ''}
                                 alt={proof.documentType}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                fill
+                                unoptimized
+                                sizes="(max-width: 768px) 100vw, 320px"
+                                className="object-cover group-hover:scale-105 transition-transform duration-200"
                               />
                               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
                                 <span>🔍 Inspect Photo</span>
@@ -345,9 +352,12 @@ export default function AdminVerifications() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
         >
           <div className="relative max-w-4xl max-h-[90vh]">
-            <img
+            <Image
               src={zoomImage}
               alt="Document Proof Inspection"
+              width={1200}
+              height={900}
+              unoptimized
               className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
             />
             <button

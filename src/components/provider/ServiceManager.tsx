@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Wrench, Edit3, Trash2, Plus, AlertTriangle, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Edit3, Trash2, Plus, AlertTriangle, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -63,7 +63,7 @@ export default function ServiceManager({
 
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
-  const handleDeleteServiceClick = (service: any) => {
+  const handleDeleteServiceClick = (service: ServiceListing) => {
     setConfirmModal({
       isOpen: true,
       title: 'Delete Service Listing',
@@ -142,14 +142,17 @@ export default function ServiceManager({
     if (targetServiceId && services.length > 0) {
       const match = services.find(s => s.id === targetServiceId);
       if (match) {
-        if (match.status === 'REJECTED') setActiveTab('rejected');
-        else if (match.status === 'PENDING_REVIEW') setActiveTab('pending');
-        else if (match.status === 'ACTIVE') setActiveTab('active');
+        const timer = window.setTimeout(() => {
+          if (match.status === 'REJECTED') setActiveTab('rejected');
+          else if (match.status === 'PENDING_REVIEW') setActiveTab('pending');
+          else if (match.status === 'ACTIVE') setActiveTab('active');
+        }, 0);
+        return () => window.clearTimeout(timer);
       }
     }
   }, [targetServiceId, services]);
 
-  const handleOpenEdit = (s: any) => {
+  const handleOpenEdit = (s: ServiceListing) => {
     setEditingService({
       serviceId: s.id,
       title: s.title,
@@ -420,7 +423,7 @@ export default function ServiceManager({
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         ₱{service.price}
                         <span className="text-xs font-semibold ml-0.5 text-slate-400">
-                          {(service as any).priceType === 'PER_HOUR' ? ' / hr' : (service as any).priceType === 'PER_DAY' ? ' / day' : (service as any).priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}
+                          {service.priceType === 'PER_HOUR' ? ' / hr' : service.priceType === 'PER_DAY' ? ' / day' : service.priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}
                         </span>
                       </span>
                     </div>
@@ -442,7 +445,7 @@ export default function ServiceManager({
                       }`}>
                         💵 Cash
                       </span>
-                      {(service as any).paymentMethods?.gcash && (
+                      {service.paymentMethods?.gcash && (
                         <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${
                           isDark ? 'bg-emerald-950/30 border-emerald-900/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
                         }`}>
@@ -462,7 +465,7 @@ export default function ServiceManager({
                       <p className={`text-xs sm:text-sm p-3 rounded-xl border leading-relaxed font-semibold italic ${
                         isDark ? 'bg-[#1c1b18] border-red-900/30 text-[#f2efe9]' : 'bg-white border-red-100 text-slate-800'
                       }`}>
-                        "{service.adminNotes || 'Please review your service title, category, or pricing and resubmit for approval.'}"
+                        &quot;{service.adminNotes || 'Please review your service title, category, or pricing and resubmit for approval.'}&quot;
                       </p>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
                         <span className={`text-xs font-medium ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>

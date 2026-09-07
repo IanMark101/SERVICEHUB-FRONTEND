@@ -11,6 +11,8 @@ interface HeaderNotificationsProps {
   onClose: () => void;
   onNotificationClick: (link?: string | null) => void;
   onMarkAllRead: () => void;
+  hasMore: boolean;
+  onLoadMore: () => void;
 }
 
 function getNotificationIcon(title: string) {
@@ -53,7 +55,9 @@ export default function HeaderNotifications({
   onToggle,
   onClose,
   onNotificationClick,
-  onMarkAllRead
+  onMarkAllRead,
+  hasMore,
+  onLoadMore
 }: HeaderNotificationsProps) {
   return (
     <div className="relative">
@@ -103,6 +107,11 @@ export default function HeaderNotifications({
                 );
               })}
             </div>
+            {hasMore && (
+              <button type="button" onClick={onLoadMore} className={`w-full border-t px-3 py-2 text-[10px] font-bold ${isDark ? 'border-neutral-800 text-orange-400' : 'border-slate-100 text-orange-600'}`}>
+                Load older notifications
+              </button>
+            )}
             <div className={`p-2.5 border-t flex items-center justify-between ${isDark ? 'border-neutral-800 bg-[#1c1b18]/25' : 'border-slate-100 bg-slate-50/20'}`}>
               {unreadCount > 0 ? <button onClick={onMarkAllRead} className={`text-[10px] font-bold transition-colors ${isDark ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-800'}`}>Mark All as Read</button> : <span />}
               <button onClick={onClose} className="text-[10px] font-bold text-slate-400 hover:text-slate-800 transition-colors">Close</button>

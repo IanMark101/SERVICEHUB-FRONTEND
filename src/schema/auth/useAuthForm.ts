@@ -1,10 +1,26 @@
-import { useState, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useState, FormEvent } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '@/api/auth.api';
 import { UserSession } from '../../components/auth/LoginContainer';
 import { signupStep1Schema, signupStep2Schema, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
 import { setAccessToken } from '@/lib/api/axios';
+import { getApiErrorBody, getApiErrorMessage } from '@/lib/api/errors';
+import type { FieldPath } from 'react-hook-form';
+import type { ZodIssue } from 'zod';
+
+export interface AuthFormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  agreeTerms: boolean;
+  role: 'seeker' | 'provider';
+  bio: string;
+  phone: string;
+  location: string;
+  avatarUrl: string;
+}
 
 interface UseAuthFormProps {
   onLoginSuccess: (userData: UserSession) => void;
@@ -28,8 +44,7 @@ export default function useAuthForm({
   setMode,
   initialResetToken,
 }: UseAuthFormProps) {
-  const router = useRouter();
-  const [resetToken, setResetToken] = useState<string>(initialResetToken);
+  const [resetToken] = useState<string>(initialResetToken);
   const [step, setStep] = useState<number>(1);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -39,13 +54,12 @@ export default function useAuthForm({
 
   const {
     register,
-    handleSubmit: handleRHFSubmit,
     setValue,
-    watch,
     setError: setRHFError,
     clearErrors,
+    control,
     formState: { errors },
-  } = useForm({
+  } = useForm<AuthFormValues>({
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -61,13 +75,20 @@ export default function useAuthForm({
     }
   });
 
-  const formData = watch();
+  // All fields have concrete defaults above, so the watched object is complete.
+  const formData = useWatch({ control }) as AuthFormValues;
 
-  useEffect(() => {
-    if (initialResetToken) {
-      setResetToken(initialResetToken);
-    }
-  }, [initialResetToken]);
+  const applyValidationIssues = (issues: ZodIssue[]) => {
+    issues.forEach((issue) => {
+      const field = issue.path[0];
+      if (typeof field === 'string') {
+        setRHFError(field as FieldPath<AuthFormValues>, { type: 'manual', message: issue.message });
+      }
+    });
+  };
+
+  const resolveWorkspaceRole = (): 'seeker' | 'provider' =>
+    localStorage.getItem('workspaceRole') === 'provider' ? 'provider' : 'seeker';
 
   const handleRoleSelect = (role: 'seeker' | 'provider') => {
     setValue('role', role);
@@ -84,24 +105,14 @@ export default function useAuthForm({
     if (step === 1) {
       const result = signupStep1Schema.safeParse(formData);
       if (!result.success) {
-        result.error.issues.forEach((issue: any) => {
-          setRHFError(issue.path[0] as any, {
-            type: 'manual',
-            message: issue.message,
-          });
-        });
+        applyValidationIssues(result.error.issues);
         return;
       }
     }
     if (step === 2) {
       const result = signupStep2Schema.safeParse(formData);
       if (!result.success) {
-        result.error.issues.forEach((issue: any) => {
-          setRHFError(issue.path[0] as any, {
-            type: 'manual',
-            message: issue.message,
-          });
-        });
+        applyValidationIssues(result.error.issues);
         return;
       }
     }
@@ -130,7 +141,7 @@ export default function useAuthForm({
             email: user.email,
             firstName,
             lastName,
-            role: user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') as any || 'seeker'),
+            role: user.role === 'admin' ? 'admin' : resolveWorkspaceRole(),
             avatarUrl: user.avatarUrl || '',
             bio: user.bio || '',
             phone: user.phone,
@@ -142,8 +153,8 @@ export default function useAuthForm({
           setError(res.error || 'Google Login failed');
         }
       })
-      .catch((err) => {
-        setError(err.response?.data?.error || 'Google authentication failed.');
+      .catch((err: unknown) => {
+        setError(getApiErrorMessage(err, 'Google authentication failed.'));
       });
   };
 
@@ -155,12 +166,7 @@ export default function useAuthForm({
     if (mode === 'forgot') {
       const result = forgotSchema.safeParse(formData);
       if (!result.success) {
-        result.error.issues.forEach((issue: any) => {
-          setRHFError(issue.path[0] as any, {
-            type: 'manual',
-            message: issue.message,
-          });
-        });
+        applyValidationIssues(result.error.issues);
         return;
       }
       apiForgotPassword(formData.email)
@@ -172,8 +178,8 @@ export default function useAuthForm({
             setError(res.error || 'Failed to send reset link.');
           }
         })
-        .catch((err) => {
-          setError(err.response?.data?.error || 'Something went wrong.');
+        .catch((err: unknown) => {
+          setError(getApiErrorMessage(err, 'Something went wrong.'));
         });
       return;
     }
@@ -181,12 +187,7 @@ export default function useAuthForm({
     if (mode === 'reset') {
       const result = resetSchema.safeParse(formData);
       if (!result.success) {
-        result.error.issues.forEach((issue: any) => {
-          setRHFError(issue.path[0] as any, {
-            type: 'manual',
-            message: issue.message,
-          });
-        });
+        applyValidationIssues(result.error.issues);
         return;
       }
       apiResetPassword({ token: resetToken, password: formData.password })
@@ -203,8 +204,8 @@ export default function useAuthForm({
             setError(res.error || 'Failed to reset password.');
           }
         })
-        .catch((err) => {
-          setError(err.response?.data?.error || 'Something went wrong.');
+        .catch((err: unknown) => {
+          setError(getApiErrorMessage(err, 'Something went wrong.'));
         });
       return;
     }
@@ -212,12 +213,7 @@ export default function useAuthForm({
     if (mode === 'login') {
       const result = loginSchema.safeParse(formData);
       if (!result.success) {
-        result.error.issues.forEach((issue: any) => {
-          setRHFError(issue.path[0] as any, {
-            type: 'manual',
-            message: issue.message,
-          });
-        });
+        applyValidationIssues(result.error.issues);
         return;
       }
 
@@ -235,7 +231,7 @@ export default function useAuthForm({
               email: user.email,
               firstName,
               lastName,
-              role: user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') as any || 'seeker'),
+              role: user.role === 'admin' ? 'admin' : resolveWorkspaceRole(),
               avatarUrl: user.avatarUrl || '',
               bio: user.bio || '',
               phone: user.phone,
@@ -247,8 +243,8 @@ export default function useAuthForm({
             setError(res.error || 'Login failed');
           }
         })
-        .catch((err) => {
-          setError(err.response?.data?.error || 'Invalid email or password');
+        .catch((err: unknown) => {
+          setError(getApiErrorMessage(err, 'Invalid email or password'));
         })
         .finally(() => {
           setIsLoading(false);
@@ -289,12 +285,13 @@ export default function useAuthForm({
             setError(res.error || 'Registration failed');
           }
         })
-        .catch((err) => {
-          const validationErrors = err.response?.data?.errors;
+        .catch((err: unknown) => {
+          const body = getApiErrorBody(err);
+          const validationErrors = body?.errors;
           if (validationErrors && Array.isArray(validationErrors)) {
-            setError(validationErrors.map((e: any) => e.message).join(', '));
+            setError(validationErrors.map((validationError) => validationError.message).filter(Boolean).join(', '));
           } else {
-            setError(err.response?.data?.error || 'Registration failed');
+            setError(getApiErrorMessage(err, 'Registration failed'));
           }
         })
         .finally(() => {
@@ -308,7 +305,7 @@ export default function useAuthForm({
   Object.keys(errors).forEach((key) => {
     const errorObj = errors[key as keyof typeof errors];
     if (errorObj) {
-      fieldErrors[key] = (errorObj as any).message || '';
+      fieldErrors[key] = typeof errorObj.message === 'string' ? errorObj.message : '';
     }
   });
 

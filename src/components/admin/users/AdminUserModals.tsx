@@ -1,8 +1,43 @@
 "use client";
 
 import { Ban } from 'lucide-react';
+import type { Dispatch, FormEvent, SetStateAction } from 'react';
+import type { AdminUserItem as UserItem } from './types';
 
-export default function AdminUserModals({ model }: { model: any }) {
+interface AdminUserModalsModel {
+  isDark: boolean;
+  editingTrustUser: UserItem | null;
+  setEditingTrustUser: Dispatch<SetStateAction<UserItem | null>>;
+  trustDelta: number;
+  setTrustDelta: Dispatch<SetStateAction<number>>;
+  trustReason: string;
+  setTrustReason: Dispatch<SetStateAction<string>>;
+  handleUpdateTrust: (event: FormEvent) => void;
+  suspendingUser: UserItem | null;
+  setSuspendingUser: Dispatch<SetStateAction<UserItem | null>>;
+  suspendReason: string;
+  setSuspendReason: Dispatch<SetStateAction<string>>;
+  suspendDuration: number;
+  setSuspendDuration: Dispatch<SetStateAction<number>>;
+  handleSuspend: (event: FormEvent) => void;
+  banningUser: UserItem | null;
+  setBanningUser: Dispatch<SetStateAction<UserItem | null>>;
+  banReason: string;
+  setBanReason: Dispatch<SetStateAction<string>>;
+  handleBan: (event: FormEvent) => void;
+  confirmRestoreUserId: string | null;
+  setConfirmRestoreUserId: Dispatch<SetStateAction<string | null>>;
+  handleRestore: (userId: string) => void;
+  promotingUser: UserItem | null;
+  setPromotingUser: Dispatch<SetStateAction<UserItem | null>>;
+  promotionReason: string;
+  setPromotionReason: Dispatch<SetStateAction<string>>;
+  promotionPassword: string;
+  setPromotionPassword: Dispatch<SetStateAction<string>>;
+  handlePromote: (event: FormEvent) => void;
+}
+
+export default function AdminUserModals({ model }: { model: AdminUserModalsModel }) {
   const {
     isDark,
     editingTrustUser,
@@ -208,7 +243,7 @@ export default function AdminUserModals({ model }: { model: any }) {
           }`}>
             <div className="p-5 space-y-4">
               <h4 className="font-extrabold text-sm text-red-500">Restore Account Status</h4>
-              <p className="text-xs leading-relaxed">Are you sure you want to restore this user's active status? They will be able to log in and participate in transactions again.</p>
+              <p className="text-xs leading-relaxed">Are you sure you want to restore this user&apos;s active status? They will be able to log in and participate in transactions again.</p>
               <div className="flex items-center justify-end space-x-2">
                 <button
                   onClick={() => setConfirmRestoreUserId(null)}

@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
@@ -9,22 +10,10 @@ import {
   Moon,
   Trash2,
   Check,
-  ShieldAlert,
   Save,
-  Globe,
-  MapPin,
-  Smartphone,
   Edit3,
   Camera,
   Upload,
-  ShieldCheck,
-  TrendingUp,
-  TrendingDown,
-  HelpCircle,
-  Award,
-  ChevronDown,
-  ChevronUp,
-  Shield,
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
@@ -32,6 +21,7 @@ import TrustScoreGuide from './account-settings/TrustScoreGuide';
 import AccountDangerZone from './account-settings/AccountDangerZone';
 import { apiGetAccountDeletionRequest, apiRequestAccountDeletion, type AccountDeletionRequest } from '../../api/users.api';
 import { useToast } from '../ui/Toast';
+import { getApiErrorMessage } from '../../lib/api/errors';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -88,9 +78,9 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     setProcessingImage(true);
     try {
       const cdnUrl = await uploadAvatarToCloudinary(file);
-      setEditForm((f: any) => ({ ...f, avatarUrl: cdnUrl }));
-    } catch (err: any) {
-      setUploadError(err.message || 'Failed to process and upload image');
+      setEditForm((form) => ({ ...form, avatarUrl: cdnUrl }));
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to process and upload image');
     } finally {
       setProcessingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -109,8 +99,8 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
       } else {
         toastSuccess('Deletion request submitted', 'Your request is pending guarded administrator processing.');
       }
-    } catch (cause: any) {
-      toastError('Request failed', cause.response?.data?.error || cause.message || 'Unable to submit account deletion request.');
+    } catch (cause: unknown) {
+      toastError('Request failed', getApiErrorMessage(cause, 'Unable to submit account deletion request.'));
     } finally {
       setDeleting(false);
     }
@@ -191,7 +181,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <input
               type="text"
               value={editForm.name}
-              onChange={e => setEditForm((f: any) => ({ ...f, name: e.target.value }))}
+              onChange={e => setEditForm((form) => ({ ...form, name: e.target.value }))}
               placeholder="First and last name"
               className={inputClass}
             />
@@ -211,7 +201,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 type="text"
                 disabled={hasActiveEngagements}
                 value={editForm.phone}
-                onChange={e => setEditForm((f: any) => ({ ...f, phone: e.target.value }))}
+                onChange={e => setEditForm((form) => ({ ...form, phone: e.target.value }))}
                 placeholder="+63 9XX XXX XXXX"
                 className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-9' : ''}`}
               />
@@ -236,7 +226,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <label className={`block font-semibold ${labelText}`}>Barangay (Cordova, Cebu)</label>
             <select
               value={editForm.location}
-              onChange={e => setEditForm((f: any) => ({ ...f, location: e.target.value }))}
+              onChange={e => setEditForm((form) => ({ ...form, location: e.target.value }))}
               className={inputClass}
             >
               <option value="">Select Barangay...</option>
@@ -251,7 +241,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <textarea
               rows={3}
               value={editForm.bio}
-              onChange={e => setEditForm((f: any) => ({ ...f, bio: e.target.value }))}
+              onChange={e => setEditForm((form) => ({ ...form, bio: e.target.value }))}
               placeholder="Tell clients or providers about your background, experience, and services..."
               className={`${inputClass} resize-none`}
             />
@@ -262,7 +252,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <label className={`block font-semibold ${labelText}`}>Profile Picture</label>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative group flex-shrink-0">
-                <img
+                <Image unoptimized width={80} height={80}
                   src={editForm.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name || 'User')}&background=random`}
                   alt="Profile Preview"
                   className="w-20 h-20 rounded-full object-cover border-2 border-slate-300 dark:border-neutral-700 shadow-sm"
@@ -300,7 +290,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                   {editForm.avatarUrl && (
                     <button
                       type="button"
-                      onClick={() => setEditForm((f: any) => ({ ...f, avatarUrl: '' }))}
+                      onClick={() => setEditForm((form) => ({ ...form, avatarUrl: '' }))}
                       className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-neutral-800 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 transition-all flex items-center gap-1"
                     >
                       <Trash2 size={13} />
@@ -329,7 +319,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 <input
                   type="text"
                   value={editForm.facebookUrl || ''}
-                  onChange={e => setEditForm((f: any) => ({ ...f, facebookUrl: e.target.value }))}
+                  onChange={e => setEditForm((form) => ({ ...form, facebookUrl: e.target.value }))}
                   placeholder="https://facebook.com/username"
                   className={inputClass}
                 />
@@ -340,7 +330,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 <input
                   type="text"
                   value={editForm.instagramUrl || ''}
-                  onChange={e => setEditForm((f: any) => ({ ...f, instagramUrl: e.target.value }))}
+                  onChange={e => setEditForm((form) => ({ ...form, instagramUrl: e.target.value }))}
                   placeholder="https://instagram.com/username"
                   className={inputClass}
                 />
@@ -351,7 +341,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 <input
                   type="text"
                   value={editForm.websiteUrl || ''}
-                  onChange={e => setEditForm((f: any) => ({ ...f, websiteUrl: e.target.value }))}
+                  onChange={e => setEditForm((form) => ({ ...form, websiteUrl: e.target.value }))}
                   placeholder="https://yourwebsite.com"
                   className={inputClass}
                 />

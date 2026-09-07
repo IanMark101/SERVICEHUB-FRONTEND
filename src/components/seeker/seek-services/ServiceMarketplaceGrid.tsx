@@ -1,14 +1,51 @@
 "use client";
+import Image from 'next/image';
 
-import { Bell, CheckCircle2, Clock, MapPin, Search, ShieldCheck, Smartphone, Sparkles, Star } from 'lucide-react';
+import { Bell, CheckCircle2, Clock, MapPin, Search, ShieldCheck, Smartphone, Star } from 'lucide-react';
 import type { ServiceListing } from '../../../types';
 import PaginationBar from '../../ui/PaginationBar';
-import LimitedModeDashboardCard from '../../landing/LimitedModeDashboardCard';
 import EmptyState from '../../ui/EmptyState';
 import { ServiceListingSkeleton } from '../../ui/SkeletonCard';
-import { getServicePaymentMethods, getPrimaryBookingCTA, getFormattedPrice, getServiceTypeLabel } from '../../../lib/paymentUtils';
+import { getServicePaymentMethods } from '../../../lib/paymentUtils';
+import type { Dispatch, SetStateAction } from 'react';
+import type { JobEngagement, User } from '../../../types';
+import type { UserSession } from '../../auth/LoginContainer';
 
-export default function ServiceMarketplaceGrid({ model }: { model: any }) {
+type MarketplaceFilter = 'all' | 'available' | 'rated' | 'low-queue';
+type PaymentMethod = 'GCash' | 'Maya' | 'On-site Cash';
+
+interface ServiceMarketplaceGridModel {
+  router: { push: (href: string) => void };
+  isDark: boolean;
+  isLoading: boolean;
+  activeFilter: MarketplaceFilter;
+  setActiveFilter: Dispatch<SetStateAction<MarketplaceFilter>>;
+  searchQuery: string;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
+  selectedCategory: string;
+  setSelectedCategory: Dispatch<SetStateAction<string>>;
+  filteredServices: ServiceListing[];
+  paginatedServices: ServiceListing[];
+  currentPage: number;
+  totalPages: number;
+  goToPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
+  startIndex: number;
+  endIndex: number;
+  getProviderDetails: (providerId: string) => User | undefined;
+  user: UserSession | null;
+  jobEngagements: JobEngagement[];
+  canTransact: boolean;
+  setBlockedModalOpen: Dispatch<SetStateAction<boolean>>;
+  handleBookListing: (listing: ServiceListing, method?: PaymentMethod) => void;
+  handleJoinWaitlist: (listing: ServiceListing) => void;
+  joiningWaitlistId: string | null;
+  setIsSuggestModalOpen: Dispatch<SetStateAction<boolean>>;
+  prefetchProviderSummary: (listing: ServiceListing) => void;
+}
+
+export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarketplaceGridModel }) {
   const {
     router,
     isDark,
@@ -31,8 +68,6 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
     getProviderDetails,
     user,
     jobEngagements,
-    canTransact,
-    setBlockedModalOpen,
     handleBookListing,
     handleJoinWaitlist,
     joiningWaitlistId,
@@ -78,7 +113,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
           >
             <div className="text-left text-xs">
               <span className="font-extrabold block text-slate-900 dark:text-[#f2efe9]">
-                Can't find what you're looking for?
+                Can&apos;t find what you&apos;re looking for?
               </span>
               <span className="text-[11px] text-slate-500 dark:text-[#b4b0a9]">
                 Suggest a new service category for Cordova, and we will source local providers.
@@ -99,11 +134,10 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
             {paginatedServices.map((service: ServiceListing) => {
               const provider = getProviderDetails(service.providerId);
               const trustScore = service.providerTrustScore ?? provider?.trustScore ?? 100;
-              const isVerified = (service as any).providerVerificationStatus === 'APPROVED' || provider?.isVerified || true;
+              const isVerified = service.providerVerificationStatus === 'APPROVED' || provider?.isVerified === true;
               const { cash, gcash, maya } = getServicePaymentMethods(service);
-              const ctaText = getPrimaryBookingCTA(service);
               const isOwned = !!(user && service.providerId === user.id);
-              const activeEngagement = jobEngagements.find((je: any) =>
+              const activeEngagement = jobEngagements.find((je) =>
                 je.seekerId === user?.id &&
                 je.serviceId === service.id &&
                 ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
@@ -131,7 +165,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: any }) {
                         title={`View ${service.providerName}'s profile`}
                       >
                         <div className="relative flex-shrink-0">
-                          <img
+                          <Image unoptimized width={40} height={40}
                             src={service.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(service.providerName || 'Provider')}&background=random`}
                             alt={service.providerName}
                             className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-all duration-200 group-hover/author:scale-105 group-hover/author:ring-2 group-hover/author:ring-orange-500/50"

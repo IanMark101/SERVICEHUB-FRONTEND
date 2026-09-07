@@ -1,6 +1,17 @@
 import React, { useEffect } from 'react';
 
-let googleAccountsIdInitialized = false;
+interface GoogleCredentialResponse { credential?: string }
+interface GoogleIdentityApi {
+  initialize: (options: { client_id: string; auto_select: boolean; cancel_on_tap_outside: boolean; use_fedcm_for_button: boolean; callback: (response: GoogleCredentialResponse) => void }) => void;
+  renderButton: (container: HTMLElement, options: { theme: string; size: string; shape: string; width: number }) => void;
+}
+
+declare global {
+  interface Window {
+    google?: { accounts?: { id?: GoogleIdentityApi } };
+    __google_gsi_initialized?: boolean;
+  }
+}
 
 interface GoogleSignInButtonProps {
   onSuccess: (idToken: string) => void;
@@ -30,18 +41,18 @@ export default function GoogleSignInButton({
       try {
         if (
           clientId &&
-          (window as any).google?.accounts?.id &&
-          !(window as any).__google_gsi_initialized
+          window.google?.accounts?.id &&
+          !window.__google_gsi_initialized
         ) {
-          (window as any).__google_gsi_initialized = true;
-          (window as any).google.accounts.id.initialize({
+          window.__google_gsi_initialized = true;
+          window.google.accounts.id.initialize({
             client_id: clientId,
             auto_select: false,
             cancel_on_tap_outside: true,
             // Let supported browsers mediate the account chooser instead of
             // relying on cross-origin popup postMessage communication.
             use_fedcm_for_button: true,
-            callback: (response: any) => {
+            callback: (response: GoogleCredentialResponse) => {
               if (response?.credential) {
                 onSuccessRef.current(response.credential);
               }
@@ -50,16 +61,16 @@ export default function GoogleSignInButton({
         }
         renderButton();
       } catch (err) {
-        console.warn('[GoogleSignIn] GSI init warning:', err);
+        if (process.env.NODE_ENV === 'development') console.warn('[GoogleSignIn] GSI init warning:', err);
       }
     };
 
     const renderButton = () => {
       try {
         const btnContainer = document.getElementById('google-signin-btn-hidden');
-        if (btnContainer && (window as any).google?.accounts?.id) {
+        if (btnContainer && window.google?.accounts?.id) {
           btnContainer.innerHTML = '';
-          (window as any).google.accounts.id.renderButton(btnContainer, {
+          window.google.accounts.id.renderButton(btnContainer, {
             theme: isDark ? 'filled_black' : 'outline',
             size: 'large',
             shape: 'rectangular',
@@ -67,7 +78,7 @@ export default function GoogleSignInButton({
           });
         }
       } catch (err) {
-        console.warn('[GoogleSignIn] GSI render warning:', err);
+        if (process.env.NODE_ENV === 'development') console.warn('[GoogleSignIn] GSI render warning:', err);
       }
     };
 
@@ -82,7 +93,7 @@ export default function GoogleSignInButton({
       script.defer = true;
       document.body.appendChild(script);
       script.addEventListener('load', initializeGoogle);
-    } else if ((window as any).google?.accounts?.id) {
+    } else if (window.google?.accounts?.id) {
       initializeGoogle();
     } else {
       script.addEventListener('load', initializeGoogle);

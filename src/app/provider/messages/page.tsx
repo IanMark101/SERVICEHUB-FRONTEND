@@ -1,39 +1,9 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React from 'react';
+import Image from 'next/image';
 import { MessageSquare, Send, ChevronLeft, ImagePlus, Loader2, Lock, ShieldCheck, X, Trash2, Search } from 'lucide-react';
-import { useApp } from '../../../context/AppContext';
-import { apiGetMessages, apiSendMessage, apiGetConversations } from '../../../api/messages.api';
-import { apiHideBooking } from '../../../api/bookings.api';
-import { joinBookingRoom, getSocket } from '../../../lib/socket';
-import { processMessageImage } from '../../../lib/imageUtils';
-import ConfirmModal, { ConfirmModalState } from '../../../components/ui/ConfirmModal';
+import ConfirmModal from '../../../components/ui/ConfirmModal';
 import { useMessagesPage } from '../../../hooks/useMessagesPage';
-
-interface DbMessage {
-  id: string;
-  bookingId: string;
-  senderId: string;
-  content: string;
-  imageUrl?: string;
-  createdAt: string;
-  isRead: boolean;
-  isSystem: boolean;
-  sender: { id: string; name: string; avatarUrl?: string };
-}
-
-interface Conversation {
-  bookingId: string;
-  title: string;
-  otherPartyId: string;
-  otherPartyName: string;
-  otherPartyAvatar?: string;
-  otherPartyRole: 'Provider' | 'Seeker';
-  status: string;
-  lastMessage?: string;
-  lastMessageTime?: string;
-  unreadCount: number;
-}
 
 function getRelativeTime(timeStr?: string) {
   if (!timeStr) return '';
@@ -57,6 +27,9 @@ export default function ProviderMessagesPage() {
     isDark,
     user,
     conversations,
+    conversationPage,
+    setConversationPage,
+    conversationTotalPages,
     searchQuery,
     setSearchQuery,
     selectedConv,
@@ -131,7 +104,7 @@ export default function ProviderMessagesPage() {
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className={`p-6 text-center text-xs ${textMuted}`}>
-              No conversations found matching "{searchQuery}".
+              No conversations found matching &quot;{searchQuery}&quot;.
             </div>
           ) : (
             filteredConversations.map(conv => {
@@ -150,7 +123,7 @@ export default function ProviderMessagesPage() {
                   {/* Left: Avatar */}
                   <div className="relative flex-shrink-0">
                     {conv.otherPartyAvatar ? (
-                      <img
+                      <Image unoptimized width={40} height={40}
                         src={conv.otherPartyAvatar}
                         alt={conv.otherPartyName}
                         className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-neutral-800"
@@ -202,6 +175,13 @@ export default function ProviderMessagesPage() {
             })
           )}
         </div>
+        {conversationTotalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-slate-200 px-3 py-2 text-[10px] font-bold dark:border-neutral-800">
+            <button disabled={conversationPage <= 1} onClick={() => setConversationPage((page) => Math.max(1, page - 1))} className="rounded-lg border px-2 py-1 disabled:opacity-40">Previous</button>
+            <span>Page {conversationPage} of {conversationTotalPages}</span>
+            <button disabled={conversationPage >= conversationTotalPages} onClick={() => setConversationPage((page) => Math.min(conversationTotalPages, page + 1))} className="rounded-lg border px-2 py-1 disabled:opacity-40">Next</button>
+          </div>
+        )}
       </aside>
 
       {/* Chat Area */}
@@ -223,7 +203,7 @@ export default function ProviderMessagesPage() {
                   <ChevronLeft size={18} />
                 </button>
                 {selectedConv.otherPartyAvatar ? (
-                  <img
+                  <Image unoptimized width={36} height={36}
                     src={selectedConv.otherPartyAvatar}
                     alt={selectedConv.otherPartyName}
                     className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-neutral-800"
@@ -313,7 +293,7 @@ export default function ProviderMessagesPage() {
                     {!isMe && (
                       <div className="flex-shrink-0 mr-2 mt-auto">
                         {selectedConv.otherPartyAvatar ? (
-                          <img
+                          <Image unoptimized width={24} height={24}
                             src={selectedConv.otherPartyAvatar}
                             className="w-6 h-6 rounded-full object-cover border border-slate-200 dark:border-neutral-800"
                             alt=""
@@ -332,7 +312,7 @@ export default function ProviderMessagesPage() {
                         ? 'bg-neutral-800 text-[#f2efe9] rounded-bl-sm border border-neutral-750' 
                         : 'bg-white text-slate-800 rounded-bl-sm border border-slate-200'
                     }`}>
-                      {msg.imageUrl && <img src={msg.imageUrl} alt="attachment" className="rounded-lg mb-1.5 max-w-full" />}
+                      {msg.imageUrl && <Image unoptimized width={480} height={320} src={msg.imageUrl} alt="attachment" className="rounded-lg mb-1.5 max-w-full h-auto" />}
                       {msg.content}
                       <span className={`block text-[9px] mt-1.5 opacity-60 ${isMe ? 'text-right' : ''}`}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -357,7 +337,7 @@ export default function ProviderMessagesPage() {
                 <div>
                   {attachedImage && (
                     <div className="relative inline-block mb-2 p-1.5 border rounded-2xl bg-slate-100 dark:bg-neutral-800/80 dark:border-neutral-700">
-                      <img src={attachedImage} alt="Attachment preview" className="h-16 w-16 object-cover rounded-xl" />
+                      <Image unoptimized width={64} height={64} src={attachedImage} alt="Attachment preview" className="h-16 w-16 object-cover rounded-xl" />
                       <button
                         type="button"
                         onClick={() => setAttachedImage(null)}

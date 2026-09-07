@@ -1,4 +1,4 @@
-import React, { ChangeEvent, forwardRef } from 'react';
+import React, { ChangeEvent, FocusEvent, forwardRef } from 'react';
 
 interface AuthInputProps {
   label: string;
@@ -7,7 +7,7 @@ interface AuthInputProps {
   placeholder?: string;
   value?: string;
   onChange?: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  onBlur?: (e: any) => void;
+  onBlur?: (e: FocusEvent<HTMLInputElement | HTMLSelectElement>) => void;
   error?: string;
   helperText?: string;
   className?: string;

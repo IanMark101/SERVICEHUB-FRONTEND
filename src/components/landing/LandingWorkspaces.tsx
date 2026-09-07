@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeftRight, UserCheck, ShieldCheck, RefreshCw } from 'lucide-react';
+import { ArrowLeftRight, UserCheck, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingWorkspacesProps {
@@ -37,7 +37,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
             <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${
               isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
             }`}>
-              In a tight-knit community like Cordova, Cebu, residents don't just consume or just work — they do both. Here is why our system lets you switch workspaces seamlessly with a single profile.
+              In a tight-knit community like Cordova, Cebu, residents don&apos;t just consume or just work — they do both. Here is why our system lets you switch workspaces seamlessly with a single profile.
             </p>
           </ScrollReveal>
         </div>

@@ -30,11 +30,11 @@ export function connectSocket(token: string): Socket | null {
   });
 
   socket.on("connect", () => {
-    console.log("[Socket.io] Connected:", socket?.id);
+    if (process.env.NODE_ENV === 'development') console.log("[Socket.io] Connected:", socket?.id);
   });
 
   socket.on("disconnect", (reason) => {
-    console.log("[Socket.io] Disconnected:", reason);
+    if (process.env.NODE_ENV === 'development') console.log("[Socket.io] Disconnected:", reason);
   });
 
   socket.on("forceLogout", () => {
@@ -80,7 +80,7 @@ export function connectSocket(token: string): Socket | null {
         isRefreshingSocketAuth = false;
       }
     } else {
-      console.warn("[Socket.io] Connection error:", err.message);
+      if (process.env.NODE_ENV === 'development') console.warn("[Socket.io] Connection error:", err.message);
     }
   });
 
@@ -99,7 +99,7 @@ export function disconnectSocket(): void {
   if (socket) {
     socket.disconnect();
     socket = null;
-    console.log("[Socket.io] Disconnected by app.");
+    if (process.env.NODE_ENV === 'development') console.log("[Socket.io] Disconnected by app.");
   }
 }
 

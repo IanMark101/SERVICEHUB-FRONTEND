@@ -67,20 +67,20 @@ interface AppContextType {
     description: string,
     paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean },
     options?: {
-      serviceType?: string;
-      priceType?: string;
+      serviceType?: ServiceListing['serviceType'];
+      priceType?: ServiceListing['priceType'];
       estimatedDurationMins?: number;
       queueLimit?: number;
     }
-  ) => void;
+  ) => Promise<{ success: boolean; data?: unknown; error?: string } | void>;
   editServiceListing: (
     serviceId: string,
     title: string,
     price: number,
     description: string,
     options?: {
-      priceType?: string;
-      serviceType?: string;
+      priceType?: ServiceListing['priceType'];
+      serviceType?: ServiceListing['serviceType'];
       estimatedDurationMins?: number;
       paymentMethods?: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
     }
@@ -108,6 +108,10 @@ interface AppContextType {
   authLoading: boolean;
   unreadMessagesCount: number;
   syncUnreadMessages: () => Promise<void>;
+  loadMoreNotifications: () => void;
+  hasMoreNotifications: boolean;
+  loadMoreTransactions: () => void;
+  hasMoreTransactions: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -187,6 +191,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     syncEngagements,
     syncNotifications,
     syncTransactions,
+    loadMoreNotifications,
+    hasMoreNotifications,
+    loadMoreTransactions,
+    hasMoreTransactions,
     syncUnreadMessages
   } = useAppDataSync({
     isAuthenticated,
@@ -200,11 +208,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     let active = true;
     const hasSessionCandidate = typeof window !== 'undefined' && Boolean(localStorage.getItem('userSession'));
     if (!hasSessionCandidate) {
-      setUser(null);
-      setIsAuthenticated(false);
-      setAuthLoading(false);
+      const timer = window.setTimeout(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        setAuthLoading(false);
+      }, 0);
       return () => {
         active = false;
+        window.clearTimeout(timer);
       };
     }
 
@@ -216,7 +227,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const names = (dbUser.name || '').split(' ');
             const firstName = names[0] || '';
             const lastName = names.slice(1).join(' ') || '';
-            const savedRole = (localStorage.getItem('workspaceRole') as any) || 'seeker';
+            const storedRole = localStorage.getItem('workspaceRole');
+            const savedRole: UserSession['role'] = storedRole === 'provider' ? 'provider' : 'seeker';
             const finalRole = dbUser.role === 'admin' ? 'admin' : savedRole;
 
             const sessionData: UserSession = {
@@ -300,7 +312,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       read: false
     };
     setNotifications(prev => [newNotif, ...prev]);
-  }, []);
+  }, [setNotifications]);
 
   const updateUserProfile = (userId: string, data: Partial<User>) => {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u));
@@ -385,7 +397,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated,
       authLoading,
       unreadMessagesCount,
-      syncUnreadMessages
+      syncUnreadMessages,
+      loadMoreNotifications,
+      hasMoreNotifications,
+      loadMoreTransactions,
+      hasMoreTransactions
     }}>
       {children}
     </AppContext.Provider>

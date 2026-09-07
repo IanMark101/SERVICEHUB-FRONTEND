@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Briefcase, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
+import type { ServiceListing } from '../../types';
 
 export default function OfferServices() {
   const { user, createServiceListing, isDark, dbCategories } = useApp();
@@ -12,7 +13,7 @@ export default function OfferServices() {
   const [title, setTitle] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [price, setPrice] = useState<number>(500);
-  const [priceType, setPriceType] = useState<string>('FIXED');
+  const [priceType, setPriceType] = useState<NonNullable<ServiceListing['priceType']>>('FIXED');
   const [description, setDescription] = useState<string>('');
   const [maxQueue, setMaxQueue] = useState<number>(5);
   const [durationMins, setDurationMins] = useState<number>(30);
@@ -22,18 +23,11 @@ export default function OfferServices() {
   const [acceptCash, setAcceptCash] = useState<boolean>(true);
   const [acceptGCash, setAcceptGCash] = useState<boolean>(true);
   const [acceptMaya, setAcceptMaya] = useState<boolean>(false);
-  const [acceptCard, setAcceptCard] = useState<boolean>(false);
+  const [acceptCard] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
 
   const categories = dbCategories;
-
-  // Auto-select first category when categories load
-  React.useEffect(() => {
-    if (!category && dbCategories.length > 0) {
-      setCategory(dbCategories[0].id);
-    }
-  }, [dbCategories, category]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +44,7 @@ export default function OfferServices() {
 
     setLoading(true);
     const providerId = user?.id || '';
-    const res: any = await createServiceListing(
+    const res = await createServiceListing(
       providerId,
       title,
       selectedCategory,
@@ -237,7 +231,7 @@ export default function OfferServices() {
                 </label>
                 <select
                   value={priceType}
-                  onChange={(e) => setPriceType(e.target.value)}
+                  onChange={(e) => setPriceType(e.target.value as NonNullable<ServiceListing['priceType']>)}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
                       ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
                       : 'bg-white border-slate-300 text-slate-750 focus:border-emerald-500'

@@ -1,4 +1,4 @@
-import { HelpArticle, HelpCategory, HelpCategorySlug } from '../types/help.types';
+import { HelpArticle, HelpCategorySlug } from '../types/help.types';
 import { HELP_CATEGORIES, getCategoryBySlug } from './categories';
 import { GETTING_STARTED_ARTICLES } from './gettingStarted';
 import { VERIFICATION_ARTICLES } from './verification';

@@ -5,8 +5,33 @@ import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
 import { ActivityItemSkeleton } from '../../ui/SkeletonCard';
 import ProviderActivityItem from './ProviderActivityItem';
+import type { Dispatch, SetStateAction } from 'react';
+import type { Bid, JobEngagement } from '../../../types';
+import type { ProviderActivityItemModel } from './ProviderActivityItem';
+import type { ProviderActivityItemData } from './providerActivity.utils';
+import type { ProviderActivitySort, ProviderActivityTab } from './types';
 
-export default function ProviderActivityList({ model }: { model: any }) {
+interface ProviderActivityListModel extends ProviderActivityItemModel {
+  myPendingBids: Bid[];
+  myEngagements: JobEngagement[];
+  searchQuery: string;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
+  sortBy: ProviderActivitySort;
+  setSortBy: Dispatch<SetStateAction<ProviderActivitySort>>;
+  isLoading: boolean;
+  filteredItems: ProviderActivityItemData[];
+  activeTab: ProviderActivityTab;
+  paginatedItems: ProviderActivityItemData[];
+  currentPage: number;
+  totalPages: number;
+  goToPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
+  startIndex: number;
+  endIndex: number;
+}
+
+export default function ProviderActivityList({ model }: { model: ProviderActivityListModel }) {
   const {
     myPendingBids, myEngagements, isDark, searchQuery, setSearchQuery,
     sortBy, setSortBy, isLoading, filteredItems, activeTab, router,
@@ -47,7 +72,7 @@ export default function ProviderActivityList({ model }: { model: any }) {
               <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>Sort by:</span>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as ProviderActivitySort)}
                 className={`px-3 py-2 rounded-xl border outline-none font-bold text-xs transition-all ${isDark
                     ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]'
                     : 'bg-white border-slate-300 text-slate-700'
@@ -137,7 +162,7 @@ export default function ProviderActivityList({ model }: { model: any }) {
               />
             </div>
           ) : (
-            paginatedItems.map((item: any) => (
+            paginatedItems.map((item) => (
               <ProviderActivityItem
                 key={item.data.id}
                 item={item}

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { ArrowLeft, Sun, Moon } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -11,8 +12,6 @@ interface AuthLeftPanelProps {
 
 export default function AuthLeftPanel({
   mode,
-  step,
-  accentBg,
   onBackToHome,
 }: AuthLeftPanelProps) {
   const { isDark, toggleTheme } = useApp();
@@ -34,7 +33,7 @@ export default function AuthLeftPanel({
             <ArrowLeft size={18} />
           </button>
           <div className="flex items-center gap-3">
-            <img 
+            <Image width={40} height={40}
               src="/logo.svg" 
               alt="ServiceHub Cordova Logo" 
               className="h-10 w-10 object-contain rounded-lg shadow-md"

@@ -2,10 +2,11 @@ import React, { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { X, CreditCard, MapPin, Smartphone, Sparkles } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 import { apiGetProviderSummary, getCachedProviderSummary } from '../../api/ai.api';
 import { apiBookDirect } from '../../api/bookings.api';
-import { getServicePaymentMethods, shouldShowPaymentSelector } from '../../lib/paymentUtils';
+import { getServicePaymentMethods } from '../../lib/paymentUtils';
+import { getApiErrorMessage } from '../../lib/api/errors';
 
 interface RequestServiceModalProps {
   listing: ServiceListing;
@@ -20,7 +21,6 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
   // ── Payment method source of truth ──────────────────────────────────────────
   const { cash, gcash, maya } = getServicePaymentMethods(listing);
-  const showSelector = shouldShowPaymentSelector(listing); // true only when BOTH are supported
 
   // Resolve a valid default: if the caller passed a method not supported, fall back to supported one
   const resolveDefault = (): 'GCash' | 'Maya' | 'On-site Cash' => {
@@ -38,14 +38,6 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
 
-  const gcashClass = paymentMethod === 'GCash'
-    ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-    : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
-
-  const cashClass = paymentMethod === 'On-site Cash'
-    ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-    : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
-
   const initialSummary = getCachedProviderSummary(listing.providerId)?.data;
   const [aiSummary, setAiSummary] = useState<string | null>(initialSummary?.summary || null);
   const [aiReason, setAiReason] = useState<string | null>(initialSummary?.reason || null);
@@ -55,6 +47,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   useEffect(() => {
     let active = true;
     let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+    let stateTimer: number | undefined;
     const applySummary = (res: Awaited<ReturnType<typeof apiGetProviderSummary>>) => {
       if (!active || !res.success) return;
       setAiSource(res.data?.source || 'computed');
@@ -69,8 +62,10 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
     if (listing.providerId) {
       const cached = getCachedProviderSummary(listing.providerId);
-      if (!cached) setLoadingAi(true);
-      setAiReason(null);
+      stateTimer = window.setTimeout(() => {
+        if (!cached) setLoadingAi(true);
+        setAiReason(null);
+      }, 0);
       apiGetProviderSummary(listing.providerId, listing.id)
         .then((res) => {
           applySummary(res);
@@ -85,15 +80,14 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
             }, 1800);
           }
         })
-        .catch((err) => {
-          console.warn("Failed to fetch provider reviews summary:", err);
-        })
+        .catch(() => {})
         .finally(() => {
           if (active) setLoadingAi(false);
         });
     }
     return () => {
       active = false;
+      if (stateTimer) window.clearTimeout(stateTimer);
       if (refreshTimer) clearTimeout(refreshTimer);
     };
   }, [listing.id, listing.providerId]);
@@ -155,9 +149,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       setTimeout(() => {
         onClose();
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false);
-      setFormError(err?.response?.data?.error || err?.message || 'Booking failed. Please try again.');
+      setFormError(getApiErrorMessage(err, 'Booking failed. Please try again.'));
     }
   };
 
@@ -273,7 +267,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 <p className={`text-xs leading-relaxed font-semibold italic ${
                   isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
                 }`}>
-                  "{aiSummary}"
+                  &quot;{aiSummary}&quot;
                 </p>
               </div>
             ) : (
@@ -367,7 +361,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 ? 'bg-neutral-900 border-neutral-800 text-neutral-400' 
                 : 'bg-slate-50 border-slate-200 text-slate-500'
             }`}>
-              ⚠️ You can cancel for free anytime before the provider starts the job. Once they've started, cancellation needs their approval.
+              ⚠️ You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.
             </p>
 
             {/* Error Message */}

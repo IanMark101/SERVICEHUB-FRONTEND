@@ -131,7 +131,7 @@ export async function uploadAvatarToCloudinary(fileOrDataUrl: File | string): Pr
     }
     return dataUrl;
   } catch (err) {
-    console.warn('[Cloudinary Upload Notice] Backend upload fallback used:', err);
+    if (process.env.NODE_ENV === 'development') console.warn('[Cloudinary Upload Notice] Backend upload fallback used:', err);
     return dataUrl;
   }
 }
@@ -160,7 +160,7 @@ export async function uploadAttachmentToCloudinary(fileOrDataUrl: File | string)
     }
     return dataUrl;
   } catch (err) {
-    console.warn('[Cloudinary Upload Notice] Backend upload fallback used:', err);
+    if (process.env.NODE_ENV === 'development') console.warn('[Cloudinary Upload Notice] Backend upload fallback used:', err);
     return dataUrl;
   }
 }

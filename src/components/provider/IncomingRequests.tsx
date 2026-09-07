@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useApp } from '../../context/AppContext';
 import { 
   Check, 
   X, 
-  User, 
   MapPin, 
   Loader2, 
   MessageSquare, 
@@ -13,18 +13,23 @@ import {
   Banknote, 
   CreditCard,
   Inbox,
-  Sparkles
 } from 'lucide-react';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 
 export default function IncomingRequests({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
-  const { jobEngagements, respondToDirectBooking, users, services, isDark } = useApp();
+  const { jobEngagements, respondToDirectBooking, isDark } = useApp();
   const { canTransact } = useTransactionPermission();
   const [loadingJobId, setLoadingJobId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
+  const [referenceTime, setReferenceTime] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReferenceTime(Date.now()), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const handleRespond = async (jobId: string, accept: boolean) => {
     if (accept && !canTransact) {
@@ -35,7 +40,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
     setLoadingAction(accept ? 'accepting' : 'declining');
     try {
       await respondToDirectBooking(jobId, accept);
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setLoadingJobId(null);
@@ -51,7 +56,8 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
   // Compute relative time from a full ISO timestamp
   const formatTimeAgo = (isoStr: string): string => {
     if (!isoStr) return 'Just now';
-    const diffMs = Date.now() - new Date(isoStr).getTime();
+    if (!referenceTime) return 'Recently';
+    const diffMs = referenceTime - new Date(isoStr).getTime();
     const diffSecs = Math.floor(diffMs / 1000);
     if (diffSecs < 60) return diffSecs <= 1 ? 'Just now' : `${diffSecs}s ago`;
     const diffMins = Math.floor(diffSecs / 60);
@@ -101,7 +107,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                   {/* Left: Avatar + Name + Badges */}
                   <div className="flex items-center gap-3 min-w-0">
                     {je.seekerAvatar ? (
-                      <img 
+                      <Image unoptimized width={40} height={40}
                         src={je.seekerAvatar} 
                         alt={je.seekerName} 
                         className="w-10 h-10 rounded-full object-cover border border-neutral-700/60 shadow-sm shrink-0"
@@ -174,7 +180,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                     <MessageSquare className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                     <span className="font-semibold text-slate-400 dark:text-neutral-500 shrink-0">Note:</span>
                     <span className={`italic font-medium ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>
-                      "{je.description}"
+                      &quot;{je.description}&quot;
                     </span>
                   </div>
                 )}

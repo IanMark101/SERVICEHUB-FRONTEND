@@ -1,22 +1,21 @@
 import React, { FormEvent } from 'react';
 import AuthInput from './shared/AuthInput';
+import type { UseFormRegister } from 'react-hook-form';
+import type { AuthFormValues } from '../../schema/auth/useAuthForm';
 
 interface ForgotPasswordFormProps {
-  formData: any;
+  formData: AuthFormValues;
   fieldErrors: Record<string, string>;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   accentText: string;
   accentBg: string;
   setMode: (mode: 'login' | 'signup' | 'forgot' | 'reset') => void;
-  register: any;
+  register: UseFormRegister<AuthFormValues>;
 }
 
 export default function ForgotPasswordForm({
-  formData,
   fieldErrors,
   handleSubmit,
-  accentText,
-  accentBg,
   setMode,
   register,
 }: ForgotPasswordFormProps) {

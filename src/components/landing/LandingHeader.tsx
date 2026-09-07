@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Sun, Moon, Menu, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -51,7 +52,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
       >
         {/* Brand */}
         <div className="flex items-center space-x-2 shrink-0">
-          <img src="/logo.svg" alt="ServiceHub Cordova Logo" className="h-8 w-8 object-contain rounded-lg shadow-sm" />
+          <Image width={32} height={32} src="/logo.svg" alt="ServiceHub Cordova Logo" className="h-8 w-8 object-contain rounded-lg shadow-sm" />
           <span className={`font-extrabold text-base lg:text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             ServiceHub Cordova
           </span>

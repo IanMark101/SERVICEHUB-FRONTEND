@@ -8,6 +8,7 @@ import {
   apiListAnnouncements,
   apiUpdateAnnouncement,
 } from '../../../api/admin.api';
+import { getApiErrorMessage } from '../../../lib/api/errors';
 
 interface AdminAnnouncement {
   id: string;
@@ -36,15 +37,16 @@ export default function AdminAnnouncementsPage() {
       const response = await apiListAnnouncements();
       setAnnouncements(response.success && Array.isArray(response.data) ? response.data : []);
       setError('');
-    } catch (err: any) {
-      setError(err?.response?.data?.error || 'Unable to load announcements.');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Unable to load announcements.'));
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadAnnouncements();
+    const timer = window.setTimeout(() => void loadAnnouncements(), 0);
+    return () => window.clearTimeout(timer);
   }, [loadAnnouncements]);
 
   const submitAnnouncement = async (event: FormEvent) => {
@@ -65,8 +67,8 @@ export default function AdminAnnouncementsPage() {
       setBody('');
       setNotice('Announcement published to the Community Hub.');
       await loadAnnouncements();
-    } catch (err: any) {
-      setError(err?.response?.data?.error || 'Unable to publish the announcement.');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Unable to publish the announcement.'));
     } finally {
       setSaving(false);
     }
@@ -80,8 +82,8 @@ export default function AdminAnnouncementsPage() {
       await apiUpdateAnnouncement(item.id, { isPublished: !item.isPublished });
       setNotice(item.isPublished ? 'Announcement archived.' : 'Announcement republished.');
       await loadAnnouncements();
-    } catch (err: any) {
-      setError(err?.response?.data?.error || 'Unable to update the announcement.');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Unable to update the announcement.'));
     } finally {
       setUpdatingId(null);
     }

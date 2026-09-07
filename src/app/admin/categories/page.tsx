@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListCategorySuggestions, apiResolveCategorySuggestion } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, Tag, User, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
+import { getApiErrorMessage } from '../../../lib/api/errors';
 
 interface SubmitterInfo {
   id: string;
@@ -34,7 +35,7 @@ export default function AdminCategories() {
   const [pendingAction, setPendingAction] = useState<{ id: string; approve: boolean; name: string } | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
 
-  const fetchSuggestions = () => {
+  const fetchSuggestions = useCallback(() => {
     setLoading(true);
     apiListCategorySuggestions({ page, limit: 10 })
       .then(res => {
@@ -52,11 +53,12 @@ export default function AdminCategories() {
         setError(err.message || "An error occurred.");
         setLoading(false);
       });
-  };
+  }, [page]);
 
   useEffect(() => {
-    fetchSuggestions();
-  }, [page]);
+    const timer = window.setTimeout(fetchSuggestions, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchSuggestions]);
 
   const handleResolveAction = async (id: string, approve: boolean) => {
     try {
@@ -70,8 +72,8 @@ export default function AdminCategories() {
         setPendingAction(null);
         setAdminNotes('');
       }
-    } catch (err: any) {
-      toastError("Failed to resolve", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Failed to resolve", getApiErrorMessage(err, 'The category decision could not be saved.'));
     }
   };
 
@@ -211,7 +213,7 @@ export default function AdminCategories() {
                 <span>{pendingAction.approve ? "Approve Category Suggestion" : "Reject Category Suggestion"}</span>
               </h4>
               <p className="text-xs leading-relaxed">
-                Are you sure you want to {pendingAction.approve ? 'approve and publish' : 'reject'} the suggested category "{pendingAction.name}"?
+                Are you sure you want to {pendingAction.approve ? 'approve and publish' : 'reject'} the suggested category &ldquo;{pendingAction.name}&rdquo;?
               </p>
               <textarea
                 value={adminNotes}

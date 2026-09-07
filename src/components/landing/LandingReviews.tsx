@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
@@ -122,8 +123,6 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
               const isFocus = diff === 0;
               const isLeft = diff === -1;
               const isRight = diff === 1;
-              const isHidden = Math.abs(diff) > 1;
-
               let cardStyles = '';
               if (isFocus) {
                 cardStyles = 'z-20 scale-[1.05] opacity-100 translate-x-0 cursor-default';
@@ -151,7 +150,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                 >
                   {/* Top user profile section */}
                   <div className="flex items-center space-x-3.5 mb-3.5 pb-3 border-b border-slate-100 dark:border-neutral-850">
-                    <img
+                    <Image unoptimized width={48} height={48}
                       src={review.avatarUrl}
                       alt={review.name}
                       className="w-12 h-12 rounded-full object-cover border-2 border-orange-500/30"

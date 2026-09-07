@@ -29,7 +29,6 @@ export default function UserProfile({
     isDark,
     displayName,
     usernameHandle,
-    responseRate,
     trustScore,
     verStatus,
     avatarUrl,
@@ -56,7 +55,6 @@ export default function UserProfile({
     phonePasswordModalOpen,
     setPhonePasswordModalOpen,
     phonePasswordError,
-    handleShareProfile,
     cardBg,
     innerBg,
     labelText,
@@ -90,11 +88,9 @@ export default function UserProfile({
         createdAt={createdAt}
         completedJobs={completedJobs}
         averageRating={averageRating}
-        responseRate={responseRate}
         isOwnProfile={isOwnProfile}
         showEdit={showEdit}
         setShowEdit={setShowEdit}
-        handleShareProfile={handleShareProfile}
         isDark={isDark}
         cardBg={cardBg}
         innerBg={innerBg}

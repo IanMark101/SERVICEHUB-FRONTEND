@@ -1,30 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement, ServiceListing } from '../../types';
-import {
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  Play,
-  HelpCircle,
-  MessageSquare,
-  AlertCircle,
-  Search,
-  ChevronDown,
-  Loader2,
-  Trash2
-} from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../ui/PaginationBar';
 import { apiCancelBooking, apiEscalateCancellationRequest, apiHideBooking, apiRespondCancellationRequest } from '../../api/bookings.api';
 import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ReviewModal from './ReviewModal';
 import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
-import EmptyState from '../ui/EmptyState';
-import { ActivityItemSkeleton } from '../ui/SkeletonCard';
-import LifecycleStepper from '../ui/LifecycleStepper';
 import SeekerActivityTabs from './activity/SeekerActivityTabs';
 import SeekerCancellationRequestModal from './activity/SeekerCancellationRequestModal';
 import SeekerDisputeModal from './activity/SeekerDisputeModal';
@@ -33,10 +16,10 @@ import {
   filterSeekerActivityEngagements
 } from './activity/seekerActivity.utils';
 import { SeekerActivitySort, SeekerActivityTab } from './activity/types';
-import SeekerActivityItem from './activity/SeekerActivityItem';
 import SeekerActivityList from './activity/SeekerActivityList';
 import ReasonModal from '../ui/ReasonModal';
 import RequestServiceModal from './RequestServiceModal';
+import { getApiErrorMessage } from '../../lib/api/errors';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -67,9 +50,9 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   // Active user is the authenticated user — use prop if passed (e.g. admin view), otherwise fall back to current user from context
   const resolvedUserId = currentUserId || user?.id;
-  const myEngagements = resolvedUserId
+  const myEngagements = useMemo(() => resolvedUserId
     ? jobEngagements.filter(je => je.seekerId === resolvedUserId)
-    : jobEngagements; // if no userId yet, show all (context already scopes to user)
+    : jobEngagements, [jobEngagements, resolvedUserId]); // context already scopes to user
 
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<SeekerActivityTab>('all');
@@ -117,7 +100,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     if (tabParam) {
       const allowed: SeekerActivityTab[] = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'canceled'];
       if (allowed.includes(tabParam as SeekerActivityTab)) {
-        setActiveTab(tabParam as SeekerActivityTab);
+        const timer = window.setTimeout(() => setActiveTab(tabParam as SeekerActivityTab), 0);
+        return () => window.clearTimeout(timer);
       }
     }
   }, [tabParam]);
@@ -134,8 +118,10 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         else if (found.status === 'completed') targetTab = 'completed';
         else if (found.status === 'canceled') targetTab = 'canceled';
 
-        setActiveTab(targetTab);
-        setHighlightedBookingId(found.id);
+        const stateTimer = window.setTimeout(() => {
+          setActiveTab(targetTab);
+          setHighlightedBookingId(found.id);
+        }, 0);
 
         const scrollTimer = setTimeout(() => {
           const element = document.getElementById(`booking-${found.id}`);
@@ -149,12 +135,13 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         }, 3000);
 
         return () => {
+          window.clearTimeout(stateTimer);
           clearTimeout(scrollTimer);
           clearTimeout(clearTimer);
         };
       }
     }
-  }, [bookingIdParam, myEngagements.length]);
+  }, [bookingIdParam, myEngagements]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -207,7 +194,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     setLoadingActionType('complete');
     try {
       await confirmJobCompletion(jobId);
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setLoadingItemId(null);
@@ -224,7 +211,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
       await disputeJob(disputingJob.id, disputeReason);
       setDisputingJob(null);
       setDisputeReason('');
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setLoadingItemId(null);
@@ -282,8 +269,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
       } else {
         toastError('Request Failed', res.message || 'Failed to submit request.');
       }
-    } catch (err: any) {
-      toastError('Request Failed', err.response?.data?.message || 'Error submitting request.');
+    } catch (err: unknown) {
+      toastError('Request Failed', getApiErrorMessage(err, 'Error submitting request.'));
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -311,8 +298,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           } else {
             toastError('Escalation Failed', res.message || 'Failed to escalate request.');
           }
-        } catch (err: any) {
-          toastError('Escalation Failed', err.response?.data?.message || 'Error escalating request.');
+        } catch (err: unknown) {
+          toastError('Escalation Failed', getApiErrorMessage(err, 'Error escalating request.'));
         } finally {
           setLoadingItemId(null);
           setLoadingActionType(null);
@@ -338,8 +325,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
       refreshEngagements();
       setDecliningCancellationId(null);
       setDeclineCancellationReason('');
-    } catch (err: any) {
-      toastError('Response failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Response failed', getApiErrorMessage(err, 'Unable to respond to the cancellation.'));
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -366,8 +353,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           } else {
             toastError('Remove Failed', res.message || 'Failed to remove record.');
           }
-        } catch (err: any) {
-          toastError('Remove Failed', err.response?.data?.message || 'Error removing record.');
+        } catch (err: unknown) {
+          toastError('Remove Failed', getApiErrorMessage(err, 'Error removing record.'));
         } finally {
           setLoadingItemId(null);
           setLoadingActionType(null);
@@ -440,7 +427,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         isSubmitting={loadingItemId === decliningCancellationId && loadingActionType === 'respond_cancellation'}
       />
       {reviewingEngagement && (() => {
-        const existingReview = reviewingEngagement.reviews?.find((r: any) => r.authorId === currentUserId);
+        const existingReview = reviewingEngagement.reviews?.find((review) => review.authorId === currentUserId);
         return (
           <ReviewModal
             isOpen={!!reviewingEngagement}

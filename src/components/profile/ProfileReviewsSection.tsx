@@ -39,7 +39,8 @@ export default function ProfileReviewsSection({
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>(initialReviews);
 
   React.useEffect(() => {
-    setReviewsList(initialReviews);
+    const timer = window.setTimeout(() => setReviewsList(initialReviews), 0);
+    return () => window.clearTimeout(timer);
   }, [initialReviews]);
 
   const [showAddForm, setShowAddForm] = useState(false);

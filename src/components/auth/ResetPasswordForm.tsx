@@ -1,9 +1,11 @@
 import React, { FormEvent } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthInput from './shared/AuthInput';
+import type { UseFormRegister } from 'react-hook-form';
+import type { AuthFormValues } from '../../schema/auth/useAuthForm';
 
 interface ResetPasswordFormProps {
-  formData: any;
+  formData: AuthFormValues;
   fieldErrors: Record<string, string>;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
@@ -11,17 +13,14 @@ interface ResetPasswordFormProps {
   accentText: string;
   accentBg: string;
   setMode: (mode: 'login' | 'signup' | 'forgot' | 'reset') => void;
-  register: any;
+  register: UseFormRegister<AuthFormValues>;
 }
 
 export default function ResetPasswordForm({
-  formData,
   fieldErrors,
   showPassword,
   setShowPassword,
   handleSubmit,
-  accentText,
-  accentBg,
   setMode,
   register,
 }: ResetPasswordFormProps) {

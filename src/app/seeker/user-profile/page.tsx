@@ -4,10 +4,14 @@ import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import UserProfile from '../../../components/profile/UserProfile';
 
+type ProfileTab = 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
+const PROFILE_TABS: ProfileTab[] = ['overview', 'reviews', 'trust', 'verification', 'settings'];
+
 function ProfileContent() {
   const searchParams = useSearchParams();
   const targetId = searchParams.get('id');
-  const tabParam = searchParams.get('tab') as any;
+  const rawTab = searchParams.get('tab');
+  const tabParam = PROFILE_TABS.includes(rawTab as ProfileTab) ? rawTab as ProfileTab : undefined;
   const { user, users } = useApp();
 
   let targetUser = user;
@@ -20,7 +24,7 @@ function ProfileContent() {
         email: dbUser.email,
         firstName: dbUser.firstName,
         lastName: dbUser.lastName,
-        role: dbUser.role as any,
+        role: dbUser.role,
         avatarUrl: dbUser.avatarUrl,
         bio: dbUser.bio,
         phone: dbUser.phone,

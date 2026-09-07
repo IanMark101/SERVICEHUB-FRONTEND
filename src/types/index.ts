@@ -50,6 +50,7 @@ export interface ServiceListing {
   proofOfSkillUrl: string; // Proof uploaded for verification
   rating: number;
   providerTrustScore?: number;
+  providerVerificationStatus?: string;
   reviewCount?: number;
   // SESSION_BASED is retained only for decoding legacy server records. New
   // listings and bookings are reusable ONE_TIME engagements.
@@ -184,6 +185,7 @@ export interface CategorySuggestion {
   description: string;
   suggestedBy: string; // Seeker name
   status: 'pending' | 'approved' | 'rejected';
+  createdAt?: string;
 }
 
 export interface UserReport {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import LandingHeader from './LandingHeader';
 import LandingHero from './LandingHero';
 import LandingProblem from './LandingProblem';
@@ -62,7 +62,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
       <LandingReviews isDark={isDark} />
       <LandingFaq isDark={isDark} />
       <LandingCta isDark={isDark} onGetStarted={onGetStarted} />
-      <LandingFooter isDark={isDark} onGetStarted={onGetStarted} />
+      <LandingFooter />
     </div>
   );
 }

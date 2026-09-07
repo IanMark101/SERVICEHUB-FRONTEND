@@ -11,6 +11,32 @@ import {
 } from '../api/auth.api';
 import { apiGetProviderSummary } from '../api/ai.api';
 import { useToast } from '../components/ui/Toast';
+import { getApiErrorMessage } from '../lib/api/errors';
+import type { JobEngagement } from '../types';
+
+interface ProfileReview {
+  id: string;
+  rating: number;
+  text?: string;
+  comment?: string;
+  createdAt?: string;
+  authorName?: string;
+  authorAvatar?: string;
+  author?: { name?: string; avatarUrl?: string };
+}
+interface PublicProfile extends Partial<UserSession> {
+  name?: string;
+  role?: UserSession['role'];
+  facebookUrl?: string;
+  instagramUrl?: string;
+  websiteUrl?: string;
+  createdAt?: string;
+  completedServiceCount?: number;
+  averageRating?: number;
+  availability?: string;
+  languages?: string;
+  reviews?: ProfileReview[];
+}
 
 export interface UseUserProfileProps {
   targetUser: UserSession;
@@ -32,7 +58,7 @@ export function useUserProfile({
 
   // Active Job Lock: check if user has ongoing/in-progress service engagements
   const hasActiveEngagements = jobEngagements.some(
-    (je: any) =>
+    (je: JobEngagement) =>
       (je.providerId === targetUser?.id || je.seekerId === targetUser?.id) &&
       je.status !== 'completed' &&
       je.status !== 'canceled'
@@ -42,7 +68,7 @@ export function useUserProfile({
   const [phonePasswordModalOpen, setPhonePasswordModalOpen] = useState(false);
   const [phonePasswordError, setPhonePasswordError] = useState<string | null>(null);
 
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   // AI Summary state
@@ -63,29 +89,16 @@ export function useUserProfile({
   const [trustHistoryLoading, setTrustHistoryLoading] = useState(false);
 
   // UI state
-  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'trust' | 'verification' | 'settings'>(
-    initialTab || 'overview'
-  );
-
-  useEffect(() => {
-    if (initialTab) {
-      setActiveTab(initialTab);
-    } else if (typeof window !== 'undefined') {
+  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'trust' | 'verification' | 'settings'>(() => {
+    if (initialTab) return initialTab;
+    if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get('tab');
-      if (params.get('verify') === 'true' || tab === 'verification') {
-        setActiveTab('verification');
-      } else if (tab === 'reviews') {
-        setActiveTab('reviews');
-      } else if (tab === 'trust') {
-        setActiveTab('trust');
-      } else if (tab === 'settings') {
-        setActiveTab('settings');
-      } else if (tab === 'overview') {
-        setActiveTab('overview');
-      }
+      if (params.get('verify') === 'true' || tab === 'verification') return 'verification';
+      if (tab === 'reviews' || tab === 'trust' || tab === 'settings' || tab === 'overview') return tab;
     }
-  }, [initialTab]);
+    return 'overview';
+  });
   const [showEdit, setShowEdit] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -112,9 +125,10 @@ export function useUserProfile({
   // Fetch Public Profile
   useEffect(() => {
     if (!targetUser?.id) return;
-    setLoading(true);
-    apiGetPublicProfile(targetUser.id)
-      .then((res: any) => {
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      apiGetPublicProfile(targetUser.id)
+      .then((res: { success: boolean; data: PublicProfile }) => {
         if (res.success) {
           setProfile(res.data);
           setEditForm(prev => ({
@@ -149,31 +163,37 @@ export function useUserProfile({
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [targetUser?.id, isOwnProfile, setUser]);
 
   // Fetch AI Summary for Provider
   useEffect(() => {
     if (!targetUser?.id || targetUser.role !== 'provider') return;
-    setAiLoading(true);
-    apiGetProviderSummary(targetUser.id)
-      .then((res: any) => {
+    const timer = window.setTimeout(() => {
+      setAiLoading(true);
+      apiGetProviderSummary(targetUser.id)
+      .then((res: { success: boolean; data: { summary?: string | null; reason?: string | null } }) => {
         if (res.success && res.data.summary) setAiSummary(res.data.summary);
         else if (res.success && res.data.reason) setAiReason(res.data.reason);
       })
       .catch(() => setAiReason('Could not load AI summary.'))
       .finally(() => { setAiLoading(false); setAiLoaded(true); });
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [targetUser?.id, targetUser?.role]);
 
   // Fetch trust score history & milestones for the viewed profile
   useEffect(() => {
     if (!targetUser?.id) return;
-    if (user?.id !== targetUser.id && user?.role !== 'admin') {
-      setTrustHistory([]);
-      setTrustHistoryLoading(false);
-      return;
-    }
-    setTrustHistoryLoading(true);
-    apiGetTrustHistory(targetUser.id)
+    const timer = window.setTimeout(() => {
+      if (user?.id !== targetUser.id && user?.role !== 'admin') {
+        setTrustHistory([]);
+        setTrustHistoryLoading(false);
+        return;
+      }
+      setTrustHistoryLoading(true);
+      apiGetTrustHistory(targetUser.id)
       .then(res => {
         if (res.success && Array.isArray(res.data)) {
           setTrustHistory(res.data);
@@ -181,6 +201,8 @@ export function useUserProfile({
       })
       .catch(() => {})
       .finally(() => setTrustHistoryLoading(false));
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [targetUser?.id, user?.id, user?.role]);
 
   // Derived Properties
@@ -206,7 +228,7 @@ export function useUserProfile({
     ? 'admin'
     : isSeekerWorkspace
     ? 'seeker'
-    : (targetUser?.role as any) || 'seeker';
+    : targetUser?.role || 'seeker';
 
   const role = workspaceRole;
   const accountRole = targetUser?.role || profile?.role || 'seeker';
@@ -215,7 +237,7 @@ export function useUserProfile({
   const completedJobs = profile?.completedServiceCount || 0;
 
   const rawRating = profile?.averageRating;
-  const reviews: any[] = Array.isArray(profile?.reviews) ? profile.reviews : [];
+  const reviews: ProfileReview[] = Array.isArray(profile?.reviews) ? profile.reviews : [];
   const averageRating: number = typeof rawRating === 'number' && Number.isFinite(rawRating) && rawRating >= 0
     ? rawRating
     : 0;
@@ -247,7 +269,7 @@ export function useUserProfile({
 
   // Derived User Activity (Posted Service Listings, Requests, and Offers)
   const userServices = (services || []).filter(s => s.providerId === targetUser?.id);
-  const userRequests = (jobRequests || []).filter(r => (r.seekerId === targetUser?.id || (r as any).userId === targetUser?.id) && r.status !== 'CANCELED' && (r.status as string) !== 'canceled');
+  const userRequests = (jobRequests || []).filter(r => r.seekerId === targetUser?.id && r.status !== 'CANCELED' && (r.status as string) !== 'canceled');
   const userBids = (bids || []).filter(b => b.providerId === targetUser?.id && b.status !== 'CANCELED' && (b.status as string) !== 'canceled');
 
   // trustHistory is now loaded from the DB above — do NOT reconstruct it here.
@@ -291,7 +313,7 @@ export function useUserProfile({
         ...(confirmedPassword ? { currentPassword: confirmedPassword } : {}),
       });
       if (res.success) {
-        setProfile((p: any) => ({ ...p, ...res.data }));
+        setProfile((current) => ({ ...current, ...res.data }));
         setPhonePasswordModalOpen(false);
         setPhonePasswordError(null);
         if (onProfileUpdated) {
@@ -318,8 +340,8 @@ export function useUserProfile({
         setShowEdit(false);
         toastSuccess('Profile updated successfully');
       }
-    } catch (err: any) {
-      const errMsg = err?.response?.data?.error || err?.response?.data?.message || 'Failed to update profile';
+    } catch (err: unknown) {
+      const errMsg = getApiErrorMessage(err, 'Failed to update profile');
       if (phonePasswordModalOpen) {
         setPhonePasswordError(errMsg);
       }
@@ -345,8 +367,8 @@ export function useUserProfile({
         setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
         toastSuccess('Password changed successfully');
       }
-    } catch (err: any) {
-      toastError(err?.response?.data?.error || 'Failed to change password');
+    } catch (err: unknown) {
+      toastError(getApiErrorMessage(err, 'Failed to change password'));
     } finally {
       setPwSaving(false);
     }

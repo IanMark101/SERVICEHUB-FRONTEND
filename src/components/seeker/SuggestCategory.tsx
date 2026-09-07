@@ -4,6 +4,7 @@ import { Lightbulb, Send, Sparkles, CheckCircle2, XCircle, Clock, AlertCircle, C
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiGetMyCategorySuggestions } from '../../api/categories.api';
 import { useToast } from '../ui/Toast';
+import type { CategorySuggestion } from '../../types';
 
 export default function SuggestCategory() {
   const { categorySuggestions, suggestCategory, isDark, user } = useApp();
@@ -15,7 +16,7 @@ export default function SuggestCategory() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const [dbSuggestions, setDbSuggestions] = useState<any[]>([]);
+  const [dbSuggestions, setDbSuggestions] = useState<CategorySuggestion[]>([]);
 
   const fetchMySuggestions = () => {
     apiGetMyCategorySuggestions()
@@ -77,7 +78,7 @@ export default function SuggestCategory() {
           <Lightbulb className={`w-6 h-6 ${isDark ? 'text-orange-400 fill-orange-400/5' : 'text-orange-600 fill-orange-500/10'}`} />
         </div>
         <div className="space-y-1">
-          <h2 className={`text-sm font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Can't find what you need?</h2>
+          <h2 className={`text-sm font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Can&apos;t find what you need?</h2>
           <p className={`text-[10px] leading-relaxed max-w-md ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
             Help us grow our marketplace! Suggest new categories of work you need done, and we will source local providers matching those specialties.
           </p>

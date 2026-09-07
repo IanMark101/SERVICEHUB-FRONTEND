@@ -7,6 +7,7 @@ import {
 import { apiSendMessage } from '../api/messages.api';
 import { apiMarkNotificationsRead } from '../api/notifications.api';
 import { getAccessToken } from '../lib/api/axios';
+import { getApiErrorStatus } from '../lib/api/errors';
 
 interface SharedActionsDeps {
   jobEngagements: JobEngagement[];
@@ -38,7 +39,7 @@ export function useSharedActions({
         }
       }
     } catch (err) {
-      console.error("Failed to send message via API:", err);
+      if (process.env.NODE_ENV === 'development') console.error("Failed to send message via API:", err);
     }
   };
 
@@ -53,11 +54,11 @@ export function useSharedActions({
         setNotifications(prev => prev.map(n => n.userId === userId ? { ...n, read: true } : n));
         return;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Silently ignore 401 errors during workspace transitions — the axios interceptor
       // will attempt a token refresh automatically on the next valid request
-      if (err?.response?.status !== 401) {
-        console.error("Backend API failed in markNotificationsRead:", err);
+      if (getApiErrorStatus(err) !== 401) {
+        if (process.env.NODE_ENV === 'development') console.error("Backend API failed in markNotificationsRead:", err);
       }
     }
   };

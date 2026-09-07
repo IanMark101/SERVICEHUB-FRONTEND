@@ -1,4 +1,5 @@
 "use client";
+import Image from 'next/image';
 
 import {
   AlertCircle,
@@ -7,14 +8,34 @@ import {
   Clock,
   Loader2,
   MessageSquare,
-  Play,
   RotateCcw,
   Trash2
 } from 'lucide-react';
 import LifecycleStepper from '../../ui/LifecycleStepper';
+import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement } from '../../../types';
+import type { ConfirmModalState } from '../../ui/ConfirmModal';
 
-export default function SeekerActivityItem({ engagement: je, model }: { engagement: JobEngagement; model: any }) {
+export interface SeekerActivityItemModel {
+  isDark: boolean;
+  highlightedBookingId: string | null;
+  getCategoryForEngagement: (engagement: JobEngagement) => string;
+  currentUserId?: string;
+  loadingItemId: string | null;
+  loadingActionType: string | null;
+  setReviewingEngagement: Dispatch<SetStateAction<JobEngagement | null>>;
+  handleDeleteClick: (engagement: JobEngagement) => void;
+  router: { push: (href: string) => void };
+  setDisputingJob: Dispatch<SetStateAction<JobEngagement | null>>;
+  setConfirmModal: Dispatch<SetStateAction<ConfirmModalState | null>>;
+  handleConfirmJobCompletion: (id: string) => void;
+  handleEscalateClick: (id: string) => void;
+  handleCancelClick: (engagement: JobEngagement) => void;
+  handleRespondCancellation: (id: string, approve: boolean, note?: string) => void;
+  handleRequestAgain: (engagement: JobEngagement) => void;
+}
+
+export default function SeekerActivityItem({ engagement: je, model }: { engagement: JobEngagement; model: SeekerActivityItemModel }) {
   const {
     isDark,
     highlightedBookingId,
@@ -72,7 +93,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                     </h3>
 
                     <div className="flex items-center space-x-2.5">
-                      <img
+                      <Image unoptimized width={28} height={28}
                         src={je.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(je.providerName || 'Provider')}&background=random`}
                         alt={je.providerName}
                         className="w-7 h-7 rounded-full object-cover border border-slate-105 shadow-sm"
@@ -119,7 +140,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                     <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-red-955/15 border-red-900/30 text-red-400' : 'bg-red-50/50 border-red-200 text-red-750'
                       }`}>
                       <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                      <span>Dispute Filed: "{je.disputeReason}" (Awaiting Moderator review)</span>
+                      <span>Dispute Filed: &quot;{je.disputeReason}&quot; (Awaiting Moderator review)</span>
                     </div>
                   )}
 
@@ -143,7 +164,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                           }`}>
                           <div className="flex items-start space-x-2">
                             <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                            <span>{requestedBySeeker ? 'Cancellation declined by provider' : 'You declined the provider cancellation request'}: "{activeReq.responderNote || activeReq.providerNote || 'No explanation provided'}"</span>
+                            <span>{requestedBySeeker ? 'Cancellation declined by provider' : 'You declined the provider cancellation request'}: &quot;{activeReq.responderNote || activeReq.providerNote || 'No explanation provided'}&quot;</span>
                           </div>
                           {requestedBySeeker && <button
                             disabled={!!loadingItemId}
@@ -180,7 +201,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                         <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-neutral-800/40 border-neutral-700 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-500'
                           }`}>
                           <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                          <span>Dispute Resolved: Cancellation Request Rejected by Admin. Note: "{activeReq.adminNote || 'None'}"</span>
+                          <span>Dispute Resolved: Cancellation Request Rejected by Admin. Note: &quot;{activeReq.adminNote || 'None'}&quot;</span>
                         </div>
                       );
                     }
@@ -221,7 +242,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                       )}
 
                       {je.status === 'completed' && (() => {
-                        const myReview = je.reviews && je.reviews.find((r: any) => r.authorId === currentUserId);
+                        const myReview = je.reviews && je.reviews.find((review) => review.authorId === currentUserId);
                         const canEdit = myReview && myReview.editableUntil
                           ? new Date() < new Date(myReview.editableUntil)
                           : myReview && myReview.createdAt
@@ -331,7 +352,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                                   cancelText: 'Cancel',
                                   variant: 'warning',
                                   onConfirm: async () => {
-                                    setConfirmModal((prev: any) => prev ? { ...prev, isLoading: true } : null);
+                                    setConfirmModal((prev) => prev ? { ...prev, isLoading: true } : null);
                                     try {
                                       await handleConfirmJobCompletion(je.id);
                                     } finally {

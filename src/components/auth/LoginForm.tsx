@@ -2,25 +2,27 @@ import React from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import AuthInput from './shared/AuthInput';
 import GoogleSignInButton from './shared/GoogleSignInButton';
+import type { FormEvent } from 'react';
+import type { UseFormRegister } from 'react-hook-form';
+import type { AuthFormValues } from '../../schema/auth/useAuthForm';
 
 interface LoginFormProps {
-  formData: any;
+  formData: AuthFormValues;
   fieldErrors: Record<string, string>;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
   handleGoogleSuccessResponse: (token: string) => void;
   setError: (msg: string) => void;
-  handleSubmit: (e: any) => void;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   isDark: boolean;
   accentText: string;
   setMode: (mode: 'login' | 'signup' | 'forgot' | 'reset') => void;
   toggleMode: () => void;
-  register: any;
+  register: UseFormRegister<AuthFormValues>;
   isLoading?: boolean;
 }
 
 export default function LoginForm({
-  formData,
   fieldErrors,
   showPassword,
   setShowPassword,
@@ -28,7 +30,6 @@ export default function LoginForm({
   setError,
   handleSubmit,
   isDark,
-  accentText,
   setMode,
   toggleMode,
   register,
@@ -133,7 +134,7 @@ export default function LoginForm({
       {/* Footer Switcher */}
       <div className="text-center text-sm pt-3 border-t border-slate-200 dark:border-slate-800">
         <span className="text-slate-500 dark:text-slate-400">
-          Don't have an account?
+          Don&apos;t have an account?
         </span>
         <button
           type="button"

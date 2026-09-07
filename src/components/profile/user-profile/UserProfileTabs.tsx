@@ -14,14 +14,23 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  Lock,
-  Shield,
-  MessageSquare,
   TrendingUp,
-  Check
 } from 'lucide-react';
 import ProfileReviewsSection from '../ProfileReviewsSection';
 import VerificationUpload from '../VerificationUpload';
+import type { useUserProfile } from '../../../hooks/useUserProfile';
+import type { UserSession } from '../../auth/LoginContainer';
+import type { getTrustBand } from '../ProfileHeader';
+
+interface UserProfileTabsModel extends ReturnType<typeof useUserProfile> {
+  targetUser: UserSession;
+  isOwnProfile: boolean;
+  trustBand: ReturnType<typeof getTrustBand>;
+  isProvider: boolean;
+  isAdmin: boolean;
+  accentColor: string;
+  activeTabBg: string;
+}
 
 const FacebookIcon = ({ size = 13 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -34,15 +43,15 @@ const InstagramIcon = ({ size = 13 }: { size?: number }) => (
   </svg>
 );
 
-export default function UserProfileTabs({ model }: { model: any }) {
+export default function UserProfileTabs({ model }: { model: UserProfileTabsModel }) {
   const {
     activeTab, isDark, cardBg, innerBg, labelText, headingText,
-    displayName, usernameHandle, responseRate, trustScore, trustHistory,
+    displayName, usernameHandle, trustScore, trustHistory,
     trustHistoryLoading, isViewerVerified, verStatus, bio, facebookUrl,
-    instagramUrl, websiteUrl, location, phone, email, role, availability,
-    languages, createdAt, completedJobs, averageRating, ratingDistribution,
-    reviews, displayCategories, userServices, userRequests, userBids,
-    targetUser, isOwnProfile, trustBand, isProvider, isAdmin, accentColor
+    instagramUrl, websiteUrl, location, role, availability,
+    languages, createdAt, completedJobs, averageRating,
+    reviews, displayCategories, userServices, userRequests,
+    isOwnProfile, trustBand, accentColor
   } = model;
 
   return (
@@ -218,7 +227,7 @@ export default function UserProfileTabs({ model }: { model: any }) {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {userServices.map((srv: any) => (
+                    {userServices.map((srv) => (
                       <div key={srv.id} className={`p-3.5 rounded-2xl border ${innerBg} space-y-1.5`}>
                         <div className="flex items-center justify-between">
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
@@ -243,7 +252,7 @@ export default function UserProfileTabs({ model }: { model: any }) {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {userRequests.map((req: any) => (
+                    {userRequests.map((req) => (
                       <div key={req.id} className={`p-3.5 rounded-2xl border ${innerBg} space-y-1.5`}>
                         <div className="flex items-center justify-between">
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-orange-500/10 text-orange-500 border border-orange-500/20">
@@ -270,7 +279,7 @@ export default function UserProfileTabs({ model }: { model: any }) {
       {/* TAB 2: REVIEWS (Reviews & Ratings ONLY) */}
       {activeTab === 'reviews' && (
         <ProfileReviewsSection
-          initialReviews={reviews.map((r: any) => ({
+          initialReviews={reviews.map((r) => ({
             id: r.id,
             authorName: r.author?.name || r.authorName || 'Verified Client',
             authorAvatar: r.author?.avatarUrl || r.authorAvatar,
@@ -320,7 +329,7 @@ export default function UserProfileTabs({ model }: { model: any }) {
             ) : trustHistory.length === 0 ? (
               <div className={`p-6 text-center text-xs ${labelText}`}>No trust score events recorded yet.</div>
             ) : (
-              trustHistory.map((item: any) => {
+              trustHistory.map((item) => {
                 const isPositive = item.delta > 0;
                 const deltaLabel = isPositive ? `+${item.delta}` : `${item.delta}`;
                 const dateStr = item.createdAt
@@ -468,7 +477,7 @@ export default function UserProfileTabs({ model }: { model: any }) {
                       <AlertTriangle size={16} /> Residency Verification Requirements:
                     </div>
                     <p className={`${labelText} leading-relaxed`}>
-                      Upload clear photos of official documents (PhilSys ID, Driver's License, Barangay Certificate, or Utility Bill) to verify your Cordova address.
+                      Upload clear photos of official documents (PhilSys ID, Driver&apos;s License, Barangay Certificate, or Utility Bill) to verify your Cordova address.
                     </p>
                   </div>
                   <VerificationUpload isDark={isDark} />

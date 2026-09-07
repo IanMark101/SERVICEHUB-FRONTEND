@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import { ArrowRight, Star, ChevronDown, ShieldCheck, CheckCircle2, Banknote, Smartphone } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
@@ -40,7 +41,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
               <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'
                 }`}>
-                Cordova's trusted <br className="hidden sm:inline" />
+                Cordova&apos;s trusted <br className="hidden sm:inline" />
                 <span className="text-seeker-primary bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
                   local service
                 </span>{" "}
@@ -99,7 +100,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
-                          <img
+                          <Image unoptimized width={44} height={44}
                             src={IAN_AVATAR}
                             alt="DEMO PROVIDER"
                             onError={(e) => {
@@ -235,7 +236,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
-                          <img
+                          <Image unoptimized width={44} height={44}
                             src={IAN_AVATAR}
                             alt="DEMO PROVIDER"
                             onError={(e) => {

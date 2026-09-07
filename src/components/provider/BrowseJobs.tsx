@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Search, CheckCircle2, ShieldCheck, Banknote, Smartphone, ArrowRight } from 'lucide-react';
+import { Search, CheckCircle2, Banknote, Smartphone, ArrowRight } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -14,11 +15,9 @@ import { formatUrgencyDisplay } from './browse-jobs/browseJobs.utils';
 import { useToast } from '../ui/Toast';
 
 export default function BrowseJobs({
-  currentProviderId = 'u3',
-  onNavigateToOffers
+  currentProviderId = 'u3'
 }: {
   currentProviderId?: string;
-  onNavigateToOffers?: () => void;
 }) {
   const router = useRouter();
   const { jobRequests, bids, submitBid, isDark, user } = useApp();
@@ -344,7 +343,7 @@ export default function BrowseJobs({
                         title={`View ${req.seekerName}'s profile`}
                       >
                         <div className="relative flex-shrink-0">
-                          <img
+                          <Image unoptimized width={40} height={40}
                             src={req.seekerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(req.seekerName || 'Client')}&background=random`}
                             alt={req.seekerName}
                             className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-transform duration-200 group-hover/seeker:scale-105 group-hover/seeker:ring-2 group-hover/seeker:ring-emerald-500/50"

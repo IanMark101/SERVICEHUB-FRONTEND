@@ -48,7 +48,7 @@ export default function Header({
   const userSearchRef = useRef<HTMLDivElement | null>(null);
 
   // Bind to App Context
-  const { notifications, markNotificationsRead, isDark, toggleTheme, unreadMessagesCount, users, services, jobRequests } = useApp();
+  const { notifications, markNotificationsRead, isDark, toggleTheme, unreadMessagesCount, users, services, jobRequests, hasMoreNotifications, loadMoreNotifications } = useApp();
   const { navigateToVerification } = useTransactionPermission();
 
   // Use the real authenticated user ID directly from session
@@ -431,6 +431,8 @@ export default function Header({
           onClose={() => setShowNotifications(false)}
           onNotificationClick={handleNotificationClick}
           onMarkAllRead={() => markNotificationsRead(userId)}
+          hasMore={hasMoreNotifications}
+          onLoadMore={loadMoreNotifications}
         />
 
         <HeaderProfileMenu

@@ -23,30 +23,25 @@ export default function HelpSearch({
 }: HelpSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setQuery(initialQuery);
+    const timer = window.setTimeout(() => setQuery(initialQuery), 0);
+    return () => window.clearTimeout(timer);
   }, [initialQuery]);
 
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (!trimmed || !showLiveDropdown) {
-      setResults([]);
-      setIsOpen(false);
-      setSelectedIndex(-1);
-      return;
-    }
+  const results: SearchResult[] = query.trim() && showLiveDropdown
+    ? searchHelpArticles(query.trim()).slice(0, 5)
+    : [];
 
-    const matched = searchHelpArticles(trimmed).slice(0, 5);
-    setResults(matched);
-    setIsOpen(matched.length > 0);
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
     setSelectedIndex(-1);
-  }, [query, showLiveDropdown]);
+    setIsOpen(Boolean(value.trim() && showLiveDropdown && searchHelpArticles(value.trim()).length));
+  };
 
   // Click outside to close dropdown
   useEffect(() => {
@@ -111,7 +106,7 @@ export default function HelpSearch({
             type="text"
             value={query}
             autoFocus={autoFocus}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleQueryChange(e.target.value)}
             onFocus={() => {
               if (results.length > 0 && showLiveDropdown) setIsOpen(true);
             }}
@@ -125,7 +120,6 @@ export default function HelpSearch({
               type="button"
               onClick={() => {
                 setQuery('');
-                setResults([]);
                 setIsOpen(false);
                 inputRef.current?.focus();
               }}
@@ -193,7 +187,7 @@ export default function HelpSearch({
                 onClick={() => handleSearchSubmit()}
                 className="text-orange-600 dark:text-orange-400 font-semibold hover:underline text-[11px] flex items-center gap-1"
               >
-                <span>View all search results for "{query}"</span>
+                <span>View all search results for &quot;{query}&quot;</span>
                 <ArrowRight className="w-3 h-3" />
               </button>
             </div>

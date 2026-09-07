@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ClipboardList, Trash2, Edit2, Check, MessageSquare, Sparkles, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { ClipboardList, Trash2, Edit2, MessageSquare, Sparkles, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -68,7 +68,7 @@ export default function RequestManager({
           }
         })
         .catch((err) => {
-          console.warn("Failed to fetch AI suggestions:", err);
+          if (process.env.NODE_ENV === 'development') console.warn("Failed to fetch AI suggestions:", err);
           setAiSuggestions(prev => ({ ...prev, [requestId]: [{ name: "Error", rationale: err.response?.data?.error || "Failed to load recommendations" }] }));
         })
         .finally(() => {
@@ -142,7 +142,7 @@ export default function RequestManager({
     }
   };
 
-  const handleOpenEdit = (req: any) => {
+  const handleOpenEdit = (req: JobRequest) => {
     setEditingRequest({
       requestId: req.id,
       title: req.title,

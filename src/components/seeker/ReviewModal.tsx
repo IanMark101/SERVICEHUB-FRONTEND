@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiErrorMessage } from '../../lib/api/errors';
 import { Star, X, Check, Loader2 } from 'lucide-react';
 
 interface ReviewModalProps {
@@ -66,9 +67,9 @@ export default function ReviewModal({
       await onSubmit(rating, comment, selectedTags, reviewId);
       setSubmitting(false);
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSubmitting(false);
-      setError(err.response?.data?.error || err.message || (isEdit ? "Failed to update review." : "Failed to submit review."));
+      setError(getApiErrorMessage(err, isEdit ? "Failed to update review." : "Failed to submit review."));
     }
   };
 

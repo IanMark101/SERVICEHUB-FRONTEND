@@ -1,11 +1,8 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import HelpNavbar from './HelpNavbar';
-
-interface HelpLayoutProps {
-  children: React.ReactNode;
-}
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,7 +19,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
       <footer className="border-t py-10 transition-colors bg-white dark:bg-[#0e0e0e] border-slate-200 dark:border-neutral-800/80 text-slate-500 dark:text-neutral-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs">
           <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="ServiceHub Logo" className="w-6 h-6 rounded-lg object-contain opacity-90" />
+            <Image width={24} height={24} src="/logo.svg" alt="ServiceHub Logo" className="w-6 h-6 rounded-lg object-contain opacity-90" />
             <div>
               <span className="font-bold text-slate-900 dark:text-white">
                 ServiceHub Cordova

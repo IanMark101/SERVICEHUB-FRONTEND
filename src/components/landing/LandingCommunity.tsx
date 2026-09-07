@@ -24,7 +24,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
             <p className={`text-sm leading-relaxed font-medium ${
               isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
             }`}>
-              See platform announcements, this week's top-rated providers, and real community stats — all in one place.
+              See platform announcements, this week&apos;s top-rated providers, and real community stats — all in one place.
             </p>
             <div className="flex items-center space-x-6 pt-2">
               <span className="text-xs text-slate-500">Illustrative demo figures:</span>
@@ -52,7 +52,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
               <div className="flex justify-between items-center mb-4">
                 <span className="flex items-center space-x-1 text-xs font-black text-amber-500">
                   <span>🏆</span>
-                  <span>This week's top provider</span>
+                  <span>This week&apos;s top provider</span>
                 </span>
                 <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded ${
                   isDark ? 'bg-neutral-855/60 text-neutral-400' : 'bg-slate-100/60 text-slate-500'

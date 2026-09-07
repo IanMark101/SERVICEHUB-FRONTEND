@@ -15,3 +15,7 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   const body = getApiErrorBody(error);
   return body?.message || body?.error || (error instanceof Error ? error.message : fallback);
 }
+
+export function getApiErrorStatus(error: unknown): number | undefined {
+  return isAxiosError(error) ? error.response?.status : undefined;
+}

@@ -59,12 +59,6 @@ export default function PaginationBar({
     ? 'bg-red-600 text-white border-red-600 hover:bg-red-700'
     : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700';
   
-  const textClass = variant === 'seeker'
-    ? 'text-orange-550 dark:text-orange-400'
-    : variant === 'admin'
-    ? 'text-red-500 dark:text-red-400'
-    : 'text-emerald-600 dark:text-emerald-400';
-
   const hoverBorderClass = variant === 'seeker'
     ? 'hover:border-orange-500/50 hover:text-orange-500'
     : variant === 'admin'

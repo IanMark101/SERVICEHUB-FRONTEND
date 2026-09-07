@@ -22,6 +22,7 @@ import {
 import { apiRejectOffer } from '../api/offers.api';
 import { apiSuggestCategory } from '../api/categories.api';
 import { useToast } from '../components/ui/Toast';
+import { getApiErrorMessage } from '../lib/api/errors';
 
 interface SeekerActionsDeps {
   users: User[];
@@ -46,24 +47,16 @@ interface SeekerActionsDeps {
 }
 
 export function useSeekerActions({
-  users,
-  services,
   jobRequests,
   bids,
-  jobEngagements,
   dbCategories,
   setJobRequests,
-  setBids,
-  setJobEngagements,
-  setTransactions,
-  setUserReports,
   setCategorySuggestions,
   syncRequests,
   syncEngagements,
   syncBids,
   syncNotifications,
   syncTransactions,
-  helperAddNotification
 }: SeekerActionsDeps) {
   const { success, error: toastError, info } = useToast();
 
@@ -126,8 +119,8 @@ export function useSeekerActions({
       } else {
         toastError('Category Error', 'Please select a valid service category.');
       }
-    } catch (err: any) {
-      toastError('Failed to post request', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Failed to post request', getApiErrorMessage(err, 'Unable to post the request.'));
     }
   };
 
@@ -139,8 +132,8 @@ export function useSeekerActions({
         success('Request Updated', 'Your job request was modified successfully.');
         return;
       }
-    } catch (err: any) {
-      toastError('Update Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Update Failed', getApiErrorMessage(err, 'Unable to update the request.'));
     }
   };
 
@@ -153,8 +146,8 @@ export function useSeekerActions({
         success('Request Deleted', 'Your job request has been removed.');
         return;
       }
-    } catch (err: any) {
-      toastError('Deletion Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Deletion Failed', getApiErrorMessage(err, 'Unable to delete the request.'));
     }
   };
 
@@ -181,10 +174,10 @@ export function useSeekerActions({
         return true;
       }
       return false;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Revert optimistic update on failure
-      setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: effectiveStatus as any } : r));
-      toastError('Status Update Failed', err.response?.data?.error || err.message);
+      setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: effectiveStatus as JobRequest['status'] } : r));
+      toastError('Status Update Failed', getApiErrorMessage(err, 'Unable to update the request status.'));
       await syncRequests();
       return false;
     }
@@ -236,8 +229,8 @@ export function useSeekerActions({
           }
         }
       }
-    } catch (err: any) {
-      toastError('Booking Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Booking Failed', getApiErrorMessage(err, 'Unable to create the booking.'));
     }
   };
 
@@ -296,8 +289,8 @@ export function useSeekerActions({
           }
         }
       }
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Action Failed', getApiErrorMessage(err, 'Unable to accept the offer.'));
       throw err;
     }
   };
@@ -310,8 +303,8 @@ export function useSeekerActions({
         success('Bid Declined', 'Offer rejected successfully.');
         return;
       }
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Action Failed', getApiErrorMessage(err, 'Unable to decline the offer.'));
       throw err;
     }
   };
@@ -326,8 +319,8 @@ export function useSeekerActions({
         success('Service Completed', 'The internal payment ledger was marked RELEASED. No provider payout is performed by this capstone.');
         return;
       }
-    } catch (err: any) {
-      toastError('Completion Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Completion Failed', getApiErrorMessage(err, 'Unable to confirm completion.'));
       throw err;
     }
   };
@@ -340,8 +333,8 @@ export function useSeekerActions({
         success('Dispute Filed', 'Admin has been notified and payment has been frozen.');
         return;
       }
-    } catch (err: any) {
-      toastError('Failed to dispute', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Failed to dispute', getApiErrorMessage(err, 'Unable to submit the dispute.'));
       throw err;
     }
   };
@@ -361,8 +354,8 @@ export function useSeekerActions({
         success('Category Suggested', 'Admin will review your category request.');
         return;
       }
-    } catch (err: any) {
-      toastError('Request Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Request Failed', getApiErrorMessage(err, 'Unable to suggest the category.'));
     }
   };
 

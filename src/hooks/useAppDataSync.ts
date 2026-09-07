@@ -32,6 +32,9 @@ import {
   mapDbNotification,
   mapDbTransaction
 } from "../context/mappers";
+import type { ApiBooking, ApiCompletedService } from "../context/mappers";
+
+interface ConversationSummary { unreadCount?: number }
 
 interface UseAppDataSyncOptions {
   isAuthenticated: boolean;
@@ -55,6 +58,10 @@ export function useAppDataSync({
   const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notificationPage, setNotificationPage] = useState(1);
+  const [notificationTotalPages, setNotificationTotalPages] = useState(1);
+  const [transactionPage, setTransactionPage] = useState(1);
+  const [transactionTotalPages, setTransactionTotalPages] = useState(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>([]);
@@ -67,6 +74,10 @@ export function useAppDataSync({
     setJobEngagements([]);
     setTransactions([]);
     setNotifications([]);
+    setNotificationPage(1);
+    setNotificationTotalPages(1);
+    setTransactionPage(1);
+    setTransactionTotalPages(1);
     setMessages([]);
     setUnreadMessagesCount(0);
     setCategorySuggestions([]);
@@ -176,45 +187,34 @@ export function useAppDataSync({
     try {
       const res = await apiGetMyEngagements();
       if (res.success) {
-        const dbBookings = res.data.bookings || [];
-        const dbCompleted = res.data.completedServices || [];
+        const dbBookings = (res.data.bookings || []) as ApiBooking[];
+        const dbCompleted = (res.data.completedServices || []) as ApiCompletedService[];
 
         const mappedBookings = dbBookings
-          .filter((b: any) => b.status !== "COMPLETED")
+          .filter((booking) => booking.status !== "COMPLETED")
           .map(mapBookingToEngagement);
         const mappedCompleted = dbCompleted.map(mapCompletedServiceToEngagement);
 
         setJobEngagements([...mappedBookings, ...mappedCompleted]);
-
-        // Sync transactions from completed services
-        const txs: Transaction[] = dbCompleted.map((cs: any) => ({
-          id: cs.id,
-          jobId: cs.bookingId || cs.id,
-          seekerId: cs.seekerId,
-          providerId: cs.providerId,
-          amount: Number(cs.finalPrice),
-          paymentMethod: cs.booking?.paymentMethod === 'Maya' ? 'Maya' : cs.booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
-          serviceTitle: cs.booking?.service?.title || cs.booking?.offer?.request?.title || cs.booking?.directRequest?.service?.title || 'Service Payment',
-          createdAt: cs.completedAt?.split('T')[0] || '',
-        }));
-
-        setTransactions(txs);
       }
     } catch {
       // ignore
     }
   }, []);
 
-  const syncNotifications = useCallback(async () => {
+  const syncNotifications = useCallback(async (page = 1, append = false) => {
     const token = getAccessToken();
     if (!token) {
       setNotifications([]);
       return;
     }
     try {
-      const res = await apiGetNotifications();
+      const res = await apiGetNotifications(page, 20);
       if (res.success && Array.isArray(res.data)) {
-        setNotifications(res.data.map(mapDbNotification));
+        const mapped: Notification[] = res.data.map(mapDbNotification);
+        setNotifications((current) => append ? [...current, ...mapped.filter((item) => !current.some((existing) => existing.id === item.id))] : mapped);
+        setNotificationPage(page);
+        setNotificationTotalPages(Math.max(1, res.pagination?.totalPages || 1));
       }
     } catch {
       // ignore
@@ -230,7 +230,9 @@ export function useAppDataSync({
     try {
       const res = await apiGetConversations();
       if (res.success && Array.isArray(res.data)) {
-        const totalUnread = res.data.reduce((acc: number, conv: any) => acc + (conv.unreadCount || 0), 0);
+        const totalUnread = typeof res.pagination?.unread === 'number'
+          ? res.pagination.unread
+          : (res.data as ConversationSummary[]).reduce((acc, conversation) => acc + (conversation.unreadCount || 0), 0);
         setUnreadMessagesCount(totalUnread);
       }
     } catch {
@@ -238,21 +240,32 @@ export function useAppDataSync({
     }
   }, []);
 
-  const syncTransactions = useCallback(async () => {
+  const syncTransactions = useCallback(async (page = 1, append = false) => {
     const token = getAccessToken();
     if (!token) {
       setTransactions([]);
       return;
     }
     try {
-      const res = await apiGetTransactions();
+      const res = await apiGetTransactions(page, 20);
       if (res.success && Array.isArray(res.data)) {
-        setTransactions(res.data.map(mapDbTransaction));
+        const mapped: Transaction[] = res.data.map(mapDbTransaction);
+        setTransactions((current) => append ? [...current, ...mapped.filter((item) => !current.some((existing) => existing.id === item.id))] : mapped);
+        setTransactionPage(page);
+        setTransactionTotalPages(Math.max(1, res.pagination?.totalPages || 1));
       }
     } catch {
       // ignore
     }
   }, []);
+
+  const loadMoreNotifications = useCallback(() => {
+    if (notificationPage < notificationTotalPages) void syncNotifications(notificationPage + 1, true);
+  }, [notificationPage, notificationTotalPages, syncNotifications]);
+
+  const loadMoreTransactions = useCallback(() => {
+    if (transactionPage < transactionTotalPages) void syncTransactions(transactionPage + 1, true);
+  }, [transactionPage, transactionTotalPages, syncTransactions]);
 
   const refreshEngagements = useCallback(() => {
     syncEngagements();
@@ -273,25 +286,30 @@ export function useAppDataSync({
   // ─── Initial Data Load on Mount ────────────────────────────────
   useEffect(() => {
     // Always load categories and public services
-    syncCategories();
-    syncPublicServices();
+    const timer = window.setTimeout(() => {
+      syncCategories();
+      syncPublicServices();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [syncCategories, syncPublicServices]);
 
   useEffect(() => {
     // Load private data only after the authoritative session check succeeds.
     if (authLoading) return;
     if (!isAuthenticated || !user?.id) {
-      clearPrivateData();
-      return;
+      const timer = window.setTimeout(clearPrivateData, 0);
+      return () => window.clearTimeout(timer);
     }
 
     {
-      syncRequests();
-      syncBids();
-      syncEngagements();
-      syncNotifications();
-      syncTransactions();
-      syncUnreadMessages();
+      const timer = window.setTimeout(() => {
+        syncRequests();
+        syncBids();
+        syncEngagements();
+        syncNotifications();
+        syncTransactions();
+        syncUnreadMessages();
+      }, 0);
 
       // Check for returning GCash payment checkout
       if (typeof window !== "undefined") {
@@ -320,7 +338,7 @@ export function useAppDataSync({
               }
             })
             .catch((err) => {
-              console.error("Error confirming online booking:", err);
+              if (process.env.NODE_ENV === 'development') console.error("Error confirming online booking:", err);
               toastError("Booking Verification Error", err.response?.data?.error || err.message);
             })
             .finally(() => {
@@ -331,6 +349,7 @@ export function useAppDataSync({
             });
         }
       }
+      return () => window.clearTimeout(timer);
     }
   }, [authLoading, isAuthenticated, user?.id, clearPrivateData, refreshAll, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages, toastError, toastSuccess]);
 
@@ -497,6 +516,10 @@ export function useAppDataSync({
     syncEngagements,
     syncNotifications,
     syncTransactions,
+    loadMoreNotifications,
+    hasMoreNotifications: notificationPage < notificationTotalPages,
+    loadMoreTransactions,
+    hasMoreTransactions: transactionPage < transactionTotalPages,
     syncUnreadMessages
   };
 }

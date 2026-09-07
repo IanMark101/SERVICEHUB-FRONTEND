@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { VerificationStatus } from '../../types';
@@ -11,18 +11,13 @@ interface LimitedModeDashboardCardProps {
 export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardCardProps = {}) {
   const { isDark, user } = useApp();
   const { verificationStatus, navigateToVerification, canTransact } = useTransactionPermission();
-  const [dismissed, setDismissed] = useState<boolean>(true); // start true to prevent flash
+  const [dismissed, setDismissed] = useState<boolean>(
+    () => typeof window !== 'undefined' && sessionStorage.getItem('limited_mode_card_dismissed') === 'true',
+  );
 
   // Determine active workspace theme: 'provider' -> emerald green, 'seeker' -> orange
   const activeRole = role || (user?.role === 'provider' ? 'provider' : 'seeker');
   const isProvider = activeRole === 'provider';
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const isDismissed = sessionStorage.getItem('limited_mode_card_dismissed') === 'true';
-      setDismissed(isDismissed);
-    }
-  }, []);
 
   // If the user can already transact, don't show the card
   if (canTransact) return null;
@@ -115,4 +110,3 @@ export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardC
     </div>
   );
 }
-

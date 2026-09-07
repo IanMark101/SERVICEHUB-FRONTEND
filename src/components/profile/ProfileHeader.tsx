@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
-import { ShieldCheck, MapPin, Edit3, Share2, Star, CheckCircle, Clock, Award, Globe } from 'lucide-react';
+import Image from 'next/image';
+import { ShieldCheck, MapPin, Edit3, Star, CheckCircle, Clock, Award, Globe } from 'lucide-react';
 
 const FacebookIcon = ({ size = 13 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -36,12 +37,9 @@ interface ProfileHeaderProps {
   createdAt?: string;
   completedJobs: number;
   averageRating: number;
-  responseRate: string;
   isOwnProfile: boolean;
   showEdit: boolean;
   setShowEdit: (v: boolean | ((prev: boolean) => boolean)) => void;
-  setShowSettingsModal?: (v: boolean) => void;
-  handleShareProfile: () => void;
   isDark: boolean;
   cardBg: string;
   innerBg: string;
@@ -64,12 +62,9 @@ export default function ProfileHeader({
   createdAt,
   completedJobs,
   averageRating,
-  responseRate,
   isOwnProfile,
   showEdit,
   setShowEdit,
-  setShowSettingsModal,
-  handleShareProfile,
   isDark,
   cardBg,
   innerBg,
@@ -87,12 +82,6 @@ export default function ProfileHeader({
     ? 'from-blue-500 via-indigo-400 to-purple-500'
     : 'from-orange-500 via-amber-400 to-yellow-500';
 
-  const badgeBg = isProvider
-    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-    : isAdmin
-    ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-    : 'bg-orange-500/10 text-orange-500 border-orange-500/20';
-
   return (
     <div className={`${cardBg} rounded-[28px] p-6 sm:p-8 border shadow-sm transition-all relative overflow-hidden`}>
       {/* Subtle top ambient glow */}
@@ -104,7 +93,7 @@ export default function ProfileHeader({
         <div className="relative flex-shrink-0 group">
           <div className={`p-1 rounded-full bg-gradient-to-tr ${borderRing} shadow-lg transition-transform duration-300 group-hover:scale-105`}>
             <div className="p-1 bg-white dark:bg-[#22211e] rounded-full">
-              <img
+              <Image unoptimized width={144} height={144}
                 src={avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=random`}
                 alt={displayName}
                 onError={(e) => {

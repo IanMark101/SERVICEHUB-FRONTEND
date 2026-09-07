@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { Shield, Upload, CheckCircle2, Clock, XCircle, ExternalLink, AlertTriangle, Image as ImageIcon, FileCheck, Trash2, Camera, Plus, Eye } from 'lucide-react';
+import Image from 'next/image';
+import { Shield, Upload, CheckCircle2, Clock, XCircle, AlertTriangle, FileCheck, Trash2, Camera, Plus, Eye } from 'lucide-react';
 import { apiSubmitVerification, apiGetVerificationStatus, apiUploadVerificationImage, apiGetVerificationPrivacyNotice } from '../../api/verifications.api';
 import { useToast } from '../ui/Toast';
+import { getApiErrorMessage } from '../../lib/api/errors';
 
 interface VerificationUploadProps {
   isDark: boolean;
@@ -62,7 +64,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
   const addRow = () => setRows(r => [...r, { fileUrl: '', documentType: 'GOVERNMENT_ID' }]);
   const removeRow = (i: number) => setRows(r => r.filter((_, idx) => idx !== i));
   
-  const updateRow = (i: number, field: keyof DocumentRow, value: any) =>
+  const updateRow = <K extends keyof DocumentRow>(i: number, field: K, value: DocumentRow[K]) =>
     setRows(r => r.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
 
   const handleFileUpload = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,8 +122,8 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
       } else {
         toastError('Submission Failed', res.error || 'Please try again.');
       }
-    } catch (e: any) {
-      toastError('Submission Failed', e?.response?.data?.error || 'Network error.');
+    } catch (submissionError: unknown) {
+      toastError('Submission Failed', getApiErrorMessage(submissionError, 'Network error.'));
     } finally {
       setSubmitting(false);
     }
@@ -254,7 +256,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                       <div style={{ background: isDark ? '#1c1b18' : '#ffffff', border: `1px solid ${isDark ? '#383632' : '#cbd5e1'}`, borderRadius: '12px', padding: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         {row.fileUrl.startsWith('data:image/') || row.fileUrl.match(/\.(png|jpg|jpeg|webp)$/i) ? (
                           <div style={{ position: 'relative', width: '56px', height: '56px', borderRadius: '10px', overflow: 'hidden', border: `1px solid ${isDark ? '#3a3835' : '#e2e8f0'}`, flexShrink: 0 }}>
-                            <img src={row.fileUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <Image unoptimized width={56} height={56} src={row.fileUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             <button
                               onClick={() => setPreviewModalUrl(row.fileUrl)}
                               style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.9 }}
@@ -361,7 +363,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
       {previewModalUrl && (
         <div onClick={() => setPreviewModalUrl(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
-            <img src={previewModalUrl} alt="Document Zoom" style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '12px', objectFit: 'contain' }} />
+            <Image unoptimized width={1200} height={900} src={previewModalUrl} alt="Document Zoom" style={{ maxWidth: '100%', height: 'auto', maxHeight: '90vh', borderRadius: '12px', objectFit: 'contain' }} />
             <button onClick={() => setPreviewModalUrl(null)} style={{ position: 'absolute', top: '-16px', right: '-16px', background: '#ef4444', color: '#fff', border: 'none', width: '32px', height: '32px', borderRadius: '50%', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
           </div>
         </div>

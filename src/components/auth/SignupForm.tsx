@@ -1,40 +1,21 @@
 import React, { useRef, useState } from 'react';
-import { Eye, EyeOff, ArrowLeft, Camera, Upload, Sparkles, Check, Image as ImageIcon, Loader2 } from 'lucide-react';
-import Link from 'next/link';
-import AuthInput from './shared/AuthInput';
+import Image from 'next/image';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import GoogleSignInButton from './shared/GoogleSignInButton';
-import { avatars } from '../../schema/auth/useAuthForm';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import SignupSteps from './signup/SignupSteps';
-
-// High-fidelity Philippine Flag SVG for cross-platform rendering (Windows/macOS/mobile)
-function PhilippineFlag({ className = "w-5 h-3.5" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 600 300" className={`rounded-[2px] shadow-xs object-cover flex-shrink-0 ${className}`}>
-      <rect width="600" height="150" fill="#0038A8" />
-      <rect y="150" width="600" height="150" fill="#CE1126" />
-      <polygon points="0,0 259.8,150 0,300" fill="#FFFFFF" />
-      <circle cx="86.6" cy="150" r="28" fill="#FCD116" />
-      <polygon points="86.6,105 91,140 82.2,140" fill="#FCD116" />
-      <polygon points="86.6,195 91,160 82.2,160" fill="#FCD116" />
-      <polygon points="41.6,150 76.6,154.4 76.6,145.6" fill="#FCD116" />
-      <polygon points="131.6,150 96.6,154.4 96.6,145.6" fill="#FCD116" />
-      <circle cx="36" cy="48" r="8" fill="#FCD116" />
-      <circle cx="36" cy="252" r="8" fill="#FCD116" />
-      <circle cx="218" cy="150" r="8" fill="#FCD116" />
-    </svg>
-  );
-}
+import type { UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import type { AuthFormValues } from '../../schema/auth/useAuthForm';
 
 interface SignupFormProps {
   step: number;
-  formData: any;
+  formData: AuthFormValues;
   fieldErrors: Record<string, string>;
   showPassword: boolean;
   setShowPassword: (show: boolean) => void;
   handleGoogleSuccessResponse: (token: string) => void;
   setError: (msg: string) => void;
-  handleSubmit: (e: any) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   handleAvatarSelect: (url: string) => void;
   handlePrevStep: () => void;
   handleNextStep: () => void;
@@ -42,8 +23,8 @@ interface SignupFormProps {
   accentText: string;
   accentBg: string;
   toggleMode: () => void;
-  register: any;
-  setValue: any;
+  register: UseFormRegister<AuthFormValues>;
+  setValue: UseFormSetValue<AuthFormValues>;
   isLoading?: boolean;
 }
 
@@ -79,8 +60,8 @@ export default function SignupForm({
     try {
       const cdnUrl = await uploadAvatarToCloudinary(file);
       handleAvatarSelect(cdnUrl);
-    } catch (err: any) {
-      setUploadError(err?.message || 'Failed to process and upload image');
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to process and upload image');
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
@@ -122,7 +103,7 @@ export default function SignupForm({
       {/* Mobile-visible Logo Header */}
       <div className="md:hidden flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
         <div className="flex items-center space-x-2.5">
-          <img src="/logo.svg" alt="Logo" className="w-7 h-7 object-contain rounded-lg shadow-sm" />
+          <Image width={28} height={28} src="/logo.svg" alt="Logo" className="w-7 h-7 object-contain rounded-lg shadow-sm" />
           <span className="text-sm font-extrabold tracking-tight text-slate-800 dark:text-white">ServiceHub Cordova</span>
         </div>
       </div>

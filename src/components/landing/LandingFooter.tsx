@@ -1,11 +1,7 @@
 import React from 'react';
+import Image from 'next/image';
 import { MapPin, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-interface LandingFooterProps {
-  isDark: boolean;
-  onGetStarted: () => void;
-}
 
 function scrollTo(id: string) {
   if (typeof window === 'undefined') return;
@@ -95,7 +91,7 @@ const COLUMNS: { heading: string; links: { label: string; type: 'scroll' | 'rout
   },
 ];
 
-export default function LandingFooter({ isDark, onGetStarted }: LandingFooterProps) {
+export default function LandingFooter() {
   const router = useRouter();
 
   const bg      = 'bg-[#0d0d0c]';
@@ -126,7 +122,7 @@ export default function LandingFooter({ isDark, onGetStarted }: LandingFooterPro
           {/* Brand block */}
           <div className="lg:w-56 shrink-0 space-y-5">
             <div className="flex items-center gap-3">
-              <img src="/logo.svg" alt="ServiceHub Cordova" className="h-11 w-11 rounded-xl object-contain shadow-md" />
+              <Image width={44} height={44} src="/logo.svg" alt="ServiceHub Cordova" className="h-11 w-11 rounded-xl object-contain shadow-md" />
               <span className="font-black text-lg md:text-xl tracking-tight text-white leading-tight">
                 ServiceHub<br />Cordova
               </span>

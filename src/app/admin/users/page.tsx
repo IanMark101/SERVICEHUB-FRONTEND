@@ -1,30 +1,16 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser, apiRestorePostingPrivilege, apiPromoteUserToAdmin } from '../../../api/admin.api';
-import { Loader2, Search, Award, ShieldAlert, Ban, RotateCcw, AlertCircle, Filter, UserPlus } from 'lucide-react';
+import { Search, Award, ShieldAlert, Ban, RotateCcw, Filter, UserPlus } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import PaginationBar from '../../../components/ui/PaginationBar';
 import { useSearchParams } from 'next/navigation';
 import AdminUserModals from '../../../components/admin/users/AdminUserModals';
+import { getApiErrorMessage } from '../../../lib/api/errors';
+import type { AdminUserItem } from '../../../components/admin/users/types';
 
-interface UserItem {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  trustScore: number;
-  verificationStatus: string;
-  emailVerified: boolean;
-  isActive: boolean;
-  moderationStatus: 'ACTIVE' | 'SUSPENDED' | 'BANNED';
-  suspendedUntil?: string | null;
-  moderationReason?: string | null;
-  postingSuspended: boolean;
-  postingSuspendReason?: string | null;
-  createdAt: string;
-}
+type UserItem = AdminUserItem;
 
 export default function AdminUsers() {
   const searchParams = useSearchParams();
@@ -75,7 +61,7 @@ export default function AdminUsers() {
   }, [search]);
 
   // Fetch users when parameters change
-  const fetchUsers = () => {
+  const fetchUsers = useCallback(() => {
     setLoading(true);
     apiListUsers({
       search: debouncedSearch || undefined,
@@ -99,11 +85,12 @@ export default function AdminUsers() {
         setError(err.message || "An error occurred.");
         setLoading(false);
       });
-  };
+  }, [debouncedSearch, roleFilter, statusFilter, page, limit]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [debouncedSearch, roleFilter, statusFilter, page, limit]);
+    const timer = window.setTimeout(fetchUsers, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchUsers]);
 
   const handleUpdateTrust = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,8 +105,8 @@ export default function AdminUsers() {
         setTrustReason('');
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Failed to update", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Failed to update", getApiErrorMessage(err, 'The trust score could not be updated.'));
     }
   };
 
@@ -134,8 +121,8 @@ export default function AdminUsers() {
         setSuspendReason('');
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Suspension Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Suspension Failed", getApiErrorMessage(err, 'The account could not be suspended.'));
     }
   };
 
@@ -150,8 +137,8 @@ export default function AdminUsers() {
         setBanReason('');
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Banning Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Banning Failed", getApiErrorMessage(err, 'The account could not be banned.'));
     }
   };
 
@@ -162,8 +149,8 @@ export default function AdminUsers() {
         toastSuccess("Account Restored", "User account active status successfully restored.");
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Restoration Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Restoration Failed", getApiErrorMessage(err, 'The account could not be restored.'));
     }
   };
 
@@ -172,8 +159,8 @@ export default function AdminUsers() {
       await apiRestorePostingPrivilege(userId);
       toastSuccess("Posting Restored", "The user may submit service listings again.");
       fetchUsers();
-    } catch (err: any) {
-      toastError("Restoration Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Restoration Failed", getApiErrorMessage(err, 'Posting access could not be restored.'));
     }
   };
 
@@ -187,8 +174,8 @@ export default function AdminUsers() {
       setPromotionReason('');
       setPromotionPassword('');
       fetchUsers();
-    } catch (err: any) {
-      toastError("Promotion Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Promotion Failed", getApiErrorMessage(err, 'The administrator promotion could not be completed.'));
     }
   };
 

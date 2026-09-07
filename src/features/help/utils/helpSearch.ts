@@ -1,4 +1,4 @@
-import { HelpArticle, SearchResult } from '../types/help.types';
+import { SearchResult } from '../types/help.types';
 import { ALL_HELP_ARTICLES, getCategoryBySlug } from '../data';
 
 export function searchHelpArticles(rawQuery: string): SearchResult[] {

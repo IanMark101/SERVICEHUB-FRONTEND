@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Mail, ShieldCheck, ArrowRight, AlertCircle, RefreshCw } from 'lucide-react';
 import { apiResendVerification } from '../../api/auth.api';
+import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 
 interface RegistrationSuccessProps {
   email: string;
@@ -36,17 +37,17 @@ export default function RegistrationSuccess({ email, onGoToLogin }: Registration
           message: res.error || 'Failed to resend verification email.',
         });
       }
-    } catch (err: any) {
-      if (err.response?.status === 429) {
+    } catch (err: unknown) {
+      if (getApiErrorStatus(err) === 429) {
         setResendStatus({
           type: 'error',
-          message: err.response?.data?.error || 'Please wait 60 seconds before requesting another verification email.',
+          message: getApiErrorMessage(err, 'Please wait 60 seconds before requesting another verification email.'),
         });
         setCooldown(60); // Sync frontend with backend limit
       } else {
         setResendStatus({
           type: 'error',
-          message: err.response?.data?.error || 'Something went wrong. Please try again later.',
+          message: getApiErrorMessage(err, 'Something went wrong. Please try again later.'),
         });
       }
     }
@@ -64,7 +65,7 @@ export default function RegistrationSuccess({ email, onGoToLogin }: Registration
           Registration Successful!
         </h2>
         <p className="text-slate-500 dark:text-[#b4b0a9] text-xs leading-relaxed max-w-sm mx-auto">
-          We've sent a verification email to <span className="font-bold text-slate-900 dark:text-[#f2efe9]">{email}</span>.
+          We&apos;ve sent a verification email to <span className="font-bold text-slate-900 dark:text-[#f2efe9]">{email}</span>.
           Please verify your email before logging in. Once verified, you can access your ServiceHub Cordova account.
         </p>
       </div>
@@ -73,7 +74,7 @@ export default function RegistrationSuccess({ email, onGoToLogin }: Registration
       <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/10 dark:border-amber-500/20 rounded-xl flex items-start space-x-2 text-amber-600 dark:text-amber-400 text-xs">
         <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
         <p className="leading-relaxed">
-          <span className="font-bold">Didn't receive the email?</span> Please check your Spam or Junk folder before requesting another verification email.
+          <span className="font-bold">Didn&apos;t receive the email?</span> Please check your Spam or Junk folder before requesting another verification email.
         </p>
       </div>
 

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   Lightbulb,
   Send,
-  Sparkles,
   CheckCircle2,
   XCircle,
   Clock,
@@ -13,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiGetMyCategorySuggestions } from '../../api/categories.api';
+import type { CategorySuggestion } from '../../types';
 
 interface SuggestCategoryModalProps {
   isOpen: boolean;
@@ -33,19 +33,10 @@ export default function SuggestCategoryModal({
   const [description, setDescription] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
-  const [dbSuggestions, setDbSuggestions] = useState<any[]>([]);
+  const [dbSuggestions, setDbSuggestions] = useState<CategorySuggestion[]>([]);
   const [expandedSuggestionId, setExpandedSuggestionId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      if (initialQuery) {
-        setName(initialQuery);
-      }
-      fetchMySuggestions();
-    }
-  }, [isOpen, initialQuery]);
-
-  const fetchMySuggestions = () => {
+  const fetchMySuggestions = useCallback(() => {
     apiGetMyCategorySuggestions()
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
@@ -53,7 +44,16 @@ export default function SuggestCategoryModal({
         }
       })
       .catch(() => {});
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const timer = window.setTimeout(() => {
+      if (initialQuery) setName(initialQuery);
+      fetchMySuggestions();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [isOpen, initialQuery, fetchMySuggestions]);
 
   // Combine context and DB suggestions for instant optimistic update + DB persistence
   const mySuggestions =

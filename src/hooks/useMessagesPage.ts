@@ -8,6 +8,7 @@ import { apiHideBooking } from '../api/bookings.api';
 import { joinBookingRoom, getSocket } from '../lib/socket';
 import { processMessageImage } from '../lib/imageUtils';
 import type { ConfirmModalState } from '../components/ui/ConfirmModal';
+import { getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
 
 export interface DbMessage {
   id: string;
@@ -40,6 +41,8 @@ export function useMessagesPage() {
   const bookingParam = searchParams.get('booking');
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversationPage, setConversationPage] = useState(1);
+  const [conversationTotalPages, setConversationTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
@@ -66,22 +69,26 @@ export function useMessagesPage() {
   // Sync conversation list from backend
   const syncConversations = useCallback(async () => {
     try {
-      const res = await apiGetConversations();
+      const res = await apiGetConversations(conversationPage, 20);
       if (res.success) {
         setConversations(res.data || []);
+        setConversationTotalPages(Math.max(1, res.pagination?.totalPages || 1));
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       // 401s are handled by the axios interceptor (token refresh + retry),
       // so only log genuinely unexpected errors to reduce console noise.
-      if (e?.response?.status !== 401) {
-        console.error("Failed to sync conversations:", e);
+      if (getApiErrorStatus(e) !== 401) {
+        if (process.env.NODE_ENV === 'development') console.error("Failed to sync conversations:", e);
       }
     }
-  }, []);
+  }, [conversationPage]);
 
   const selectedConvRef = useRef<Conversation | null>(null);
-  selectedConvRef.current = selectedConv;
   const hasProcessedInitialDeepLink = useRef(false);
+
+  useEffect(() => {
+    selectedConvRef.current = selectedConv;
+  }, [selectedConv]);
 
   // Load messages for chosen conversation
   const loadMessages = useCallback(async (bookingId: string) => {
@@ -95,8 +102,8 @@ export function useMessagesPage() {
       } else {
         setError(res.error || 'Failed to load messages.');
       }
-    } catch (e: any) {
-      setError(e?.response?.data?.error || 'Failed to load messages.');
+    } catch (e: unknown) {
+      setError(getApiErrorMessage(e, 'Failed to load messages.'));
     } finally {
       setLoading(false);
     }
@@ -118,25 +125,26 @@ export function useMessagesPage() {
 
   // Load conversations initial load
   useEffect(() => {
-    syncConversations();
+    const timer = window.setTimeout(() => void syncConversations(), 0);
+    return () => window.clearTimeout(timer);
   }, [syncConversations]);
 
   // Handle deep-link query parameter (runs ONCE on first load of conversations)
   useEffect(() => {
     if (hasProcessedInitialDeepLink.current || conversations.length === 0) return;
 
-    hasProcessedInitialDeepLink.current = true;
-    if (bookingParam) {
-      const match = conversations.find(c => c.bookingId === bookingParam);
-      if (match) {
-        selectConversation(match);
-        return;
+    const timer = window.setTimeout(() => {
+      hasProcessedInitialDeepLink.current = true;
+      if (bookingParam) {
+        const match = conversations.find(c => c.bookingId === bookingParam);
+        if (match) {
+          selectConversation(match);
+          return;
+        }
       }
-    }
-
-    if (!selectedConv) {
-      selectConversation(conversations[0]);
-    }
+      if (!selectedConv) selectConversation(conversations[0]);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [bookingParam, conversations, selectConversation, selectedConv]);
 
   // Real-time listener
@@ -180,8 +188,8 @@ export function useMessagesPage() {
     try {
       const dataUrl = await processMessageImage(file);
       setAttachedImage(dataUrl);
-    } catch (err: any) {
-      setError(err.message || 'Failed to attach image.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to attach image.');
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -203,10 +211,10 @@ export function useMessagesPage() {
         });
         syncConversations();
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       setInput(content);
       setAttachedImage(img);
-      setError(e?.response?.data?.error || 'Failed to send message.');
+      setError(getApiErrorMessage(e, 'Failed to send message.'));
     } finally {
       setSending(false);
       textareaRef.current?.focus();
@@ -241,7 +249,7 @@ export function useMessagesPage() {
             setMessages([]);
           }
         } catch (e) {
-          console.error('Failed to hide conversation:', e);
+          if (process.env.NODE_ENV === 'development') console.error('Failed to hide conversation:', e);
         } finally {
           setConfirmModal(null);
         }
@@ -260,6 +268,9 @@ export function useMessagesPage() {
     isDark,
     user,
     conversations,
+    conversationPage,
+    setConversationPage,
+    conversationTotalPages,
     searchQuery,
     setSearchQuery,
     selectedConv,

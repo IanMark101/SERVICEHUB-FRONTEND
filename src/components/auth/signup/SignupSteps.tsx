@@ -1,9 +1,33 @@
 "use client";
 
-import { Camera, Check, Eye, EyeOff, Image as ImageIcon, Loader2, Sparkles, Upload } from 'lucide-react';
+import { Camera, Check, Eye, EyeOff, Loader2, Sparkles, Upload } from 'lucide-react';
+import Image from 'next/image';
 import AuthInput from '../shared/AuthInput';
 import { avatars } from '../../../schema/auth/useAuthForm';
 import Link from 'next/link';
+import type { ChangeEvent, RefObject } from 'react';
+import type { UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import type { AuthFormValues } from '../../../schema/auth/useAuthForm';
+
+interface SignupStepsModel {
+  step: number;
+  register: UseFormRegister<AuthFormValues>;
+  fieldErrors: Record<string, string>;
+  showPassword: boolean;
+  setShowPassword: (show: boolean) => void;
+  formData: AuthFormValues;
+  isPhoneValid: boolean;
+  formatPhoneNumber: (value: string) => string;
+  setValue: UseFormSetValue<AuthFormValues>;
+  fileInputRef: RefObject<HTMLInputElement | null>;
+  handleFileUpload: (event: ChangeEvent<HTMLInputElement>) => void;
+  uploading: boolean;
+  uploadError: string | null;
+  handleAvatarSelect: (url: string) => void;
+  isDark: boolean;
+  accentText: string;
+  accentBg: string;
+}
 
 function PhilippineFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   return (
@@ -23,7 +47,7 @@ function PhilippineFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   );
 }
 
-export default function SignupSteps({ model }: { model: any }) {
+export default function SignupSteps({ model }: { model: SignupStepsModel }) {
   const {
     step,
     register,
@@ -38,10 +62,7 @@ export default function SignupSteps({ model }: { model: any }) {
     handleFileUpload,
     uploading,
     uploadError,
-    handleAvatarSelect,
-    isDark,
-    accentText,
-    accentBg
+    handleAvatarSelect
   } = model;
 
   return (
@@ -269,7 +290,7 @@ export default function SignupSteps({ model }: { model: any }) {
               {/* Avatar Preview & Upload Action */}
               <div className="flex items-center gap-3.5 p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50/70 dark:bg-[#151515] transition-all">
                 <div className="relative group/avatar flex-shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                  <img
+                  <Image unoptimized width={56} height={56}
                     src={formData.avatarUrl || avatars[0]}
                     alt="Selected Profile"
                     className="w-14 h-14 rounded-2xl object-cover border-2 border-orange-500 shadow-sm transition-transform duration-200 group-hover/avatar:scale-105"
@@ -342,7 +363,7 @@ export default function SignupSteps({ model }: { model: any }) {
                       }`}
                       title={`Animated Avatar #${idx + 1}`}
                     >
-                      <img
+                      <Image unoptimized width={56} height={56}
                         src={url}
                         alt={`Animated Avatar ${idx + 1}`}
                         className="w-full h-full object-cover rounded-xl"

@@ -18,7 +18,7 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
           <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Why This Exists</span>
           <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
             }`}>
-            Finding reliable help in Cordova shouldn't be guesswork
+            Finding reliable help in Cordova shouldn&apos;t be guesswork
           </h2>
           <p className={`text-sm max-w-xl mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
             }`}>
@@ -37,7 +37,7 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
             </div>
             <h3 className={`font-bold text-base sm:text-lg tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
               }`}>
-              No way to know who's reliable
+              No way to know who&apos;s reliable
             </h3>
             <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
               }`}>
@@ -77,7 +77,7 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
             </h3>
             <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
               }`}>
-              No deposit holding, no dispute resolution, and no recourse when someone doesn't pay or doesn't show up.
+              No deposit holding, no dispute resolution, and no recourse when someone doesn&apos;t pay or doesn&apos;t show up.
             </p>
           </ScrollReveal>
         </div>

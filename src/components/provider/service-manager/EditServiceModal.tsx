@@ -1,12 +1,13 @@
 import type { FormEvent } from 'react';
 import { X } from 'lucide-react';
+import type { ServiceListing } from '../../../types';
 
 export interface EditServiceState {
   serviceId: string;
   title: string;
   price: number;
-  priceType: string;
-  serviceType: string;
+  priceType: NonNullable<ServiceListing['priceType']>;
+  serviceType: NonNullable<ServiceListing['serviceType']>;
   estimatedDurationMins: number;
   description: string;
   paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
@@ -35,7 +36,7 @@ export default function EditServiceModal({ value, isDark, onChange, onClose, onS
         </div>
         <form onSubmit={onSubmit} className="p-5 space-y-4">
           <div><label className={label}>Listing Title</label><input className={field} required minLength={10} maxLength={100} value={value.title} onChange={(e) => onChange({ ...value, title: e.target.value })} /></div>
-          <div><label className={label}>Pricing Unit</label><select className={field} value={value.priceType === 'PER_SESSION' ? 'FIXED' : value.priceType} onChange={(e) => onChange({ ...value, serviceType: 'ONE_TIME', priceType: e.target.value })}><option value="FIXED">Fixed Price</option><option value="STARTS_AT">Starts At</option><option value="PER_HOUR">Per Hour</option><option value="PER_DAY">Per Day</option><option value="PER_PROJECT">Per Project</option><option value="CUSTOM">Custom quotation</option></select><p className="mt-1 text-[10px] text-slate-500">The listing is reusable; every accepted request creates a separate one-time booking.</p></div>
+          <div><label className={label}>Pricing Unit</label><select className={field} value={value.priceType === 'PER_SESSION' ? 'FIXED' : value.priceType} onChange={(e) => onChange({ ...value, serviceType: 'ONE_TIME', priceType: e.target.value as EditServiceState['priceType'] })}><option value="FIXED">Fixed Price</option><option value="STARTS_AT">Starts At</option><option value="PER_HOUR">Per Hour</option><option value="PER_DAY">Per Day</option><option value="PER_PROJECT">Per Project</option><option value="CUSTOM">Custom quotation</option></select><p className="mt-1 text-[10px] text-slate-500">The listing is reusable; every accepted request creates a separate one-time booking.</p></div>
           <div><label className={label}>Price (PHP)</label><input className={field} type="number" min={50} max={50000} required={value.priceType !== 'CUSTOM'} disabled={value.priceType === 'CUSTOM'} value={value.price} onChange={(e) => onChange({ ...value, price: Number(e.target.value) })} /></div>
           <div><label className={label}>Estimated Duration (minutes)</label><input className={field} type="number" min={15} max={480} required value={value.estimatedDurationMins} onChange={(e) => onChange({ ...value, estimatedDurationMins: Number(e.target.value) })} /></div>
           <div><label className={label}>Description</label><textarea className={field} rows={4} required minLength={30} maxLength={1000} value={value.description} onChange={(e) => onChange({ ...value, description: e.target.value })} /></div>

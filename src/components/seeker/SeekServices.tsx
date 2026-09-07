@@ -2,22 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
-import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone, RefreshCw, Sparkles, Bell } from 'lucide-react';
+import { Search } from 'lucide-react';
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../ui/PaginationBar';
-import { getServicePaymentMethods, getPrimaryBookingCTA, getFormattedPrice, getServiceTypeLabel } from '../../lib/paymentUtils';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { joinServiceRoom } from '../../lib/socket';
 import { apiJoinWaitlist } from '../../api/bookings.api';
 import { useToast } from '../ui/Toast';
-import EmptyState from '../ui/EmptyState';
-import { ServiceListingSkeleton } from '../ui/SkeletonCard';
 import SuggestCategoryModal from './SuggestCategoryModal';
 import { apiGetProviderSummary } from '../../api/ai.api';
 import ServiceMarketplaceGrid from './seek-services/ServiceMarketplaceGrid';
+import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 
 export default function SeekServices() {
   const router = useRouter();
@@ -119,11 +116,12 @@ export default function SeekServices() {
     try {
       await apiJoinWaitlist(listing.id);
       toastSuccess(`You're on the waitlist! We will notify you as soon as a slot opens for "${listing.title}".`);
-    } catch (err: any) {
-      if (err?.response?.status === 409 || err?.response?.data?.error?.includes('already')) {
+    } catch (err: unknown) {
+      const message = getApiErrorMessage(err, 'Failed to join waitlist. Please try again.');
+      if (getApiErrorStatus(err) === 409 || message.toLowerCase().includes('already')) {
         toastInfo('You are already on the waitlist for this service.');
       } else {
-        toastError(err?.response?.data?.error || 'Failed to join waitlist. Please try again.');
+        toastError(message);
       }
     } finally {
       setJoiningWaitlistId(null);
@@ -156,7 +154,7 @@ export default function SeekServices() {
     let matchesQuickFilter = true;
     if (activeFilter === 'available') {
       // Show services that are not paused AND not at queue capacity
-      const queueLimit = (service as any).queueLimit ?? 5;
+      const queueLimit = service.queueLimit ?? 5;
       matchesQuickFilter = !service.isPaused && service.queueSize < queueLimit;
     } else if (activeFilter === 'rated') {
       // Top Rated: trustScore >= 80 → rating >= 4.0 (trustScore / 20)

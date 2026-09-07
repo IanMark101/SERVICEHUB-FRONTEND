@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import HelpSearch from '../components/HelpSearch';
 import HelpCategoryCard from '../components/HelpCategoryCard';
 import { HELP_CATEGORIES } from '../data/categories';

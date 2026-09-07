@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { History, RefreshCw } from 'lucide-react';
 import { apiListAdminAuditLogs } from '../../../api/admin.api';
 import { useApp } from '../../../context/AppContext';
@@ -23,7 +23,7 @@ export default function AdminAuditLogsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apiListAdminAuditLogs({ page, limit: 25 });
@@ -32,9 +32,12 @@ export default function AdminAuditLogsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
-  useEffect(() => { void load(); }, [page]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
+  }, [load]);
 
   return (
     <div className="space-y-5">

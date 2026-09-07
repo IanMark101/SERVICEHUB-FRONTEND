@@ -1,30 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement } from '../../types';
-import {
-  Wrench,
-  Trash2,
-  Send,
-  Clock,
-  AlertTriangle,
-  CheckCircle2,
-  Play,
-  Calendar,
-  Sparkles,
-  Search,
-  MessageSquare,
-  AlertCircle,
-  Loader2
-} from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../ui/PaginationBar';
 import { apiCancelBooking, apiEscalateCancellationRequest, apiRespondCancellationRequest, apiHideBooking, apiEscalateCompletion } from '../../api/bookings.api';
 import { useToast } from '../ui/Toast';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
-import EmptyState from '../ui/EmptyState';
-import { ActivityItemSkeleton } from '../ui/SkeletonCard';
-import LifecycleStepper from '../ui/LifecycleStepper';
 import ReviewModal from '../seeker/ReviewModal';
 import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ProviderActivityTabs from './activity/ProviderActivityTabs';
@@ -34,9 +15,9 @@ import {
   filterProviderActivityItems,
 } from './activity/providerActivity.utils';
 import type { ProviderActivitySort, ProviderActivityTab } from './activity/types';
-import ProviderActivityItem from './activity/ProviderActivityItem';
 import ProviderActivityList from './activity/ProviderActivityList';
 import ReasonModal from '../ui/ReasonModal';
+import { getApiErrorMessage } from '../../lib/api/errors';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
@@ -64,12 +45,12 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const resolvedProviderId = currentProviderId || user?.id;
 
   // Filter engagements and bids for resolvedProviderId
-  const myEngagements = resolvedProviderId
+  const myEngagements = useMemo(() => resolvedProviderId
     ? jobEngagements.filter(je => je.providerId === resolvedProviderId)
-    : jobEngagements;
-  const myPendingBids = resolvedProviderId
+    : jobEngagements, [jobEngagements, resolvedProviderId]);
+  const myPendingBids = useMemo(() => resolvedProviderId
     ? bids.filter(b => b.providerId === resolvedProviderId && b.status === 'pending')
-    : bids.filter(b => b.status === 'pending');
+    : bids.filter(b => b.status === 'pending'), [bids, resolvedProviderId]);
 
   // Filter state
   const [activeTab, setActiveTab] = useState<ProviderActivityTab>('all');
@@ -124,7 +105,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     if (tabParam) {
       const allowed: ProviderActivityTab[] = ['all', 'in_progress', 'waiting', 'pending_offers', 'awaiting_approval', 'disputed', 'canceled'];
       if (allowed.includes(tabParam as ProviderActivityTab)) {
-        setActiveTab(tabParam as ProviderActivityTab);
+        const timer = window.setTimeout(() => setActiveTab(tabParam as ProviderActivityTab), 0);
+        return () => window.clearTimeout(timer);
       }
     }
   }, [tabParam]);
@@ -141,8 +123,10 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         else if (found.status === 'completed') targetTab = 'completed';
         else if (found.status === 'canceled') targetTab = 'canceled';
 
-        setActiveTab(targetTab);
-        setHighlightedBookingId(found.id);
+        const stateTimer = window.setTimeout(() => {
+          setActiveTab(targetTab);
+          setHighlightedBookingId(found.id);
+        }, 0);
 
         const scrollTimer = setTimeout(() => {
           const element = document.getElementById(`booking-${found.id}`);
@@ -156,12 +140,13 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         }, 3000);
 
         return () => {
+          window.clearTimeout(stateTimer);
           clearTimeout(scrollTimer);
           clearTimeout(clearTimer);
         };
       }
     }
-  }, [bookingIdParam, myEngagements.length]);
+  }, [bookingIdParam, myEngagements]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -236,7 +221,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     setLoadingActionType('start');
     try {
       await providerStartJob(id);
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setLoadingItemId(null);
@@ -249,7 +234,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     setLoadingActionType('complete');
     try {
       await requestJobApproval(id);
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setLoadingItemId(null);
@@ -264,8 +249,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       await apiEscalateCompletion(id, 'The seeker has not responded to the completion request after the required waiting period.');
       success('Review requested', 'The completion was sent to an administrator for review.');
       refreshEngagements();
-    } catch (err: any) {
-      toastError('Unable to escalate', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Unable to escalate', getApiErrorMessage(err, 'Unable to escalate this completion.'));
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -292,8 +277,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       setCancelingBookingId(null);
       setCancelReason('');
       refreshEngagements();
-    } catch (err: any) {
-      toastError('Cancellation failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Cancellation failed', getApiErrorMessage(err, 'Unable to cancel this booking.'));
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -307,8 +292,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       await apiEscalateCancellationRequest(requestId);
       success('Escalated to Admin', 'An administrator will review the cancellation decision.');
       refreshEngagements();
-    } catch (err: any) {
-      toastError('Escalation failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Escalation failed', getApiErrorMessage(err, 'Unable to escalate this cancellation.'));
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -320,7 +305,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     setLoadingActionType('cancel_offer');
     try {
       await declineBid(bidId);
-    } catch (err) {
+    } catch {
       // already toasted
     } finally {
       setLoadingItemId(null);
@@ -348,8 +333,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
           } else {
             toastError('Action Failed', res.message || 'Failed to approve cancellation.');
           }
-        } catch (err: any) {
-          toastError('Action Failed', err.response?.data?.message || 'Error responding to cancellation request.');
+        } catch (err: unknown) {
+          toastError('Action Failed', getApiErrorMessage(err, 'Error responding to cancellation request.'));
         } finally {
           setLoadingItemId(null);
           setLoadingActionType(null);
@@ -379,8 +364,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
           } else {
             toastError('Remove Failed', res.message || 'Failed to remove record.');
           }
-        } catch (err: any) {
-          toastError('Remove Failed', err.response?.data?.message || 'Error removing record.');
+        } catch (err: unknown) {
+          toastError('Remove Failed', getApiErrorMessage(err, 'Error removing record.'));
         } finally {
           setLoadingItemId(null);
           setLoadingActionType(null);
@@ -405,8 +390,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       } else {
         toastError('Action Failed', res.message || 'Failed to decline cancellation.');
       }
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.message || 'Error declining cancellation.');
+    } catch (err: unknown) {
+      toastError('Action Failed', getApiErrorMessage(err, 'Error declining cancellation.'));
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -469,7 +454,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
       {/* Review Modal for Rating Clients */}
       {reviewingEngagement && (() => {
-        const existingReview = reviewingEngagement.reviews?.find((r: any) => r.authorId === (resolvedProviderId || user?.id));
+        const existingReview = reviewingEngagement.reviews?.find((review) => review.authorId === (resolvedProviderId || user?.id));
         return (
           <ReviewModal
             isOpen={!!reviewingEngagement}

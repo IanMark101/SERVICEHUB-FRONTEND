@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Clock, FileText, Sparkles } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { HelpArticle } from '../types/help.types';
 import { getCategoryBySlug } from '../data';
 

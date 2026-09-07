@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Sun, Moon, Search, ExternalLink } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
@@ -9,7 +10,8 @@ export default function HelpNavbar() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const backHref = isAuthenticated
@@ -26,7 +28,7 @@ export default function HelpNavbar() {
         {/* Brand */}
         <div className="flex items-center gap-3">
           <Link href="/help" className="flex items-center gap-3 group">
-            <img src="/logo.svg" alt="ServiceHub Logo" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
+            <Image width={32} height={32} src="/logo.svg" alt="ServiceHub Logo" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
             <div className="flex flex-col">
               <span className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">
                 ServiceHub Cordova

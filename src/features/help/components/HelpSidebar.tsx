@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
   Compass,
   ShieldCheck,
@@ -18,7 +17,6 @@ import {
   AlertTriangle,
   HelpCircle,
   Mail,
-  Sparkles,
 } from 'lucide-react';
 import { HELP_CATEGORIES } from '../data/categories';
 
@@ -43,8 +41,6 @@ interface HelpSidebarProps {
 }
 
 export default function HelpSidebar({ currentCategorySlug }: HelpSidebarProps) {
-  const pathname = usePathname();
-
   return (
     <aside className="w-full lg:w-64 shrink-0 space-y-6">
       {/* Category List Navigation */}

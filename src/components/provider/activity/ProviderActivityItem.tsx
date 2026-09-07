@@ -1,23 +1,44 @@
 "use client";
 
 import {
-  AlertCircle,
   AlertTriangle,
-  Calendar,
   CheckCircle2,
   Clock,
   Loader2,
   MessageSquare,
   Play,
-  Send,
-  Sparkles,
   Trash2,
-  Wrench
 } from 'lucide-react';
 import LifecycleStepper from '../../ui/LifecycleStepper';
-import type { JobEngagement } from '../../../types';
+import type { Dispatch, SetStateAction } from 'react';
+import type { JobEngagement, JobRequest } from '../../../types';
+import type { UserSession } from '../../auth/LoginContainer';
+import type { ProviderActivityItemData } from './providerActivity.utils';
 
-export default function ProviderActivityItem({ item, model }: { item: any; model: any }) {
+export interface ProviderActivityItemModel {
+  isDark: boolean;
+  getRequestForBid: (requestId: string) => JobRequest | undefined;
+  getCategoryForEngagement: (engagement: JobEngagement) => string;
+  loadingItemId: string | null;
+  loadingActionType: string | null;
+  highlightedBookingId: string | null;
+  handleCancelOffer: (id: string) => void;
+  handleApproveCancellation: (id: string) => void;
+  handleDeleteClick: (engagement: JobEngagement) => void;
+  handleProviderStartJob: (id: string) => void;
+  handleRequestJobApproval: (id: string) => void;
+  handleCompletionEscalation: (id: string) => void;
+  handleProviderRemoveFromQueue: (id: string) => void;
+  handleEscalateCancellation: (id: string) => void;
+  router: { push: (href: string) => void };
+  setRespondingReqId: Dispatch<SetStateAction<string | null>>;
+  setDeclineNote: Dispatch<SetStateAction<string>>;
+  setReviewingEngagement: Dispatch<SetStateAction<JobEngagement | null>>;
+  resolvedProviderId?: string;
+  user: UserSession | null;
+}
+
+export default function ProviderActivityItem({ item, model }: { item: ProviderActivityItemData; model: ProviderActivityItemModel }) {
   const {
     isDark,
     getRequestForBid,
@@ -189,7 +210,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                       <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-red-955/15 border-red-900/30 text-red-455' : 'bg-red-50/50 border-red-100 text-red-700'
                         }`}>
                         <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                        <span>Disputed by Client: "{je.disputeReason}"</span>
+                        <span>Disputed by Client: &quot;{je.disputeReason}&quot;</span>
                       </div>
                     )}
 
@@ -205,7 +226,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                               <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 animate-bounce" />
                               <div>
                                 <span className="font-extrabold block">{requestedByProvider ? 'Your Cancellation Request' : 'Cancellation Requested by Seeker'}</span>
-                                <span className="text-[10px] leading-relaxed block mt-0.5">Reason: "{activeReq.reason || 'No explanation provided'}"</span>
+                                <span className="text-[10px] leading-relaxed block mt-0.5">Reason: &quot;{activeReq.reason || 'No explanation provided'}&quot;</span>
                               </div>
                             </div>
 
@@ -251,7 +272,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                             }`}>
                             <Clock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                             <div>
-                              <span>{requestedByProvider ? 'The seeker declined your cancellation request.' : 'You declined the cancellation request.'} Note: "{activeReq.responderNote || activeReq.providerNote || 'None'}"</span>
+                              <span>{requestedByProvider ? 'The seeker declined your cancellation request.' : 'You declined the cancellation request.'} Note: &quot;{activeReq.responderNote || activeReq.providerNote || 'None'}&quot;</span>
                               {requestedByProvider && <button onClick={() => handleEscalateCancellation(activeReq.id)} className="ml-2 rounded-lg bg-red-600 px-2.5 py-1 text-[9px] font-bold text-white">Escalate to Admin</button>}
                             </div>
                           </div>
@@ -271,7 +292,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                           <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-neutral-800/40 border-neutral-700 text-[#b4b0a9]' : 'bg-slate-50 border-slate-205 text-slate-500'
                             }`}>
                             <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                            <span>Admin resolved cancellation request. Note: "{activeReq.adminNote || 'None'}"</span>
+                            <span>Admin resolved cancellation request. Note: &quot;{activeReq.adminNote || 'None'}&quot;</span>
                           </div>
                         );
                       }
@@ -322,7 +343,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                           </span>
                         )}
                         {je.status === 'completed' && (() => {
-                          const myReview = je.reviews && je.reviews.find((r: any) => r.authorId === (resolvedProviderId || user?.id));
+                          const myReview = je.reviews && je.reviews.find((review) => review.authorId === (resolvedProviderId || user?.id));
                           const canEdit = myReview && myReview.editableUntil
                             ? new Date() < new Date(myReview.editableUntil)
                             : myReview && myReview.createdAt
@@ -416,7 +437,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                                   </>
                                 )}
                               </button>
-                              {!je.cancellationRequests?.some((request: any) => ['PENDING', 'ESCALATED'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Cancel Booking</button>}
+                              {!je.cancellationRequests?.some((request) => ['PENDING', 'ESCALATED'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Cancel Booking</button>}
                               </div>
                             );
                           }
@@ -440,7 +461,7 @@ export default function ProviderActivityItem({ item, model }: { item: any; model
                                 <span>Mark Completed</span>
                               )}
                             </button>
-                            {!je.cancellationRequests?.some((request: any) => ['PENDING', 'ESCALATED'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Request Cancellation</button>}
+                            {!je.cancellationRequests?.some((request) => ['PENDING', 'ESCALATED'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Request Cancellation</button>}
                             </div>
                           );
                         })()}

@@ -25,8 +25,6 @@ interface HelpArticleLayoutProps {
 
 export default function HelpArticleLayout({
   article,
-  prevArticle,
-  nextArticle,
 }: HelpArticleLayoutProps) {
   const category = getCategoryBySlug(article.category);
   const relatedArticles = getRelatedArticles(article, 4);

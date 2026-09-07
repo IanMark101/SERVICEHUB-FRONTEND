@@ -9,7 +9,19 @@ import {
 
 const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200';
 
-export function mapBookingToEngagement(b: any): JobEngagement {
+interface ApiReview { rating?: number }
+interface ApiUser { id?: string; name?: string; avatarUrl?: string | null; trustScore?: number; verificationStatus?: string; location?: string; reviewsReceived?: ApiReview[] }
+interface ApiCategory { name?: string }
+interface ApiService { id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
+interface ApiDirectRequest { agreedPrice?: number | string; message?: string; schedule?: string; service?: { title?: string } }
+interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; message?: string; status?: string; createdAt?: string; request?: { title?: string; seeker?: ApiUser; category?: ApiCategory | string } }
+export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string }; offer?: ApiOffer; directRequest?: ApiDirectRequest; paymentMethod?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests'] }
+export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; completedAt?: string; reviews?: JobEngagement['reviews'] }
+interface ApiRequest { id: string; seekerId?: string; seeker?: ApiUser; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: unknown[] }
+interface ApiNotification { id: string; userId: string; title: string; body: string; createdAt: string; isRead: boolean; link?: string | null }
+interface ApiTransaction { id: string; relatedBookingId?: string; walletOwnerId: string; amount: number | string; description?: string; createdAt?: string }
+
+export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
   const title = b.service?.title || b.offer?.request?.title || b.directRequest?.service?.title || 'Job Engagement';
   const statusMap: Record<string, string> = {
     'WAITING': 'queued',
@@ -39,7 +51,7 @@ export function mapBookingToEngagement(b: any): JobEngagement {
     providerLocation: b.provider?.location || 'Cordova, Cebu',
     serviceId: b.serviceId || null,
     price: Number(b.directRequest?.agreedPrice || b.offer?.offeredPrice || b.service?.price || 0),
-    status: (statusMap[b.status] || 'pending_provider') as JobEngagement['status'],
+    status: (statusMap[b.status || ''] || 'pending_provider') as JobEngagement['status'],
     paymentMethod: b.paymentMethod === 'Maya' ? 'Maya' : b.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
     createdAt: b.createdAt || '',
     completedAt: b.updatedAt || '',
@@ -51,7 +63,7 @@ export function mapBookingToEngagement(b: any): JobEngagement {
   };
 }
 
-export function mapCompletedServiceToEngagement(cs: any): JobEngagement {
+export function mapCompletedServiceToEngagement(cs: ApiCompletedService): JobEngagement {
   const booking = cs.booking;
   const title = booking?.service?.title || booking?.offer?.request?.title || booking?.directRequest?.service?.title || 'Completed Job';
   return {
@@ -80,12 +92,12 @@ export function mapCompletedServiceToEngagement(cs: any): JobEngagement {
   };
 }
 
-export function mapServiceToListing(item: any): ServiceListing {
+export function mapServiceToListing(item: ApiService): ServiceListing {
   const reviews = item.provider?.reviewsReceived || [];
   const reviewCount = reviews.length;
   let avgRating = 5.0;
   if (reviewCount > 0) {
-    const sum = reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0);
+    const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
     avgRating = Number((sum / reviewCount).toFixed(1));
   } else if (typeof item.rating === 'number' && item.rating <= 5) {
     avgRating = item.rating;
@@ -95,7 +107,7 @@ export function mapServiceToListing(item: any): ServiceListing {
 
   return {
     id: item.id,
-    providerId: item.providerId || item.provider?.id,
+    providerId: item.providerId || item.provider?.id || '',
     providerName: item.provider?.name || 'Provider',
     providerAvatar: item.provider?.avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
     title: item.title,
@@ -108,6 +120,7 @@ export function mapServiceToListing(item: any): ServiceListing {
     proofOfSkillUrl: '',
     rating: avgRating,
     providerTrustScore: rawTrust,
+    providerVerificationStatus: item.provider?.verificationStatus,
     reviewCount: reviewCount,
     // Legacy session enum values are decoded into the current reusable
     // one-time model until the normalization migration is deployed.
@@ -127,10 +140,10 @@ export function mapServiceToListing(item: any): ServiceListing {
 }
 
 
-export function mapRequestToJobRequest(r: any): JobRequest {
+export function mapRequestToJobRequest(r: ApiRequest): JobRequest {
   return {
     id: r.id,
-    seekerId: r.seekerId || r.seeker?.id,
+    seekerId: r.seekerId || r.seeker?.id || '',
     seekerName: r.seeker?.name || 'Seeker',
     seekerAvatar: r.seeker?.avatarUrl || DEFAULT_AVATAR,
     title: r.title,
@@ -144,18 +157,18 @@ export function mapRequestToJobRequest(r: any): JobRequest {
   };
 }
 
-export function mapOfferToBid(o: any): Bid {
+export function mapOfferToBid(o: ApiOffer): Bid {
   const reviews = o.provider?.reviewsReceived || [];
   let avgRating = 5.0;
   if (reviews.length > 0) {
-    const sum = reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0);
+    const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
     avgRating = Number((sum / reviews.length).toFixed(1));
   }
 
   return {
     id: o.id,
     requestId: o.requestId,
-    providerId: o.providerId || o.provider?.id,
+    providerId: o.providerId || o.provider?.id || '',
     serviceId: o.serviceId,
     providerName: o.provider?.name || 'Provider',
     providerAvatar: o.provider?.avatarUrl || DEFAULT_AVATAR,
@@ -170,7 +183,7 @@ export function mapOfferToBid(o: any): Bid {
   };
 }
 
-export function mapDbNotification(n: any): Notification {
+export function mapDbNotification(n: ApiNotification): Notification {
   const createdAt = new Date(n.createdAt);
   const now = new Date();
   const diffMs = now.getTime() - createdAt.getTime();
@@ -191,7 +204,7 @@ export function mapDbNotification(n: any): Notification {
   };
 }
 
-export function mapDbTransaction(t: any): Transaction {
+export function mapDbTransaction(t: ApiTransaction): Transaction {
   return {
     id: t.id,
     jobId: t.relatedBookingId || t.id,

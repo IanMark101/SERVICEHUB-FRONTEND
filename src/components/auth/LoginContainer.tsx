@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useAuthForm from '../../schema/auth/useAuthForm';
 import AuthLeftPanel from './AuthLeftPanel';
 import LoginForm from './LoginForm';
@@ -36,20 +36,8 @@ export default function LoginContainer({
   const { isDark } = useApp();
   const router = useRouter();
   const [theme] = useState<'orange'>('orange');
-  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>('login');
-  const [initialResetToken, setInitialResetToken] = useState<string>('');
-
-  // Read resetToken from query params if any
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get('resetToken');
-      if (token) {
-        setInitialResetToken(token);
-        setMode('reset');
-      }
-    }
-  }, []);
+  const [initialResetToken] = useState(() => typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('resetToken') || '');
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(() => initialResetToken ? 'reset' : 'login');
 
   const {
     formData,

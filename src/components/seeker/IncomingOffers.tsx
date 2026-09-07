@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { 
   ShieldCheck, 
   Star, 
-  Calendar, 
   MessageSquare, 
-  Trash2, 
   Check, 
   Search, 
   X, 
   CreditCard, 
   Loader2, 
-  Sparkles,
   Clock,
   MapPin,
   Inbox
@@ -35,13 +33,20 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   const [loadingBidId, setLoadingBidId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
+  const [referenceTime, setReferenceTime] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReferenceTime(Date.now()), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   const selectedOffer = bids.find((bid) => bid.id === selectingPaymentBidId);
   const acceptedMethods = getServicePaymentMethods(services.find((service) => service.id === selectedOffer?.serviceId));
 
   // Compute relative time from a full ISO timestamp
   const formatTimeAgo = (isoStr: string): string => {
     if (!isoStr) return 'Just now';
-    const diffMs = Date.now() - new Date(isoStr).getTime();
+    if (!referenceTime) return 'Recently';
+    const diffMs = referenceTime - new Date(isoStr).getTime();
     const diffSecs = Math.floor(diffMs / 1000);
     if (diffSecs < 60) return diffSecs <= 1 ? 'Just now' : `${diffSecs}s ago`;
     const diffMins = Math.floor(diffSecs / 60);
@@ -76,7 +81,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     setLoadingAction('accepting');
     try {
       await acceptBid(bidId, paymentMethod);
-    } catch (err) {
+    } catch {
       // error is already toasted, clean up loading state
     } finally {
       setLoadingBidId(null);
@@ -89,7 +94,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     setLoadingAction('declining');
     try {
       await declineBid(bidId);
-    } catch (err) {
+    } catch {
       // error is already toasted
     } finally {
       setLoadingBidId(null);
@@ -173,7 +178,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
             <span className="text-xs font-bold text-slate-400 dark:text-neutral-500">Sort by:</span>
             <select
               value={sortBy}
-              onChange={(e: any) => setSortBy(e.target.value)}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               className={`px-3 py-2 rounded-xl border text-xs font-bold transition-colors focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer ${
                 isDark 
                   ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]' 
@@ -245,7 +250,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                     className="flex items-center gap-3 min-w-0 cursor-pointer group"
                     title={`View ${bid.providerName}'s profile`}
                   >
-                    <img 
+                    <Image unoptimized width={40} height={40}
                       src={bid.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(bid.providerName || 'Provider')}&background=random`} 
                       alt={bid.providerName} 
                       className="w-10 h-10 rounded-full object-cover border border-neutral-700/60 shadow-sm shrink-0 transition-transform group-hover:scale-105"
@@ -445,7 +450,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-450' 
                   : 'bg-slate-50 border-slate-200 text-slate-500'
               }`}>
-                ⚠️ You can cancel for free anytime before the provider starts the job. Once they've started, cancellation needs their approval.
+                ⚠️ You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.
               </p>
             </div>
           </div>

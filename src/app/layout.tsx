@@ -4,8 +4,6 @@ import { AppProvider } from "../context/AppContext";
 import { ToastProvider } from "../components/ui/Toast";
 import "./globals.css";
 
-import Script from "next/script";
-
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-serif",

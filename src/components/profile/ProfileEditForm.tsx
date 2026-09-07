@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useState } from 'react';
-import { Edit3, X, Save, Camera, Upload, Trash2, Image as ImageIcon, Lock } from 'lucide-react';
+import Image from 'next/image';
+import { Edit3, X, Save, Camera, Upload, Trash2, Lock } from 'lucide-react';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 
 const CORDOVA_BARANGAYS = [
@@ -9,21 +10,23 @@ const CORDOVA_BARANGAYS = [
   "Poblacion", "San Miguel",
 ];
 
-interface ProfileEditFormProps {
-  editForm: {
+interface ProfileEditFormValue {
     name: string;
     bio: string;
     phone: string;
     location: string;
     avatarUrl: string;
-    facebookUrl?: string;
-    instagramUrl?: string;
-    websiteUrl?: string;
+    facebookUrl: string;
+    instagramUrl: string;
+    websiteUrl: string;
     occupation: string;
     languages: string;
     availability: string;
-  };
-  setEditForm: React.Dispatch<React.SetStateAction<any>>;
+}
+
+interface ProfileEditFormProps {
+  editForm: ProfileEditFormValue;
+  setEditForm: React.Dispatch<React.SetStateAction<ProfileEditFormValue>>;
   setShowEdit: (v: boolean) => void;
   handleSaveProfile: (confirmedPassword?: string) => Promise<void>;
   saving: boolean;
@@ -66,9 +69,9 @@ export default function ProfileEditForm({
     setProcessingImage(true);
     try {
       const cdnUrl = await uploadAvatarToCloudinary(file);
-      setEditForm((f: any) => ({ ...f, avatarUrl: cdnUrl }));
-    } catch (err: any) {
-      setUploadError(err.message || 'Failed to process and upload image');
+      setEditForm((form) => ({ ...form, avatarUrl: cdnUrl }));
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to process and upload image');
     } finally {
       setProcessingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -90,7 +93,7 @@ export default function ProfileEditForm({
           <input
             className={inputClass}
             value={editForm.name}
-            onChange={e => setEditForm((f: any) => ({ ...f, name: e.target.value }))}
+            onChange={e => setEditForm((form) => ({ ...form, name: e.target.value }))}
             placeholder="First and last name"
           />
         </div>
@@ -109,7 +112,7 @@ export default function ProfileEditForm({
               disabled={hasActiveEngagements}
               className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-8' : ''}`}
               value={editForm.phone}
-              onChange={e => setEditForm((f: any) => ({ ...f, phone: e.target.value }))}
+              onChange={e => setEditForm((form) => ({ ...form, phone: e.target.value }))}
               placeholder="+63 9XX XXX XXXX"
             />
             {hasActiveEngagements && (
@@ -130,7 +133,7 @@ export default function ProfileEditForm({
           <select
             className={inputClass}
             value={editForm.location}
-            onChange={e => setEditForm((f: any) => ({ ...f, location: e.target.value }))}
+            onChange={e => setEditForm((form) => ({ ...form, location: e.target.value }))}
           >
             <option value="">Select Barangay...</option>
             {CORDOVA_BARANGAYS.map(b => (
@@ -145,7 +148,7 @@ export default function ProfileEditForm({
             className={`${inputClass} resize-none`}
             rows={3}
             value={editForm.bio}
-            onChange={e => setEditForm((f: any) => ({ ...f, bio: e.target.value }))}
+            onChange={e => setEditForm((form) => ({ ...form, bio: e.target.value }))}
             placeholder="Tell clients or providers about your background, experience, and services..."
           />
         </div>
@@ -155,7 +158,7 @@ export default function ProfileEditForm({
           <label className={`block text-xs font-bold ${labelText}`}>Profile Picture</label>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative group flex-shrink-0">
-              <img
+              <Image unoptimized width={80} height={80}
                 src={editForm.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name || 'User')}&background=random`}
                 alt="Profile Preview"
                 className="w-20 h-20 rounded-full object-cover border-2 border-slate-300 dark:border-neutral-700 shadow-sm"
@@ -193,7 +196,7 @@ export default function ProfileEditForm({
                 {editForm.avatarUrl && (
                   <button
                     type="button"
-                    onClick={() => setEditForm((f: any) => ({ ...f, avatarUrl: '' }))}
+                    onClick={() => setEditForm((form) => ({ ...form, avatarUrl: '' }))}
                     className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-neutral-800 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 transition-all flex items-center gap-1"
                   >
                     <Trash2 size={13} />
@@ -222,7 +225,7 @@ export default function ProfileEditForm({
               <input
                 className={inputClass}
                 value={editForm.facebookUrl || ''}
-                onChange={e => setEditForm((f: any) => ({ ...f, facebookUrl: e.target.value }))}
+                onChange={e => setEditForm((form) => ({ ...form, facebookUrl: e.target.value }))}
                 placeholder="https://facebook.com/username"
               />
             </div>
@@ -231,7 +234,7 @@ export default function ProfileEditForm({
               <input
                 className={inputClass}
                 value={editForm.instagramUrl || ''}
-                onChange={e => setEditForm((f: any) => ({ ...f, instagramUrl: e.target.value }))}
+                onChange={e => setEditForm((form) => ({ ...form, instagramUrl: e.target.value }))}
                 placeholder="https://instagram.com/username"
               />
             </div>
@@ -240,7 +243,7 @@ export default function ProfileEditForm({
               <input
                 className={inputClass}
                 value={editForm.websiteUrl || ''}
-                onChange={e => setEditForm((f: any) => ({ ...f, websiteUrl: e.target.value }))}
+                onChange={e => setEditForm((form) => ({ ...form, websiteUrl: e.target.value }))}
                 placeholder="https://yourwebsite.com"
               />
             </div>
