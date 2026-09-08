@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { apiGetAdminOverview } from '../../../api/admin.api';
 import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, Loader2, RefreshCw, Activity, Database, Radio } from 'lucide-react';
 import { getSocket } from '../../../lib/socket';
+import AdminOverviewCharts, {
+  type AdminActivityPoint,
+  type AdminChartMetric,
+} from '../../../components/admin/AdminOverviewCharts';
 
 interface StatsData {
   totalUsers: number;
@@ -13,6 +17,9 @@ interface StatsData {
   openReports: number;
   pendingListings: number;
   categorySuggestions: number;
+  moderationWorkload: AdminChartMetric[];
+  bookingLifecycle: AdminChartMetric[];
+  sevenDayActivity: AdminActivityPoint[];
   recentAuditLogs: Array<{
     id: string;
     action: string;
@@ -175,6 +182,13 @@ export default function AdminOverview() {
           );
         })}
       </div>
+
+      <AdminOverviewCharts
+        activity={stats?.sevenDayActivity ?? []}
+        bookingLifecycle={stats?.bookingLifecycle ?? []}
+        moderationWorkload={stats?.moderationWorkload ?? []}
+        isDark={isDark}
+      />
 
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
         <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
