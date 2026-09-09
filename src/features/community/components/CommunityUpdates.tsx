@@ -32,7 +32,7 @@ export default function CommunityUpdates({
 
   return (
     <div className="space-y-3.5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Megaphone className="w-4 h-4 text-slate-600 dark:text-slate-400" />
           <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>

@@ -118,58 +118,6 @@
   outline-color: #f5f5f5;
 }
 
-/* Shared member workspace system: quiet surfaces with role color reserved for
-   active navigation, primary actions, focus, and real status meaning. */
-.user-workspace .workspace-page-body h1,
-.user-workspace .workspace-page-body h2 {
-  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif !important;
-  letter-spacing: -0.025em;
-}
-
-.user-workspace .workspace-page-body .rounded-\[24px\],
-.user-workspace .workspace-page-body .rounded-\[26px\],
-.user-workspace .workspace-page-body .rounded-2xl {
-  border-radius: 14px;
-}
-
-.user-workspace .workspace-page-body .shadow-sm,
-.user-workspace .workspace-page-body .shadow-md,
-.user-workspace .workspace-page-body .shadow-lg {
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.045);
-}
-
-.user-workspace .workspace-page-body .glow-bubble-green,
-.user-workspace .workspace-page-body .glow-bubble-orange {
-  display: none;
-}
-
-.user-workspace .workspace-page-body button:focus-visible,
-.user-workspace .workspace-page-body a:focus-visible,
-.user-workspace .workspace-page-body input:focus-visible,
-.user-workspace .workspace-page-body select:focus-visible,
-.user-workspace .workspace-page-body textarea:focus-visible {
-  outline: 2px solid #475569;
-  outline-offset: 2px;
-}
-
-.seeker-workspace .workspace-page-body button:focus-visible,
-.seeker-workspace .workspace-page-body a:focus-visible {
-  outline-color: #c86544;
-}
-
-.provider-workspace .workspace-page-body button:focus-visible,
-.provider-workspace .workspace-page-body a:focus-visible {
-  outline-color: #059669;
-}
-
-.dark .user-workspace .workspace-page-body button:focus-visible,
-.dark .user-workspace .workspace-page-body a:focus-visible,
-.dark .user-workspace .workspace-page-body input:focus-visible,
-.dark .user-workspace .workspace-page-body select:focus-visible,
-.dark .user-workspace .workspace-page-body textarea:focus-visible {
-  outline-color: #e5e7eb;
-}
-
 /* Claude Signature Terracotta/Coral Core Theme Tokens */
 :root {
   --color-orange-50: #faf5f2 !important;

@@ -291,7 +291,7 @@ export default function Header({
         <div className="flex items-center space-x-3">
           <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider flex items-center gap-1.5 ${isDark
               ? (isCommunityHub
-                  ? 'bg-slate-800 text-slate-200 border-slate-700'
+                  ? 'bg-blue-950/20 text-blue-400 border-blue-900/30'
                   : currentRole === 'seeker'
                   ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
                   : currentRole === 'admin'
@@ -301,7 +301,7 @@ export default function Header({
             }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${
               isCommunityHub
-                ? 'bg-slate-500'
+                ? 'bg-blue-500'
                 : currentRole === 'seeker'
                 ? 'bg-orange-500' 
                 : currentRole === 'admin' 

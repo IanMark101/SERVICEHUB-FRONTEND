@@ -122,8 +122,8 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
   const currentRole = 'provider';
 
   return (
-    <div className={`user-workspace provider-workspace h-screen overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#f6f7f9] text-slate-800'
+    <div className={`h-screen overflow-hidden flex transition-colors duration-200 ${
+      isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#fbfaf7] text-slate-800'
     }`}>
       
       {/* Sidebar Component */}
@@ -157,7 +157,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="workspace-page-body flex-1 w-full max-w-[1440px] mx-auto p-4 sm:p-6 md:p-8">
+        <main className="flex-1 w-full max-w-[1440px] mx-auto p-4 sm:p-6 md:p-8">
           
           {/* Breadcrumbs / Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 border-b pb-4 border-slate-200 dark:border-neutral-800/80">

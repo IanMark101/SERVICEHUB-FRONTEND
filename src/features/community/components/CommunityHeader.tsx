@@ -26,19 +26,19 @@ export default function CommunityHeader({ isDark = false }: CommunityHeaderProps
         <div className="space-y-1 max-w-xl">
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 className="text-lg font-extrabold tracking-tight leading-none">
-              Official community information
+              Community Hub
             </h1>
             <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
               isDark ? 'bg-neutral-800 border-neutral-700 text-neutral-300' : 'bg-slate-100 border-slate-200 text-slate-600'
             }`}>
-              Managed Content
+              Civic Information
             </span>
           </div>
           <p className={`text-xs font-semibold leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
             Official notices, newly approved categories, and weekly provider recognition for Cordova, Cebu.
           </p>
           <p className={`text-[11px] leading-relaxed hidden sm:block ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-            Content is published or calculated by ServiceHub Cordova administrators.
+            Content is published or calculated by ServiceHub Cordova. This is not a public social feed.
           </p>
         </div>
       </div>
