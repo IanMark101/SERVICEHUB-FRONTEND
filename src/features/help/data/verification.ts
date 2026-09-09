@@ -15,7 +15,7 @@ export const VERIFICATION_ARTICLES: HelpArticle[] = [
       {
         heading: 'Protecting the Cordova Community',
         paragraphs: [
-          'ServiceHub Cordova is designed specifically for local residents. Requiring identity and residency proof guarantees that all service providers entering homes or businesses and all seekers booking services are legitimate members of our community.',
+          'ServiceHub Cordova is designed specifically for local residents. Identity and residency review reduces impersonation risk and limits marketplace transactions to accounts approved as members of the Cordova community.',
         ],
       },
       {
@@ -29,8 +29,8 @@ export const VERIFICATION_ARTICLES: HelpArticle[] = [
         ],
         callout: {
           type: 'info',
-          title: 'Admin Verification Guarantee',
-          text: 'Every document submitted is audited by human Municipal Administrators. Your documents are securely encrypted and never shown publicly to other users.',
+          title: 'Administrator Review',
+          text: 'Every document submission is reviewed by a ServiceHub administrator. Verification files are access-controlled and are never shown publicly to marketplace users.',
         },
       },
     ],

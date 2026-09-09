@@ -6,6 +6,7 @@ import { Loader2, CheckCircle2, XCircle, Tag, User, RefreshCw } from 'lucide-rea
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
+import AdminCategoryCatalog from '../../../components/admin/AdminCategoryCatalog';
 
 const PAGE_SIZE = 10;
 
@@ -82,6 +83,10 @@ export default function AdminCategories() {
 
   return (
     <div className="space-y-6">
+      <AdminCategoryCatalog isDark={isDark} />
+
+      <div className="border-t border-slate-200 pt-6 dark:border-neutral-800" />
+
       <div className="flex items-center justify-between">
         <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
           Suggested Categories Queue

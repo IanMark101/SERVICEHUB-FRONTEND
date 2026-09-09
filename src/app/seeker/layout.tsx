@@ -112,8 +112,8 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
     bgButton: 'bg-orange-600 hover:bg-orange-700 text-white',
     badge: activeTab === 'community-hub'
       ? isDark
-        ? 'bg-blue-950/40 text-blue-300 border-blue-900/40'
-        : 'bg-blue-50 text-blue-700 border-blue-200 shadow-xs'
+        ? 'bg-slate-800 text-slate-200 border-slate-700'
+        : 'bg-slate-100 text-slate-700 border-slate-200 shadow-xs'
       : isDark
         ? 'bg-orange-950/40 text-orange-400 border-orange-900/40'
         : 'bg-orange-50 text-orange-700 border-orange-200 shadow-xs',
@@ -122,8 +122,8 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
   const currentRole = 'seeker';
 
   return (
-    <div className={`h-screen overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#fbfaf7] text-slate-800'
+    <div className={`user-workspace seeker-workspace h-screen overflow-hidden flex transition-colors duration-200 ${
+      isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#f6f7f9] text-slate-800'
     }`}>
       
       {/* Sidebar Component */}
@@ -157,7 +157,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="flex-1 w-full max-w-[1440px] mx-auto p-4 sm:p-6 md:p-8">
+        <main className="workspace-page-body flex-1 w-full max-w-[1440px] mx-auto p-4 sm:p-6 md:p-8">
           
           {/* Breadcrumbs / Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 border-b pb-4 border-slate-200 dark:border-neutral-800/80">

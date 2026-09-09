@@ -32,9 +32,9 @@ export default function LeaderboardTable({
               type="button"
               key={prov.id}
               onClick={() => onSelect(prov.id)}
-              className={`w-full text-left flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none group/row hover:border-blue-500/50 hover:shadow-sm ${
+              className={`w-full text-left flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none group/row hover:border-slate-500/50 hover:shadow-sm ${
                 isUser
-                  ? (isDark ? 'bg-blue-950/20 border-blue-800/40' : 'bg-blue-50/70 border-blue-200')
+                  ? (isDark ? 'bg-slate-950/20 border-slate-800/40' : 'bg-slate-50/70 border-slate-200')
                   : (isDark ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/50' : 'bg-slate-50 border-slate-200/80 hover:bg-white')
               }`}
             >
@@ -61,7 +61,7 @@ export default function LeaderboardTable({
                   )}
                   {prov.verificationStatus === 'APPROVED' && (
                     <div
-                      className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-blue-600 rounded-full flex items-center justify-center text-white border border-white dark:border-[#191919]"
+                      className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-slate-600 rounded-full flex items-center justify-center text-white border border-white dark:border-[#191919]"
                       title="Verified Resident"
                     >
                       <ShieldCheck className="w-2 h-2" />
@@ -71,11 +71,11 @@ export default function LeaderboardTable({
 
                 <div className="min-w-0">
                   <div className="flex items-center space-x-1.5">
-                    <h5 className="font-extrabold text-xs leading-none truncate group-hover/row:text-blue-600 dark:group-hover/row:text-blue-400 transition-colors">
+                    <h5 className="font-extrabold text-xs leading-none truncate group-hover/row:text-slate-600 dark:group-hover/row:text-slate-400 transition-colors">
                       {prov.name}
                     </h5>
                     {isUser && (
-                      <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-blue-600 text-white">
+                      <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-slate-600 text-white">
                         You
                       </span>
                     )}

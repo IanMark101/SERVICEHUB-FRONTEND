@@ -111,6 +111,19 @@ export async function apiReviewService(id: string, approve: boolean, adminNotes?
   return response.data;
 }
 
+export async function apiListAdminCategories(params?: { page?: number; limit?: number }) {
+  const response = await api.get('/admin/categories', { params });
+  return response.data;
+}
+
+export async function apiUpdateAdminCategory(
+  id: string,
+  data: { name?: string; isActive?: boolean; reason: string },
+) {
+  const response = await api.patch(`/admin/categories/${id}`, data);
+  return response.data;
+}
+
 export async function apiListCategorySuggestions(params?: { page?: number; limit?: number }) {
   const response = await api.get('/admin/categories/suggestions', { params });
   return response.data;

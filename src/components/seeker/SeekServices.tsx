@@ -193,23 +193,25 @@ export default function SeekServices() {
   }, [paginatedServices]);
 
   return (
-    <div className={`space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       <LimitedModeDashboardCard role="seeker" />
 
       {/* Search Banner */}
-      <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
+      <div className={`rounded-2xl p-5 sm:p-6 border shadow-sm relative overflow-hidden transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
         }`}>
-        <div className="max-w-2xl relative z-10 space-y-3 w-full">
-          <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+        <div className="relative z-10 w-full grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(360px,1.2fr)] lg:items-center">
+          <div>
+          <h2 className={`text-xl sm:text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Find local experts for any task.
           </h2>
-          <p className={`text-xs sm:text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+          <p className={`text-xs sm:text-sm mt-1.5 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
             Search our trusted community marketplace for specialized services.
           </p>
+          </div>
 
           {/* Inputs Row inside Banner */}
-          <div className={`flex items-center rounded-2xl p-1.5 shadow-inner mt-6 max-w-xl mx-auto w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
+          <div className={`flex items-center rounded-xl p-1.5 w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
             }`}>
             <span className={`pl-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
               <Search className="w-4 h-4" />
@@ -222,12 +224,9 @@ export default function SeekServices() {
               className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
                 }`}
             />
-            <button
-              type="button"
-              className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex-shrink-0"
-            >
-              Search
-            </button>
+            <span className={`hidden sm:inline-flex px-3 text-[10px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+              Live results
+            </span>
           </div>
         </div>
       </div>

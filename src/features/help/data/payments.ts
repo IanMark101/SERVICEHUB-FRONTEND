@@ -3,7 +3,7 @@ import { HelpArticle } from '../types/help.types';
 export const PAYMENTS_ARTICLES: HelpArticle[] = [
   {
     slug: 'payment-methods-overview',
-    title: 'Payment Methods: GCash Test Mode vs. On-Site Cash',
+    title: 'Payment Methods: Online Test Mode vs. On-Site Cash',
     category: 'payments',
     description: 'When each ServiceHub Cordova payment workflow applies.',
     lastUpdated: 'September 2026',
@@ -13,9 +13,9 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
     relatedArticleSlugs: ['how-escrow-works', 'payment-release-and-refunds'],
     sections: [{
       heading: 'Two Ways to Complete a Booking',
-      paragraphs: ['ServiceHub supports PayMongo GCash Test Mode for fixed-price queue bookings and a separate direct on-site cash arrangement.'],
+      paragraphs: ['ServiceHub supports eligible GCash and Maya checkouts through PayMongo Test Mode for fixed-price online bookings, plus a separate direct on-site cash arrangement.'],
       bullets: [
-        'GCash Test Mode: PayMongo confirms the simulated payment by a signed server webhook. Only then is an accepted booking added to the listing queue.',
+        'Online Test Mode: PayMongo confirms the simulated GCash or Maya payment by a signed server webhook. Only then is an accepted booking added to the listing queue.',
         'On-site Cash: The seeker pays the provider outside ServiceHub. Cash bookings never enter the online-payment queue or online transaction ledger.',
       ],
       callout: { type: 'important', title: 'Capstone payment scope', text: 'ServiceHub currently demonstrates PayMongo Test Mode. No real-money provider payout or regulated escrow service is implemented.' },
@@ -54,7 +54,7 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
       heading: 'Final States',
       paragraphs: ['When the seeker confirms completed work, an online booking becomes RELEASED in ServiceHub’s internal Test Mode ledger. A cash booking becomes CASH_CONFIRMED and is recorded separately from online payments.'],
       bullets: [
-        'Cancellation before completion keeps cash external and submits eligible online refunds through PayMongo Test Mode.',
+        'Cancellation before completion keeps cash external. In Test Mode, ServiceHub records an explicit simulated reversal; it does not claim that PayMongo moved real money.',
         'A disputed online payment remains FROZEN_HELD until an administrator refunds it or completes and releases the booking.',
         'Administrator decisions and refund attempts are retained for audit and retry.',
       ],
@@ -62,7 +62,7 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
   },
   {
     slug: 'how-paymongo-gcash-payouts-work',
-    title: 'PayMongo GCash Test Mode and Provider Records',
+    title: 'PayMongo Test Mode and Provider Records',
     category: 'payments',
     description: 'The implemented capstone payment flow and its boundaries.',
     lastUpdated: 'September 2026',

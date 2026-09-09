@@ -82,11 +82,11 @@ export default function Header({
       badgeBg: 'bg-slate-950 text-white border-slate-950',
     },
     community: {
-      accent: 'text-blue-600',
-      ring: 'focus:ring-blue-500 focus:border-blue-500',
-      borderHover: 'hover:border-blue-500/50',
-      badge: 'bg-blue-600 text-white',
-      badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
+      accent: 'text-slate-700',
+      ring: 'focus:ring-slate-500 focus:border-slate-500',
+      borderHover: 'hover:border-slate-500/50',
+      badge: 'bg-slate-700 text-white',
+      badgeBg: 'bg-slate-100 text-slate-700 border-slate-200',
     }
   };
 
@@ -291,7 +291,7 @@ export default function Header({
         <div className="flex items-center space-x-3">
           <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider flex items-center gap-1.5 ${isDark
               ? (isCommunityHub
-                  ? 'bg-blue-950/20 text-blue-400 border-blue-900/30'
+                  ? 'bg-slate-800 text-slate-200 border-slate-700'
                   : currentRole === 'seeker'
                   ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
                   : currentRole === 'admin'
@@ -301,7 +301,7 @@ export default function Header({
             }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${
               isCommunityHub
-                ? 'bg-blue-500'
+                ? 'bg-slate-500'
                 : currentRole === 'seeker'
                 ? 'bg-orange-500' 
                 : currentRole === 'admin' 

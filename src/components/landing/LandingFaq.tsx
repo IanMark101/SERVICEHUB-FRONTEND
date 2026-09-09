@@ -24,7 +24,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
           <p>There are two ways to find someone, and you can use either one:</p>
           <p><strong>Way 1 — You browse and pick.</strong> Go to Seek Services, filter by category (like Plumbing or Tutoring), and look at provider cards. Each card shows their trust score, price, and whether they&apos;re available right now or how many people are already waiting in their queue. Pick one and book them directly.</p>
           <p><strong>Way 2 — You post, they come to you.</strong> If you&apos;re not sure who to pick, post a request instead: describe the job, set your budget range, and wait. Interested providers will see your request and send you their own offer with their price and availability. You compare the offers that come in and accept whichever one fits best.</p>
-          <p>Both ways lead to the same next step: payment, then the job happens.</p>
+          <p>Both ways lead into the same booking lifecycle, with either an online Test Mode checkout or a provider-approved cash arrangement.</p>
         </div>
       )
     },
@@ -46,8 +46,8 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
           <ol className="list-decimal list-inside space-y-2">
             <li><strong>Payment step</strong> — if it&apos;s an online payment, you pay now (see the payment question below). If it&apos;s cash, you confirm a direct arrangement instead — no payment screen needed.</li>
             <li><strong>Activity tab</strong> — every booking you make, no matter which path it came from, shows up in your Activity tab. This is your one place to check on anything in progress.</li>
-            <li><strong>If the provider is busy</strong> — your booking sits in their queue, and your Activity tab shows your exact position and estimated wait time, automatically updating if someone ahead of you cancels.</li>
-            <li><strong>If the provider is free</strong> — the job starts right away, and Activity shows it as &quot;In Progress.&quot;</li>
+            <li><strong>For confirmed online bookings</strong> — Activity shows your queue position and estimated wait. Cash bookings use direct coordination instead.</li>
+            <li><strong>When the provider is ready</strong> — the provider starts the eligible booking, and Activity shows it as &quot;In Progress.&quot;</li>
             <li><strong>When the job is done</strong> — the provider marks it complete, and it moves to &quot;Awaiting Your Confirmation&quot; in your Activity tab. You confirm the work is good (which records completion in the internal ledger) or report a problem if it&apos;s not.</li>
             <li><strong>Completed</strong> — once confirmed, it&apos;s marked done, ServiceHub records the internal payment status as RELEASED, and you&apos;re invited to leave a review. This does not represent a real provider payout.</li>
           </ol>
@@ -59,10 +59,10 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
       q: "How does online payment actually work, step by step?",
       a: (
         <div className="space-y-3">
-          <p>Here&apos;s the exact sequence when you choose to pay online via GCash instead of cash:</p>
+          <p>Here&apos;s the exact sequence when you choose an eligible GCash or Maya Test Mode checkout instead of cash:</p>
           <ol className="list-decimal list-inside space-y-2">
             <li><strong>You confirm the booking details</strong> — the price, the schedule, and any message to the provider.</li>
-            <li><strong>You&apos;re taken to the payment screen</strong> and complete the GCash checkout.</li>
+            <li><strong>You&apos;re taken to PayMongo&apos;s payment screen</strong> and complete the selected Test Mode checkout.</li>
             <li><strong>You complete the payment</strong> through the secure checkout.</li>
             <li><strong>ServiceHub records an internal payment hold</strong> — PAID_HELD is a capstone workflow status, not a licensed escrow account.</li>
             <li><strong>You&apos;re placed into the queue</strong> only after the signed PayMongo webhook confirms payment. The provider still chooses when to start the first eligible booking.</li>

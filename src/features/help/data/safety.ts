@@ -37,7 +37,7 @@ export const SAFETY_ARTICLES: HelpArticle[] = [
         bullets: [
           'Warning: Formal caution recorded on the user\'s profile.',
           'Trust Deduction: -10 points deducted from the offending user\'s Trust Score.',
-          'Cancellation & Refund: Eligible online payments are submitted for refund through PayMongo Test Mode.',
+          'Cancellation & Reversal: In Test Mode, eligible online cancellations record an explicit simulated reversal. This does not represent a real-money refund.',
           'Account Suspension / Ban: Immediate revocation of platform access for serious offenses.',
         ],
       },

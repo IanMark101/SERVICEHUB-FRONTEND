@@ -72,7 +72,7 @@ export default function TopProviders({
   return (
     <div className="space-y-4">
       {/* Section Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
           <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
@@ -86,9 +86,9 @@ export default function TopProviders({
         </span>
       </div>
 
-      {/* Main Podium & Leaderboard Card */}
+      {/* Ranked provider comparison */}
       <div
-        className={`rounded-2xl border p-6 shadow-sm transition-colors duration-200 overflow-hidden ${
+        className={`rounded-2xl border p-4 sm:p-5 shadow-sm transition-colors duration-200 overflow-hidden ${
           isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'
         }`}
       >

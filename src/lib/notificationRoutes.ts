@@ -33,6 +33,10 @@ export function resolveNotificationLink(
     }
   }
 
+  if (link === '/community-hub') {
+    return currentRole === 'admin' ? '/admin/announcements' : `/${currentRole}/community-hub`;
+  }
+
   // Rewrite legacy or mismatched path aliases
   if (link.startsWith('/provider/manage-services') || link.startsWith('/manage-services')) {
     link = link.replace('/provider/manage-services', '/provider/service-manager')

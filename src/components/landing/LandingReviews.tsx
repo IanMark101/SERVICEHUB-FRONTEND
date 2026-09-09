@@ -11,7 +11,7 @@ interface Review {
   feedback: string;
 }
 
-const mockReviews: Review[] = [
+const sampleReviews: Review[] = [
   {
     id: 'rev-1',
     name: 'Rosie Cañete',
@@ -50,11 +50,11 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? mockReviews.length - 1 : prev - 1));
+    setActiveIndex((prev) => (prev === 0 ? sampleReviews.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setActiveIndex((prev) => (prev === mockReviews.length - 1 ? 0 : prev + 1));
+    setActiveIndex((prev) => (prev === sampleReviews.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -69,7 +69,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
       <div className="max-w-6xl mx-auto flex flex-col items-center">
         {/* Pagination Dots at the very top (matching user image layout) */}
         <div className="flex space-x-2 mb-4">
-          {mockReviews.map((_, idx) => (
+          {sampleReviews.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
@@ -87,7 +87,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
           <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${
             isDark ? 'text-[#f2efe9]' : 'text-slate-900'
           }`}>
-            See what our clients have to say
+            What verified service feedback can capture
           </h2>
         </ScrollReveal>
 
@@ -109,15 +109,15 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
 
           {/* 3D Coverflow Track */}
           <div className="w-full max-w-[900px] flex items-center justify-center relative select-none">
-            {mockReviews.map((review, idx) => {
+            {sampleReviews.map((review, idx) => {
               // Calculate relative offset of card compared to activeIndex
               let diff = idx - activeIndex;
               
               // Handle wrap-around for smooth looping offsets
               if (diff < -1) {
-                if (diff === -(mockReviews.length - 1)) diff = 1;
+                if (diff === -(sampleReviews.length - 1)) diff = 1;
               } else if (diff > 1) {
-                if (diff === mockReviews.length - 1) diff = -1;
+                if (diff === sampleReviews.length - 1) diff = -1;
               }
 
               const isFocus = diff === 0;
@@ -159,7 +159,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                       <p className={`text-[10px] uppercase font-bold tracking-wider ${
                         isDark ? 'text-amber-500' : 'text-orange-600'
                       }`}>
-                        Verified Reviewer
+                        Illustrative review example
                       </p>
                       <h4 className="font-bold text-sm sm:text-base leading-tight">
                         {review.name}

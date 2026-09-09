@@ -53,29 +53,29 @@ export default function CommunityStats({
       label: 'Verified Residents',
       value: stats.verifiedUsers.toLocaleString(),
       icon: ShieldCheck,
-      iconColor: isDark ? 'text-blue-300' : 'text-blue-700',
-      iconBg: isDark ? 'bg-blue-950/30' : 'bg-blue-50',
+      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
+      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
     },
     {
       label: 'Active Providers',
       value: stats.activeProviders.toLocaleString(),
       icon: Users,
-      iconColor: isDark ? 'text-blue-300' : 'text-blue-700',
-      iconBg: isDark ? 'bg-blue-950/30' : 'bg-blue-50',
+      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
+      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
     },
     {
       label: 'Services Completed',
       value: stats.totalCompleted.toLocaleString(),
       icon: CheckCircle2,
-      iconColor: isDark ? 'text-blue-300' : 'text-blue-700',
-      iconBg: isDark ? 'bg-blue-950/30' : 'bg-blue-50',
+      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
+      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
     },
     {
       label: 'Active Service Listings',
       value: stats.activeListings.toLocaleString(),
       icon: Tag,
-      iconColor: isDark ? 'text-blue-300' : 'text-blue-700',
-      iconBg: isDark ? 'bg-blue-950/30' : 'bg-blue-50',
+      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
+      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
     },
   ];
 
@@ -100,7 +100,7 @@ export default function CommunityStats({
               {item.value}
             </p>
             <p
-              className={`text-[10px] font-bold uppercase tracking-wider truncate ${
+              className={`text-[10px] font-bold uppercase tracking-wide ${
                 isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
               }`}
             >

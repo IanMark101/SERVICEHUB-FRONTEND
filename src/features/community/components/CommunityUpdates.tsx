@@ -20,7 +20,7 @@ export default function CommunityUpdates({
     return (
       <div className="space-y-3.5">
         <div className="flex items-center space-x-2">
-          <Megaphone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <Megaphone className="w-4 h-4 text-slate-600 dark:text-slate-400" />
           <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Official Announcements
           </h2>
@@ -32,15 +32,15 @@ export default function CommunityUpdates({
 
   return (
     <div className="space-y-3.5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center space-x-2">
-          <Megaphone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <Megaphone className="w-4 h-4 text-slate-600 dark:text-slate-400" />
           <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Official Announcements
           </h2>
         </div>
         <span className={`text-[10px] font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-          Published by ServiceHub Cordova administrators
+          {announcements.length} published
         </span>
       </div>
 
@@ -52,7 +52,7 @@ export default function CommunityUpdates({
           isDark={isDark}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {announcements.map((item) => (
             <CommunityUpdateCard
               key={item.id}

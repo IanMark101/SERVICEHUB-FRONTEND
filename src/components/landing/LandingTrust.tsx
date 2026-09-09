@@ -84,12 +84,12 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
             <h3 className={`font-bold text-base sm:text-lg tracking-tight ${
               isDark ? 'text-[#f2efe9]' : 'text-slate-900'
             }`}>
-              GCash & Cash with Confirmation
+              Online Test Mode & Cash
             </h3>
             <p className={`text-xs leading-relaxed font-medium ${
               isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
             }`}>
-              Choose GCash or pay on-site cash. Both require seeker confirmation before a job is closed, preventing uncompleted work.
+              Eligible listings support GCash or Maya through PayMongo Test Mode, or an on-site cash arrangement. Seeker confirmation closes completed work.
             </p>
           </ScrollReveal>
         </div>

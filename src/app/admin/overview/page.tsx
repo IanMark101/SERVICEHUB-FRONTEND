@@ -87,12 +87,14 @@ export default function AdminOverview() {
     );
   }
 
+  const neutralIconColor = "bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700";
+
   const statItems = [
     {
       title: "Total Users",
       value: stats?.totalUsers || 0,
       icon: Users,
-      color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+      color: neutralIconColor,
       desc: "All registered Seekers & Providers.",
       href: '/admin/users',
     },
@@ -108,7 +110,9 @@ export default function AdminOverview() {
       title: "Verification Queue",
       value: stats?.pendingVerifications || 0,
       icon: Shield,
-      color: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+      color: (stats?.pendingVerifications ?? 0) > 0
+        ? "bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400"
+        : neutralIconColor,
       desc: "Pending provider document submissions.",
       href: '/admin/verifications',
     },
@@ -116,7 +120,9 @@ export default function AdminOverview() {
       title: "Open Reports & Disputes",
       value: stats?.openReports || 0,
       icon: AlertTriangle,
-      color: "bg-red-500/10 text-red-500 border-red-500/20",
+      color: (stats?.openReports ?? 0) > 0
+        ? "bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400"
+        : neutralIconColor,
       desc: "Pending moderator arbitration cases.",
       href: '/admin/reports',
     },
@@ -124,7 +130,7 @@ export default function AdminOverview() {
       title: "Suggested Categories",
       value: stats?.categorySuggestions || 0,
       icon: HelpCircle,
-      color: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700",
+      color: neutralIconColor,
       desc: "New category requests from seekers.",
       href: '/admin/categories',
     },
@@ -132,7 +138,9 @@ export default function AdminOverview() {
       title: "Pending Listings Review",
       value: stats?.pendingListings || 0,
       icon: Briefcase,
-      color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+      color: (stats?.pendingListings ?? 0) > 0
+        ? "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400"
+        : neutralIconColor,
       desc: "Services awaiting admin verification.",
       href: '/admin/services?status=PENDING_REVIEW',
     }

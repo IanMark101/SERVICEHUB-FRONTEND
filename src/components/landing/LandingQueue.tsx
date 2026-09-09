@@ -98,7 +98,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
           }`}>
           <HelpCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
           <p className="text-xs leading-relaxed font-semibold">
-            Queue spots are reserved only for online payments. This guarantees every spot in line is a real, committed booking — not a no-show waiting to happen. Cash bookings are arranged directly with the provider instead.
+            Queue positions are reserved only after an online Test Mode checkout is confirmed by the server. Cash bookings are arranged directly with the provider and do not occupy online queue capacity.
           </p>
         </ScrollReveal>
       </div>

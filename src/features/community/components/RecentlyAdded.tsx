@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
+import { FolderPlus } from 'lucide-react';
 import { RecentCategory } from '../types/community.types';
 import { RecentGridSkeleton } from './CommunitySkeletons';
 import NewCategoriesSection from './NewCategoriesSection';
@@ -25,7 +25,7 @@ export default function RecentlyAdded({
       <div className="space-y-6">
         <div className="space-y-3">
           <h2 className={`font-extrabold text-sm uppercase tracking-wider flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <FolderPlus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
             <span>Newly Added Categories</span>
           </h2>
           <RecentGridSkeleton isDark={isDark} />
@@ -40,16 +40,16 @@ export default function RecentlyAdded({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center space-x-2">
-          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <FolderPlus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
           <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Newly Added Categories
           </h2>
         </div>
         <span className={`text-[10px] font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-          Approved by the ServiceHub Cordova administration
+          {categories.length} recently approved
         </span>
       </div>
 

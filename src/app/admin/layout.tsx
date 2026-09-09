@@ -95,7 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           setIsMobileOpen={setIsMobileSidebarOpen}
           user={user}
           onSignOut={handleSignOut}
-          onViewProfile={() => router.push('/admin/users')}
+          onViewProfile={() => router.push('/admin/user-profile')}
         />
 
         {/* Warning strip */}

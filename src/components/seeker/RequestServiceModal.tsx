@@ -105,7 +105,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       return;
     }
 
-    if (listing.priceType && !['FIXED', 'PER_SESSION'].includes(listing.priceType)) {
+    if (listing.priceType && listing.priceType !== 'FIXED') {
       setFormError('This listing requires a provider quote. Create a service request instead of booking the displayed estimate.');
       return;
     }
@@ -177,7 +177,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
             <h3 className={`font-extrabold text-sm mt-1.5 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
               Request {listing.title}
             </h3>
-            {listing.priceType && !['FIXED', 'PER_SESSION'].includes(listing.priceType) && (
+            {listing.priceType && listing.priceType !== 'FIXED' && (
               <p className={`text-[10px] font-semibold mt-0.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
                 ₱{listing.price}{listing.priceType === 'PER_HOUR' ? ' / hour' : listing.priceType === 'PER_DAY' ? ' / day' : listing.priceType === 'PER_PROJECT' ? ' / project' : ''}
               </p>

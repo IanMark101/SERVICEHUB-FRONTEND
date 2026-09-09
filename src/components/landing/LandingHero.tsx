@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { ArrowRight, Star, ChevronDown, ShieldCheck, CheckCircle2, Banknote, Smartphone } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
@@ -7,8 +6,6 @@ interface LandingHeroProps {
   isDark: boolean;
   onGetStarted: () => void;
 }
-
-const IAN_AVATAR = "/me.jpg";
 
 export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
   const [cardPov, setCardPov] = useState<'seeker' | 'provider'>('seeker');
@@ -74,7 +71,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
               <p className={`text-[11px] font-semibold transition-colors duration-300 ${isDark ? 'text-neutral-500' : 'text-slate-400'
                 }`}>
-                Built exclusively for verified residents of Cordova, Cebu.
+                Anyone may browse; marketplace transactions require an approved Cordova residency verification.
               </p>
             </ScrollReveal>
           </div>
@@ -100,18 +97,13 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
-                          <Image unoptimized width={44} height={44}
-                            src={IAN_AVATAR}
-                            alt="Ian Mark Buenaflor"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = IAN_AVATAR;
-                            }}
-                            className="w-11 h-11 rounded-2xl object-cover border-2 border-orange-500/40 shadow-sm group-hover/card:scale-105 transition-transform"
-                          />
+                          <div className="w-11 h-11 rounded-2xl border-2 border-orange-500/40 bg-orange-50 text-orange-700 flex items-center justify-center text-xs font-black shadow-sm">
+                            SP
+                          </div>
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            IAN MARK BUENAFLOR
+                            SAMPLE PROVIDER
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
@@ -152,7 +144,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         High School Math & Algebra Tutoring
                       </h3>
                       <p className={`text-xs mt-1.5 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                        One-on-one session covering algebra, trigonometry, or calculus fundamentals.
+                        A one-time tutoring booking covering algebra, trigonometry, or calculus fundamentals.
                       </p>
                     </div>
                   </div>
@@ -206,7 +198,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         }}
                         className="w-full bg-seeker-primary hover:bg-seeker-hover text-white font-extrabold text-xs py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-orange-500/20 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
                       >
-                        <span>Request Service</span>
+                        <span>Book Service</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -236,18 +228,13 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
-                          <Image unoptimized width={44} height={44}
-                            src={IAN_AVATAR}
-                            alt="Ian Mark Buenaflor"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = IAN_AVATAR;
-                            }}
-                            className="w-11 h-11 rounded-2xl object-cover border-2 border-emerald-500/40 shadow-sm group-hover/card:scale-105 transition-transform"
-                          />
+                          <div className="w-11 h-11 rounded-2xl border-2 border-emerald-500/40 bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-black shadow-sm">
+                            SS
+                          </div>
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            IAN MARK BUENAFLOR
+                            SAMPLE SEEKER
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className={`inline-flex items-center text-[10px] font-semibold border px-1.5 py-0.25 rounded-md ${
@@ -321,7 +308,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
                       <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
                         <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                        Test Payment Workflow
+                        Payment chosen after offer
                       </span>
                     </div>
 
@@ -333,7 +320,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                       </span>
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                         <Smartphone className="w-3 h-3 text-emerald-500" />
-                        GCash Ready
+                        Online Test Mode
                       </span>
                     </div>
 

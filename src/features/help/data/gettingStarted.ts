@@ -44,7 +44,7 @@ export const GETTING_STARTED_ARTICLES: HelpArticle[] = [
         bullets: [
           'Residency & Identity Verification to eliminate anonymous scammers.',
           'Dynamic Trust Score system to promote punctual, respectful, and high-quality service.',
-          'PayMongo GCash Test Mode and direct On-site Cash payment options.',
+          'Eligible GCash and Maya checkouts through PayMongo Test Mode, plus direct On-site Cash arrangements.',
           'Transaction-bound chat logs for security and fair dispute resolution.',
         ],
       },

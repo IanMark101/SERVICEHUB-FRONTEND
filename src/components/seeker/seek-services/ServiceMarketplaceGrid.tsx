@@ -130,10 +130,10 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {paginatedServices.map((service: ServiceListing) => {
               const provider = getProviderDetails(service.providerId);
-              const trustScore = service.providerTrustScore ?? provider?.trustScore ?? 100;
+              const trustScore = service.providerTrustScore ?? provider?.trustScore;
               const isVerified = service.providerVerificationStatus === 'APPROVED' || provider?.isVerified === true;
               const { cash, gcash, maya } = getServicePaymentMethods(service);
               const isOwned = !!(user && service.providerId === user.id);
@@ -146,9 +146,9 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
               return (
                 <div
                   key={service.id}
-                  className={`rounded-[24px] p-5 border transition-all duration-200 ease-out flex flex-col justify-between h-full hover:-translate-y-1 ${isDark
-                      ? 'bg-[#22211e] border-neutral-800/80 hover:border-orange-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)]'
-                      : 'bg-white border-slate-200 hover:border-orange-500/50 hover:shadow-xl'
+                  className={`rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full ${isDark
+                      ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
+                      : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
                     }`}
                 >
                   <div>
@@ -214,12 +214,8 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           </span>
                         )}
 
-                        <span className={`text-[10px] font-bold mt-1 block transition-colors ${
-                          trustScore >= 85
-                            ? (isDark ? 'text-emerald-400 group-hover/rating:text-emerald-300' : 'text-emerald-600 group-hover/rating:text-emerald-700')
-                            : (isDark ? 'text-[#b4b0a9] group-hover/rating:text-[#f2efe9]' : 'text-slate-500 group-hover/rating:text-slate-700')
-                        }`}>
-                          {trustScore >= 85 ? `★ Top Rated (${trustScore} pts)` : isVerified ? `🛡️ Verified Member` : `🛡️ Good Standing`}
+                        <span className={`text-[10px] font-semibold mt-1 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                          {typeof trustScore === 'number' ? `Trust ${trustScore}/100` : 'Trust score unavailable'}
                         </span>
                       </div>
                     </div>
@@ -250,6 +246,11 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                       <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
                         {service.description}
                       </p>
+                      {service.estimatedDurationMins ? (
+                        <p className={`mt-2 flex items-center gap-1 text-[10px] font-medium ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                          <Clock className="h-3 w-3" /> Estimated duration: {service.estimatedDurationMins} minutes
+                        </p>
+                      ) : null}
                     </div>
                   </div>
 
@@ -273,14 +274,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                       ) : (
                         <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-emerald-450' : 'text-emerald-600'}`}>
                           <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-500 animate-none" />
-                          <span>Available Now</span>
+                          <span>Open for Requests</span>
                         </div>
                       )}
                     </div>
 
                     {/* Right: Price */}
                     <div className="text-right">
-                      {service.priceType && !['FIXED', 'PER_SESSION'].includes(service.priceType) ? (
+                      {service.priceType && service.priceType !== 'FIXED' ? (
                         <>
                           <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                             ₱{service.price}
@@ -289,13 +290,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                             {service.priceType === 'PER_HOUR' ? '/ hour'
                               : service.priceType === 'PER_DAY' ? '/ day'
                               : service.priceType === 'PER_PROJECT' ? '/ project'
-                              : service.priceType === 'STARTS_AT' ? 'starting at'
+                              : service.priceType === 'STARTS_AT' ? 'minimum'
+                              : service.priceType === 'CUSTOM' ? 'quote required'
                               : ''}
                           </span>
                         </>
                       ) : (
                         <>
-                          <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Starting at</span>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Fixed price</span>
                           <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{service.price}</span>
                         </>
                       )}
@@ -349,7 +351,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                               }`}
                           >
-                            <span>Performance</span>
+                            <span>Listing Manager</span>
                           </button>
                         </div>
                         <p className={`text-[10px] font-medium text-center ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} title="Self-transaction policy: Marketplace transactions with your own account are not allowed.">
@@ -376,7 +378,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           You have an active booking for this service.
                         </p>
                       </div>
-                    ) : service.priceType && !['FIXED', 'PER_SESSION'].includes(service.priceType) ? (
+                    ) : service.priceType && service.priceType !== 'FIXED' ? (
                       <button
                         type="button"
                         onClick={() => router.push('/seeker/post-request')}

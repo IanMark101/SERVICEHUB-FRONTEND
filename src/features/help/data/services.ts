@@ -5,7 +5,7 @@ export const SERVICES_ARTICLES: HelpArticle[] = [
     slug: 'finding-and-browsing-services',
     title: 'Finding and Filtering Services in Cordova',
     category: 'services',
-    description: 'Learn how to find skilled local providers, filter by category or barangay, and inspect ratings.',
+    description: 'Learn how to find skilled local providers, search by keyword, filter active listings, and compare trust information.',
     lastUpdated: 'August 2026',
     readTimeMinutes: 3,
     keywords: ['browse', 'search services', 'categories', 'filters', 'find provider', 'price'],
@@ -17,7 +17,7 @@ export const SERVICES_ARTICLES: HelpArticle[] = [
           'In the Seeker Workspace under "Seek Services", you can explore all active offerings published by verified Cordova providers.',
         ],
         bullets: [
-          'Category Filtering: Filter by Home Repairs, Tutoring, Electrical, Cleaning, Beauty & Wellness, IT Support, Event Services, and more.',
+          'Category Filtering: Browse the active, administrator-approved categories currently available in the marketplace.',
           'Keyword Search: Search directly for specific tasks like "aircon cleaning", "algebra tutor", or "grass cutter".',
           'Availability Toggle: Check "Available Now" to see providers currently open for bookings.',
           'Pricing Transparency: Fixed listings show the exact direct-booking amount; variable pricing requires a provider quotation.',
@@ -43,8 +43,8 @@ export const SERVICES_ARTICLES: HelpArticle[] = [
           'Select the official Category that best matches your service.',
           'Provide a clear, professional Title and detailed Description of what is included.',
           'Choose your Price Type (Fixed, Starts At, Per Hour, Per Day, Per Project, or Custom Quote).',
-          'Specify the Estimated Duration (e.g. 60 minutes) and your simultaneous Queue Limit (e.g. 3 customers).',
-          'Select accepted payment methods (On-site Cash and/or GCash).',
+          'Specify the Estimated Duration (e.g. 60 minutes) and your waiting Queue Limit (e.g. 3 customers).',
+          'Select the supported payment methods you accept: On-site Cash, GCash, and/or Maya.',
           'Submit your listing for administrator quality review.',
         ],
         callout: {

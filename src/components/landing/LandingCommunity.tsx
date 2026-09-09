@@ -27,14 +27,14 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
               See platform announcements, this week&apos;s top-rated providers, and real community stats — all in one place.
             </p>
             <div className="flex items-center space-x-6 pt-2">
-              <span className="text-xs text-slate-500">Illustrative figures:</span>
+              <span className="text-xs text-slate-500">Inside the Hub:</span>
               <div>
-                <span className="block font-black text-2xl text-seeker-primary">150+</span>
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Verified Members</span>
+                <span className="block font-black text-2xl text-seeker-primary">Live</span>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Database Statistics</span>
               </div>
               <div>
-                <span className="block font-black text-2xl text-provider-primary">98%</span>
-                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Job Completion</span>
+                <span className="block font-black text-2xl text-provider-primary">Weekly</span>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Provider Recognition</span>
               </div>
             </div>
           </ScrollReveal>
@@ -64,11 +64,11 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
               {/* Profile info */}
               <div className="flex items-center space-x-3.5 mb-5">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white font-black text-lg shadow-inner shadow-black/10">
-                  IM
+                  SP
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-sm tracking-tight">Ian Mark Buenaflor</h4>
-                  <p className={`text-[11px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>Tutoring & Local Services</p>
+                  <h4 className="font-extrabold text-sm tracking-tight">Sample Provider</h4>
+                  <p className={`text-[11px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>Illustrative leaderboard preview</p>
                 </div>
               </div>
 

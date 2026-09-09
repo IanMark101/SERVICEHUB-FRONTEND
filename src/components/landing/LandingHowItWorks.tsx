@@ -68,8 +68,8 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
       )
     },
     {
-      title: "Pay securely with GCash, or choose cash",
-      desc: "Pay online via GCash Test Mode to enter the fair queue after provider confirmation, or choose cash and arrange the visit directly with the provider.",
+      title: "Use online Test Mode, or choose cash",
+      desc: "Use an eligible GCash or Maya PayMongo Test Mode checkout to enter the queue after confirmation, or choose cash and arrange the visit directly with the provider.",
       icon: Lock,
       badge: "Payments & Safety",
       visual: (isDark: boolean) => (
@@ -83,7 +83,7 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
           <div className={`w-full h-1 rounded-full overflow-hidden ${isDark ? 'bg-neutral-850' : 'bg-slate-200'}`}>
             <div className="bg-emerald-500 h-full w-[80%]" />
           </div>
-          <p className="text-[8px] font-bold text-slate-400">Held safely in GCash</p>
+          <p className="text-[8px] font-bold text-slate-400">Recorded as PAID_HELD</p>
         </div>
       )
     },

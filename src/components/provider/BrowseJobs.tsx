@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Search, CheckCircle2, Banknote, Smartphone, ArrowRight } from 'lucide-react';
+import { Search, CheckCircle2, CalendarDays, ShieldCheck, ArrowRight } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -15,7 +15,7 @@ import { formatUrgencyDisplay } from './browse-jobs/browseJobs.utils';
 import { useToast } from '../ui/Toast';
 
 export default function BrowseJobs({
-  currentProviderId = 'u3'
+  currentProviderId
 }: {
   currentProviderId?: string;
 }) {
@@ -23,6 +23,9 @@ export default function BrowseJobs({
   const { jobRequests, bids, submitBid, isDark, user } = useApp();
   const { canTransact } = useTransactionPermission();
   const { warning } = useToast();
+  const effectiveProviderId = currentProviderId || user?.id || '';
+  const getProposalCount = (requestId: string, serverCount?: number) =>
+    serverCount ?? bids.filter((bid) => bid.requestId === requestId && (bid.status === 'pending' || bid.status === 'PENDING')).length;
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
@@ -54,16 +57,7 @@ export default function BrowseJobs({
   const [bidMessage, setBidMessage] = useState<string>('');
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
 
-  const categories = [
-    'All Categories',
-    'Plumbing',
-    'Electrical Repair',
-    'House Cleaning',
-    'Aircon Service',
-    'Lawn Care',
-    'Tutoring',
-    'Appliance Repair'
-  ];
+  const categories = ['All Categories', ...Array.from(new Set(jobRequests.map((request) => request.category))).sort()];
 
   // Filtering Logic
   const filteredRequests = jobRequests.filter((req) => {
@@ -91,7 +85,7 @@ export default function BrowseJobs({
       // ₱500+ is considered high-budget for local neighborhood services
       matchesFilter = req.budget >= 500;
     } else if (activeFilter === 'few-offers') {
-      const bidCount = bids.filter(bid => bid.requestId === req.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
+      const bidCount = getProposalCount(req.id, req.offersCount);
       matchesFilter = bidCount <= 1;
     }
 
@@ -111,8 +105,8 @@ export default function BrowseJobs({
     } else if (activeFilter === 'high-budget') {
       return b.budget - a.budget;
     } else if (activeFilter === 'few-offers') {
-      const aBidCount = bids.filter(bid => bid.requestId === a.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
-      const bBidCount = bids.filter(bid => bid.requestId === b.id && (bid.status === 'pending' || bid.status === 'PENDING')).length;
+      const aBidCount = getProposalCount(a.id, a.offersCount);
+      const bBidCount = getProposalCount(b.id, b.offersCount);
       return aBidCount - bBidCount;
     }
     return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
@@ -151,7 +145,7 @@ export default function BrowseJobs({
       return;
     }
 
-    submitBid(selectedRequestId, currentProviderId, bidPrice, bidMessage);
+    submitBid(selectedRequestId, effectiveProviderId, bidPrice, bidMessage);
     setSelectedRequestId(null);
   };
 
@@ -161,18 +155,20 @@ export default function BrowseJobs({
       <LimitedModeDashboardCard role="provider" />
 
       {/* Header Banner */}
-      <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+      <div className={`rounded-2xl p-5 sm:p-6 border shadow-sm relative overflow-hidden transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
         }`}>
-        <div className="max-w-2xl relative z-10 space-y-3 w-full">
-          <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+        <div className="relative z-10 w-full grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(360px,1.2fr)] lg:items-center">
+          <div>
+          <h2 className={`text-xl sm:text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Find client requests for any task.
           </h2>
-          <p className={`text-xs sm:text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+          <p className={`text-xs sm:text-sm mt-1.5 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
             Browse and bid on open jobs in our trusted community marketplace.
           </p>
+          </div>
 
           {/* Inputs Row inside Banner */}
-          <div className={`flex items-center rounded-2xl p-1.5 shadow-inner mt-6 max-w-xl mx-auto w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
+          <div className={`flex items-center rounded-xl p-1.5 w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
             }`}>
             <span className={`pl-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
               <Search className="w-4 h-4" />
@@ -185,12 +181,9 @@ export default function BrowseJobs({
               className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
                 }`}
             />
-            <button
-              type="button"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex-shrink-0"
-            >
-              Search
-            </button>
+            <span className={`hidden sm:inline-flex px-3 text-[10px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+              Live results
+            </span>
           </div>
         </div>
       </div>
@@ -309,24 +302,23 @@ export default function BrowseJobs({
         />
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {paginatedRequests.map((req) => {
-              const totalBids = bids.filter(b => b.requestId === req.id && (b.status === 'pending' || b.status === 'PENDING')).length;
-              const hasSentBid = bids.some(b => b.requestId === req.id && b.providerId === currentProviderId && (b.status === 'pending' || b.status === 'PENDING'));
+              const totalBids = getProposalCount(req.id, req.offersCount);
+              const hasSentBid = bids.some(b => b.requestId === req.id && b.providerId === effectiveProviderId && (b.status === 'pending' || b.status === 'PENDING'));
 
               // Check if request belongs to currently logged-in user
-              const isOwned = !!(user && (req.seekerId === user.id || req.seekerName === `${user.firstName} ${user.lastName}`.trim() || req.seekerName.includes(user.firstName)));
+              const isOwned = !!(user && req.seekerId === user.id);
 
               return (
                 <div
                   key={req.id}
-                  onClick={() => !hasSentBid && !isOwned && handleOpenBid(req.id, req.budget)}
-                  className={`rounded-[24px] p-5 border transition-all duration-200 ease-out flex flex-col justify-between h-full group ${
+                  className={`rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full group ${
                     isOwned || hasSentBid
-                      ? 'opacity-70 cursor-not-allowed border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
+                      ? 'border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
                       : isDark
-                        ? 'bg-[#22211e] border-neutral-855 hover:border-emerald-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:-translate-y-1 hover:bg-[#2c2b27]/30 cursor-pointer'
-                        : 'bg-white border-slate-300 hover:border-emerald-500/50 hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+                        ? 'bg-[#22211e] border-neutral-800 hover:border-neutral-700'
+                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
                     }`}
                 >
                   <div>
@@ -370,8 +362,8 @@ export default function BrowseJobs({
                         <span className={`text-[10px] font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
                           {totalBids} proposal{totalBids === 1 ? '' : 's'}
                         </span>
-                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                          🛡️ Verified Member
+                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <ShieldCheck className="h-3 w-3" /> Verified resident
                         </span>
                       </div>
                     </div>
@@ -421,7 +413,7 @@ export default function BrowseJobs({
                     {/* Divider Line */}
                     <div className={`border-t my-3.5 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
 
-                    {/* Budget and payment status */}
+                    {/* Budget and posting context */}
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col space-y-0.5">
                         <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
@@ -432,23 +424,15 @@ export default function BrowseJobs({
                         </span>
                       </div>
 
-                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                        Payment Method Selected
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        {req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) : 'Recently posted'}
                       </span>
                     </div>
 
-                    {/* Payment compatibility badges */}
-                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-slate-50 dark:bg-neutral-800/60 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300">
-                        <Banknote className="w-3 h-3 text-slate-400" />
-                        On-site Cash
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-                        <Smartphone className="w-3 h-3 text-emerald-500" />
-                        GCash Ready
-                      </span>
-                    </div>
+                    <p className={`mt-2 text-[10px] leading-4 ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                      Submit an exact offer. The seeker chooses cash or an eligible online method only after accepting an offer.
+                    </p>
 
                     {/* Action CTA Button */}
                     <div className="mt-3.5">

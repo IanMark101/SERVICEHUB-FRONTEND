@@ -146,10 +146,10 @@ export default function Sidebar({
     const isActive = activeTab === item.id;
     const itemTheme = item.id === 'community-hub'
       ? {
-          accent: isDark ? 'text-blue-400' : 'text-blue-700',
-          bgActive: isDark ? 'bg-blue-950/25' : 'bg-blue-50',
-          borderActive: 'border-blue-500',
-          badge: isDark ? 'bg-blue-950/40 text-blue-400 border-blue-900/30' : 'bg-blue-50 text-blue-700 border-blue-200',
+          accent: isDark ? 'text-slate-200' : 'text-slate-800',
+          bgActive: isDark ? 'bg-slate-800' : 'bg-slate-100',
+          borderActive: 'border-slate-600',
+          badge: isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-700 border-slate-200',
         }
       : theme;
     const activeClasses = currentRole === 'admin' && item.id !== 'community-hub'

@@ -14,7 +14,7 @@ export default function CommunityHub() {
   const { data, loading, error, refetch } = useCommunityHub();
 
   return (
-    <div className={`space-y-8 pb-8 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`space-y-6 pb-8 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       {/* A. Community Hub Header */}
       <CommunityHeader isDark={isDark} />
@@ -52,20 +52,21 @@ export default function CommunityHub() {
         isDark={isDark}
       />
 
-      {/* C. Official Announcements (admin/system content only) */}
-      <CommunityUpdates
-        announcements={data?.announcements || []}
-        loading={loading}
-        isDark={isDark}
-      />
+      {/* C-D. Time-sensitive updates first, discovery content second. */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+        <CommunityUpdates
+          announcements={data?.announcements || []}
+          loading={loading}
+          isDark={isDark}
+        />
 
-      {/* D. Newly Added Categories */}
-      <RecentlyAdded
-        categories={data?.recentCategories || []}
-        loading={loading}
-        isDark={isDark}
-        workspaceRole={workspaceRole}
-      />
+        <RecentlyAdded
+          categories={data?.recentCategories || []}
+          loading={loading}
+          isDark={isDark}
+          workspaceRole={workspaceRole}
+        />
+      </div>
 
       {/* E. Top Local Providers (Marketplace Visibility Compliant) */}
       <TopProviders

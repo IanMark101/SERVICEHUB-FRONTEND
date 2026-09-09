@@ -13,7 +13,7 @@ export default function CommunityUpdateCard({
 }: CommunityUpdateCardProps) {
   return (
     <div
-      className={`rounded-2xl p-5 border flex flex-col justify-between shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
+      className={`rounded-2xl p-4 border flex flex-col justify-between shadow-sm transition-colors duration-200 ${
         isDark
           ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]'
           : 'bg-white border-slate-200 text-slate-900'
@@ -22,7 +22,7 @@ export default function CommunityUpdateCard({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className={`text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border flex items-center space-x-1 ${
-            isDark ? 'bg-blue-950/30 border-blue-800/40 text-blue-300' : 'bg-blue-50 border-blue-200 text-blue-700'
+            isDark ? 'bg-slate-950/30 border-slate-800/40 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
           }`}>
             <Megaphone className="w-3 h-3 mr-1" />
             <span>Official Notice</span>
@@ -44,7 +44,7 @@ export default function CommunityUpdateCard({
       </div>
 
       <div className={`pt-3 mt-4 border-t text-[10px] font-semibold flex items-center gap-1.5 ${isDark ? 'border-neutral-800 text-[#b4b0a9]' : 'border-slate-100 text-slate-500'}`}>
-        <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+        <ShieldCheck className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
         <span>Posted by {item.author?.name || 'ServiceHub Cordova Administration'}</span>
       </div>
     </div>

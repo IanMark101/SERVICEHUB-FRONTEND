@@ -66,10 +66,11 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
   const [showTrustGuide, setShowTrustGuide] = useState(true);
 
   useEffect(() => {
+    if (user.role === 'admin') return;
     apiGetAccountDeletionRequest()
       .then((response) => setDeletionRequest(response.data))
       .catch(() => setDeletionRequest(null));
-  }, []);
+  }, [user.role]);
 
   const handleAvatarFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -108,8 +109,13 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
 
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
-  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
-  const btnBg = isProvider ? 'bg-emerald-600 hover:bg-emerald-700' : isAdmin ? 'bg-blue-600 hover:bg-blue-700' : 'bg-orange-600 hover:bg-orange-700';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-slate-600 dark:text-neutral-300' : 'text-orange-500';
+  const btnBg = isProvider ? 'bg-emerald-600 hover:bg-emerald-700' : isAdmin ? 'bg-slate-950 hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950 dark:hover:bg-white' : 'bg-orange-600 hover:bg-orange-700';
+  const verifiedBadge = isProvider
+    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+    : isAdmin
+      ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700'
+      : 'bg-orange-500/10 text-orange-600 border-orange-500/20';
 
   const cardBg = isDark ? 'bg-[#1e1d1a] border-neutral-800' : 'bg-white border-slate-200';
   const innerBg = isDark ? 'bg-[#252420] border-neutral-800' : 'bg-slate-50 border-slate-200';
@@ -146,7 +152,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 disabled
                 className={`${inputClass} opacity-80 cursor-not-allowed`}
               />
-              <span className={`px-2.5 py-2 rounded-xl text-[11px] font-bold ${isProvider ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-orange-500/10 text-orange-500 border-orange-500/20'} border flex items-center gap-1 flex-shrink-0`}>
+              <span className={`px-2.5 py-2 rounded-xl text-[11px] font-bold ${verifiedBadge} border flex items-center gap-1 flex-shrink-0`}>
                 <Check size={12} /> Verified
               </span>
             </div>
@@ -442,34 +448,38 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         </div>
       </div>
 
-      <TrustScoreGuide
-        isDark={isDark}
-        isOpen={showTrustGuide}
-        cardBg={cardBg}
-        accentColor={accentColor}
-        headingText={headingText}
-        labelText={labelText}
-        onToggle={() => setShowTrustGuide(!showTrustGuide)}
-      />
+      {!isAdmin && (
+        <>
+          <TrustScoreGuide
+            isDark={isDark}
+            isOpen={showTrustGuide}
+            cardBg={cardBg}
+            accentColor={accentColor}
+            headingText={headingText}
+            labelText={labelText}
+            onToggle={() => setShowTrustGuide(!showTrustGuide)}
+          />
 
-      <AccountDangerZone
-        isOpen={showDeleteModal}
-        confirmation={deleteConfirmText}
-        deleting={deleting}
-        request={deletionRequest}
-        cardBg={cardBg}
-        innerBg={innerBg}
-        headingText={headingText}
-        labelText={labelText}
-        inputClass={inputClass}
-        onOpen={() => setShowDeleteModal(true)}
-        onClose={() => {
-          setShowDeleteModal(false);
-          setDeleteConfirmText('');
-        }}
-        onConfirmationChange={setDeleteConfirmText}
-        onDelete={handleDeleteAccount}
-      />
+          <AccountDangerZone
+            isOpen={showDeleteModal}
+            confirmation={deleteConfirmText}
+            deleting={deleting}
+            request={deletionRequest}
+            cardBg={cardBg}
+            innerBg={innerBg}
+            headingText={headingText}
+            labelText={labelText}
+            inputClass={inputClass}
+            onOpen={() => setShowDeleteModal(true)}
+            onClose={() => {
+              setShowDeleteModal(false);
+              setDeleteConfirmText('');
+            }}
+            onConfirmationChange={setDeleteConfirmText}
+            onDelete={handleDeleteAccount}
+          />
+        </>
+      )}
 
       {/* Phone Password Confirmation Modal */}
       <PhonePasswordConfirmModal
