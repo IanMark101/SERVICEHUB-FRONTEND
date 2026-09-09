@@ -5,10 +5,11 @@ import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 
 interface RegistrationSuccessProps {
   email: string;
+  emailSent: boolean;
   onGoToLogin: () => void;
 }
 
-export default function RegistrationSuccess({ email, onGoToLogin }: RegistrationSuccessProps) {
+export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: RegistrationSuccessProps) {
   const [cooldown, setCooldown] = useState<number>(60);
   const [resendStatus, setResendStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -65,8 +66,11 @@ export default function RegistrationSuccess({ email, onGoToLogin }: Registration
           Registration Successful!
         </h2>
         <p className="text-slate-500 dark:text-[#b4b0a9] text-xs leading-relaxed max-w-sm mx-auto">
-          We&apos;ve sent a verification email to <span className="font-bold text-slate-900 dark:text-[#f2efe9]">{email}</span>.
-          Please verify your email before logging in. Once verified, you can access your ServiceHub Cordova account.
+          {emailSent ? (
+            <>We&apos;ve sent a verification email to <span className="font-bold text-slate-900 dark:text-[#f2efe9]">{email}</span>. Please verify your email before using marketplace actions.</>
+          ) : (
+            <>Your account was created, but we could not deliver the verification email to <span className="font-bold text-slate-900 dark:text-[#f2efe9]">{email}</span>. Sign in, then request a new link.</>
+          )}
         </p>
       </div>
 
@@ -94,10 +98,10 @@ export default function RegistrationSuccess({ email, onGoToLogin }: Registration
 
           {/* Item 2: Verification Email Sent */}
           <div className="flex items-center space-x-3 text-sm">
-            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <Check className="w-3.5 h-3.5" />
+            <div className={`flex items-center justify-center w-5 h-5 rounded-full ${emailSent ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'}`}>
+              {emailSent ? <Check className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
             </div>
-            <span className="font-medium text-slate-500 dark:text-slate-400 line-through">Verification email sent</span>
+            <span className={`font-medium ${emailSent ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-amber-700 dark:text-amber-300'}`}>{emailSent ? 'Verification email sent' : 'Verification email delivery needs retry'}</span>
           </div>
 
           {/* Item 3: Verify Your Email */}

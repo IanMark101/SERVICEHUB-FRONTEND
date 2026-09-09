@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { Edit3, Trash2, Plus, AlertTriangle, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
@@ -20,6 +20,7 @@ export default function ServiceManager({
   onNavigateToOffer?: () => void;
 }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const targetServiceId = searchParams.get('id');
   const initialStatus = searchParams.get('status');
   const { services, setServices, editServiceListing, toggleServiceListingStatus, deleteServiceListing, isDark, user } = useApp();
@@ -516,9 +517,14 @@ export default function ServiceManager({
       <EditServiceModal
         value={editingService}
         isDark={isDark}
+        hasMobileNumber={Boolean(user?.phone?.trim())}
         onChange={setEditingService}
         onClose={() => setEditingService(null)}
         onSubmit={handleSaveEdit}
+        onOpenProfile={() => {
+          setEditingService(null);
+          router.push('/provider/user-profile?tab=settings');
+        }}
       />
 
       {/* Delete Confirmation Modal */}

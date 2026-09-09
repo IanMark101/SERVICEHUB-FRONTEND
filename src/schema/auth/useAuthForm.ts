@@ -50,6 +50,7 @@ export default function useAuthForm({
   const [error, setError] = useState<string>('');
   const [successMsg, setSuccessMsg] = useState<string>('');
   const [isRegisterSuccess, setIsRegisterSuccess] = useState<boolean>(false);
+  const [registrationEmailSent, setRegistrationEmailSent] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
@@ -273,8 +274,8 @@ export default function useAuthForm({
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         password: formData.password,
-        phone: phoneFormatted || '+63 917 000 0000',
-        location: formData.location || 'Poblacion, Cordova',
+        phone: phoneFormatted,
+        location: formData.location,
         bio: formData.bio,
         // Avatar uploads require an authenticated account. Do not send a local
         // data URL to the API during registration; the user can upload it after
@@ -283,6 +284,7 @@ export default function useAuthForm({
       })
         .then((res) => {
           if (res.success) {
+            setRegistrationEmailSent(res.data?.verificationEmailSent !== false);
             setIsRegisterSuccess(true);
             setError('');
           } else {
@@ -325,6 +327,7 @@ export default function useAuthForm({
     setSuccessMsg,
     fieldErrors,
     isRegisterSuccess,
+    registrationEmailSent,
     setIsRegisterSuccess,
     register,
     handleRoleSelect,

@@ -4,9 +4,11 @@ import { Briefcase, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
 import type { ServiceListing } from '../../types';
+import { useRouter } from 'next/navigation';
 
 export default function OfferServices() {
   const { user, createServiceListing, isDark, dbCategories } = useApp();
+  const router = useRouter();
   const { canTransact, navigateToVerification } = useTransactionPermission();
   const { error } = useToast();
 
@@ -26,6 +28,7 @@ export default function OfferServices() {
   const [acceptCard] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
+  const hasMobileNumber = Boolean(user?.phone?.trim());
 
   const categories = dbCategories;
 
@@ -325,7 +328,7 @@ export default function OfferServices() {
                   Payment Methods Accepted
                 </label>
                 <div className={`border rounded-xl p-4 flex items-center space-x-6 transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-white border-slate-300'
-                  }`}>
+                   }`}>
                   <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
                     <input
                       type="checkbox"
@@ -356,6 +359,17 @@ export default function OfferServices() {
                     <span className="text-slate-400">Card (unavailable)</span>
                   </label>
                 </div>
+                {acceptGCash && !hasMobileNumber && (
+                  <div className={`mt-2 flex flex-col gap-3 rounded-xl border p-3 text-xs sm:flex-row sm:items-center sm:justify-between ${isDark ? 'border-amber-900/50 bg-amber-950/20 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+                    <p className="leading-5">
+                      <span className="font-bold">Complete your mobile contact information.</span>{' '}
+                      PayMongo Test Mode records an internal earning and does not transfer funds to this phone number.
+                    </p>
+                    <button type="button" onClick={() => router.push('/provider/user-profile?tab=settings')} className="shrink-0 rounded-lg border border-current px-3 py-2 font-bold hover:bg-amber-500/10">
+                      Add mobile number
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

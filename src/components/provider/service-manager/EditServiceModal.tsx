@@ -16,12 +16,14 @@ export interface EditServiceState {
 interface Props {
   value: EditServiceState | null;
   isDark: boolean;
+  hasMobileNumber: boolean;
   onChange: (value: EditServiceState) => void;
   onClose: () => void;
   onSubmit: (event: FormEvent) => void;
+  onOpenProfile: () => void;
 }
 
-export default function EditServiceModal({ value, isDark, onChange, onClose, onSubmit }: Props) {
+export default function EditServiceModal({ value, isDark, hasMobileNumber, onChange, onClose, onSubmit, onOpenProfile }: Props) {
   if (!value) return null;
   const field = `w-full px-4 py-3 rounded-xl border outline-none text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'}`;
   const label = `text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`;
@@ -46,6 +48,12 @@ export default function EditServiceModal({ value, isDark, onChange, onClose, onS
               {([['cash', 'On-site Cash'], ['gcash', 'GCash'], ['maya', 'Maya'], ['card', 'Card (unavailable)']] as const).map(([key, text]) => <label key={key} className={`${field} flex items-center gap-2 cursor-pointer`}><input type="checkbox" disabled={key === 'card'} checked={key === 'card' ? false : value.paymentMethods[key]} onChange={(e) => onChange({ ...value, paymentMethods: { ...value.paymentMethods, [key]: e.target.checked } })} />{text}</label>)}
             </div>
             {!hasPaymentMethod && <p className="mt-1 text-xs text-red-500">Select at least one payment method.</p>}
+            {value.paymentMethods.gcash && !hasMobileNumber && (
+              <div className={`mt-2 rounded-xl border p-3 text-xs ${isDark ? 'border-amber-900/50 bg-amber-950/20 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+                <p className="leading-5"><span className="font-bold">Your mobile contact information is incomplete.</span> PayMongo Test Mode records an internal earning and does not pay a personal GCash number.</p>
+                <button type="button" onClick={onOpenProfile} className="mt-2 rounded-lg border border-current px-3 py-2 font-bold hover:bg-amber-500/10">Add mobile number</button>
+              </div>
+            )}
           </div>
           <div className="pt-3 border-t flex justify-end gap-2">
             <button type="button" onClick={onClose} className="px-4 py-2.5 border font-bold text-xs rounded-xl">Cancel</button>

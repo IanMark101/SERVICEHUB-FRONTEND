@@ -100,7 +100,7 @@ export default function ProfileEditForm({
 
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className={`block text-xs font-bold ${labelText}`}>Phone Number (GCash Account)</label>
+            <label className={`block text-xs font-bold ${labelText}`}>Philippine Mobile Number</label>
             {hasActiveEngagements && (
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full border border-amber-500/20">
                 <Lock className="w-2.5 h-2.5" /> Locked: Active Job
@@ -125,6 +125,9 @@ export default function ProfileEditForm({
             <p className="text-[10px] text-amber-500/90 font-medium mt-1">
               Locked while jobs are in progress to preserve transaction records.
             </p>
+          )}
+          {!hasActiveEngagements && (
+            <p className={`mt-1 text-[10px] ${labelText}`}>Used for account and service contact—not as a PayMongo payout destination.</p>
           )}
         </div>
 

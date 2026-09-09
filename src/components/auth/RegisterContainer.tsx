@@ -32,6 +32,7 @@ export default function RegisterContainer({
     successMsg,
     fieldErrors,
     isRegisterSuccess,
+    registrationEmailSent,
     register,
     handleAvatarSelect,
     handlePrevStep,
@@ -89,6 +90,7 @@ export default function RegisterContainer({
           {isRegisterSuccess ? (
             <RegistrationSuccess
               email={formData.email}
+              emailSent={registrationEmailSent}
               onGoToLogin={toggleMode}
             />
           ) : (

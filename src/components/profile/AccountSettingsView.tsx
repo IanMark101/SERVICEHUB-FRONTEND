@@ -195,7 +195,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className={`block font-semibold ${labelText}`}>Phone Number (GCash Account)</label>
+              <label className={`block font-semibold ${labelText}`}>Philippine Mobile Number</label>
               {hasActiveEngagements && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
                   <Lock className="w-3 h-3" /> Locked: Active Job
@@ -223,7 +223,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
               </p>
             ) : (
               <p className={`text-[11px] ${labelText}`}>
-                This number is used as your account and service contact information.
+                Used as account and service contact information. Online Test Mode payments are not paid out to this number.
               </p>
             )}
           </div>
