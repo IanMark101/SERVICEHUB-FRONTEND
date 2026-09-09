@@ -81,15 +81,15 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
             <ScrollReveal className="w-full max-w-[390px] [perspective:1200px]">
               <div
                 onClick={() => setCardPov(prev => prev === 'seeker' ? 'provider' : 'seeker')}
-                className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer select-none ${cardPov === 'provider' ? '[transform:rotateY(180deg)]' : ''
+                className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer select-none ${cardPov === 'seeker' ? '[transform:rotateY(180deg)]' : ''
                   }`}
                 title="Click anywhere on card to flip perspective"
               >
-                {/* ─── FRONT FACE: SEEKER POV (SERVICE OFFER) ─── */}
+                {/* ─── FRONT FACE IN DOM: PROVIDER LISTING (shown after flip) ─── */}
                 <div
                   className={`w-full p-5 rounded-[26px] border backdrop-blur-xl shadow-2xl relative overflow-hidden transition-all duration-300 hover:scale-[1.015] group/card [backface-visibility:hidden] flex flex-col justify-between ${isDark
-                      ? 'bg-[#22211e]/95 border-neutral-800 text-[#f2efe9] hover:border-orange-500/40'
-                      : 'bg-white/95 border-orange-500/30 text-slate-900 shadow-xl hover:border-orange-500/60'
+                      ? 'bg-[#22211e]/95 border-emerald-900/50 text-[#f2efe9] hover:border-emerald-500/60'
+                      : 'bg-white/95 border-emerald-500/30 text-slate-900 shadow-xl hover:border-emerald-500/60'
                     }`}
                 >
                   <div>
@@ -97,7 +97,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
-                          <div className="w-11 h-11 rounded-2xl border-2 border-orange-500/40 bg-orange-50 text-orange-700 flex items-center justify-center text-xs font-black shadow-sm">
+                          <div className="w-11 h-11 rounded-2xl border-2 border-emerald-500/40 bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-black shadow-sm">
                             SP
                           </div>
                         </div>
@@ -128,7 +128,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
                     {/* Category & Tags */}
                     <div className="mt-4 flex items-center justify-between">
-                      <span className="inline-block px-2.5 py-1 text-[9px] font-extrabold rounded-lg border uppercase tracking-wider text-orange-600 dark:text-orange-400 bg-orange-500/10 border-orange-500/30">
+                      <span className="inline-block px-2.5 py-1 text-[9px] font-extrabold rounded-lg border uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/30">
                         TUTORING
                       </span>
                       <span className="text-[10.5px] font-bold text-amber-500 flex items-center gap-1">
@@ -182,8 +182,8 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         <Banknote className="w-3 h-3 text-slate-400" />
                         On-site Cash
                       </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400">
-                        <Smartphone className="w-3 h-3 text-orange-500" />
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                        <Smartphone className="w-3 h-3 text-emerald-500" />
                         GCash
                       </span>
                     </div>
@@ -196,7 +196,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                           e.stopPropagation();
                           onGetStarted();
                         }}
-                        className="w-full bg-seeker-primary hover:bg-seeker-hover text-white font-extrabold text-xs py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-orange-500/20 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-emerald-500/20 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
                       >
                         <span>Book Service</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -205,22 +205,22 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
                     {/* Flip hint footer */}
                     <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
-                      <span className="flex items-center gap-1.5 text-orange-500 font-extrabold">
+                      <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-extrabold">
                         <span>👤</span> Provider listing · Seeker view
                       </span>
-                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-orange-500 transition-colors">
+                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-emerald-500 transition-colors">
                         🔄 Click to flip card
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* ─── BACK FACE: PROVIDER POV (JOB REQUEST) ─── */}
+                {/* ─── DEFAULT VISIBLE FACE: SEEKER POST ─── */}
                 <div
                   className={`absolute inset-0 w-full p-5 rounded-[26px] border backdrop-blur-xl shadow-2xl overflow-hidden transition-all duration-300 hover:scale-[1.015] group/card [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between ${
                     isDark
-                      ? 'bg-[#22211e] border-neutral-855 text-[#f2efe9] hover:border-emerald-500/40'
-                      : 'bg-white border-slate-300 text-slate-900 shadow-xl hover:border-emerald-500/40'
+                      ? 'bg-[#22211e] border-orange-900/50 text-[#f2efe9] hover:border-orange-500/60'
+                      : 'bg-white border-orange-500/30 text-slate-900 shadow-xl hover:border-orange-500/60'
                   }`}
                 >
                   <div>
@@ -228,7 +228,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3 select-none">
                         <div className="relative flex-shrink-0">
-                          <div className="w-11 h-11 rounded-2xl border-2 border-emerald-500/40 bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-black shadow-sm">
+                          <div className="w-11 h-11 rounded-2xl border-2 border-orange-500/40 bg-orange-50 text-orange-700 flex items-center justify-center text-xs font-black shadow-sm">
                             SS
                           </div>
                         </div>
@@ -265,8 +265,8 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     <div className="mt-4 flex items-center justify-between">
                       <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${
                         isDark
-                          ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
-                          : 'text-emerald-600 bg-emerald-50 border-slate-300'
+                          ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
+                          : 'text-orange-600 bg-orange-50 border-orange-200'
                       }`}>
                         PLUMBING
                       </span>
@@ -306,8 +306,8 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         </span>
                       </div>
 
-                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400">
+                        <CheckCircle2 className="w-3 h-3 text-orange-500" />
                         Payment chosen after offer
                       </span>
                     </div>
@@ -318,8 +318,8 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         <Banknote className="w-3 h-3 text-slate-400" />
                         On-site Cash
                       </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-                        <Smartphone className="w-3 h-3 text-emerald-500" />
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400">
+                        <Smartphone className="w-3 h-3 text-orange-500" />
                         Online Test Mode
                       </span>
                     </div>
@@ -332,7 +332,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                           e.stopPropagation();
                           onGetStarted();
                         }}
-                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-emerald-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
+                        className="w-full bg-seeker-primary hover:bg-seeker-hover text-white font-extrabold text-xs py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-orange-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
                       >
                         <span>Send Offer</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -341,10 +341,10 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
 
                     {/* Flip hint footer */}
                     <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
-                      <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-extrabold">
+                      <span className="flex items-center gap-1.5 text-orange-500 font-extrabold">
                         <span>🛠️</span> Seeker request · Provider view
                       </span>
-                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-emerald-500 transition-colors">
+                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-orange-500 transition-colors">
                         🔄 Click to flip card
                       </span>
                     </div>
