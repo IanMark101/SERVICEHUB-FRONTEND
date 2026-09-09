@@ -103,7 +103,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            SAMPLE PROVIDER
+                            DEMO LOCAL PROVIDER
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
@@ -206,7 +206,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     {/* Flip hint footer */}
                     <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
                       <span className="flex items-center gap-1.5 text-orange-500 font-extrabold">
-                        <span>👤</span> Seeker View
+                        <span>👤</span> Provider listing · Seeker view
                       </span>
                       <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-orange-500 transition-colors">
                         🔄 Click to flip card
@@ -234,7 +234,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                         </div>
                         <div>
                           <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            SAMPLE SEEKER
+                            DEMO LOCAL SEEKER
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <span className={`inline-flex items-center text-[10px] font-semibold border px-1.5 py-0.25 rounded-md ${
@@ -342,7 +342,7 @@ export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) 
                     {/* Flip hint footer */}
                     <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
                       <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-extrabold">
-                        <span>🛠️</span> Provider View
+                        <span>🛠️</span> Seeker request · Provider view
                       </span>
                       <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-emerald-500 transition-colors">
                         🔄 Click to flip card

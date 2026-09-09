@@ -67,7 +67,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
                   SP
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-sm tracking-tight">Sample Provider</h4>
+                  <h4 className="font-extrabold text-sm tracking-tight">Demo Local Provider</h4>
                   <p className={`text-[11px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>Illustrative leaderboard preview</p>
                 </div>
               </div>
