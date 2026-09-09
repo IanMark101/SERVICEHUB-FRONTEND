@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/layout/Sidebar';
@@ -10,6 +10,7 @@ import { apiLogout } from '../../api/auth.api';
 
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 import { clearAccessToken } from '../../lib/api/axios';
+import OnboardingGate from '../../features/onboarding/components/OnboardingGate';
 
 const tabDetails: Record<string, { title: string; desc: string }> = {
   'seek-services': {
@@ -221,6 +222,10 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
         state={confirmModal}
         onClose={() => setConfirmModal(null)}
       />
+
+      <Suspense fallback={null}>
+        <OnboardingGate workspace="seeker" />
+      </Suspense>
 
     </div>
   );

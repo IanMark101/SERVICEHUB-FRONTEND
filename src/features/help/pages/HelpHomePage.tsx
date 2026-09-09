@@ -1,14 +1,19 @@
 "use client";
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, PlayCircle } from 'lucide-react';
 import HelpSearch from '../components/HelpSearch';
 import HelpCategoryCard from '../components/HelpCategoryCard';
 import { HELP_CATEGORIES } from '../data/categories';
 import { getArticlesByCategory, getPopularArticles } from '../data';
+import { useApp } from '../../../context/AppContext';
 
 export default function HelpHomePage() {
+  const { user } = useApp();
   const popularArticles = getPopularArticles(6);
+  const quickTourHref = user?.role === 'provider'
+    ? '/provider/browse-services?onboarding=1'
+    : '/seeker/seek-services?onboarding=1';
 
   const quickTopics = [
     { label: 'Residency Verification', href: '/help/verification/why-verification-is-required' },
@@ -51,6 +56,18 @@ export default function HelpHomePage() {
             </Link>
           ))}
         </div>
+
+        {user && user.role !== 'admin' && (
+          <div className="pt-1">
+            <Link
+              href={quickTourHref}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-neutral-700 dark:bg-[#1e1d1a] dark:text-neutral-200 dark:hover:bg-neutral-800"
+            >
+              <PlayCircle className="h-4 w-4" aria-hidden="true" />
+              Open quick start
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* Collections / Categories Grid (Spans full wide layout: 4 columns on large screens) */}

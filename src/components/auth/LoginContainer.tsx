@@ -21,6 +21,7 @@ export interface UserSession {
   trustScore?: number;
   verificationStatus?: string;
   emailVerified?: boolean;
+  onboardingStatus?: 'PENDING' | 'COMPLETED' | 'SKIPPED';
   isActive?: boolean;
 }
 

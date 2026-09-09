@@ -240,9 +240,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
               avatarUrl: dbUser.avatarUrl || '',
               bio: dbUser.bio || '',
               phone: dbUser.phone,
+              location: dbUser.location,
               trustScore: dbUser.trustScore,
               verificationStatus: dbUser.verificationStatus,
               emailVerified: dbUser.emailVerified,
+              onboardingStatus: dbUser.onboardingStatus,
             };
             setUser(sessionData);
             setIsAuthenticated(true);

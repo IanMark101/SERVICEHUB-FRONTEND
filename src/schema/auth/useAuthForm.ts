@@ -145,9 +145,11 @@ export default function useAuthForm({
             avatarUrl: user.avatarUrl || '',
             bio: user.bio || '',
             phone: user.phone,
+            location: user.location,
             trustScore: user.trustScore,
             verificationStatus: user.verificationStatus,
             emailVerified: user.emailVerified,
+            onboardingStatus: user.onboardingStatus,
           });
         } else {
           setError(res.error || 'Google Login failed');
@@ -235,9 +237,11 @@ export default function useAuthForm({
               avatarUrl: user.avatarUrl || '',
               bio: user.bio || '',
               phone: user.phone,
+              location: user.location,
               trustScore: user.trustScore,
               verificationStatus: user.verificationStatus,
               emailVerified: user.emailVerified,
+              onboardingStatus: user.onboardingStatus,
             });
           } else {
             setError(res.error || 'Login failed');

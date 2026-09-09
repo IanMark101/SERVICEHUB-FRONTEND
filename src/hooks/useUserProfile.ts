@@ -154,6 +154,7 @@ export function useUserProfile({
                 avatarUrl: res.data.avatarUrl !== undefined ? (res.data.avatarUrl || '') : prev.avatarUrl,
                 bio: res.data.bio !== undefined ? (res.data.bio || '') : prev.bio,
                 phone: res.data.phone !== undefined ? res.data.phone : prev.phone,
+                location: res.data.location !== undefined ? res.data.location : prev.location,
                 trustScore: res.data.trustScore !== undefined ? res.data.trustScore : prev.trustScore,
                 verificationStatus: res.data.verificationStatus || prev.verificationStatus,
               };
@@ -334,6 +335,7 @@ export function useUserProfile({
             lastName: names.slice(1).join(' ') || user.lastName,
             bio: res.data.bio,
             phone: res.data.phone,
+            location: res.data.location,
             avatarUrl: res.data.avatarUrl
           });
         }
