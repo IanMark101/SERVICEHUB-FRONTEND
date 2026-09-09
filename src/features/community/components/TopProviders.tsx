@@ -72,14 +72,14 @@ export default function TopProviders({
   return (
     <div className="space-y-4">
       {/* Section Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center space-x-2">
           <Trophy className="w-4 h-4 text-amber-500" />
           <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             Top Providers of the Week
           </h2>
         </div>
-        <span className={`text-[10px] font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+        <span className={`text-[10px] font-semibold sm:text-right ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
           {leaderboardPeriod
             ? `Week of ${new Date(leaderboardPeriod.start).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} · Ranked by trust, completed work, and client ratings`
             : 'Ranked by trust, completed work, and client ratings'}

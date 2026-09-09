@@ -5,7 +5,7 @@ export function StatsSkeleton({ isDark = false }: { isDark?: boolean }) {
   const card = isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200';
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5" aria-label="Loading community statistics" aria-busy="true">
       {[1, 2, 3, 4].map((i) => (
         <div key={i} className={`rounded-2xl p-4 border flex items-center space-x-3.5 shadow-sm ${card}`}>
           <div className={`w-10 h-10 rounded-xl flex-shrink-0 ${shimmer}`} />

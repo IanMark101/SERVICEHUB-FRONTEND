@@ -1,13 +1,13 @@
 import React from 'react';
 import Image from 'next/image';
-import { Wrench } from 'lucide-react';
+import { Calendar, Wrench } from 'lucide-react';
 import { RecentService } from '../types/community.types';
 import CommunityEmptyState from './CommunityEmptyState';
 
 interface NewServicesSectionProps {
   services: RecentService[];
   isDark?: boolean;
-  onSelectService: (title: string) => void;
+  onSelectService: (id: string) => void;
 }
 
 export default function NewServicesSection({
@@ -16,14 +16,17 @@ export default function NewServicesSection({
   onSelectService,
 }: NewServicesSectionProps) {
   const formatPrice = (service: RecentService) => {
+    if (service.priceType === 'CUSTOM' || service.price === null) return 'Request a quote';
     const rawPrice = typeof service.price === 'number' ? service.price : parseFloat(service.price as string) || 0;
     const formatted = `₱${rawPrice.toLocaleString()}`;
 
     switch (service.priceType) {
       case 'PER_HOUR':
         return `${formatted} / hr`;
-      case 'PER_SESSION':
-        return formatted;
+      case 'PER_DAY':
+        return `${formatted} / day`;
+      case 'PER_PROJECT':
+        return `${formatted} / project`;
       case 'STARTS_AT':
         return `From ${formatted}`;
       default:
@@ -57,10 +60,11 @@ export default function NewServicesSection({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {services.map((service) => (
-            <div
+            <button
+              type="button"
               key={service.id}
-              onClick={() => onSelectService(service.title)}
-              className={`border rounded-xl p-3.5 space-y-2 transition-all duration-200 cursor-pointer select-none group/srv hover:border-emerald-500/50 hover:shadow-sm ${
+              onClick={() => onSelectService(service.id)}
+              className={`w-full border rounded-xl p-3.5 space-y-2 text-left transition-all duration-200 cursor-pointer select-none group/srv hover:border-slate-500/50 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ${
                 isDark
                   ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/40 text-[#f2efe9]'
                   : 'bg-slate-50 border-slate-200/80 hover:bg-white text-slate-900'
@@ -107,7 +111,11 @@ export default function NewServicesSection({
                   {service.provider?.trustScore || 50}%
                 </span>
               </div>
-            </div>
+              <div className={`flex items-center gap-1 pt-1 text-[9px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+                <Calendar className="h-3 w-3" aria-hidden="true" />
+                <span>Published {new Date(service.publishedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+            </button>
           ))}
         </div>
       )}

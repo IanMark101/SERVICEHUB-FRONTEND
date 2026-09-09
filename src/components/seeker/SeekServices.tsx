@@ -23,6 +23,7 @@ export default function SeekServices() {
   const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  const [linkedServiceId, setLinkedServiceId] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
   const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
@@ -37,9 +38,21 @@ export default function SeekServices() {
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      const category = params.get('category');
+      const serviceId = params.get('serviceId');
+      if (category) setSelectedCategory(category);
+      if (serviceId) setLinkedServiceId(serviceId);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const handleCategoryChange = (cat: string) => {
     if (cat === selectedCategory) return;
     setIsLoading(true);
+    setLinkedServiceId(null);
     setSelectedCategory(cat);
     setTimeout(() => setIsLoading(false), 300);
   };
@@ -136,8 +149,9 @@ export default function SeekServices() {
 
     // 1. Search Query filter
     const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = 
-      service.title.toLowerCase().includes(query) ||
+    const matchesSearch = linkedServiceId
+      ? service.id === linkedServiceId
+      : service.title.toLowerCase().includes(query) ||
       service.description.toLowerCase().includes(query) ||
       service.providerName.toLowerCase().includes(query) ||
       service.category.toLowerCase().includes(query) ||
@@ -218,7 +232,10 @@ export default function SeekServices() {
               type="text"
               placeholder="What service are you looking for?"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setLinkedServiceId(null);
+                setSearchQuery(e.target.value);
+              }}
               className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
                 }`}
             />

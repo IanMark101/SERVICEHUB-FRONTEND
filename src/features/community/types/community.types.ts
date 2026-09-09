@@ -29,12 +29,9 @@ export interface RecentService {
   id: string;
   title: string;
   description: string;
-  price: string | number;
-  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM' | 'PER_SESSION';
-  /** Legacy API values are normalized to ONE_TIME by the shared mapper. */
-  serviceType: 'ONE_TIME' | 'SESSION_BASED';
-  createdAt: string;
-  updatedAt: string;
+  price: string | number | null;
+  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
+  publishedAt: string;
   category: {
     id: string;
     name: string;
@@ -62,6 +59,7 @@ export interface CommunityHubData {
   leaderboard: TopProvider[];
   stats: CommunityStatsData;
   recentCategories: RecentCategory[];
+  recentServices: RecentService[];
   announcements: CommunityAnnouncement[];
   leaderboardPeriod: {
     start: string;
