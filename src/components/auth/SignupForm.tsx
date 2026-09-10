@@ -206,12 +206,14 @@ export default function SignupForm({
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
             disabled={isLoading}
-            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+            aria-disabled={isLoading || (step < 3 && isNextDisabled)}
+            aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
+            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 ${
               isLoading
                 ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
                 : (step < 3 && isNextDisabled)
-                  ? 'bg-orange-600/75 dark:bg-orange-700/70 hover:bg-orange-600 text-white shadow-sm'
-                  : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white shadow-md'
+                  ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-300 cursor-pointer shadow-none'
+                  : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white shadow-md cursor-pointer'
             }`}
           >
             {isLoading ? (

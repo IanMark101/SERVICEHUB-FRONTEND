@@ -165,23 +165,42 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             </div>
 
             {/* Terms of Service agreement checkbox */}
-            <div className="flex items-center space-x-2.5 pt-1.5 pb-1 px-1">
-              <input
-                id="agreeTerms"
-                type="checkbox"
-                {...register('agreeTerms')}
-                className="h-4 w-4 text-orange-600 border-slate-300 dark:border-slate-800 rounded focus:ring-orange-500/30 bg-white dark:bg-[#0c0c0e] cursor-pointer flex-shrink-0"
-              />
-              <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-500 dark:text-[#b4b0a9] select-none cursor-pointer leading-none">
-                I agree to the{' '}
-                <Link href="/terms" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link href="/privacy" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
-                  Privacy Policy
-                </Link>.
-              </label>
+            <div className="space-y-1.5 pt-1.5 pb-1 px-1">
+              <div className="flex items-center space-x-2.5">
+                <input
+                  id="agreeTerms"
+                  type="checkbox"
+                  aria-invalid={Boolean(fieldErrors.agreeTerms)}
+                  aria-describedby="agreeTerms-help"
+                  {...register('agreeTerms')}
+                  className={`h-4 w-4 text-orange-600 rounded focus:ring-orange-500/30 bg-white dark:bg-[#0c0c0e] cursor-pointer flex-shrink-0 ${
+                    fieldErrors.agreeTerms
+                      ? 'border-red-500 ring-1 ring-red-500/30'
+                      : 'border-slate-300 dark:border-slate-800'
+                  }`}
+                />
+                <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-500 dark:text-[#b4b0a9] select-none cursor-pointer leading-none">
+                  I agree to the{' '}
+                  <Link href="/terms" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
+                    Privacy Policy
+                  </Link>.
+                </label>
+              </div>
+              <p
+                id="agreeTerms-help"
+                role={fieldErrors.agreeTerms ? 'alert' : undefined}
+                className={`text-[11px] font-medium pl-6.5 ${
+                  fieldErrors.agreeTerms
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-slate-500 dark:text-slate-400'
+                }`}
+              >
+                {fieldErrors.agreeTerms || 'Required before continuing to the next step.'}
+              </p>
             </div>
           </>
         )}
