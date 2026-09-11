@@ -70,8 +70,8 @@ export default function RegisterContainer({
       />
 
       {/* Right Panel: Independently Scrollable Column */}
-      <section className="relative z-10 min-h-[100dvh] min-w-0 overflow-y-auto bg-[#fbfaf7] text-slate-800 transition-colors dark:bg-[#171715] dark:text-[#f2efe9]">
-        <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-start px-5 py-8 sm:px-8 md:py-10 lg:px-10">
+      <div className="w-full md:w-1/2 h-screen overflow-y-auto bg-[#fbfaf7] dark:bg-[#191919] relative z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
+        <div className="w-full max-w-2xl mx-auto py-10 px-4 sm:px-6 md:px-8 flex flex-col justify-start min-h-full">
           {/* Error Message Banner Slot */}
           {error && (
             <div className="mb-4 p-2.5 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-655 dark:text-red-400 text-xs font-semibold text-center animate-in fade-in duration-150 flex-shrink-0">
@@ -116,7 +116,7 @@ export default function RegisterContainer({
             />
           )}
         </div>
-      </section>
+      </div>
     </AuthLayout>
   );
 }

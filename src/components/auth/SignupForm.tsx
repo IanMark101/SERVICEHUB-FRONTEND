@@ -154,14 +154,14 @@ export default function SignupForm({
       {/* Header Info */}
       <div className="border-t border-slate-200 dark:border-slate-800/60 pt-4">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
-          {step === 1 && 'Create your account'}
-          {step === 2 && 'Add contact details'}
-          {step === 3 && 'Finish your profile'}
+          {step === 1 && 'Sign Up Account'}
+          {step === 2 && 'Contact Info'}
+          {step === 3 && 'Profile Setup'}
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-xs">
-          {step === 1 && 'Start with the credentials you will use to sign in.'}
+          {step === 1 && 'Enter your personal data to create your account.'}
           {step === 2 && 'Provide your contact information and select your Cordova barangay.'}
-          {step === 3 && 'Add only the public profile details you want to share.'}
+          {step === 3 && 'Finalize your public profile details.'}
         </p>
       </div>
 

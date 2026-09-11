@@ -25,7 +25,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-[#fbfaf7]/95 text-slate-950 backdrop-blur-md dark:border-white/10 dark:bg-[#171715]/95 dark:text-stone-50">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-stone-200/80 bg-[#fbfaf7]/95 text-slate-950 backdrop-blur-md dark:border-white/10 dark:bg-[#171715]/95 dark:text-stone-50">
         <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-5 px-5 sm:px-8 lg:px-10">
           <a href="#top" className="flex min-w-0 items-center gap-3" aria-label="ServiceHub Cordova home">
             <Image src="/logo.svg" alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl" priority />
@@ -55,6 +55,8 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           </div>
         </div>
       </header>
+
+      <div className="h-[68px] shrink-0" aria-hidden="true" />
 
       {mobileOpen && (
         <div id="mobile-navigation" className="fixed inset-x-0 top-[68px] z-40 border-b border-stone-200 bg-[#fbfaf7] px-5 py-4 shadow-lg lg:hidden dark:border-white/10 dark:bg-[#171715]">
