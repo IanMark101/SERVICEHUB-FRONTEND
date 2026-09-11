@@ -9,12 +9,12 @@ import {
 
 describe('service booking presentation rules', () => {
   it('does not invent payment methods when a listing has none', () => {
-    expect(getServicePaymentMethods(null)).toEqual({ cash: false, gcash: false, maya: false });
+    expect(getServicePaymentMethods(null)).toEqual({ cash: false, gcash: false });
   });
 
   it('preserves the listing payment methods and shows a selector only for choices', () => {
-    const service = { paymentMethods: { cash: true, gcash: true, maya: false } };
-    expect(getServicePaymentMethods(service)).toEqual({ cash: true, gcash: true, maya: false });
+    const service = { paymentMethods: { cash: true, gcash: true } };
+    expect(getServicePaymentMethods(service)).toEqual({ cash: true, gcash: true });
     expect(shouldShowPaymentSelector(service)).toBe(true);
     expect(shouldShowPaymentSelector({ paymentMethods: { cash: true } })).toBe(false);
   });

@@ -321,7 +321,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                         {je.status === 'queued' && (
                           <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-amber-455 bg-amber-955/20 border-amber-900/30' : 'text-amber-700 bg-amber-50 border border-amber-100'
                             }`}>
-                            Queued
+                            {je.queuePosition === 1 ? 'Ready to Start' : `Queue Position ${je.queuePosition || '—'}`}
                           </span>
                         )}
                         {je.status === 'pending_provider' && (
@@ -493,11 +493,18 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                         {je.status === 'queued' && (
                           <div className="flex items-center space-x-1.5">
                             <button
-                              disabled={!!loadingItemId}
-                              onClick={() => handleProviderStartJob(je.id)}
+                              disabled={!!loadingItemId || je.queuePosition !== 1}
+                              onClick={() => {
+                                if (je.queuePosition === 1) handleProviderStartJob(je.id);
+                              }}
+                              title={je.queuePosition === 1
+                                ? 'Start the first booking in this service queue'
+                                : `Queue position ${je.queuePosition || 'unavailable'} must wait until earlier bookings are completed`}
                               className={`px-3.5 py-1.5 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer ${
                                 loadingItemId === je.id && loadingActionType === 'start'
                                   ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                                  : je.queuePosition !== 1
+                                    ? 'bg-neutral-700 text-neutral-400 cursor-not-allowed opacity-60 shadow-none active:scale-100'
                                   : 'bg-emerald-600 hover:bg-emerald-700'
                               }`}
                             >
@@ -509,7 +516,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                               ) : (
                                 <>
                                   <Play className="w-3 h-3 mr-1" />
-                                  <span>Start</span>
+                                  <span>{je.queuePosition === 1 ? 'Start' : 'Waiting'}</span>
                                 </>
                               )}
                             </button>

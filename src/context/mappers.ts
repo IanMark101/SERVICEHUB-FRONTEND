@@ -15,7 +15,7 @@ interface ApiCategory { name?: string }
 interface ApiService { id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
 interface ApiDirectRequest { agreedPrice?: number | string; message?: string; schedule?: string; service?: { title?: string } }
 interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; message?: string; status?: string; createdAt?: string; request?: { title?: string; seeker?: ApiUser; category?: ApiCategory | string } }
-export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string }; offer?: ApiOffer; directRequest?: ApiDirectRequest; paymentMethod?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests'] }
+export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string }; offer?: ApiOffer; directRequest?: ApiDirectRequest; queue?: { status?: string; position?: number; estimatedWait?: number } | null; paymentMethod?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests'] }
 export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; completedAt?: string; reviews?: JobEngagement['reviews'] }
 interface ApiRequest { id: string; seekerId?: string; seeker?: ApiUser; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: unknown[] }
 interface ApiNotification { id: string; userId: string; title: string; body: string; createdAt: string; isRead: boolean; link?: string | null }
@@ -34,6 +34,14 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
     'REMOVED': 'canceled',
     'COMPLETED': 'completed'
   };
+  // An online-paid booking is ACCEPTED immediately, but it is still waiting
+  // until the provider explicitly starts it. Queue is authoritative for that
+  // distinction; ACCEPTED must never be shown as active work while its row is
+  // WAITING.
+  const mappedStatus = b.status === 'ACCEPTED' && b.queue?.status === 'WAITING'
+    ? 'queued'
+    : statusMap[b.status || ''] || 'pending_provider';
+
   return {
     id: b.id,
     title,
@@ -51,14 +59,15 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
     providerLocation: b.provider?.location || 'Cordova, Cebu',
     serviceId: b.serviceId || null,
     price: Number(b.directRequest?.agreedPrice || b.offer?.offeredPrice || b.service?.price || 0),
-    status: (statusMap[b.status || ''] || 'pending_provider') as JobEngagement['status'],
-    paymentMethod: b.paymentMethod === 'Maya' ? 'Maya' : b.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
+    status: mappedStatus as JobEngagement['status'],
+    paymentMethod: b.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
     createdAt: b.createdAt || '',
     completedAt: b.updatedAt || '',
     description: b.directRequest?.message || b.offer?.message || b.description || '',
     preferredSchedule: b.directRequest?.schedule || '',
     disputeReason: b.reports?.[0]?.description || '',
     started: b.started,
+    queuePosition: b.queue?.position,
     cancellationRequests: b.cancellationRequests || []
   };
 }
@@ -84,7 +93,7 @@ export function mapCompletedServiceToEngagement(cs: ApiCompletedService): JobEng
     serviceId: booking?.serviceId || null,
     price: Number(cs.finalPrice),
     status: 'completed',
-    paymentMethod: booking?.paymentMethod === 'Maya' ? 'Maya' : booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
+    paymentMethod: booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
     createdAt: cs.completedAt?.split('T')[0] || '',
     completedAt: cs.completedAt?.split('T')[0] || '',
     completedServiceId: cs.id,
@@ -132,9 +141,7 @@ export function mapServiceToListing(item: ApiService): ServiceListing {
     rejectionCount: item.rejectionCount || 0,
     paymentMethods: item.paymentMethods ? {
       cash: !!item.paymentMethods.cash,
-      gcash: !!item.paymentMethods.gcash,
-      maya: !!item.paymentMethods.maya,
-      card: !!item.paymentMethods.card
+      gcash: !!item.paymentMethods.gcash
     } : undefined
   };
 }

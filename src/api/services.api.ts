@@ -1,6 +1,6 @@
 import { api } from '../lib/api/axios';
 
-type PaymentMethods = { cash: boolean; gcash: boolean; maya?: boolean; card?: boolean };
+type PaymentMethods = { cash: boolean; gcash: boolean };
 
 export interface ServicePayload {
   categoryId: string;

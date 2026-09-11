@@ -51,12 +51,12 @@ interface AppContextType {
   editJobRequest: (requestId: string, title: string, budget: number, description: string) => void;
   deleteJobRequest: (requestId: string) => void;
   toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
-  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'Maya' | 'On-site Cash') => void;
+  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => void;
   declineBid: (bidId: string) => void;
   confirmJobCompletion: (jobId: string) => void;
   disputeJob: (jobId: string, reason: string) => void;
   suggestCategory: (seekerName: string, name: string, description: string) => void;
-  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'Maya' | 'On-site Cash') => void;
+  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash') => void;
 
   // Provider actions
   createServiceListing: (
@@ -65,7 +65,7 @@ interface AppContextType {
     category: string,
     price: number,
     description: string,
-    paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean },
+    paymentMethods: { cash: boolean; gcash: boolean },
     options?: {
       serviceType?: ServiceListing['serviceType'];
       priceType?: ServiceListing['priceType'];
@@ -82,7 +82,7 @@ interface AppContextType {
       priceType?: ServiceListing['priceType'];
       serviceType?: ServiceListing['serviceType'];
       estimatedDurationMins?: number;
-      paymentMethods?: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
+      paymentMethods?: { cash: boolean; gcash: boolean };
     }
   ) => void;
   toggleServiceListingStatus: (serviceId: string) => void;
@@ -118,27 +118,13 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<User[]>([]);
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") === "dark";
-    }
-    return false;
-  });
+  // Keep the server render and the client's first render identical. Browser
+  // preferences are restored after hydration; the root initializer prevents a
+  // visible theme flash before React starts.
+  const [isDark, setIsDark] = useState(false);
 
   // Global Auth States
-  const [user, setUserState] = useState<UserSession | null>(() => {
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem('userSession');
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch {
-          return null;
-        }
-      }
-    }
-    return null;
-  });
+  const [user, setUserState] = useState<UserSession | null>(null);
 
   const setUser = useCallback((valOrFn: UserSession | null | ((prev: UserSession | null) => UserSession | null)) => {
     setUserState(prev => {
@@ -203,6 +189,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toastSuccess,
     toastError
   });
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsDark(localStorage.getItem('theme') === 'dark');
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   // ─── Session Recovery ──────────────────────────────────────────
   useEffect(() => {
     let active = true;

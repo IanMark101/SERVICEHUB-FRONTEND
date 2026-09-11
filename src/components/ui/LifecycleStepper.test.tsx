@@ -6,7 +6,14 @@ describe('LifecycleStepper', () => {
   it('shows a queue position for a queued booking', () => {
     render(<LifecycleStepper status="queued" queuePosition={3} isDark={false} />);
     expect(screen.getByText('In Queue')).toBeInTheDocument();
-    expect(screen.getByText('#3 spot')).toBeInTheDocument();
+    expect(screen.getByText('Position #3')).toBeInTheDocument();
+  });
+
+  it('shows the first paid seeker as waiting for the provider rather than in progress', () => {
+    render(<LifecycleStepper status="queued" queuePosition={1} role="seeker" isDark={false} />);
+    expect(screen.getByText('First in Queue')).toBeInTheDocument();
+    expect(screen.getByText('Waiting for provider')).toBeInTheDocument();
+    expect(screen.queryByText('In Progress')).not.toHaveClass('font-black');
   });
 
   it('shows the terminal canceled state without active lifecycle steps', () => {

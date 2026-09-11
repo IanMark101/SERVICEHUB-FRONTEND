@@ -11,7 +11,7 @@ import { getApiErrorMessage } from '../../lib/api/errors';
 interface RequestServiceModalProps {
   listing: ServiceListing;
   onClose: () => void;
-  initialPaymentMethod?: 'GCash' | 'Maya' | 'On-site Cash';
+  initialPaymentMethod?: 'GCash' | 'On-site Cash';
 }
 
 export default function RequestServiceModal({ listing, onClose, initialPaymentMethod }: RequestServiceModalProps) {
@@ -20,19 +20,18 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const isOwned = !!(user && listing.providerId === user.id);
 
   // ── Payment method source of truth ──────────────────────────────────────────
-  const { cash, gcash, maya } = getServicePaymentMethods(listing);
+  const { cash, gcash } = getServicePaymentMethods(listing);
 
   // Resolve a valid default: if the caller passed a method not supported, fall back to supported one
-  const resolveDefault = (): 'GCash' | 'Maya' | 'On-site Cash' => {
+  const resolveDefault = (): 'GCash' | 'On-site Cash' => {
     if (initialPaymentMethod === 'GCash' && gcash) return 'GCash';
-    if (initialPaymentMethod === 'Maya' && maya) return 'Maya';
     if (initialPaymentMethod === 'On-site Cash' && cash) return 'On-site Cash';
     if (cash) return 'On-site Cash';
-    return gcash ? 'GCash' : 'Maya';
+    return 'GCash';
   };
 
   const [description, setDescription] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'Maya' | 'On-site Cash'>(resolveDefault);
+  const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(resolveDefault);
   const [preferredSchedule, setPreferredSchedule] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -94,7 +93,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!cash && !gcash && !maya) {
+    if (!cash && !gcash) {
       setFormError('This listing has no available payment method.');
       return;
     }
@@ -337,7 +336,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
             <div>
               <label className="text-xs font-semibold mb-2 block">Payment Method</label>
               <div className="grid grid-cols-2 gap-3">
-                {([['On-site Cash', cash], ['GCash', gcash], ['Maya', maya]] as const)
+                {([['On-site Cash', cash], ['GCash', gcash]] as const)
                   .filter(([, accepted]) => accepted)
                   .map(([method]) => (
                     <button key={method} type="button" disabled={isOwned}
@@ -347,8 +346,8 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     </button>
                   ))}
               </div>
-              {!cash && !gcash && !maya && <p className="text-xs text-red-500">No supported payment method is available.</p>}
-              {(gcash || maya) && (
+              {!cash && !gcash && <p className="text-xs text-red-500">No supported payment method is available.</p>}
+              {gcash && (
                 <p className={`mt-2 text-[10px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
                   Online checkout uses PayMongo Test Mode. PAID_HELD and RELEASED are internal workflow records, not regulated escrow or a real provider payout.
                 </p>

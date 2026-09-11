@@ -20,7 +20,7 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
         steps: [
           'Locate the service card on the "Seek Services" marketplace page.',
           'Click "Book Service" on the listing.',
-          'Choose an available payment method shown by the listing: On-site Cash, GCash, or Maya.',
+          'Choose an available payment method shown by the listing: On-site Cash or GCash.',
           'For an on-site cash request, optionally propose a preferred schedule. It is not reserved until the provider accepts.',
           'Add a short description of the problem or task details.',
           'Submit your booking request.',

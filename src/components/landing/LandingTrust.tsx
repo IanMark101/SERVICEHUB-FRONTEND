@@ -89,7 +89,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
             <p className={`text-xs leading-relaxed font-medium ${
               isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
             }`}>
-              Eligible listings support GCash or Maya through PayMongo Test Mode, or an on-site cash arrangement. Seeker confirmation closes completed work.
+              Eligible listings support GCash through PayMongo Test Mode, or an on-site cash arrangement. Seeker confirmation closes completed work.
             </p>
           </ScrollReveal>
         </div>

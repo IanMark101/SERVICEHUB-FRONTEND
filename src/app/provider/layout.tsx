@@ -5,51 +5,12 @@ import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/layout/Sidebar';
 import Header from '../../components/layout/Header';
 import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModal';
-import { HelpCircle } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 import { clearAccessToken } from '../../lib/api/axios';
 import OnboardingGate from '../../features/onboarding/components/OnboardingGate';
-
-const tabDetails: Record<string, { title: string; desc: string }> = {
-  'browse-services': {
-    title: 'Browse Client Job Requests',
-    desc: 'Browse open service tasks posted by Cordova clients. Filter by barangay or urgency and submit your price offers to get hired.',
-  },
-  'offer-services': {
-    title: 'Create a Service Listing',
-    desc: 'Submit a service for administrator review with a clear scope, pricing model, availability, and accepted payment methods.',
-  },
-  'service-manager': {
-    title: 'My Service Listings',
-    desc: 'Manage your active service listings. Edit pricing, update descriptions, or pause listings when your schedule is booked up.',
-  },
-  'incoming-requests': {
-    title: 'Direct Client Bookings',
-    desc: 'Review direct booking requests. Confirmed online payments enter the service queue; onsite-cash bookings remain direct arrangements.',
-  },
-  'provider-activity': {
-    title: 'Job Tracker & Queue',
-    desc: 'Manage your active workload, update booking statuses, notify clients when work is complete, and track approvals.',
-  },
-  'transaction-history': {
-    title: 'Earnings & Payment Records',
-    desc: 'Review completed work, cash confirmations, and ServiceHub Test Mode internal-ledger records. This is not a live payout account.',
-  },
-  'messages': {
-    title: 'Direct Messages',
-    desc: 'Chat directly with clients to clarify task instructions and coordinate arrival or service times.',
-  },
-  'community-hub': {
-    title: 'Community Announcements & Leaders',
-    desc: 'Access local Cordova announcements, guidelines, and see how you rank among the top-rated providers this week.',
-  },
-  'user-profile': {
-    title: 'Provider Profile & Portfolio',
-    desc: 'View your public profile, ratings, badges, verified skills, and residency verification status.',
-  }
-};
+import { usePersistentSidebarState } from '../../hooks/usePersistentSidebarState';
 
 export default function ProviderLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -57,7 +18,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
   const { authLoading, user, isDark, setUser, setIsAuthenticated, jobEngagements } = useApp();
   const { shouldRender } = useRouteGuard(['user']);
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistentSidebarState();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
@@ -105,21 +66,6 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
   // Resolve activeTab from pathname
   const activeTab = pathname.split('/').pop() || 'browse-services';
 
-  const accent = {
-    border: 'border-emerald-500/20',
-    borderFocus: 'focus:border-emerald-500 focus:ring-emerald-500',
-    bgLight: 'bg-emerald-500/5',
-    text: 'text-emerald-500 dark:text-emerald-400',
-    bgButton: 'bg-emerald-600 hover:bg-emerald-700 text-white',
-    badge: activeTab === 'community-hub'
-      ? isDark
-        ? 'bg-slate-800 text-slate-200 border-slate-700'
-        : 'bg-slate-100 text-slate-700 border-slate-200 shadow-xs'
-      : isDark
-        ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/40'
-        : 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-xs',
-  };
-
   const currentRole = 'provider';
 
   return (
@@ -158,57 +104,26 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="flex-1 w-full max-w-[1440px] mx-auto p-4 sm:p-6 md:p-8">
+        <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-5">
           
-          {/* Breadcrumbs / Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 border-b pb-4 border-slate-200 dark:border-neutral-800/80">
-            <div>
-              <div className="flex items-center space-x-3">
-                <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
-                  <span>{activeTab === 'user-profile' ? 'User Profile' : activeTab.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
-                  {tabDetails[activeTab] && (
-                    <div className="relative group flex items-center font-sans">
-                      <HelpCircle className={`w-4 h-4 cursor-help transition-colors duration-150 ${isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-600'}`} />
-                      <div className={`absolute left-0 top-full mt-2.5 w-80 p-3.5 rounded-2xl shadow-2xl border text-xs font-sans font-normal leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none backdrop-blur-md ${
-                        isDark 
-                          ? 'bg-[#1c1b18]/95 border-neutral-800 text-[#f2efe9] shadow-black/60' 
-                          : 'bg-white/95 border-slate-200 text-slate-700 shadow-slate-200/80'
-                      }`}>
-                        <p className="font-bold text-xs text-slate-900 dark:text-[#f2efe9] mb-1">
-                          {tabDetails[activeTab].title}
-                        </p>
-                        <p className="text-slate-600 dark:text-[#b4b0a9] leading-relaxed">
-                          {tabDetails[activeTab].desc}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </h2>
-                {activeTab === 'incoming-requests' && (() => {
-                  const pendingRequestsCount = jobEngagements.filter(
-                    je => je.providerId === user?.id && je.status === 'pending_provider'
-                  ).length;
-                  return pendingRequestsCount > 0 ? (
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                      isDark 
-                        ? 'bg-emerald-950/20 text-emerald-450 border-emerald-900/30' 
-                        : 'bg-emerald-55 text-emerald-600 border-emerald-200'
-                    }`}>
-                      {pendingRequestsCount} Pending
-                    </span>
-                  ) : null;
-                })()}
+          {/* The sticky header already identifies the current page. Only show
+              actionable status here when a queue needs the user's attention. */}
+          {activeTab === 'incoming-requests' && (() => {
+            const pendingRequestsCount = jobEngagements.filter(
+              je => je.providerId === user?.id && je.status === 'pending_provider'
+            ).length;
+            return pendingRequestsCount > 0 ? (
+              <div className="mb-3 flex justify-end">
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                  isDark
+                    ? 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30'
+                    : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                }`}>
+                  {pendingRequestsCount} pending requests
+                </span>
               </div>
-            </div>
-            
-            {/* Quick action buttons aligned with role */}
-            <div className="flex items-center space-x-2.5">
-              <span className={`text-xs font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>Viewing as:</span>
-              <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${accent.badge}`}>
-                {activeTab === 'community-hub' ? 'Community' : currentRole}
-              </span>
-            </div>
-          </div>
+            ) : null;
+          })()}
  
           {/* Dynamic Tab Render Area */}
           {children}

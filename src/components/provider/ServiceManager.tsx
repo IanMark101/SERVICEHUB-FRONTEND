@@ -162,7 +162,7 @@ export default function ServiceManager({
       serviceType: 'ONE_TIME',
       estimatedDurationMins: Number(s.estimatedDurationMins || 60),
       description: s.description,
-      paymentMethods: { cash: !!s.paymentMethods?.cash, gcash: !!s.paymentMethods?.gcash, maya: !!s.paymentMethods?.maya, card: false }
+      paymentMethods: { cash: !!s.paymentMethods?.cash, gcash: !!s.paymentMethods?.gcash }
     });
   };
 
@@ -523,7 +523,7 @@ export default function ServiceManager({
         onSubmit={handleSaveEdit}
         onOpenProfile={() => {
           setEditingService(null);
-          router.push('/provider/user-profile?tab=settings');
+          router.push('/provider/account-settings#contact-information');
         }}
       />
 

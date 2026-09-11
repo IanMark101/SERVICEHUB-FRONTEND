@@ -59,7 +59,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
       q: "How does online payment actually work, step by step?",
       a: (
         <div className="space-y-3">
-          <p>Here&apos;s the exact sequence when you choose an eligible GCash or Maya Test Mode checkout instead of cash:</p>
+          <p>Here&apos;s the exact sequence when you choose an eligible GCash Test Mode checkout instead of cash:</p>
           <ol className="list-decimal list-inside space-y-2">
             <li><strong>You confirm the booking details</strong> — the price, the schedule, and any message to the provider.</li>
             <li><strong>You&apos;re taken to PayMongo&apos;s payment screen</strong> and complete the selected Test Mode checkout.</li>

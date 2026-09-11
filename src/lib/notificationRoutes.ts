@@ -48,24 +48,10 @@ export function resolveNotificationLink(
                .replace('/settings', `/${currentRole}/account-settings`);
   }
 
-  // Handle cross-workspace redirection smoothly if role context differs
-  if (currentRole === 'provider' && link.startsWith('/seeker/seeker-activity')) {
-    link = link.replace('/seeker/seeker-activity', '/provider/provider-activity');
-  } else if (currentRole === 'seeker' && link.startsWith('/provider/provider-activity')) {
-    link = link.replace('/provider/provider-activity', '/seeker/seeker-activity');
-  } else if (currentRole === 'provider' && link.startsWith('/seeker/messages')) {
-    link = link.replace('/seeker/messages', '/provider/messages');
-  } else if (currentRole === 'seeker' && link.startsWith('/provider/messages')) {
-    link = link.replace('/provider/messages', '/seeker/messages');
-  } else if (currentRole === 'seeker' && link.startsWith('/provider/user-profile')) {
-    link = link.replace('/provider/user-profile', '/seeker/user-profile');
-  } else if (currentRole === 'provider' && link.startsWith('/seeker/user-profile')) {
-    link = link.replace('/seeker/user-profile', '/provider/user-profile');
-  } else if (currentRole === 'seeker' && link.startsWith('/provider/account-settings')) {
-    link = link.replace('/provider/account-settings', '/seeker/account-settings');
-  } else if (currentRole === 'provider' && link.startsWith('/seeker/account-settings')) {
-    link = link.replace('/seeker/account-settings', '/provider/account-settings');
-  }
+  // Explicit absolute links are authoritative. A provider notification may be
+  // opened while the unified account is currently viewing the Seeker
+  // workspace (and vice versa); rewriting it to the current workspace can
+  // produce a valid-looking but empty page.
 
   // Ensure query parameters preserve tab & booking highlighting for activity views
   if (link.includes('activity')) {

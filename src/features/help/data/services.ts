@@ -44,7 +44,7 @@ export const SERVICES_ARTICLES: HelpArticle[] = [
           'Provide a clear, professional Title and detailed Description of what is included.',
           'Choose your Price Type (Fixed, Starts At, Per Hour, Per Day, Per Project, or Custom Quote).',
           'Specify the Estimated Duration (e.g. 60 minutes) and your waiting Queue Limit (e.g. 3 customers).',
-          'Select the supported payment methods you accept: On-site Cash, GCash, and/or Maya.',
+          'Select the supported payment methods you accept: On-site Cash and/or GCash.',
           'Submit your listing for administrator quality review.',
         ],
         callout: {

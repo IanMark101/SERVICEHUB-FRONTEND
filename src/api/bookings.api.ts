@@ -9,7 +9,7 @@ export async function apiBookDirect(data: {
   return response.data;
 }
 
-export async function apiInitiatePayment(data: { serviceId: string; offerId?: string; paymentMethodType?: 'gcash' | 'paymaya' | 'card' }) {
+export async function apiInitiatePayment(data: { serviceId: string; offerId?: string; paymentMethodType?: 'gcash' }) {
   const response = await api.post('/bookings/initiate-payment', data);
   return response.data;
 }

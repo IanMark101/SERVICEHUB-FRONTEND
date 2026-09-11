@@ -230,7 +230,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                       {je.status === 'queued' && (
                         <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-amber-450 bg-amber-955/20 border-amber-900/30' : 'text-amber-700 bg-amber-50 border border-amber-100'
                           }`}>
-                          Queued
+                          {je.queuePosition === 1 ? 'First in Queue' : `Queue Position ${je.queuePosition || '—'}`}
                         </span>
                       )}
 

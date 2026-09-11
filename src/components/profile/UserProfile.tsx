@@ -70,7 +70,7 @@ export default function UserProfile({
   const activeTabBg = isProvider ? 'bg-emerald-600 text-white shadow-sm' : isAdmin ? 'bg-blue-600 text-white shadow-sm' : 'bg-orange-600 text-white shadow-sm';
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-6 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-5xl mx-auto space-y-4 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
       
       {/* 🌟 Profile Hero Header */}
       <ProfileHeader
@@ -117,10 +117,10 @@ export default function UserProfile({
       )}
 
       {/* 📌 Clean Tabbed Navigation Bar */}
-      <div className={`p-1.5 rounded-2xl border ${cardBg} flex items-center gap-1 overflow-x-auto shadow-sm`}>
+      <div className={`p-1 rounded-2xl border ${cardBg} flex items-center gap-1 overflow-x-auto shadow-sm`}>
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'overview'
               ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
@@ -132,7 +132,7 @@ export default function UserProfile({
 
         <button
           onClick={() => setActiveTab('reviews')}
-          className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'reviews'
               ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
@@ -144,7 +144,7 @@ export default function UserProfile({
 
         <button
           onClick={() => setActiveTab('trust')}
-          className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'trust'
               ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
@@ -156,7 +156,7 @@ export default function UserProfile({
 
         <button
           onClick={() => setActiveTab('verification')}
-          className={`flex-1 min-w-[110px] py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
             activeTab === 'verification'
               ? activeTabBg
               : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`

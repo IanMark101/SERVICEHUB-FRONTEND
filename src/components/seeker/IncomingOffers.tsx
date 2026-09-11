@@ -73,7 +73,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     setSelectingPaymentBidId(bidId);
   };
 
-  const handleSelectPaymentMethod = async (paymentMethod: 'GCash' | 'Maya' | 'On-site Cash') => {
+  const handleSelectPaymentMethod = async (paymentMethod: 'GCash' | 'On-site Cash') => {
     if (!selectingPaymentBidId) return;
     const bidId = selectingPaymentBidId;
     setSelectingPaymentBidId(null);
@@ -429,7 +429,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 Choose how you want to coordinate payment for this booking:
               </p>
 
-              {([['On-site Cash', acceptedMethods.cash], ['GCash', acceptedMethods.gcash], ['Maya', acceptedMethods.maya]] as const)
+              {([['On-site Cash', acceptedMethods.cash], ['GCash', acceptedMethods.gcash]] as const)
                 .filter(([, accepted]) => accepted)
                 .map(([method]) => (
                   <button key={method} onClick={() => handleSelectPaymentMethod(method)}
@@ -438,7 +438,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   </button>
                 ))}
               {!Object.values(acceptedMethods).some(Boolean) && <p className="text-xs text-red-500">This listing has no available payment method. Refresh the page or choose another offer.</p>}
-              {(acceptedMethods.gcash || acceptedMethods.maya) && (
+              {acceptedMethods.gcash && (
                 <p className={`text-[10px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
                   Online checkout uses PayMongo Test Mode. Payment statuses are internal workflow records, not regulated escrow or a real provider payout.
                 </p>

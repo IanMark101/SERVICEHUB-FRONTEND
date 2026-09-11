@@ -101,21 +101,6 @@ export default function Header({
     return 'Unknown user';
   };
 
-  // Helper to format tab ID into human-readable Title
-  const getPageTitle = (tabId: string) => {
-    if (!tabId) return 'ServiceHub';
-    if (tabId === 'seek-services') return 'Seek Services';
-    if (tabId === 'browse-services') return 'Browse Jobs';
-    if (tabId === 'incoming-offers') return 'Service Requests';
-    if (tabId === 'provider-activity' || tabId === 'seeker-activity') return 'Activity Tracker';
-    if (tabId === 'transaction-history') return 'Transaction History';
-
-    return tabId
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
-
   const router = useRouter();
 
   useEffect(() => {
@@ -279,7 +264,8 @@ export default function Header({
     <header className={`sticky top-0 right-0 z-30 w-full h-20 backdrop-blur-md border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
       }`}>
 
-      {/* Left side: Hamburger (Mobile) & Workspace Indicator badge */}
+      {/* Left side: mobile navigation and workspace identity. The active sidebar
+          item already identifies the current page, so the page name is not repeated. */}
       <div className="flex items-center space-x-4">
         <button
           onClick={() => setIsMobileOpen(true)}
@@ -288,12 +274,12 @@ export default function Header({
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="flex items-center space-x-3">
+        <div className="flex min-w-0 items-center space-x-3">
           <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider flex items-center gap-1.5 ${isDark
               ? (isCommunityHub
                   ? 'bg-blue-950/20 text-blue-400 border-blue-900/30'
                   : currentRole === 'seeker'
-                  ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
+                  ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
                   : currentRole === 'admin'
                   ? 'bg-neutral-100 text-neutral-950 border-neutral-200'
                   : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
@@ -303,8 +289,8 @@ export default function Header({
               isCommunityHub
                 ? 'bg-blue-500'
                 : currentRole === 'seeker'
-                ? 'bg-orange-500' 
-                : currentRole === 'admin' 
+                ? 'bg-orange-500'
+                : currentRole === 'admin'
                 ? 'bg-slate-950 dark:bg-neutral-100'
                 : 'bg-emerald-500'
             }`} />
@@ -329,11 +315,6 @@ export default function Header({
               <span>{user.verificationStatus === 'PENDING_REVIEW' ? 'Verification Under Review' : 'Limited Mode'}</span>
             </span>
           )}
-
-          <span className="text-slate-300 hidden sm:inline-block">/</span>
-          <h1 className={`text-sm sm:text-base font-extrabold tracking-wide hidden sm:block ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
-            {getPageTitle(activeTab)}
-          </h1>
         </div>
       </div>
 

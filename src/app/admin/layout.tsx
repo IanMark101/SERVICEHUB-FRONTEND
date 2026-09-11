@@ -105,30 +105,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="admin-content flex-1 w-full max-w-[1440px] mx-auto overflow-y-auto p-4 sm:p-6 lg:p-8">
-          
-          {/* Page Title Header */}
-          <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div className="space-y-1">
-              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-neutral-400">Admin control center</p>
-              <h2 className={`admin-page-title text-2xl font-bold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
-                Administration · {activeTab.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-              </h2>
-              <p className="text-[11px] text-slate-500 dark:text-neutral-400">Database-backed operations and accountable moderation.</p>
-            </div>
-            
-            <div className="flex items-center space-x-2.5">
-              <span className={`text-[10px] font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Workspace</span>
-              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold capitalize border ${
-                isDark
-                  ? 'bg-neutral-100 text-neutral-950 border-neutral-200'
-                  : 'bg-slate-950 text-white border-slate-950 shadow-xs'
-              }`}>
-                Administrator
-              </span>
-            </div>
-          </div>
- 
+        <main className="admin-content flex-1 w-full max-w-[1440px] mx-auto overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-5">
           {/* Dynamic Tab Render Area */}
           <div className="admin-page-body">{children}</div>
  

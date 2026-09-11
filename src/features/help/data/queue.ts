@@ -68,7 +68,7 @@ export const QUEUE_ARTICLES: HelpArticle[] = [
           'ServiceHub maintains strict integrity in its queue system:',
         ],
         bullets: [
-          'ONLINE PAYMENTS (GCash or Maya Test Mode): A booking enters the listing-specific FCFS queue only after signed webhook confirmation. The position is reserved in ServiceHub, while the provider starts only the first eligible booking.',
+          'ONLINE PAYMENTS (GCash Test Mode): A booking enters the listing-specific FCFS queue only after signed webhook confirmation. The position is reserved in ServiceHub, while the provider starts only the first eligible booking.',
           'ON-SITE CASH: Cash bookings operate through "Direct Arrangement". The provider reviews your requested schedule and agrees on an appointment time directly in chat, without displacing online queue slots.',
         ],
         callout: {

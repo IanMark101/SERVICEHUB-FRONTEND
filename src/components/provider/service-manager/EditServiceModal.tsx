@@ -10,7 +10,7 @@ export interface EditServiceState {
   serviceType: NonNullable<ServiceListing['serviceType']>;
   estimatedDurationMins: number;
   description: string;
-  paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
+  paymentMethods: { cash: boolean; gcash: boolean };
 }
 
 interface Props {
@@ -45,7 +45,7 @@ export default function EditServiceModal({ value, isDark, hasMobileNumber, onCha
           <div>
             <span className={label}>Accepted Payment Methods</span>
             <div className="grid grid-cols-2 gap-2">
-              {([['cash', 'On-site Cash'], ['gcash', 'GCash'], ['maya', 'Maya'], ['card', 'Card (unavailable)']] as const).map(([key, text]) => <label key={key} className={`${field} flex items-center gap-2 cursor-pointer`}><input type="checkbox" disabled={key === 'card'} checked={key === 'card' ? false : value.paymentMethods[key]} onChange={(e) => onChange({ ...value, paymentMethods: { ...value.paymentMethods, [key]: e.target.checked } })} />{text}</label>)}
+              {([['cash', 'On-site Cash'], ['gcash', 'GCash']] as const).map(([key, text]) => <label key={key} className={`${field} flex items-center gap-2 cursor-pointer`}><input type="checkbox" checked={value.paymentMethods[key]} onChange={(e) => onChange({ ...value, paymentMethods: { ...value.paymentMethods, [key]: e.target.checked } })} />{text}</label>)}
             </div>
             {!hasPaymentMethod && <p className="mt-1 text-xs text-red-500">Select at least one payment method.</p>}
             {value.paymentMethods.gcash && !hasMobileNumber && (

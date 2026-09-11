@@ -83,52 +83,52 @@ export default function ProfileHeader({
     : 'from-orange-500 via-amber-400 to-yellow-500';
 
   return (
-    <div className={`${cardBg} rounded-[28px] p-6 sm:p-8 border shadow-sm transition-all relative overflow-hidden`}>
+    <div className={`${cardBg} rounded-3xl p-4 sm:p-5 border shadow-sm transition-all relative overflow-hidden`}>
       {/* Subtle top ambient glow */}
       <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-15 bg-gradient-to-br ${borderRing}`} />
 
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 relative z-10">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 relative z-10">
         
         {/* Large Circular Avatar with Instagram-style gradient story ring */}
         <div className="relative flex-shrink-0 group">
           <div className={`p-1 rounded-full bg-gradient-to-tr ${borderRing} shadow-lg transition-transform duration-300 group-hover:scale-105`}>
             <div className="p-1 bg-white dark:bg-[#22211e] rounded-full">
-              <Image unoptimized width={144} height={144}
+              <Image unoptimized width={112} height={112}
                 src={avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=random`}
                 alt={displayName}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=random`;
                 }}
-                className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover"
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
               />
             </div>
           </div>
 
           {verStatus === 'APPROVED' ? (
             <div
-              className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg border-2 border-white dark:border-[#22211e]"
+              className="absolute bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg border-2 border-white dark:border-[#22211e]"
               title="Verified Cordova Resident"
             >
-              <ShieldCheck size={20} />
+              <ShieldCheck size={17} />
             </div>
           ) : (
             <div
-              className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg border-2 border-white dark:border-[#22211e]"
+              className="absolute bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg border-2 border-white dark:border-[#22211e]"
               title="Residency Unverified"
             >
-              <Clock size={18} />
+              <Clock size={16} />
             </div>
           )}
         </div>
 
         {/* User Identity Details & Marketplace Counters */}
-        <div className="flex-1 text-center md:text-left space-y-4 w-full">
+        <div className="flex-1 text-center md:text-left space-y-3 w-full">
           
           {/* Header Row: Username, Verification, Role & Trust Score Badge */}
           <div className="flex flex-col sm:flex-row items-center md:items-start justify-between gap-3">
             <div>
               <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${headingText}`}>
+                <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${headingText}`}>
                   {displayName}
                 </h1>
                 {verStatus === 'APPROVED' && (
@@ -162,7 +162,7 @@ export default function ProfileHeader({
           </div>
 
           {/* 3 Marketplace Metric Counters Row */}
-          <div className={`grid grid-cols-3 gap-3 p-3.5 rounded-2xl border text-center ${innerBg}`}>
+          <div className={`grid grid-cols-3 gap-2 p-2.5 rounded-2xl border text-center ${innerBg}`}>
             <div>
               <div className={`text-base sm:text-lg font-black ${headingText}`}>
                 {completedJobs}

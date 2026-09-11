@@ -47,7 +47,7 @@ export const OFFERS_REQUESTS_ARTICLES: HelpArticle[] = [
           'Go to "Service Requests" (Incoming Offers) in your Seeker Workspace.',
           'Compare the provider bids side-by-side, checking their offered price, Trust Score, and past customer reviews.',
           'When you find the best offer, click "Accept Offer".',
-          'Choose an available payment method: On-site Cash, GCash, or Maya.',
+          'Choose an available payment method: On-site Cash or GCash.',
           'For cash, accepting the offer creates the booking. For online payment, the booking is created only after the signed PayMongo webhook confirms the Test Mode checkout. Chat then unlocks for the participants.',
         ],
         callout: {

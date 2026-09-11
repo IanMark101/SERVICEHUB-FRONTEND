@@ -69,7 +69,7 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
     },
     {
       title: "Use online Test Mode, or choose cash",
-      desc: "Use an eligible GCash or Maya PayMongo Test Mode checkout to enter the queue after confirmation, or choose cash and arrange the visit directly with the provider.",
+      desc: "Use an eligible GCash PayMongo Test Mode checkout to enter the queue after confirmation, or choose cash and arrange the visit directly with the provider.",
       icon: Lock,
       badge: "Payments & Safety",
       visual: (isDark: boolean) => (

@@ -5,7 +5,7 @@ const features = [
   { title: 'Trust Score', icon: TrendingUp, text: 'A shared 0–100 reputation signal shaped by verification, completed provider work, reviews, and moderated conduct.' },
   { title: 'Service Queue', icon: TimerReset, text: 'Successful online Test Mode bookings use FCFS within that listing. Wait times are estimates, and a provider performs only one active job at a time.' },
   { title: 'Messaging', icon: MessageSquareText, text: 'Booking-scoped chat unlocks after a booking is accepted, then keeps coordination and evidence connected to that job.' },
-  { title: 'Payments', icon: Banknote, text: 'On-site cash is arranged outside the platform. GCash, Maya, and Card use PayMongo Test Mode and a simulated ServiceHub hold—not real escrow.' },
+  { title: 'Payments', icon: Banknote, text: 'On-site cash is arranged directly with the provider. Eligible fixed-price GCash checkout uses PayMongo Test Mode and a simulated ServiceHub hold—not real escrow.' },
   { title: 'Reviews', icon: Star, text: 'After a service is completed, both participants can leave one review tied to that completed booking.' },
 ];
 

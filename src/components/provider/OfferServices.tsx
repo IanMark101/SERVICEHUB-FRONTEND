@@ -24,8 +24,6 @@ export default function OfferServices() {
   // Payment methods
   const [acceptCash, setAcceptCash] = useState<boolean>(true);
   const [acceptGCash, setAcceptGCash] = useState<boolean>(true);
-  const [acceptMaya, setAcceptMaya] = useState<boolean>(false);
-  const [acceptCard] = useState<boolean>(false);
 
   const [loading, setLoading] = useState<boolean>(false);
   const hasMobileNumber = Boolean(user?.phone?.trim());
@@ -34,7 +32,7 @@ export default function OfferServices() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!acceptCash && !acceptGCash && !acceptMaya && !acceptCard) {
+    if (!acceptCash && !acceptGCash) {
       error('Payment method required', 'Select at least one supported payment method for this listing.');
       return;
     }
@@ -53,7 +51,7 @@ export default function OfferServices() {
       selectedCategory,
       price,
       description,
-      { cash: acceptCash, gcash: acceptGCash, maya: acceptMaya, card: acceptCard },
+      { cash: acceptCash, gcash: acceptGCash },
       {
         serviceType: 'ONE_TIME',
         priceType,
@@ -77,14 +75,14 @@ export default function OfferServices() {
   };
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-4xl mx-auto space-y-4 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       {/* Form Container Card */}
-      <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+      <div className={`overflow-hidden rounded-3xl border shadow-lg transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
         }`}>
 
         {/* Header */}
-        <div className={`flex items-center space-x-3 mb-6 pb-4 border-b ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+        <div className={`flex items-center space-x-3 border-b px-5 py-4 sm:px-6 ${isDark ? 'border-neutral-850' : 'border-slate-200'}`}>
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
             }`}>
             <Briefcase className="w-5 h-5" />
@@ -100,8 +98,9 @@ export default function OfferServices() {
         </div>
 
         {/* Verification Required Alert Block */}
+        <div className="px-5 py-5 sm:px-6 sm:py-6">
         {!canTransact && (
-          <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 animate-in fade-in duration-200 ${
+          <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-5 animate-in fade-in duration-200 ${
             isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
           }`}>
             <div>
@@ -118,10 +117,10 @@ export default function OfferServices() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Left Column (3/5 width): Main Content fields */}
-          <div className="lg:col-span-3 space-y-5">
+          <div className="space-y-5">
             {/* Service Title */}
             <div>
               <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-650'}`}>
@@ -166,7 +165,7 @@ export default function OfferServices() {
           </div>
 
           {/* Right Column (2/5 width): Configuration details */}
-          <div className="lg:col-span-2 space-y-5 flex flex-col justify-between">
+          <div className="space-y-5 flex flex-col justify-between">
             <div className="space-y-5">
               {/* Category */}
               <div>
@@ -327,9 +326,9 @@ export default function OfferServices() {
                 <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-650'}`}>
                   Payment Methods Accepted
                 </label>
-                <div className={`border rounded-xl p-4 flex items-center space-x-6 transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-white border-slate-300'
+                <div className={`grid grid-cols-1 gap-2 border rounded-xl p-3 sm:grid-cols-2 transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-white border-slate-300'
                    }`}>
-                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
+                  <label className="flex items-center space-x-2 rounded-lg px-2 py-2 text-xs font-semibold cursor-pointer">
                     <input
                       type="checkbox"
                       checked={acceptCash}
@@ -339,7 +338,7 @@ export default function OfferServices() {
                     <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-800'}>On-site Cash</span>
                   </label>
 
-                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
+                  <label className="flex items-center space-x-2 rounded-lg px-2 py-2 text-xs font-semibold cursor-pointer">
                     <input
                       type="checkbox"
                       checked={acceptGCash}
@@ -349,15 +348,6 @@ export default function OfferServices() {
                     <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-800'}>GCash</span>
                   </label>
 
-                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
-                    <input type="checkbox" checked={acceptMaya} onChange={(e) => setAcceptMaya(e.target.checked)} className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-slate-300" />
-                    <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-800'}>Maya</span>
-                  </label>
-
-                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
-                    <input type="checkbox" disabled checked={false} className="w-4 h-4 rounded border-slate-300" />
-                    <span className="text-slate-400">Card (unavailable)</span>
-                  </label>
                 </div>
                 {acceptGCash && !hasMobileNumber && (
                   <div className={`mt-2 flex flex-col gap-3 rounded-xl border p-3 text-xs sm:flex-row sm:items-center sm:justify-between ${isDark ? 'border-amber-900/50 bg-amber-950/20 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
@@ -365,7 +355,7 @@ export default function OfferServices() {
                       <span className="font-bold">Complete your mobile contact information.</span>{' '}
                       PayMongo Test Mode records an internal earning and does not transfer funds to this phone number.
                     </p>
-                    <button type="button" onClick={() => router.push('/provider/user-profile?tab=settings')} className="shrink-0 rounded-lg border border-current px-3 py-2 font-bold hover:bg-amber-500/10">
+                    <button type="button" onClick={() => router.push('/provider/account-settings#contact-information')} className="shrink-0 rounded-lg border border-current px-3 py-2 font-bold hover:bg-amber-500/10">
                       Add mobile number
                     </button>
                   </div>
@@ -390,6 +380,7 @@ export default function OfferServices() {
           </div>
 
         </form>
+        </div>
 
       </div>
 

@@ -12,7 +12,7 @@ import type { JobEngagement, User } from '../../../types';
 import type { UserSession } from '../../auth/LoginContainer';
 
 type MarketplaceFilter = 'all' | 'available' | 'rated' | 'low-queue';
-type PaymentMethod = 'GCash' | 'Maya' | 'On-site Cash';
+type PaymentMethod = 'GCash' | 'On-site Cash';
 
 interface ServiceMarketplaceGridModel {
   router: { push: (href: string) => void };
@@ -135,7 +135,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
               const provider = getProviderDetails(service.providerId);
               const trustScore = service.providerTrustScore ?? provider?.trustScore;
               const isVerified = service.providerVerificationStatus === 'APPROVED' || provider?.isVerified === true;
-              const { cash, gcash, maya } = getServicePaymentMethods(service);
+              const { cash, gcash } = getServicePaymentMethods(service);
               const isOwned = !!(user && service.providerId === user.id);
               const activeEngagement = jobEngagements.find((je) =>
                 je.seekerId === user?.id &&
@@ -320,12 +320,6 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         <span>GCash</span>
                       </span>
                     )}
-                    {maya && (
-                      <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
-                        <Smartphone className="w-3 h-3" />
-                        <span>Maya</span>
-                      </span>
-                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -426,7 +420,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleBookListing(service, cash ? 'On-site Cash' : gcash ? 'GCash' : 'Maya')}
+                        onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
                         onMouseEnter={() => prefetchProviderSummary(service)}
                         onFocus={() => prefetchProviderSummary(service)}
                         className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"

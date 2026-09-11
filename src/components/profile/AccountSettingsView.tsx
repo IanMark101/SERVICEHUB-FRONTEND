@@ -171,7 +171,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
       </div>
 
       {/* 🌟 Profile & Social Presence Settings Card */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
+      <div id="contact-information" className={`${cardBg} scroll-mt-24 rounded-[24px] p-6 border space-y-4`}>
         <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
           <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
             <Edit3 size={17} className={accentColor} /> Personal & Social Profile

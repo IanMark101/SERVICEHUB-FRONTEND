@@ -88,8 +88,16 @@ export default function LifecycleStepper({
     },
     {
       id: 2,
-      label: queuePosition ? 'In Queue' : 'Confirmed',
-      sublabel: queuePosition ? `#${queuePosition} spot` : 'Scheduled',
+      label: queuePosition
+        ? queuePosition === 1
+          ? role === 'provider' ? 'Ready to Start' : 'First in Queue'
+          : 'In Queue'
+        : 'Confirmed',
+      sublabel: queuePosition
+        ? queuePosition === 1
+          ? role === 'provider' ? 'Start when ready' : 'Waiting for provider'
+          : `Position #${queuePosition}`
+        : 'Scheduled',
       icon: queuePosition ? Clock : Check,
     },
     {

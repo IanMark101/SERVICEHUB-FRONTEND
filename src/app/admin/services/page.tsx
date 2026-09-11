@@ -33,7 +33,7 @@ interface ServiceItem {
   serviceType?: 'ONE_TIME' | 'SESSION_BASED';
   estimatedDurationMins: number;
   queueLimit: number;
-  paymentMethods?: { cash?: boolean; gcash?: boolean; maya?: boolean; card?: boolean };
+  paymentMethods?: { cash?: boolean; gcash?: boolean };
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -196,7 +196,6 @@ export default function AdminServices() {
             const methods = [];
             if (item.paymentMethods) {
               if (item.paymentMethods.gcash) methods.push("GCash");
-              if (item.paymentMethods.maya) methods.push("Maya");
               if (item.paymentMethods.cash) methods.push("Cash");
             }
 

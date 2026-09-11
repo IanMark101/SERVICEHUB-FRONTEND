@@ -188,7 +188,7 @@ export function useSeekerActions({
     serviceId: string,
     price: number,
     description: string,
-    paymentMethod: 'GCash' | 'Maya' | 'On-site Cash'
+    paymentMethod: 'GCash' | 'On-site Cash'
   ) => {
     try {
       if (paymentMethod === 'On-site Cash') {
@@ -206,7 +206,7 @@ export function useSeekerActions({
       } else {
         const payRes = await apiInitiatePayment({
           serviceId,
-          paymentMethodType: paymentMethod === 'Maya' ? 'paymaya' : 'gcash',
+          paymentMethodType: 'gcash',
         });
         if (payRes.success) {
           if (payRes.data.redirectUrl) {
@@ -234,7 +234,7 @@ export function useSeekerActions({
     }
   };
 
-  const acceptBid = async (bidId: string, paymentMethod: 'GCash' | 'Maya' | 'On-site Cash' = 'On-site Cash') => {
+  const acceptBid = async (bidId: string, paymentMethod: 'GCash' | 'On-site Cash' = 'On-site Cash') => {
     const targetBid = bids.find(b => b.id === bidId);
     if (!targetBid) return;
 
@@ -262,7 +262,7 @@ export function useSeekerActions({
         const payRes = await apiInitiatePayment({
           serviceId,
           offerId: bidId,
-          paymentMethodType: paymentMethod === 'Maya' ? 'paymaya' : 'gcash',
+          paymentMethodType: 'gcash',
         });
 
         if (payRes.success) {

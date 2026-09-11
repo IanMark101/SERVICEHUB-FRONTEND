@@ -10,6 +10,7 @@ declare global {
   interface Window {
     google?: { accounts?: { id?: GoogleIdentityApi } };
     __google_gsi_initialized?: boolean;
+    __google_gsi_credential_handler?: (credential: string) => void;
   }
 }
 
@@ -37,6 +38,11 @@ export default function GoogleSignInButton({
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) return;
 
+    const credentialHandler = (credential: string) => {
+      onSuccessRef.current(credential);
+    };
+    window.__google_gsi_credential_handler = credentialHandler;
+
     const initializeGoogle = () => {
       try {
         if (
@@ -49,12 +55,12 @@ export default function GoogleSignInButton({
             client_id: clientId,
             auto_select: false,
             cancel_on_tap_outside: true,
-            // Let supported browsers mediate the account chooser instead of
-            // relying on cross-origin popup postMessage communication.
-            use_fedcm_for_button: true,
+            // Keep the familiar Google account-selection popup. FedCM reports
+            // user cancellation as a token-retrieval error in development.
+            use_fedcm_for_button: false,
             callback: (response: GoogleCredentialResponse) => {
               if (response?.credential) {
-                onSuccessRef.current(response.credential);
+                window.__google_gsi_credential_handler?.(response.credential);
               }
             },
           });
@@ -102,6 +108,9 @@ export default function GoogleSignInButton({
     return () => {
       if (script) {
         script.removeEventListener('load', initializeGoogle);
+      }
+      if (window.__google_gsi_credential_handler === credentialHandler) {
+        delete window.__google_gsi_credential_handler;
       }
     };
   }, [isDark, mode]);

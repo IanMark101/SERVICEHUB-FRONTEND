@@ -64,8 +64,6 @@ export interface ServiceListing {
   paymentMethods?: {
     cash: boolean;
     gcash: boolean;
-    maya?: boolean;
-    card?: boolean;
   };
 }
 
@@ -120,7 +118,7 @@ export interface JobEngagement {
   serviceId: string | null; // null if matched from public bid
   price: number;
   status: 'pending_provider' | 'queued' | 'in_progress' | 'awaiting_seeker_approval' | 'completed' | 'disputed' | 'canceled';
-  paymentMethod: 'GCash' | 'Maya' | 'On-site Cash';
+  paymentMethod: 'GCash' | 'On-site Cash';
   createdAt: string;
   completedServiceId?: string;
   reviews?: Array<{
@@ -156,7 +154,7 @@ export interface Transaction {
   seekerId: string;
   providerId: string;
   amount: number;
-  paymentMethod: 'GCash' | 'Maya' | 'On-site Cash';
+  paymentMethod: 'GCash' | 'On-site Cash';
   serviceTitle: string;
   createdAt: string; // exact date (YYYY-MM-DD)
 }

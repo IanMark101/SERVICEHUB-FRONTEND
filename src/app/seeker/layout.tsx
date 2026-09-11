@@ -5,51 +5,12 @@ import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/layout/Sidebar';
 import Header from '../../components/layout/Header';
 import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModal';
-import { HelpCircle } from 'lucide-react';
 import { apiLogout } from '../../api/auth.api';
 
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 import { clearAccessToken } from '../../lib/api/axios';
 import OnboardingGate from '../../features/onboarding/components/OnboardingGate';
-
-const tabDetails: Record<string, { title: string; desc: string }> = {
-  'seek-services': {
-    title: 'Seek Services Marketplace',
-    desc: 'Browse and hire verified local service providers across Cordova. Filter by category, compare ratings, and book directly or join a queue.',
-  },
-  'post-request': {
-    title: 'Post a Custom Job Request',
-    desc: 'Describe the task or repair you need and set your budget. Nearby Cordova providers will review your request and send you direct price offers.',
-  },
-  'incoming-offers': {
-    title: 'Incoming Service Offers',
-    desc: 'Review provider quotations for your posted requests. Selecting an offer confirms the provider and agreed amount before the appropriate cash or Test Mode payment step.',
-  },
-  'request-manager': {
-    title: 'Request Manager',
-    desc: 'Manage your broadcasted job requests. Edit budgets, close completed requests, and view incoming proposals from local providers.',
-  },
-  'seeker-activity': {
-    title: 'My Bookings & Tasks',
-    desc: 'Track your ongoing services in real time, view your queue position, approve completed work, and leave provider reviews.',
-  },
-  'transaction-history': {
-    title: 'Transaction History & Receipts',
-    desc: 'View payment records, internal ledger status, cash confirmations, and submitted online refunds for your bookings.',
-  },
-  'messages': {
-    title: 'Direct Messages',
-    desc: 'Chat directly with your service providers to clarify task details and coordinate arrival or service times.',
-  },
-  'community-hub': {
-    title: 'Community Announcements & Leaders',
-    desc: 'Stay informed with Cordova town announcements, service guidelines, and view the top-rated local providers of the week.',
-  },
-  'user-profile': {
-    title: 'User Profile & Verification',
-    desc: 'Manage your verified Cordova residency credentials, contact info, and account security preferences.',
-  }
-};
+import { usePersistentSidebarState } from '../../hooks/usePersistentSidebarState';
 
 export default function SeekerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -57,7 +18,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
   const { authLoading, user, isDark, setUser, setIsAuthenticated, jobRequests, bids } = useApp();
   const { shouldRender } = useRouteGuard(['user']);
 
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = usePersistentSidebarState();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
@@ -105,21 +66,6 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
   // Resolve activeTab from pathname
   const activeTab = pathname.split('/').pop() || 'seek-services';
 
-  const accent = {
-    border: 'border-orange-500/20',
-    borderFocus: 'focus:border-orange-500 focus:ring-orange-500',
-    bgLight: 'bg-orange-500/5',
-    text: 'text-orange-500 dark:text-orange-400',
-    bgButton: 'bg-orange-600 hover:bg-orange-700 text-white',
-    badge: activeTab === 'community-hub'
-      ? isDark
-        ? 'bg-slate-800 text-slate-200 border-slate-700'
-        : 'bg-slate-100 text-slate-700 border-slate-200 shadow-xs'
-      : isDark
-        ? 'bg-orange-950/40 text-orange-400 border-orange-900/40'
-        : 'bg-orange-50 text-orange-700 border-orange-200 shadow-xs',
-  };
-
   const currentRole = 'seeker';
 
   return (
@@ -158,58 +104,27 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="flex-1 w-full max-w-[1440px] mx-auto p-4 sm:p-6 md:p-8">
+        <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-5">
           
-          {/* Breadcrumbs / Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 border-b pb-4 border-slate-200 dark:border-neutral-800/80">
-            <div>
-              <div className="flex items-center space-x-3">
-                <h2 className={`text-2xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'} flex items-center gap-2`}>
-                  <span>{activeTab === 'user-profile' ? 'User Profile' : activeTab.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
-                  {tabDetails[activeTab] && (
-                    <div className="relative group flex items-center font-sans">
-                      <HelpCircle className={`w-4 h-4 cursor-help transition-colors duration-150 ${isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-600'}`} />
-                      <div className={`absolute left-0 top-full mt-2.5 w-80 p-3.5 rounded-2xl shadow-2xl border text-xs font-sans font-normal leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none backdrop-blur-md ${
-                        isDark 
-                          ? 'bg-[#1c1b18]/95 border-neutral-800 text-[#f2efe9] shadow-black/60' 
-                          : 'bg-white/95 border-slate-200 text-slate-700 shadow-slate-200/80'
-                      }`}>
-                        <p className="font-bold text-xs text-slate-900 dark:text-[#f2efe9] mb-1">
-                          {tabDetails[activeTab].title}
-                        </p>
-                        <p className="text-slate-600 dark:text-[#b4b0a9] leading-relaxed">
-                          {tabDetails[activeTab].desc}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </h2>
-                {activeTab === 'incoming-offers' && (() => {
-                  const myRequestIds = jobRequests.filter(r => r.seekerId === user?.id).map(r => r.id);
-                  const pendingBidsCount = bids.filter(
-                    b => myRequestIds.includes(b.requestId) && b.status === 'pending'
-                  ).length;
-                  return pendingBidsCount > 0 ? (
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
-                      isDark 
-                        ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' 
-                        : 'bg-orange-50 text-orange-600 border-orange-200'
-                    }`}>
-                      {pendingBidsCount} Pending
-                    </span>
-                  ) : null;
-                })()}
+          {/* The sticky header already identifies the current page. Only show
+              actionable status here when a queue needs the user's attention. */}
+          {activeTab === 'incoming-offers' && (() => {
+            const myRequestIds = jobRequests.filter(r => r.seekerId === user?.id).map(r => r.id);
+            const pendingBidsCount = bids.filter(
+              b => myRequestIds.includes(b.requestId) && b.status === 'pending'
+            ).length;
+            return pendingBidsCount > 0 ? (
+              <div className="mb-3 flex justify-end">
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                  isDark
+                    ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
+                    : 'bg-orange-50 text-orange-600 border-orange-200'
+                }`}>
+                  {pendingBidsCount} pending offers
+                </span>
               </div>
-            </div>
-            
-            {/* Quick action buttons aligned with role */}
-            <div className="flex items-center space-x-2.5">
-              <span className={`text-xs font-medium ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>Viewing as:</span>
-              <span className={`px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${accent.badge}`}>
-                {activeTab === 'community-hub' ? 'Community' : currentRole}
-              </span>
-            </div>
-          </div>
+            ) : null;
+          })()}
  
           {/* Dynamic Tab Render Area */}
           {children}

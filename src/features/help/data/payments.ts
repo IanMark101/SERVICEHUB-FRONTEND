@@ -13,9 +13,9 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
     relatedArticleSlugs: ['how-escrow-works', 'payment-release-and-refunds'],
     sections: [{
       heading: 'Two Ways to Complete a Booking',
-      paragraphs: ['ServiceHub supports eligible GCash and Maya checkouts through PayMongo Test Mode for fixed-price online bookings, plus a separate direct on-site cash arrangement.'],
+      paragraphs: ['ServiceHub supports eligible GCash checkout through PayMongo Test Mode for fixed-price online bookings, plus a separate direct on-site cash arrangement.'],
       bullets: [
-        'Online Test Mode: PayMongo confirms the simulated GCash or Maya payment by a signed server webhook. Only then is an accepted booking added to the listing queue.',
+        'Online Test Mode: PayMongo confirms the simulated GCash payment by a signed server webhook. Only then is an accepted booking added to the listing queue.',
         'On-site Cash: The seeker pays the provider outside ServiceHub. Cash bookings never enter the online-payment queue or online transaction ledger.',
       ],
       callout: { type: 'important', title: 'Capstone payment scope', text: 'ServiceHub currently demonstrates PayMongo Test Mode. No real-money provider payout or regulated escrow service is implemented.' },

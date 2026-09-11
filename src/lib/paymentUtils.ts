@@ -3,7 +3,6 @@ import { ServiceListing } from '../types';
 export interface ResolvedPaymentMethods {
   cash: boolean;
   gcash: boolean;
-  maya: boolean;
 }
 
 type ServicePaymentSource = {
@@ -11,23 +10,21 @@ type ServicePaymentSource = {
 };
 
 export function getServicePaymentMethods(service?: ServicePaymentSource | null): ResolvedPaymentMethods {
-  if (!service) return { cash: false, gcash: false, maya: false };
+  if (!service) return { cash: false, gcash: false };
   
   // Resolve paymentMethods from mapping or fallback to raw backend json or pricing logic
   const rawMethods = service.paymentMethods;
   if (rawMethods && (typeof rawMethods.cash === 'boolean' || typeof rawMethods.gcash === 'boolean')) {
     return {
       cash: !!rawMethods.cash,
-      gcash: !!rawMethods.gcash,
-      maya: !!rawMethods.maya
+      gcash: !!rawMethods.gcash
     };
   }
 
   // Fallback to price-based logic or default if not set
   return {
     cash: false,
-    gcash: false,
-    maya: false
+    gcash: false
   };
 }
 

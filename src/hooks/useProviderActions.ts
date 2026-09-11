@@ -85,7 +85,7 @@ export function useProviderActions({
     category: string,
     price: number,
     description: string,
-    paymentMethods: { cash: boolean; gcash: boolean; maya: boolean; card: boolean },
+    paymentMethods: { cash: boolean; gcash: boolean },
     options?: {
       serviceType?: ServiceListing['serviceType'];
       priceType?: ServiceListing['priceType'];
@@ -130,9 +130,7 @@ export function useProviderActions({
             status: 'PENDING_REVIEW',
             paymentMethods: {
               cash: paymentMethods.cash,
-              gcash: paymentMethods.gcash,
-              maya: paymentMethods.maya,
-              card: paymentMethods.card
+              gcash: paymentMethods.gcash
             }
           };
           setServices(prev => [newListing, ...prev]);
@@ -160,7 +158,7 @@ export function useProviderActions({
       priceType?: ServiceListing['priceType'];
       serviceType?: ServiceListing['serviceType'];
       estimatedDurationMins?: number;
-      paymentMethods?: { cash: boolean; gcash: boolean; maya: boolean; card: boolean };
+      paymentMethods?: { cash: boolean; gcash: boolean };
     }
   ) => {
     try {
