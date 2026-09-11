@@ -6,7 +6,7 @@ import HelpNavbar from './HelpNavbar';
 
 export default function HelpLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col font-sans transition-colors duration-150 bg-[#faf8f5] dark:bg-[#121212] text-slate-800 dark:text-[#e8e6e3]">
+    <div className="min-h-screen flex flex-col font-sans transition-colors duration-150 bg-[#f5f4f2] dark:bg-[#121212] text-slate-800 dark:text-[#e8e6e3]">
       {/* Top Header */}
       <HelpNavbar />
 

@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#faf8f5] dark:bg-[#0a0a0a] flex items-center justify-center p-6 transition-colors duration-300 font-sans">
+    <div className="min-h-screen bg-[#f5f4f2] dark:bg-[#0a0a0a] flex items-center justify-center p-6 transition-colors duration-300 font-sans">
       {/* Decorative Orbs */}
       <div className="absolute top-1/4 left-1/4 w-72 h-72 rounded-full bg-orange-500/10 dark:bg-orange-500/20 blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-orange-500/10 dark:bg-orange-500/20 blur-[100px] pointer-events-none" />

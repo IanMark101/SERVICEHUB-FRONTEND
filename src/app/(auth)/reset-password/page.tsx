@@ -48,16 +48,16 @@ function ResetPasswordContent() {
   const isError = status === "error";
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#faf8f5] px-4 py-8 text-slate-800 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -left-20 top-0 h-72 w-72 rounded-full bg-orange-500/15 blur-[120px]" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f4f2] dark:bg-[#121211] px-4 py-8 text-slate-800 dark:text-zinc-100 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -left-20 top-0 h-72 w-72 rounded-full bg-[#c86544]/15 blur-[120px]" />
         <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-emerald-500/15 blur-[120px]" />
       </div>
 
-      <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/70 bg-white/80 shadow-[0_30px_90px_-25px_rgba(15,23,42,0.25)] backdrop-blur-xl">
+      <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] border border-black/[0.06] dark:border-white/10 bg-white/80 dark:bg-[#181716] shadow-[0_30px_90px_-25px_rgba(15,23,42,0.15)] backdrop-blur-xl">
         <div className="grid min-h-[640px] lg:grid-cols-[1.05fr_0.95fr]">
           {/* Left panel */}
-          <section className="relative flex flex-col justify-between bg-gradient-to-br from-[#111827] via-[#1f2937] to-[#0f172a] p-8 text-white sm:p-10 lg:p-12">
+          <section className="relative flex flex-col justify-between bg-gradient-to-br from-[#161514] via-[#1c1b1a] to-[#121211] p-8 text-white sm:p-10 lg:p-12">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium text-orange-200">
                 <KeyRound size={16} />
@@ -91,9 +91,9 @@ function ResetPasswordContent() {
             </div>
           </section>
 
-          {/* Right panel — form */}
-          <section className="flex items-center justify-center bg-[#fcfbf8] p-6 sm:p-8 lg:p-10">
-            <div className="w-full max-w-md rounded-[28px] border border-slate-200/80 bg-white p-7 shadow-[0_18px_45px_-20px_rgba(15,23,42,0.2)] sm:p-8">
+          {/* Right panel: form */}
+          <section className="flex items-center justify-center bg-[#f5f4f2] dark:bg-[#121211] p-6 sm:p-8 lg:p-10">
+            <div className="w-full max-w-md rounded-[28px] border border-black/[0.06] dark:border-white/10 bg-white dark:bg-[#181716] p-7 shadow-[0_18px_45px_-20px_rgba(15,23,42,0.1)] sm:p-8">
               {isSuccess ? (
                 <>
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">

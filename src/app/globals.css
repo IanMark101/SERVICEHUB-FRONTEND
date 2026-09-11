@@ -378,20 +378,14 @@ html.dark::-webkit-scrollbar-thumb:hover,
 
 /* Standardize typography for all headings */
 h1,
-h2 {
-  font-family: var(--font-serif), 'Playfair Display', Georgia, serif !important;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+h2,
 h3,
 h4,
 h5,
 h6 {
   font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -428,3 +422,123 @@ h6 {
 .dark::view-transition-new(root) {
   z-index: 1;
 }
+
+/* Infinite Ticker & Floating Card Animations */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes hero-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes hero-float-soft {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.2deg);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 32s linear infinite;
+}
+
+@keyframes ticker-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-ticker-reverse {
+  animation: ticker-reverse 34s linear infinite;
+}
+
+.animate-float {
+  animation: hero-float 5s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: hero-float-soft 6.5s ease-in-out infinite 1s;
+}
+
+/* Ensure landing shell and auth shell headings use modern sans-serif per design skill */
+.landing-shell h1,
+.landing-shell h2,
+.landing-shell h3,
+.landing-shell h4,
+.auth-shell h1,
+.auth-shell h2,
+.auth-shell h3,
+.auth-shell h4 {
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: -0.025em;
+}
+
+.auth-shell {
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker,
+  .animate-ticker-reverse,
+  .animate-float,
+  .animate-float-delayed {
+    animation: none !important;
+  }
+}
+
+/* Architectural Grid Background Patterns per design-taste-frontend */
+.bg-grid-landing {
+  background-size: 44px 44px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.045) 1px, transparent 1px);
+}
+
+:where(.dark, .dark *) .bg-grid-landing {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+}
+
+.bg-grid-pattern {
+  background-size: 56px 56px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+}
+
+:where(.dark, .dark *) .bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+}
+
+.bg-grid-subtle {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+.mask-radial-hero {
+  -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 20%, #000 50%, transparent 100%);
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 20%, #000 50%, transparent 100%);
+}
+
+

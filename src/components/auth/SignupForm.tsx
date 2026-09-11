@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import Image from 'next/image';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
@@ -98,75 +97,78 @@ export default function SignupForm({
   const isNextDisabled = (step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid);
 
   return (
-    <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       
-      {/* Mobile-visible Logo Header */}
-      <div className="md:hidden flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div className="flex items-center space-x-2.5">
-          <Image width={28} height={28} src="/logo.svg" alt="Logo" className="w-7 h-7 object-contain rounded-lg shadow-sm" />
-          <span className="text-sm font-extrabold tracking-tight text-slate-800 dark:text-white">ServiceHub Cordova</span>
-        </div>
-      </div>
-
-      {/* Stepper cards (Moved from Left Panel to Right Panel) */}
-      <div className="w-full space-y-2">
-        {/* Dynamic Progress Indicator */}
-        <div className="w-full flex items-center justify-between text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">
-          <span>Registration Progress</span>
-          <span className="text-orange-600 dark:text-orange-400 font-extrabold">Step {step} of 3</span>
+      {/* Top Eyebrow & Stepper */}
+      <div className="w-full space-y-2.5">
+        <div className="w-full flex items-center justify-between">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#c86544]/30 bg-[#c86544]/[0.08] px-3 py-0.5 text-[11px] font-semibold text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
+            <span>Resident Registration</span>
+          </div>
+          <span className="text-xs font-bold text-[#c86544] dark:text-orange-400">
+            Step {step} of 3
+          </span>
         </div>
 
-        {/* Stepper cards container */}
-        <div className="grid grid-cols-3 gap-3 w-full">
+        {/* Stepper Cards */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-2.5 w-full">
           {[
-            { s: 1, title: 'Credentials', desc: 'Create login details' },
-            { s: 2, title: 'Contact Details', desc: 'Phone and location' },
-            { s: 3, title: 'Profile Setup', desc: 'Customize avatar and bio' }
-          ].map((item) => (
-            <div
-              key={item.s}
-              className={`border rounded-xl p-3 transition-all duration-300 cursor-default shadow-sm flex flex-col items-center text-center ${
-                step === item.s
-                  ? 'bg-white dark:bg-[#202022] border-orange-500/50 dark:border-orange-500/50 ring-1 ring-orange-500/30 scale-[1.01]'
-                  : 'bg-white/40 dark:bg-[#151517]/40 border-slate-200 dark:border-slate-800/80 opacity-75'
-              }`}
-            >
+            { s: 1, title: 'Credentials', desc: 'Login details' },
+            { s: 2, title: 'Contact', desc: 'Phone & location' },
+            { s: 3, title: 'Profile', desc: 'Avatar & bio' }
+          ].map((item) => {
+            const isActive = step === item.s;
+            const isCompleted = step > item.s;
+            return (
               <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold mb-1.5 border shadow-inner mx-auto ${
-                  step === item.s
-                    ? 'bg-orange-600 text-white border-orange-600'
-                    : 'bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-slate-400 border-slate-255 dark:border-slate-700'
+                key={item.s}
+                className={`rounded-xl p-2 sm:p-2.5 transition-all flex flex-col items-center text-center border ${
+                  isActive
+                    ? 'bg-neutral-50/90 dark:bg-zinc-900 border-[#c86544]/50 shadow-xs'
+                    : isCompleted
+                    ? 'bg-emerald-50/50 dark:bg-emerald-950/15 border-emerald-500/30'
+                    : 'bg-neutral-50/40 dark:bg-zinc-900/40 border-black/[0.05] dark:border-white/5 opacity-65'
                 }`}
               >
-                {item.s}
+                <div
+                  className={`size-6 rounded-full flex items-center justify-center text-[11px] font-bold mb-1 ${
+                    isActive
+                      ? 'bg-[#c86544] text-white shadow-xs'
+                      : isCompleted
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-slate-200 dark:bg-zinc-800 text-neutral-500 dark:text-zinc-400'
+                  }`}
+                >
+                  {isCompleted ? '✓' : item.s}
+                </div>
+                <p className="text-xs font-semibold text-[#0a0a0a] dark:text-white leading-tight">
+                  {item.title}
+                </p>
+                <p className="hidden sm:block text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 leading-tight">
+                  {item.desc}
+                </p>
               </div>
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">
-                {item.title}
-              </p>
-              <p className="hidden md:block text-[9px] text-slate-400 dark:text-slate-500 mt-1 leading-tight">
-                {item.desc}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
       {/* Header Info */}
-      <div className="border-t border-slate-200 dark:border-slate-800/60 pt-4">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
-          {step === 1 && 'Sign Up Account'}
-          {step === 2 && 'Contact Info'}
+      <div className="border-t border-black/[0.06] dark:border-white/10 pt-3.5">
+        <h2 className="font-sans text-2xl font-semibold text-[#0a0a0a] dark:text-white tracking-tight leading-tight">
+          {step === 1 && 'Create an Account'}
+          {step === 2 && 'Contact & Barangay'}
           {step === 3 && 'Profile Setup'}
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-xs">
-          {step === 1 && 'Enter your personal data to create your account.'}
-          {step === 2 && 'Provide your contact information and select your Cordova barangay.'}
-          {step === 3 && 'Finalize your public profile details.'}
+        <p className="mt-1 text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm leading-relaxed">
+          {step === 1 && 'Enter your personal information to get started with ServiceHub.'}
+          {step === 2 && 'Provide your mobile number and select your Cordova neighborhood.'}
+          {step === 3 && 'Choose your avatar and introduce yourself to the community.'}
         </p>
       </div>
 
       {/* Main Multi-Step Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 pt-1">
         <SignupSteps
           model={{
             step,
@@ -190,12 +192,12 @@ export default function SignupForm({
         />
 
         {/* Form controls */}
-        <div className="pt-2 flex space-x-3">
+        <div className="pt-2 flex items-center gap-3">
           {step > 1 && (
             <button
               type="button"
               onClick={handlePrevStep}
-              className="w-1/3 flex items-center justify-center space-x-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-[#22211e] text-slate-500 dark:text-[#b4b0a9] rounded-lg py-2 text-xs font-bold transition-all active:scale-95 shadow-sm cursor-pointer"
+              className="w-1/3 py-2.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-zinc-800/80 hover:bg-slate-50 text-slate-700 dark:text-zinc-200 active:scale-[0.98] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -208,12 +210,12 @@ export default function SignupForm({
             disabled={isLoading}
             aria-disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
-            className={`flex-grow py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 ${
+            className={`flex-grow py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 ${
               isLoading
-                ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
                 : (step < 3 && isNextDisabled)
-                  ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-300 cursor-pointer shadow-none'
-                  : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white shadow-md cursor-pointer'
+                  ? 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
+                  : 'bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white shadow-orange-950/15 cursor-pointer'
             }`}
           >
             {isLoading ? (
@@ -222,7 +224,7 @@ export default function SignupForm({
                 <span>Creating Account...</span>
               </>
             ) : (
-              <span>{step === 3 ? 'Sign Up' : 'Next Step'}</span>
+              <span>{step === 3 ? 'Complete Registration' : 'Next Step'}</span>
             )}
           </button>
         </div>
@@ -230,13 +232,13 @@ export default function SignupForm({
 
       {/* Google Login Component for Easy Registration */}
       {step === 1 && (
-        <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800/80 mt-4">
-          <div className="relative">
+        <div className="space-y-3 pt-3 border-t border-black/[0.06] dark:border-white/10 mt-3">
+          <div className="relative my-1">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
+              <div className="w-full border-t border-black/[0.08] dark:border-white/10"></div>
             </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-[#fbfaf7] dark:bg-[#191919] px-3 text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase">
+            <div className="relative flex justify-center text-[10px]">
+              <span className="bg-white dark:bg-[#181716] px-3 text-slate-400 dark:text-zinc-500 font-bold tracking-widest uppercase">
                 OR
               </span>
             </div>
@@ -249,26 +251,25 @@ export default function SignupForm({
             mode="signup"
             step={step}
           />
-          <p className="text-[10px] text-slate-450 dark:text-slate-500 text-center leading-relaxed px-1">
-            Google Sign-In creates your account using your Google email. Identity Verification is required after registration to unlock bookings, service listings, requests, and offers.
+          <p className="text-[10px] text-slate-400 dark:text-zinc-500 text-center leading-relaxed px-1">
+            Google Sign-In creates your account using your Google email. Resident identity verification unlocks marketplace actions.
           </p>
         </div>
       )}
 
       {/* Footer Switcher */}
-      <div className="text-center text-sm pt-4 border-t border-slate-200 dark:border-slate-800">
-        <span className="text-slate-500 dark:text-slate-400 font-medium">
+      <div className="text-center text-xs pt-3.5 border-t border-black/[0.06] dark:border-white/10">
+        <span className="text-slate-500 dark:text-zinc-400">
           Already have an account?
         </span>
         <button
           type="button"
           onClick={toggleMode}
-          className="font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 ml-1.5 cursor-pointer focus:outline-none transition-colors"
         >
           Log in
         </button>
       </div>
-
     </div>
   );
 }

@@ -29,14 +29,14 @@ export default function RegisterPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f4f2] dark:bg-[#121211]">
+        <div className="w-8 h-8 border-3 border-[#c86544] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#fbfaf7] dark:bg-[#191919]">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f4f2] dark:bg-[#121211]">
       <RegisterContainer
         onLoginSuccess={handleLoginSuccess}
         onBackToHome={handleBackToHome}

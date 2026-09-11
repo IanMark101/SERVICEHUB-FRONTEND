@@ -37,36 +37,38 @@ export default function LoginForm({
 }: LoginFormProps) {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-
-      {/* Header Info */}
-      <div className="text-center lg:text-left">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
-          Sign In Account
+      {/* Header Info with Pill Badge */}
+      <div className="text-left">
+        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#c86544]/30 bg-[#c86544]/[0.08] px-3 py-0.5 text-[11px] font-semibold text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
+          <span>Welcome back</span>
+        </div>
+        <h2 className="font-sans text-2xl font-semibold text-[#0a0a0a] dark:text-white tracking-tight leading-tight">
+          Sign In
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-xs">
+        <p className="mt-1 text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm leading-relaxed">
           Enter your credentials to access the Cordova local service network.
         </p>
       </div>
 
       {/* Main Email/Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3.5 pt-1">
         <AuthInput
           label="Email"
           type="email"
-          placeholder="Enter your email"
+          placeholder="your.name@example.com"
           error={fieldErrors.email}
           {...register('email')}
         />
 
         <div className="space-y-0.5">
           <div className="flex justify-between items-center mb-1">
-            <label className="block text-xs font-semibold text-slate-550 dark:text-slate-400">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
               Password
             </label>
             <button
               type="button"
               onClick={() => setMode('forgot')}
-              className="text-xs font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors focus:outline-none cursor-pointer"
+              className="text-xs font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors focus:outline-none cursor-pointer"
             >
               Forgot password?
             </button>
@@ -81,22 +83,23 @@ export default function LoginForm({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
+              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300 cursor-pointer focus:outline-none"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </AuthInput>
         </div>
 
-        {/* Submit button */}
-        <div className="pt-1.5">
+        {/* Submit button with Tactile Physics */}
+        <div className="pt-2">
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 ${
+            className={`w-full py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 ${
               isLoading
-                ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white cursor-pointer'
+                ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
+                : 'bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white shadow-orange-950/15 cursor-pointer'
             }`}
           >
             {isLoading ? (
@@ -112,12 +115,12 @@ export default function LoginForm({
       </form>
 
       {/* Divider OR */}
-      <div className="relative">
+      <div className="relative my-2">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
+          <div className="w-full border-t border-black/[0.08] dark:border-white/10"></div>
         </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="bg-[#faf8f5] dark:bg-[#0a0a0a] px-3 text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase">
+        <div className="relative flex justify-center text-[10px]">
+          <span className="bg-white dark:bg-[#181716] px-3 text-slate-400 dark:text-zinc-500 font-bold tracking-widest uppercase">
             OR
           </span>
         </div>
@@ -132,19 +135,18 @@ export default function LoginForm({
       />
 
       {/* Footer Switcher */}
-      <div className="text-center text-sm pt-3 border-t border-slate-200 dark:border-slate-800">
-        <span className="text-slate-500 dark:text-slate-400">
+      <div className="text-center text-xs pt-3.5 border-t border-black/[0.06] dark:border-white/10">
+        <span className="text-slate-500 dark:text-zinc-400">
           Don&apos;t have an account?
         </span>
         <button
           type="button"
           onClick={toggleMode}
-          className="font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 ml-1.5 cursor-pointer focus:outline-none transition-colors"
         >
           Register here
         </button>
       </div>
-
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
+import { ArrowLeft } from 'lucide-react';
 import useAuthForm from '../../schema/auth/useAuthForm';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import AuthLeftPanel from './AuthLeftPanel';
@@ -56,8 +58,8 @@ export default function RegisterContainer({
     router.push('/login');
   };
 
-  const accentText = 'text-orange-600 dark:text-orange-500';
-  const accentBg = 'bg-orange-600 hover:bg-orange-500';
+  const accentText = 'text-[#c86544] dark:text-orange-400';
+  const accentBg = 'bg-[#c86544] hover:bg-[#aa5032]';
 
   return (
     <AuthLayout theme={theme}>
@@ -69,19 +71,45 @@ export default function RegisterContainer({
         onBackToHome={onBackToHome}
       />
 
-      {/* Right Panel: Independently Scrollable Column */}
-      <div className="w-full md:w-1/2 h-screen overflow-y-auto bg-[#fbfaf7] dark:bg-[#191919] relative z-10 text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
-        <div className="w-full max-w-2xl mx-auto py-10 px-4 sm:px-6 md:px-8 flex flex-col justify-start min-h-full">
-          {/* Error Message Banner Slot */}
+      {/* Right Panel: Scrollable Column */}
+      <div className="w-full md:w-1/2 min-h-screen flex flex-col items-center justify-start py-8 px-4 sm:px-6 md:px-8 lg:px-10 overflow-y-auto bg-[#f5f4f2] dark:bg-[#121211] relative z-10 transition-colors duration-300">
+        
+        {/* Mobile Header Bar */}
+        <div className="md:hidden flex items-center justify-between w-full max-w-xl mb-4 px-1">
+          <button
+            onClick={onBackToHome}
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+          >
+            <ArrowLeft size={16} />
+            <span>Back to Home</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.svg?v=3"
+              alt="ServiceHub Logo"
+              width={26}
+              height={26}
+              className="size-6.5 rounded-lg"
+            />
+            <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] dark:text-white">
+              ServiceHub
+            </span>
+          </div>
+        </div>
+
+        {/* Floating Card Container */}
+        <div className="w-full max-w-xl my-auto rounded-3xl border border-black/[0.06] bg-white p-6 sm:p-8 md:p-9 shadow-[0_12px_36px_-12px_rgba(15,15,15,0.08)] dark:border-white/10 dark:bg-[#181716] transition-all">
+          
+          {/* Error Message Banner */}
           {error && (
-            <div className="mb-4 p-2.5 bg-red-950/20 dark:bg-red-950/40 border border-red-200 dark:border-red-900/35 rounded-xl text-red-655 dark:text-red-400 text-xs font-semibold text-center animate-in fade-in duration-150 flex-shrink-0">
+            <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-medium animate-in fade-in duration-150">
               {error}
             </div>
           )}
 
-          {/* Success Message Banner Slot */}
+          {/* Success Message Banner */}
           {successMsg && (
-            <div className="mb-4 p-2.5 bg-emerald-950/20 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/35 rounded-xl text-emerald-600 dark:text-emerald-400 text-xs font-semibold text-center animate-in fade-in duration-150 flex-shrink-0">
+            <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs font-medium animate-in fade-in duration-150">
               {successMsg}
             </div>
           )}

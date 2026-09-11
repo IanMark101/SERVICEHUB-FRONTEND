@@ -105,7 +105,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300 cursor-pointer focus:outline-none"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -114,26 +114,26 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
               {/* Live Password Strength Indicators */}
               <div className="space-y-1 px-1 flex flex-col">
                 <div className="flex items-center space-x-1.5 text-[10px] font-semibold transition-all">
-                  <span className={formData.password.length >= 8 ? 'text-emerald-500' : 'text-slate-400 dark:text-[#8e8a82]'}>
+                  <span className={formData.password.length >= 8 ? 'text-emerald-500' : 'text-neutral-400 dark:text-neutral-500'}>
                     {formData.password.length >= 8 ? '✓' : '○'}
                   </span>
-                  <span className={formData.password.length >= 8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-[#b4b0a9]'}>
+                  <span className={formData.password.length >= 8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-600 dark:text-neutral-400'}>
                     Minimum 8 characters
                   </span>
                 </div>
                 <div className="flex items-center space-x-1.5 text-[10px] font-semibold transition-all">
-                  <span className={/\d/.test(formData.password) ? 'text-emerald-500' : 'text-slate-400 dark:text-[#8e8a82]'}>
+                  <span className={/\d/.test(formData.password) ? 'text-emerald-500' : 'text-neutral-400 dark:text-neutral-500'}>
                     {/\d/.test(formData.password) ? '✓' : '○'}
                   </span>
-                  <span className={/\d/.test(formData.password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-[#b4b0a9]'}>
+                  <span className={/\d/.test(formData.password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-600 dark:text-neutral-400'}>
                     At least one number
                   </span>
                 </div>
                 <div className="flex items-center space-x-1.5 text-[10px] font-semibold transition-all">
-                  <span className={/[A-Z]/.test(formData.password) ? 'text-emerald-500' : 'text-slate-400 dark:text-[#8e8a82]'}>
+                  <span className={/[A-Z]/.test(formData.password) ? 'text-emerald-500' : 'text-neutral-400 dark:text-neutral-500'}>
                     {/[A-Z]/.test(formData.password) ? '✓' : '○'}
                   </span>
-                  <span className={/[A-Z]/.test(formData.password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-[#b4b0a9]'}>
+                  <span className={/[A-Z]/.test(formData.password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-600 dark:text-neutral-400'}>
                     At least one uppercase letter
                   </span>
                 </div>
@@ -173,19 +173,19 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                   aria-invalid={Boolean(fieldErrors.agreeTerms)}
                   aria-describedby="agreeTerms-help"
                   {...register('agreeTerms')}
-                  className={`h-4 w-4 text-orange-600 rounded focus:ring-orange-500/30 bg-white dark:bg-[#0c0c0e] cursor-pointer flex-shrink-0 ${
+                  className={`h-4 w-4 rounded-md text-[#c86544] focus:ring-[#c86544]/20 bg-slate-50 dark:bg-zinc-900 cursor-pointer flex-shrink-0 ${
                     fieldErrors.agreeTerms
-                      ? 'border-red-500 ring-1 ring-red-500/30'
-                      : 'border-slate-300 dark:border-slate-800'
+                      ? 'border-rose-500 ring-1 ring-rose-500/30'
+                      : 'border-black/[0.12] dark:border-white/20'
                   }`}
                 />
-                <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-500 dark:text-[#b4b0a9] select-none cursor-pointer leading-none">
+                <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-600 dark:text-zinc-400 select-none cursor-pointer leading-none">
                   I agree to the{' '}
-                  <Link href="/terms" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
+                  <Link href="/terms" target="_blank" className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" target="_blank" className="font-bold text-orange-600 dark:text-orange-400 hover:text-orange-500 transition-colors">
+                  <Link href="/privacy" target="_blank" className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors">
                     Privacy Policy
                   </Link>.
                 </label>
@@ -209,18 +209,18 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
         {step === 2 && (
           <div className="space-y-4 animate-fade-in">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
                 Contact Number
               </label>
-              <div className={`flex items-center rounded-xl border bg-white dark:bg-[#0c0c0e] overflow-hidden transition-all focus-within:ring-2 focus-within:ring-orange-500/20 ${
+              <div className={`flex items-center rounded-xl border bg-slate-50/70 dark:bg-zinc-900/60 overflow-hidden transition-all focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:ring-2 focus-within:ring-[#c86544]/15 ${
                 fieldErrors.phone
-                  ? 'border-red-500 ring-1 ring-red-500/30'
-                  : 'border-slate-300 dark:border-slate-800 focus-within:border-orange-500'
+                  ? 'border-rose-500 ring-1 ring-rose-500/30'
+                  : 'border-black/[0.08] dark:border-white/10 focus-within:border-[#c86544] dark:focus-within:border-orange-500'
               }`}>
                 {/* Philippine Flag Badge with +63 */}
-                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-100/90 dark:bg-[#1c1b18] border-r border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-[#f2efe9] text-xs font-bold select-none flex-shrink-0">
+                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-100/80 dark:bg-zinc-800/80 border-r border-black/[0.06] dark:border-white/10 text-slate-700 dark:text-zinc-200 text-xs font-bold select-none flex-shrink-0">
                   <PhilippineFlag className="w-5 h-3.5 rounded-[2px] shadow-xs" />
-                  <span className="font-mono text-xs font-extrabold text-slate-800 dark:text-[#f2efe9] tracking-tight">+63</span>
+                  <span className="font-mono text-xs font-extrabold text-slate-900 dark:text-white tracking-tight">+63</span>
                 </div>
 
                 {/* Formatted 10-digit Input */}
@@ -235,24 +235,24 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                   }}
                   onBlur={register('phone').onBlur}
                   name="phone"
-                  className="w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none tracking-wide font-medium"
+                  className="w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none tracking-wide font-medium"
                 />
               </div>
 
               {/* Helper or Error Message */}
               <div className="min-h-5 mt-1 flex items-center justify-between text-[11px]">
                 {fieldErrors.phone ? (
-                  <span className="text-red-500 font-semibold animate-in fade-in duration-100">
+                  <span className="text-rose-600 dark:text-rose-400 font-medium animate-in fade-in duration-100">
                     {fieldErrors.phone}
                   </span>
                 ) : (
-                  <span className="text-slate-400 dark:text-neutral-500 font-medium">
+                  <span className="text-slate-500 dark:text-zinc-400 font-medium">
                     Philippine mobile number (e.g. 917 123 4567)
                   </span>
                 )}
                 {formData.phone && (
                   <span className={`text-[10px] font-mono font-bold ${
-                    isPhoneValid ? 'text-emerald-500' : 'text-slate-400 dark:text-neutral-500'
+                    isPhoneValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-zinc-500'
                   }`}>
                     {formData.phone.replace(/\D/g, '').length}/10 digits
                   </span>
@@ -261,12 +261,12 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
                 Cordova Barangay / Location
               </label>
               <select
                 {...register('location')}
-                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all cursor-pointer"
+                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 transition-all cursor-pointer"
               >
                 <option value="Alegria, Cordova">Alegria</option>
                 <option value="Bangbang, Cordova">Bangbang</option>
@@ -282,7 +282,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
                 <option value="San Miguel, Cordova">San Miguel</option>
               </select>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 leading-relaxed font-semibold">
+              <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-2 leading-relaxed">
                 Your selected barangay helps connect you with nearby community members. Your residency will be verified later through Identity Verification.
               </p>
             </div>
@@ -302,17 +302,17 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             />
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-2">
                 Profile Picture
               </label>
 
               {/* Avatar Preview & Upload Action */}
-              <div className="flex items-center gap-3.5 p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50/70 dark:bg-[#151515] transition-all">
+              <div className="flex items-center gap-3.5 p-3.5 rounded-2xl border border-black/[0.06] dark:border-white/10 bg-slate-50/70 dark:bg-zinc-900/50 transition-all">
                 <div className="relative group/avatar flex-shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                   <Image unoptimized width={56} height={56}
                     src={formData.avatarUrl || avatars[0]}
                     alt="Selected Profile"
-                    className="w-14 h-14 rounded-2xl object-cover border-2 border-orange-500 shadow-sm transition-transform duration-200 group-hover/avatar:scale-105"
+                    className="size-14 rounded-2xl object-cover border-2 border-[#c86544] shadow-sm transition-transform duration-200 group-hover/avatar:scale-105"
                   />
                   <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity text-white">
                     <Camera size={18} />
@@ -325,28 +325,28 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 text-slate-700 dark:text-neutral-200 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400 transition-all shadow-sm active:scale-95"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 border border-black/[0.08] dark:border-white/10 text-slate-800 dark:text-zinc-200 hover:border-[#c86544] hover:text-[#c86544] dark:hover:text-orange-400 transition-all shadow-xs active:scale-95 cursor-pointer"
                     >
                       {uploading ? (
                         <>
-                          <Loader2 size={13} className="animate-spin text-orange-500" />
+                          <Loader2 size={13} className="animate-spin text-[#c86544]" />
                           <span>Uploading...</span>
                         </>
                       ) : (
                         <>
-                          <Upload size={13} className="text-orange-500" />
+                          <Upload size={13} className="text-[#c86544]" />
                           <span>Upload Photo</span>
                         </>
                       )}
                     </button>
 
                     {formData.avatarUrl?.startsWith('data:image') && (
-                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-900/30 flex items-center gap-1">
+                      <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-900/30 flex items-center gap-1">
                         <Check size={11} /> Custom
                       </span>
                     )}
                   </div>
-                  <p className="text-[10.5px] text-slate-400 dark:text-neutral-500 mt-1 truncate">
+                  <p className="text-[10.5px] text-slate-500 dark:text-zinc-400 mt-1 truncate">
                     JPG, PNG, or WebP (max 10MB)
                   </p>
                 </div>
@@ -362,8 +362,8 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             {/* Animated Avatar Presets */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-600 dark:text-neutral-300 flex items-center gap-1.5">
-                  <Sparkles size={13} className="text-amber-500" /> Or pick an animated avatar
+                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-[#c86544]" /> Or pick an avatar preset
                 </span>
               </div>
 
@@ -375,20 +375,20 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                       key={idx}
                       type="button"
                       onClick={() => handleAvatarSelect(url)}
-                      className={`relative aspect-square rounded-2xl p-1 border-2 transition-all duration-200 hover:scale-105 cursor-pointer flex items-center justify-center ${
+                      className={`relative aspect-square rounded-xl p-1 border-2 transition-all duration-200 hover:scale-105 cursor-pointer flex items-center justify-center ${
                         isSelected
-                          ? 'border-orange-500 bg-orange-50/50 dark:bg-orange-950/20 shadow-md ring-2 ring-orange-500/30 scale-105'
-                          : 'border-slate-200 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-900 opacity-75 hover:opacity-100 hover:border-slate-300'
+                          ? 'border-[#c86544] bg-orange-50/50 dark:bg-orange-950/20 shadow-sm ring-2 ring-[#c86544]/30 scale-105'
+                          : 'border-black/[0.06] dark:border-white/10 bg-slate-50/50 dark:bg-zinc-900 opacity-80 hover:opacity-100 hover:border-black/[0.14]'
                       }`}
                       title={`Animated Avatar #${idx + 1}`}
                     >
                       <Image unoptimized width={56} height={56}
                         src={url}
                         alt={`Animated Avatar ${idx + 1}`}
-                        className="w-full h-full object-cover rounded-xl"
+                        className="w-full h-full object-cover rounded-lg"
                       />
                       {isSelected && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-600 text-white flex items-center justify-center text-[9px] shadow-sm">
+                        <span className="absolute -top-1 -right-1 size-4 rounded-full bg-[#c86544] text-white flex items-center justify-center text-[9px] shadow-sm">
                           ✓
                         </span>
                       )}
@@ -399,14 +399,14 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-555 dark:text-slate-400 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
                 About You (Bio)
               </label>
               <textarea
                 rows={3}
-                placeholder="Tell the community a little about yourself, skills, or what you need..."
+                placeholder="Tell the community a little about yourself, your services, or what you are looking for..."
                 {...register('bio')}
-                className="w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-650 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 resize-none transition-all"
+                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 resize-none transition-all"
               />
             </div>
           </div>

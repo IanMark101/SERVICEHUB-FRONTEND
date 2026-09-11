@@ -1,10 +1,78 @@
-import { ClipboardCheck, MessageSquareText, Star } from 'lucide-react';
+'use client';
+
+import React from 'react';
+import { ClipboardCheck, MessageSquareText, ShieldCheck, Star } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
-interface LandingReviewsProps { isDark: boolean; }
+interface LandingReviewsProps {
+  isDark: boolean;
+}
+
+const reviewMilestones = [
+  {
+    icon: ClipboardCheck,
+    title: 'Work Completed',
+    copy: 'The booking reaches authenticated completion status with client verification.',
+    tag: 'Step 1',
+  },
+  {
+    icon: MessageSquareText,
+    title: 'Verified Review Submitted',
+    copy: 'An eligible participant writes authentic feedback based on actual delivered work.',
+    tag: 'Step 2',
+  },
+  {
+    icon: Star,
+    title: 'Reputation Score Updated',
+    copy: 'Public provider ratings and trust point history reflect completed service reviews.',
+    tag: 'Step 3',
+  },
+];
 
 export default function LandingReviews({ isDark }: LandingReviewsProps) {
   return (
-    <section id="reviews" data-theme={isDark ? 'dark' : 'light'} className="scroll-mt-20 border-b border-stone-200 bg-stone-100/60 px-5 py-20 dark:border-white/10 dark:bg-[#1b1b18] sm:px-8 lg:px-10 lg:py-24"><div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center"><ScrollReveal><h2 className="font-serif text-4xl font-semibold tracking-[-0.035em] text-slate-950 dark:text-white sm:text-5xl">Reviews come after real service progress.</h2><p className="mt-5 text-base leading-7 text-slate-600 dark:text-stone-300">ServiceHub keeps reputation tied to completed bookings and visible trust history, so public claims reflect actual marketplace relationships.</p></ScrollReveal><ScrollReveal className="grid gap-3 sm:grid-cols-3">{[[ClipboardCheck, 'Complete', 'The booking reaches completed status.'], [MessageSquareText, 'Review', 'An eligible participant leaves service feedback.'], [Star, 'Reputation', 'Provider-facing ratings use completed-service reviews.']].map(([Icon, title, copy]) => { const C = Icon as typeof Star; return <div key={title as string} className="border-l-2 border-[#c86544] bg-white p-6 dark:bg-[#20201d]"><C size={19} className="text-[#c86544]" /><h3 className="mt-8 text-sm font-extrabold text-slate-950 dark:text-white">{title as string}</h3><p className="mt-2 text-xs leading-5 text-slate-500 dark:text-stone-400">{copy as string}</p></div>; })}</ScrollReveal></div></section>
+    <section
+      id="reviews"
+      data-theme={isDark ? 'dark' : 'light'}
+      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-24"
+    >
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <ScrollReveal>
+          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            Reviews require real service completion.
+          </h2>
+          <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-400">
+            ServiceHub prevents unverified ratings and fake testimonials by unlocking reviews strictly after work is formally confirmed as completed.
+          </p>
+        </ScrollReveal>
+
+        <ScrollReveal className="grid gap-4 sm:grid-cols-3">
+          {reviewMilestones.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.title}
+                className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="grid size-10 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
+                    <Icon size={18} />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500">
+                    {item.tag}
+                  </span>
+                </div>
+                <h3 className="mt-6 text-sm font-bold text-slate-950 dark:text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-zinc-400">
+                  {item.copy}
+                </p>
+              </div>
+            );
+          })}
+        </ScrollReveal>
+      </div>
+    </section>
   );
 }

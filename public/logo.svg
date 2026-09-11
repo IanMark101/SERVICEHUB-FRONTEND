@@ -1,67 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Dark App Icon Background -->
-    <linearGradient id="shBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#201f1b"/>
-      <stop offset="50%" stop-color="#181715"/>
-      <stop offset="100%" stop-color="#100f0e"/>
+    <!-- Matte Deep Obsidian Base Tile -->
+    <linearGradient id="shTileGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#161514"/>
+      <stop offset="100%" stop-color="#0a0a09"/>
     </linearGradient>
 
-    <!-- Seeker Orange Gradient (System Exact: orange-500 to orange-600) -->
-    <linearGradient id="shSeekerOrange" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fb923c"/>
-      <stop offset="45%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+    <!-- Subtle 1px Specular Bevel -->
+    <linearGradient id="shBevelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.03"/>
     </linearGradient>
 
-    <!-- Provider Emerald Gradient (System Exact: emerald-500 to emerald-600) -->
-    <linearGradient id="shProviderGreen" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#059669"/>
-      <stop offset="55%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#34d399"/>
+    <!-- Upper S Gradient: Only the terminal cap has a touch of orange, 80%+ is pure solid white -->
+    <linearGradient id="shUpperTerminalGrad" x1="364" y1="176" x2="256" y2="88" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="30%" stop-color="#f97316"/>
+      <stop offset="55%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#ffffff"/>
     </linearGradient>
 
-    <!-- Subtle Ambient Backlight -->
-    <radialGradient id="shAmbientOrange" cx="30%" cy="30%" r="60%">
-      <stop offset="0%" stop-color="#f97316" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="shAmbientGreen" cx="70%" cy="70%" r="60%">
-      <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-    </radialGradient>
-
-    <!-- Filter for Core Glow -->
-    <filter id="shCoreGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="8" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
+    <!-- Lower S Gradient: Pure solid white throughout, only the bottom terminal cap has a touch of green -->
+    <linearGradient id="shLowerTerminalGrad" x1="256" y1="424" x2="144" y2="336" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="45%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
   </defs>
 
-  <!-- Premium Squircle Container -->
-  <rect width="512" height="512" rx="128" fill="url(#shBgGrad)"/>
-  <rect width="508" height="508" x="2" y="2" rx="126" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.08"/>
+  <!-- Deep Matte Obsidian Squircle -->
+  <rect width="512" height="512" rx="116" fill="url(#shTileGrad)"/>
 
-  <!-- Ambient Workspace Glows -->
-  <circle cx="180" cy="180" r="160" fill="url(#shAmbientOrange)"/>
-  <circle cx="332" cy="332" r="160" fill="url(#shAmbientGreen)"/>
+  <!-- Top Specular Inner Bevel Stroke -->
+  <rect x="2" y="2" width="508" height="508" rx="114" fill="none" stroke="url(#shBevelGrad)" stroke-width="2.5"/>
 
-  <!-- Upper Ribbon: Seeker Community (Warm Radiant Orange) -->
-  <path d="M 372 176 C 372 122, 318 96, 256 96 C 182 96, 140 144, 140 210 C 140 286, 250 288, 282 298 C 348 318, 376 358, 366 408 C 356 458, 286 492, 212 472" 
-        fill="none" 
-        stroke="url(#shSeekerOrange)" 
-        stroke-width="50" 
+  <!-- Main S Spine & Body: 100% Solid Pure Crisp White -->
+  <path d="M 256 88
+           C 188 88, 144 128, 144 192
+           C 144 268, 368 244, 368 320
+           C 368 384, 324 424, 256 424"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="68"
+        stroke-linejoin="round"/>
+
+  <!-- Upper Terminal Hook: Crisp White seamlessly blending to an Orange Cap at the tip -->
+  <path d="M 364 176
+           C 364 122, 318 88, 256 88"
+        fill="none"
+        stroke="url(#shUpperTerminalGrad)"
+        stroke-width="68"
         stroke-linecap="round"/>
 
-  <!-- Lower Ribbon: Provider Craft & Trust (Fresh Emerald Green) -->
-  <path d="M 140 336 C 140 390, 194 416, 256 416 C 330 416, 372 368, 372 302 C 372 226, 262 224, 230 214 C 164 194, 136 154, 146 104" 
-        fill="none" 
-        stroke="url(#shProviderGreen)" 
-        stroke-width="48" 
+  <!-- Lower Terminal Hook: Crisp White seamlessly blending to a Green Cap at the tip -->
+  <path d="M 256 424
+           C 188 424, 144 390, 144 336"
+        fill="none"
+        stroke="url(#shLowerTerminalGrad)"
+        stroke-width="68"
         stroke-linecap="round"/>
-
-  <!-- Cordova Hub Center Node (Dual Connection Intersection) -->
-  <circle cx="256" cy="256" r="24" fill="#181715" stroke="#f97316" stroke-width="4" stroke-opacity="0.6"/>
-  <circle cx="256" cy="256" r="14" fill="#ffffff" filter="url(#shCoreGlow)"/>
-  <circle cx="256" cy="256" r="7" fill="#f59e0b"/>
 </svg>
