@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FocusEvent, forwardRef } from 'react';
 
-interface AuthInputProps {
+interface AuthInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name' | 'type' | 'value' | 'onChange' | 'onBlur' | 'children'> {
   label: string;
   name: string;
   type?: string;
@@ -28,6 +28,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
   className = '',
   required = false,
   children,
+  ...inputProps
 }, ref) => {
   return (
     <div className="w-full">
@@ -46,6 +47,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
           onChange={onChange}
           onBlur={onBlur}
           required={required}
+          {...inputProps}
           className={`w-full bg-white dark:bg-[#0c0c0e] border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all ${
             children ? 'pr-10' : ''
           } ${className}`}

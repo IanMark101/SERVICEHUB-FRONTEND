@@ -1,94 +1,30 @@
-import React from 'react';
-import { AlertTriangle, Clock, Lock } from 'lucide-react';
+import { ArrowDown, CheckCircle2 } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
-interface LandingProblemProps {
-  isDark: boolean;
-}
+interface LandingProblemProps { isDark: boolean; }
+
+const outcomes = [
+  'Know whether a resident has been verified before transacting',
+  'See the status of a request, booking, queue, or review in one place',
+  'Keep Seeker and Provider activity connected to one accountable identity',
+];
 
 export default function LandingProblem({ isDark }: LandingProblemProps) {
   return (
-    <section id="problem" className={`py-20 border-y px-6 md:px-12 w-full relative scroll-mt-20 ${isDark ? 'bg-[#22211e]/40 border-neutral-850' : 'bg-slate-50/50 border-slate-200/60'
-      }`}>
-      {/* Ambient glow decoration */}
-      <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-80 h-80 glow-bubble-orange -z-10 opacity-40 animate-pulse-glow" />
-
-      <div className="max-w-6xl mx-auto space-y-12">
-        <ScrollReveal className="text-center space-y-3">
-          <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Why This Exists</span>
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-            }`}>
-            Finding reliable help in Cordova shouldn&apos;t be guesswork
-          </h2>
-          <p className={`text-sm max-w-xl mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-            }`}>
-            Traditional social groups leave both seekers and providers vulnerable to flakes, scams, and unfair delays.
-          </p>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-transform duration-200 ${isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-            }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${isDark ? 'text-amber-505 bg-amber-955/40 border border-neutral-855' : 'text-amber-600 bg-amber-50 border border-amber-100'
-              }`}>
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-              }`}>
-              No way to know who&apos;s reliable
-            </h3>
-            <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-              }`}>
-              Anonymous postings and unverified accounts make it risky to invite someone to your home or prep for a job.
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-transform duration-200 ${isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-            }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${isDark ? 'text-seeker-primary bg-orange-955/40 border border-neutral-855' : 'text-seeker-primary bg-orange-50 border-orange-100'
-              }`}>
-              <Clock className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-              }`}>
-              Endless waiting with no queue
-            </h3>
-            <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-              }`}>
-              Clients never know when a provider is free; providers get swamped with conflicting messages and ghosted leads.
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-transform duration-200 ${isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-            }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${isDark ? 'text-amber-505 bg-amber-955/40 border border-neutral-855' : 'text-amber-600 bg-amber-50 border border-amber-100'
-              }`}>
-              <Lock className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-              }`}>
-              No payment or job protection
-            </h3>
-            <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-              }`}>
-              No deposit holding, no dispute resolution, and no recourse when someone doesn&apos;t pay or doesn&apos;t show up.
-            </p>
-          </ScrollReveal>
+    <section id="problem" data-theme={isDark ? 'dark' : 'light'} className="scroll-mt-20 border-b border-stone-200 bg-stone-100/60 px-5 py-20 dark:border-white/10 dark:bg-[#1b1b18] sm:px-8 lg:px-10 lg:py-28">
+      <ScrollReveal className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        <div>
+          <p className="text-sm font-bold text-[#c86544]">Why ServiceHub exists</p>
+          <h2 className="mt-4 max-w-lg font-serif text-4xl font-semibold leading-tight tracking-[-0.035em] text-slate-950 dark:text-white sm:text-5xl">Local service work deserves more structure than a social post.</h2>
         </div>
-
-        <ScrollReveal className="text-center pt-4">
-          <p className={`text-xs font-bold transition-colors duration-300 ${isDark ? 'text-emerald-450' : 'text-emerald-700'
-            }`}>
-            ServiceHub Cordova was built to fix exactly these three problems — for the community, by the community.
-          </p>
-        </ScrollReveal>
-      </div>
+        <div className="lg:pt-10">
+          <p className="max-w-2xl text-base leading-7 text-slate-600 dark:text-stone-300">ServiceHub brings discovery, verification, service requests, provider offers, bookings, messages, completion, and reviews into one understandable path for Cordova residents.</p>
+          <div className="mt-8 divide-y divide-stone-200 border-y border-stone-200 dark:divide-white/10 dark:border-white/10">
+            {outcomes.map((outcome) => <div key={outcome} className="flex items-start gap-4 py-5"><CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" /><span className="text-sm font-semibold leading-6 text-slate-800 dark:text-stone-100">{outcome}</span></div>)}
+          </div>
+          <a href="#how-it-works" className="mt-7 inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#c86544] dark:text-stone-200"><ArrowDown size={15} /> Follow the marketplace flow</a>
+        </div>
+      </ScrollReveal>
     </section>
   );
 }

@@ -1,75 +1,11 @@
-import React from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, Minus } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
-interface LandingComparisonProps {
-  isDark: boolean;
-}
+interface LandingComparisonProps { isDark: boolean; }
+const rows = [['Cordova residency gate', true], ['Unified Seeker and Provider identity', true], ['Listing-specific paid queue', true], ['Booking-linked messages and activity', true], ['Admin moderation and audit records', true]] as const;
 
 export default function LandingComparison({ isDark }: LandingComparisonProps) {
   return (
-    <section id="comparison" className="py-20 px-6 md:px-12 w-full relative scroll-mt-20">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 glow-bubble-orange -z-10 opacity-30 animate-pulse-glow" />
-      <div className="max-w-4xl mx-auto space-y-10">
-        <ScrollReveal className="text-center space-y-3">
-          <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Comparison</span>
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${
-            isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-          }`}>
-            Not just another Facebook group
-          </h2>
-          <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${
-            isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-          }`}>
-            Why local residents choose ServiceHub Cordova over standard social networks.
-          </p>
-        </ScrollReveal>
-
-        <ScrollReveal className={`rounded-[24px] border overflow-hidden shadow-lg backdrop-blur-xl ${
-          isDark
-            ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-            : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-        }`}>
-          <table className="w-full text-left border-collapse text-xs md:text-sm">
-            <thead>
-              <tr className={`border-b transition-colors duration-300 ${
-                isDark ? 'border-neutral-850 bg-neutral-850/50' : 'border-slate-200 bg-slate-50/50'
-              }`}>
-                <th className="p-4 md:p-6 font-extrabold">Feature</th>
-                <th className="p-4 md:p-6 font-extrabold text-center w-1/4">Facebook Groups</th>
-                <th className="p-4 md:p-6 font-extrabold text-center w-1/4 text-seeker-primary">ServiceHub Cordova</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className={`border-b transition-colors duration-300 ${isDark ? 'border-neutral-855' : 'border-slate-100/50'}`}>
-                <td className="p-4 md:p-6 font-semibold">Verified residents only</td>
-                <td className="p-4 md:p-6 text-center text-red-500 font-extrabold"><X className="w-4 h-4 mx-auto" /></td>
-                <td className="p-4 md:p-6 text-center text-emerald-500 font-extrabold"><Check className="w-4.5 h-4.5 mx-auto" /></td>
-              </tr>
-              <tr className={`border-b transition-colors duration-300 ${isDark ? 'border-neutral-855' : 'border-slate-100/50'}`}>
-                <td className="p-4 md:p-6 font-semibold">Visible trust scores</td>
-                <td className="p-4 md:p-6 text-center text-red-500 font-extrabold"><X className="w-4 h-4 mx-auto" /></td>
-                <td className="p-4 md:p-6 text-center text-emerald-500 font-extrabold"><Check className="w-4.5 h-4.5 mx-auto" /></td>
-              </tr>
-              <tr className={`border-b transition-colors duration-300 ${isDark ? 'border-neutral-855' : 'border-slate-100/50'}`}>
-                <td className="p-4 md:p-6 font-semibold">Fair, real queue</td>
-                <td className="p-4 md:p-6 text-center text-red-500 font-extrabold"><X className="w-4 h-4 mx-auto" /></td>
-                <td className="p-4 md:p-6 text-center text-emerald-500 font-extrabold"><Check className="w-4.5 h-4.5 mx-auto" /></td>
-              </tr>
-              <tr className={`border-b transition-colors duration-300 ${isDark ? 'border-neutral-855' : 'border-slate-100/50'}`}>
-                <td className="p-4 md:p-6 font-semibold">Secure held payments</td>
-                <td className="p-4 md:p-6 text-center text-red-500 font-extrabold"><X className="w-4 h-4 mx-auto" /></td>
-                <td className="p-4 md:p-6 text-center text-emerald-500 font-extrabold"><Check className="w-4.5 h-4.5 mx-auto" /></td>
-              </tr>
-              <tr className="transition-colors duration-300">
-                <td className="p-4 md:p-6 font-semibold">Dispute resolution</td>
-                <td className="p-4 md:p-6 text-center text-red-500 font-extrabold"><X className="w-4 h-4 mx-auto" /></td>
-                <td className="p-4 md:p-6 text-center text-emerald-500 font-extrabold"><Check className="w-4.5 h-4.5 mx-auto" /></td>
-              </tr>
-            </tbody>
-          </table>
-        </ScrollReveal>
-      </div>
-    </section>
+    <section id="comparison" data-theme={isDark ? 'dark' : 'light'} className="scroll-mt-20 border-b border-stone-200 px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"><div className="mx-auto max-w-5xl"><ScrollReveal className="text-center"><h2 className="font-serif text-4xl font-semibold tracking-[-0.035em] text-slate-950 dark:text-white sm:text-5xl">More than a public listing board.</h2><p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 dark:text-stone-300">The value is the connected workflow around each local service relationship.</p></ScrollReveal><ScrollReveal className="mt-12 overflow-hidden rounded-[1.75rem] border border-stone-200 bg-white dark:border-white/10 dark:bg-[#20201d]"><div className="grid grid-cols-[1fr_110px_110px] border-b border-stone-200 bg-stone-100 px-5 py-4 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-400"><span>Capability</span><span className="text-center">Social post</span><span className="text-center">ServiceHub</span></div>{rows.map(([label]) => <div key={label} className="grid grid-cols-[1fr_110px_110px] items-center border-b border-stone-200 px-5 py-4 last:border-b-0 dark:border-white/10"><span className="text-sm font-semibold text-slate-800 dark:text-stone-100">{label}</span><span className="grid place-items-center text-stone-300 dark:text-stone-600"><Minus size={17} /></span><span className="grid place-items-center text-emerald-600"><Check size={18} /></span></div>)}</ScrollReveal></div></section>
   );
 }

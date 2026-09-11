@@ -1,10 +1,9 @@
-import React from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import AuthInput from './shared/AuthInput';
-import GoogleSignInButton from './shared/GoogleSignInButton';
 import type { FormEvent } from 'react';
 import type { UseFormRegister } from 'react-hook-form';
 import type { AuthFormValues } from '../../schema/auth/useAuthForm';
+import AuthInput from './shared/AuthInput';
+import GoogleSignInButton from './shared/GoogleSignInButton';
 
 interface LoginFormProps {
   formData: AuthFormValues;
@@ -22,129 +21,34 @@ interface LoginFormProps {
   isLoading?: boolean;
 }
 
-export default function LoginForm({
-  fieldErrors,
-  showPassword,
-  setShowPassword,
-  handleGoogleSuccessResponse,
-  setError,
-  handleSubmit,
-  isDark,
-  setMode,
-  toggleMode,
-  register,
-  isLoading = false,
-}: LoginFormProps) {
+export default function LoginForm({ fieldErrors, showPassword, setShowPassword, handleGoogleSuccessResponse, setError, handleSubmit, isDark, setMode, toggleMode, register, isLoading = false }: LoginFormProps) {
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-      
-      {/* Header Info */}
-      <div className="text-center lg:text-left">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
-          Sign In Account
-        </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-xs">
-          Enter your credentials to access the Cordova local service network.
-        </p>
+    <div>
+      <div className="mb-7">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c86544]">Account access</p>
+        <h2 className="mt-3 font-serif text-4xl font-semibold tracking-[-0.035em] text-slate-950 dark:text-white">Welcome back</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-stone-400">Sign in to continue to your ServiceHub workspace.</p>
       </div>
 
-      {/* Main Email/Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <AuthInput
-          label="Email"
-          type="email"
-          placeholder="Enter your email"
-          error={fieldErrors.email}
-          {...register('email')}
-        />
-
-        <div className="space-y-0.5">
-          <div className="flex justify-between items-center mb-1">
-            <label className="block text-xs font-semibold text-slate-550 dark:text-slate-400">
-              Password
-            </label>
-            <button
-              type="button"
-              onClick={() => setMode('forgot')}
-              className="text-xs font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 transition-colors focus:outline-none cursor-pointer"
-            >
-              Forgot password?
-            </button>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <AuthInput label="Email" type="email" placeholder="you@example.com" error={fieldErrors.email} autoComplete="email" {...register('email')} />
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <label className="text-xs font-semibold text-slate-700 dark:text-stone-300">Password</label>
+            <button type="button" onClick={() => setMode('forgot')} className="text-xs font-bold text-[#c86544] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]">Forgot password?</button>
           </div>
-          <AuthInput
-            label=""
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Enter your password"
-            error={fieldErrors.password}
-            {...register('password')}
-          >
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer focus:outline-none"
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
+          <AuthInput label="" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" error={fieldErrors.password} autoComplete="current-password" {...register('password')}>
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-700 dark:hover:text-stone-200" aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
           </AuthInput>
         </div>
-
-        {/* Submit button */}
-        <div className="pt-1.5">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full py-2.5 rounded-lg font-bold text-sm shadow-sm transition-all flex items-center justify-center space-x-2 ${
-              isLoading
-                ? 'bg-slate-300 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
-                : 'bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-white cursor-pointer'
-            }`}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>Signing In...</span>
-              </>
-            ) : (
-              <span>Sign In</span>
-            )}
-          </button>
-        </div>
+        <button type="submit" disabled={isLoading} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#c86544] px-5 text-sm font-bold text-white transition-colors hover:bg-[#b95738] disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500 dark:disabled:bg-stone-700 dark:disabled:text-stone-400">
+          {isLoading ? <><Loader2 className="size-4 animate-spin" /><span>Signing in</span></> : <span>Sign in</span>}
+        </button>
       </form>
 
-      {/* Divider OR */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
-        </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="bg-[#faf8f5] dark:bg-[#0a0a0a] px-3 text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase">
-            OR
-          </span>
-        </div>
-      </div>
-
-      {/* Google Login Component */}
-      <GoogleSignInButton
-        onSuccess={handleGoogleSuccessResponse}
-        onError={setError}
-        isDark={isDark}
-        mode="login"
-      />
-
-      {/* Footer Switcher */}
-      <div className="text-center text-sm pt-3 border-t border-slate-200 dark:border-slate-800">
-        <span className="text-slate-500 dark:text-slate-400">
-          Don&apos;t have an account?
-        </span>
-        <button
-          type="button"
-          onClick={toggleMode}
-          className="font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 ml-1 cursor-pointer focus:outline-none transition-colors"
-        >
-          Register here
-        </button>
-      </div>
-
+      <div className="my-6 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400 before:h-px before:flex-1 before:bg-stone-200 after:h-px after:flex-1 after:bg-stone-200 dark:before:bg-white/10 dark:after:bg-white/10">or</div>
+      <GoogleSignInButton onSuccess={handleGoogleSuccessResponse} onError={setError} isDark={isDark} mode="login" />
+      <p className="mt-7 border-t border-stone-200 pt-5 text-center text-sm text-slate-500 dark:border-white/10 dark:text-stone-400">New to ServiceHub?<button type="button" onClick={toggleMode} className="ml-1.5 font-bold text-[#c86544] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]">Create an account</button></p>
     </div>
   );
 }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { ArrowRight, Star, ChevronDown, ShieldCheck, CheckCircle2, Banknote, Smartphone } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight, BadgeCheck, MapPin, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingHeroProps {
@@ -7,366 +8,46 @@ interface LandingHeroProps {
   onGetStarted: () => void;
 }
 
-export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
-  const [cardPov, setCardPov] = useState<'seeker' | 'provider'>('seeker');
-
-  const scrollToNext = () => {
-    const el = document.getElementById('problem');
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 68;
-    window.scrollTo({ top, behavior: 'smooth' });
-  };
-
+export default function LandingHero({ onGetStarted }: LandingHeroProps) {
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-between pt-4 pb-4 md:pt-6 md:pb-6 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden">
-      {/* Soft decorative background glows */}
-      <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-3xl -z-10 pointer-events-none transition-colors duration-500 ${isDark ? 'bg-amber-955/10' : 'bg-amber-100/25'
-        }`} />
-
-      <div className="flex-1 flex items-center py-4 md:py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
-          {/* Left Text Column */}
-          <div className="lg:col-span-7 space-y-6 text-left">
-            <ScrollReveal className="space-y-6">
-              <span className={`inline-flex items-center space-x-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border backdrop-blur-md shadow-sm transition-all duration-300 ${isDark
-                ? 'bg-[#2c2b27]/60 border-neutral-850/50 text-amber-505'
-                : 'bg-amber-50/60 text-amber-700 border-amber-200/40'
-                }`}>
-                <span>★</span>
-                <span>Cordova, Cebu Local Services</span>
-              </span>
-
-              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'
-                }`}>
-                Cordova&apos;s trusted <br className="hidden sm:inline" />
-                <span className="text-seeker-primary bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
-                  local service
-                </span>{" "}
-                marketplace
-              </h1>
-
-              <p className={`text-sm md:text-base leading-relaxed font-medium transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-505'
-                }`}>
-                Find help from verified neighbors, or offer your own skills to the community — with fair queues, secure payments, and trust scores you can actually see.
-              </p>
-
-              <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
-                <button
-                  onClick={onGetStarted}
-                  className="w-full sm:w-auto bg-seeker-primary hover:bg-seeker-hover text-white font-extrabold text-sm py-3.5 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg active:scale-98 cursor-pointer flex items-center justify-center space-x-2"
-                >
-                  <span>Get Started</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <a
-                  href="#how-it-works"
-                  className={`w-full sm:w-auto border backdrop-blur-md font-bold text-sm py-3.5 px-8 rounded-xl transition-all duration-300 shadow-sm flex items-center justify-center ${isDark
-                    ? 'bg-[#2c2b27]/60 hover:bg-[#33322e]/60 border-neutral-855/50 text-[#f2efe9]'
-                    : 'bg-white/60 hover:bg-slate-50/60 text-slate-700 border-slate-200/50'
-                    }`}
-                >
-                  See How It Works
-                </a>
-              </div>
-
-              <p className={`text-[11px] font-semibold transition-colors duration-300 ${isDark ? 'text-neutral-500' : 'text-slate-400'
-                }`}>
-                Anyone may browse; marketplace transactions require an approved Cordova residency verification.
-              </p>
-            </ScrollReveal>
+    <section id="top" className="relative overflow-hidden border-b border-stone-200 bg-[#fbfaf7] dark:border-white/10 dark:bg-[#171715]">
+      <div className="mx-auto grid min-h-[680px] max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:py-20">
+        <ScrollReveal className="relative z-10 max-w-2xl">
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300">
+            <MapPin size={13} className="text-[#c86544]" />
+            Built for Cordova, Cebu
           </div>
-
-          {/* Right Column: 3D Flip Showcase Card */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <ScrollReveal className="w-full max-w-[390px] [perspective:1200px]">
-              <div
-                onClick={() => setCardPov(prev => prev === 'seeker' ? 'provider' : 'seeker')}
-                className={`relative w-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer select-none ${cardPov === 'seeker' ? '[transform:rotateY(180deg)]' : ''
-                  }`}
-                title="Click anywhere on card to flip perspective"
-              >
-                {/* ─── FRONT FACE IN DOM: PROVIDER LISTING (shown after flip) ─── */}
-                <div
-                  className={`w-full p-5 rounded-[26px] border backdrop-blur-xl shadow-2xl relative overflow-hidden transition-all duration-300 hover:scale-[1.015] group/card [backface-visibility:hidden] flex flex-col justify-between ${isDark
-                      ? 'bg-[#22211e]/95 border-emerald-900/50 text-[#f2efe9] hover:border-emerald-500/60'
-                      : 'bg-white/95 border-emerald-500/30 text-slate-900 shadow-xl hover:border-emerald-500/60'
-                    }`}
-                >
-                  <div>
-                    {/* Header: Provider Info */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3 select-none">
-                        <div className="relative flex-shrink-0">
-                          <div className="w-11 h-11 rounded-2xl border-2 border-emerald-500/40 bg-emerald-50 text-emerald-700 flex items-center justify-center text-xs font-black shadow-sm">
-                            SP
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            DEMO LOCAL PROVIDER
-                          </h4>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-                              <ShieldCheck className="w-3.5 h-3.5 mr-0.5 text-emerald-500 fill-emerald-500/20" />
-                              Verified
-                            </span>
-                            <span className="text-[10px] font-bold text-slate-400 dark:text-neutral-500">• Day-as</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Badges */}
-                      <div className="flex flex-col items-end gap-1 select-none">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
-                          NEW
-                        </span>
-                        <span className="text-[10px] font-bold text-slate-500 dark:text-neutral-400 flex items-center gap-1">
-                          🛡️ Verified Member
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Category & Tags */}
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="inline-block px-2.5 py-1 text-[9px] font-extrabold rounded-lg border uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/30">
-                        TUTORING
-                      </span>
-                      <span className="text-[10.5px] font-bold text-amber-500 flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                        <span>5.0</span>
-                        <span className="text-slate-400 dark:text-neutral-500 font-normal">(sample rating)</span>
-                      </span>
-                    </div>
-
-                    {/* Service Details */}
-                    <div className="mt-3">
-                      <h3 className={`font-black text-base leading-snug tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                        High School Math & Algebra Tutoring
-                      </h3>
-                      <p className={`text-xs mt-1.5 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                        A one-time tutoring booking covering algebra, trigonometry, or calculus fundamentals.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    {/* Divider Line */}
-                    <div className={`border-t my-3.5 ${isDark ? 'border-neutral-800/80' : 'border-slate-100'}`} />
-
-                    {/* Availability & Price */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col space-y-1">
-                        <div className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-500" />
-                          <span>Available Now</span>
-                        </div>
-                        <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-                          <CheckCircle2 className="w-2.5 h-2.5" />
-                          Reusable listing
-                        </span>
-                      </div>
-
-                      <div className="text-right">
-                        <span className={`text-lg font-black ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                          ₱250
-                        </span>
-                        <span className={`text-[11px] font-bold ml-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                          fixed price
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Payment Options */}
-                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-slate-50 dark:bg-neutral-800/60 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300">
-                        <Banknote className="w-3 h-3 text-slate-400" />
-                        On-site Cash
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-                        <Smartphone className="w-3 h-3 text-emerald-500" />
-                        GCash
-                      </span>
-                    </div>
-
-                    {/* Action CTA */}
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onGetStarted();
-                        }}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-emerald-500/20 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        <span>Book Service</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Flip hint footer */}
-                    <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
-                      <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-extrabold">
-                        <span>👤</span> Provider listing · Seeker view
-                      </span>
-                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-emerald-500 transition-colors">
-                        🔄 Click to flip card
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ─── DEFAULT VISIBLE FACE: SEEKER POST ─── */}
-                <div
-                  className={`absolute inset-0 w-full p-5 rounded-[26px] border backdrop-blur-xl shadow-2xl overflow-hidden transition-all duration-300 hover:scale-[1.015] group/card [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-between ${
-                    isDark
-                      ? 'bg-[#22211e] border-orange-900/50 text-[#f2efe9] hover:border-orange-500/60'
-                      : 'bg-white border-orange-500/30 text-slate-900 shadow-xl hover:border-orange-500/60'
-                  }`}
-                >
-                  <div>
-                    {/* Header: Client Info */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3 select-none">
-                        <div className="relative flex-shrink-0">
-                          <div className="w-11 h-11 rounded-2xl border-2 border-orange-500/40 bg-orange-50 text-orange-700 flex items-center justify-center text-xs font-black shadow-sm">
-                            SS
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className={`font-black text-xs leading-tight tracking-wide ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            DEMO LOCAL SEEKER
-                          </h4>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className={`inline-flex items-center text-[10px] font-semibold border px-1.5 py-0.25 rounded-md ${
-                              isDark
-                                ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                                : 'text-orange-600 bg-orange-50 border-orange-200'
-                            }`}>
-                              <CheckCircle2 className={`w-3 h-3 mr-0.5 ${isDark ? 'fill-orange-950/20 text-orange-400' : 'fill-orange-50 text-orange-600'}`} />
-                              Client
-                            </span>
-                            <span className="text-[10px] font-bold text-slate-400 dark:text-neutral-500">• Day-as</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Proposals counter & Trust */}
-                      <div className="text-right flex flex-col items-end gap-0.5 select-none">
-                        <span className={`text-[10px] font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                          0 proposals
-                        </span>
-                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                          🛡️ Verified Member
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Category & Urgency */}
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${
-                        isDark
-                          ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                          : 'text-orange-600 bg-orange-50 border-orange-200'
-                      }`}>
-                        PLUMBING
-                      </span>
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-lg border ${
-                        isDark
-                          ? 'text-amber-400 bg-amber-955/30 border-amber-900/40'
-                          : 'text-amber-700 bg-amber-50 border-amber-200'
-                      }`}>
-                        <span>⏰ Needed:</span>
-                        <span className="font-black">Needs Tomorrow</span>
-                      </span>
-                    </div>
-
-                    {/* Request Details */}
-                    <div className="mt-3">
-                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                        Need help fixing our pipe leaking
-                      </h3>
-                      <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
-                        Water pipe under kitchen sink is leaking and causing low pressure. Available after 5 PM in Day-as.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    {/* Divider Line */}
-                    <div className={`border-t my-3.5 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
-
-                    {/* Budget and payment status */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col space-y-0.5">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                          Client Budget
-                        </span>
-                        <span className={`text-lg font-black ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                          ₱350
-                        </span>
-                      </div>
-
-                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-md border w-fit bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400">
-                        <CheckCircle2 className="w-3 h-3 text-orange-500" />
-                        Payment chosen after offer
-                      </span>
-                    </div>
-
-                    {/* Payment Options */}
-                    <div className="mt-3 flex items-center gap-1.5 flex-wrap">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-slate-50 dark:bg-neutral-800/60 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300">
-                        <Banknote className="w-3 h-3 text-slate-400" />
-                        On-site Cash
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[10px] font-bold bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400">
-                        <Smartphone className="w-3 h-3 text-orange-500" />
-                        Online Test Mode
-                      </span>
-                    </div>
-
-                    {/* Action CTA */}
-                    <div className="mt-3.5">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onGetStarted();
-                        }}
-                        className="w-full bg-seeker-primary hover:bg-seeker-hover text-white font-extrabold text-xs py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-orange-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
-                      >
-                        <span>Send Offer</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Flip hint footer */}
-                    <div className="mt-3.5 flex items-center justify-between text-[10px] text-slate-400 dark:text-neutral-500 font-bold border-t pt-2 border-slate-100 dark:border-neutral-800/80 select-none">
-                      <span className="flex items-center gap-1.5 text-orange-500 font-extrabold">
-                        <span>🛠️</span> Seeker request · Provider view
-                      </span>
-                      <span className="flex items-center gap-1 text-slate-400 dark:text-neutral-400 group-hover/card:text-orange-500 transition-colors">
-                        🔄 Click to flip card
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ScrollReveal>
+          <h1 className="font-serif text-[clamp(3rem,6vw,5.7rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-slate-950 dark:text-white">
+            Local help, with a clearer way to trust.
+          </h1>
+          <p className="mt-7 max-w-xl text-base leading-7 text-slate-600 dark:text-stone-300 sm:text-lg">
+            ServiceHub connects Cordova residents with local service providers. Browse openly, complete residency verification to transact, then request, pay, queue, message, and review in one accountable marketplace.
+          </p>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <button type="button" onClick={onGetStarted} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#c86544] px-6 text-sm font-bold text-white transition-colors hover:bg-[#b95738] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]">
+              Get started <ArrowRight size={17} />
+            </button>
+            <a href="#how-it-works" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-stone-300 bg-transparent px-6 text-sm font-bold text-slate-800 transition-colors hover:bg-white dark:border-white/15 dark:text-stone-100 dark:hover:bg-white/5">
+              See how it works
+            </a>
           </div>
-        </div>
-      </div>
+          <div className="mt-9 grid max-w-xl gap-3 border-t border-stone-200 pt-6 text-xs leading-5 text-slate-600 dark:border-white/10 dark:text-stone-300 sm:grid-cols-2">
+            <span className="flex items-start gap-2"><BadgeCheck size={17} className="mt-0.5 shrink-0 text-emerald-600" /> One identity for Seeker and Provider workspaces</span>
+            <span className="flex items-start gap-2"><ShieldCheck size={17} className="mt-0.5 shrink-0 text-emerald-600" /> Limited Mode keeps browsing open before verification</span>
+          </div>
+        </ScrollReveal>
 
-      {/* Scroll Down Indicator */}
-      <div className="flex justify-center pb-2 pt-2">
-        <button
-          onClick={scrollToNext}
-          className={`flex flex-col items-center gap-1 text-[11px] font-semibold transition-all duration-300 hover:scale-105 cursor-pointer ${isDark ? 'text-neutral-500 hover:text-amber-400' : 'text-slate-400 hover:text-slate-700'
-            }`}
-          aria-label="Scroll to content"
-        >
-          <span className="tracking-wider uppercase text-[9px]">Explore More</span>
-          <ChevronDown className="w-4 h-4 animate-bounce" />
-        </button>
+        <ScrollReveal className="relative min-h-[480px] lg:min-h-[600px]">
+          <div className="absolute inset-0 overflow-hidden rounded-[2rem] bg-stone-200 dark:bg-stone-800">
+            <Image src="/images/servicehub-hero.png" alt="A Cordova homeowner speaking with a local electrical service professional" fill sizes="(max-width: 1024px) 100vw, 48vw" className="object-cover object-center" priority />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+          </div>
+          <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/20 bg-black/65 p-5 text-white backdrop-blur-sm sm:inset-x-auto sm:left-5 sm:max-w-sm">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-200">One local marketplace</p>
+            <p className="mt-2 text-sm leading-6 text-stone-100">Seek help in orange. Offer services in green. Your verification, trust, activity, and profile stay connected.</p>
+            <Link href="/help" className="mt-4 inline-flex items-center gap-2 text-xs font-bold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">Read the Help Center <ArrowRight size={14} /></Link>
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );

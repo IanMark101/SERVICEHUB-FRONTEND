@@ -44,12 +44,9 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div
-      className="min-h-screen font-sans select-none flex flex-col bg-[#fbfaf7] dark:bg-[#191919] text-[#1c1b18] dark:text-[#f2efe9]"
+      className="landing-shell min-h-screen font-sans flex flex-col bg-[#fbfaf7] dark:bg-[#171715] text-[#1c1b18] dark:text-[#f2efe9]"
       style={{ overflowX: 'clip' }}
     >
-      {/* Global Background Grid — position fixed so it doesn't affect scroll */}
-      <div className="fixed inset-0 bg-grid-pattern opacity-100 pointer-events-none z-0" />
-
       <LandingHeader isDark={isDark} toggleTheme={toggleTheme} onGetStarted={onGetStarted} />
       <LandingHero isDark={isDark} onGetStarted={onGetStarted} />
       <LandingProblem isDark={isDark} />
