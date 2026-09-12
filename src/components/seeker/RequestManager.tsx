@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ClipboardList, Trash2, Edit2, MessageSquare, Sparkles, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { ClipboardList, Trash2, Edit2, MessageSquare, UsersRound, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -277,7 +277,7 @@ export default function RequestManager({
                               : 'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900'
                         }`}
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-orange-500" />
+                        <UsersRound className="w-3.5 h-3.5 text-orange-500" />
                         <span>AI Matches</span>
                       </button>
 
@@ -420,7 +420,7 @@ export default function RequestManager({
                       isDark ? 'border-neutral-850 bg-[#1c1b18]/50' : 'border-slate-100 bg-slate-50/70'
                     }`}>
                       <div className="flex items-center space-x-2 mb-3">
-                        <Sparkles className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+                        <UsersRound className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
                         <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-[#f2efe9]">
                           Suggested Providers (Gemini Matchmaker)
                         </h4>

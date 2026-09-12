@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Megaphone, Sparkles, UsersRound } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Megaphone, UsersRound } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingCommunityProps {
@@ -18,7 +18,7 @@ const items = [
   {
     title: 'Newly Approved Listings',
     copy: 'Freshly moderated local service offerings across electrical, plumbing, carpentry, and cleaning.',
-    icon: Sparkles,
+    icon: BadgeCheck,
   },
   {
     title: 'Local Provider Directory',

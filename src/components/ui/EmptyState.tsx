@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { LucideIcon, Sparkles } from 'lucide-react';
+import { Inbox, LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
   icon?: LucideIcon;
@@ -14,7 +14,7 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({
-  icon: Icon = Sparkles,
+  icon: Icon = Inbox,
   title,
   description,
   actionLabel,

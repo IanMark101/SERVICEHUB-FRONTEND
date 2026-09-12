@@ -2,7 +2,7 @@ import React, { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { X, Sparkles } from 'lucide-react';
+import { CircleAlert, MessageSquareText, X } from 'lucide-react';
 import { apiGetProviderSummary, getCachedProviderSummary } from '../../api/ai.api';
 import { apiBookDirect } from '../../api/bookings.api';
 import { getServicePaymentMethods } from '../../lib/paymentUtils';
@@ -232,7 +232,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               }`}>
                 <div className="flex items-center space-x-2 mb-1.5">
                   <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    <MessageSquareText className="w-4 h-4 animate-pulse" />
                   </span>
                   <h4 className={`text-[11px] uppercase tracking-wider font-extrabold ${
                     isDark ? 'text-orange-400' : 'text-orange-755'
@@ -255,7 +255,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               }`}>
                 <div className="flex items-center space-x-2 mb-1.5">
                   <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    <MessageSquareText className="w-4 h-4 animate-pulse" />
                   </span>
                   <h4 className={`text-[11px] uppercase tracking-wider font-extrabold ${
                     isDark ? 'text-orange-400' : 'text-orange-755'
@@ -274,7 +274,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 isDark ? 'bg-[#1c1b18] border-neutral-850 text-neutral-400' : 'bg-slate-50 border-slate-200 text-slate-500'
               }`}>
                 <div className="flex items-center space-x-1.5 font-bold text-amber-500">
-                  <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+                  <CircleAlert className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>AI Summary unavailable</span>
                 </div>
                 <p className="text-[11px]">

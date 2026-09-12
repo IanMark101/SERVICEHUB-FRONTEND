@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Check, Eye, EyeOff, Loader2, Sparkles, Upload } from 'lucide-react';
+import { Camera, Check, Eye, EyeOff, Images, Loader2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import AuthInput from '../shared/AuthInput';
 import { avatars } from '../../../schema/auth/useAuthForm';
@@ -376,7 +376,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
-                  <Sparkles size={13} className="text-[#c86544]" /> Or pick an avatar preset
+                  <Images size={13} className="text-[#c86544]" /> Or pick an avatar preset
                 </span>
               </div>
 

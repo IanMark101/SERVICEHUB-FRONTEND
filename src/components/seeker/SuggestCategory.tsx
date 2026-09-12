@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Lightbulb, Send, Sparkles, CheckCircle2, XCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
+import { Lightbulb, Send, Tags, CheckCircle2, XCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiGetMyCategorySuggestions } from '../../api/categories.api';
 import { useToast } from '../ui/Toast';
@@ -94,7 +94,7 @@ export default function SuggestCategory() {
             }`}>
 
             <div className={`flex items-center space-x-2 border-b pb-4 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-              <Sparkles className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-500'}`} />
+              <Tags className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-500'}`} />
               <h3 className={`font-extrabold text-xs uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'}`}>
                 Submit a Category Suggestion
               </h3>
