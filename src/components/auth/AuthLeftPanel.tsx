@@ -86,32 +86,41 @@ export default function AuthLeftPanel({
             : 'Sign in to manage requests, service listings, messages, and booking activity under one identity.'}
         </p>
 
-        {/* Authentic Editorial Photography Card per Design Skill Section 4.8 */}
-        <div className="mt-6 w-full relative rounded-2xl overflow-hidden border border-black/[0.08] dark:border-white/10 shadow-[0_16px_36px_-12px_rgba(15,15,15,0.12)] bg-neutral-900 group">
-          <div className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full">
-            <Image
-              src="/images/servicehub-auth.png"
-              alt="Cordova local service consultation between resident and verified tradesman"
-              fill
-              className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-              priority
-              sizes="(min-width: 1024px) 500px, 100vw"
-            />
-            {/* Ambient Scrim Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-
-            {/* Bottom Content within Photo Card */}
-            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col justify-end text-white">
-              <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-semibold mb-1">
-                <ShieldCheck size={14} />
-                <span>One local marketplace</span>
-              </div>
-              <p className="text-xs sm:text-[13px] font-normal leading-relaxed text-white/90">
-                Browse in Limited Mode, then complete email and residency verification before starting marketplace transactions.
-              </p>
-            </div>
+        <section
+          aria-label="How ServiceHub access works"
+          className="mt-6 w-full overflow-hidden rounded-2xl border border-black/10 bg-[#171716] p-5 text-white shadow-[0_16px_36px_-18px_rgba(15,15,15,0.35)] dark:border-white/10"
+        >
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#e18463]">
+            <ShieldCheck size={15} aria-hidden="true" />
+            <span>One local marketplace</span>
           </div>
-        </div>
+          <h2 className="mt-3 max-w-md text-xl font-semibold leading-tight tracking-tight">
+            Browse first. Verify when you are ready to transact.
+          </h2>
+
+          <ol className="mt-5 grid grid-cols-3 border-y border-white/10 py-4">
+            {[
+              ['01', 'Browse', 'Explore public services'],
+              ['02', 'Verify', 'Confirm local eligibility'],
+              ['03', 'Participate', 'Request or offer work'],
+            ].map(([number, title, detail], index) => (
+              <li
+                key={number}
+                className={`min-w-0 px-3 first:pl-0 last:pr-0 ${index > 0 ? 'border-l border-white/10' : ''}`}
+              >
+                <span className="text-[10px] font-semibold tracking-[0.16em] text-white/45">{number}</span>
+                <span className="mt-1 block text-sm font-semibold">{title}</span>
+                <span className="mt-1 block text-[11px] leading-snug text-white/55">{detail}</span>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-4 flex items-center gap-5 text-xs font-medium">
+            <span className="text-[#e18463]">Seek services</span>
+            <span className="h-3 w-px bg-white/15" aria-hidden="true" />
+            <span className="text-emerald-400">Offer services</span>
+          </div>
+        </section>
 
       </div>
 
