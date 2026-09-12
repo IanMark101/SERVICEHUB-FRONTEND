@@ -79,11 +79,11 @@ export default function LoginContainer({
         onBackToHome={onBackToHome}
       />
 
-      {/* Right Panel: Height-stabilized Forms Column */}
-      <main className="w-full lg:w-[54%] min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-10 xl:p-12 relative z-10 overflow-y-auto bg-[#f5f4f2] dark:bg-[#121211] transition-colors duration-300">
-        
+      {/* Right Panel: the panel itself is the form surface */}
+      <main className="relative z-10 min-h-[100dvh] w-full overflow-y-auto border-black/[0.06] bg-white transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-[56%] lg:border-l">
+        <div className="mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-14 xl:px-20">
         {/* Mobile-Only Header Bar */}
-        <div className="lg:hidden flex items-center justify-between w-full max-w-md mb-4 px-1">
+        <div className="mb-8 flex w-full items-center justify-between lg:hidden">
           <button
             onClick={onBackToHome}
             className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-colors"
@@ -113,8 +113,8 @@ export default function LoginContainer({
           </div>
         </div>
 
-        {/* Floating Card Container */}
-        <div className="w-full max-w-md rounded-3xl border border-black/[0.06] bg-white p-6 sm:p-8 shadow-[0_12px_36px_-12px_rgba(15,15,15,0.08)] dark:border-white/10 dark:bg-[#181716] transition-all">
+        <div className="flex flex-1 items-center py-6 lg:py-10">
+        <div className="mx-auto w-full max-w-[29rem]">
           
           {/* Error Message Banner */}
           {error && (
@@ -174,6 +174,8 @@ export default function LoginContainer({
               register={register}
             />
           )}
+        </div>
+        </div>
         </div>
       </main>
     </AuthLayout>

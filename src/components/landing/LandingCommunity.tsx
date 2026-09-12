@@ -35,18 +35,16 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
       className="scroll-mt-20 border-b border-white/10 bg-[#171716] px-5 py-20 text-zinc-100 sm:px-8 lg:px-10 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
-        <ScrollReveal className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-          <div>
-            <h2 className="font-sans text-3xl font-extrabold tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl lg:leading-[1.12]">
-              See what is happening across ServiceHub Cordova.
-            </h2>
-          </div>
-          <p className="max-w-2xl text-base leading-relaxed text-zinc-300">
+        <ScrollReveal className="max-w-3xl">
+          <h2 className="max-w-[17ch] font-sans text-3xl font-extrabold tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            See what is happening across ServiceHub Cordova.
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-300">
             The authenticated Community Hub shows database-backed statistics, recent approved listings, official updates, and publicly visible local providers.
           </p>
         </ScrollReveal>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3 lg:grid-cols-[1.15fr_1fr_1fr]">
           {items.map((item) => {
             const Icon = item.icon;
             return (

@@ -36,22 +36,19 @@ export default function LoginForm({
   isLoading = false,
 }: LoginFormProps) {
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-      {/* Header Info with Pill Badge */}
+    <div className="space-y-6">
+      {/* Header Info */}
       <div className="text-left">
-        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#c86544]/30 bg-[#c86544]/[0.08] px-3 py-0.5 text-[11px] font-semibold text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
-          <span>Welcome back</span>
-        </div>
-        <h2 className="font-sans text-2xl font-semibold text-[#0a0a0a] dark:text-white tracking-tight leading-tight">
+        <h2 className="font-sans text-3xl font-semibold leading-tight tracking-tight text-[#0a0a0a] dark:text-white">
           Sign In
         </h2>
-        <p className="mt-1 text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm leading-relaxed">
+        <p className="mt-2 max-w-sm text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           Enter your credentials to access the Cordova local service network.
         </p>
       </div>
 
       {/* Main Email/Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-3.5 pt-1">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <AuthInput
           label="Email"
           type="email"
@@ -95,11 +92,11 @@ export default function LoginForm({
         </div>
 
         {/* Submit button with Tactile Physics */}
-        <div className="pt-2">
+        <div className="pt-3">
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 ${
+            className={`flex w-full items-center justify-center space-x-2 rounded-xl py-3 text-sm font-bold shadow-md transition-all ${
               isLoading
                 ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
                 : 'bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white shadow-orange-950/15 cursor-pointer'

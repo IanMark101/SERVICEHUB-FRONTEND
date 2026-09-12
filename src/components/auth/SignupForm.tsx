@@ -97,21 +97,21 @@ export default function SignupForm({
   const isNextDisabled = (step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid);
 
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300 motion-reduce:animate-none">
+    <div className="space-y-6">
       
       {/* Top Eyebrow & Stepper */}
-      <div className="w-full space-y-2.5">
+      <div className="w-full space-y-3">
         <div className="w-full flex items-center justify-between">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[#c86544]/30 bg-[#c86544]/[0.08] px-3 py-0.5 text-[11px] font-semibold text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
-            <span>Resident Registration</span>
-          </div>
-          <span className="text-xs font-bold text-[#c86544] dark:text-orange-400">
+          <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+            Resident registration
+          </span>
+          <span className="text-xs font-semibold text-[#c86544] dark:text-orange-400">
             Step {step} of 3
           </span>
         </div>
 
-        {/* Stepper Cards */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-2.5 w-full">
+        {/* Compact segmented progress */}
+        <ol className="grid w-full grid-cols-3 border-y border-black/[0.08] dark:border-white/10">
           {[
             { s: 1, title: 'Credentials', desc: 'Login details' },
             { s: 2, title: 'Contact', desc: 'Phone & location' },
@@ -120,47 +120,41 @@ export default function SignupForm({
             const isActive = step === item.s;
             const isCompleted = step > item.s;
             return (
-              <div
+              <li
                 key={item.s}
-                className={`rounded-xl p-2 sm:p-2.5 transition-all flex flex-col items-center text-center border ${
+                aria-current={isActive ? 'step' : undefined}
+                className={`relative min-w-0 px-3 py-3 transition-colors first:pl-0 last:pr-0 ${item.s > 1 ? 'border-l border-black/[0.06] dark:border-white/10' : ''} ${
                   isActive
-                    ? 'bg-neutral-50/90 dark:bg-zinc-900 border-[#c86544]/50 shadow-xs'
+                    ? 'text-[#c86544] dark:text-orange-300'
                     : isCompleted
-                    ? 'bg-emerald-50/50 dark:bg-emerald-950/15 border-emerald-500/30'
-                    : 'bg-neutral-50/40 dark:bg-zinc-900/40 border-black/[0.05] dark:border-white/5 opacity-65'
+                    ? 'text-emerald-700 dark:text-emerald-400'
+                    : 'text-neutral-400 dark:text-neutral-500'
                 }`}
               >
-                <div
-                  className={`size-6 rounded-full flex items-center justify-center text-[11px] font-bold mb-1 ${
-                    isActive
-                      ? 'bg-[#c86544] text-white shadow-xs'
-                      : isCompleted
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'bg-slate-200 dark:bg-zinc-800 text-neutral-500 dark:text-zinc-400'
-                  }`}
-                >
-                  {isCompleted ? '✓' : item.s}
-                </div>
-                <p className="text-xs font-semibold text-[#0a0a0a] dark:text-white leading-tight">
+                {isActive && <span className="absolute inset-x-3 -bottom-px h-0.5 bg-[#c86544] first:left-0 dark:bg-orange-400" />}
+                <span className="text-[10px] font-semibold tracking-[0.14em]">
+                  {isCompleted ? 'DONE' : `0${item.s}`}
+                </span>
+                <p className="mt-1 text-xs font-semibold leading-tight text-[#0a0a0a] dark:text-white">
                   {item.title}
                 </p>
-                <p className="hidden sm:block text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 leading-tight">
+                <p className="mt-0.5 hidden text-[10px] leading-tight text-neutral-500 dark:text-neutral-400 sm:block">
                   {item.desc}
                 </p>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </div>
 
       {/* Header Info */}
-      <div className="border-t border-black/[0.06] dark:border-white/10 pt-3.5">
-        <h2 className="font-sans text-2xl font-semibold text-[#0a0a0a] dark:text-white tracking-tight leading-tight">
+      <div>
+        <h2 className="font-sans text-3xl font-semibold leading-tight tracking-tight text-[#0a0a0a] dark:text-white">
           {step === 1 && 'Create an Account'}
           {step === 2 && 'Contact & Barangay'}
           {step === 3 && 'Profile Setup'}
         </h2>
-        <p className="mt-1 text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm leading-relaxed">
+        <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           {step === 1 && 'Enter your personal information to get started with ServiceHub.'}
           {step === 2 && 'Provide your mobile number and select your Cordova neighborhood.'}
           {step === 3 && 'Choose your avatar and introduce yourself to the community.'}
@@ -168,7 +162,7 @@ export default function SignupForm({
       </div>
 
       {/* Main Multi-Step Form */}
-      <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <SignupSteps
           model={{
             step,
@@ -192,12 +186,12 @@ export default function SignupForm({
         />
 
         {/* Form controls */}
-        <div className="pt-2 flex items-center gap-3">
+        <div className="flex items-center gap-3 pt-3">
           {step > 1 && (
             <button
               type="button"
               onClick={handlePrevStep}
-              className="w-1/3 py-2.5 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white dark:bg-zinc-800/80 hover:bg-slate-50 text-slate-700 dark:text-zinc-200 active:scale-[0.98] font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              className="flex w-1/3 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-black/[0.08] bg-white py-3 text-xs font-bold text-slate-700 shadow-xs transition-all hover:bg-slate-50 active:scale-[0.98] dark:border-white/10 dark:bg-zinc-800/80 dark:text-zinc-200"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -210,7 +204,7 @@ export default function SignupForm({
             disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
-            className={`flex-grow py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 ${
+            className={`flex flex-grow items-center justify-center space-x-2 rounded-xl py-3 text-sm font-bold shadow-md transition-all ${
               isLoading
                 ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
                 : (step < 3 && isNextDisabled)

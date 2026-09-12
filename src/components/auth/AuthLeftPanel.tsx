@@ -17,7 +17,7 @@ export default function AuthLeftPanel({
   const { isDark, toggleTheme } = useApp();
 
   return (
-    <aside aria-label="ServiceHub Cordova overview" className="hidden lg:flex lg:w-[46%] min-h-[100dvh] relative bg-[#f5f4f2] dark:bg-[#121211] flex-col justify-between p-8 xl:p-12 overflow-hidden border-r border-black/[0.06] dark:border-white/10 transition-colors duration-300 flex-shrink-0">
+    <aside aria-label="ServiceHub Cordova overview" className="relative hidden min-h-[100dvh] flex-shrink-0 flex-col justify-between overflow-hidden bg-[#f5f4f2] p-8 transition-colors duration-300 dark:bg-[#121211] lg:flex lg:w-[44%] xl:p-12">
 
       {/* Top Header Bar */}
       <div className="relative z-10 flex items-center justify-between w-full">

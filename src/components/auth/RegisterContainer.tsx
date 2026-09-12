@@ -71,11 +71,11 @@ export default function RegisterContainer({
         onBackToHome={onBackToHome}
       />
 
-      {/* Right Panel: Scrollable Column */}
-      <main className="w-full lg:w-[54%] min-h-[100dvh] flex flex-col items-center justify-start py-8 px-4 sm:px-6 lg:px-10 overflow-y-auto bg-[#f5f4f2] dark:bg-[#121211] relative z-10 transition-colors duration-300">
-        
+      {/* Right Panel: the panel itself is the registration surface */}
+      <main className="relative z-10 min-h-[100dvh] w-full overflow-y-auto border-black/[0.06] bg-white transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-[56%] lg:border-l">
+        <div className="mx-auto flex min-h-[100dvh] w-full max-w-4xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-14 xl:px-20">
         {/* Mobile Header Bar */}
-        <div className="lg:hidden flex items-center justify-between w-full max-w-xl mb-4 px-1">
+        <div className="mb-8 flex w-full items-center justify-between lg:hidden">
           <button
             onClick={onBackToHome}
             className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-colors"
@@ -105,8 +105,7 @@ export default function RegisterContainer({
           </div>
         </div>
 
-        {/* Floating Card Container */}
-        <div className="w-full max-w-xl my-auto rounded-3xl border border-black/[0.06] bg-white p-6 sm:p-8 md:p-9 shadow-[0_12px_36px_-12px_rgba(15,15,15,0.08)] dark:border-white/10 dark:bg-[#181716] transition-all">
+        <div className="mx-auto w-full max-w-[40rem] py-6 lg:py-9">
           
           {/* Error Message Banner */}
           {error && (
@@ -151,6 +150,7 @@ export default function RegisterContainer({
               isLoading={isLoading}
             />
           )}
+        </div>
         </div>
       </main>
     </AuthLayout>
