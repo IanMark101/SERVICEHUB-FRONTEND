@@ -122,7 +122,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
                 Switching roles changes your active workspace, never your verified resident identity.
               </p>
               <p className="mt-1 text-sm text-slate-600 dark:text-zinc-400">
-                Both profiles share identical trust history, community badges, and platform audit records.
+                Both workspaces use the same profile, verification status, trust history, community badges, and platform records.
               </p>
             </div>
             <div className="hidden sm:flex items-center gap-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">

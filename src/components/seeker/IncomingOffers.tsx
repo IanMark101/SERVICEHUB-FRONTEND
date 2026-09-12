@@ -5,7 +5,7 @@ import { useApp } from '../../context/AppContext';
 import { 
   ShieldCheck, 
   Star, 
-  MessageSquare, 
+  LockKeyhole,
   Check, 
   Search, 
   X, 
@@ -321,16 +321,14 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
 
                 {/* Row 3: Action Buttons */}
                 <div className={`flex items-center justify-between pt-3 mt-3 border-t ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                  <button
-                    type="button"
-                    onClick={() => { /* Placeholder for handleStartChat */ }}
-                    className={`text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                      isDark ? 'text-[#b4b0a9] hover:text-orange-400' : 'text-slate-500 hover:text-orange-600'
+                  <span
+                    className={`text-[11px] font-bold flex items-center gap-1.5 ${
+                      isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
                     }`}
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Message Provider</span>
-                  </button>
+                    <LockKeyhole className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>Messaging unlocks after acceptance</span>
+                  </span>
 
                   <div className="flex items-center gap-2">
                     <button

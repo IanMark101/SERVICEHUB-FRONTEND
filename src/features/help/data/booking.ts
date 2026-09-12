@@ -5,7 +5,7 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
     slug: 'how-direct-booking-works',
     title: 'How Direct Booking Works (Flow A)',
     category: 'bookings',
-    description: 'Learn how to book an existing service listing directly, from submission to provider confirmation.',
+    description: 'Learn how direct listings use either provider-approved cash requests or verified online Test Mode bookings.',
     lastUpdated: 'August 2026',
     readTimeMinutes: 3,
     popular: true,
@@ -21,9 +21,9 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
           'Locate the service card on the "Seek Services" marketplace page.',
           'Click "Book Service" on the listing.',
           'Choose an available payment method shown by the listing: On-site Cash or GCash.',
-          'For an on-site cash request, optionally propose a preferred schedule. It is not reserved until the provider accepts.',
           'Add a short description of the problem or task details.',
-          'Submit your booking request.',
+          'For On-site Cash, optionally propose a preferred schedule and submit the request. The schedule is not reserved until the provider accepts.',
+          'For GCash, complete PayMongo Test Mode checkout. A signed backend webhook creates the accepted queue booking; the provider does not accept it a second time.',
         ],
         example: {
           title: 'Realistic Example',
@@ -44,11 +44,11 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
     relatedArticleSlugs: ['how-direct-booking-works', 'confirming-and-completing-service'],
     sections: [
       {
-        heading: 'The 5 Key Stages',
+        heading: 'From Request to Completion',
         bullets: [
-          '1. PENDING APPROVAL / WAITING: The seeker has submitted the request. The provider reviews the schedule and scope.',
-          '2. ACCEPTED: The provider accepts the booking. Chat messaging unlocks immediately for direct coordination.',
-          '3. ONGOING: The provider has arrived on-site or started performing the agreed work.',
+          '1. PENDING APPROVAL (On-site Cash): The seeker submits a proposed schedule and scope. The provider must accept or decline it.',
+          '2. ACCEPTED / WAITING: An accepted cash request becomes ACCEPTED. A successful GCash Test Mode webhook creates an accepted booking in the listing-specific queue without another provider-acceptance step. Accepting a provider offer is also the provider’s commitment.',
+          '3. ONGOING: The provider starts the first eligible booking for the chosen listing. Chat is already available for the accepted transaction.',
           '4. AWAITING CONFIRMATION: The provider marks the work as finished. The seeker receives an action-required prompt to inspect the result.',
           '5. COMPLETED: The seeker confirms satisfactory completion. Online payment becomes RELEASED in ServiceHub’s internal ledger; cash becomes CASH_CONFIRMED, and review options unlock.',
         ],
