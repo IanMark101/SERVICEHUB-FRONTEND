@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowDown, CheckCircle2, FileCheck2, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { ArrowDown, CheckCircle2, FileCheck2, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingProblemProps {

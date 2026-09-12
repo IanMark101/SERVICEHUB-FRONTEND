@@ -9,7 +9,7 @@ export function AuthLayout({ children, theme }: AuthLayoutProps) {
   const isGreen = theme === 'green';
 
   return (
-    <div className="auth-shell min-h-screen h-full md:h-screen w-full flex flex-col md:flex-row bg-[#f5f4f2] dark:bg-[#121211] relative overflow-hidden font-sans text-slate-900 dark:text-zinc-100 transition-colors duration-300">
+    <div className="auth-shell min-h-[100dvh] w-full flex flex-col lg:h-[100dvh] lg:flex-row bg-[#f5f4f2] dark:bg-[#121211] relative overflow-x-hidden lg:overflow-hidden font-sans text-slate-900 dark:text-zinc-100 transition-colors duration-300">
       {/* Subtle Warm Ambient Glows matching Landing Page */}
       <div
         aria-hidden="true"

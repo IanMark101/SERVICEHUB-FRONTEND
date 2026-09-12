@@ -13,7 +13,7 @@ const rows = [
     capability: 'Cordova residency verification gate',
     socialPost: false,
     serviceHub: true,
-    detail: 'Stops anonymous accounts from booking or collecting funds',
+    detail: 'Blocks unverified accounts from starting marketplace transactions',
   },
   {
     capability: 'Unified resident profile (Seeker + Provider)',
@@ -25,7 +25,7 @@ const rows = [
     capability: 'Listing-specific first-paid online queue',
     socialPost: false,
     serviceHub: true,
-    detail: 'Guaranteed sequential ordering tied to confirmed GCash payments',
+    detail: 'Sequential ordering within each listing after confirmed test payment',
   },
   {
     capability: 'Booking-scoped messaging & status records',
@@ -54,7 +54,7 @@ export default function LandingComparison({ isDark }: LandingComparisonProps) {
             More than a public listing board.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-zinc-400">
-            Compare casual social group postings with ServiceHub's accountable marketplace workflow.
+            Compare casual social group postings with ServiceHub&apos;s accountable marketplace workflow.
           </p>
         </ScrollReveal>
 

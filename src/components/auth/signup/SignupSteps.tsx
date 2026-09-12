@@ -70,16 +70,18 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
         {/* STEP 1 */}
         {step === 1 && (
           <>
-            <div className="grid grid-cols-2 gap-3 animate-fade-in">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 animate-fade-in">
               <AuthInput
                 label="First Name"
                 placeholder="eg. John"
+                autoComplete="given-name"
                 error={fieldErrors.firstName}
                 {...register('firstName')}
               />
               <AuthInput
                 label="Last Name"
                 placeholder="eg. Francisco"
+                autoComplete="family-name"
                 error={fieldErrors.lastName}
                 {...register('lastName')}
               />
@@ -89,6 +91,8 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
               label="Email"
               type="email"
               placeholder="eg. johnfrans@gmail.com"
+              autoComplete="email"
+              inputMode="email"
               error={fieldErrors.email}
               {...register('email')}
             />
@@ -99,6 +103,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 label="Password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
+                autoComplete="new-password"
                 error={fieldErrors.password}
                 {...register('password')}
               >
@@ -106,6 +111,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300 cursor-pointer focus:outline-none"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -146,6 +152,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 label="Confirm Password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Confirm your password"
+                autoComplete="new-password"
                 error={
                   fieldErrors.confirmPassword ||
                   (formData.confirmPassword?.length > 0 && formData.password !== formData.confirmPassword
@@ -181,11 +188,11 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 />
                 <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-600 dark:text-zinc-400 select-none cursor-pointer leading-none">
                   I agree to the{' '}
-                  <Link href="/terms" target="_blank" className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors">
+                  <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" target="_blank" className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors">
+                  <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors">
                     Privacy Policy
                   </Link>.
                 </label>
@@ -209,7 +216,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
         {step === 2 && (
           <div className="space-y-4 animate-fade-in">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+              <label htmlFor="registration-phone" className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
                 Contact Number
               </label>
               <div className={`flex items-center rounded-xl border bg-slate-50/70 dark:bg-zinc-900/60 overflow-hidden transition-all focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:ring-2 focus-within:ring-[#c86544]/15 ${
@@ -225,8 +232,12 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
 
                 {/* Formatted 10-digit Input */}
                 <input
+                  id="registration-phone"
                   type="tel"
                   autoComplete="tel"
+                  inputMode="tel"
+                  aria-invalid={Boolean(fieldErrors.phone)}
+                  aria-describedby="registration-phone-message"
                   placeholder="917 123 4567"
                   value={formData.phone || ''}
                   onChange={(e) => {
@@ -240,7 +251,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
               </div>
 
               {/* Helper or Error Message */}
-              <div className="min-h-5 mt-1 flex items-center justify-between text-[11px]">
+              <div id="registration-phone-message" className="min-h-5 mt-1 flex items-center justify-between text-[11px]">
                 {fieldErrors.phone ? (
                   <span className="text-rose-600 dark:text-rose-400 font-medium animate-in fade-in duration-100">
                     {fieldErrors.phone}
@@ -261,10 +272,12 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+              <label htmlFor="registration-location" className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
                 Cordova Barangay / Location
               </label>
               <select
+                id="registration-location"
+                autoComplete="address-level3"
                 {...register('location')}
                 className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 transition-all cursor-pointer"
               >

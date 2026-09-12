@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle2, CircleDollarSign, Clock3, LockKeyhole, Play, ShieldAlert } from 'lucide-react';
+import { CircleDollarSign, Clock3, LockKeyhole, Play } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingQueueProps {
@@ -12,7 +12,7 @@ const queueStages = [
   {
     step: 'Stage 01',
     label: 'Backend Payment Confirmed',
-    detail: 'GCash Test Mode payments verify automatically via PayMongo webhooks before queue admittance.',
+    detail: 'The backend verifies PayMongo Test Mode payment status before admitting a booking to the queue.',
     icon: CircleDollarSign,
     status: 'Verified',
   },
@@ -97,13 +97,8 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
             })}
           </div>
 
-          <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 text-xs dark:border-zinc-800">
-            <span className="font-semibold text-slate-600 dark:text-zinc-400">
-              Listing capacity limit enforced by backend logic
-            </span>
-            <span className="font-bold text-emerald-700 dark:text-emerald-400">
-              Accountable FCFS
-            </span>
+          <div className="mt-6 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-600 dark:border-zinc-800 dark:text-zinc-400">
+            Your queue position is FCFS within this specific service. Providers can offer several services but may perform only one active job at a time.
           </div>
         </ScrollReveal>
       </div>

@@ -32,17 +32,17 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
     <section
       id="community"
       data-theme={isDark ? 'dark' : 'light'}
-      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 text-slate-950 dark:border-white/10 dark:text-white sm:px-8 lg:px-10 lg:py-28"
+      className="scroll-mt-20 border-b border-white/10 bg-[#171716] px-5 py-20 text-zinc-100 sm:px-8 lg:px-10 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         <ScrollReveal className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
           <div>
-            <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            <h2 className="font-sans text-3xl font-extrabold tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl lg:leading-[1.12]">
               See what is happening across ServiceHub Cordova.
             </h2>
           </div>
-          <p className="max-w-2xl text-base leading-relaxed text-slate-600 dark:text-zinc-300">
-            The authenticated Community Hub provides live community statistics, recent listings, and visible local providers without fake artificial activity counters.
+          <p className="max-w-2xl text-base leading-relaxed text-zinc-300">
+            The authenticated Community Hub shows database-backed statistics, recent approved listings, official updates, and publicly visible local providers.
           </p>
         </ScrollReveal>
 
@@ -52,15 +52,15 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
             return (
               <ScrollReveal
                 key={item.title}
-                className="rounded-2xl border border-neutral-200/80 bg-white p-7 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-8"
+                className="rounded-2xl border border-white/10 bg-[#222220] p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-all hover:-translate-y-0.5 hover:border-white/20 sm:p-8"
               >
-                <div className="grid size-11 place-items-center rounded-xl bg-orange-100 text-[#c86544] dark:bg-zinc-800 dark:text-orange-400">
+                <div className="grid size-11 place-items-center rounded-xl bg-[#c86544]/15 text-orange-300">
                   <Icon size={22} />
                 </div>
-                <h3 className="mt-6 text-lg font-bold text-slate-950 dark:text-white">
+                <h3 className="mt-6 text-lg font-bold text-zinc-50">
                   {item.title}
                 </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
+                <p className="mt-2.5 text-sm leading-relaxed text-zinc-400">
                   {item.copy}
                 </p>
               </ScrollReveal>
@@ -68,13 +68,13 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
           })}
         </div>
 
-        <ScrollReveal className="mt-10 flex items-center justify-between border-t border-black/[0.06] pt-6 dark:border-zinc-800/80">
-          <p className="text-xs text-slate-500 dark:text-zinc-400">
+        <ScrollReveal className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-zinc-400">
             Access verified community bulletins and neighborhood service updates.
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-xs font-bold text-[#c86544] transition-colors hover:text-[#aa5032] active:scale-[0.98] dark:text-orange-400 dark:hover:text-orange-300"
+            className="inline-flex items-center gap-2 text-xs font-bold text-orange-300 transition-colors hover:text-orange-200 active:scale-[0.98]"
           >
             <span>Sign in to view the Community Hub</span>
             <ArrowRight size={14} />

@@ -12,6 +12,8 @@ interface AuthInputProps {
   helperText?: string;
   className?: string;
   required?: boolean;
+  autoComplete?: string;
+  inputMode?: 'email' | 'numeric' | 'search' | 'tel' | 'text' | 'url';
   children?: React.ReactNode; // For eye toggle or other absolute overlay items
 }
 
@@ -27,18 +29,24 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
   helperText,
   className = '',
   required = false,
+  autoComplete,
+  inputMode,
   children,
 }, ref) => {
+  const inputId = `auth-${name}`;
+  const messageId = `${inputId}-message`;
+
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+        <label htmlFor={inputId} className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
           {label}
         </label>
       )}
       <div className="relative">
         <input
           ref={ref}
+          id={inputId}
           type={type}
           name={name}
           placeholder={placeholder}
@@ -46,6 +54,10 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
           onChange={onChange}
           onBlur={onBlur}
           required={required}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error || helperText ? messageId : undefined}
           className={`w-full bg-slate-50/70 dark:bg-zinc-900/60 border ${
             error
               ? 'border-rose-500 ring-2 ring-rose-500/10 dark:ring-rose-500/20'
@@ -56,7 +68,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
         />
         {children}
       </div>
-      <div className="min-h-4 mt-1 flex items-center">
+      <div id={messageId} className="min-h-4 mt-1 flex items-center">
         {error ? (
           <span className="text-[11px] text-rose-600 dark:text-rose-400 font-medium leading-tight animate-in fade-in duration-100">
             {error}

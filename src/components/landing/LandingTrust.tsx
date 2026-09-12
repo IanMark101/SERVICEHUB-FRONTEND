@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BadgeCheck, CheckCircle2, CircleAlert, Lock, MessagesSquare, ShieldCheck, UserCheck } from 'lucide-react';
+import { BadgeCheck, CheckCircle2, CircleAlert, Lock, MessagesSquare, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingTrustProps {
@@ -15,8 +15,8 @@ const safeguards = [
     icon: BadgeCheck,
   },
   {
-    title: 'Verifiable Trust Point Ledger',
-    copy: 'Trust points reflect documented system events like completed bookings (+3 pts) and authentic reviews, never paid boosts.',
+    title: 'Visible Trust History',
+    copy: 'Trust history reflects verified system events, completed work, eligible reviews, and moderation decisions instead of paid promotion.',
     icon: CircleAlert,
   },
   {
@@ -34,64 +34,63 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
       className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
     >
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
-        {/* Left Column: Authentic Verifiable Trust Ledger (NO AI IMAGE) */}
+        {/* Left Column: illustrative trust profile without invented scores */}
         <ScrollReveal className="relative rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-lg shadow-black/[0.03] dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-9">
-          {/* Header of the Verifiable Card */}
+          {/* Header of the illustrative card */}
           <div className="flex items-center justify-between border-b border-slate-200/70 pb-5 dark:border-zinc-800">
             <div className="flex items-center gap-2.5">
               <div className="grid size-9 place-items-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">Cordova Residency Passport</p>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400">Barangay Ibabao, Cordova, Cebu</p>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">Trust profile overview</p>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400">How marketplace history is represented</p>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-              <UserCheck size={12} />
-              Verified
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
+              Illustrative
             </span>
           </div>
 
-          {/* Trust Score Breakdown */}
+          {/* Trust status summary */}
           <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-950/60">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-                  Trust Reputation Index
+                  Residency status
                 </p>
-                <p className="mt-1 font-sans text-3xl font-extrabold text-slate-950 dark:text-white">
-                  98 <span className="text-sm font-semibold text-slate-400 dark:text-zinc-500">/ 100</span>
+                <p className="mt-1 font-sans text-xl font-extrabold text-slate-950 dark:text-white">
+                  Verified resident
                 </p>
               </div>
-              <div className="rounded-xl bg-orange-50 px-3 py-1.5 text-right dark:bg-orange-950/40">
-                <span className="text-[11px] font-bold text-[#c86544]">Top 5% Local Rank</span>
-                <span className="block text-[10px] text-slate-500 dark:text-zinc-400">18 Completed Jobs</span>
+              <div className="rounded-xl bg-emerald-50 px-3 py-1.5 text-right dark:bg-emerald-950/40">
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">Admin reviewed</span>
+                <span className="block text-[10px] text-slate-500 dark:text-zinc-400">Cordova residency</span>
               </div>
             </div>
 
-            {/* Audit Log Items */}
+            {/* Example trust-history inputs */}
             <div className="mt-4 divide-y divide-slate-100 border-t border-slate-100 text-xs dark:divide-zinc-800/80 dark:border-zinc-800/80">
               <div className="flex items-center justify-between py-2.5">
                 <span className="flex items-center gap-2 text-slate-700 dark:text-zinc-300">
                   <CheckCircle2 size={14} className="text-emerald-600" />
-                  Government ID Verification
+                  Residency verification decision
                 </span>
-                <span className="font-bold text-emerald-700 dark:text-emerald-400">+50 pts</span>
+                <span className="font-bold text-slate-500 dark:text-zinc-400">Recorded</span>
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="flex items-center gap-2 text-slate-700 dark:text-zinc-300">
                   <CheckCircle2 size={14} className="text-emerald-600" />
-                  Completed Booking #2041 (Confirmed)
+                  Confirmed completed service
                 </span>
-                <span className="font-bold text-emerald-700 dark:text-emerald-400">+3 pts</span>
+                <span className="font-bold text-slate-500 dark:text-zinc-400">Recorded</span>
               </div>
               <div className="flex items-center justify-between py-2.5">
                 <span className="flex items-center gap-2 text-slate-700 dark:text-zinc-300">
                   <CheckCircle2 size={14} className="text-emerald-600" />
-                  5-Star Client Review with Photo Proof
+                  Eligible completion-linked review
                 </span>
-                <span className="font-bold text-emerald-700 dark:text-emerald-400">+5 pts</span>
+                <span className="font-bold text-slate-500 dark:text-zinc-400">Visible</span>
               </div>
             </div>
           </div>
@@ -99,7 +98,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
           {/* Privacy & Security Note */}
           <div className="mt-5 flex items-center gap-2 rounded-xl bg-slate-100/70 px-4 py-3 text-xs text-slate-600 dark:bg-zinc-800/50 dark:text-zinc-400">
             <Lock size={14} className="shrink-0 text-slate-500" />
-            <span>ID images and payment details remain strictly private and encrypted.</span>
+            <span>Verification files stay on restricted review paths. Payment credentials are handled by PayMongo in Test Mode.</span>
           </div>
         </ScrollReveal>
 
@@ -110,7 +109,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
               Trust signals grounded in real marketplace action.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-400">
-              ServiceHub replaces arbitrary star ratings with an auditable track record tied directly to residency checks, completed jobs, and verified transactions.
+              ServiceHub combines residency status, completed work, eligible reviews, and moderation history into one accountable profile.
             </p>
           </ScrollReveal>
 

@@ -14,13 +14,13 @@ interface LandingTickerProps {
 const TICKER_DATA: Record<TickerVariant, string[]> = {
   trust: [
     'Verified Cordova Residency Gate',
-    'First-Come First-Served Live Queues',
+    'Listing-Specific First-Come First-Served Queues',
     'Transparent Fixed & Hourly Rates',
-    '14 Barangays Connected',
-    'GCash Escrow & Cash Arrangement Separation',
+    '13 Recognized Cordova Barangays',
+    'GCash Test Mode & On-Site Cash',
     'Zero Unmoderated Social Media Posts',
     'Accountable Post-Service Reviews',
-    'One Citizen Account For Both Roles',
+    'One Resident Account For Both Roles',
   ],
   barangays: [
     'Barangay Ibabao',
@@ -44,14 +44,14 @@ const TICKER_DATA: Record<TickerVariant, string[]> = {
     'Barangay San Miguel',
   ],
   standards: [
-    'Zero Disputed Unverified Bookings',
-    '100% In-App Citizen Transparency',
-    'Strict Identity Clearance Before Service',
-    'Safe Escrow Payment Protection',
-    'Real Peer Reviews From Actual Hires',
-    'Fair FCFS Work Order Queue',
-    'Cordova Verified Local Trades',
-    'Direct Neighbor-to-Neighbor Accountability',
+    'Email & Residency Access Gates',
+    'Booking-Scoped Messages',
+    'Administrative Listing Review',
+    'Simulated Online-Payment Hold',
+    'Reviews From Completed Services',
+    'Fair Listing-Specific Queue Order',
+    'Visible Trust History',
+    'Direct On-Site Cash Arrangements',
   ],
 };
 
@@ -83,9 +83,7 @@ export default function LandingTicker({
               <span className="text-xs font-bold uppercase tracking-[0.16em] text-neutral-800 dark:text-neutral-200">
                 {item}
               </span>
-              <span className="text-xs text-[#c86544]" aria-hidden="true">
-                ✦
-              </span>
+              <span className="h-3 w-px bg-[#c86544]/50" aria-hidden="true" />
             </div>
           ))}
         </div>
@@ -97,9 +95,7 @@ export default function LandingTicker({
               <span className="text-xs font-bold uppercase tracking-[0.16em] text-neutral-800 dark:text-neutral-200">
                 {item}
               </span>
-              <span className="text-xs text-[#c86544]">
-                ✦
-              </span>
+              <span className="h-3 w-px bg-[#c86544]/50" />
             </div>
           ))}
         </div>

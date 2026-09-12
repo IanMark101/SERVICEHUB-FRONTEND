@@ -56,13 +56,15 @@ export default function LoginForm({
           label="Email"
           type="email"
           placeholder="your.name@example.com"
+          autoComplete="email"
+          inputMode="email"
           error={fieldErrors.email}
           {...register('email')}
         />
 
         <div className="space-y-0.5">
           <div className="flex justify-between items-center mb-1">
-            <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
+            <label htmlFor="auth-password" className="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
               Password
             </label>
             <button
@@ -77,6 +79,7 @@ export default function LoginForm({
             label=""
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter your password"
+            autoComplete="current-password"
             error={fieldErrors.password}
             {...register('password')}
           >

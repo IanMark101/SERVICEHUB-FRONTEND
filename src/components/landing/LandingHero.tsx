@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, Clock, ShieldCheck, UserCheck, Zap } from 'lucide-react';
+import { ArrowRight, Clock, MapPin, UserCheck, Zap } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 interface LandingHeroProps {
@@ -30,14 +30,10 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
       <div className="relative z-10 mx-auto grid min-h-[calc(100svh-80px)] max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10 lg:py-16">
         {/* Left Column: Calm High-Craft Typography */}
         <div className="relative z-10 max-w-2xl">
-          {/* Top Pill Badge (matching reference: • v2 just shipped →) */}
+          {/* Cordova scope label */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.08] px-3.5 py-1 text-[12px] font-medium tracking-tight text-[#aa5032] transition-colors hover:bg-[#c86544]/[0.12] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
-            <span className="relative flex size-1.5">
-              <span className="absolute inset-0 animate-ping rounded-full bg-[#c86544]/70" />
-              <span className="relative inline-flex size-1.5 rounded-full bg-[#c86544]" />
-            </span>
-            <span>Cordova verified network active</span>
-            <ArrowRight size={13} className="text-[#c86544]" />
+            <MapPin size={13} aria-hidden="true" />
+            <span>Built for Cordova, Cebu</span>
           </div>
 
           {/* Display Title */}
@@ -45,17 +41,14 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
             ServiceHub Cordova
           </h1>
 
-          {/* Sub-headline & Tagline */}
+          {/* Sub-headline */}
           <p className="mt-4 max-w-xl text-xl font-normal leading-snug tracking-tight text-neutral-800 dark:text-neutral-200 sm:text-2xl lg:text-3xl">
             Local service work, with a clearer way to trust.
-          </p>
-          <p className="mt-3 text-[15px] font-medium text-[#c86544] sm:text-lg">
-            Less guesswork, genuine local accountability.
           </p>
 
           {/* Concise Subtext */}
           <p className="mt-4 max-w-lg text-[14px] leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base">
-            Connect with verified Cordova neighbors. Transparent rates, honest online queues, and accountable payments in one local marketplace.
+            Browse openly. Verified Cordova residents can request or offer services through clear bookings, fair queues, and supported payment paths.
           </p>
 
           {/* CTAs with ambient top light shade on the black button (matching reference) */}
@@ -93,17 +86,6 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
             </a>
           </div>
 
-          {/* Trust points */}
-          <div className="mt-8 grid max-w-xl gap-3.5 border-t border-black/[0.06] pt-6 text-xs leading-5 text-neutral-600 dark:border-white/10 dark:text-neutral-400 sm:grid-cols-2">
-            <div className="flex items-start gap-2.5">
-              <BadgeCheck size={17} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-500" />
-              <span>Residency verification gate protects every transaction</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <ShieldCheck size={17} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-500" />
-              <span>One account connects both Seeker and Provider roles</span>
-            </div>
-          </div>
         </div>
 
         {/* Right Column: High-Craft Clean Interactive Marketplace Terminal */}
@@ -118,13 +100,9 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
             {/* Top Toolbar */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-zinc-800/80">
               <div className="flex items-center gap-2.5">
-                <span className="relative flex size-2.5">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
-                </span>
-                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">Cordova Live Engine</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">Marketplace flow preview</span>
                 <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-zinc-800 dark:text-zinc-400">
-                  FCFS Queue
+                  Illustrative
                 </span>
               </div>
 
@@ -133,8 +111,9 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                 <button
                   type="button"
                   onClick={() => setActiveTab('seeker')}
+                  aria-pressed={activeTab === 'seeker'}
                   className={`rounded-md px-2.5 py-1 transition-all ${activeTab === 'seeker'
-                      ? 'bg-white text-slate-950 shadow-xs dark:bg-zinc-700 dark:text-white'
+                      ? 'bg-[#c86544] text-white shadow-xs'
                       : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
                     }`}
                 >
@@ -143,8 +122,9 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                 <button
                   type="button"
                   onClick={() => setActiveTab('provider')}
+                  aria-pressed={activeTab === 'provider'}
                   className={`rounded-md px-2.5 py-1 transition-all ${activeTab === 'provider'
-                      ? 'bg-white text-slate-950 shadow-xs dark:bg-zinc-700 dark:text-white'
+                      ? 'bg-emerald-600 text-white shadow-xs'
                       : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
                     }`}
                 >
@@ -154,7 +134,11 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
             </div>
 
             {/* Active Service Showcase */}
-            <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-zinc-950/50">
+            <div className={`mt-5 rounded-2xl border bg-slate-50/70 p-4.5 transition-colors dark:bg-zinc-950/50 ${
+              activeTab === 'seeker'
+                ? 'border-orange-200/80 dark:border-orange-900/40'
+                : 'border-emerald-200/80 dark:border-emerald-900/40'
+            }`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -214,7 +198,7 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400">
-                  <Clock size={13} className="animate-spin" style={{ animationDuration: '4s' }} />
+                  <Clock size={13} />
                   <span>{simulatedAdvance ? 'Done' : 'Serving'}</span>
                 </div>
               </div>
@@ -227,7 +211,9 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                   </span>
                   <div>
                     <p className="font-bold text-slate-900 dark:text-white">
-                      {simulatedAdvance ? 'Now Serving You' : 'Waiting in Queue (You)'}
+                      {activeTab === 'seeker'
+                        ? simulatedAdvance ? 'Your Service Is In Progress' : 'Your Booking Is Next'
+                        : simulatedAdvance ? 'Current Booking In Progress' : 'Next Eligible Booking'}
                     </p>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Confirmed via GCash Test Mode
@@ -235,7 +221,7 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                   </div>
                 </div>
                 <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-zinc-700 dark:text-zinc-300">
-                  {simulatedAdvance ? 'Active' : 'Next in line'}
+                  {simulatedAdvance ? 'In progress' : activeTab === 'seeker' ? 'Position 2' : 'Ready next'}
                 </span>
               </div>
             </div>

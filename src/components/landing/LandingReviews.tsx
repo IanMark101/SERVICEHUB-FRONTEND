@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ClipboardCheck, MessageSquareText, ShieldCheck, Star } from 'lucide-react';
+import { ClipboardCheck, MessageSquareText, Star } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingReviewsProps {
@@ -12,13 +12,13 @@ const reviewMilestones = [
   {
     icon: ClipboardCheck,
     title: 'Work Completed',
-    copy: 'The booking reaches authenticated completion status with client verification.',
+    copy: 'The provider marks the work complete, then the seeker confirms the result.',
     tag: 'Step 1',
   },
   {
     icon: MessageSquareText,
     title: 'Verified Review Submitted',
-    copy: 'An eligible participant writes authentic feedback based on actual delivered work.',
+    copy: 'An eligible participant can review the completed service relationship.',
     tag: 'Step 2',
   },
   {
@@ -42,7 +42,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
             Reviews require real service completion.
           </h2>
           <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-400">
-            ServiceHub prevents unverified ratings and fake testimonials by unlocking reviews strictly after work is formally confirmed as completed.
+            ServiceHub unlocks reviews only for eligible participants after the related work is formally confirmed as completed.
           </p>
         </ScrollReveal>
 

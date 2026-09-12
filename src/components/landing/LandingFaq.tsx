@@ -17,11 +17,11 @@ const faqs = [
   },
   {
     q: 'How can a Seeker find help?',
-    a: 'A Seeker can browse approved service listings and request a provider directly, or post a service request and compare incoming offers. Every provider offer must link to that provider active, category-compatible service listing.',
+    a: "A Seeker can browse approved service listings and request a provider directly, or post a service request and compare incoming offers. Every provider offer must link to that provider's active, category-compatible service listing.",
   },
   {
     q: 'Does every booking need provider acceptance?',
-    a: 'No. A direct on-site cash request requires explicit provider acceptance. A successfully verified online payment automatically creates an accepted booking and queue entry. An accepted provider offer is already the provider formal commitment.',
+    a: "No. A direct on-site cash request requires explicit provider acceptance. A successfully verified online payment automatically creates an accepted booking and queue entry. An accepted provider offer is already the provider's formal commitment.",
   },
   {
     q: 'How does the online queue work?',
@@ -33,7 +33,7 @@ const faqs = [
   },
   {
     q: 'When can users message and review?',
-    a: 'Messaging unlocks according to the booking and offer lifecycle. Reviews are created only from eligible completed-service relationships and contribute to the system visible reputation history under its existing rules.',
+    a: "Messaging unlocks according to the booking and offer lifecycle. Reviews are created only from eligible completed-service relationships and contribute to the system's visible reputation history under its existing rules.",
   },
 ];
 

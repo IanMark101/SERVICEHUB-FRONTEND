@@ -97,7 +97,7 @@ export default function SignupForm({
   const isNextDisabled = (step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid);
 
   return (
-    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+    <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300 motion-reduce:animate-none">
       
       {/* Top Eyebrow & Stepper */}
       <div className="w-full space-y-2.5">
@@ -207,7 +207,7 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            disabled={isLoading}
+            disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
             className={`flex-grow py-2.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center space-x-2 ${

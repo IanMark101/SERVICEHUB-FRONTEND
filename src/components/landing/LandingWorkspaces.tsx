@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ArrowLeftRight, BriefcaseBusiness, CheckCircle2, Search, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeftRight, BriefcaseBusiness, CheckCircle2, Search, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingWorkspacesProps {

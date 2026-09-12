@@ -46,7 +46,7 @@ const providerFlow = [
     icon: UserRoundSearch,
   },
   {
-    step: 'Delivery & Payout',
+    step: 'Delivery & Completion',
     title: 'Serve the eligible booking',
     description: 'Accept direct cash requests when required. Start only the first eligible paid queue entry, then mark the work complete.',
     icon: MessageSquare,

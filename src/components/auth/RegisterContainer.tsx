@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Moon, Sun } from 'lucide-react';
 import useAuthForm from '../../schema/auth/useAuthForm';
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import AuthLeftPanel from './AuthLeftPanel';
@@ -19,7 +19,7 @@ export default function RegisterContainer({
   onLoginSuccess,
   onBackToHome,
 }: RegisterContainerProps) {
-  const { isDark } = useApp();
+  const { isDark, toggleTheme } = useApp();
   const router = useRouter();
   const [theme] = useState<'orange'>('orange');
   const [mode] = useState<'signup'>('signup');
@@ -72,10 +72,10 @@ export default function RegisterContainer({
       />
 
       {/* Right Panel: Scrollable Column */}
-      <div className="w-full md:w-1/2 min-h-screen flex flex-col items-center justify-start py-8 px-4 sm:px-6 md:px-8 lg:px-10 overflow-y-auto bg-[#f5f4f2] dark:bg-[#121211] relative z-10 transition-colors duration-300">
+      <main className="w-full lg:w-[54%] min-h-[100dvh] flex flex-col items-center justify-start py-8 px-4 sm:px-6 lg:px-10 overflow-y-auto bg-[#f5f4f2] dark:bg-[#121211] relative z-10 transition-colors duration-300">
         
         {/* Mobile Header Bar */}
-        <div className="md:hidden flex items-center justify-between w-full max-w-xl mb-4 px-1">
+        <div className="lg:hidden flex items-center justify-between w-full max-w-xl mb-4 px-1">
           <button
             onClick={onBackToHome}
             className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-colors"
@@ -94,6 +94,14 @@ export default function RegisterContainer({
             <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] dark:text-white">
               ServiceHub
             </span>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="ml-1 grid size-9 place-items-center rounded-xl border border-black/[0.08] bg-white text-slate-600 transition-colors hover:text-slate-950 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
           </div>
         </div>
 
@@ -102,14 +110,14 @@ export default function RegisterContainer({
           
           {/* Error Message Banner */}
           {error && (
-            <div className="mb-4 p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-medium animate-in fade-in duration-150">
+            <div role="alert" className="mb-4 p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-medium animate-in fade-in duration-150">
               {error}
             </div>
           )}
 
           {/* Success Message Banner */}
           {successMsg && (
-            <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs font-medium animate-in fade-in duration-150">
+            <div role="status" className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 rounded-xl text-emerald-700 dark:text-emerald-300 text-xs font-medium animate-in fade-in duration-150">
               {successMsg}
             </div>
           )}
@@ -144,7 +152,7 @@ export default function RegisterContainer({
             />
           )}
         </div>
-      </div>
+      </main>
     </AuthLayout>
   );
 }
