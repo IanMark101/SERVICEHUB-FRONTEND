@@ -3,12 +3,32 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Clock, MapPin, UserCheck, Zap } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import type { Variants } from 'motion/react';
 
 interface LandingHeroProps {
   isDark: boolean;
   onGetStarted: () => void;
 }
+
+const heroSequence: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      delayChildren: 0.08,
+      staggerChildren: 0.09,
+    },
+  },
+};
+
+const heroItem: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
 
 export default function LandingHero({ onGetStarted }: LandingHeroProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -29,30 +49,35 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
 
       <div className="relative z-10 mx-auto grid min-h-[calc(100svh-80px)] max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10 lg:py-16">
         {/* Left Column: Calm High-Craft Typography */}
-        <div className="relative z-10 max-w-2xl">
+        <motion.div
+          variants={heroSequence}
+          initial={shouldReduceMotion ? false : 'hidden'}
+          animate="show"
+          className="relative z-10 max-w-2xl"
+        >
           {/* Cordova scope label */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.08] px-3.5 py-1 text-[12px] font-medium tracking-tight text-[#aa5032] transition-colors hover:bg-[#c86544]/[0.12] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
+          <motion.div variants={heroItem} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.08] px-3.5 py-1 text-[12px] font-medium tracking-tight text-[#aa5032] transition-colors hover:bg-[#c86544]/[0.12] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
             <MapPin size={13} aria-hidden="true" />
             <span>Built for Cordova, Cebu</span>
-          </div>
+          </motion.div>
 
           {/* Display Title */}
-          <h1 className="font-sans text-[clamp(2.75rem,5.5vw,4.5rem)] font-semibold leading-[1.02] tracking-tight text-[#0a0a0a] dark:text-white">
+          <motion.h1 variants={heroItem} className="font-sans text-[clamp(2.75rem,5.5vw,4.5rem)] font-semibold leading-[1.02] tracking-tight text-[#0a0a0a] dark:text-white">
             ServiceHub Cordova
-          </h1>
+          </motion.h1>
 
           {/* Sub-headline */}
-          <p className="mt-4 max-w-xl text-xl font-normal leading-snug tracking-tight text-neutral-800 dark:text-neutral-200 sm:text-2xl lg:text-3xl">
+          <motion.p variants={heroItem} className="mt-4 max-w-xl text-xl font-normal leading-snug tracking-tight text-neutral-800 dark:text-neutral-200 sm:text-2xl lg:text-3xl">
             Local service work, with a clearer way to trust.
-          </p>
+          </motion.p>
 
           {/* Concise Subtext */}
-          <p className="mt-4 max-w-lg text-[14px] leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base">
+          <motion.p variants={heroItem} className="mt-4 max-w-lg text-[14px] leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base">
             Browse openly. Verified Cordova residents can request or offer services through clear bookings, fair queues, and supported payment paths.
-          </p>
+          </motion.p>
 
           {/* CTAs with ambient top light shade on the black button (matching reference) */}
-          <div className="mt-8 flex flex-col gap-3.5 sm:flex-row">
+          <motion.div variants={heroItem} className="mt-8 flex flex-col gap-3.5 sm:flex-row">
             <button
               type="button"
               onClick={onGetStarted}
@@ -84,9 +109,9 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
               <span>See how it works</span>
               <ArrowRight size={15} className="text-neutral-500 transition-transform duration-300 group-hover/docs:translate-x-1 group-hover/docs:text-neutral-900 dark:text-zinc-400 dark:group-hover/docs:text-white" />
             </a>
-          </div>
+          </motion.div>
 
-        </div>
+        </motion.div>
 
         {/* Right Column: High-Craft Clean Interactive Marketplace Terminal */}
         <motion.div
@@ -95,6 +120,10 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="relative"
         >
+          <motion.div
+            animate={shouldReduceMotion ? undefined : { y: [0, -6, 0], rotate: [0, 0.22, 0] }}
+            transition={{ duration: 7.5, repeat: Infinity, ease: 'easeInOut' }}
+          >
           {/* Outer Framed Terminal Card - Clean White Floating Aesthetic */}
           <div className="relative rounded-2xl border border-neutral-200/90 bg-white/95 p-6 shadow-[0_18px_40px_-14px_rgba(15,15,15,0.12),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95 sm:p-7">
             {/* Top Toolbar */}
@@ -134,11 +163,17 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
             </div>
 
             {/* Active Service Showcase */}
-            <div className={`mt-5 rounded-2xl border bg-slate-50/70 p-4.5 transition-colors dark:bg-zinc-950/50 ${
+            <motion.div
+              key={activeTab}
+              initial={shouldReduceMotion ? false : { opacity: 0, x: activeTab === 'seeker' ? -10 : 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className={`mt-5 rounded-2xl border bg-slate-50/70 p-4.5 transition-colors dark:bg-zinc-950/50 ${
               activeTab === 'seeker'
                 ? 'border-orange-200/80 dark:border-orange-900/40'
                 : 'border-emerald-200/80 dark:border-emerald-900/40'
-            }`}>
+            }`}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
@@ -173,7 +208,7 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                   <span>Cordova Resident Verified</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Simulated Live Queue Stream */}
             <div className="mt-5 space-y-2.5">
@@ -189,9 +224,18 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                     #1
                   </span>
                   <div>
-                    <p className="font-bold text-emerald-950 dark:text-emerald-200">
-                      {simulatedAdvance ? 'Service Complete' : 'Service In Progress'}
-                    </p>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.p
+                        key={simulatedAdvance ? 'complete' : 'serving'}
+                        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="font-bold text-emerald-950 dark:text-emerald-200"
+                      >
+                        {simulatedAdvance ? 'Service Complete' : 'Service In Progress'}
+                      </motion.p>
+                    </AnimatePresence>
                     <p className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
                       Barangay Ibabao site inspection
                     </p>
@@ -210,11 +254,20 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
                     #2
                   </span>
                   <div>
-                    <p className="font-bold text-slate-900 dark:text-white">
-                      {activeTab === 'seeker'
-                        ? simulatedAdvance ? 'Your Service Is In Progress' : 'Your Booking Is Next'
-                        : simulatedAdvance ? 'Current Booking In Progress' : 'Next Eligible Booking'}
-                    </p>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.p
+                        key={`${activeTab}-${simulatedAdvance}`}
+                        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="font-bold text-slate-900 dark:text-white"
+                      >
+                        {activeTab === 'seeker'
+                          ? simulatedAdvance ? 'Your Service Is In Progress' : 'Your Booking Is Next'
+                          : simulatedAdvance ? 'Current Booking In Progress' : 'Next Eligible Booking'}
+                      </motion.p>
+                    </AnimatePresence>
                     <p className="text-[11px] text-slate-500 dark:text-zinc-400">
                       Confirmed via GCash Test Mode
                     </p>
@@ -244,6 +297,7 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
               </Link>
             </div>
           </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

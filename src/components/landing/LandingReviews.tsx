@@ -46,12 +46,15 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
           </p>
         </ScrollReveal>
 
-        <ScrollReveal className="grid gap-4 sm:grid-cols-3">
-          {reviewMilestones.map((item) => {
+        <div className="grid gap-4 sm:grid-cols-3">
+          {reviewMilestones.map((item, index) => {
             const Icon = item.icon;
             return (
-              <div
+              <ScrollReveal
                 key={item.title}
+                direction="scale"
+                delay={index * 0.09}
+                hoverLift
                 className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90"
               >
                 <div className="flex items-center justify-between">
@@ -68,10 +71,10 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                 <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-zinc-400">
                   {item.copy}
                 </p>
-              </div>
+              </ScrollReveal>
             );
           })}
-        </ScrollReveal>
+        </div>
       </div>
     </section>
   );

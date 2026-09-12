@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { CircleDollarSign, Clock3, LockKeyhole, Play } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingQueueProps {
@@ -10,21 +11,21 @@ interface LandingQueueProps {
 
 const queueStages = [
   {
-    step: 'Stage 01',
+    step: 'Payment',
     label: 'Backend Payment Confirmed',
     detail: 'The backend verifies PayMongo Test Mode payment status before admitting a booking to the queue.',
     icon: CircleDollarSign,
     status: 'Verified',
   },
   {
-    step: 'Stage 02',
+    step: 'Placement',
     label: 'Listing-Specific FCFS Placement',
     detail: 'Every service listing runs its own honest queue with strict first-paid, first-waiting ordering.',
     icon: Clock3,
     status: 'Queued',
   },
   {
-    step: 'Stage 03',
+    step: 'Execution',
     label: 'Single Active Job Execution',
     detail: 'Providers serve exactly one active booking at a time, protecting quality and delivery standards.',
     icon: Play,
@@ -33,6 +34,8 @@ const queueStages = [
 ];
 
 export default function LandingQueue({ isDark }: LandingQueueProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section
       id="queue"
@@ -42,7 +45,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
 
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-20">
         {/* Left Column: Context & Rule */}
-        <ScrollReveal>
+        <ScrollReveal direction="left">
           <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
             First paid, first waiting, first eligible.
           </h2>
@@ -64,13 +67,17 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
         </ScrollReveal>
 
         {/* Right Column: Queue Stages Breakdown */}
-        <ScrollReveal className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+        <ScrollReveal direction="right" className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
           <div className="space-y-3.5">
-            {queueStages.map((item) => {
+            {queueStages.map((item, index) => {
               const Icon = item.icon;
               return (
-                <div
+                <motion.div
                   key={item.label}
+                  initial={shouldReduceMotion ? false : { opacity: 0, x: 18 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.7 }}
+                  transition={{ duration: 0.5, delay: 0.14 + index * 0.1, ease: [0.16, 1, 0.3, 1] }}
                   className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-zinc-950/40"
                 >
                   <div className="grid size-11 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
@@ -92,7 +99,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
                   <span className="text-xs font-bold text-slate-400 dark:text-zinc-500">
                     {item.step}
                   </span>
-                </div>
+                </motion.div>
               );
             })}
           </div>

@@ -49,11 +49,14 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
 
         {/* 3 Civic Pillars - Distinctive high-contrast cards with subtle borders */}
         <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {pillars.map((pillar) => {
+          {pillars.map((pillar, index) => {
             const Icon = pillar.icon;
             return (
               <ScrollReveal
                 key={pillar.title}
+                direction="scale"
+                delay={index * 0.08}
+                hoverLift
                 className="group relative rounded-2xl border border-neutral-200/80 bg-white p-7 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90 dark:hover:border-zinc-700 sm:p-8"
               >
                 <div className="flex items-center justify-between">

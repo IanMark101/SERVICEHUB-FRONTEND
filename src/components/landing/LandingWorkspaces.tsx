@@ -28,7 +28,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
         {/* Asymmetric Bento Grid */}
         <div className="mt-12 grid gap-6 lg:grid-cols-12">
           {/* Seeker Panel (7 cols) */}
-          <ScrollReveal className="flex flex-col justify-between rounded-3xl border border-orange-200/80 bg-gradient-to-br from-orange-50/50 via-white to-white p-7 shadow-xs dark:border-orange-900/30 dark:from-orange-950/20 dark:via-zinc-900 dark:to-zinc-900 sm:p-9 lg:col-span-7">
+          <ScrollReveal direction="left" className="flex flex-col justify-between rounded-3xl border border-orange-200/80 bg-gradient-to-br from-orange-50/50 via-white to-white p-7 shadow-xs dark:border-orange-900/30 dark:from-orange-950/20 dark:via-zinc-900 dark:to-zinc-900 sm:p-9 lg:col-span-7">
             <div>
               <div className="flex items-center justify-between">
                 <div className="grid size-12 place-items-center rounded-2xl bg-orange-100 text-[#c86544] dark:bg-orange-950/60 dark:text-orange-300">
@@ -72,7 +72,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
           </ScrollReveal>
 
           {/* Provider Panel (5 cols) */}
-          <ScrollReveal className="flex flex-col justify-between rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/50 via-white to-white p-7 shadow-xs dark:border-emerald-900/30 dark:from-emerald-950/20 dark:via-zinc-900 dark:to-zinc-900 sm:p-9 lg:col-span-5">
+          <ScrollReveal direction="right" delay={0.08} className="flex flex-col justify-between rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/50 via-white to-white p-7 shadow-xs dark:border-emerald-900/30 dark:from-emerald-950/20 dark:via-zinc-900 dark:to-zinc-900 sm:p-9 lg:col-span-5">
             <div>
               <div className="flex items-center justify-between">
                 <div className="grid size-12 place-items-center rounded-2xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
@@ -113,7 +113,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
           </ScrollReveal>
 
           {/* Full-width Bridge Element (12 cols) */}
-          <ScrollReveal className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-6 dark:border-zinc-800 dark:bg-zinc-900/50 sm:flex-row sm:items-center lg:col-span-12">
+          <ScrollReveal direction="scale" delay={0.12} className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-6 dark:border-zinc-800 dark:bg-zinc-900/50 sm:flex-row sm:items-center lg:col-span-12">
             <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-slate-700 shadow-xs dark:bg-zinc-800 dark:text-zinc-200">
               <ArrowLeftRight size={19} />
             </div>

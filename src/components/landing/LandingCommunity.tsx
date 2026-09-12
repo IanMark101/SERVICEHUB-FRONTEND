@@ -45,12 +45,15 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
         </ScrollReveal>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3 lg:grid-cols-[1.15fr_1fr_1fr]">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const Icon = item.icon;
             return (
               <ScrollReveal
                 key={item.title}
-                className="rounded-2xl border border-white/10 bg-[#222220] p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-all hover:-translate-y-0.5 hover:border-white/20 sm:p-8"
+                direction="scale"
+                delay={index * 0.09}
+                hoverLift
+                className="rounded-2xl border border-white/10 bg-[#222220] p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-colors hover:border-white/20 sm:p-8"
               >
                 <div className="grid size-11 place-items-center rounded-xl bg-[#c86544]/15 text-orange-300">
                   <Icon size={22} />

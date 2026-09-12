@@ -35,7 +35,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
     >
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
         {/* Left Column: illustrative trust profile without invented scores */}
-        <ScrollReveal className="relative rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-lg shadow-black/[0.03] dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-9">
+        <ScrollReveal direction="left" className="relative rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-lg shadow-black/[0.03] dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-9">
           {/* Header of the illustrative card */}
           <div className="flex items-center justify-between border-b border-slate-200/70 pb-5 dark:border-zinc-800">
             <div className="flex items-center gap-2.5">
@@ -104,7 +104,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
 
         {/* Right Column: Narrative & Safeguards */}
         <div>
-          <ScrollReveal>
+          <ScrollReveal direction="right">
             <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
               Trust signals grounded in real marketplace action.
             </h2>
@@ -114,10 +114,10 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
           </ScrollReveal>
 
           <div className="mt-9 divide-y divide-slate-200/80 border-y border-slate-200/80 dark:divide-zinc-800 dark:border-zinc-800">
-            {safeguards.map((item) => {
+            {safeguards.map((item, index) => {
               const Icon = item.icon;
               return (
-                <ScrollReveal key={item.title} className="flex gap-4 py-6">
+                <ScrollReveal key={item.title} direction="right" delay={0.08 * index} className="flex gap-4 py-6">
                   <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-emerald-600 dark:bg-zinc-900 dark:text-emerald-400">
                     <Icon size={20} />
                   </div>
