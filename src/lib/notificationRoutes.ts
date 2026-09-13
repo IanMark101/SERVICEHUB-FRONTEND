@@ -1,7 +1,7 @@
 /**
  * Resolves and normalizes notification destination links.
  * Guarantees that notifications seamlessly navigate to the appropriate workspace and page
- * without opening broken/empty states or misrouting between Seeker/Provider contexts.
+ * without opening broken/empty states or misrouting between Seeker/Provider/Admin contexts.
  */
 export function resolveNotificationLink(
   rawLink: string | null | undefined,
@@ -24,23 +24,36 @@ export function resolveNotificationLink(
       link = `/${currentRole}/messages`;
     } else if (link === 'user-profile') {
       link = `/${currentRole}/user-profile`;
+    } else if (link === 'account-settings' || link === 'settings') {
+      link = `/${currentRole}/account-settings`;
+    } else if (link === 'service-manager' || link === 'manage-services') {
+      link = `/provider/service-manager`;
     } else {
       link = `/${link}`;
     }
   }
 
-  // Handle cross-workspace redirection smoothly if role context differs
-  if (currentRole === 'provider' && link.startsWith('/seeker/seeker-activity')) {
-    link = link.replace('/seeker/seeker-activity', '/provider/provider-activity');
-  } else if (currentRole === 'seeker' && link.startsWith('/provider/provider-activity')) {
-    link = link.replace('/provider/provider-activity', '/seeker/seeker-activity');
-  } else if (currentRole === 'provider' && link.startsWith('/seeker/messages')) {
-    link = link.replace('/seeker/messages', '/provider/messages');
-  } else if (currentRole === 'seeker' && link.startsWith('/provider/messages')) {
-    link = link.replace('/provider/messages', '/seeker/messages');
+  if (link === '/community-hub') {
+    return currentRole === 'admin' ? '/admin/announcements' : `/${currentRole}/community-hub`;
   }
 
-  // Ensure query parameters preserve tab & booking highlighting
+  // Rewrite legacy or mismatched path aliases
+  if (link.startsWith('/provider/manage-services') || link.startsWith('/manage-services')) {
+    link = link.replace('/provider/manage-services', '/provider/service-manager')
+               .replace('/manage-services', '/provider/service-manager');
+  }
+
+  if (link.startsWith('/profile') || link.startsWith('/settings')) {
+    link = link.replace('/profile', `/${currentRole}/user-profile`)
+               .replace('/settings', `/${currentRole}/account-settings`);
+  }
+
+  // Explicit absolute links are authoritative. A provider notification may be
+  // opened while the unified account is currently viewing the Seeker
+  // workspace (and vice versa); rewriting it to the current workspace can
+  // produce a valid-looking but empty page.
+
+  // Ensure query parameters preserve tab & booking highlighting for activity views
   if (link.includes('activity')) {
     if (!link.includes('tab=')) {
       const joinChar = link.includes('?') ? '&' : '?';

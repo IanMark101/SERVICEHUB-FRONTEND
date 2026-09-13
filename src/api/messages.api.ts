@@ -10,7 +10,7 @@ export async function apiSendMessage(completedServiceId: string, content: string
   return response.data;
 }
 
-export async function apiGetConversations() {
-  const response = await api.get('/messages/conversations');
+export async function apiGetConversations(page = 1, limit = 20) {
+  const response = await api.get('/messages/conversations', { params: { page, limit } });
   return response.data;
 }

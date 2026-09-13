@@ -1,9 +1,12 @@
 import React, { useState, FormEvent, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { X, CreditCard, MapPin, Smartphone, Sparkles } from 'lucide-react';
-import { apiGetProviderSummary } from '../../api/ai.api';
-import { getServicePaymentMethods, shouldShowPaymentSelector } from '../../lib/paymentUtils';
+import { CircleAlert, MessageSquareText, X } from 'lucide-react';
+import { apiGetProviderSummary, getCachedProviderSummary } from '../../api/ai.api';
+import { apiBookDirect } from '../../api/bookings.api';
+import { getServicePaymentMethods } from '../../lib/paymentUtils';
+import { getApiErrorMessage } from '../../lib/api/errors';
 
 interface RequestServiceModalProps {
   listing: ServiceListing;
@@ -12,12 +15,12 @@ interface RequestServiceModalProps {
 }
 
 export default function RequestServiceModal({ listing, onClose, initialPaymentMethod }: RequestServiceModalProps) {
-  const { user, bookProviderDirectly, isDark } = useApp();
+  const router = useRouter();
+  const { user, bookProviderDirectly, isDark, jobEngagements } = useApp();
   const isOwned = !!(user && listing.providerId === user.id);
 
   // ── Payment method source of truth ──────────────────────────────────────────
   const { cash, gcash } = getServicePaymentMethods(listing);
-  const showSelector = shouldShowPaymentSelector(listing); // true only when BOTH are supported
 
   // Resolve a valid default: if the caller passed a method not supported, fall back to supported one
   const resolveDefault = (): 'GCash' | 'On-site Cash' => {
@@ -28,71 +31,127 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   };
 
   const [description, setDescription] = useState<string>('');
-  const [price, setPrice] = useState<number>(listing.price);
   const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(resolveDefault);
+  const [preferredSchedule, setPreferredSchedule] = useState<string>('');
+  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
 
-  const gcashClass = paymentMethod === 'GCash'
-    ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-    : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
-
-  const cashClass = paymentMethod === 'On-site Cash'
-    ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-    : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold');
-
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
-  const [aiReason, setAiReason] = useState<string | null>(null);
-  const [loadingAi, setLoadingAi] = useState<boolean>(false);
+  const initialSummary = getCachedProviderSummary(listing.providerId)?.data;
+  const [aiSummary, setAiSummary] = useState<string | null>(initialSummary?.summary || null);
+  const [aiReason, setAiReason] = useState<string | null>(initialSummary?.reason || null);
+  const [aiSource, setAiSource] = useState<'gemini' | 'computed' | 'empty'>(initialSummary?.source || 'empty');
+  const [loadingAi, setLoadingAi] = useState<boolean>(!initialSummary);
 
   useEffect(() => {
     let active = true;
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+    let stateTimer: number | undefined;
+    const applySummary = (res: Awaited<ReturnType<typeof apiGetProviderSummary>>) => {
+      if (!active || !res.success) return;
+      setAiSource(res.data?.source || 'computed');
+      if (res.data?.summary) {
+        setAiSummary(res.data.summary);
+        setAiReason(null);
+      } else if (res.data?.reason) {
+        setAiSummary(null);
+        setAiReason(res.data.reason);
+      }
+    };
+
     if (listing.providerId) {
-      setLoadingAi(true);
-      apiGetProviderSummary(listing.providerId)
+      const cached = getCachedProviderSummary(listing.providerId);
+      stateTimer = window.setTimeout(() => {
+        if (!cached) setLoadingAi(true);
+        setAiReason(null);
+      }, 0);
+      apiGetProviderSummary(listing.providerId, listing.id)
         .then((res) => {
-          if (active && res.success) {
-            if (res.data?.summary) {
-              setAiSummary(res.data.summary);
-            } else if (res.data?.reason) {
-              setAiReason(res.data.reason);
-            }
+          applySummary(res);
+          if (active && res.data?.refreshing) {
+            refreshTimer = setTimeout(() => {
+              apiGetProviderSummary(listing.providerId, listing.id, {
+                force: true,
+                waitForFresh: true,
+              })
+                .then(applySummary)
+                .catch(() => {});
+            }, 1800);
           }
         })
-        .catch((err) => {
-          console.warn("Failed to fetch provider reviews summary:", err);
-        })
+        .catch(() => {})
         .finally(() => {
           if (active) setLoadingAi(false);
         });
     }
     return () => {
       active = false;
+      if (stateTimer) window.clearTimeout(stateTimer);
+      if (refreshTimer) clearTimeout(refreshTimer);
     };
-  }, [listing.providerId]);
+  }, [listing.id, listing.providerId]);
 
-  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!cash && !gcash) {
+      setFormError('This listing has no available payment method.');
+      return;
+    }
+    setFormError(null);
+
     if (!description.trim()) {
-      alert('Please enter a description for the booking.');
+      setFormError('Please describe the work needed before sending the request.');
+      return;
+    }
+
+    if (listing.priceType && listing.priceType !== 'FIXED') {
+      setFormError('This listing requires a provider quote. Create a service request instead of booking the displayed estimate.');
+      return;
+    }
+
+    if (listing.isPaused) {
+      setFormError('This service is currently paused by the provider and cannot be booked at this time.');
+      return;
+    }
+
+    if (!user) {
+      setFormError('You must be logged in to book a service.');
+      return;
+    }
+
+    const existingActive = jobEngagements.find(je => 
+      je.seekerId === user.id &&
+      je.serviceId === listing.id &&
+      ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+    );
+    if (existingActive) {
+      setFormError('You already have an active booking for this service in progress. Please check your Activity tab.');
       return;
     }
 
     setLoading(true);
-
-    // Mock API call delay
-    setTimeout(() => {
-      const seekerId = user?.id || '';
-
-      bookProviderDirectly(seekerId, listing.id, price, description, paymentMethod);
-
+    try {
+      if (paymentMethod === 'On-site Cash') {
+        // Cash requests are provider-confirmed. The preferred schedule is a
+        // proposal and does not reserve provider availability.
+        await apiBookDirect({
+          serviceId: listing.id,
+          message: description,
+          schedule: preferredSchedule.trim() || undefined,
+        });
+      } else {
+        // GCash/online path — use the existing hook
+        await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod);
+      }
       setLoading(false);
       setSuccess(true);
-
       setTimeout(() => {
         onClose();
-      }, 1000);
-    }, 800);
+      }, 1500);
+    } catch (err: unknown) {
+      setLoading(false);
+      setFormError(getApiErrorMessage(err, 'Booking failed. Please try again.'));
+    }
   };
 
   return (
@@ -106,15 +165,22 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         <div className={`flex-shrink-0 p-5 border-b flex justify-between items-center ${isDark ? 'bg-[#1c1b18]/45 border-neutral-850' : 'bg-slate-50/50 border-slate-100'
           }`}>
           <div>
-            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider border ${isDark
-                ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                : 'text-orange-655 bg-orange-50 border-orange-100'
-              }`}>
-              Direct Booking
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider border ${isDark
+                  ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
+                  : 'text-orange-655 bg-orange-50 border-orange-100'
+                }`}>
+                Direct Booking
+              </span>
+            </div>
             <h3 className={`font-extrabold text-sm mt-1.5 leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
               Request {listing.title}
             </h3>
+            {listing.priceType && listing.priceType !== 'FIXED' && (
+              <p className={`text-[10px] font-semibold mt-0.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                ₱{listing.price}{listing.priceType === 'PER_HOUR' ? ' / hour' : listing.priceType === 'PER_DAY' ? ' / day' : listing.priceType === 'PER_PROJECT' ? ' / project' : ''}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
@@ -128,13 +194,17 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         {/* Success State */}
         {success ? (
           <div className="p-8 text-center space-y-3">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold border ${isDark ? 'bg-emerald-950/20 text-emerald-405 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold border ${isDark ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' : 'bg-orange-50 text-orange-600 border-orange-100'
               }`}>
               ✓
             </div>
-            <h4 className={`font-bold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Booking Sent Successfully!</h4>
+            <h4 className={`font-bold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+              {paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}
+            </h4>
             <p className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-              The booking request has been sent to {listing.providerName} for review.
+              {paymentMethod === 'On-site Cash'
+                ? `The request was sent to ${listing.providerName} for acceptance. Your preferred schedule is a proposal until the provider accepts it.`
+                : 'Your verified online booking has entered this service listing\'s queue.'}
             </p>
           </div>
         ) : (
@@ -162,19 +232,19 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               }`}>
                 <div className="flex items-center space-x-2 mb-1.5">
                   <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    <MessageSquareText className="w-4 h-4 animate-pulse" />
                   </span>
                   <h4 className={`text-[11px] uppercase tracking-wider font-extrabold ${
                     isDark ? 'text-orange-400' : 'text-orange-755'
                   }`}>
-                    AI-Generated Feedback Digest
+                    {aiSource === 'gemini' ? 'AI-Generated Feedback Digest' : 'Client Feedback Digest'}
                   </h4>
                 </div>
                 <div className="flex items-center space-x-2 py-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
-                  <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Analyzing past community reviews and summarizing...</span>
+                  <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Getting review information...</span>
                 </div>
               </div>
             ) : aiSummary ? (
@@ -185,7 +255,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               }`}>
                 <div className="flex items-center space-x-2 mb-1.5">
                   <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    <MessageSquareText className="w-4 h-4 animate-pulse" />
                   </span>
                   <h4 className={`text-[11px] uppercase tracking-wider font-extrabold ${
                     isDark ? 'text-orange-400' : 'text-orange-755'
@@ -196,7 +266,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 <p className={`text-xs leading-relaxed font-semibold italic ${
                   isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
                 }`}>
-                  "{aiSummary}"
+                  &quot;{aiSummary}&quot;
                 </p>
               </div>
             ) : (
@@ -204,11 +274,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 isDark ? 'bg-[#1c1b18] border-neutral-850 text-neutral-400' : 'bg-slate-50 border-slate-200 text-slate-500'
               }`}>
                 <div className="flex items-center space-x-1.5 font-bold text-amber-500">
-                  <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+                  <CircleAlert className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>AI Summary unavailable</span>
                 </div>
                 <p className="text-[11px]">
-                  This provider needs at least 5 reviews for us to generate a reliable AI review summary.
+                  {aiReason || 'No client reviews are available yet for this service offer.'}
                 </p>
               </div>
             )}
@@ -232,78 +302,57 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               />
             </div>
 
-            {/* Price offer / Budget */}
-            <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                Your Budget Offer (₱)
-              </label>
-              <input
-                type="number"
-                min={1}
-                required
-                disabled={isOwned}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
-                    : 'bg-slate-50 border-slate-200 text-slate-750 focus:border-orange-500'
-                  } ${isOwned ? 'opacity-65' : ''}`}
-              />
-              <span className={`block text-[10px] mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>Base listing rate: ₱{listing.price}</span>
-            </div>
-
-            {/* Payment Method Badge Selector — only shown when provider supports BOTH methods */}
-            {showSelector ? (
+            {paymentMethod === 'On-site Cash' && (
               <div>
-                <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Preferred Payment Method
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Preferred schedule (optional)
                 </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => !isOwned && setPaymentMethod('GCash')}
-                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${
-                      paymentMethod === 'GCash'
-                        ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-                        : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold')
-                    } ${isOwned ? 'opacity-65 cursor-not-allowed' : ''}`}
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span className="text-xs">GCash</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => !isOwned && setPaymentMethod('On-site Cash')}
-                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 transition-all ${
-                      paymentMethod === 'On-site Cash'
-                        ? (isDark ? 'border-orange-500 bg-orange-950/20 text-orange-400 font-bold' : 'border-orange-500 bg-orange-55 text-orange-600 font-bold')
-                        : (isDark ? 'border-neutral-850 bg-[#1c1b18] hover:bg-[#2c2b27] text-neutral-450' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 font-semibold')
-                    } ${isOwned ? 'opacity-65 cursor-not-allowed' : ''}`}
-                  >
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-xs">On-site Cash</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* Single method — show read-only badge, no selector */
-              <div>
-                <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Payment Method
-                </label>
-                <div className={`p-3 rounded-xl border flex items-center space-x-2 ${
-                  isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-600'
-                }`}>
-                  {gcash && !cash
-                    ? <><Smartphone className="w-4 h-4 text-orange-500" /><span className="text-xs font-semibold">GCash Online</span></>
-                    : <><MapPin className="w-4 h-4" /><span className="text-xs font-semibold">On-site Cash</span></>}
-                  <span className={`ml-auto text-[10px] px-2 py-0.5 rounded-md border ${
-                    isDark ? 'border-neutral-800 text-neutral-500' : 'border-slate-200 text-slate-400'
-                  }`}>Provider's only accepted method</span>
-                </div>
+                <input
+                  type="text"
+                  maxLength={500}
+                  disabled={isOwned}
+                  value={preferredSchedule}
+                  onChange={(event) => setPreferredSchedule(event.target.value)}
+                  placeholder="e.g. Saturday afternoon; please confirm availability"
+                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'}`}
+                />
+                <p className={`mt-1 text-[10px] ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                  This is a proposal, not a reserved appointment. The provider must accept the request.
+                </p>
               </div>
             )}
+
+            {/* Server-authoritative fixed listing price */}
+            <div>
+              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                Agreed listing price
+              </label>
+              <div className={`w-full px-4 py-3 rounded-xl border font-semibold text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-750'}`}>
+                ₱{Number(listing.price).toLocaleString()}
+              </div>
+              <span className={`block text-[10px] mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>The server records this exact amount. Use a public request when a provider quotation is needed.</span>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold mb-2 block">Payment Method</label>
+              <div className="grid grid-cols-2 gap-3">
+                {([['On-site Cash', cash], ['GCash', gcash]] as const)
+                  .filter(([, accepted]) => accepted)
+                  .map(([method]) => (
+                    <button key={method} type="button" disabled={isOwned}
+                      onClick={() => setPaymentMethod(method)}
+                      className={`p-3 rounded-xl border text-xs ${paymentMethod === method ? 'border-orange-500 text-orange-500 font-bold' : 'border-slate-300'}`}>
+                      {method}
+                    </button>
+                  ))}
+              </div>
+              {!cash && !gcash && <p className="text-xs text-red-500">No supported payment method is available.</p>}
+              {gcash && (
+                <p className={`mt-2 text-[10px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                  Online checkout uses PayMongo Test Mode. PAID_HELD and RELEASED are internal workflow records, not regulated escrow or a real provider payout.
+                </p>
+              )}
+            </div>
 
             {/* Spec Part 5 Cancellation Policy Disclaimer */}
             <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${
@@ -311,8 +360,20 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 ? 'bg-neutral-900 border-neutral-800 text-neutral-400' 
                 : 'bg-slate-50 border-slate-200 text-slate-500'
             }`}>
-              ⚠️ You can cancel for free anytime before the provider starts the job. Once they've started, cancellation needs their approval.
+              ⚠️ You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.
             </p>
+
+            {/* Error Message */}
+            {formError && (
+              <div className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center space-x-2 ${
+                isDark
+                  ? 'bg-red-950/30 border-red-900/40 text-red-400'
+                  : 'bg-red-50 border-red-200 text-red-600'
+              }`}>
+                <span>⚠️</span>
+                <span>{formError}</span>
+              </div>
+            )}
 
             {/* Actions */}
             <div className={`pt-3 border-t mt-3 flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
@@ -329,7 +390,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
               {isOwned ? (
                 <button
                   type="button"
-                  onClick={() => window.location.href = `/provider/service-manager?id=${listing.id}`}
+                  onClick={() => router.push(`/provider/service-manager?id=${listing.id}`)}
                   className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer"
                 >
                   Edit Listing Details

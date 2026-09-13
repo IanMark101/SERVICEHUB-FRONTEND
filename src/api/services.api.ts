@@ -1,5 +1,19 @@
 import { api } from '../lib/api/axios';
 
+type PaymentMethods = { cash: boolean; gcash: boolean };
+
+export interface ServicePayload {
+  categoryId: string;
+  title: string;
+  description: string;
+  price?: number | null;
+  serviceType?: string;
+  priceType?: string;
+  estimatedDurationMins?: number;
+  queueLimit?: number;
+  paymentMethods: PaymentMethods;
+}
+
 export async function apiBrowseServices(params?: { categoryId?: string; search?: string; availableOnly?: boolean }) {
   const response = await api.get('/services', { params });
   return response.data;
@@ -15,12 +29,12 @@ export async function apiGetMyServices() {
   return response.data;
 }
 
-export async function apiCreateService(data: any) {
+export async function apiCreateService(data: ServicePayload) {
   const response = await api.post('/services', data);
   return response.data;
 }
 
-export async function apiUpdateService(id: string, data: any) {
+export async function apiUpdateService(id: string, data: Partial<ServicePayload>) {
   const response = await api.patch(`/services/${id}`, data);
   return response.data;
 }

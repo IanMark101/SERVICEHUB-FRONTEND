@@ -1,14 +1,20 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
+import { apiAccessVerificationProof, apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from 'lucide-react';
-import { useToast } from '../../../components/Toast';
+import { useToast } from '../../../components/ui/Toast';
+import { getSocket } from '../../../lib/socket';
+import { getApiErrorMessage } from '../../../lib/api/errors';
+import Image from 'next/image';
+import AdminPagination from '../../../components/admin/AdminPagination';
+
+const PAGE_SIZE = 10;
 
 interface VerificationProof {
   id: string;
   documentType: string;
-  fileUrl: string;
+  fileUrl?: string;
 }
 
 interface VerificationItem {
@@ -32,6 +38,9 @@ export default function AdminVerifications() {
   const [verifications, setVerifications] = useState<VerificationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [reviewingItem, setReviewingItem] = useState<VerificationItem | null>(null);
   const [isApproveMode, setIsApproveMode] = useState<boolean>(true);
@@ -39,13 +48,31 @@ export default function AdminVerifications() {
   const [submittingReview, setSubmittingReview] = useState<boolean>(false);
 
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [accessingProofId, setAccessingProofId] = useState<string | null>(null);
 
-  const fetchVerifications = () => {
+  const accessProof = async (item: VerificationItem, proof: VerificationProof, action: 'view' | 'download') => {
+    setAccessingProofId(proof.id);
+    try {
+      const response = await apiAccessVerificationProof(item.id, proof.id, action);
+      const url = response.data?.url;
+      if (!url) throw new Error('No secure document URL was returned.');
+      if (action === 'view') setZoomImage(url);
+      else window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (cause: unknown) {
+      toastError('Document access failed', getApiErrorMessage(cause, 'The document could not be opened.'));
+    } finally {
+      setAccessingProofId(null);
+    }
+  };
+
+  const fetchVerifications = useCallback(() => {
     setLoading(true);
-    apiListPendingVerifications()
+    apiListPendingVerifications({ page, limit: PAGE_SIZE })
       .then(res => {
         if (res.success) {
           setVerifications(res.data);
+          setTotal(res.pagination?.total || 0);
+          setTotalPages(Math.max(1, res.pagination?.totalPages || 1));
           setError('');
         } else {
           setError("Failed to fetch pending verifications queue.");
@@ -56,11 +83,25 @@ export default function AdminVerifications() {
         setError(err.message || "An error occurred.");
         setLoading(false);
       });
-  };
+  }, [page]);
 
   useEffect(() => {
-    fetchVerifications();
-  }, []);
+    const timer = window.setTimeout(fetchVerifications, 0);
+
+    // Real-time: auto-refresh when a new verification is submitted
+    const socket = getSocket();
+    if (socket) {
+      const handleNewVerification = () => {
+        fetchVerifications();
+      };
+      socket.on('verification_submitted', handleNewVerification);
+      return () => {
+        window.clearTimeout(timer);
+        socket.off('verification_submitted', handleNewVerification);
+      };
+    }
+    return () => window.clearTimeout(timer);
+  }, [fetchVerifications]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,15 +111,15 @@ export default function AdminVerifications() {
       const res = await apiReviewVerification(reviewingItem.id, isApproveMode, adminNotes);
       if (res.success) {
         toastSuccess(
-          "Verification Resolved", 
+          "Verification Resolved",
           `Request for ${reviewingItem.user?.name} has been ${isApproveMode ? 'APPROVED' : 'REJECTED'}.`
         );
         setReviewingItem(null);
         setAdminNotes('');
         fetchVerifications();
       }
-    } catch (err: any) {
-      toastError("Failed to update", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Failed to update", getApiErrorMessage(err, 'The verification decision could not be saved.'));
     } finally {
       setSubmittingReview(false);
     }
@@ -92,7 +133,7 @@ export default function AdminVerifications() {
         </h4>
         <button
           onClick={fetchVerifications}
-          className="px-4 py-2 border rounded-xl font-bold text-xs bg-red-500/5 text-red-500 border-red-500/25 cursor-pointer hover:bg-red-500/10 transition-colors flex items-center space-x-1.5"
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh Queue</span>
@@ -109,12 +150,11 @@ export default function AdminVerifications() {
       <div className="space-y-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-red-500" />
+            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
           </div>
         ) : verifications.length === 0 ? (
-          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
-          }`}>
+          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
+            }`}>
             There are no verifications currently pending review.
           </div>
         ) : (
@@ -126,12 +166,11 @@ export default function AdminVerifications() {
             return (
               <div
                 key={item.id}
-                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
-                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200'
-                }`}
+                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200'
+                  }`}
               >
                 {/* Header info */}
-                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-850">
+                <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div>
                     <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {item.user?.name}
@@ -140,51 +179,53 @@ export default function AdminVerifications() {
                       Provider ID: {item.userId} • Email: {item.user?.email}
                     </p>
                   </div>
-                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-450' : 'text-amber-600'}`}>
+                  <span className={`text-[9px] font-bold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                     📅 Submitted: {formattedDate}
                   </span>
                 </div>
 
                 {/* Proofs documents grid */}
                 <div className="space-y-2">
-                  <span className={`text-xs font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  <span className={`text-xs font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
                     Document Proofs:
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {item.proofs && item.proofs.map((proof) => {
-                      const isImage = proof.fileUrl.startsWith('data:image/') || proof.fileUrl.match(/\.(png|jpg|jpeg|webp|gif)$/i) || proof.fileUrl.startsWith('http');
+                      const isImage = false;
                       return (
                         <div
                           key={proof.id}
-                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${
-                            isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
-                          }`}
+                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
+                            }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5 truncate">
-                              <FileText className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                              <FileText className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
                               <span className="truncate">{proof.documentType}</span>
                             </div>
-                            <a
-                              href={proof.fileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-red-500 hover:text-red-655 flex items-center space-x-0.5 text-[10px] flex-shrink-0"
+                            <button
+                              type="button"
+                              disabled={accessingProofId === proof.id}
+                              onClick={() => accessProof(item, proof, 'view')}
+                              className="flex flex-shrink-0 items-center space-x-0.5 text-[10px] text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white"
                             >
-                              <span>Open</span>
+                              <span>{accessingProofId === proof.id ? 'Authorizing...' : 'View securely'}</span>
                               <ExternalLink className="w-3 h-3" />
-                            </a>
+                            </button>
                           </div>
 
                           {isImage ? (
                             <div
-                              onClick={() => setZoomImage(proof.fileUrl)}
+                              onClick={() => proof.fileUrl && setZoomImage(proof.fileUrl)}
                               className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-700/50 cursor-pointer group bg-black/40"
                             >
-                              <img
-                                src={proof.fileUrl}
+                              <Image
+                                src={proof.fileUrl || ''}
                                 alt={proof.documentType}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                fill
+                                unoptimized
+                                sizes="(max-width: 768px) 100vw, 320px"
+                                className="object-cover group-hover:scale-105 transition-transform duration-200"
                               />
                               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
                                 <span>🔍 Inspect Photo</span>
@@ -192,7 +233,14 @@ export default function AdminVerifications() {
                             </div>
                           ) : (
                             <div className="p-3 text-center text-slate-400 text-[10px]">
-                              Non-image document attached
+                              <button
+                                type="button"
+                                disabled={accessingProofId === proof.id}
+                                onClick={() => accessProof(item, proof, 'download')}
+                                className="font-bold text-slate-500 hover:text-slate-950 disabled:opacity-50 dark:hover:text-white"
+                              >
+                                Download (audit logged)
+                              </button>
                             </div>
                           )}
                         </div>
@@ -202,9 +250,8 @@ export default function AdminVerifications() {
                 </div>
 
                 {/* Audit Action panel */}
-                <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${
-                  isDark ? 'border-neutral-850' : 'border-slate-100'
-                }`}>
+                <div className={`border-t pt-4 flex items-center justify-end gap-2.5 ${isDark ? 'border-neutral-800' : 'border-slate-100'
+                  }`}>
                   <button
                     onClick={() => {
                       setReviewingItem(item);
@@ -222,7 +269,7 @@ export default function AdminVerifications() {
                       setIsApproveMode(true);
                       setAdminNotes('');
                     }}
-                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-extrabold text-[10px] rounded-xl transition-all active:scale-95 cursor-pointer flex items-center space-x-1"
+                    className="flex items-center space-x-1 rounded-lg bg-emerald-600 px-4 py-2 text-[10px] font-extrabold text-white transition-colors hover:bg-emerald-700"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Approve verification</span>
@@ -234,12 +281,13 @@ export default function AdminVerifications() {
         )}
       </div>
 
+      <AdminPagination page={page} totalPages={totalPages} totalItems={total} pageSize={PAGE_SIZE} onPageChange={setPage} itemLabel="verification requests" />
+
       {/* Review Dialog Overlay */}
       {reviewingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-          }`}>
+          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+            }`}>
             <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
               <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-emerald-500' : 'text-red-500'}`}>
                 {isApproveMode ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-red-500" />}
@@ -253,10 +301,11 @@ export default function AdminVerifications() {
                   placeholder="Explain rejection reason or add approval remarks here..."
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
-                  }`}
+                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
+                    }`}
                   rows={4}
+                  required={!isApproveMode}
+                  minLength={isApproveMode ? undefined : 3}
                 />
               </div>
               <div className="flex items-center justify-end space-x-2">
@@ -269,12 +318,11 @@ export default function AdminVerifications() {
                 </button>
                 <button
                   type="submit"
-                  disabled={submittingReview}
-                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${
-                    submittingReview
+                  disabled={submittingReview || (!isApproveMode && adminNotes.trim().length < 3)}
+                  className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${submittingReview
                       ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                       : isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
-                  }`}
+                    }`}
                 >
                   {submittingReview ? (
                     <>
@@ -298,9 +346,12 @@ export default function AdminVerifications() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
         >
           <div className="relative max-w-4xl max-h-[90vh]">
-            <img
+            <Image
               src={zoomImage}
               alt="Document Proof Inspection"
+              width={1200}
+              height={900}
+              unoptimized
               className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
             />
             <button

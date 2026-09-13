@@ -5,23 +5,9 @@ interface AuthLayoutProps {
   theme?: 'green' | 'orange';
 }
 
-export  function AuthLayout({ children, theme }: AuthLayoutProps) {
-  const isGreen = theme === 'green';
-
+export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="h-screen w-full flex flex-col md:flex-row bg-[#faf8f5] dark:bg-[#0a0a0a] relative overflow-hidden font-sans select-none text-slate-800 dark:text-[#f2efe9] transition-colors duration-300">
-      {/* Decorative Glowing Orbs */}
-      <div
-        className={`absolute -top-40 -left-40 w-96 h-96 rounded-full opacity-15 dark:opacity-10 blur-[120px] transition-all duration-700 ${
-          isGreen ? 'bg-emerald-500/10 dark:bg-emerald-500/20' : 'bg-orange-500/10 dark:bg-orange-500/20'
-        } pointer-events-none`}
-      />
-      <div
-        className={`absolute -bottom-40 -right-40 w-96 h-96 rounded-full opacity-15 dark:opacity-10 blur-[120px] transition-all duration-700 ${
-          isGreen ? 'bg-emerald-500/10 dark:bg-emerald-500/20' : 'bg-orange-500/10 dark:bg-orange-500/20'
-        } pointer-events-none`}
-        style={{ animationDelay: '-5s' }}
-      />
+    <div className="auth-shell relative flex min-h-[100dvh] w-full flex-col overflow-x-hidden bg-[#f5f4f2] font-sans text-slate-900 transition-colors duration-300 dark:bg-[#121211] dark:text-zinc-100 lg:h-[100dvh] lg:flex-row lg:overflow-hidden">
       {children}
     </div>
   );

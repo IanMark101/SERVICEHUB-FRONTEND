@@ -32,6 +32,7 @@ export interface User {
   verificationStatus?: VerificationStatus;
   emailVerified?: boolean;
   isActive?: boolean;
+  location?: string;
 }
 
 export interface ServiceListing {
@@ -44,15 +45,28 @@ export interface ServiceListing {
   description: string;
   price: number;
   queueSize: number;
+  queueLimit?: number;
   isPaused: boolean;
   proofOfSkillUrl: string; // Proof uploaded for verification
   rating: number;
+  providerTrustScore?: number;
+  providerVerificationStatus?: string;
+  reviewCount?: number;
+  // SESSION_BASED is retained only for decoding legacy server records. New
+  // listings and bookings are reusable ONE_TIME engagements.
+  serviceType?: 'ONE_TIME' | 'SESSION_BASED';
+  // priceType controls how the price is displayed (e.g. ₱200 / session, ₱500 / project)
+  priceType?: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
+  estimatedDurationMins?: number;
+  status?: 'PENDING_REVIEW' | 'ACTIVE' | 'REJECTED' | 'INACTIVE' | 'SUSPENDED' | 'DELETED';
+  adminNotes?: string | null;
+  rejectionCount?: number;
   paymentMethods?: {
     cash: boolean;
     gcash: boolean;
-    maya?: boolean;
   };
 }
+
 
 export interface JobRequest {
   id: string;
@@ -64,21 +78,26 @@ export interface JobRequest {
   urgency: string;
   budget: number;
   description: string;
-  status: 'open' | 'paused' | 'filled';
+  status: 'open' | 'paused' | 'filled' | 'canceled' | 'OPEN' | 'IN_PROGRESS' | 'CANCELED' | 'CLOSED' | 'closed';
   createdAt: string;
+  offersCount?: number;
 }
 
 export interface Bid {
   id: string;
   requestId: string;
   providerId: string;
+  serviceId?: string;
   providerName: string;
   providerAvatar: string;
   providerRating: number;
   price: number;
   message: string;
-  status: 'pending' | 'accepted' | 'declined';
+  status: 'pending' | 'accepted' | 'declined' | 'canceled' | 'PENDING' | 'PENDING_PAYMENT' | 'ACCEPTED' | 'REJECTED' | 'CANCELED';
   createdAt: string;
+  requestTitle?: string;
+  seekerName?: string;
+  category?: string;
 }
 
 export interface JobEngagement {
@@ -87,21 +106,46 @@ export interface JobEngagement {
   seekerId: string;
   seekerName: string;
   seekerAvatar: string;
+  seekerTrustScore?: number;
+  seekerVerificationStatus?: string;
+  seekerLocation?: string;
   providerId: string;
   providerName: string;
   providerAvatar: string;
+  providerTrustScore?: number;
+  providerVerificationStatus?: string;
+  providerLocation?: string;
   serviceId: string | null; // null if matched from public bid
   price: number;
   status: 'pending_provider' | 'queued' | 'in_progress' | 'awaiting_seeker_approval' | 'completed' | 'disputed' | 'canceled';
   paymentMethod: 'GCash' | 'On-site Cash';
   createdAt: string;
   completedServiceId?: string;
-  reviews?: any[];
+  reviews?: Array<{
+    id: string;
+    authorId: string;
+    rating?: number;
+    comment?: string;
+    text?: string;
+    tags?: string[];
+    createdAt?: string;
+    editableUntil?: string;
+  }>;
   completedAt?: string;
   disputeReason?: string;
   description?: string;
+  preferredSchedule?: string;
   started?: boolean;
-  cancellationRequests?: any[];
+  cancellationRequests?: Array<{
+    id: string;
+    status: string;
+    requestedBy: string;
+    reason?: string | null;
+    responderNote?: string | null;
+    providerNote?: string | null;
+    adminNote?: string | null;
+  }>;
+  queuePosition?: number;
 }
 
 export interface Transaction {
@@ -139,6 +183,7 @@ export interface CategorySuggestion {
   description: string;
   suggestedBy: string; // Seeker name
   status: 'pending' | 'approved' | 'rejected';
+  createdAt?: string;
 }
 
 export interface UserReport {

@@ -3,44 +3,191 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --color-orange-50: #faf5f2;
+  --color-orange-100: #f5ebe6;
+  --color-orange-200: #ecd9d0;
+  --color-orange-300: #dec0b3;
+  --color-orange-400: #d49b86;
+  --color-orange-500: #d97757;
+  --color-orange-600: #c86544;
+  --color-orange-700: #aa5032;
+  --color-orange-800: #8b3e25;
+  --color-orange-900: #6d2e1a;
+  --color-orange-950: #3d160b;
+
   --color-claude-50: #fdfbfa;
   --color-claude-100: #f9f6f0;
   --color-claude-200: #f1ebd9;
   --color-claude-300: #e2d7be;
-  --color-claude-400: #cca972;
-  --color-claude-500: #d97706;
-  --color-claude-600: #b45309;
-  --color-claude-700: #78350f;
-  --color-claude-800: #451a03;
-  --color-claude-900: #270f02;
+  --color-claude-400: #d49b86;
+  --color-claude-500: #d97757;
+  --color-claude-600: #c86544;
+  --color-claude-700: #aa5032;
+  --color-claude-800: #8b3e25;
+  --color-claude-900: #6d2e1a;
   --color-claude-cream: #fbfaf7;
   --color-claude-paper: #f7f4ed;
 
-  --color-seeker-light: #fff7ed;
-  --color-seeker-primary: #ea580c;
-  --color-seeker-hover: #c2410c;
+  --color-seeker-light: #faf5f2;
+  --color-seeker-primary: #c86544;
+  --color-seeker-hover: #aa5032;
 
   --color-provider-light: #ecfdf5;
   --color-provider-primary: #059669;
   --color-provider-hover: #047857;
 
-  --color-admin-light: #f3e8ff;
-  --color-admin-primary: #9333ea;
-  --color-admin-hover: #7e22ce;
+  --color-community-light: #f1f5f9;
+  --color-community-primary: #334155;
+  --color-community-hover: #1e293b;
+
+  --color-admin-light: #f1f5f9;
+  --color-admin-primary: #0f172a;
+  --color-admin-hover: #1e293b;
 
   --color-neutral-850: #2c2b27;
   --color-neutral-855: #33322e;
 
-  --font-sans: var(--font-sans), 'Space Grotesk', system-ui, sans-serif;
+  --font-sans: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-serif: var(--font-serif), 'Playfair Display', Georgia, serif;
 }
 
-/* Global Scrollbar Definitions — Signature Orange Thumb (#FF5A1F), Theme-adaptive Track */
+/* Shared workspace surfaces keep hierarchy consistent while each workspace
+   retains its own semantic accent color. */
+@layer components {
+  .workspace-panel {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-neutral-800/80 dark:bg-[#22211e];
+  }
+
+  .workspace-section-title {
+    @apply text-xs font-bold uppercase tracking-[0.12em] text-slate-800 dark:text-[#f2efe9];
+  }
+
+  .workspace-caption {
+    @apply text-xs leading-5 text-slate-500 dark:text-[#b4b0a9];
+  }
+
+  .admin-pagination {
+    @apply flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:flex-row dark:border-neutral-800 dark:bg-[#202020];
+  }
+
+  .admin-page-button {
+    @apply flex h-8 min-w-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-[11px] font-bold text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-35 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-white;
+  }
+
+  .admin-page-button-active {
+    @apply border-slate-950 bg-slate-950 text-white hover:border-slate-800 hover:text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950;
+  }
+}
+
+/* Admin-only visual system: dense, neutral and operational. */
+.admin-workspace .admin-page-title,
+.admin-workspace .admin-page-body h2 {
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  letter-spacing: -0.025em;
+}
+
+.admin-workspace .admin-page-body .rounded-\[24px\],
+.admin-workspace .admin-page-body .rounded-2xl {
+  border-radius: 14px;
+}
+
+.admin-workspace .admin-page-body .shadow-sm {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.admin-workspace .admin-page-body .p-6 {
+  padding: 1.25rem;
+}
+
+.admin-workspace .admin-page-body .p-12 {
+  padding: 2.5rem;
+}
+
+.admin-workspace .admin-page-body .gap-6 {
+  gap: 1rem;
+}
+
+.admin-workspace .admin-page-body button:focus-visible,
+.admin-workspace .admin-page-body a:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 2px;
+}
+
+.dark .admin-workspace .admin-page-body button:focus-visible,
+.dark .admin-workspace .admin-page-body a:focus-visible {
+  outline-color: #f5f5f5;
+}
+
+/* Claude Signature Terracotta/Coral Core Theme Tokens */
+:root {
+  --color-orange-50: #faf5f2 !important;
+  --color-orange-100: #f5ebe6 !important;
+  --color-orange-200: #ecd9d0 !important;
+  --color-orange-300: #dec0b3 !important;
+  --color-orange-400: #d49b86 !important;
+  --color-orange-500: #d97757 !important;
+  --color-orange-600: #c86544 !important;
+  --color-orange-700: #aa5032 !important;
+  --color-orange-800: #8b3e25 !important;
+  --color-orange-900: #6d2e1a !important;
+  --color-orange-950: #3d160b !important;
+}
+
+/* Explicit Claude Terracotta Utility Overrides for Instant Browser Rendering */
+.bg-orange-600 {
+  background-color: #c86544 !important;
+}
+.hover\:bg-orange-700:hover,
+.bg-orange-700 {
+  background-color: #aa5032 !important;
+}
+.hover\:bg-orange-600:hover {
+  background-color: #c86544 !important;
+}
+.hover\:bg-orange-500:hover,
+.bg-orange-500 {
+  background-color: #d97757 !important;
+}
+.text-orange-600 {
+  color: #c86544 !important;
+}
+.text-orange-500 {
+  color: #d97757 !important;
+}
+.text-orange-400 {
+  color: #d49b86 !important;
+}
+.border-orange-500 {
+  border-color: #d97757 !important;
+}
+.border-orange-600 {
+  border-color: #c86544 !important;
+}
+.border-orange-200 {
+  border-color: #ecd9d0 !important;
+}
+.bg-orange-50 {
+  background-color: #faf5f2 !important;
+}
+.bg-orange-950\/20,
+.bg-orange-950\/30 {
+  background-color: rgba(61, 22, 11, 0.3) !important;
+}
+.border-orange-900\/30,
+.border-orange-900\/40 {
+  border-color: rgba(109, 46, 26, 0.35) !important;
+}
+.ring-orange-500 {
+  --tw-ring-color: #d97757 !important;
+}
+
+/* ── Industry-Standard Minimalist Floating Scrollbar (Apple / Linear / Stripe style) ── */
 *,
 html,
 body,
 :root {
-  scrollbar-color: #FF5A1F #fbfaf7;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 html.dark,
@@ -48,152 +195,54 @@ body.dark,
 :root.dark,
 .dark,
 .dark * {
-  scrollbar-color: #FF5A1F #191919 !important;
+  scrollbar-color: #3f3e3a transparent !important;
 }
 
 ::-webkit-scrollbar,
 *::-webkit-scrollbar {
-  width: 8px !important;
-  height: 8px !important;
+  width: 6px !important;
+  height: 6px !important;
 }
 
 ::-webkit-scrollbar-track,
 *::-webkit-scrollbar-track {
-  background: #fbfaf7 !important;
-}
-
-.dark ::-webkit-scrollbar-track,
-.dark::-webkit-scrollbar-track,
-html.dark ::-webkit-scrollbar-track,
-html.dark::-webkit-scrollbar-track,
-.dark *::-webkit-scrollbar-track,
-html.dark *::-webkit-scrollbar-track {
-  background: #191919 !important;
+  background: transparent !important;
 }
 
 ::-webkit-scrollbar-corner,
 *::-webkit-scrollbar-corner {
-  background: #fbfaf7 !important;
+  background: transparent !important;
 }
 
-.dark ::-webkit-scrollbar-corner,
-.dark::-webkit-scrollbar-corner,
-html.dark ::-webkit-scrollbar-corner,
-html.dark::-webkit-scrollbar-corner,
-.dark *::-webkit-scrollbar-corner {
-  background: #191919 !important;
-}
-
-/* Scrollbar Thumb — Signature Orange (#FF5A1F) for all pages including landing & register right side panel */
+/* Translucent Floating Pill Thumb - Clean Neutral (Light Mode) */
 ::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 9999px !important;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8 !important;
+}
+
+/* Translucent Floating Pill Thumb - Clean Neutral (Dark Mode) */
 .dark ::-webkit-scrollbar-thumb,
 .dark::-webkit-scrollbar-thumb,
 html.dark ::-webkit-scrollbar-thumb,
 html.dark::-webkit-scrollbar-thumb,
 .dark *::-webkit-scrollbar-thumb {
-  background: #FF5A1F !important;
+  background: #3f3e3a !important;
   border-radius: 9999px !important;
 }
 
-::-webkit-scrollbar-thumb:hover,
-*::-webkit-scrollbar-thumb:hover,
 .dark ::-webkit-scrollbar-thumb:hover,
 .dark::-webkit-scrollbar-thumb:hover,
 html.dark ::-webkit-scrollbar-thumb:hover,
 html.dark::-webkit-scrollbar-thumb:hover,
 .dark *::-webkit-scrollbar-thumb:hover {
-  background: #e04f1a !important;
-}
-
-/* Provider Workspace scrollbar accent (Green/Emerald) */
-html.workspace-provider,
-body.workspace-provider,
-.workspace-provider,
-.workspace-provider * {
-  scrollbar-color: #059669 #fbfaf7 !important;
-}
-
-html.dark.workspace-provider,
-body.dark.workspace-provider,
-.dark .workspace-provider,
-.dark.workspace-provider,
-.dark.workspace-provider * {
-  scrollbar-color: #059669 #191919 !important;
-}
-
-.workspace-provider ::-webkit-scrollbar-thumb,
-.workspace-provider::-webkit-scrollbar-thumb,
-html.workspace-provider ::-webkit-scrollbar-thumb,
-html.workspace-provider::-webkit-scrollbar-thumb,
-.workspace-provider *::-webkit-scrollbar-thumb,
-.dark .workspace-provider ::-webkit-scrollbar-thumb,
-.dark .workspace-provider::-webkit-scrollbar-thumb,
-.dark.workspace-provider ::-webkit-scrollbar-thumb,
-.dark.workspace-provider::-webkit-scrollbar-thumb,
-.dark .workspace-provider *::-webkit-scrollbar-thumb,
-.dark.workspace-provider *::-webkit-scrollbar-thumb {
-  background: #059669 !important;
-  border-radius: 9999px !important;
-}
-
-.workspace-provider ::-webkit-scrollbar-thumb:hover,
-.workspace-provider::-webkit-scrollbar-thumb:hover,
-html.workspace-provider ::-webkit-scrollbar-thumb:hover,
-html.workspace-provider::-webkit-scrollbar-thumb:hover,
-.workspace-provider *::-webkit-scrollbar-thumb:hover,
-.dark .workspace-provider ::-webkit-scrollbar-thumb:hover,
-.dark .workspace-provider::-webkit-scrollbar-thumb:hover,
-.dark.workspace-provider ::-webkit-scrollbar-thumb:hover,
-.dark.workspace-provider::-webkit-scrollbar-thumb:hover,
-.dark .workspace-provider *::-webkit-scrollbar-thumb:hover,
-.dark.workspace-provider *::-webkit-scrollbar-thumb:hover {
-  background: #047857 !important;
-}
-
-/* Admin Workspace scrollbar accent (Red) */
-html.workspace-admin,
-body.workspace-admin,
-.workspace-admin,
-.workspace-admin * {
-  scrollbar-color: #dc2626 #fbfaf7 !important;
-}
-
-html.dark.workspace-admin,
-body.dark.workspace-admin,
-.dark .workspace-admin,
-.dark.workspace-admin,
-.dark.workspace-admin * {
-  scrollbar-color: #dc2626 #191919 !important;
-}
-
-.workspace-admin ::-webkit-scrollbar-thumb,
-.workspace-admin::-webkit-scrollbar-thumb,
-html.workspace-admin ::-webkit-scrollbar-thumb,
-html.workspace-admin::-webkit-scrollbar-thumb,
-.workspace-admin *::-webkit-scrollbar-thumb,
-.dark .workspace-admin ::-webkit-scrollbar-thumb,
-.dark .workspace-admin::-webkit-scrollbar-thumb,
-.dark.workspace-admin ::-webkit-scrollbar-thumb,
-.dark.workspace-admin::-webkit-scrollbar-thumb,
-.dark .workspace-admin *::-webkit-scrollbar-thumb,
-.dark.workspace-admin *::-webkit-scrollbar-thumb {
-  background: #dc2626 !important;
-  border-radius: 9999px !important;
-}
-
-.workspace-admin ::-webkit-scrollbar-thumb:hover,
-.workspace-admin::-webkit-scrollbar-thumb:hover,
-html.workspace-admin ::-webkit-scrollbar-thumb:hover,
-html.workspace-admin::-webkit-scrollbar-thumb:hover,
-.workspace-admin *::-webkit-scrollbar-thumb:hover,
-.dark .workspace-admin ::-webkit-scrollbar-thumb:hover,
-.dark .workspace-admin::-webkit-scrollbar-thumb:hover,
-.dark.workspace-admin ::-webkit-scrollbar-thumb:hover,
-.dark.workspace-admin::-webkit-scrollbar-thumb:hover,
-.dark .workspace-admin *::-webkit-scrollbar-thumb:hover,
-.dark.workspace-admin *::-webkit-scrollbar-thumb:hover {
-  background: #b91c1c !important;
+  background: #575550 !important;
 }
 
 @layer base {
@@ -308,20 +357,20 @@ html.workspace-admin::-webkit-scrollbar-thumb:hover,
 }
 
 .ui-text-sans {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .ui-text-sans-medium {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .ui-text-sans-normal {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -329,20 +378,14 @@ html.workspace-admin::-webkit-scrollbar-thumb:hover,
 
 /* Standardize typography for all headings */
 h1,
-h2 {
-  font-family: var(--font-serif), 'Playfair Display', Georgia, serif !important;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-sans), 'Space Grotesk', system-ui, sans-serif !important;
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   letter-spacing: -0.025em;
+  line-height: 1.15;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -379,3 +422,123 @@ h6 {
 .dark::view-transition-new(root) {
   z-index: 1;
 }
+
+/* Infinite Ticker & Floating Card Animations */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes hero-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes hero-float-soft {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.2deg);
+  }
+}
+
+.animate-ticker {
+  animation: ticker 32s linear infinite;
+}
+
+@keyframes ticker-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-ticker-reverse {
+  animation: ticker-reverse 34s linear infinite;
+}
+
+.animate-float {
+  animation: hero-float 5s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: hero-float-soft 6.5s ease-in-out infinite 1s;
+}
+
+/* Ensure landing shell and auth shell headings use modern sans-serif per design skill */
+.landing-shell h1,
+.landing-shell h2,
+.landing-shell h3,
+.landing-shell h4,
+.auth-shell h1,
+.auth-shell h2,
+.auth-shell h3,
+.auth-shell h4 {
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: -0.025em;
+}
+
+.auth-shell {
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker,
+  .animate-ticker-reverse,
+  .animate-float,
+  .animate-float-delayed {
+    animation: none !important;
+  }
+}
+
+/* Architectural Grid Background Patterns per design-taste-frontend */
+.bg-grid-landing {
+  background-size: 44px 44px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.045) 1px, transparent 1px);
+}
+
+:where(.dark, .dark *) .bg-grid-landing {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+}
+
+.bg-grid-pattern {
+  background-size: 56px 56px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+}
+
+:where(.dark, .dark *) .bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+}
+
+.bg-grid-subtle {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+.mask-radial-hero {
+  -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 20%, #000 50%, transparent 100%);
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 20%, #000 50%, transparent 100%);
+}
+
+

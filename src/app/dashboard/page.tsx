@@ -12,13 +12,7 @@ export default function DashboardPage() {
       if (isAuthenticated && user) {
         router.replace(`/${user.role}`);
       } else {
-        const savedRole = localStorage.getItem('workspaceRole');
-        const token = localStorage.getItem('accessToken');
-        if (token && savedRole) {
-          router.replace(`/${savedRole}`);
-        } else {
-          router.replace('/login');
-        }
+        router.replace('/login');
       }
     }
   }, [isAuthenticated, user, authLoading, router]);

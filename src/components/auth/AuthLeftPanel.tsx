@@ -1,109 +1,134 @@
 import React from 'react';
-import { ArrowLeft, Sun, Moon } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, MapPin, Moon, ShieldCheck, Sun } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 interface AuthLeftPanelProps {
   mode: 'login' | 'signup' | 'forgot' | 'reset';
-  step: number;
-  accentBg: string;
+  step?: number;
+  accentBg?: string;
   onBackToHome?: () => void;
 }
 
 export default function AuthLeftPanel({
   mode,
-  step,
-  accentBg,
   onBackToHome,
 }: AuthLeftPanelProps) {
   const { isDark, toggleTheme } = useApp();
 
   return (
-    <div className="hidden md:flex md:w-1/2 h-screen relative bg-[#faf8f5] dark:bg-[#0f1115] flex-col justify-between p-12 overflow-hidden border-r border-slate-200 dark:border-slate-800 select-none transition-colors duration-300 flex-shrink-0">
+    <aside aria-label="ServiceHub Cordova overview" className="relative hidden min-h-[100dvh] flex-shrink-0 flex-col justify-between overflow-hidden bg-[#f5f4f2] p-8 transition-colors duration-300 dark:bg-[#121211] lg:flex lg:w-[44%] xl:p-12">
 
-      {/* Subtle Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff0c_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0c_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0"></div>
-
-      {/* Header Bar */}
+      {/* Top Header Bar */}
       <div className="relative z-10 flex items-center justify-between w-full">
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3">
           <button
             onClick={onBackToHome}
-            className="w-10 h-10 rounded-xl bg-slate-200/40 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700 flex items-center justify-center hover:bg-slate-350/60 dark:hover:bg-slate-700 transition-all text-slate-650 dark:text-slate-300 backdrop-blur-sm focus:outline-none cursor-pointer"
+            className="flex size-10 items-center justify-center rounded-2xl border border-neutral-200/80 bg-white/80 text-neutral-700 shadow-xs backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/80 dark:text-zinc-200 cursor-pointer"
             title="Back to Landing Page"
+            aria-label="Back to Landing Page"
           >
             <ArrowLeft size={18} />
           </button>
-          <div className="flex items-center gap-3">
-            <img 
-              src="/logo.png" 
-              alt="ServiceHub Cordova Logo" 
-              className="h-10 w-10 object-contain rounded-lg shadow-md"
+
+          {/* Floating Brand Pill Matching Landing Header */}
+          <div className="flex items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-1.5 shadow-xs backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/80">
+            <Image
+              src="/logo.svg?v=3"
+              alt="ServiceHub Cordova"
+              width={26}
+              height={26}
+              className="size-6.5 rounded-lg"
+              priority
             />
-            <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-white">
-              ServiceHub Cordova
-            </span>
+            <div className="leading-none pr-1">
+              <span className="block text-xs font-semibold tracking-tight text-[#0a0a0a] dark:text-white">
+                ServiceHub
+              </span>
+              <span className="mt-0.5 block text-[8.5px] font-bold uppercase tracking-[0.2em] text-[#c86544]">
+                Cordova
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="w-10 h-10 rounded-xl bg-slate-200/40 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700 flex items-center justify-center hover:bg-slate-350/60 dark:hover:bg-slate-700 transition-all text-slate-550 dark:text-slate-400 backdrop-blur-sm focus:outline-none cursor-pointer"
+          className="flex size-10 items-center justify-center rounded-2xl border border-neutral-200/80 bg-white/80 text-neutral-700 shadow-xs backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/80 dark:text-zinc-200 cursor-pointer"
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          {isDark ? <Sun size={17} /> : <Moon size={17} />}
         </button>
       </div>
 
-      {/* Main Left Marketing/Intro Content */}
-      <div className="relative z-10 w-full max-w-xl my-auto flex flex-col items-center text-center">
-        {/* Marketing Info Box */}
-        <div className="flex flex-col items-center space-y-3 mb-8 animate-fade-in">
-          <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight text-center">
-            {mode === 'signup' ? 'Join the ServiceHub Cordova Community' : 'Where Talent Meets Opportunity'}
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-md leading-relaxed text-center">
-            {mode === 'signup'
-              ? 'Create your account to connect with verified residents of Cordova, Cebu.'
-              : 'Connect with trusted local talent, request community services, or showcase your skills within the Cordova community—all through secure escrow-protected transactions.'}
-          </p>
+      {/* Main Showcase Centerpiece */}
+      <div className="relative z-10 w-full max-w-lg mx-auto my-auto flex flex-col items-start text-left py-6">
+        
+        {/* Product context */}
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.08] px-3.5 py-1 text-[12px] font-medium tracking-tight text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
+          <MapPin size={13} aria-hidden="true" />
+          <span>Built for Cordova, Cebu</span>
         </div>
 
-        {/* Feature Bullets (Signup only) */}
-        {mode === 'signup' && (
-          <div className="flex flex-col items-start space-y-3 mx-auto mb-8 text-left text-xs text-slate-500 dark:text-[#b4b0a9] bg-white/40 dark:bg-slate-900/30 backdrop-blur-sm border border-slate-200 dark:border-slate-850 rounded-2xl p-5 shadow-sm max-w-md">
-            <div className="flex items-start space-x-2">
-              <span className="text-[#FF5A1F] font-bold">✓</span>
-              <div>
-                <strong className="text-slate-700 dark:text-slate-200">One Account</strong> — Switch between Seeker and Provider anytime.
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-[#FF5A1F] font-bold">✓</span>
-              <div>
-                <strong className="text-slate-700 dark:text-slate-200">Verified Community</strong> — Built exclusively for Cordova residents.
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-[#FF5A1F] font-bold">✓</span>
-              <div>
-                <strong className="text-slate-700 dark:text-slate-200">Safe Transactions</strong> — Resident verification and trust score system.
-              </div>
-            </div>
+        {/* Display Title (Identical Sans Scale to Landing Hero) */}
+        <h1 className="font-sans text-3xl lg:text-[2.35rem] xl:text-[2.65rem] font-semibold tracking-tight text-[#0a0a0a] dark:text-white leading-[1.08]">
+          {mode === 'signup'
+            ? 'One account for local help and local work.'
+            : 'Welcome back to your local service community.'}
+        </h1>
+
+        {/* Subhead and Tagline */}
+        <p className="mt-2.5 text-base font-normal leading-snug tracking-tight text-neutral-800 dark:text-neutral-200">
+          {mode === 'signup'
+            ? 'Move between Seeker and Provider workspaces without splitting your profile, verification, or trust history.'
+            : 'Sign in to manage requests, service listings, messages, and booking activity under one identity.'}
+        </p>
+
+        <section
+          aria-label="How ServiceHub access works"
+          className="mt-6 w-full overflow-hidden rounded-2xl border border-black/10 bg-[#171716] p-5 text-white shadow-[0_16px_36px_-18px_rgba(15,15,15,0.35)] dark:border-white/10"
+        >
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#e18463]">
+            <ShieldCheck size={15} aria-hidden="true" />
+            <span>One local marketplace</span>
           </div>
-        )}
+          <h2 className="mt-3 max-w-md text-xl font-semibold leading-tight tracking-tight">
+            Browse first. Verify when you are ready to transact.
+          </h2>
 
-        {/* Cordova area network badge */}
-        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3.5 py-2 rounded-full w-max text-xs font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(16,185,129,0.05)] mx-auto">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          {mode === 'signup' ? 'Verified Cordova Community' : 'Trusted Local Service Network'}
-        </div>
+          <ol className="mt-5 grid grid-cols-3 border-y border-white/10 py-4">
+            {[
+              ['01', 'Browse', 'Explore public services'],
+              ['02', 'Verify', 'Confirm local eligibility'],
+              ['03', 'Participate', 'Request or offer work'],
+            ].map(([number, title, detail], index) => (
+              <li
+                key={number}
+                className={`min-w-0 px-3 first:pl-0 last:pr-0 ${index > 0 ? 'border-l border-white/10' : ''}`}
+              >
+                <span className="text-[10px] font-semibold tracking-[0.16em] text-white/45">{number}</span>
+                <span className="mt-1 block text-sm font-semibold">{title}</span>
+                <span className="mt-1 block text-[11px] leading-snug text-white/55">{detail}</span>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-4 flex items-center gap-5 text-xs font-medium">
+            <span className="text-[#e18463]">Seek services</span>
+            <span className="h-3 w-px bg-white/15" aria-hidden="true" />
+            <span className="text-emerald-400">Offer services</span>
+          </div>
+        </section>
+
       </div>
 
-      {/* Footer Branding Indicator */}
-      <div className="relative z-10 text-center text-[10px] text-slate-400 dark:text-slate-600 font-medium">
-        © 2026 ServiceHub Cordova. All rights reserved.
+      {/* Footer Assurance */}
+      <div className="relative z-10 flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400 pt-3 border-t border-black/[0.06] dark:border-white/10">
+        <span>Cordova, Cebu, Philippines</span>
+        <span>Online payments use PayMongo Test Mode</span>
       </div>
-    </div>
+    </aside>
   );
 }

@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { ShieldCheck, Star, Calendar, MessageSquare, Trash2, Check, Search, X, CreditCard, Loader2 } from 'lucide-react';
+import { 
+  ShieldCheck, 
+  Star, 
+  LockKeyhole,
+  Check, 
+  Search, 
+  X, 
+  CreditCard, 
+  Loader2, 
+  Clock,
+  MapPin,
+  Inbox
+} from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
-import TransactionBlockedModal from '../TransactionBlockedModal';
+import PaginationBar from '../ui/PaginationBar';
+import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import EmptyState from '../ui/EmptyState';
+import { getServicePaymentMethods } from '../../lib/paymentUtils';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
-  const { bids, jobRequests, acceptBid, declineBid, users, isDark } = useApp();
+  const router = useRouter();
+  const { bids, jobRequests, acceptBid, declineBid, users, isDark, services } = useApp();
   const { canTransact } = useTransactionPermission();
   
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -16,6 +33,28 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   const [loadingBidId, setLoadingBidId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
+  const [referenceTime, setReferenceTime] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReferenceTime(Date.now()), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const selectedOffer = bids.find((bid) => bid.id === selectingPaymentBidId);
+  const acceptedMethods = getServicePaymentMethods(services.find((service) => service.id === selectedOffer?.serviceId));
+
+  // Compute relative time from a full ISO timestamp
+  const formatTimeAgo = (isoStr: string): string => {
+    if (!isoStr) return 'Just now';
+    if (!referenceTime) return 'Recently';
+    const diffMs = referenceTime - new Date(isoStr).getTime();
+    const diffSecs = Math.floor(diffMs / 1000);
+    if (diffSecs < 60) return diffSecs <= 1 ? 'Just now' : `${diffSecs}s ago`;
+    const diffMins = Math.floor(diffSecs / 60);
+    if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+    const diffHrs = Math.floor(diffMins / 60);
+    if (diffHrs < 24) return `${diffHrs} hr${diffHrs > 1 ? 's' : ''} ago`;
+    return `${Math.floor(diffHrs / 24)} day${Math.floor(diffHrs / 24) > 1 ? 's' : ''} ago`;
+  };
 
   // Find current seeker's requests
   const myRequests = jobRequests.filter(r => r.seekerId === currentUserId);
@@ -42,7 +81,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     setLoadingAction('accepting');
     try {
       await acceptBid(bidId, paymentMethod);
-    } catch (err) {
+    } catch {
       // error is already toasted, clean up loading state
     } finally {
       setLoadingBidId(null);
@@ -55,7 +94,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     setLoadingAction('declining');
     try {
       await declineBid(bidId);
-    } catch (err) {
+    } catch {
       // error is already toasted
     } finally {
       setLoadingBidId(null);
@@ -95,11 +134,9 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
       return b.providerRating - a.providerRating;
     }
     if (sortBy === 'trust') {
-      const emailA = getProviderDetails(a.providerId)?.email;
-      const emailB = getProviderDetails(b.providerId)?.email;
-      const trustValA = emailA === 'johnfrans@gmail.com' ? 96 : 92;
-      const trustValB = emailB === 'johnfrans@gmail.com' ? 96 : 92;
-      return trustValB - trustValA;
+      const trustA = getProviderDetails(a.providerId)?.trustScore ?? 50;
+      const trustB = getProviderDetails(b.providerId)?.trustScore ?? 50;
+      return trustB - trustA;
     }
     return 0;
   });
@@ -119,34 +156,32 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
       
-      {/* Search and Sort Filter Bar */}
+      {/* Search & Sort Controls */}
       {pendingBids.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-          {/* Search Box */}
-          <div className={`flex items-center rounded-xl px-3 py-2 w-full sm:max-w-md border transition-all ${
-            isDark ? 'bg-[#1c1b18] border-neutral-800/80' : 'bg-slate-50 border-slate-300'
-          }`}>
-            <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
-              <Search className="w-4 h-4 mr-2" />
-            </span>
-            <input 
-              type="text" 
-              placeholder="Search bids by provider or description..."
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} />
+            <input
+              type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-none outline-none text-xs w-full text-slate-800 dark:text-[#f2efe9] placeholder-slate-400"
+              placeholder="Search by provider name, task, or quote..."
+              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-orange-500 ${
+                isDark 
+                  ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9] placeholder-neutral-500' 
+                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+              }`}
             />
           </div>
 
-          {/* Sort Dropdown */}
-          <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-            <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Sort by:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-400 dark:text-neutral-500">Sort by:</span>
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className={`px-3 py-2 rounded-xl border outline-none font-bold text-xs transition-all ${
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className={`px-3 py-2 rounded-xl border text-xs font-bold transition-colors focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer ${
                 isDark 
-                  ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' 
+                  ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]' 
                   : 'bg-white border-slate-300 text-slate-700'
               }`}
             >
@@ -160,183 +195,195 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
       )}
 
       {pendingBids.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
-        }`}>
-          No incoming bids or proposals at the moment. Keep checking back later!
-        </div>
+        <EmptyState
+          icon={Inbox}
+          title="No Incoming Proposals Yet"
+          description="When local verified providers submit custom quotes on your open task requests, they will appear here with price breakdowns, estimated duration, and trust ratings."
+          actionLabel="Manage Your Requests"
+          onAction={() => router.push('/seeker/request-manager')}
+          accentColor="orange"
+        />
       ) : sortedBids.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
-        }`}>
-          No bids matched your search query. Try typing something else!
-        </div>
+        <EmptyState
+          icon={Search}
+          title="No Matching Offers"
+          description={`No proposals matched your search query "${searchQuery}". Try searching with different keywords.`}
+          actionLabel="Clear Search"
+          onAction={() => setSearchQuery('')}
+          accentColor="orange"
+        />
       ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            {paginatedBids.map((bid) => {
-              const req = getRequestDetails(bid.requestId);
-              const provider = getProviderDetails(bid.providerId);
-              const isVerified = provider?.isVerified ?? false;
-              
-              // Generate dynamic wait or trust rating matching screenshot aesthetics
-              const trustScore = provider?.email === 'johnfrans@gmail.com' ? '96%' : '92%';
-              const formattedDate = new Date(bid.createdAt).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              });
+        <div className="space-y-3">
+          {paginatedBids.map((bid) => {
+            const req = getRequestDetails(bid.requestId);
+            const provider = getProviderDetails(bid.providerId);
+            const isVerified = provider?.verificationStatus === 'APPROVED' || provider?.isVerified;
+            const trustScore = provider?.trustScore ?? 50;
 
-              return (
-                <div 
-                  key={bid.id} 
-                  className={`rounded-[24px] p-6 border shadow-sm transition-colors duration-200 relative overflow-hidden ${
-                    isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300 hover:shadow-md'
-                  }`}
-                >
-                  {/* Accept Flash Overlay */}
-                  {loadingBidId === bid.id && loadingAction === 'accepting' && (
-                    <div className="absolute inset-0 bg-emerald-600/90 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all animate-in fade-in duration-200">
-                      <div className="text-center text-white space-y-1">
-                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mx-auto text-xl font-bold border border-white/30 animate-bounce">
-                          ✓
-                        </div>
-                        <h4 className="font-extrabold text-sm tracking-wide">Accepting Offer...</h4>
-                        <p className="text-[10px] opacity-80">Creating contract and setting up escrow...</p>
+            return (
+              <div 
+                key={bid.id} 
+                className={`rounded-[20px] p-4 sm:p-5 border shadow-sm transition-all duration-200 relative overflow-hidden ${
+                  isDark 
+                    ? 'bg-[#22211e] border-neutral-850 hover:border-neutral-800' 
+                    : 'bg-white border-slate-200 hover:shadow-md'
+                }`}
+              >
+                {/* Accept Flash Overlay */}
+                {loadingBidId === bid.id && loadingAction === 'accepting' && (
+                  <div className="absolute inset-0 bg-orange-600/90 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all animate-in fade-in duration-200">
+                    <div className="text-center text-white space-y-1">
+                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mx-auto text-xl font-bold border border-white/30 animate-bounce">
+                        ✓
                       </div>
+                      <h4 className="font-extrabold text-sm tracking-wide">Accepting Offer...</h4>
+                      <p className="text-[10px] opacity-80">Creating contract and setting up payment...</p>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 items-center">
-                    
-                    {/* Left Column (1/5): Provider profile card */}
-                    <div className={`lg:col-span-1 flex flex-row lg:flex-col items-center justify-between lg:justify-center p-3 lg:p-4 rounded-2xl border text-center space-y-0 lg:space-y-3 h-full ${
-                      isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-200'
-                    }`}>
-                      <div className="flex flex-row lg:flex-col items-center lg:space-y-2 space-x-3 lg:space-x-0">
-                        <img 
-                          src={bid.providerAvatar} 
-                          alt={bid.providerName} 
-                          className="w-12 h-12 rounded-full object-cover border border-slate-100 shadow-sm"
-                        />
-                        <div className="text-left lg:text-center">
-                          <h4 className={`font-bold text-xs ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{bid.providerName}</h4>
-                          {isVerified && (
-                            <span className="inline-flex items-center text-[9px] text-emerald-600 font-semibold mt-0.5">
-                              <ShieldCheck className={`w-3.5 h-3.5 mr-0.5 ${isDark ? 'text-emerald-455 fill-emerald-955/25' : 'fill-emerald-50 text-emerald-600'}`} />
-                              Verified Expert
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="text-right lg:text-center flex flex-col items-end lg:items-center">
-                        <div className="flex items-center text-xs font-bold text-amber-500">
-                          <Star className="w-3.5 h-3.5 mr-0.5 fill-amber-500 text-amber-500" />
-                          <span>{bid.providerRating.toFixed(1)}</span>
-                        </div>
-                        <span className={`text-[9px] font-bold mt-0.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
-                          {trustScore} Trust Score
+                {/* Row 1: Header with Provider Profile (Left) & Offered Bid (Right) */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  {/* Left: Avatar + Provider Name + Badges + Task Title */}
+                  <div 
+                    onClick={() => bid.providerId && router.push(`/seeker/user-profile?id=${bid.providerId}`)}
+                    className="flex items-center gap-3 min-w-0 cursor-pointer group"
+                    title={`View ${bid.providerName}'s profile`}
+                  >
+                    <Image unoptimized width={40} height={40}
+                      src={bid.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(bid.providerName || 'Provider')}&background=random`} 
+                      alt={bid.providerName} 
+                      className="w-10 h-10 rounded-full object-cover border border-neutral-700/60 shadow-sm shrink-0 transition-transform group-hover:scale-105"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className={`font-extrabold text-sm truncate group-hover:text-orange-500 transition-colors ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                          {bid.providerName}
                         </span>
-                      </div>
-                    </div>
-
-                    {/* Center Column (3/5): Proposal details */}
-                    <div className="lg:col-span-3 space-y-4">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <span className={`text-[9px] font-bold block mb-1 uppercase tracking-wider ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>
-                            Offer for your request:
+                        {isVerified && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                            <ShieldCheck className="w-3 h-3" /> Verified
                           </span>
-                          <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            {req?.title || 'Active Broadcast Task'}
-                          </h3>
-                        </div>
-                        <span className={`text-[10px] font-medium whitespace-nowrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>{formattedDate}</span>
-                      </div>
-
-                      <div className={`p-4 rounded-xl flex items-start space-x-3 border ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-600'
-                      }`}>
-                        <MessageSquare className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} />
-                        <p className={`text-xs leading-relaxed font-sans font-medium ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>
-                          "{bid.message}"
-                        </p>
-                      </div>
-
-                      {/* Calendar Availability strip */}
-                      <div className={`flex items-center space-x-2 text-[10px] font-semibold rounded-xl px-3 py-2 border transition-colors duration-200 ${
-                        isDark ? 'bg-[#1c1b18]/60 border-neutral-800/40 text-[#b4b0a9]' : 'bg-slate-50/50 border-slate-200 text-slate-550'
-                      }`}>
-                        <Calendar className={`w-3.5 h-3.5 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-                        <span>Available: Flexible, ready to schedule immediately upon accept.</span>
-                      </div>
-                    </div>
-
-                    {/* Right Column (1/5): Price & stack actions */}
-                    <div className="lg:col-span-1 flex flex-row lg:flex-col justify-between items-stretch h-full space-x-3 lg:space-x-0 lg:space-y-3">
-                      <div className={`border rounded-2xl p-4 flex-1 lg:flex-none flex flex-col justify-center text-center transition-colors duration-200 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800/80' : 'bg-slate-50/60 border-slate-200'
-                      }`}>
-                        <span className={`text-[9px] font-bold uppercase tracking-widest block mb-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                          Offered Price
+                        )}
+                        <span className="text-slate-300 dark:text-neutral-700">•</span>
+                        <span className={`font-bold text-xs ${isDark ? 'text-amber-400/90' : 'text-amber-600'}`}>
+                          {req?.title || 'Custom Task'}
                         </span>
-                        <span className={`text-xl font-extrabold ${isDark ? 'text-orange-500' : 'text-orange-600'}`}>₱{bid.price}</span>
                       </div>
-
-                      <div className="flex flex-row lg:flex-col gap-2 flex-1 lg:flex-none">
-                        <button
-                          disabled={!!loadingBidId}
-                          onClick={() => handleDeclineBid(bid.id)}
-                          className={`flex-1 py-2.5 border font-bold text-[10px] rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
-                            loadingBidId === bid.id && loadingAction === 'declining'
-                              ? 'bg-[#1c1b18] border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                              : isDark 
-                                ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]' 
-                                : 'border-slate-300 hover:bg-red-50 hover:text-red-655 hover:border-red-200 text-slate-550'
-                          }`}
-                        >
-                          {loadingBidId === bid.id && loadingAction === 'declining' ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                              <span>Declining...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Trash2 className="w-3.5 h-3.5" />
-                              <span>Decline</span>
-                            </>
-                          )}
-                        </button>
-                        <button
-                          disabled={!!loadingBidId}
-                          onClick={() => handleAcceptBid(bid.id)}
-                          className={`flex-1 py-2.5 font-extrabold text-[10px] rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center space-x-1 cursor-pointer ${
-                            loadingBidId === bid.id && loadingAction === 'accepting'
-                              ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
-                              : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                          }`}
-                        >
-                          {loadingBidId === bid.id && loadingAction === 'accepting' ? (
-                            <>
-                              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                              <span>Accepting...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-3.5 h-3.5" />
-                              <span>Accept</span>
-                            </>
-                          )}
-                        </button>
+                      <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-slate-500 dark:text-neutral-400 font-medium">
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-red-400" />
+                          {provider?.location || 'Cordova, Cebu'}
+                        </span>
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-0.5 font-semibold text-amber-500">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          Trust: {trustScore}
+                        </span>
+                        {bid.providerRating && bid.providerRating > 0 && (
+                          <>
+                            <span>•</span>
+                            <span className="font-semibold text-amber-500">
+                              ⭐ {bid.providerRating.toFixed(1)}
+                            </span>
+                          </>
+                        )}
+                        <span>•</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {formatTimeAgo(bid.createdAt)}
+                        </span>
                       </div>
                     </div>
+                  </div>
 
+                  {/* Right: Offered Price */}
+                  <div className="flex items-center gap-2.5 sm:text-right shrink-0">
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-neutral-500 block">
+                        Offered Bid
+                      </span>
+                      <span className="text-lg sm:text-xl font-black text-orange-600 dark:text-orange-400">
+                        ₱{Number(bid.price).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Row 2: Proposal Message Body */}
+                <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed mt-3 ${
+                  isDark 
+                    ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9]' 
+                    : 'bg-slate-50 border-slate-200 text-slate-700'
+                }`}>
+                  <p className="whitespace-pre-wrap">{bid.message}</p>
+                </div>
+
+                {/* Row 3: Action Buttons */}
+                <div className={`flex items-center justify-between pt-3 mt-3 border-t ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+                  <span
+                    className={`text-[11px] font-bold flex items-center gap-1.5 ${
+                      isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
+                    }`}
+                  >
+                    <LockKeyhole className="w-3.5 h-3.5" aria-hidden="true" />
+                    <span>Messaging unlocks after acceptance</span>
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={!!loadingBidId}
+                      onClick={() => handleDeclineBid(bid.id)}
+                      className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
+                        loadingBidId === bid.id && loadingAction === 'declining'
+                          ? 'bg-neutral-800 border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                          : isDark
+                            ? 'border-neutral-800 hover:bg-neutral-800 text-red-400'
+                            : 'border-slate-200 hover:bg-red-50 text-red-600'
+                      }`}
+                    >
+                      {loadingBidId === bid.id && loadingAction === 'declining' ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Declining...</span>
+                        </>
+                      ) : (
+                        <>
+                          <X className="w-3 h-3" />
+                          <span>Decline</span>
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={!!loadingBidId}
+                      onClick={() => handleAcceptBid(bid.id)}
+                      className={`px-4 sm:px-5 py-1.5 font-extrabold text-xs rounded-xl shadow-xs transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
+                        loadingBidId === bid.id && loadingAction === 'accepting'
+                          ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                          : 'bg-orange-600 hover:bg-orange-700 text-white'
+                      }`}
+                    >
+                      {loadingBidId === bid.id && loadingAction === 'accepting' ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Accepting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Accept Offer</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            );
+          })}
 
           <PaginationBar
             currentPage={currentPage}
@@ -380,27 +427,20 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 Choose how you want to coordinate payment for this booking:
               </p>
 
-              <button
-                onClick={() => handleSelectPaymentMethod('GCash')}
-                className="w-full flex items-center justify-between p-4 border rounded-2xl hover:border-emerald-500 text-left transition-all active:scale-98 bg-[#0084FF]/5 border-blue-500/20 hover:bg-blue-500/10 cursor-pointer"
-              >
-                <div>
-                  <span className="font-extrabold text-xs block text-slate-955 dark:text-[#f2efe9]">GCash Online</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Secure escrow hold until task complete</span>
-                </div>
-                <span className="text-blue-550 font-extrabold text-xs">GCash</span>
-              </button>
-
-              <button
-                onClick={() => handleSelectPaymentMethod('On-site Cash')}
-                className="w-full flex items-center justify-between p-4 border rounded-2xl hover:border-orange-500 text-left transition-all active:scale-98 bg-orange-500/5 border-orange-500/20 hover:bg-orange-500/10 cursor-pointer"
-              >
-                <div>
-                  <span className="font-extrabold text-xs block text-slate-955 dark:text-[#f2efe9]">On-site Cash</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Pay provider directly in cash at location</span>
-                </div>
-                <span className="text-orange-500 font-extrabold text-xs">Cash</span>
-              </button>
+              {([['On-site Cash', acceptedMethods.cash], ['GCash', acceptedMethods.gcash]] as const)
+                .filter(([, accepted]) => accepted)
+                .map(([method]) => (
+                  <button key={method} onClick={() => handleSelectPaymentMethod(method)}
+                    className="w-full p-4 border rounded-2xl text-left text-sm hover:border-emerald-500">
+                    {method}
+                  </button>
+                ))}
+              {!Object.values(acceptedMethods).some(Boolean) && <p className="text-xs text-red-500">This listing has no available payment method. Refresh the page or choose another offer.</p>}
+              {acceptedMethods.gcash && (
+                <p className={`text-[10px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                  Online checkout uses PayMongo Test Mode. Payment statuses are internal workflow records, not regulated escrow or a real provider payout.
+                </p>
+              )}
 
               {/* Spec Part 5 Cancellation Policy Disclaimer */}
               <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${
@@ -408,7 +448,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   ? 'bg-neutral-900 border-neutral-800 text-neutral-450' 
                   : 'bg-slate-50 border-slate-200 text-slate-500'
               }`}>
-                ⚠️ You can cancel for free anytime before the provider starts the job. Once they've started, cancellation needs their approval.
+                ⚠️ You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.
               </p>
             </div>
           </div>

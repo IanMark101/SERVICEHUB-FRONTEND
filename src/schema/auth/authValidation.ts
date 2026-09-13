@@ -42,8 +42,8 @@ export const signupStep2Schema = z.object({
     .trim()
     .min(1, 'Contact number is required')
     .transform((val) => val.replace(/\s+/g, ''))
-    .refine((val) => /^(\+639|09)\d{9}$/.test(val), {
-      message: 'Invalid PH mobile format (e.g. 09171234567 or +63 917 123 4567)',
+    .refine((val) => /^(\+639|09|9)\d{9}$/.test(val), {
+      message: 'Invalid Philippine mobile format (e.g. 917 123 4567)',
     }),
   location: z.string().trim().min(1, 'Location is required'),
 });

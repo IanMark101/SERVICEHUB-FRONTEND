@@ -1,11 +1,23 @@
-import { api } from '../lib/api/axios';
+import { api, setAccessToken } from '../lib/api/axios';
 
-export async function apiRegister(data: any) {
+let sessionRecoveryRequest: ReturnType<typeof apiGetMe> | null = null;
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  location: string;
+  bio?: string;
+  avatarUrl?: string;
+}
+
+export async function apiRegister(data: RegisterPayload) {
   const response = await api.post('/auth/register', data);
   return response.data;
 }
 
-export async function apiLogin(data: any) {
+export async function apiLogin(data: { email: string; password: string }) {
   const response = await api.post('/auth/login', data);
   return response.data;
 }
@@ -25,6 +37,28 @@ export async function apiGetMe() {
   return response.data;
 }
 
+/**
+ * Deduplicate the initial session check. React intentionally mounts effects
+ * twice in development, but session recovery must still issue only one /me
+ * request and one refresh attempt.
+ */
+export function apiRecoverSession() {
+  if (!sessionRecoveryRequest) {
+    sessionRecoveryRequest = (async () => {
+      // Access tokens are intentionally memory-only. Restore a browser session
+      // from the rotated HttpOnly refresh cookie before requesting /auth/me.
+      const refreshResult = await apiRefresh();
+      const accessToken = refreshResult?.data?.accessToken || refreshResult?.accessToken;
+      if (!accessToken) throw new Error('No access token returned from refresh');
+      setAccessToken(accessToken);
+      return apiGetMe();
+    })().finally(() => {
+      sessionRecoveryRequest = null;
+    });
+  }
+  return sessionRecoveryRequest;
+}
+
 export async function apiVerifyEmail(token: string) {
   const response = await api.get(`/auth/verify-email/${token}`);
   return response.data;
@@ -40,7 +74,7 @@ export async function apiForgotPassword(email: string) {
   return response.data;
 }
 
-export async function apiResetPassword(data: any) {
+export async function apiResetPassword(data: { token: string; password: string }) {
   const response = await api.post('/auth/reset-password', data);
   return response.data;
 }
@@ -61,6 +95,10 @@ export async function apiUpdateProfile(data: {
   phone?: string;
   location?: string;
   avatarUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  websiteUrl?: string;
+  currentPassword?: string;
 }) {
   const response = await api.put('/auth/profile', data);
   return response.data;
@@ -71,3 +109,9 @@ export async function apiChangePassword(data: { currentPassword?: string; newPas
   return response.data;
 }
 
+// Trust Score History — reads real TrustScoreEvent records from DB.
+export async function apiGetTrustHistory(userId?: string) {
+  const url = userId ? `/auth/trust-history/${userId}` : '/auth/trust-history';
+  const response = await api.get(url);
+  return response.data;
+}

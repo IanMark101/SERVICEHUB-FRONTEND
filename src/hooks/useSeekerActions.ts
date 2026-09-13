@@ -17,12 +17,12 @@ import {
   apiConfirmOnlineBooking,
   apiBookDirectFromOffer,
   apiConfirmCompletion,
-  apiDisputeJob,
-  apiCancelQueue
+  apiDisputeJob
 } from '../api/bookings.api';
 import { apiRejectOffer } from '../api/offers.api';
 import { apiSuggestCategory } from '../api/categories.api';
-import { useToast } from '../components/Toast';
+import { useToast } from '../components/ui/Toast';
+import { getApiErrorMessage } from '../lib/api/errors';
 
 interface SeekerActionsDeps {
   users: User[];
@@ -47,26 +47,49 @@ interface SeekerActionsDeps {
 }
 
 export function useSeekerActions({
-  users,
-  services,
   jobRequests,
   bids,
-  jobEngagements,
   dbCategories,
   setJobRequests,
-  setBids,
-  setJobEngagements,
-  setTransactions,
-  setUserReports,
   setCategorySuggestions,
   syncRequests,
   syncEngagements,
   syncBids,
   syncNotifications,
   syncTransactions,
-  helperAddNotification
 }: SeekerActionsDeps) {
   const { success, error: toastError, info } = useToast();
+
+  const resolveCategoryId = (catName: string): string | undefined => {
+    if (!dbCategories || dbCategories.length === 0) return undefined;
+
+    // 0. Direct ID match
+    const directMatch = dbCategories.find(c => c.id === catName);
+    if (directMatch) return directMatch.id;
+
+    const target = catName.trim().toLowerCase();
+
+    // 1. Exact match
+    const exact = dbCategories.find(c => c.name.trim().toLowerCase() === target);
+    if (exact) return exact.id;
+
+    // 2. Keyword match
+    const match = dbCategories.find(c => {
+      const name = c.name.trim().toLowerCase();
+      return name.includes(target) || target.includes(name) ||
+        (target.includes('electric') && name.includes('electric')) ||
+        (target.includes('plumb') && name.includes('plumb')) ||
+        (target.includes('clean') && name.includes('clean')) ||
+        (target.includes('lawn') && (name.includes('lawn') || name.includes('garden'))) ||
+        (target.includes('tutor') && (name.includes('tutor') || name.includes('academic'))) ||
+        (target.includes('aircon') && name.includes('aircon')) ||
+        (target.includes('appliance') && name.includes('appliance')) ||
+        (target.includes('carpent') && name.includes('carpent'));
+    });
+    if (match) return match.id;
+
+    return dbCategories[0]?.id;
+  };
 
   const postJobRequest = async (
     seekerId: string,
@@ -77,8 +100,7 @@ export function useSeekerActions({
     description: string
   ) => {
     try {
-      const catObj = dbCategories.find(c => c.name.toLowerCase() === category.toLowerCase());
-      const catId = catObj ? catObj.id : dbCategories[0]?.id;
+      const catId = resolveCategoryId(category);
       if (catId) {
         const res = await apiCreateRequest({
           categoryId: catId,
@@ -97,8 +119,8 @@ export function useSeekerActions({
       } else {
         toastError('Category Error', 'Please select a valid service category.');
       }
-    } catch (err: any) {
-      toastError('Failed to post request', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Failed to post request', getApiErrorMessage(err, 'Unable to post the request.'));
     }
   };
 
@@ -110,8 +132,8 @@ export function useSeekerActions({
         success('Request Updated', 'Your job request was modified successfully.');
         return;
       }
-    } catch (err: any) {
-      toastError('Update Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Update Failed', getApiErrorMessage(err, 'Unable to update the request.'));
     }
   };
 
@@ -124,8 +146,40 @@ export function useSeekerActions({
         success('Request Deleted', 'Your job request has been removed.');
         return;
       }
-    } catch (err: any) {
-      toastError('Deletion Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Deletion Failed', getApiErrorMessage(err, 'Unable to delete the request.'));
+    }
+  };
+
+  const toggleJobRequestStatus = async (requestId: string, currentStatus?: string): Promise<boolean> => {
+    const current = jobRequests.find(r => r.id === requestId);
+    const effectiveStatus = currentStatus || (current ? current.status : 'OPEN');
+    const isCurrentlyOpen = effectiveStatus === 'OPEN' || effectiveStatus === 'open';
+    const nextStatus = isCurrentlyOpen ? 'CLOSED' : 'OPEN';
+
+    // 1. Instant optimistic state update
+    setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: nextStatus } : r));
+
+    try {
+      // 2. Perform API update
+      const res = await apiUpdateRequest(requestId, { status: nextStatus });
+      if (res.success) {
+        // 3. Notification fires in sync with the actual confirmed update
+        if (nextStatus === 'OPEN') {
+          success('Request Activated 🟢', 'Your task request is now active and visible to providers.');
+        } else {
+          info('Request Paused ⏸️', 'Your task request is paused. Providers cannot submit offers.');
+        }
+        await syncRequests();
+        return true;
+      }
+      return false;
+    } catch (err: unknown) {
+      // Revert optimistic update on failure
+      setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: effectiveStatus as JobRequest['status'] } : r));
+      toastError('Status Update Failed', getApiErrorMessage(err, 'Unable to update the request status.'));
+      await syncRequests();
+      return false;
     }
   };
 
@@ -140,7 +194,6 @@ export function useSeekerActions({
       if (paymentMethod === 'On-site Cash') {
         const res = await apiBookDirect({
           serviceId,
-          agreedPrice: price,
           schedule: 'Immediate',
           message: description,
         });
@@ -153,8 +206,6 @@ export function useSeekerActions({
       } else {
         const payRes = await apiInitiatePayment({
           serviceId,
-          amount: price,
-          description: `Direct Booking payment escrow`,
           paymentMethodType: 'gcash',
         });
         if (payRes.success) {
@@ -162,7 +213,7 @@ export function useSeekerActions({
             localStorage.setItem('pending_service_id', serviceId);
             localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
             localStorage.removeItem('pending_offer_id');
-            info('Redirecting to Payment', 'Please complete the GCash transaction.');
+            info('Redirecting to PayMongo Test Mode', `Please complete the ${paymentMethod} test transaction.`);
             window.location.href = payRes.data.redirectUrl;
             return;
           }
@@ -170,16 +221,16 @@ export function useSeekerActions({
             serviceId,
             paymentIntentId: payRes.data.paymentIntentId,
           });
-          if (confirmRes.success) {
+          if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
             await syncEngagements();
             await syncNotifications();
-            success('Payment Confirmed', 'Booking escrow held and entered queue successfully.');
+            success('Test Payment Recorded', 'The internal payment ledger was updated and your booking entered the provider queue.');
             return;
           }
         }
       }
-    } catch (err: any) {
-      toastError('Booking Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Booking Failed', getApiErrorMessage(err, 'Unable to create the booking.'));
     }
   };
 
@@ -201,8 +252,7 @@ export function useSeekerActions({
           return;
         }
       } else {
-        const providerListing = services.find(s => s.providerId === targetBid.providerId && s.category === targetRequest.category);
-        const serviceId = providerListing?.id;
+        const serviceId = targetBid.serviceId;
 
         if (!serviceId) {
           toastError('Error accepting bid', 'This provider does not have an active listing in this category to hold online queue.');
@@ -211,8 +261,7 @@ export function useSeekerActions({
 
         const payRes = await apiInitiatePayment({
           serviceId,
-          amount: targetBid.price,
-          description: `Online escrow hold for bid acceptance on: ${targetRequest.title}`,
+          offerId: bidId,
           paymentMethodType: 'gcash',
         });
 
@@ -221,7 +270,7 @@ export function useSeekerActions({
             localStorage.setItem('pending_service_id', serviceId);
             localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
             localStorage.setItem('pending_offer_id', bidId);
-            info('Redirecting to Payment', 'Redirecting you to paymongo...');
+            info('Redirecting to PayMongo Test Mode', `Please complete the ${paymentMethod} test transaction.`);
             window.location.href = payRes.data.redirectUrl;
             return;
           }
@@ -231,17 +280,17 @@ export function useSeekerActions({
             offerId: bidId
           });
 
-          if (confirmRes.success) {
+          if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
             await syncEngagements();
             await syncBids();
             await syncRequests();
-            success('Bid Accepted & Escrow Held', 'Queue booking confirmed.');
+            success('Bid Accepted', 'The Test Mode payment was recorded and the queue booking was created.');
             return;
           }
         }
       }
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Action Failed', getApiErrorMessage(err, 'Unable to accept the offer.'));
       throw err;
     }
   };
@@ -254,8 +303,8 @@ export function useSeekerActions({
         success('Bid Declined', 'Offer rejected successfully.');
         return;
       }
-    } catch (err: any) {
-      toastError('Action Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Action Failed', getApiErrorMessage(err, 'Unable to decline the offer.'));
       throw err;
     }
   };
@@ -267,11 +316,11 @@ export function useSeekerActions({
         await syncEngagements();
         await syncNotifications();
         await syncTransactions();
-        success('Service Completed', 'Funds released to the provider.');
+        success('Service Completed', 'The internal payment ledger was marked RELEASED. No provider payout is performed by this capstone.');
         return;
       }
-    } catch (err: any) {
-      toastError('Completion Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Completion Failed', getApiErrorMessage(err, 'Unable to confirm completion.'));
       throw err;
     }
   };
@@ -284,21 +333,8 @@ export function useSeekerActions({
         success('Dispute Filed', 'Admin has been notified and payment has been frozen.');
         return;
       }
-    } catch (err: any) {
-      toastError('Failed to dispute', err.response?.data?.error || err.message);
-      throw err;
-    }
-  };
-
-  const cancelQueue = async (id: string) => {
-    try {
-      const res = await apiCancelQueue(id);
-      if (res.success) {
-        await syncEngagements();
-        success('Queue Entry Cancelled', 'You left the service queue.');
-      }
-    } catch (err: any) {
-      toastError('Cancellation Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Failed to dispute', getApiErrorMessage(err, 'Unable to submit the dispute.'));
       throw err;
     }
   };
@@ -318,8 +354,8 @@ export function useSeekerActions({
         success('Category Suggested', 'Admin will review your category request.');
         return;
       }
-    } catch (err: any) {
-      toastError('Request Failed', err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError('Request Failed', getApiErrorMessage(err, 'Unable to suggest the category.'));
     }
   };
 
@@ -327,11 +363,11 @@ export function useSeekerActions({
     postJobRequest,
     editJobRequest,
     deleteJobRequest,
+    toggleJobRequestStatus,
     acceptBid,
     declineBid,
     confirmJobCompletion,
     disputeJob,
-    cancelQueue,
     suggestCategory,
     bookProviderDirectly
   };

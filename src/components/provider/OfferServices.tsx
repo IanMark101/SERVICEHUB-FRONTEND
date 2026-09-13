@@ -2,17 +2,23 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Briefcase, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import { useToast } from '../ui/Toast';
+import type { ServiceListing } from '../../types';
+import { useRouter } from 'next/navigation';
 
 export default function OfferServices() {
-  const { user, createServiceListing, isDark } = useApp();
+  const { user, createServiceListing, isDark, dbCategories } = useApp();
+  const router = useRouter();
   const { canTransact, navigateToVerification } = useTransactionPermission();
+  const { error } = useToast();
 
   const [title, setTitle] = useState<string>('');
-  const [category, setCategory] = useState<string>('Lawn Care');
+  const [category, setCategory] = useState<string>('');
   const [price, setPrice] = useState<number>(500);
+  const [priceType, setPriceType] = useState<NonNullable<ServiceListing['priceType']>>('FIXED');
   const [description, setDescription] = useState<string>('');
   const [maxQueue, setMaxQueue] = useState<number>(5);
-  const [estTime, setEstTime] = useState<string>('1 hour');
+  const [durationMins, setDurationMins] = useState<number>(30);
   const [availability, setAvailability] = useState<string>('Available Now');
 
   // Payment methods
@@ -20,58 +26,63 @@ export default function OfferServices() {
   const [acceptGCash, setAcceptGCash] = useState<boolean>(true);
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
+  const hasMobileNumber = Boolean(user?.phone?.trim());
 
-  const categories = [
-    { label: 'Plumbing Repair', value: 'Plumbing' },
-    { label: 'House Cleaning', value: 'House Cleaning' },
-    { label: 'Electrical Repair', value: 'Electrical Repair' },
-    { label: 'Gardening & Lawn Care', value: 'Lawn Care' },
-    { label: 'Academic Tutoring', value: 'Tutoring' }
-  ];
+  const categories = dbCategories;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     if (!acceptCash && !acceptGCash) {
-      alert('Please select at least one accepted payment method.');
-      setLoading(false);
+      error('Payment method required', 'Select at least one supported payment method for this listing.');
       return;
     }
 
-    setTimeout(() => {
-      const providerId = user?.id || '';
-      // Mock skill proof url
-      const mockProofUrl = 'cert_uploaded.jpg';
+    const selectedCategory = category || (dbCategories.length > 0 ? dbCategories[0].id : '');
+    if (!selectedCategory) {
+      error('Category required', 'Select the category that best matches this service.');
+      return;
+    }
 
-      createServiceListing(providerId, title, category, price, description, mockProofUrl, { cash: acceptCash, gcash: acceptGCash });
+    setLoading(true);
+    const providerId = user?.id || '';
+    const res = await createServiceListing(
+      providerId,
+      title,
+      selectedCategory,
+      price,
+      description,
+      { cash: acceptCash, gcash: acceptGCash },
+      {
+        serviceType: 'ONE_TIME',
+        priceType,
+        estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
+        queueLimit: Math.max(1, Math.min(10, maxQueue)),
+      }
+    );
 
-      setLoading(false);
-      setSuccess(true);
+    setLoading(false);
 
+    if (res?.success) {
       // Reset form
       setTitle('');
       setDescription('');
       setPrice(500);
-      setCategory('Lawn Care');
+      setCategory(dbCategories.length > 0 ? dbCategories[0].id : '');
+      setPriceType('FIXED');
       setMaxQueue(5);
-      setEstTime('1 hour');
-
-      setTimeout(() => {
-        setSuccess(false);
-      }, 3000);
-    }, 800);
+      setDurationMins(30);
+    }
   };
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-4xl mx-auto space-y-4 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       {/* Form Container Card */}
-      <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+      <div className={`overflow-hidden rounded-3xl border shadow-lg transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
         }`}>
 
         {/* Header */}
-        <div className={`flex items-center space-x-3 mb-6 pb-4 border-b ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+        <div className={`flex items-center space-x-3 border-b px-5 py-4 sm:px-6 ${isDark ? 'border-neutral-850' : 'border-slate-200'}`}>
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
             }`}>
             <Briefcase className="w-5 h-5" />
@@ -87,8 +98,9 @@ export default function OfferServices() {
         </div>
 
         {/* Verification Required Alert Block */}
+        <div className="px-5 py-5 sm:px-6 sm:py-6">
         {!canTransact && (
-          <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 animate-in fade-in duration-200 ${
+          <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-5 animate-in fade-in duration-200 ${
             isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
           }`}>
             <div>
@@ -98,26 +110,17 @@ export default function OfferServices() {
             <button
               type="button"
               onClick={navigateToVerification}
-              className="bg-emerald-650 hover:bg-emerald-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer animate-none"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer"
             >
               Verify Now
             </button>
           </div>
         )}
 
-        {/* Success Alert Banner */}
-        {success && (
-          <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 mb-6 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
-            }`}>
-            <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span>
-            <span>Your service offering has been published and is now active on the marketplace!</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
           {/* Left Column (3/5 width): Main Content fields */}
-          <div className="lg:col-span-3 space-y-5">
+          <div className="space-y-5">
             {/* Service Title */}
             <div>
               <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-650'}`}>
@@ -129,6 +132,8 @@ export default function OfferServices() {
                 disabled={!canTransact}
                 placeholder="e.g. Lawn Mowing and Edge Trimming"
                 value={title}
+                minLength={10}
+                maxLength={100}
                 onChange={(e) => setTitle(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
                     ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-emerald-500/80'
@@ -148,6 +153,8 @@ export default function OfferServices() {
                 disabled={!canTransact}
                 placeholder="Describe what you will do, tools you will use, and what is included in the service..."
                 value={description}
+                minLength={30}
+                maxLength={1000}
                 onChange={(e) => setDescription(e.target.value)}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
                     ? 'bg-[#1c1b18] border-neutral-855 text-[#f2efe9] focus:border-emerald-500/80'
@@ -158,38 +165,57 @@ export default function OfferServices() {
           </div>
 
           {/* Right Column (2/5 width): Configuration details */}
-          <div className="lg:col-span-2 space-y-5 flex flex-col justify-between">
+          <div className="space-y-5 flex flex-col justify-between">
             <div className="space-y-5">
               {/* Category */}
               <div>
                 <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
                   Service Category
                 </label>
+
+                {/* Live category dropdown — driven by admin-approved DB categories */}
                 <select
                   value={category}
+                  required
                   onChange={(e) => setCategory(e.target.value)}
+                  disabled={!canTransact}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
                       ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
                       : 'bg-white border-slate-300 text-slate-750 focus:border-emerald-500'
-                    }`}
+                    } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
                 >
+                  <option value="" disabled>Select a category...</option>
                   {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value} className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>
-                      {cat.label}
+                    <option key={cat.id} value={cat.id} className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>
+                      {cat.name}
                     </option>
                   ))}
                 </select>
               </div>
 
+
+              {/* Engagement model */}
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Booking Model
+                </label>
+                <div className={`rounded-xl border px-3 py-2.5 text-xs font-bold ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>Reusable one-time listing</div>
+                <p className={`text-[10px] mt-1.5 leading-relaxed ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+                  Each accepted request is an independent booking. A satisfied seeker may request this listing again after the previous booking closes.
+                </p>
+              </div>
+
               {/* Base Price */}
               <div>
                 <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Base Price (₱)
+                  Price (₱)
                 </label>
                 <input
                   type="number"
-                  min={1}
-                  required
+                  min={50}
+                  max={50000}
+                  required={priceType !== 'CUSTOM'}
+                  disabled={priceType === 'CUSTOM'}
                   placeholder="e.g. 500"
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
@@ -198,6 +224,33 @@ export default function OfferServices() {
                       : 'bg-white border-slate-300 text-slate-755 focus:border-emerald-500'
                     }`}
                 />
+              </div>
+
+              {/* Pricing Unit */}
+              <div>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                  Pricing Unit
+                </label>
+                <select
+                  value={priceType}
+                  onChange={(e) => setPriceType(e.target.value as NonNullable<ServiceListing['priceType']>)}
+                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
+                      : 'bg-white border-slate-300 text-slate-750 focus:border-emerald-500'
+                    }`}
+                >
+                  <option value="FIXED" className={isDark ? 'bg-[#1c1b18]' : ''}>Fixed Price</option>
+                  <option value="PER_HOUR" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Hour</option>
+                  <option value="PER_DAY" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Day</option>
+                  <option value="PER_PROJECT" className={isDark ? 'bg-[#1c1b18]' : ''}>Per Project</option>
+                  <option value="STARTS_AT" className={isDark ? 'bg-[#1c1b18]' : ''}>Starts At</option>
+                  <option value="CUSTOM" className={isDark ? 'bg-[#1c1b18]' : ''}>Custom</option>
+                </select>
+                {price > 0 && (
+                  <p className={`text-[10px] mt-1.5 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    Preview: ₱{price}{priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : priceType === 'STARTS_AT' ? ' starting at' : ''}
+                  </p>
+                )}
               </div>
 
               {/* Max Queue & Est Time side-by-side */}
@@ -220,19 +273,32 @@ export default function OfferServices() {
                 </div>
 
                 <div>
-                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-650'}`}>
-                    Est. Time
+                  <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-700'}`}>
+                    Est. Duration (Minutes)
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={estTime}
-                    onChange={(e) => setEstTime(e.target.value)}
-                    className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                        ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
-                        : 'bg-white border-slate-300 text-slate-700 focus:border-emerald-500'
-                      }`}
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={15}
+                      max={480}
+                      step={5}
+                      required
+                      value={durationMins}
+                      onChange={(e) => setDurationMins(Math.max(1, Number(e.target.value)))}
+                      className={`w-full px-4 py-3 pr-14 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
+                          ? 'bg-[#1c1b18] border-neutral-850 text-[#f2efe9] focus:border-emerald-500/80'
+                          : 'bg-white border-slate-300 text-slate-700 focus:border-emerald-500'
+                        }`}
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
+                      mins
+                    </span>
+                  </div>
+                  <p className={`text-[10px] mt-1.5 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    {durationMins >= 60
+                      ? `≈ ${Math.floor(durationMins / 60)} hr ${durationMins % 60 ? `${durationMins % 60} mins` : ''}`
+                      : `${durationMins} minutes`}
+                  </p>
                 </div>
               </div>
 
@@ -260,9 +326,9 @@ export default function OfferServices() {
                 <label className={`text-xs font-semibold mb-2 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-650'}`}>
                   Payment Methods Accepted
                 </label>
-                <div className={`border rounded-xl p-4 flex items-center space-x-6 transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-white border-slate-300'
-                  }`}>
-                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
+                <div className={`grid grid-cols-1 gap-2 border rounded-xl p-3 sm:grid-cols-2 transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-white border-slate-300'
+                   }`}>
+                  <label className="flex items-center space-x-2 rounded-lg px-2 py-2 text-xs font-semibold cursor-pointer">
                     <input
                       type="checkbox"
                       checked={acceptCash}
@@ -272,7 +338,7 @@ export default function OfferServices() {
                     <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-800'}>On-site Cash</span>
                   </label>
 
-                  <label className="flex items-center space-x-2 text-xs font-semibold cursor-pointer">
+                  <label className="flex items-center space-x-2 rounded-lg px-2 py-2 text-xs font-semibold cursor-pointer">
                     <input
                       type="checkbox"
                       checked={acceptGCash}
@@ -281,7 +347,19 @@ export default function OfferServices() {
                     />
                     <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-800'}>GCash</span>
                   </label>
+
                 </div>
+                {acceptGCash && !hasMobileNumber && (
+                  <div className={`mt-2 flex flex-col gap-3 rounded-xl border p-3 text-xs sm:flex-row sm:items-center sm:justify-between ${isDark ? 'border-amber-900/50 bg-amber-950/20 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+                    <p className="leading-5">
+                      <span className="font-bold">Complete your mobile contact information.</span>{' '}
+                      PayMongo Test Mode records an internal earning and does not transfer funds to this phone number.
+                    </p>
+                    <button type="button" onClick={() => router.push('/provider/account-settings#contact-information')} className="shrink-0 rounded-lg border border-current px-3 py-2 font-bold hover:bg-amber-500/10">
+                      Add mobile number
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -296,12 +374,13 @@ export default function OfferServices() {
                     : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'
                 }`}
               >
-                {loading ? 'Publishing...' : 'Publish Service Listing'}
+                {loading ? 'Submitting...' : 'Submit Listing for Review'}
               </button>
             </div>
           </div>
 
         </form>
+        </div>
 
       </div>
 
@@ -310,7 +389,7 @@ export default function OfferServices() {
         }`}>
         <Info className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
         <p className="text-[10px] leading-relaxed">
-          Submitting a new service listing publishes your skills to the public Seeker Marketplace. Please check that your pricing is fair, and describe the tasks clearly to avoid disputes.
+          All service listings are submitted to municipal administrators for review before appearing on the public Seeker Marketplace. Please ensure your title, pricing, and description clearly reflect your services.
         </p>
       </div>
 

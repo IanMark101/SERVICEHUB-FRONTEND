@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Calendar, CreditCard, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
+import PaginationBar from '../ui/PaginationBar';
 
 export default function TransactionHistory({ currentUserId = 'u3' }: { currentUserId?: string }) {
-  const { transactions, isDark } = useApp();
+  const { transactions, isDark, hasMoreTransactions, loadMoreTransactions } = useApp();
   const [filterDate, setFilterDate] = useState<string>('');
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
 
   // Filter transactions for currentUserId (as provider OR seeker)
-  const myTransactions = transactions.filter(tx => {
+  const myTransactions = useMemo(() => transactions.filter(tx => {
     const isMine = tx.providerId === currentUserId || tx.seekerId === currentUserId;
     const matchesDate = !filterDate || tx.createdAt === filterDate;
     return isMine && matchesDate;
-  });
+  }), [transactions, currentUserId, filterDate]);
 
   // Calculate total earnings
   const totalEarnings = myTransactions.reduce((sum, tx) => sum + tx.amount, 0);
@@ -39,8 +39,10 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
       const idx = myTransactions.findIndex(tx => tx.jobId === bookingIdParam);
       if (idx !== -1) {
         const targetPage = Math.floor(idx / 8) + 1;
-        goToPage(targetPage);
-        setHighlightedBookingId(bookingIdParam);
+        const stateTimer = window.setTimeout(() => {
+          goToPage(targetPage);
+          setHighlightedBookingId(bookingIdParam);
+        }, 0);
         
         const scrollTimer = setTimeout(() => {
           const element = document.getElementById(`transaction-${bookingIdParam}`);
@@ -54,12 +56,13 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
         }, 3400);
 
         return () => {
+          window.clearTimeout(stateTimer);
           clearTimeout(scrollTimer);
           clearTimeout(clearTimer);
         };
       }
     }
-  }, [bookingIdParam, myTransactions.length]);
+  }, [bookingIdParam, myTransactions, goToPage]);
 
   return (
     <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
@@ -164,13 +167,13 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
                       </span>
                       <span>•</span>
                       
-                      {tx.paymentMethod === 'GCash' ? (
+                      {tx.paymentMethod !== 'On-site Cash' ? (
                         <span className={`inline-flex items-center text-[9px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold ${
                           isDark 
                             ? 'text-blue-400 bg-blue-950/20 border-blue-900/30' 
                             : 'text-blue-600 bg-blue-50 border-blue-100'
                         }`}>
-                          GCash
+                          {tx.paymentMethod}
                         </span>
                       ) : (
                         <span className={`inline-flex items-center text-[9px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold ${
@@ -195,7 +198,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
           </div>
 
           <div className="p-4 border-t border-slate-100 dark:border-neutral-850">
-            <PaginationBar
+      <PaginationBar
               currentPage={currentPage}
               totalPages={totalPages}
               goToPage={goToPage}
@@ -205,7 +208,14 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
               endIndex={endIndex}
               totalItems={myTransactions.length}
               variant="provider"
-            />
+      />
+      {hasMoreTransactions && (
+        <div className="flex justify-center">
+          <button type="button" onClick={loadMoreTransactions} className="rounded-xl border border-emerald-500/30 px-4 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            Load older payment records
+          </button>
+        </div>
+      )}
           </div>
 
         </div>

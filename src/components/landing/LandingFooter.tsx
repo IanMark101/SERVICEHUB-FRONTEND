@@ -1,192 +1,73 @@
+'use client';
+
 import React from 'react';
-import { MapPin, Mail } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 
-interface LandingFooterProps {
-  isDark: boolean;
-  onGetStarted: () => void;
-}
-
-function scrollTo(id: string) {
-  if (typeof window === 'undefined') return;
-  const el = document.getElementById(id);
-  if (!el) return;
-  // Account for the 64px fixed header so the section isn't hidden behind it
-  const top = el.getBoundingClientRect().top + window.scrollY - 68;
-  window.scrollTo({ top, behavior: 'smooth' });
-}
-
-const COLUMNS: { heading: string; links: { label: string; type: 'scroll' | 'route' | 'none'; target: string }[] }[] = [
-  {
-    heading: 'Platform',
-    links: [
-      { label: 'How It Works',        type: 'scroll', target: 'how-it-works' },
-      { label: 'Live Queue System',   type: 'scroll', target: 'queue' },
-      { label: 'Why ServiceHub',      type: 'scroll', target: 'problem' },
-      { label: 'Features & Roles',    type: 'scroll', target: 'workspaces' },
-      { label: 'Trust & Security',    type: 'scroll', target: 'trust' },
-      { label: 'Platform Comparison', type: 'scroll', target: 'comparison' },
-      { label: 'Cordova Community',   type: 'scroll', target: 'community' },
-      { label: 'Community Reviews',   type: 'scroll', target: 'reviews' },
-      { label: 'FAQ',                 type: 'scroll', target: 'faq' },
-      { label: 'Create Account',      type: 'route',  target: '/register' },
-      { label: 'Log In',              type: 'route',  target: '/login' },
-    ],
-  },
-  {
-    heading: 'For Service Seekers',
-    links: [
-      { label: 'Seek Services',        type: 'route',  target: '/login' },
-      { label: 'Post a Request',       type: 'route',  target: '/login' },
-      { label: 'Track Live Queue',     type: 'scroll', target: 'queue' },
-      { label: 'Escrow Payment',       type: 'scroll', target: 'how-it-works' },
-      { label: 'Rate & Review',        type: 'scroll', target: 'how-it-works' },
-      { label: 'Residency Verification', type: 'scroll', target: 'how-it-works' },
-    ],
-  },
-  {
-    heading: 'For Service Providers',
-    links: [
-      { label: 'Browse Jobs',          type: 'route',  target: '/login' },
-      { label: 'Create a Listing',     type: 'route',  target: '/login' },
-      { label: 'Manage Bookings',      type: 'route',  target: '/login' },
-      { label: 'Queue Management',     type: 'scroll', target: 'queue' },
-      { label: 'Escrow Disbursement',  type: 'scroll', target: 'how-it-works' },
-      { label: 'Residency Verification', type: 'scroll', target: 'how-it-works' },
-    ],
-  },
-  {
-    heading: 'Coverage Area',
-    links: [
-      { label: 'Municipality of Cordova', type: 'none', target: '' },
-      { label: 'Brgy. Alegria',        type: 'none', target: '' },
-      { label: 'Brgy. Bangbang',       type: 'none', target: '' },
-      { label: 'Brgy. Buagsong',       type: 'none', target: '' },
-      { label: 'Brgy. Catarman',       type: 'none', target: '' },
-      { label: 'Brgy. Cogon',          type: 'none', target: '' },
-      { label: 'Brgy. Dapitan',        type: 'none', target: '' },
-      { label: 'Brgy. Day-as',         type: 'none', target: '' },
-      { label: 'Brgy. Gabi',           type: 'none', target: '' },
-      { label: 'Brgy. Gilutongan',     type: 'none', target: '' },
-      { label: 'Brgy. Ibabao',         type: 'none', target: '' },
-      { label: 'Brgy. Pilipog',        type: 'none', target: '' },
-      { label: 'Brgy. Poblacion',      type: 'none', target: '' },
-      { label: 'Brgy. San Miguel',     type: 'none', target: '' },
-    ],
-  },
-  {
-    heading: 'Support',
-    links: [
-      { label: 'Contact Admin',        type: 'none', target: '' },
-      { label: 'Help Center',          type: 'none', target: '' },
-      { label: 'System Status',        type: 'none', target: '' },
-      { label: 'Report an Issue',      type: 'none', target: '' },
-    ],
-  },
-  {
-    heading: 'Legal & Policies',
-    links: [
-      { label: 'Privacy Policy',       type: 'none', target: '' },
-      { label: 'Terms of Service',     type: 'none', target: '' },
-      { label: 'Data Protection',      type: 'none', target: '' },
-      { label: 'Acceptable Use Policy', type: 'none', target: '' },
-      { label: 'Cookie Policy',        type: 'none', target: '' },
-    ],
-  },
+const links = [
+  { label: 'How it works', href: '#how-it-works' },
+  { label: 'Workspaces', href: '#workspaces' },
+  { label: 'Queue rules', href: '#queue' },
+  { label: 'Trust ledger', href: '#trust' },
+  { label: 'Community Hub', href: '#community' },
+  { label: 'Help Center', href: '/help' },
 ];
 
-export default function LandingFooter({ isDark, onGetStarted }: LandingFooterProps) {
-  const router = useRouter();
-
-  const bg      = 'bg-[#0d0d0c]';
-  const border  = 'border-neutral-800/60';
-  const heading = 'text-slate-200 font-bold';
-  const link    = 'text-slate-300 hover:text-white';
-  const muted   = 'text-slate-400';
-
-  function handleLink(type: string, target: string) {
-    if (type === 'scroll') scrollTo(target);
-    else if (type === 'route') router.push(target);
-  }
-
+export default function LandingFooter() {
   return (
-    <footer className={`w-full ${bg}`}>
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-0">
-
-        {/* Top section: brand left + columns right */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
-
-          {/* Brand block */}
-          <div className="lg:w-56 shrink-0 space-y-5">
+    <footer className="border-t border-zinc-800/80 bg-zinc-950 text-zinc-400">
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
+        <div className="grid gap-10 md:grid-cols-[1.2fr_0.8fr]">
+          <div className="max-w-md">
             <div className="flex items-center gap-3">
-              <img src="/logo.png" alt="ServiceHub Cordova" className="h-11 w-11 rounded-xl object-contain shadow-md" />
-              <span className="font-black text-lg md:text-xl tracking-tight text-white leading-tight">
-                ServiceHub<br />Cordova
-              </span>
-            </div>
-            <p className="text-sm leading-relaxed text-slate-300">
-              A hyperlocal service marketplace for Cordova, Cebu. Connecting verified providers with residents across all 13 barangays.
-            </p>
-            <div className="space-y-2 text-sm text-slate-300">
-              <div className="flex items-center gap-2">
-                <MapPin size={12} className="opacity-60 shrink-0" />
-                <span>Cordova, Cebu 6017</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail size={12} className="opacity-60 shrink-0" />
-                <a href="mailto:admin@servicehub-cordova.local" className="hover:text-white transition-colors">
-                  admin@servicehub-cordova.local
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Link columns grid */}
-          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
-            {COLUMNS.map((col) => (
-              <div key={col.heading}>
-                <p className={`text-[11px] font-semibold uppercase tracking-widest mb-4 ${heading}`}>
-                  {col.heading}
+              <Image src="/logo.svg?v=3" alt="" width={40} height={40} className="size-10 rounded-xl" />
+              <div>
+                <p className="text-sm font-extrabold text-white">ServiceHub Cordova</p>
+                <p className="mt-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#c86544]">
+                  <MapPin size={12} /> Cordova, Cebu
                 </p>
-                <ul className="space-y-2.5">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      {l.type === 'none' ? (
-                        <span className="text-[13px] text-slate-300">
-                          {l.label}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => handleLink(l.type, l.target)}
-                          className={`text-[13px] text-left transition-colors cursor-pointer ${link}`}
-                        >
-                          {l.label}
-                        </button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className={`mt-14 border-t ${border}`} />
-
-        {/* Bottom bar */}
-        <div className="py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-300">
-              By ServiceHub Cordova
-            </p>
-            <p className={`text-[11px] ${muted}`}>
-              © 2026 ServiceHub Cordova — A capstone project for the Municipality of Cordova, Cebu Province, Philippines.
+            </div>
+            <p className="mt-5 text-sm leading-relaxed text-zinc-400">
+              A hyperlocal marketplace for finding and offering local services through verified resident identities, accountable booking lifecycles, and fair online-payment queues.
             </p>
           </div>
-          <p className={`text-[11px] shrink-0 ${muted}`}>
-            Serving Cordova Local Government Unit
-          </p>
+
+          <div className="flex flex-col justify-between">
+            <nav className="grid grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3" aria-label="Footer">
+              {links.map((link) =>
+                link.href.startsWith('/') ? (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-xs font-semibold text-zinc-400 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="text-xs font-semibold text-zinc-400 transition-colors hover:text-white"
+                  >
+                    {link.label}
+                  </a>
+                )
+              )}
+              <Link href="/terms" className="text-xs font-semibold text-zinc-400 transition-colors hover:text-white">
+                Terms
+              </Link>
+              <Link href="/privacy" className="text-xs font-semibold text-zinc-400 transition-colors hover:text-white">
+                Privacy
+              </Link>
+            </nav>
+
+            <div className="mt-10 border-t border-zinc-900 pt-6 text-[11px] text-zinc-500 sm:flex sm:items-center sm:justify-between">
+              <p>(c) 2026 ServiceHub Cordova. Capstone implementation scoped for Cordova, Cebu.</p>
+              <p className="mt-2 sm:mt-0">Local community accountability platform.</p>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

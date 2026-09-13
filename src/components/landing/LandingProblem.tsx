@@ -1,92 +1,95 @@
+'use client';
+
 import React from 'react';
-import { AlertTriangle, Clock, Lock } from 'lucide-react';
+import { ArrowDown, CheckCircle2, FileCheck2, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingProblemProps {
   isDark: boolean;
 }
 
+const pillars = [
+  {
+    title: 'Residency Verification First',
+    description: 'Verify genuine Cordova residency before starting new marketplace transactions, keeping interactions accountable and local.',
+    icon: ShieldCheck,
+    tag: 'Identity Protection',
+  },
+  {
+    title: 'Protected Booking Lifecycles',
+    description: 'Track requests, provider offers, job-scoped messages, and verified completion receipts instead of relying on chaotic social group chats.',
+    icon: FileCheck2,
+    tag: 'Structured Flow',
+  },
+  {
+    title: 'First-Paid, First-Served Queues',
+    description: 'Fair listing-specific queues with backend payment confirmation for online work, alongside direct arrangements for on-site cash.',
+    icon: CheckCircle2,
+    tag: 'Fair Capacity',
+  },
+];
+
 export default function LandingProblem({ isDark }: LandingProblemProps) {
   return (
-    <section id="problem" className={`py-20 border-y transition-colors duration-500 px-6 md:px-12 w-full relative scroll-mt-20 ${isDark ? 'bg-[#22211e]/40 border-neutral-850' : 'bg-slate-50/50 border-slate-200/60'
-      }`}>
-      {/* Ambient glow decoration */}
-      <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-80 h-80 glow-bubble-orange -z-10 opacity-40 animate-pulse-glow" />
-
-      <div className="max-w-6xl mx-auto space-y-12">
-        <ScrollReveal className="text-center space-y-3">
-          <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Why This Exists</span>
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-            }`}>
-            Finding reliable help in Cordova shouldn't be guesswork
+    <section
+      id="problem"
+      data-theme={isDark ? 'dark' : 'light'}
+      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
+    >
+      <div className="mx-auto max-w-7xl">
+        {/* Section Header: Headline + Subhead, stacked cleanly without redundant eyebrow */}
+        <ScrollReveal className="max-w-3xl">
+          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            Local service work deserves more structure than an unverified social post.
           </h2>
-          <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-            }`}>
-            Traditional social groups leave both seekers and providers vulnerable to flakes, scams, and unfair delays.
+          <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-300 sm:text-lg">
+            ServiceHub replaces casual, unmoderated group posts with a verified community workflow designed specifically for Cordova households and local trades.
           </p>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-all duration-500 ${isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-            }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${isDark ? 'text-amber-505 bg-amber-955/40 border border-neutral-855' : 'text-amber-600 bg-amber-50 border border-amber-100'
-              }`}>
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-              }`}>
-              No way to know who's reliable
-            </h3>
-            <p className={`text-xs leading-relaxed font-medium transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-505'
-              }`}>
-              Posting in a Facebook group means hoping a stranger shows up, with no rating, no history, no accountability if it goes wrong.
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-all duration-500 ${isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-            }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${isDark ? 'text-amber-505 bg-amber-955/40 border border-neutral-855' : 'text-amber-600 bg-amber-50 border border-amber-100'
-              }`}>
-              <Clock className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-              }`}>
-              First come, first served... in theory
-            </h3>
-            <p className={`text-xs leading-relaxed font-medium transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'
-              }`}>
-              Without a real queue, it's whoever messages back fastest — not whoever asked first. That's not actually fair.
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-all duration-500 ${isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-            }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${isDark ? 'text-amber-505 bg-amber-955/40 border border-neutral-855' : 'text-amber-600 bg-amber-50 border border-amber-100'
-              }`}>
-              <Lock className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-              }`}>
-              Payment is always a leap of faith
-            </h3>
-            <p className={`text-xs leading-relaxed font-medium transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-505'
-              }`}>
-              Pay upfront and hope they show up, or pay after and hope they don't ghost you. There's no safe middle ground.
-            </p>
-          </ScrollReveal>
+        {/* 3 Civic Pillars - Distinctive high-contrast cards with subtle borders */}
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {pillars.map((pillar, index) => {
+            const Icon = pillar.icon;
+            return (
+              <ScrollReveal
+                key={pillar.title}
+                direction="scale"
+                delay={index * 0.08}
+                hoverLift
+                className="group relative rounded-2xl border border-neutral-200/80 bg-white p-7 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90 dark:hover:border-zinc-700 sm:p-8"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="grid size-12 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
+                    <Icon size={22} />
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-zinc-500">
+                    {pillar.tag}
+                  </span>
+                </div>
+                <h3 className="mt-8 text-lg font-bold text-slate-950 dark:text-white">
+                  {pillar.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
+                  {pillar.description}
+                </p>
+              </ScrollReveal>
+            );
+          })}
         </div>
 
-        <ScrollReveal className="text-center pt-4">
-          <p className={`text-xs font-bold transition-colors duration-300 ${isDark ? 'text-emerald-450' : 'text-emerald-700'
-            }`}>
-            ServiceHub Cordova was built to fix exactly these three problems — for the community, by the community.
+        {/* Action Link */}
+        <ScrollReveal className="mt-10 flex items-center justify-between border-t border-slate-200/80 pt-6 dark:border-zinc-800">
+          <p className="text-xs font-medium text-slate-500 dark:text-zinc-400">
+            Engineered for genuine community accountability across Cordova, Cebu.
           </p>
+          <a
+            href="#how-it-works"
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#c86544] transition-colors hover:text-[#aa5032] active:scale-[0.98]"
+          >
+            <span>Follow the marketplace flow</span>
+            <ArrowDown size={14} />
+          </a>
         </ScrollReveal>
       </div>
     </section>

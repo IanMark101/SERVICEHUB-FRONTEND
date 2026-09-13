@@ -1,142 +1,304 @@
-import React from 'react';
-import { ArrowRight, Star } from 'lucide-react';
-import ScrollReveal from './ScrollReveal';
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { ArrowRight, Clock, MapPin, UserCheck, Zap } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import type { Variants } from 'motion/react';
 
 interface LandingHeroProps {
   isDark: boolean;
   onGetStarted: () => void;
 }
 
-export default function LandingHero({ isDark, onGetStarted }: LandingHeroProps) {
+const heroSequence: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      delayChildren: 0.08,
+      staggerChildren: 0.09,
+    },
+  },
+};
+
+const heroItem: Variants = {
+  hidden: { opacity: 0, y: 22 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
+export default function LandingHero({ onGetStarted }: LandingHeroProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const [activeTab, setActiveTab] = useState<'seeker' | 'provider'>('seeker');
+  const [simulatedAdvance, setSimulatedAdvance] = useState(false);
+
   return (
-    <section className="relative pt-8 pb-16 md:pt-10 md:pb-24 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden">
-      {/* Soft decorative background glows */}
-      <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-3xl -z-10 pointer-events-none transition-colors duration-500 ${isDark ? 'bg-amber-955/10' : 'bg-amber-100/25'
-        }`} />
+    <section id="top" className="relative min-h-[calc(100svh-80px)] overflow-hidden border-b border-black/[0.06] bg-[#f5f4f2] dark:border-white/10 dark:bg-[#121211]">
+      {/* Background: Clean Warm Limestone with Soft Ambient Atmosphere */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        {/* Soft warm ambient glows */}
+        <div className="absolute -left-24 bottom-0 h-64 w-64 rounded-full bg-[#c86544]/[0.06] blur-3xl dark:bg-orange-500/[0.04]" />
+        <div className="absolute -right-20 top-1/4 h-80 w-80 rounded-full bg-[#c86544]/[0.04] blur-3xl dark:bg-orange-500/[0.03]" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        {/* Left Text Column */}
-        <div className="lg:col-span-7 space-y-6 text-left">
-          <ScrollReveal className="space-y-6">
-            <span className={`inline-flex items-center space-x-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border backdrop-blur-md shadow-sm transition-all duration-300 ${isDark
-              ? 'bg-[#2c2b27]/60 border-neutral-850/50 text-amber-505'
-              : 'bg-amber-50/60 text-amber-700 border-amber-200/40'
-              }`}>
-              <span>★</span>
-              <span>Cordova, Cebu Local Services</span>
-            </span>
+        {/* Seamless bottom fade into ticker */}
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#f5f4f2] to-transparent dark:from-[#121211]" />
+      </div>
 
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12] transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'
-              }`}>
-              Cordova's trusted <br className="hidden sm:inline" />
-              <span className="text-seeker-primary bg-gradient-to-r from-orange-500 to-amber-600 bg-clip-text text-transparent">
-                local service
-              </span>{" "}
-              marketplace
-            </h1>
+      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-80px)] max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10 lg:py-16">
+        {/* Left Column: Calm High-Craft Typography */}
+        <motion.div
+          variants={heroSequence}
+          initial={shouldReduceMotion ? false : 'hidden'}
+          animate="show"
+          className="relative z-10 max-w-2xl"
+        >
+          {/* Cordova scope label */}
+          <motion.div variants={heroItem} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.08] px-3.5 py-1 text-[12px] font-medium tracking-tight text-[#aa5032] transition-colors hover:bg-[#c86544]/[0.12] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
+            <MapPin size={13} aria-hidden="true" />
+            <span>Built for Cordova, Cebu</span>
+          </motion.div>
 
-            <p className={`text-sm md:text-base leading-relaxed font-medium transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-505'
-              }`}>
-              Find help from verified neighbors, or offer your own skills to the community — with fair queues, secure payments, and trust scores you can actually see.
-            </p>
+          {/* Display Title */}
+          <motion.h1 variants={heroItem} className="font-sans text-[clamp(2.75rem,5.5vw,4.5rem)] font-semibold leading-[1.02] tracking-tight text-[#0a0a0a] dark:text-white">
+            ServiceHub Cordova
+          </motion.h1>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
-              <button
-                onClick={onGetStarted}
-                className="w-full sm:w-auto bg-seeker-primary hover:bg-seeker-hover text-white font-extrabold text-sm py-3.5 px-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg active:scale-98 cursor-pointer flex items-center justify-center space-x-2"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <a
-                href="#how-it-works"
-                className={`w-full sm:w-auto border backdrop-blur-md font-bold text-sm py-3.5 px-8 rounded-xl transition-all duration-300 shadow-sm flex items-center justify-center ${isDark
-                  ? 'bg-[#2c2b27]/60 hover:bg-[#33322e]/60 border-neutral-855/50 text-[#f2efe9]'
-                  : 'bg-white/60 hover:bg-slate-50/60 text-slate-700 border-slate-200/50'
-                  }`}
-              >
-                See How It Works
-              </a>
+          {/* Sub-headline */}
+          <motion.p variants={heroItem} className="mt-4 max-w-xl text-xl font-normal leading-snug tracking-tight text-neutral-800 dark:text-neutral-200 sm:text-2xl lg:text-3xl">
+            Local service work, with a clearer way to trust.
+          </motion.p>
+
+          {/* Concise Subtext */}
+          <motion.p variants={heroItem} className="mt-4 max-w-lg text-[14px] leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base">
+            Browse openly. Verified Cordova residents can request or offer services through clear bookings, fair queues, and supported payment paths.
+          </motion.p>
+
+          {/* CTAs with ambient top light shade on the black button (matching reference) */}
+          <motion.div variants={heroItem} className="mt-8 flex flex-col gap-3.5 sm:flex-row">
+            <button
+              type="button"
+              onClick={onGetStarted}
+              className="group/cta relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-[#0a0a0a] px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_14px_32px_-8px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.18)] ring-1 ring-black/30 transition-all duration-300 hover:bg-[#141414] hover:shadow-[0_22px_44px_-10px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.25)] active:scale-[0.98] dark:bg-white dark:text-[#0a0a0a] dark:hover:bg-neutral-100"
+            >
+              {/* Light shade on black button */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-2xl dark:hidden"
+                style={{
+                  background: 'radial-gradient(140% 90% at 50% 0%, rgba(255,255,255,0.18), transparent 60%)',
+                }}
+              />
+              {/* Moving sheen sweep on hover */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover/cta:translate-x-full"
+              />
+              <span className="relative z-10 transition-transform duration-300 group-hover/cta:-translate-x-0.5">
+                Get started
+              </span>
+              <ArrowRight size={16} className="relative z-10 transition-transform duration-300 group-hover/cta:translate-x-1" />
+            </button>
+
+            <a
+              href="#how-it-works"
+              className="group/docs inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-neutral-300 bg-white px-7 py-3.5 text-[15px] font-medium text-neutral-900 shadow-[0_3px_10px_-2px_rgba(0,0,0,0.06)] transition-all duration-300 hover:border-neutral-400 hover:bg-neutral-50 hover:shadow-[0_10px_22px_-6px_rgba(0,0,0,0.12)] active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:border-zinc-700"
+            >
+              <span>See how it works</span>
+              <ArrowRight size={15} className="text-neutral-500 transition-transform duration-300 group-hover/docs:translate-x-1 group-hover/docs:text-neutral-900 dark:text-zinc-400 dark:group-hover/docs:text-white" />
+            </a>
+          </motion.div>
+
+        </motion.div>
+
+        {/* Right Column: High-Craft Clean Interactive Marketplace Terminal */}
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="relative"
+        >
+          <motion.div
+            animate={shouldReduceMotion ? undefined : { y: [0, -6, 0], rotate: [0, 0.22, 0] }}
+            transition={{ duration: 7.5, repeat: Infinity, ease: 'easeInOut' }}
+          >
+          {/* Outer Framed Terminal Card - Clean White Floating Aesthetic */}
+          <div className="relative rounded-2xl border border-neutral-200/90 bg-white/95 p-6 shadow-[0_18px_40px_-14px_rgba(15,15,15,0.12),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95 sm:p-7">
+            {/* Top Toolbar */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-zinc-800/80">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">Marketplace flow preview</span>
+                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-zinc-800 dark:text-zinc-400">
+                  Illustrative
+                </span>
+              </div>
+
+              {/* Perspective Selector */}
+              <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-bold dark:border-zinc-800 dark:bg-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('seeker')}
+                  aria-pressed={activeTab === 'seeker'}
+                  className={`rounded-md px-2.5 py-1 transition-all ${activeTab === 'seeker'
+                      ? 'bg-[#c86544] text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
+                    }`}
+                >
+                  Seeker view
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('provider')}
+                  aria-pressed={activeTab === 'provider'}
+                  className={`rounded-md px-2.5 py-1 transition-all ${activeTab === 'provider'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
+                    }`}
+                >
+                  Provider view
+                </button>
+              </div>
             </div>
 
-            <p className={`text-[11px] font-semibold transition-colors duration-300 ${isDark ? 'text-neutral-500' : 'text-slate-400'
-              }`}>
-              Built exclusively for verified residents of Cordova, Cebu.
-            </p>
-          </ScrollReveal>
-        </div>
-
-        {/* Right Column: Illustrative Card with premium float animation & glassmorphism */}
-        <div className="lg:col-span-5 flex justify-center lg:justify-end">
-          <ScrollReveal className="w-full max-w-[380px]">
-            <div className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-xl relative overflow-hidden transition-all duration-500 hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-2 ${isDark ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 text-[#f2efe9]' : 'bg-white/45 border-white/20 text-[#1c1b18]'
-              }`}>
-              {/* Header / Badge */}
-              <div className="flex justify-between items-center mb-4">
-                <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${isDark ? 'bg-provider-primary/25 text-emerald-400 border border-emerald-900/30' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'
-                  }`}>
-                  ● Verified Provider
-                </span>
-                <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded ${isDark ? 'bg-neutral-855/60 text-neutral-400' : 'bg-slate-100/60 text-slate-500'
-                  }`}>
-                  Illustrative Mock
-                </span>
-              </div>
-
-              {/* Profile info */}
-              <div className="flex items-center space-x-3.5 mb-5">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-lg shadow-inner shadow-black/10">
-                  JB
-                </div>
+            {/* Active Service Showcase */}
+            <motion.div
+              key={activeTab}
+              initial={shouldReduceMotion ? false : { opacity: 0, x: activeTab === 'seeker' ? -10 : 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className={`mt-5 rounded-2xl border bg-slate-50/70 p-4.5 transition-colors dark:bg-zinc-950/50 ${
+              activeTab === 'seeker'
+                ? 'border-orange-200/80 dark:border-orange-900/40'
+                : 'border-emerald-200/80 dark:border-emerald-900/40'
+            }`}
+            >
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h4 className="font-extrabold text-sm tracking-tight">Junrel Bacalso</h4>
-                  <p className={`text-[11px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>Electrical & Appliance Repair</p>
-                </div>
-              </div>
-
-              {/* Platform stats */}
-              <div className="grid grid-cols-2 gap-4 mb-5">
-                <div className={`p-3 rounded-xl border ${isDark ? 'bg-neutral-850/45 border-neutral-855/50' : 'bg-slate-50/70 border-slate-100/50'}`}>
-                  <span className={`text-[10px] block font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Trust Score</span>
-                  <div className="flex items-center space-x-1.5">
-                    <span className="font-black text-lg text-emerald-500">85</span>
-                    <span className={`text-[10px] font-bold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>/100</span>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-900 dark:bg-orange-950/50 dark:text-orange-300">
+                      Electrical & Repairs
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-zinc-400">Poblacion, Cordova</span>
                   </div>
-                </div>
-                <div className={`p-3 rounded-xl border ${isDark ? 'bg-neutral-850/45 border-neutral-855/50' : 'bg-slate-50/70 border-slate-100/50'}`}>
-                  <span className={`text-[10px] block font-bold uppercase tracking-wider mb-1 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Active Queue</span>
-                  <div className="flex items-center space-x-1.5">
-                    <span className="font-black text-lg text-seeker-primary">2</span>
-                    <span className={`text-[10px] font-bold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>in line</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Price & Rating */}
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <span className={`text-[10px] block font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Hourly Rate</span>
-                  <span className="font-black text-base">₱350/hr</span>
+                  <h2 className="mt-1.5 text-base font-bold text-slate-900 dark:text-white">
+                    Emergency Circuit Breaker & Wiring Diagnostic
+                  </h2>
                 </div>
                 <div className="text-right">
-                  <span className={`text-[10px] block font-bold uppercase tracking-wider ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Rating</span>
-                  <div className="flex items-center justify-end space-x-1">
-                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                    <span className="font-extrabold text-sm">4.9</span>
-                  </div>
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-white">PHP 650</span>
+                  <span className="block text-[10px] text-slate-500 dark:text-zinc-400">est. 2 hrs</span>
                 </div>
               </div>
 
-              {/* Action */}
-              <button
-                onClick={onGetStarted}
-                className="w-full bg-provider-primary hover:bg-provider-hover text-white font-bold text-xs py-3 rounded-xl transition-all duration-300 shadow-sm cursor-pointer"
-              >
-                Book Now
-              </button>
+              {/* Provider Info Pill */}
+              <div className="mt-3.5 flex items-center justify-between border-t border-slate-200/60 pt-3 text-xs dark:border-zinc-800">
+                <div className="flex items-center gap-2">
+                  <div className="grid size-7 place-items-center rounded-full bg-emerald-100 font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    MR
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-800 dark:text-zinc-200">Mateo Rosal</span>
+                    <span className="ml-1 text-[11px] text-slate-500 dark:text-zinc-400">Master Electrician</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                  <UserCheck size={13} />
+                  <span>Cordova Resident Verified</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Simulated Live Queue Stream */}
+            <div className="mt-5 space-y-2.5">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-zinc-300">
+                <span>Active Queue Progression</span>
+                <span className="text-[11px] font-normal text-slate-500 dark:text-zinc-400">Capacity: 2 of 5</span>
+              </div>
+
+              {/* Queue Item 1: Serving */}
+              <div className="flex items-center justify-between rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-3 text-xs dark:border-emerald-900/40 dark:bg-emerald-950/20">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-6 place-items-center rounded-lg bg-emerald-600 text-[10px] font-bold text-white">
+                    #1
+                  </span>
+                  <div>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.p
+                        key={simulatedAdvance ? 'complete' : 'serving'}
+                        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="font-bold text-emerald-950 dark:text-emerald-200"
+                      >
+                        {simulatedAdvance ? 'Service Complete' : 'Service In Progress'}
+                      </motion.p>
+                    </AnimatePresence>
+                    <p className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
+                      Barangay Ibabao site inspection
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400">
+                  <Clock size={13} />
+                  <span>{simulatedAdvance ? 'Done' : 'Serving'}</span>
+                </div>
+              </div>
+
+              {/* Queue Item 2: Up Next */}
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-800/60">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-6 place-items-center rounded-lg bg-orange-500 text-[10px] font-bold text-white">
+                    #2
+                  </span>
+                  <div>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.p
+                        key={`${activeTab}-${simulatedAdvance}`}
+                        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
+                        transition={{ duration: 0.2 }}
+                        className="font-bold text-slate-900 dark:text-white"
+                      >
+                        {activeTab === 'seeker'
+                          ? simulatedAdvance ? 'Your Service Is In Progress' : 'Your Booking Is Next'
+                          : simulatedAdvance ? 'Current Booking In Progress' : 'Next Eligible Booking'}
+                      </motion.p>
+                    </AnimatePresence>
+                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                      Confirmed via GCash Test Mode
+                    </p>
+                  </div>
+                </div>
+                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-zinc-700 dark:text-zinc-300">
+                  {simulatedAdvance ? 'In progress' : activeTab === 'seeker' ? 'Position 2' : 'Ready next'}
+                </span>
+              </div>
             </div>
-          </ScrollReveal>
-        </div>
+
+            {/* Interactive Demo Footer */}
+            <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setSimulatedAdvance((prev) => !prev)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#c86544] transition-colors hover:text-[#aa5032] active:scale-[0.98]"
+              >
+                <Zap size={14} />
+                <span>{simulatedAdvance ? 'Reset preview simulation' : 'Advance simulated queue'}</span>
+              </button>
+              <Link
+                href="/help"
+                className="text-xs font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+              >
+                Learn queue rules
+              </Link>
+            </div>
+          </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

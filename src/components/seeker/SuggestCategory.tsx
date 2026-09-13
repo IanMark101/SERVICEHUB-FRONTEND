@@ -1,38 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Lightbulb, Send, Sparkles } from 'lucide-react';
+import { Lightbulb, Send, Tags, CheckCircle2, XCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
+import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import { apiGetMyCategorySuggestions } from '../../api/categories.api';
+import { useToast } from '../ui/Toast';
+import type { CategorySuggestion } from '../../types';
 
 export default function SuggestCategory() {
-  const { categorySuggestions, suggestCategory, isDark } = useApp();
+  const { categorySuggestions, suggestCategory, isDark, user } = useApp();
+  const { canTransact, navigateToVerification } = useTransactionPermission();
+  const { error } = useToast();
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const [expandedSuggestionId, setExpandedSuggestionId] = useState<string | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const [dbSuggestions, setDbSuggestions] = useState<CategorySuggestion[]>([]);
 
-  // Filter suggestions submitted by Alex Mercer
-  const mySuggestions = categorySuggestions.filter(s => s.suggestedBy === 'Alex Mercer');
+  const fetchMySuggestions = () => {
+    apiGetMyCategorySuggestions()
+      .then(res => {
+        if (res.success && Array.isArray(res.data)) {
+          setDbSuggestions(res.data);
+        }
+      })
+      .catch(() => {});
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchMySuggestions();
+  }, []);
+
+  // Combine context and DB suggestions for instant optimistic update + DB persistence
+  const mySuggestions = dbSuggestions.length > 0
+    ? dbSuggestions
+    : categorySuggestions.filter(s => s.suggestedBy === `${user?.firstName} ${user?.lastName}`.trim() || s.suggestedBy === user?.firstName);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !description.trim()) {
-      alert('Please fill out all fields.');
+      error('Incomplete suggestion', 'Enter a category name and a short explanation before submitting.');
       return;
     }
 
     setLoading(true);
 
-    setTimeout(() => {
-      suggestCategory('Alex Mercer', name, description);
-      setLoading(false);
+    try {
+      await suggestCategory(`${user?.firstName} ${user?.lastName}`.trim() || 'User', name, description);
       setSuccess(true);
       setName('');
       setDescription('');
-
+      fetchMySuggestions();
       setTimeout(() => {
         setSuccess(false);
       }, 3000);
-    }, 800);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClear = () => {
@@ -53,7 +78,7 @@ export default function SuggestCategory() {
           <Lightbulb className={`w-6 h-6 ${isDark ? 'text-orange-400 fill-orange-400/5' : 'text-orange-600 fill-orange-500/10'}`} />
         </div>
         <div className="space-y-1">
-          <h2 className={`text-sm font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Can't find what you need?</h2>
+          <h2 className={`text-sm font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Can&apos;t find what you need?</h2>
           <p className={`text-[10px] leading-relaxed max-w-md ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
             Help us grow our marketplace! Suggest new categories of work you need done, and we will source local providers matching those specialties.
           </p>
@@ -69,11 +94,30 @@ export default function SuggestCategory() {
             }`}>
 
             <div className={`flex items-center space-x-2 border-b pb-4 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-              <Sparkles className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-500'}`} />
+              <Tags className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-500'}`} />
               <h3 className={`font-extrabold text-xs uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'}`}>
                 Submit a Category Suggestion
               </h3>
             </div>
+
+            {/* Verification Required Banner */}
+            {!canTransact && (
+              <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in duration-200 ${
+                isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
+              }`}>
+                <div>
+                  <span className="font-bold">Verification Required:</span>
+                  <span className="font-medium ml-1">You must complete Cordova Residency Verification before submitting category suggestions.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={navigateToVerification}
+                  className="bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer"
+                >
+                  Verify Now
+                </button>
+              </div>
+            )}
 
             {/* Success alert banner */}
             {success && (
@@ -94,6 +138,7 @@ export default function SuggestCategory() {
                 <input
                   type="text"
                   required
+                  disabled={!canTransact}
                   placeholder="e.g. Pet Grooming, Mobile Car Wash, AC Repair"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -112,6 +157,7 @@ export default function SuggestCategory() {
                 <textarea
                   rows={5}
                   required
+                  disabled={!canTransact}
                   placeholder="Describe the typical tasks or services that would fall under this category..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -136,8 +182,12 @@ export default function SuggestCategory() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="px-5 py-2 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer"
+                  disabled={loading || !canTransact}
+                  className={`px-5 py-2 font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer ${
+                    !canTransact
+                      ? 'bg-neutral-500 opacity-50 cursor-not-allowed text-white'
+                      : 'bg-orange-600 hover:bg-orange-700 text-white'
+                  }`}
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{loading ? 'Submitting...' : 'Submit Suggestion'}</span>
@@ -161,46 +211,138 @@ export default function SuggestCategory() {
             {mySuggestions.length === 0 ? (
               <p className="text-[10px] text-slate-400 py-2">No past suggestions submitted yet.</p>
             ) : (
-              <div className="space-y-3.5 max-h-[400px] overflow-y-auto pr-1">
-                {mySuggestions.map((suggestion) => (
-                  <div
-                    key={suggestion.id}
-                    className={`border rounded-2xl p-4 flex items-start justify-between gap-4 transition-colors duration-200 ${isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-200'
-                      }`}
-                  >
-                    <div className="space-y-1">
-                      <h4 className={`font-extrabold text-xs ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{suggestion.name}</h4>
-                      <p className={`text-[10px] leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>
-                        {suggestion.description}
-                      </p>
-                    </div>
+              <div className="space-y-3.5 max-h-[460px] overflow-y-auto pr-1">
+                {mySuggestions.map((suggestion) => {
+                  const statusNormalized = (suggestion.status || 'PENDING').toUpperCase();
+                  const isApproved = statusNormalized === 'APPROVED';
+                  const isRejected = statusNormalized === 'REJECTED';
+                  const isPending = statusNormalized === 'PENDING';
+                  const isExpanded = expandedSuggestionId === suggestion.id;
 
-                    {suggestion.status === 'pending' && (
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex-shrink-0 ${isDark
-                          ? 'text-amber-400 bg-amber-950/20 border-amber-900/30'
-                          : 'text-amber-600 bg-amber-50 border-amber-100'
+                  const formattedDate = suggestion.createdAt
+                    ? new Date(suggestion.createdAt).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })
+                    : 'Recently';
+
+                  return (
+                    <div
+                      key={suggestion.id}
+                      onClick={() => setExpandedSuggestionId(isExpanded ? null : suggestion.id)}
+                      className={`border rounded-2xl p-4 space-y-3 transition-all duration-200 cursor-pointer select-none group ${
+                        isExpanded
+                          ? isDark
+                            ? 'bg-[#282723] border-orange-500/60 shadow-lg ring-1 ring-orange-500/20'
+                            : 'bg-white border-orange-500/60 shadow-md ring-1 ring-orange-500/20'
+                          : isDark
+                          ? isRejected
+                            ? 'bg-[#1c1b18] border-red-900/40 hover:border-red-700/60'
+                            : isApproved
+                            ? 'bg-[#1c1b18] border-emerald-900/40 hover:border-emerald-700/60'
+                            : 'bg-[#1c1b18] border-neutral-850 hover:border-neutral-700'
+                          : isRejected
+                          ? 'bg-red-50/20 border-red-200 hover:border-red-300'
+                          : isApproved
+                          ? 'bg-emerald-50/20 border-emerald-200 hover:border-emerald-300'
+                          : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className={`font-extrabold text-xs tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                              {suggestion.name}
+                            </h4>
+                            <span className="text-[9px] text-slate-400 font-medium">
+                              • {formattedDate}
+                            </span>
+                          </div>
+
+                          <p
+                            className={`text-[10px] leading-relaxed transition-all ${
+                              isExpanded
+                                ? isDark
+                                  ? 'text-[#e2ded6]'
+                                  : 'text-slate-700'
+                                : `line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`
+                            }`}
+                          >
+                            {suggestion.description}
+                          </p>
+
+                          {!isExpanded && (
+                            <span className="inline-block text-[9px] font-bold text-orange-500 opacity-80 group-hover:opacity-100 transition-opacity">
+                              Click to view full reasoning & details ↓
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {isPending && (
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
+                              isDark ? 'text-amber-400 bg-amber-950/20 border-amber-900/30' : 'text-amber-600 bg-amber-50 border-amber-100'
+                            }`}>
+                              <Clock className="w-2.5 h-2.5" />
+                              Pending
+                            </span>
+                          )}
+                          {isApproved && (
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
+                              isDark ? 'text-emerald-450 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-600 bg-emerald-50 border-emerald-200'
+                            }`}>
+                              <CheckCircle2 className="w-2.5 h-2.5" />
+                              Approved
+                            </span>
+                          )}
+                          {isRejected && (
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
+                              isDark ? 'text-red-400 bg-red-950/20 border-red-900/30' : 'text-red-650 bg-red-50 border-red-200'
+                            }`}>
+                              <XCircle className="w-2.5 h-2.5" />
+                              Declined
+                            </span>
+                          )}
+
+                          <ChevronDown
+                            className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                              isExpanded ? 'rotate-180 text-orange-500' : 'group-hover:text-slate-300'
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Admin Feedback Box */}
+                      {isApproved && (
+                        <div className={`p-2.5 rounded-xl border text-[10px] flex items-center gap-2 ${
+                          isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
                         }`}>
-                        Pending
-                      </span>
-                    )}
-                    {suggestion.status === 'approved' && (
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex-shrink-0 ${isDark
-                          ? 'text-emerald-450 bg-emerald-950/20 border-emerald-900/30'
-                          : 'text-emerald-600 bg-emerald-50 border-emerald-200'
+                          <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0 text-emerald-500" />
+                          <span><strong>Added to Catalog:</strong> This category is now active on ServiceHub. Providers can offer services under this category.</span>
+                        </div>
+                      )}
+
+                      {isRejected && (
+                        <div className={`p-2.5 rounded-xl border text-[10px] flex items-center gap-2 ${
+                          isDark ? 'bg-red-950/20 border-red-900/30 text-red-400' : 'bg-red-50 border-red-200 text-red-800'
                         }`}>
-                        Approved
-                      </span>
-                    )}
-                    {suggestion.status === 'rejected' && (
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex-shrink-0 ${isDark
-                          ? 'text-red-400 bg-red-950/20 border-red-900/30'
-                          : 'text-red-650 bg-red-50 border-red-200'
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-red-500" />
+                          <span><strong>Admin Review:</strong> This category was reviewed and not approved for the marketplace catalog. You may submit a different suggestion with more specific details.</span>
+                        </div>
+                      )}
+
+                      {isPending && (
+                        <div className={`p-2.5 rounded-xl border text-[10px] flex items-center gap-2 ${
+                          isDark ? 'bg-amber-955/15 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-100 text-amber-800'
                         }`}>
-                        Declined
-                      </span>
-                    )}
-                  </div>
-                ))}
+                          <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
+                          <span><strong>In Review:</strong> Our administrative team will review this category suggestion soon.</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

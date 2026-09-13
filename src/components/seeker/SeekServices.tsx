@@ -1,47 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
-import { Search, Star, ShieldCheck, Clock, CheckCircle2, MapPin, Smartphone } from 'lucide-react';
+import { Search } from 'lucide-react';
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
-import PaginationBar from '../PaginationBar';
-import { getServicePaymentMethods, getPrimaryBookingCTA } from '../../lib/paymentUtils';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
-import TransactionBlockedModal from '../TransactionBlockedModal';
+import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
+import { joinServiceRoom } from '../../lib/socket';
+import { apiJoinWaitlist } from '../../api/bookings.api';
+import { useToast } from '../ui/Toast';
+import SuggestCategoryModal from './SuggestCategoryModal';
+import { apiGetProviderSummary } from '../../api/ai.api';
+import ServiceMarketplaceGrid from './seek-services/ServiceMarketplaceGrid';
+import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 
 export default function SeekServices() {
-  const { services, users, isDark, user } = useApp();
+  const router = useRouter();
+  const { services, users, isDark, user, dbCategories, jobEngagements } = useApp();
   const { canTransact } = useTransactionPermission();
+  const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  const [linkedServiceId, setLinkedServiceId] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
+  const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
+  const [isSuggestModalOpen, setIsSuggestModalOpen] = useState<boolean>(false);
 
   // Quick Filters state
-  const [activeFilter, setActiveFilter] = useState<'all' | 'near' | 'available' | 'rated' | 'low-queue'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      const category = params.get('category');
+      const serviceId = params.get('serviceId');
+      if (category) setSelectedCategory(category);
+      if (serviceId) setLinkedServiceId(serviceId);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const handleCategoryChange = (cat: string) => {
+    if (cat === selectedCategory) return;
+    setIsLoading(true);
+    setLinkedServiceId(null);
+    setSelectedCategory(cat);
+    setTimeout(() => setIsLoading(false), 300);
+  };
+
+  const handleFilterChange = (filter: typeof activeFilter) => {
+    if (filter === activeFilter) return;
+    setIsLoading(true);
+    setActiveFilter(filter);
+    setTimeout(() => setIsLoading(false), 250);
+  };
 
   const categories = [
     'All Categories',
-    'Plumbing Repair',
-    'House Cleaning',
-    'Electrician',
-    'Gardening',
-    'Tutoring',
-    'Aircon Service',
-    'Appliance Repair'
+    ...dbCategories.map(c => c.name)
   ];
 
-  // Map category tabs to actual database category names
-  const categoryMap: Record<string, string> = {
-    'Plumbing Repair': 'Plumbing',
-    'House Cleaning': 'House Cleaning',
-    'Electrician': 'Electrical Repair',
-    'Gardening': 'Lawn Care',
-    'Tutoring': 'Tutoring',
-    'Aircon Service': 'Aircon Service',
-    'Appliance Repair': 'Appliance Repair'
-  };
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'On-site Cash'>('On-site Cash');
 
@@ -50,20 +77,81 @@ export default function SeekServices() {
       setBlockedModalOpen(true);
       return;
     }
+    if (listing.isPaused) {
+      toastError('This service is currently paused by the provider and is not accepting new bookings.');
+      return;
+    }
+    const existingActive = jobEngagements.find(je => 
+      je.seekerId === user?.id &&
+      je.serviceId === listing.id &&
+      ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+    );
+    if (existingActive) {
+      toastInfo('Active Booking', 'You already have an active booking for this service. Redirecting to Activity...');
+      router.push(`/seeker/seeker-activity?tab=all&booking=${existingActive.id}`);
+      return;
+    }
     setSelectedPaymentMethod(method);
     setSelectedListing(listing);
+  };
+
+  const prefetchProviderSummary = (listing: ServiceListing) => {
+    if (!canTransact || !listing.providerId) return;
+    void apiGetProviderSummary(listing.providerId, listing.id).catch(() => {
+      // Booking remains available even when the optional digest cannot load.
+    });
   };
 
   const handleCloseModal = () => {
     setSelectedListing(null);
   };
 
+  const handleJoinWaitlist = async (listing: ServiceListing) => {
+    if (!canTransact) {
+      setBlockedModalOpen(true);
+      return;
+    }
+    const existingActive = jobEngagements.find(je => 
+      je.seekerId === user?.id &&
+      je.serviceId === listing.id &&
+      ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+    );
+    if (existingActive) {
+      toastInfo('Active Booking', 'You already have an active booking for this service.');
+      router.push(`/seeker/seeker-activity?tab=all&booking=${existingActive.id}`);
+      return;
+    }
+    if (listing.isPaused) {
+      toastError('This service is currently paused by the provider and is not accepting waitlist entries.');
+      return;
+    }
+    setJoiningWaitlistId(listing.id);
+    try {
+      await apiJoinWaitlist(listing.id);
+      toastSuccess(`You're on the waitlist! We will notify you as soon as a slot opens for "${listing.title}".`);
+    } catch (err: unknown) {
+      const message = getApiErrorMessage(err, 'Failed to join waitlist. Please try again.');
+      if (getApiErrorStatus(err) === 409 || message.toLowerCase().includes('already')) {
+        toastInfo('You are already on the waitlist for this service.');
+      } else {
+        toastError(message);
+      }
+    } finally {
+      setJoiningWaitlistId(null);
+    }
+  };
+
   // Filter listings based on category tabs, search strings, and quick filter options
   const filteredServices = services.filter(service => {
+    // 0. Marketplace visibility guard: hide paused or unapproved listings
+    if (service.isPaused) return false;
+    if (service.status && service.status !== 'ACTIVE') return false;
+
     // 1. Search Query filter
     const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = 
-      service.title.toLowerCase().includes(query) ||
+    const matchesSearch = linkedServiceId
+      ? service.id === linkedServiceId
+      : service.title.toLowerCase().includes(query) ||
       service.description.toLowerCase().includes(query) ||
       service.providerName.toLowerCase().includes(query) ||
       service.category.toLowerCase().includes(query) ||
@@ -73,18 +161,21 @@ export default function SeekServices() {
       (query === 'electrical' && service.category.toLowerCase().includes('electrical')) ||
       (query === 'electrician' && service.category.toLowerCase().includes('electrical'));
 
-    // 2. Category Tab filter
-    const targetCategory = categoryMap[selectedCategory];
-    const matchesCategory = selectedCategory === 'All Categories' || service.category === targetCategory;
+    // 2. Category Tab filter — pills use live DB category names
+    const matchesCategory = selectedCategory === 'All Categories' || service.category.toLowerCase() === selectedCategory.toLowerCase();
 
     // 3. Quick Filter conditions
     let matchesQuickFilter = true;
     if (activeFilter === 'available') {
-      matchesQuickFilter = !service.isPaused;
+      // Show services that are not paused AND not at queue capacity
+      const queueLimit = service.queueLimit ?? 5;
+      matchesQuickFilter = !service.isPaused && service.queueSize < queueLimit;
     } else if (activeFilter === 'rated') {
-      matchesQuickFilter = service.rating >= 4.8;
+      // Top Rated: trustScore >= 80 → rating >= 4.0 (trustScore / 20)
+      matchesQuickFilter = service.rating >= 4.0;
     } else if (activeFilter === 'low-queue') {
-      matchesQuickFilter = service.queueSize <= 1;
+      // Low queue: 2 or fewer people in line
+      matchesQuickFilter = service.queueSize <= 2;
     }
     return matchesSearch && matchesCategory && matchesQuickFilter;
   });
@@ -106,10 +197,19 @@ export default function SeekServices() {
     return users.find(u => u.id === providerId);
   };
 
+  // ─── Join Socket.io rooms for every visible service ─────────────────────────
+  // This ensures real-time queue_update events from the backend are received
+  // and the queue counter badge updates instantly without waiting for polling.
+  useEffect(() => {
+    paginatedServices.forEach((service) => {
+      joinServiceRoom(service.id);
+    });
+  }, [paginatedServices]);
+
   return (
     <div className={`space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
-      <LimitedModeDashboardCard />
+      <LimitedModeDashboardCard role="seeker" />
 
       {/* Search Banner */}
       <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
@@ -132,7 +232,10 @@ export default function SeekServices() {
               type="text"
               placeholder="What service are you looking for?"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setLinkedServiceId(null);
+                setSearchQuery(e.target.value);
+              }}
               className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
                 }`}
             />
@@ -150,7 +253,7 @@ export default function SeekServices() {
       <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>Quick Filters:</span>
         <button
-          onClick={() => setActiveFilter('all')}
+          onClick={() => handleFilterChange('all')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -163,7 +266,7 @@ export default function SeekServices() {
           All
         </button>
         <button
-          onClick={() => setActiveFilter('available')}
+          onClick={() => handleFilterChange('available')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'available'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -177,7 +280,7 @@ export default function SeekServices() {
           Available Now
         </button>
         <button
-          onClick={() => setActiveFilter('rated')}
+          onClick={() => handleFilterChange('rated')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'rated'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -191,7 +294,7 @@ export default function SeekServices() {
           Top Rated
         </button>
         <button
-          onClick={() => setActiveFilter('low-queue')}
+          onClick={() => handleFilterChange('low-queue')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'low-queue'
               ? isDark
                 ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
@@ -211,7 +314,7 @@ export default function SeekServices() {
         {categories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() => handleCategoryChange(cat)}
             className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${selectedCategory === cat
                 ? isDark
                   ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950'
@@ -226,226 +329,38 @@ export default function SeekServices() {
         ))}
       </div>
 
-      {/* Provider Services Card Grid */}
-      {filteredServices.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
-          }`}>
-          No service listings found matching the active criteria.
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedServices.map((service) => {
-              const provider = getProviderDetails(service.providerId);
-              const trustScore = provider?.email === 'johnfrans@gmail.com' ? '96' : '99';
-              const isVerified = provider?.isVerified ?? false;
-              const { cash, gcash } = getServicePaymentMethods(service);
-              const ctaText = getPrimaryBookingCTA(service);
-              const isOwned = !!(user && service.providerId === user.id);
-
-              return (
-                <div
-                  key={service.id}
-                  className={`rounded-[24px] p-5 border transition-all duration-200 flex flex-col justify-between h-full ${isDark
-                      ? 'bg-[#22211e] border-neutral-855 hover:border-orange-500/40 hover:shadow-lg'
-                      : 'bg-white border-slate-200 hover:border-orange-500/40 hover:shadow-md'
-                    }`}
-                >
-                  <div>
-                    {/* Card Header: Profile Info */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={service.providerAvatar}
-                          alt={service.providerName}
-                          className="w-10 h-10 rounded-full object-cover border border-slate-100"
-                        />
-                        <div>
-                          <h4 className={`font-bold text-xs leading-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            {service.providerName}
-                          </h4>
-
-                          {isVerified && (
-                            <span className="inline-flex items-center text-[10px] text-emerald-600 font-semibold mt-0.5">
-                              <ShieldCheck className={`w-3.5 h-3.5 mr-0.5 ${isDark ? 'text-emerald-450 fill-emerald-950/20' : 'fill-emerald-50 text-emerald-600'}`} />
-                              Verified
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Rating star / Trust badge */}
-                      <div className="text-right flex flex-col items-end">
-                        <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-md border text-[11px] font-bold ${isDark
-                            ? 'bg-amber-950/20 text-amber-400 border-amber-900/30'
-                            : 'bg-amber-50 border-amber-150/50 text-amber-700'
-                          }`}>
-                          <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                          <span>{service.rating}</span>
-                        </span>
-                        <span className={`text-[10px] font-bold mt-1 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                          {trustScore}% Trust
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Category Tag & Ownership Badge */}
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
-                          ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                          : 'text-orange-600 bg-orange-50 border-orange-100/50'
-                        }`}>
-                        {service.category}
-                      </span>
-                      {isOwned && (
-                        <span className={`inline-flex items-center px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
-                            ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                            : 'text-orange-655 bg-orange-50 border-orange-200'
-                          }`}>
-                          👤 Owned by You
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Service Listing Details */}
-                    <div className="mt-3">
-                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                        {service.title}
-                      </h3>
-                      <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
-                        {service.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Divider Line */}
-                  <div className={`border-t my-4 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`} />
-
-                  {/* Availability/Queue & Price block */}
-                  <div className="flex items-center justify-between">
-                    {/* Left: Status */}
-                    <div className="flex flex-col space-y-1">
-                      {service.queueSize > 0 ? (
-                        <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                          <Clock className="w-3.5 h-3.5 mr-1 text-amber-500 animate-none" />
-                          <span>Busy (Queue: {service.queueSize})</span>
-                        </div>
-                      ) : (
-                        <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-emerald-450' : 'text-emerald-600'}`}>
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-500 animate-none" />
-                          <span>Available Now</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right: Price */}
-                    <div className="text-right">
-                      <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Starting at</span>
-                      <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{service.price}</span>
-                    </div>
-                  </div>
-
-                  {/* Payment Methods Badges — driven by provider's selection */}
-                  <div className="flex flex-wrap gap-1.5 mt-4">
-                    {cash && (
-                      <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-[#1c1b18] border-neutral-855 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-500'
-                        }`}>
-                        <MapPin className={`w-3 h-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`} />
-                        <span>On-site Cash</span>
-                      </span>
-                    )}
-                    {gcash && (
-                      <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-orange-950/20 border-orange-900/30 text-orange-400' : 'bg-orange-50 border-orange-100 text-orange-600'
-                        }`}>
-                        <Smartphone className={`w-3 h-3 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-                        <span>GCash</span>
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="mt-4 space-y-2">
-                    {isOwned ? (
-                      <div className="space-y-2">
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => window.location.href = `/provider/service-manager?id=${service.id}`}
-                            className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
-                                ? 'bg-orange-950/20 border border-orange-900/30 text-orange-400 hover:bg-orange-955'
-                                : 'bg-orange-50 border border-orange-200 text-orange-655 hover:bg-orange-100'
-                              }`}
-                          >
-                            <span>Edit Listing</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => window.location.href = `/provider/service-manager`}
-                            className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
-                                ? 'bg-[#22211e] border border-neutral-800/80 text-[#b4b0a9] hover:bg-[#2c2b27]'
-                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                              }`}
-                          >
-                            <span>Performance</span>
-                          </button>
-                        </div>
-                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} title="Self-transaction policy: Marketplace transactions with your own account are not allowed.">
-                          You cannot book your own service.
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        {/* Primary CTA — opens modal pre-selecting the right method */}
-                        <button
-                          type="button"
-                          onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
-                          className={`w-full font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${
-                            gcash && !cash
-                              ? 'bg-orange-600 hover:bg-orange-700 text-white'
-                              : isDark
-                                ? 'bg-[#f2efe9] hover:bg-white text-slate-950'
-                                : 'bg-[#1a2238] hover:bg-[#111726] text-white'
-                          }`}
-                        >
-                          {gcash && !cash
-                            ? <Smartphone className="w-3.5 h-3.5" />
-                            : <MapPin className="w-3.5 h-3.5" />}
-                          <span>{ctaText}</span>
-                        </button>
-
-                        {/* Secondary GCash button only when BOTH methods are supported */}
-                        {cash && gcash && (
-                          <button
-                            type="button"
-                            onClick={() => handleBookListing(service, 'GCash')}
-                            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
-                          >
-                            <Smartphone className="w-3.5 h-3.5" />
-                            <span>Book with GCash</span>
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-
-                </div>
-              );
-            })}
-          </div>
-
-          <PaginationBar
-            currentPage={currentPage}
-            totalPages={totalPages}
-            goToPage={goToPage}
-            nextPage={nextPage}
-            prevPage={prevPage}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={filteredServices.length}
-            variant="seeker"
-          />
-        </div>
-      )}
+      <ServiceMarketplaceGrid
+        model={{
+          router,
+          isDark,
+          isLoading,
+          activeFilter,
+          setActiveFilter,
+          searchQuery,
+          setSearchQuery,
+          selectedCategory,
+          setSelectedCategory,
+          filteredServices,
+          paginatedServices,
+          currentPage,
+          totalPages,
+          goToPage,
+          nextPage,
+          prevPage,
+          startIndex,
+          endIndex,
+          getProviderDetails,
+          user,
+          jobEngagements,
+          canTransact,
+          setBlockedModalOpen,
+          handleBookListing,
+          handleJoinWaitlist,
+          joiningWaitlistId,
+          setIsSuggestModalOpen,
+          prefetchProviderSummary
+        }}
+      />
 
       {/* Direct Booking Modal trigger */}
       {selectedListing && (
@@ -460,6 +375,13 @@ export default function SeekServices() {
       <TransactionBlockedModal
         isOpen={blockedModalOpen}
         onClose={() => setBlockedModalOpen(false)}
+      />
+
+      {/* Suggest Category Modal */}
+      <SuggestCategoryModal
+        isOpen={isSuggestModalOpen}
+        onClose={() => setIsSuggestModalOpen(false)}
+        initialQuery={searchQuery}
       />
 
     </div>

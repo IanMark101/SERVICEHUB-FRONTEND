@@ -15,7 +15,16 @@ export async function apiGetMyRequests() {
   return response.data;
 }
 
-export async function apiUpdateRequest(id: string, data: any) {
+type RequestUpdate = Partial<{
+  title: string;
+  description: string;
+  budgetMin: number;
+  budgetMax: number;
+  urgency: string;
+  status: string;
+}>;
+
+export async function apiUpdateRequest(id: string, data: RequestUpdate) {
   const response = await api.patch(`/requests/${id}`, data);
   return response.data;
 }

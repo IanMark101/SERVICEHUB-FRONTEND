@@ -1,97 +1,138 @@
+'use client';
+
 import React from 'react';
-import { ShieldCheck, Eye, Lock } from 'lucide-react';
+import { BadgeCheck, CheckCircle2, CircleAlert, Lock, MessagesSquare, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingTrustProps {
   isDark: boolean;
 }
 
+const safeguards = [
+  {
+    title: 'Residency Verification Gate',
+    copy: 'Approved Cordova residency is required before users can initiate bookings, submit offers, or process payments.',
+    icon: BadgeCheck,
+  },
+  {
+    title: 'Visible Trust History',
+    copy: 'Trust history reflects verified system events, completed work, eligible reviews, and moderation decisions instead of paid promotion.',
+    icon: CircleAlert,
+  },
+  {
+    title: 'Booking-Scoped Communication',
+    copy: 'Direct chat unlocks strictly within confirmed bookings and active proposals, eliminating unsolicited spam.',
+    icon: MessagesSquare,
+  },
+];
+
 export default function LandingTrust({ isDark }: LandingTrustProps) {
   return (
-    <section id="trust" className={`py-20 border-y transition-colors duration-500 px-6 md:px-12 w-full scroll-mt-20 ${
-      isDark ? 'bg-[#22211e]/40 border-neutral-850' : 'bg-slate-50/50 border-slate-200/60'
-    }`}>
-      <div className="max-w-6xl mx-auto space-y-12">
-        <ScrollReveal className="text-center space-y-3">
-          <span className="text-[10px] font-bold text-provider-primary uppercase tracking-widest block font-sans">Security First</span>
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${
-            isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-          }`}>
-            Built on trust, not luck
-          </h2>
-          <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${
-            isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-          }`}>
-            We protect your time and money at every stage of the transaction.
-          </p>
+    <section
+      id="trust"
+      data-theme={isDark ? 'dark' : 'light'}
+      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
+    >
+      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
+        {/* Left Column: illustrative trust profile without invented scores */}
+        <ScrollReveal direction="left" className="relative rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-lg shadow-black/[0.03] dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-9">
+          {/* Header of the illustrative card */}
+          <div className="flex items-center justify-between border-b border-slate-200/70 pb-5 dark:border-zinc-800">
+            <div className="flex items-center gap-2.5">
+              <div className="grid size-9 place-items-center rounded-xl bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900 dark:text-white">Trust profile overview</p>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400">How marketplace history is represented</p>
+              </div>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600 dark:bg-zinc-800 dark:text-zinc-300">
+              Illustrative
+            </span>
+          </div>
+
+          {/* Trust status summary */}
+          <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-950/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                  Residency status
+                </p>
+                <p className="mt-1 font-sans text-xl font-extrabold text-slate-950 dark:text-white">
+                  Verified resident
+                </p>
+              </div>
+              <div className="rounded-xl bg-emerald-50 px-3 py-1.5 text-right dark:bg-emerald-950/40">
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">Admin reviewed</span>
+                <span className="block text-[10px] text-slate-500 dark:text-zinc-400">Cordova residency</span>
+              </div>
+            </div>
+
+            {/* Example trust-history inputs */}
+            <div className="mt-4 divide-y divide-slate-100 border-t border-slate-100 text-xs dark:divide-zinc-800/80 dark:border-zinc-800/80">
+              <div className="flex items-center justify-between py-2.5">
+                <span className="flex items-center gap-2 text-slate-700 dark:text-zinc-300">
+                  <CheckCircle2 size={14} className="text-emerald-600" />
+                  Residency verification decision
+                </span>
+                <span className="font-bold text-slate-500 dark:text-zinc-400">Recorded</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="flex items-center gap-2 text-slate-700 dark:text-zinc-300">
+                  <CheckCircle2 size={14} className="text-emerald-600" />
+                  Confirmed completed service
+                </span>
+                <span className="font-bold text-slate-500 dark:text-zinc-400">Recorded</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="flex items-center gap-2 text-slate-700 dark:text-zinc-300">
+                  <CheckCircle2 size={14} className="text-emerald-600" />
+                  Eligible completion-linked review
+                </span>
+                <span className="font-bold text-slate-500 dark:text-zinc-400">Visible</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Privacy & Security Note */}
+          <div className="mt-5 flex items-center gap-2 rounded-xl bg-slate-100/70 px-4 py-3 text-xs text-slate-600 dark:bg-zinc-800/50 dark:text-zinc-400">
+            <Lock size={14} className="shrink-0 text-slate-500" />
+            <span>Verification files stay on restricted review paths. Payment credentials are handled by PayMongo in Test Mode.</span>
+          </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-all duration-500 ${
-            isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-          }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${
-              isDark ? 'text-emerald-450 bg-emerald-950/40 border border-neutral-855' : 'text-emerald-600 bg-emerald-50 border border-emerald-100'
-            }`}>
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight transition-colors duration-300 ${
-              isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-            }`}>
-              Verified Residents Only
-            </h3>
-            <p className={`text-xs leading-relaxed font-medium transition-colors duration-300 ${
-              isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-            }`}>
-              Every provider — and every seeker who wants to book — proves they actually live in Cordova before they can transact.
+        {/* Right Column: Narrative & Safeguards */}
+        <div>
+          <ScrollReveal direction="right">
+            <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+              Trust signals grounded in real marketplace action.
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-400">
+              ServiceHub combines residency status, completed work, eligible reviews, and moderation history into one accountable profile.
             </p>
           </ScrollReveal>
 
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-all duration-500 ${
-            isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-          }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${
-              isDark ? 'text-emerald-450 bg-emerald-950/40 border border-neutral-855' : 'text-emerald-600 bg-emerald-50 border border-emerald-100'
-            }`}>
-              <Eye className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight transition-colors duration-300 ${
-              isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-            }`}>
-              Trust Scores You Can See
-            </h3>
-            <p className={`text-xs leading-relaxed font-medium transition-colors duration-300 ${
-              isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-            }`}>
-              Every user has a visible trust score from 0–100, built from completed jobs, reviews, and history. No guessing who's reliable.
-            </p>
-          </ScrollReveal>
-
-          <ScrollReveal className={`p-6 rounded-[24px] border backdrop-blur-xl shadow-lg space-y-4 hover:-translate-y-1.5 transition-all duration-500 ${
-            isDark
-              ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-              : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-          }`}>
-            <div className={`p-3 rounded-2xl w-12 h-12 flex items-center justify-center shadow-inner ${
-              isDark ? 'text-emerald-455 bg-emerald-955/40 border border-neutral-855' : 'text-emerald-600 bg-emerald-50 border border-emerald-100'
-            }`}>
-              <Lock className="w-6 h-6" />
-            </div>
-            <h3 className={`font-bold text-base sm:text-lg tracking-tight transition-colors duration-300 ${
-              isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-            }`}>
-              Payments Held Until the Job's Done
-            </h3>
-            <p className={`text-xs leading-relaxed font-medium transition-colors duration-300 ${
-              isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-            }`}>
-              Online payments are held securely and only released once you confirm the work is actually complete.
-            </p>
-          </ScrollReveal>
+          <div className="mt-9 divide-y divide-slate-200/80 border-y border-slate-200/80 dark:divide-zinc-800 dark:border-zinc-800">
+            {safeguards.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <ScrollReveal key={item.title} direction="right" delay={0.08 * index} className="flex gap-4 py-6">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-emerald-600 dark:bg-zinc-900 dark:text-emerald-400">
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-950 dark:text-white">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
+                      {item.copy}
+                    </p>
+                  </div>
+                </ScrollReveal>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

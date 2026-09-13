@@ -1,44 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 
 export function usePagination<T>(items: T[], itemsPerPage: number) {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
 
-  // Reset to page 1 if items length, order, or composition changes
-  const itemsSignature = items.map((item, idx) => (item as any).id || (item as any).title || idx).join(',');
-  
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [itemsSignature, itemsPerPage]);
+  const visiblePage = Math.min(currentPage, totalPages);
 
-  const goToPage = (page: number) => {
+  const goToPage = useCallback((page: number) => {
     const pageNumber = Math.max(1, Math.min(page, totalPages));
     setCurrentPage(pageNumber);
-  };
+  }, [totalPages]);
 
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
+  const nextPage = useCallback(() => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  }, [totalPages]);
 
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
-  };
+  const prevPage = useCallback(() => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  }, []);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setCurrentPage(1);
-  };
+  }, []);
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  const startIndex = (visiblePage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedItems = items.slice(startIndex, endIndex);
 
   return {
-    currentPage,
+    currentPage: visiblePage,
     totalPages,
     paginatedItems,
     goToPage,

@@ -12,49 +12,23 @@ import {
   CategorySuggestion,
   UserReport
 } from '../types';
-import {
-  mockUsers,
-  mockServices,
-  mockJobRequests,
-  mockBids,
-  mockJobEngagements,
-  mockTransactions,
-  mockNotifications,
-  mockMessages,
-  mockCategorySuggestions,
-  mockUserReports
-} from './mockData';
-import { apiGetCategories } from '../api/categories.api';
-import { apiGetRequests } from '../api/requests.api';
-import { apiGetReceivedOffers, apiGetMyOffers } from '../api/offers.api';
-import { apiGetMyEngagements, apiConfirmOnlineBooking } from '../api/bookings.api';
-import { apiGetNotifications } from '../api/notifications.api';
-import { apiBrowseServices } from '../api/services.api';
-import { apiGetTransactions } from '../api/transactions.api';
-import { apiGetConversations } from '../api/messages.api';
 import { UserSession } from '../components/auth/LoginContainer';
-import { apiGetMe } from '../api/auth.api';
-import { connectSocket, disconnectSocket } from '../lib/socket';
+import { apiRecoverSession } from '../api/auth.api';
+import { clearAccessToken } from '../lib/api/axios';
 
 
 // Modular Helpers and Hooks
-import {
-  mapBookingToEngagement,
-  mapCompletedServiceToEngagement,
-  mapServiceToListing,
-  mapRequestToJobRequest,
-  mapOfferToBid,
-  mapDbNotification,
-  mapDbTransaction
-} from './mappers';
 import { useSeekerActions } from '../hooks/useSeekerActions';
 import { useProviderActions } from '../hooks/useProviderActions';
-import { useAdminActions } from '../hooks/useAdminActions';
 import { useSharedActions } from '../hooks/useSharedActions';
+import { useAppDataSync } from '../hooks/useAppDataSync';
+import { useToast } from '../components/ui/Toast';
 
 interface AppContextType {
   users: User[];
   services: ServiceListing[];
+  setServices: React.Dispatch<React.SetStateAction<ServiceListing[]>>;
+  refreshServices: () => void;
   jobRequests: JobRequest[];
   bids: Bid[];
   jobEngagements: JobEngagement[];
@@ -63,6 +37,11 @@ interface AppContextType {
   messages: Message[];
   categorySuggestions: CategorySuggestion[];
   userReports: UserReport[];
+  // Live admin-controlled category list. Always sourced from the database.
+  // Populated on mount and refreshable via refreshCategories().
+  // OfferServices and SeekServices use this — never hardcoded lists.
+  dbCategories: { id: string; name: string }[];
+  refreshCategories: () => void;
 
   // Auth helper callbacks
   updateUserProfile: (userId: string, data: Partial<User>) => void;
@@ -71,28 +50,49 @@ interface AppContextType {
   postJobRequest: (seekerId: string, title: string, category: string, urgency: string, budget: number, description: string) => void;
   editJobRequest: (requestId: string, title: string, budget: number, description: string) => void;
   deleteJobRequest: (requestId: string) => void;
+  toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
   acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => void;
   declineBid: (bidId: string) => void;
   confirmJobCompletion: (jobId: string) => void;
   disputeJob: (jobId: string, reason: string) => void;
   suggestCategory: (seekerName: string, name: string, description: string) => void;
   bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash') => void;
-  cancelQueue: (id: string) => void;
 
   // Provider actions
-  createServiceListing: (providerId: string, title: string, category: string, price: number, description: string, proofUrl: string, paymentMethods: { cash: boolean; gcash: boolean }) => void;
-  editServiceListing: (serviceId: string, title: string, price: number, description: string) => void;
+  createServiceListing: (
+    providerId: string,
+    title: string,
+    category: string,
+    price: number,
+    description: string,
+    paymentMethods: { cash: boolean; gcash: boolean },
+    options?: {
+      serviceType?: ServiceListing['serviceType'];
+      priceType?: ServiceListing['priceType'];
+      estimatedDurationMins?: number;
+      queueLimit?: number;
+    }
+  ) => Promise<{ success: boolean; data?: unknown; error?: string } | void>;
+  editServiceListing: (
+    serviceId: string,
+    title: string,
+    price: number,
+    description: string,
+    options?: {
+      priceType?: ServiceListing['priceType'];
+      serviceType?: ServiceListing['serviceType'];
+      estimatedDurationMins?: number;
+      paymentMethods?: { cash: boolean; gcash: boolean };
+    }
+  ) => void;
   toggleServiceListingStatus: (serviceId: string) => void;
+  deleteServiceListing: (serviceId: string) => void;
   submitBid: (requestId: string, providerId: string, price: number, message: string) => void;
   respondToDirectBooking: (jobId: string, accept: boolean) => void;
   requestJobApproval: (jobId: string) => void;
   providerStartJob: (id: string) => void;
-  providerRemoveFromQueue: (id: string) => void;
 
   // Admin actions
-  verifyProvider: (providerId: string, approve: boolean) => void;
-  approveCategorySuggestion: (suggestionId: string, approve: boolean) => void;
-  resolveDispute: (jobId: string, payoutToProvider: boolean) => void;
 
   // Shared actions
   sendMessage: (senderId: string, receiverId: string, text: string) => void;
@@ -102,55 +102,127 @@ interface AppContextType {
   refreshEngagements: () => void;
   refreshAll: () => void;
   user: UserSession | null;
-  setUser: (user: UserSession | null) => void;
+  setUser: (user: UserSession | null | ((prev: UserSession | null) => UserSession | null)) => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (auth: boolean) => void;
   authLoading: boolean;
   unreadMessagesCount: number;
   syncUnreadMessages: () => Promise<void>;
+  loadMoreNotifications: () => void;
+  hasMoreNotifications: boolean;
+  loadMoreTransactions: () => void;
+  hasMoreTransactions: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") === "dark";
-    }
-    return false;
-  });
+  const [users, setUsers] = useState<User[]>([]);
+  // Keep the server render and the client's first render identical. Browser
+  // preferences are restored after hydration; the root initializer prevents a
+  // visible theme flash before React starts.
+  const [isDark, setIsDark] = useState(false);
 
   // Global Auth States
-  const [user, setUser] = useState<UserSession | null>(null);
+  const [user, setUserState] = useState<UserSession | null>(null);
+
+  const setUser = useCallback((valOrFn: UserSession | null | ((prev: UserSession | null) => UserSession | null)) => {
+    setUserState(prev => {
+      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
+      if (typeof window !== 'undefined') {
+        if (next) {
+          localStorage.setItem('userSession', JSON.stringify(next));
+        } else {
+          localStorage.removeItem('userSession');
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  // Cached profile data is only a session hint. Protected data waits until the
+  // HttpOnly refresh cookie has restored an in-memory token and /auth/me passes.
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
+  const { success: toastSuccess, error: toastError } = useToast();
 
-  // Data states — start with mock data as fallback, replaced by live API on mount
-  const [services, setServices] = useState<ServiceListing[]>(mockServices);
-  const [jobRequests, setJobRequests] = useState<JobRequest[]>(mockJobRequests);
-  const [bids, setBids] = useState<Bid[]>(mockBids);
-  const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>(mockJobEngagements);
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
-  const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
-  const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>(mockCategorySuggestions);
-  const [userReports, setUserReports] = useState<UserReport[]>(mockUserReports);
-  const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
+  const {
+    services,
+    setServices,
+    jobRequests,
+    setJobRequests,
+    bids,
+    setBids,
+    jobEngagements,
+    setJobEngagements,
+    transactions,
+    setTransactions,
+    notifications,
+    setNotifications,
+    messages,
+    setMessages,
+    unreadMessagesCount,
+    categorySuggestions,
+    setCategorySuggestions,
+    userReports,
+    setUserReports,
+    dbCategories,
+    clearPrivateData,
+    refreshCategories,
+    refreshEngagements,
+    refreshAll,
+    syncPublicServices,
+    syncRequests,
+    syncBids,
+    syncEngagements,
+    syncNotifications,
+    syncTransactions,
+    loadMoreNotifications,
+    hasMoreNotifications,
+    loadMoreTransactions,
+    hasMoreTransactions,
+    syncUnreadMessages
+  } = useAppDataSync({
+    isAuthenticated,
+    authLoading,
+    user,
+    toastSuccess,
+    toastError
+  });
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsDark(localStorage.getItem('theme') === 'dark');
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // ─── Session Recovery ──────────────────────────────────────────
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (token) {
-      apiGetMe()
+    let active = true;
+    const hasSessionCandidate = typeof window !== 'undefined' && Boolean(localStorage.getItem('userSession'));
+    if (!hasSessionCandidate) {
+      const timer = window.setTimeout(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        setAuthLoading(false);
+      }, 0);
+      return () => {
+        active = false;
+        window.clearTimeout(timer);
+      };
+    }
+
+    apiRecoverSession()
         .then((res) => {
+          if (!active) return;
           if (res.success) {
             const dbUser = res.data.user;
             const names = (dbUser.name || '').split(' ');
             const firstName = names[0] || '';
             const lastName = names.slice(1).join(' ') || '';
-            const savedRole = (localStorage.getItem('workspaceRole') as any) || 'seeker';
+            const storedRole = localStorage.getItem('workspaceRole');
+            const savedRole: UserSession['role'] = storedRole === 'provider' ? 'provider' : 'seeker';
             const finalRole = dbUser.role === 'admin' ? 'admin' : savedRole;
 
             const sessionData: UserSession = {
@@ -159,38 +231,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
               firstName,
               lastName,
               role: finalRole,
-              avatarUrl: dbUser.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+              avatarUrl: dbUser.avatarUrl || '',
               bio: dbUser.bio || '',
               phone: dbUser.phone,
+              location: dbUser.location,
               trustScore: dbUser.trustScore,
               verificationStatus: dbUser.verificationStatus,
               emailVerified: dbUser.emailVerified,
+              onboardingStatus: dbUser.onboardingStatus,
             };
             setUser(sessionData);
             setIsAuthenticated(true);
           } else {
-            localStorage.removeItem('accessToken');
+            clearAccessToken();
+            setUser(null);
+            setIsAuthenticated(false);
           }
-          setAuthLoading(false);
         })
         .catch(() => {
-          localStorage.removeItem('accessToken');
-          setAuthLoading(false);
+          if (!active) return;
+          // Fail closed: cached identity/role data must never render a protected
+          // workspace when the authoritative /auth/me check did not succeed.
+          clearAccessToken();
+          setUser(null);
+          setIsAuthenticated(false);
+        })
+        .finally(() => {
+          if (active) setAuthLoading(false);
         });
-    } else {
-      setAuthLoading(false);
-    }
 
+    return () => {
+      active = false;
+    };
+  }, [setUser]);
+
+  useEffect(() => {
     const handleSessionExpired = () => {
+      clearAccessToken();
       setIsAuthenticated(false);
       setUser(null);
+      clearPrivateData();
     };
 
     window.addEventListener('auth_session_expired', handleSessionExpired);
     return () => {
       window.removeEventListener('auth_session_expired', handleSessionExpired);
     };
-  }, []);
+  }, [clearPrivateData, setUser]);
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -210,302 +297,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('theme', nextDark ? 'dark' : 'light');
   };
 
-  // ─── Live Data Sync Helpers ────────────────────────────────────
-
-  const syncPublicServices = useCallback(async () => {
-    try {
-      const res = await apiBrowseServices();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setServices(res.data.map(mapServiceToListing));
-      }
-    } catch {
-      // silently keep mock data as fallback
-    }
-  }, []);
-
-  const syncRequests = useCallback(async () => {
-    try {
-      const res = await apiGetRequests();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map(mapRequestToJobRequest);
-        const dbIds = new Set(mapped.map((x: JobRequest) => x.id));
-        setJobRequests([
-          ...mapped,
-          ...mockJobRequests.filter(m => !dbIds.has(m.id))
-        ]);
-      }
-    } catch {
-      // keep mock fallback
-    }
-  }, []);
-
-  const syncBids = useCallback(async () => {
-    try {
-      const [receivedRes, mineBidsRes] = await Promise.allSettled([
-        apiGetReceivedOffers(),
-        apiGetMyOffers(),
-      ]);
-
-      const receivedOffers: Bid[] = receivedRes.status === 'fulfilled' && receivedRes.value?.success
-        ? receivedRes.value.data.map(mapOfferToBid)
-        : [];
-
-      const myOffers: Bid[] = mineBidsRes.status === 'fulfilled' && mineBidsRes.value?.success
-        ? mineBidsRes.value.data.map(mapOfferToBid)
-        : [];
-
-      const allOffers = [...receivedOffers, ...myOffers];
-      const dbIds = new Set(allOffers.map((b: Bid) => b.id));
-      setBids([
-        ...allOffers,
-        ...mockBids.filter(m => !dbIds.has(m.id))
-      ]);
-    } catch {
-      // keep mock fallback
-    }
-  }, []);
-
-  const syncEngagements = useCallback(async () => {
-    try {
-      const res = await apiGetMyEngagements();
-      if (res.success) {
-        const dbBookings = res.data.bookings || [];
-        const dbCompleted = res.data.completedServices || [];
-
-        const mappedBookings = dbBookings
-          .filter((b: any) => b.status !== "COMPLETED")
-          .map(mapBookingToEngagement);
-        const mappedCompleted = dbCompleted.map(mapCompletedServiceToEngagement);
-
-        const dbIds = new Set([...mappedBookings, ...mappedCompleted].map((x: any) => x.id));
-        setJobEngagements([
-          ...mappedBookings,
-          ...mappedCompleted,
-          ...mockJobEngagements.filter(m => !dbIds.has(m.id))
-        ]);
-
-        // Sync transactions from completed services
-        const txs: Transaction[] = dbCompleted.map((cs: any) => ({
-          id: cs.id,
-          jobId: cs.bookingId || cs.id,
-          seekerId: cs.seekerId,
-          providerId: cs.providerId,
-          amount: Number(cs.finalPrice),
-          paymentMethod: cs.booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
-          serviceTitle: cs.booking?.service?.title || cs.booking?.offer?.request?.title || cs.booking?.directRequest?.service?.title || 'Service Payout',
-          createdAt: cs.completedAt?.split('T')[0] || '',
-        }));
-
-        const txIds = new Set(txs.map((x: Transaction) => x.id));
-        setTransactions([
-          ...txs,
-          ...mockTransactions.filter(t => !txIds.has(t.id))
-        ]);
-      }
-    } catch {
-      // keep mock fallback
-    }
-  }, []);
-
-  const syncNotifications = useCallback(async () => {
-    try {
-      const res = await apiGetNotifications();
-      if (res.success && Array.isArray(res.data)) {
-        const mapped = res.data.map(mapDbNotification);
-        const dbIds = new Set(mapped.map((n: Notification) => n.id));
-        setNotifications([
-          ...mapped,
-          ...mockNotifications.filter(m => !dbIds.has(m.id))
-        ]);
-      }
-    } catch {
-      // keep mock fallback
-    }
-  }, []);
-
-  const syncUnreadMessages = useCallback(async () => {
-    try {
-      const res = await apiGetConversations();
-      if (res.success && Array.isArray(res.data)) {
-        const totalUnread = res.data.reduce((acc: number, conv: any) => acc + (conv.unreadCount || 0), 0);
-        setUnreadMessagesCount(totalUnread);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const syncTransactions = useCallback(async () => {
-    try {
-      const res = await apiGetTransactions();
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map(mapDbTransaction);
-        const dbIds = new Set(mapped.map((t: Transaction) => t.id));
-        setTransactions([
-          ...mapped,
-          ...mockTransactions.filter(m => !dbIds.has(m.id))
-        ]);
-      }
-    } catch {
-      // keep mock fallback
-    }
-  }, []);
-
-  const refreshEngagements = useCallback(() => {
-    syncEngagements();
-  }, [syncEngagements]);
-
-  const refreshAll = useCallback(() => {
-    const token = localStorage.getItem('accessToken');
-    syncPublicServices();
-    syncRequests();
-    if (token) {
-      syncBids();
-      syncEngagements();
-      syncNotifications();
-      syncTransactions();
-      syncUnreadMessages();
-    }
-  }, [syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
-
-  // ─── Initial Data Load on Mount ────────────────────────────────
-  useEffect(() => {
-    // Restore theme
-    if (typeof window !== "undefined") {
-      const savedDark = localStorage.getItem("theme") === "dark";
-      setIsDark(savedDark);
-      if (savedDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-
-    // Always load categories and public services
-    apiGetCategories()
-      .then((res) => {
-        if (res.success && Array.isArray(res.data)) {
-          setDbCategories(res.data);
-        }
-      })
-      .catch(() => { });
-
-    syncPublicServices();
-    syncRequests();
-
-    // Load private data only if authenticated
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (token) {
-      syncBids();
-      syncEngagements();
-      syncNotifications();
-      syncTransactions();
-      syncUnreadMessages();
-
-      // Check for returning GCash payment checkout
-      if (typeof window !== "undefined") {
-        const pendingPaymentIntentId = localStorage.getItem('pending_payment_intent_id');
-        const pendingServiceId = localStorage.getItem('pending_service_id');
-        const pendingOfferId = localStorage.getItem('pending_offer_id');
-
-        if (pendingPaymentIntentId && pendingServiceId) {
-          localStorage.removeItem('pending_payment_intent_id');
-          localStorage.removeItem('pending_service_id');
-          localStorage.removeItem('pending_offer_id');
-
-          apiConfirmOnlineBooking({
-            serviceId: pendingServiceId,
-            paymentIntentId: pendingPaymentIntentId,
-            offerId: pendingOfferId || undefined,
-          })
-            .then((res) => {
-              if (res.success) {
-                alert("Payment completed and booking confirmed! " + (res.message || ""));
-                refreshAll();
-              } else {
-                alert("Failed to confirm booking: " + (res.error || "Unknown error"));
-              }
-            })
-            .catch((err) => {
-              console.error("Error confirming online booking:", err);
-              alert("Error confirming online booking: " + (err.response?.data?.error || err.message));
-            });
-        }
-      }
-    }
-  }, [refreshAll]);
-
-  // ─── Socket.io — connect when authenticated, disconnect on logout ───
-  useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    if (!token || !isAuthenticated) return;
-
-    const sock = connectSocket(token);
-
-    // Real-time notification badge
-    sock.on('notification', () => {
-      syncNotifications();
-    });
-
-    // Real-time queue counter update — update the services list in place
-    sock.on('queue_update', (data: { serviceId: string; delta: number; currentSize?: number }) => {
-      setServices(prev =>
-        prev.map(s => {
-          if (s.id !== data.serviceId) return s;
-          const newSize = data.currentSize !== undefined
-            ? data.currentSize
-            : Math.max(0, (s.queueSize || 0) + data.delta);
-          return { ...s, queueSize: newSize };
-        })
-      );
-    });
-
-    // Unread message badge — re-sync unread messages count in real-time
-    sock.on('message_notification', () => {
-      syncUnreadMessages();
-    });
-
-    return () => {
-      sock.off('notification');
-      sock.off('queue_update');
-      sock.off('message_notification');
-    };
-  }, [isAuthenticated, syncNotifications, syncUnreadMessages]);
-
-  // Disconnect socket when user explicitly logs out
-  useEffect(() => {
-    if (!isAuthenticated) {
-      disconnectSocket();
-    }
-  }, [isAuthenticated]);
-
-  // Sync data automatically upon successful login
-  useEffect(() => {
-    if (isAuthenticated) {
-      syncPublicServices();
-      syncRequests();
-      syncBids();
-      syncEngagements();
-      syncNotifications();
-      syncTransactions();
-      syncUnreadMessages();
-    }
-  }, [isAuthenticated, syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
-
-  // ─── Notification polling every 60 seconds when authenticated ──
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return;
-
-    const interval = setInterval(() => {
-      syncNotifications();
-      syncUnreadMessages();
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, [syncNotifications, syncUnreadMessages]);
-
-
   // ─── Shared helper ─────────────────────────────────────────────
   const helperAddNotification = useCallback((userId: string, title: string, desc: string) => {
     const newNotif: Notification = {
@@ -517,7 +308,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       read: false
     };
     setNotifications(prev => [newNotif, ...prev]);
-  }, []);
+  }, [setNotifications]);
 
   const updateUserProfile = (userId: string, data: Partial<User>) => {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u));
@@ -564,15 +355,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
 
   // ─── Modularize Admin Actions ───────────────────────────────────
-  const adminActions = useAdminActions({
-    jobEngagements,
-    setUsers,
-    setCategorySuggestions,
-    setJobEngagements,
-    setTransactions,
-    setUserReports,
-    helperAddNotification
-  });
 
   // ─── Modularize Shared Actions ──────────────────────────────────
   const sharedActions = useSharedActions({
@@ -585,6 +367,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       users,
       services,
+      setServices,
+      refreshServices: syncPublicServices,
       jobRequests,
       bids,
       jobEngagements,
@@ -593,10 +377,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       messages,
       categorySuggestions,
       userReports,
+      dbCategories,
+      refreshCategories,
       updateUserProfile,
       ...seekerActions,
       ...providerActions,
-      ...adminActions,
       ...sharedActions,
       isDark,
       toggleTheme,
@@ -608,7 +393,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated,
       authLoading,
       unreadMessagesCount,
-      syncUnreadMessages
+      syncUnreadMessages,
+      loadMoreNotifications,
+      hasMoreNotifications,
+      loadMoreTransactions,
+      hasMoreTransactions
     }}>
       {children}
     </AppContext.Provider>

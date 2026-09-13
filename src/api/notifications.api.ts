@@ -1,7 +1,7 @@
 import { api } from '../lib/api/axios';
 
-export async function apiGetNotifications() {
-  const response = await api.get('/notifications');
+export async function apiGetNotifications(page = 1, limit = 20) {
+  const response = await api.get('/notifications', { params: { page, limit } });
   return response.data;
 }
 

@@ -1,26 +1,20 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser } from '../../../api/admin.api';
-import { Loader2, Search, Award, ShieldAlert, Ban, RotateCcw, AlertCircle, Filter } from 'lucide-react';
-import { useToast } from '../../../components/Toast';
-import PaginationBar from '../../../components/PaginationBar';
+import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser, apiRestorePostingPrivilege, apiPromoteUserToAdmin } from '../../../api/admin.api';
+import { Search, Award, ShieldAlert, Ban, RotateCcw, Filter, UserPlus } from 'lucide-react';
+import { useToast } from '../../../components/ui/Toast';
+import AdminPagination from '../../../components/admin/AdminPagination';
+import { useSearchParams } from 'next/navigation';
+import AdminUserModals from '../../../components/admin/users/AdminUserModals';
+import { getApiErrorMessage } from '../../../lib/api/errors';
+import type { AdminUserItem } from '../../../components/admin/users/types';
 
-interface UserItem {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  trustScore: number;
-  verificationStatus: string;
-  emailVerified: boolean;
-  isActive: boolean;
-  createdAt: string;
-}
+type UserItem = AdminUserItem;
 
 export default function AdminUsers() {
-  const { isDark } = useApp();
+  const searchParams = useSearchParams();
+  const { isDark, user: currentUser } = useApp();
   const { success: toastSuccess, error: toastError } = useToast();
 
   const [users, setUsers] = useState<UserItem[]>([]);
@@ -28,8 +22,9 @@ export default function AdminUsers() {
   const [error, setError] = useState<string>('');
   
   // Search and filter states
-  const [search, setSearch] = useState<string>('');
-  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+  const initialSearch = searchParams.get('search') || '';
+  const [search, setSearch] = useState<string>(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState<string>(initialSearch);
   const [roleFilter, setRoleFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
 
@@ -41,7 +36,8 @@ export default function AdminUsers() {
 
   // Overlay states
   const [editingTrustUser, setEditingTrustUser] = useState<UserItem | null>(null);
-  const [newTrustScore, setNewTrustScore] = useState<number>(50);
+  const [trustDelta, setTrustDelta] = useState<number>(0);
+  const [trustReason, setTrustReason] = useState<string>('');
 
   const [suspendingUser, setSuspendingUser] = useState<UserItem | null>(null);
   const [suspendReason, setSuspendReason] = useState<string>('');
@@ -51,6 +47,9 @@ export default function AdminUsers() {
   const [banReason, setBanReason] = useState<string>('');
 
   const [confirmRestoreUserId, setConfirmRestoreUserId] = useState<string | null>(null);
+  const [promotingUser, setPromotingUser] = useState<UserItem | null>(null);
+  const [promotionReason, setPromotionReason] = useState('');
+  const [promotionPassword, setPromotionPassword] = useState('');
 
   // Search Debouncing
   useEffect(() => {
@@ -62,7 +61,7 @@ export default function AdminUsers() {
   }, [search]);
 
   // Fetch users when parameters change
-  const fetchUsers = () => {
+  const fetchUsers = useCallback(() => {
     setLoading(true);
     apiListUsers({
       search: debouncedSearch || undefined,
@@ -86,24 +85,28 @@ export default function AdminUsers() {
         setError(err.message || "An error occurred.");
         setLoading(false);
       });
-  };
+  }, [debouncedSearch, roleFilter, statusFilter, page, limit]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [debouncedSearch, roleFilter, statusFilter, page, limit]);
+    const timer = window.setTimeout(fetchUsers, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchUsers]);
 
   const handleUpdateTrust = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingTrustUser) return;
+    if (!editingTrustUser || !trustReason.trim()) return;
     try {
-      const res = await apiUpdateTrustScore(editingTrustUser.id, newTrustScore);
+      const res = await apiUpdateTrustScore(editingTrustUser.id, trustDelta, trustReason);
       if (res.success) {
-        toastSuccess("Trust Updated", "User trust score manually set to " + newTrustScore);
+        const sign = trustDelta > 0 ? '+' : '';
+        toastSuccess("Trust Updated", `Applied ${sign}${trustDelta} pts to ${editingTrustUser.name}. New score updates shortly.`);
         setEditingTrustUser(null);
+        setTrustDelta(0);
+        setTrustReason('');
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Failed to update", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Failed to update", getApiErrorMessage(err, 'The trust score could not be updated.'));
     }
   };
 
@@ -118,8 +121,8 @@ export default function AdminUsers() {
         setSuspendReason('');
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Suspension Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Suspension Failed", getApiErrorMessage(err, 'The account could not be suspended.'));
     }
   };
 
@@ -134,8 +137,8 @@ export default function AdminUsers() {
         setBanReason('');
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Banning Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Banning Failed", getApiErrorMessage(err, 'The account could not be banned.'));
     }
   };
 
@@ -146,14 +149,35 @@ export default function AdminUsers() {
         toastSuccess("Account Restored", "User account active status successfully restored.");
         fetchUsers();
       }
-    } catch (err: any) {
-      toastError("Restoration Failed", err.response?.data?.error || err.message);
+    } catch (err: unknown) {
+      toastError("Restoration Failed", getApiErrorMessage(err, 'The account could not be restored.'));
     }
   };
 
-  // Pagination bounds
-  const startIndex = (page - 1) * limit + 1;
-  const endIndex = Math.min(page * limit, total);
+  const handleRestorePosting = async (userId: string) => {
+    try {
+      await apiRestorePostingPrivilege(userId);
+      toastSuccess("Posting Restored", "The user may submit service listings again.");
+      fetchUsers();
+    } catch (err: unknown) {
+      toastError("Restoration Failed", getApiErrorMessage(err, 'Posting access could not be restored.'));
+    }
+  };
+
+  const handlePromote = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!promotingUser || promotionReason.trim().length < 3 || promotionPassword.length < 8) return;
+    try {
+      await apiPromoteUserToAdmin(promotingUser.id, promotionReason.trim(), promotionPassword);
+      toastSuccess("Administrator Added", `${promotingUser.name} must sign in again to use the Admin workspace.`);
+      setPromotingUser(null);
+      setPromotionReason('');
+      setPromotionPassword('');
+      fetchUsers();
+    } catch (err: unknown) {
+      toastError("Promotion Failed", getApiErrorMessage(err, 'The administrator promotion could not be completed.'));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -163,7 +187,7 @@ export default function AdminUsers() {
         
         {/* Search */}
         <div className={`flex items-center rounded-xl px-3 py-2 w-full md:max-w-xs border transition-all ${
-          isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-200'
+          isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-slate-50 border-slate-200'
         }`}>
           <Search className={`w-4 h-4 mr-2 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} />
           <input
@@ -178,7 +202,7 @@ export default function AdminUsers() {
         {/* Filters */}
         <div className="flex flex-wrap gap-2 w-full md:w-auto items-center justify-end">
           
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-450">
+          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-400">
             <Filter className="w-3.5 h-3.5" />
             <span>Filters:</span>
           </div>
@@ -206,7 +230,8 @@ export default function AdminUsers() {
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
-            <option value="suspended">Suspended / Banned</option>
+            <option value="suspended">Suspended</option>
+            <option value="banned">Banned</option>
           </select>
 
           {/* Limit selector */}
@@ -225,7 +250,7 @@ export default function AdminUsers() {
 
           <button
             onClick={fetchUsers}
-            className="px-4 py-2 border rounded-xl font-bold text-xs bg-red-500/5 text-red-500 border-red-500/25 cursor-pointer hover:bg-red-500/10 transition-colors"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200"
           >
             Refresh
           </button>
@@ -273,7 +298,7 @@ export default function AdminUsers() {
               <div
                 key={u.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors ${
-                  isDark ? 'bg-[#22211e] border-neutral-855' : 'bg-white border-slate-200 hover:shadow-md'
+                  isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200 hover:shadow-md'
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -299,7 +324,7 @@ export default function AdminUsers() {
                 }`}>
                   <div className="flex items-center space-x-1.5 font-semibold">
                     <span className={`w-2.5 h-2.5 rounded-full ${u.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-                    <span>Status: {u.isActive ? "Active" : "Suspended / Banned"}</span>
+                    <span>Status: {u.moderationStatus === 'BANNED' ? 'Banned' : u.moderationStatus === 'SUSPENDED' ? 'Suspended' : 'Active'}</span>
                   </div>
                   <div className="flex items-center space-x-1 font-bold">
                     <span>Trust Score:</span>
@@ -309,18 +334,30 @@ export default function AdminUsers() {
                   </div>
                 </div>
 
+                {u.postingSuspended && (
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[10px] font-semibold text-amber-800">
+                    <span>Service-listing privilege suspended: {u.postingSuspendReason || 'Pending administrator review'}</span>
+                    <button onClick={() => handleRestorePosting(u.id)} className="shrink-0 rounded-lg bg-amber-700 px-2.5 py-1.5 font-bold text-white">Restore posting</button>
+                  </div>
+                )}
+
                 {/* Moderation Actions */}
                 <div className={`border-t pt-4 flex items-center justify-end gap-2 ${
-                  isDark ? 'border-neutral-850' : 'border-slate-100'
+                  isDark ? 'border-neutral-800' : 'border-slate-100'
                 }`}>
-                  {u.isActive ? (
+                  {u.role === 'admin' || u.id === currentUser?.id ? (
+                    <span className="rounded-lg border border-slate-200 px-3 py-1.5 text-[10px] font-bold uppercase text-slate-400 dark:border-neutral-700">
+                      Protected administrator
+                    </span>
+                  ) : u.isActive ? (
                     <>
                       <button
                         onClick={() => {
                           setEditingTrustUser(u);
-                          setNewTrustScore(u.trustScore);
+                          setTrustDelta(0);
+                          setTrustReason('');
                         }}
-                        className="px-2.5 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 cursor-pointer"
+                        className="flex items-center space-x-1 rounded-lg border border-slate-300 bg-slate-100 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                       >
                         <Award className="w-3.5 h-3.5" />
                         <span>Set Trust</span>
@@ -339,6 +376,13 @@ export default function AdminUsers() {
                         <Ban className="w-3.5 h-3.5" />
                         <span>Ban</span>
                       </button>
+                      <button
+                        onClick={() => { setPromotingUser(u); setPromotionReason(''); }}
+                        className="px-2.5 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-neutral-700 dark:text-slate-300 dark:hover:bg-neutral-800"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Make Admin</span>
+                      </button>
                     </>
                   ) : (
                     <button
@@ -355,185 +399,51 @@ export default function AdminUsers() {
           </div>
 
           {/* Pagination controls */}
-          <PaginationBar
-            currentPage={page}
+          <AdminPagination
+            page={page}
             totalPages={totalPages}
-            goToPage={(p) => setPage(p)}
-            nextPage={() => setPage(prev => Math.min(prev + 1, totalPages))}
-            prevPage={() => setPage(prev => Math.max(prev - 1, 1))}
-            startIndex={startIndex}
-            endIndex={endIndex}
             totalItems={total}
-            variant="admin"
+            pageSize={limit}
+            onPageChange={setPage}
+            itemLabel="users"
           />
         </div>
       )}
 
-      {/* Set Trust Score Overlay */}
-      {editingTrustUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-          }`}>
-            <form onSubmit={handleUpdateTrust} className="p-5 space-y-4">
-              <h4 className="font-extrabold text-sm">Update Trust Score</h4>
-              <p className="text-[10px] text-slate-400">Set direct trust score value for user {editingTrustUser.name}.</p>
-              <div>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={newTrustScore}
-                  onChange={(e) => setNewTrustScore(parseInt(e.target.value))}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
-                  }`}
-                />
-              </div>
-              <div className="flex items-center justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingTrustUser(null)}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold cursor-pointer"
-                >
-                  Update
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Suspend Overlay */}
-      {suspendingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-          }`}>
-            <form onSubmit={handleSuspend} className="p-5 space-y-4">
-              <h4 className="font-extrabold text-sm">Suspend User Account</h4>
-              <p className="text-[10px] text-slate-400">Suspend user {suspendingUser.name} temporarily.</p>
-              <div className="space-y-3">
-                <textarea
-                  required
-                  placeholder="Reason for suspension..."
-                  value={suspendReason}
-                  onChange={(e) => setSuspendReason(e.target.value)}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
-                  }`}
-                />
-                <input
-                  type="number"
-                  min="1"
-                  max="365"
-                  value={suspendDuration}
-                  onChange={(e) => setSuspendDuration(parseInt(e.target.value))}
-                  placeholder="Duration (days)"
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
-                  }`}
-                />
-              </div>
-              <div className="flex items-center justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setSuspendingUser(null)}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold cursor-pointer"
-                >
-                  Suspend
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Ban Overlay */}
-      {banningUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-          }`}>
-            <form onSubmit={handleBan} className="p-5 space-y-4">
-              <h4 className="font-extrabold text-sm flex items-center gap-1.5 text-red-500">
-                <Ban className="w-4 h-4" />
-                <span>Ban User Account</span>
-              </h4>
-              <p className="text-[10px] text-slate-400">Ban user {banningUser.name} permanently. This invalidates access immediately.</p>
-              <div>
-                <textarea
-                  required
-                  placeholder="Reason for permanent ban..."
-                  value={banReason}
-                  onChange={(e) => setBanReason(e.target.value)}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
-                  }`}
-                />
-              </div>
-              <div className="flex items-center justify-end space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setBanningUser(null)}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold cursor-pointer"
-                >
-                  Confirm Ban
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Reusable custom confirmation overlay to remove browser confirms */}
-      {confirmRestoreUserId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
-          }`}>
-            <div className="p-5 space-y-4">
-              <h4 className="font-extrabold text-sm text-red-500">Restore Account Status</h4>
-              <p className="text-xs leading-relaxed">Are you sure you want to restore this user's active status? They will be able to log in and participate in transactions again.</p>
-              <div className="flex items-center justify-end space-x-2">
-                <button
-                  onClick={() => setConfirmRestoreUserId(null)}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    handleRestore(confirmRestoreUserId);
-                    setConfirmRestoreUserId(null);
-                  }}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer"
-                >
-                  Confirm Restore
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <AdminUserModals
+        model={{
+          isDark,
+          editingTrustUser,
+          setEditingTrustUser,
+          trustDelta,
+          setTrustDelta,
+          trustReason,
+          setTrustReason,
+          handleUpdateTrust,
+          suspendingUser,
+          setSuspendingUser,
+          suspendReason,
+          setSuspendReason,
+          suspendDuration,
+          setSuspendDuration,
+          handleSuspend,
+          banningUser,
+          setBanningUser,
+          banReason,
+          setBanReason,
+          handleBan,
+          confirmRestoreUserId,
+          setConfirmRestoreUserId,
+          handleRestore,
+          promotingUser,
+          setPromotingUser,
+          promotionReason,
+          setPromotionReason,
+          promotionPassword,
+          setPromotionPassword,
+          handlePromote
+        }}
+      />
 
     </div>
   );

@@ -1,16 +1,24 @@
 import { api } from '../lib/api/axios';
 
-export async function apiBookDirect(data: { serviceId: string; agreedPrice: number; schedule?: string; message?: string }) {
+export async function apiBookDirect(data: {
+  serviceId: string;
+  schedule?: string;
+  message?: string;
+}) {
   const response = await api.post('/bookings/direct', data);
   return response.data;
 }
 
-export async function apiInitiatePayment(data: { serviceId: string; amount: number; description?: string; paymentMethodType?: string; returnUrl?: string }) {
+export async function apiInitiatePayment(data: { serviceId: string; offerId?: string; paymentMethodType?: 'gcash' }) {
   const response = await api.post('/bookings/initiate-payment', data);
   return response.data;
 }
 
-export async function apiConfirmOnlineBooking(data: { serviceId: string; paymentIntentId: string; offerId?: string }) {
+export async function apiConfirmOnlineBooking(data: {
+  serviceId: string;
+  paymentIntentId: string;
+  offerId?: string;
+}) {
   const response = await api.post('/bookings/confirm-online', data);
   return response.data;
 }
@@ -20,8 +28,8 @@ export async function apiJoinWaitlist(serviceId: string) {
   return response.data;
 }
 
-export async function apiCancelQueue(id: string) {
-  const response = await api.delete(`/bookings/queue/${id}`);
+export async function apiCancelQueue(id: string, reason: string) {
+  const response = await api.delete(`/bookings/queue/${id}`, { data: { reason } });
   return response.data;
 }
 
@@ -32,6 +40,11 @@ export async function apiCompleteJob(id: string) {
 
 export async function apiConfirmCompletion(bookingId: string) {
   const response = await api.post(`/bookings/${bookingId}/confirm`);
+  return response.data;
+}
+
+export async function apiEscalateCompletion(bookingId: string, reason: string) {
+  const response = await api.post(`/bookings/${bookingId}/completion-escalations`, { reason });
   return response.data;
 }
 
@@ -55,8 +68,8 @@ export async function apiStartJob(queueId: string) {
   return response.data;
 }
 
-export async function apiProviderRemoveQueue(queueId: string) {
-  const response = await api.delete(`/bookings/queue/${queueId}/provider`);
+export async function apiProviderRemoveQueue(queueId: string, reason: string) {
+  const response = await api.delete(`/bookings/queue/${queueId}/provider`, { data: { reason } });
   return response.data;
 }
 
@@ -65,13 +78,27 @@ export async function apiDisputeJob(bookingId: string, reason: string, descripti
   return response.data;
 }
 
-export async function apiCancelBooking(bookingId: string, reason?: string) {
+export async function apiUploadBookingEvidence(bookingId: string, image: string) {
+  const response = await api.post('/upload/booking-evidence', { bookingId, image });
+  return response.data;
+}
+
+export async function apiSubmitSafetyReport(bookingId: string, data: {
+  reason: 'POOR_SERVICE_QUALITY' | 'INCOMPLETE_SERVICE' | 'SCAM_OR_FRAUD' | 'INAPPROPRIATE_BEHAVIOR' | 'OVERPRICING' | 'NO_SHOW';
+  description: string;
+  evidenceStorageKey?: string;
+}) {
+  const response = await api.post(`/bookings/${bookingId}/reports`, data);
+  return response.data;
+}
+
+export async function apiCancelBooking(bookingId: string, reason: string) {
   const response = await api.post(`/bookings/${bookingId}/cancel`, { reason });
   return response.data;
 }
 
-export async function apiRespondCancellationRequest(requestId: string, approve: boolean, providerNote?: string) {
-  const response = await api.patch(`/bookings/cancellation-requests/${requestId}/respond`, { approve, providerNote });
+export async function apiRespondCancellationRequest(requestId: string, approve: boolean, responderNote?: string) {
+  const response = await api.patch(`/bookings/cancellation-requests/${requestId}/respond`, { approve, responderNote });
   return response.data;
 }
 
@@ -82,5 +109,10 @@ export async function apiEscalateCancellationRequest(requestId: string) {
 
 export async function apiAdminResolveCancellation(requestId: string, approve: boolean, adminNote?: string) {
   const response = await api.patch(`/admin/cancellation-requests/${requestId}/resolve`, { approve, adminNote });
+  return response.data;
+}
+
+export async function apiHideBooking(bookingId: string) {
+  const response = await api.patch(`/bookings/${bookingId}/hide`);
   return response.data;
 }

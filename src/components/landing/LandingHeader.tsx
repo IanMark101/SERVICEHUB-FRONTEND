@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight, Menu, Moon, Sun, X } from 'lucide-react';
 
 interface LandingHeaderProps {
   isDark: boolean;
@@ -11,152 +12,154 @@ interface LandingHeaderProps {
 }
 
 const NAV_LINKS = [
-  { label: 'Why Us', href: 'problem' },
-  { label: 'How It Works', href: 'how-it-works' },
-  { label: 'Features', href: 'workspaces' },
-  { label: 'Live Queue', href: 'queue' },
-  { label: 'Security', href: 'trust' },
-  { label: 'Comparison', href: 'comparison' },
-  { label: 'Community', href: 'community' },
-  { label: 'Reviews', href: 'reviews' },
-  { label: 'FAQ', href: 'faq' },
+  { label: 'How it works', href: '#how-it-works' },
+  { label: 'Workspaces', href: '#workspaces' },
+  { label: 'Queue', href: '#queue' },
+  { label: 'Trust', href: '#trust' },
+  { label: 'Community', href: '#community' },
+  { label: 'FAQ', href: '#faq' },
 ];
 
-function scrollTo(id: string) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const top = el.getBoundingClientRect().top + window.scrollY - 68;
-  window.scrollTo({ top, behavior: 'smooth' });
-}
-
-export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProps) {
-  const router = useRouter();
+export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: LandingHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 8);
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 w-full h-16 flex items-center justify-between px-4 lg:px-8 border-b transition-all duration-300 ${isDark
-          ? 'bg-[#191919]/95 border-neutral-800/60'
-          : 'bg-[#fbfaf7]/95 border-slate-200/80'
-          } ${scrolled ? 'backdrop-blur-xl shadow-md' : 'backdrop-blur-md'}`}
-      >
-        {/* Brand */}
-        <div className="flex items-center space-x-2 shrink-0">
-          <img src="/logo.png" alt="ServiceHub Cordova Logo" className="h-8 w-8 object-contain rounded-lg shadow-sm" />
-          <span className={`font-extrabold text-base lg:text-lg tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            ServiceHub Cordova
-          </span>
-        </div>
+      {/* Floating Header Container */}
+      <header className="fixed inset-x-0 top-4 z-50 px-4 sm:px-6 lg:px-8 pointer-events-none">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+          {/* Left Floating Brand Card */}
+          <a
+            href="#top"
+            className="pointer-events-auto group flex items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-2 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white hover:shadow-[0_12px_24px_-8px_rgba(15,15,15,0.22)] active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/85"
+            aria-label="ServiceHub Cordova home"
+          >
+            <Image
+              src="/logo.svg?v=3"
+              alt=""
+              width={30}
+              height={30}
+              className="size-7 shrink-0 rounded-lg transition-transform group-hover:rotate-3"
+              priority
+            />
+            <div className="leading-none pr-1">
+              <span className="block text-xs font-extrabold tracking-tight text-slate-900 dark:text-white">
+                ServiceHub
+              </span>
+              <span className="mt-0.5 block text-[8.5px] font-bold uppercase tracking-[0.2em] text-[#c86544]">
+                Cordova
+              </span>
+            </div>
+          </a>
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-0.5">
-          {NAV_LINKS.map((link) => (
+          {/* Right Floating Liquid Glass Pill Navbar */}
+          <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-neutral-200/80 bg-white/80 p-1.5 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 dark:border-white/10 dark:bg-zinc-900/80">
+            {/* Desktop Navigation Links */}
+            <nav className="hidden items-center gap-0.5 lg:flex px-1" aria-label="Landing page">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="rounded-full px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-black/[0.04] hover:text-slate-950 dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+
+            {/* Theme Switcher Toggle */}
             <button
-              key={link.href}
-              onClick={() => scrollTo(link.href)}
-              className={`text-[11.5px] font-semibold px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDark
-                ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80'
-                }`}
+              type="button"
+              onClick={toggleTheme}
+              className="grid size-8 place-items-center rounded-full text-slate-600 transition-all hover:bg-black/[0.04] hover:text-slate-950 active:scale-95 dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-white"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {link.label}
+              {isDark ? <Sun size={15} /> : <Moon size={15} />}
             </button>
-          ))}
-        </nav>
 
-        {/* Right controls */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {/* Theme toggle */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className={`p-2.5 rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center cursor-pointer ${isDark
-              ? 'bg-[#2c2b27] border-neutral-700 text-amber-500 hover:text-amber-400'
-              : 'bg-white border-slate-200 text-slate-500 hover:text-slate-800 shadow-sm'
-              }`}
-            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {isDark ? <Sun size={15} /> : <Moon size={15} />}
-          </button>
+            {/* Login Link */}
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex rounded-full px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-black/[0.04] dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+            >
+              Log in
+            </Link>
 
-          <button
-            onClick={() => router.push('/login')}
-            className={`hidden sm:block font-bold text-xs py-2.5 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer ${isDark ? 'text-[#f2efe9] hover:bg-neutral-800' : 'text-slate-700 hover:bg-slate-100/70'
-              }`}
-          >
-            Log In
-          </button>
+            {/* Unique High-Contrast Action Pill Button with Specular Light Shade on Black */}
+            <button
+              type="button"
+              onClick={onGetStarted}
+              className="group/btn relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-[#0a0a0a] px-4 py-1.5 text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_6px_14px_-3px_rgba(0,0,0,0.4)] ring-1 ring-black/20 transition-all hover:bg-[#161616] hover:scale-[1.02] active:scale-[0.97] dark:bg-white dark:text-[#0a0a0a] dark:hover:bg-neutral-100"
+            >
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 rounded-full dark:hidden"
+                style={{
+                  background: 'radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.16), transparent 60%)',
+                }}
+              />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 ease-out group-hover/btn:translate-x-full"
+              />
+              <span className="relative z-10">Get started</span>
+              <ArrowRight size={13} className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
+            </button>
 
-          <button
-            onClick={() => router.push('/register')}
-            className="font-bold text-xs py-2.5 px-5 rounded-xl transition-all duration-300 shadow-sm hover:scale-[1.02] active:scale-[0.98] cursor-pointer bg-[#FF5A1F] hover:bg-[#e04f1a] text-white"
-          >
-            Sign Up
-          </button>
-
-          {/* Mobile hamburger */}
-          <button
-            className={`md:hidden p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${isDark
-              ? 'bg-[#2c2b27] border-neutral-700 text-[#f2efe9]'
-              : 'bg-white border-slate-200 text-slate-700 shadow-sm'
-              }`}
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
-          </button>
+            {/* Mobile Menu Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="grid size-8 place-items-center rounded-full text-slate-700 lg:hidden hover:bg-black/[0.04] dark:text-zinc-200 dark:hover:bg-white/[0.06]"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
+              aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
+            >
+              {mobileOpen ? <X size={17} /> : <Menu size={17} />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileOpen && (
+          <div
+            id="mobile-navigation"
+            className="pointer-events-auto mx-auto mt-3 max-w-6xl rounded-2xl border border-black/[0.08] bg-white/95 p-4 shadow-xl backdrop-blur-xl lg:hidden dark:border-white/10 dark:bg-zinc-950/95"
+          >
+            <nav className="grid gap-1" aria-label="Mobile landing page">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <div className="mt-2 border-t border-slate-100 pt-2 dark:border-zinc-800">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/help"
+                  onClick={() => setMobileOpen(false)}
+                  className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                >
+                  Help Center
+                </Link>
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
-      {/* Mobile Nav Drawer */}
-      {mobileOpen && (
-        <div
-          className={`md:hidden fixed top-16 left-0 right-0 z-40 border-b shadow-2xl ${isDark ? 'bg-[#1d1c19] border-neutral-800' : 'bg-[#fefdf9] border-slate-200'
-            }`}
-        >
-          <nav className="flex flex-col px-6 py-4 gap-1">
-            {NAV_LINKS.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => { scrollTo(link.href); setMobileOpen(false); }}
-                className={`text-sm font-semibold text-left px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${isDark
-                  ? 'text-[#a09c93] hover:text-[#f2efe9] hover:bg-white/5'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-              >
-                {link.label}
-              </button>
-            ))}
-            <div className={`pt-3 mt-2 border-t flex gap-3 ${isDark ? 'border-neutral-700' : 'border-slate-200'}`}>
-              <button
-                onClick={() => { router.push('/login'); setMobileOpen(false); }}
-                className={`flex-1 font-bold text-xs py-3 px-4 rounded-xl transition-all duration-200 cursor-pointer border ${isDark
-                  ? 'border-neutral-700 text-[#f2efe9] hover:bg-neutral-800'
-                  : 'border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
-              >
-                Log In
-              </button>
-              <button
-                onClick={() => { router.push('/register'); setMobileOpen(false); }}
-                className="flex-1 font-bold text-xs py-3 px-4 rounded-xl bg-[#FF5A1F] hover:bg-[#e04f1a] text-white transition-all duration-200 cursor-pointer"
-              >
-                Sign Up
-              </button>
-            </div>
-          </nav>
-        </div>
-      )}
-      {/* Spacer so page content isn't hidden behind the fixed header */}
-      <div className="h-16" />
+      {/* Spacer to prevent content from hiding behind the floating header */}
+      <div className="h-20 shrink-0" aria-hidden="true" />
     </>
   );
 }

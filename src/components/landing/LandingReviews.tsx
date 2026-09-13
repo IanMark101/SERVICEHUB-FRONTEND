@@ -1,202 +1,79 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+'use client';
+
+import React from 'react';
+import { ClipboardCheck, MessageSquareText, Star } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
-
-interface Review {
-  id: string;
-  name: string;
-  role: string;
-  avatarUrl: string;
-  feedback: string;
-}
-
-const mockReviews: Review[] = [
-  {
-    id: 'rev-1',
-    name: 'Rosie Cañete',
-    role: 'Working Mom / Seeker',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
-    feedback: 'Finding helper services in Gabi, Cordova was such a headache before ServiceHub. Now, I can hire verified neighbors for laundry or housekeeping with complete confidence. The live queue is a lifesaver, allowing me to plan my day around when the helper will arrive.'
-  },
-  {
-    id: 'rev-2',
-    name: 'Junrel Bacalso',
-    role: 'Electrical & Aircon Expert',
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
-    feedback: 'Managing my local bookings and job queues here in Cordova is incredibly smooth. I switch to my provider workspace to service appliances, and switch back to seeker when I need laundry services. The GCash escrow system works perfectly on both sides. A secure, neighborly ecosystem that makes local transactions safe!'
-  },
-  {
-    id: 'rev-3',
-    name: 'Sarah Jenkins',
-    role: 'Academic Tutor',
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200',
-    feedback: 'I teach math classes in the afternoon and hire local errand runners in the morning. Having both roles integrated under a single, unified profile means my trust score follows me everywhere. The started-based cancellation policy gives me absolute peace of mind as both a service client and provider.'
-  },
-  {
-    id: 'rev-4',
-    name: 'Alex Mercer',
-    role: 'Cordova Resident',
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
-    feedback: 'Extremely easy to search and sort for local services. Navigated to local listings, booked a provider directly with direct payment options, and released payment only after the service was marked completed. Clean layout, loading shimmers are super quick, and dashboard navigation is effortless.'
-  }
-];
 
 interface LandingReviewsProps {
   isDark: boolean;
 }
 
+const reviewMilestones = [
+  {
+    icon: ClipboardCheck,
+    title: 'Work Completed',
+    copy: 'The provider marks the work complete, then the seeker confirms the result.',
+    tag: 'Step 1',
+  },
+  {
+    icon: MessageSquareText,
+    title: 'Verified Review Submitted',
+    copy: 'An eligible participant can review the completed service relationship.',
+    tag: 'Step 2',
+  },
+  {
+    icon: Star,
+    title: 'Reputation Score Updated',
+    copy: 'Public provider ratings and trust point history reflect completed service reviews.',
+    tag: 'Step 3',
+  },
+];
+
 export default function LandingReviews({ isDark }: LandingReviewsProps) {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-
-  const handlePrev = () => {
-    setActiveIndex((prev) => (prev === 0 ? mockReviews.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setActiveIndex((prev) => (prev === mockReviews.length - 1 ? 0 : prev + 1));
-  };
-
   return (
-    <section id="reviews" className={`pt-10 pb-16 md:pt-12 md:pb-16 px-6 md:px-12 border-b overflow-hidden relative transition-colors duration-500 scroll-mt-20 ${
-      isDark ? 'bg-[#121210] border-neutral-850/40 text-[#f2efe9]' : 'bg-[#f7f6f2] border-slate-200 text-slate-800'
-    }`}>
-      {/* Decorative background glows */}
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl -z-10 pointer-events-none opacity-40 ${
-        isDark ? 'bg-amber-955/15' : 'bg-amber-100/30'
-      }`} />
-
-      <div className="max-w-6xl mx-auto flex flex-col items-center">
-        {/* Pagination Dots at the very top (matching user image layout) */}
-        <div className="flex space-x-2 mb-4">
-          {mockReviews.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveIndex(idx)}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                idx === activeIndex
-                  ? isDark ? 'bg-[#f2efe9] scale-110' : 'bg-slate-800 scale-110'
-                  : isDark ? 'bg-neutral-800' : 'bg-slate-300'
-              }`}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
-        </div>
-
-        <ScrollReveal className="text-center mb-6">
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight ${
-            isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-          }`}>
-            See what our clients have to say
+    <section
+      id="reviews"
+      data-theme={isDark ? 'dark' : 'light'}
+      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-24"
+    >
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <ScrollReveal>
+          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            Reviews require real service completion.
           </h2>
+          <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-400">
+            ServiceHub unlocks reviews only for eligible participants after the related work is formally confirmed as completed.
+          </p>
         </ScrollReveal>
 
-        {/* Carousel Container */}
-        <div className="w-full relative flex items-center justify-center min-h-[330px] md:min-h-[360px] h-[330px] md:h-[360px]">
-          
-          {/* Left Arrow Button */}
-          <button
-            onClick={handlePrev}
-            className={`absolute left-0 sm:left-4 z-30 p-2.5 rounded-full border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
-              isDark 
-                ? 'bg-[#22211e]/80 border-neutral-800 hover:bg-[#2c2b27] text-neutral-450 hover:text-white' 
-                : 'bg-white/80 border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 shadow-sm'
-            }`}
-            aria-label="Previous Review"
-          >
-            <ChevronLeft className="w-4.5 h-4.5" />
-          </button>
-
-          {/* 3D Coverflow Track */}
-          <div className="w-full max-w-[900px] flex items-center justify-center relative select-none">
-            {mockReviews.map((review, idx) => {
-              // Calculate relative offset of card compared to activeIndex
-              let diff = idx - activeIndex;
-              
-              // Handle wrap-around for smooth looping offsets
-              if (diff < -1) {
-                if (diff === -(mockReviews.length - 1)) diff = 1;
-              } else if (diff > 1) {
-                if (diff === mockReviews.length - 1) diff = -1;
-              }
-
-              const isFocus = diff === 0;
-              const isLeft = diff === -1;
-              const isRight = diff === 1;
-              const isHidden = Math.abs(diff) > 1;
-
-              let cardStyles = '';
-              if (isFocus) {
-                cardStyles = 'z-20 scale-[1.05] opacity-100 translate-x-0 cursor-default';
-              } else if (isLeft) {
-                cardStyles = 'z-10 scale-[0.90] opacity-40 -translate-x-[22%] md:-translate-x-[35%] cursor-pointer rotate-y-12';
-              } else if (isRight) {
-                cardStyles = 'z-10 scale-[0.90] opacity-40 translate-x-[22%] md:translate-x-[35%] cursor-pointer -rotate-y-12';
-              } else {
-                cardStyles = 'z-0 scale-75 opacity-0 pointer-events-none absolute';
-              }
-
-              return (
-                <div
-                  key={review.id}
-                  onClick={() => !isFocus && setActiveIndex(idx)}
-                  className={`w-full max-w-[340px] md:max-w-[480px] min-h-[220px] sm:min-h-[240px] p-6 sm:p-7 rounded-[24px] border backdrop-blur-xl transition-all duration-550 ease-out absolute ${cardStyles} ${
-                    isDark 
-                      ? 'bg-[#1c1b18]/90 border-neutral-800/80 text-[#f2efe9] shadow-xl' 
-                      : 'bg-white border-slate-200 text-slate-800 shadow-lg'
-                  }`}
-                  style={{
-                    transformStyle: 'preserve-3d',
-                    perspective: '1000px',
-                  }}
-                >
-                  {/* Top user profile section */}
-                  <div className="flex items-center space-x-3.5 mb-3.5 pb-3 border-b border-slate-100 dark:border-neutral-850">
-                    <img
-                      src={review.avatarUrl}
-                      alt={review.name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-orange-500/30"
-                    />
-                    <div>
-                      <p className={`text-[10px] uppercase font-bold tracking-wider ${
-                        isDark ? 'text-amber-500' : 'text-orange-600'
-                      }`}>
-                        Verified Reviewer
-                      </p>
-                      <h4 className="font-bold text-sm sm:text-base leading-tight">
-                        {review.name}
-                      </h4>
-                      <p className={`text-xs font-medium ${
-                        isDark ? 'text-[#b4b0a9]' : 'text-slate-450'
-                      }`}>
-                        {review.role}
-                      </p>
-                    </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {reviewMilestones.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <ScrollReveal
+                key={item.title}
+                direction="scale"
+                delay={index * 0.09}
+                hoverLift
+                className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="grid size-10 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
+                    <Icon size={18} />
                   </div>
-
-                  {/* Feedback comment paragraph */}
-                  <p className={`text-xs sm:text-[13px] leading-relaxed font-medium overflow-y-auto max-h-[170px] transition-colors duration-300 pr-1 ${
-                    isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
-                  }`}>
-                    {review.feedback}
-                  </p>
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500">
+                    {item.tag}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Right Arrow Button */}
-          <button
-            onClick={handleNext}
-            className={`absolute right-0 sm:right-4 z-30 p-2.5 rounded-full border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
-              isDark 
-                ? 'bg-[#22211e]/80 border-neutral-800 hover:bg-[#2c2b27] text-neutral-450 hover:text-white' 
-                : 'bg-white/80 border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800 shadow-sm'
-            }`}
-            aria-label="Next Review"
-          >
-            <ChevronRight className="w-4.5 h-4.5" />
-          </button>
-
+                <h3 className="mt-6 text-sm font-bold text-slate-950 dark:text-white">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-zinc-400">
+                  {item.copy}
+                </p>
+              </ScrollReveal>
+            );
+          })}
         </div>
       </div>
     </section>

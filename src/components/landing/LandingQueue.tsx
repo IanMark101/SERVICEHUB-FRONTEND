@@ -1,105 +1,112 @@
+'use client';
+
 import React from 'react';
-import { HelpCircle } from 'lucide-react';
+import { CircleDollarSign, Clock3, LockKeyhole, Play } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingQueueProps {
   isDark: boolean;
 }
 
+const queueStages = [
+  {
+    step: 'Payment',
+    label: 'Backend Payment Confirmed',
+    detail: 'The backend verifies PayMongo Test Mode payment status before admitting a booking to the queue.',
+    icon: CircleDollarSign,
+    status: 'Verified',
+  },
+  {
+    step: 'Placement',
+    label: 'Listing-Specific FCFS Placement',
+    detail: 'Every service listing runs its own honest queue with strict first-paid, first-waiting ordering.',
+    icon: Clock3,
+    status: 'Queued',
+  },
+  {
+    step: 'Execution',
+    label: 'Single Active Job Execution',
+    detail: 'Providers serve exactly one active booking at a time, protecting quality and delivery standards.',
+    icon: Play,
+    status: 'Enforced',
+  },
+];
+
 export default function LandingQueue({ isDark }: LandingQueueProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
-    <section id="queue" className="py-20 px-6 md:px-12 w-full relative overflow-hidden scroll-mt-20">
-      {/* Soft background glow */}
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 glow-bubble-green -z-10 opacity-30 animate-pulse-glow" />
-      <div className="max-w-4xl mx-auto space-y-10">
-        <ScrollReveal className="text-center space-y-3">
-          <span className="text-[10px] font-bold text-seeker-primary uppercase tracking-widest block font-sans">Platform Innovation</span>
-          <h2 className={`text-3xl md:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-            }`}>
-            A queue that's actually fair
+    <section
+      id="queue"
+      data-theme={isDark ? 'dark' : 'light'}
+      className="relative overflow-hidden scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
+    >
+
+      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-20">
+        {/* Left Column: Context & Rule */}
+        <ScrollReveal direction="left">
+          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            First paid, first waiting, first eligible.
           </h2>
-          <p className={`text-sm max-w-xl mx-auto leading-relaxed transition-colors duration-300 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
-            }`}>
-            When a provider is busy, ServiceHub Cordova places you in a real first-come, first-served line — not "whoever texts back fastest." You'll always see your exact position and how long you're likely to wait.
+          <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-400">
+            ServiceHub eliminates guesswork by attaching queue entries directly to verified online payments, preventing double-booking and queue jumping.
           </p>
-        </ScrollReveal>
 
-        {/* Visual Queue Illustration with glassmorphism */}
-        <ScrollReveal className={`p-8 rounded-[24px] border backdrop-blur-xl shadow-lg relative overflow-hidden ${isDark
-            ? 'bg-[#1f1e1a]/30 border-[#33322e]/45 shadow-[0_8px_30px_rgb(0,0,0,0.2)]'
-            : 'bg-white/40 border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)]'
-          }`}>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 relative">
-            {/* Client A */}
-            <div className="flex flex-col items-center text-center space-y-2.5 z-10 w-full md:w-1/4">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center relative font-bold text-xs border-2 ${isDark ? 'bg-neutral-850 border-emerald-500 text-emerald-450' : 'bg-slate-50 border-emerald-500 text-emerald-700'
-                }`}>
-                Client A
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
-                </span>
-              </div>
-              <div>
-                <h5 className="font-extrabold text-xs">Currently Serving</h5>
-                <p className={`text-[10px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>In progress</p>
-              </div>
-            </div>
-
-            {/* Arrow Line 1 */}
-            <div className={`hidden md:block h-0.5 flex-1 -mt-8 ${isDark ? 'bg-neutral-855' : 'bg-slate-100'}`}></div>
-
-            {/* Client B */}
-            <div className="flex flex-col items-center text-center space-y-2.5 z-10 w-full md:w-1/4">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xs border ${isDark ? 'bg-[#2c2b27] border-neutral-855 text-neutral-400' : 'bg-slate-50 border-slate-200/60 text-slate-500'
-                }`}>
-                Client B
-              </div>
-              <div>
-                <h5 className="font-extrabold text-xs">Position #2</h5>
-                <p className={`text-[10px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Next in line</p>
-              </div>
-            </div>
-
-            {/* Arrow Line 2 */}
-            <div className={`hidden md:block h-0.5 flex-1 -mt-8 ${isDark ? 'bg-neutral-855' : 'bg-slate-100'}`}></div>
-
-            {/* Client C */}
-            <div className="flex flex-col items-center text-center space-y-2.5 z-10 w-full md:w-1/4">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xs border ${isDark ? 'bg-[#2c2b27] border-neutral-855 text-neutral-400' : 'bg-slate-50 border-slate-200/60 text-slate-500'
-                }`}>
-                Client C
-              </div>
-              <div>
-                <h5 className="font-extrabold text-xs">Position #3</h5>
-                <p className={`text-[10px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Wait: ~45 mins</p>
-              </div>
-            </div>
-
-            {/* Arrow Line 3 */}
-            <div className={`hidden md:block h-0.5 flex-1 -mt-8 ${isDark ? 'bg-neutral-855' : 'bg-slate-100'}`}></div>
-
-            {/* You */}
-            <div className="flex flex-col items-center text-center space-y-2.5 z-10 w-full md:w-1/4">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-xs border-2 shadow-sm ${isDark ? 'bg-neutral-850 border-orange-500 text-orange-400' : 'bg-orange-50 border-orange-500 text-orange-700'
-                }`}>
-                You
-              </div>
-              <div>
-                <h5 className="font-extrabold text-xs text-seeker-primary">Position #4</h5>
-                <p className={`text-[10px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Wait: ~1 hr 15 mins</p>
-              </div>
+          <div className="mt-8 flex gap-3.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/70">
+            <LockKeyhole className="mt-0.5 size-5 shrink-0 text-[#c86544]" />
+            <div>
+              <p className="text-xs font-bold text-slate-900 dark:text-white">
+                Cash Payment Separation
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-zinc-400">
+                On-site cash is arranged directly with the provider and does not occupy online queue capacity.
+              </p>
             </div>
           </div>
         </ScrollReveal>
 
-        {/* Callout Box */}
-        <ScrollReveal className={`p-5 rounded-2xl border backdrop-blur-md flex items-start space-x-3.5 ${isDark ? 'bg-[#2c2b27]/60 border-neutral-855 text-amber-500/90' : 'bg-amber-50/60 border-amber-200/30 text-amber-900'
-          }`}>
-          <HelpCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
-          <p className="text-xs leading-relaxed font-semibold">
-            Queue spots are reserved only for online payments. This guarantees every spot in line is a real, committed booking — not a no-show waiting to happen. Cash bookings are arranged directly with the provider instead.
-          </p>
+        {/* Right Column: Queue Stages Breakdown */}
+        <ScrollReveal direction="right" className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+          <div className="space-y-3.5">
+            {queueStages.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
+                  key={item.label}
+                  initial={shouldReduceMotion ? false : { opacity: 0, x: 18 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, amount: 0.7 }}
+                  transition={{ duration: 0.5, delay: 0.14 + index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-zinc-950/40"
+                >
+                  <div className="grid size-11 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-slate-950 dark:text-white">
+                        {item.label}
+                      </p>
+                      <span className="hidden sm:inline-block rounded-md bg-emerald-100/70 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+                        {item.status}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-zinc-400">
+                      {item.detail}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold text-slate-400 dark:text-zinc-500">
+                    {item.step}
+                  </span>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-600 dark:border-zinc-800 dark:text-zinc-400">
+            Your queue position is FCFS within this specific service. Providers can offer several services but may perform only one active job at a time.
+          </div>
         </ScrollReveal>
       </div>
     </section>
