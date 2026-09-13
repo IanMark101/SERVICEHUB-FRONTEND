@@ -39,6 +39,7 @@ interface ConversationSummary { unreadCount?: number }
 interface UseAppDataSyncOptions {
   isAuthenticated: boolean;
   authLoading: boolean;
+  shouldLoadMarketplaceData: boolean;
   user: UserSession | null;
   toastSuccess: (title: string, message?: string) => void;
   toastError: (title: string, message?: string) => void;
@@ -47,6 +48,7 @@ interface UseAppDataSyncOptions {
 export function useAppDataSync({
   isAuthenticated,
   authLoading,
+  shouldLoadMarketplaceData,
   user,
   toastSuccess,
   toastError
@@ -285,13 +287,15 @@ export function useAppDataSync({
 
   // ─── Initial Data Load on Mount ────────────────────────────────
   useEffect(() => {
-    // Always load categories and public services
+    if (!shouldLoadMarketplaceData) return;
+
+    // Marketplace workspaces and Limited Mode use these public resources.
     const timer = window.setTimeout(() => {
       syncCategories();
       syncPublicServices();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [syncCategories, syncPublicServices]);
+  }, [shouldLoadMarketplaceData, syncCategories, syncPublicServices]);
 
   useEffect(() => {
     // Load private data only after the authoritative session check succeeds.

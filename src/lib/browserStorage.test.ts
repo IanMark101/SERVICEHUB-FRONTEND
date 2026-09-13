@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { clearLegacyAuthStorage } from './browserStorage';
+import {
+  clearLegacyAuthStorage,
+  clearSessionHint,
+  hasSessionHint,
+  markSessionPresent,
+} from './browserStorage';
 
 describe('clearLegacyAuthStorage', () => {
   beforeEach(() => {
@@ -19,6 +24,7 @@ describe('clearLegacyAuthStorage', () => {
     expect(localStorage.getItem('adminToken')).toBeNull();
     expect(localStorage.getItem('userSession')).toBeNull();
     expect(sessionStorage.getItem('refreshToken')).toBeNull();
+    expect(hasSessionHint()).toBe(true);
   });
 
   it('preserves non-sensitive interface preferences', () => {
@@ -32,5 +38,14 @@ describe('clearLegacyAuthStorage', () => {
     expect(localStorage.getItem('workspaceRole')).toBe('provider');
     expect(localStorage.getItem('servicehub:marketplace-sidebar-collapsed')).toBe('true');
   });
-});
 
+  it('stores only a non-sensitive boolean session hint', () => {
+    expect(hasSessionHint()).toBe(false);
+    markSessionPresent();
+    expect(hasSessionHint()).toBe(true);
+    expect(localStorage.getItem('servicehub:session-present')).toBe('true');
+
+    clearSessionHint();
+    expect(hasSessionHint()).toBe(false);
+  });
+});

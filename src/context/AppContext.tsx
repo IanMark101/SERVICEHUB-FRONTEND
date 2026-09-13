@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   User,
   ServiceListing,
@@ -15,7 +16,8 @@ import {
 import { UserSession } from '../components/auth/LoginContainer';
 import { apiRecoverSession } from '../api/auth.api';
 import { clearAccessToken } from '../lib/api/axios';
-import { clearLegacyAuthStorage } from '../lib/browserStorage';
+import { clearLegacyAuthStorage, clearSessionHint, hasSessionHint } from '../lib/browserStorage';
+import { shouldLoadMarketplaceData } from '../lib/routeDataPolicy';
 
 
 // Modular Helpers and Hooks
@@ -118,6 +120,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [users, setUsers] = useState<User[]>([]);
   // Keep the server render and the client's first render identical. Browser
   // preferences are restored after hydration; the root initializer prevents a
@@ -176,6 +179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   } = useAppDataSync({
     isAuthenticated,
     authLoading,
+    shouldLoadMarketplaceData: shouldLoadMarketplaceData(pathname),
     user,
     toastSuccess,
     toastError
@@ -196,10 +200,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // values before restoring the session from the HttpOnly cookie.
     clearLegacyAuthStorage();
 
+    if (!hasSessionHint()) {
+      const timer = window.setTimeout(() => {
+        setUser(null);
+        setIsAuthenticated(false);
+        setAuthLoading(false);
+      }, 0);
+      return () => {
+        active = false;
+        window.clearTimeout(timer);
+      };
+    }
+
     apiRecoverSession()
         .then((res) => {
           if (!active) return;
-          if (res.success) {
+          if (res.success && res.data?.authenticated !== false && res.data?.user) {
             const dbUser = res.data.user;
             const names = (dbUser.name || '').split(' ');
             const firstName = names[0] || '';
@@ -227,6 +243,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setIsAuthenticated(true);
           } else {
             clearAccessToken();
+            clearSessionHint();
             setUser(null);
             setIsAuthenticated(false);
           }
@@ -236,6 +253,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           // Fail closed: cached identity/role data must never render a protected
           // workspace when the authoritative /auth/me check did not succeed.
           clearAccessToken();
+          clearSessionHint();
           setUser(null);
           setIsAuthenticated(false);
         })
