@@ -15,6 +15,7 @@ import {
 import { UserSession } from '../components/auth/LoginContainer';
 import { apiRecoverSession } from '../api/auth.api';
 import { clearAccessToken } from '../lib/api/axios';
+import { clearLegacyAuthStorage } from '../lib/browserStorage';
 
 
 // Modular Helpers and Hooks
@@ -127,21 +128,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<UserSession | null>(null);
 
   const setUser = useCallback((valOrFn: UserSession | null | ((prev: UserSession | null) => UserSession | null)) => {
-    setUserState(prev => {
-      const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
-      if (typeof window !== 'undefined') {
-        if (next) {
-          localStorage.setItem('userSession', JSON.stringify(next));
-        } else {
-          localStorage.removeItem('userSession');
-        }
-      }
-      return next;
-    });
+    setUserState(valOrFn);
   }, []);
 
-  // Cached profile data is only a session hint. Protected data waits until the
-  // HttpOnly refresh cookie has restored an in-memory token and /auth/me passes.
+  // Identity data stays in React memory. The HttpOnly refresh cookie is the
+  // only persistent session signal, and /auth/me remains authoritative.
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
   const { success: toastSuccess, error: toastError } = useToast();
@@ -200,18 +191,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ─── Session Recovery ──────────────────────────────────────────
   useEffect(() => {
     let active = true;
-    const hasSessionCandidate = typeof window !== 'undefined' && Boolean(localStorage.getItem('userSession'));
-    if (!hasSessionCandidate) {
-      const timer = window.setTimeout(() => {
-        setUser(null);
-        setIsAuthenticated(false);
-        setAuthLoading(false);
-      }, 0);
-      return () => {
-        active = false;
-        window.clearTimeout(timer);
-      };
-    }
+
+    // Older versions stored JWTs and profile data in Web Storage. Purge those
+    // values before restoring the session from the HttpOnly cookie.
+    clearLegacyAuthStorage();
 
     apiRecoverSession()
         .then((res) => {
