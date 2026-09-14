@@ -12,6 +12,7 @@ interface LandingHeaderProps {
 }
 
 const NAV_LINKS = [
+  { label: 'Why ServiceHub', href: '#problem' },
   { label: 'How it works', href: '#how-it-works' },
   { label: 'Workspaces', href: '#workspaces' },
   { label: 'Queue', href: '#queue' },
