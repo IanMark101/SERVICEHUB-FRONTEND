@@ -202,7 +202,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         text: comment,
         tags
       });
-      success('Review Updated! ⭐', 'Your review for the client has been updated.');
+      success('Review updated', 'Your review for the client has been updated.');
     } else {
       if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
       await apiSubmitReview({
@@ -211,7 +211,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         text: comment,
         tags
       });
-      success('Client Review Submitted! ⭐', 'Thank you for your rating and feedback.');
+      success('Client review submitted', 'Thank you for your rating and feedback.');
     }
     refreshEngagements();
   };
@@ -400,7 +400,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
 
 

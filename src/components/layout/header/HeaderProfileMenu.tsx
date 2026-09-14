@@ -1,4 +1,4 @@
-import { ChevronDown, HelpCircle, LogOut, Settings, User } from 'lucide-react';
+import { CaretDown as ChevronDown, Question as HelpCircle, SignOut as LogOut, Gear as Settings, User } from '@phosphor-icons/react';
 import Image from 'next/image';
 import type { UserSession } from '../../auth/LoginContainer';
 

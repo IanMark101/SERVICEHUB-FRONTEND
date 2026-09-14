@@ -1,5 +1,5 @@
 import { FormEvent } from 'react';
-import { AlertCircle, Loader2, X } from 'lucide-react';
+import { WarningCircle as AlertCircle, CircleNotch as Loader2, X } from '@phosphor-icons/react';
 import { JobEngagement } from '../../../types';
 
 interface SeekerCancellationRequestModalProps {

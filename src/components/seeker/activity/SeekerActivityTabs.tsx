@@ -75,7 +75,7 @@ export default function SeekerActivityTabs({
   return (
     <div className={`flex flex-wrap gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
       {tabs.map(({ tab, label, count }) => (
-        <button key={tab} onClick={() => onTabChange(tab)} className={getTabClass(tab)}>
+        <button key={tab} type="button" aria-pressed={activeTab === tab} onClick={() => onTabChange(tab)} className={getTabClass(tab)}>
           {label} ({count})
         </button>
       ))}

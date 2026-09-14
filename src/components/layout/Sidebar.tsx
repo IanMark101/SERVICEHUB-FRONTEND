@@ -4,25 +4,25 @@ import Link from 'next/link';
 import {
   Compass,
   PlusCircle,
-  Layers,
-  Inbox,
-  TrendingUp,
+  Stack as Layers,
+  Tray as Inbox,
+  TrendUp as TrendingUp,
   Tag,
-  MessageSquare,
-  Users,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
+  ChatCircle as MessageSquare,
+  UsersThree as Users,
+  SignOut as LogOut,
+  CaretLeft as ChevronLeft,
+  CaretRight as ChevronRight,
   X,
   Briefcase,
-  Search,
-  History,
-  BarChart2,
+  MagnifyingGlass as Search,
+  ClockCounterClockwise as History,
+  ChartBar as BarChart2,
   ShieldCheck,
-  AlertTriangle,
-  HelpCircle,
+  Warning as AlertTriangle,
+  Question as HelpCircle,
   Megaphone,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 import { UserSession } from '../auth/LoginContainer';
 import { useApp } from '../../context/AppContext';
 
@@ -156,7 +156,7 @@ export default function Sidebar({
       ? isDark
         ? 'bg-neutral-100 text-neutral-950'
         : 'bg-slate-950 text-white'
-      : `${itemTheme.accent} ${itemTheme.bgActive} border-l-4 ${itemTheme.borderActive}`;
+      : `${itemTheme.accent} ${itemTheme.bgActive} border ${itemTheme.borderActive}`;
 
     return (
       <button
@@ -206,7 +206,7 @@ export default function Sidebar({
   };
 
   const sidebarContent = (
-    <div className={`h-full flex flex-col justify-between py-5 px-3 select-none transition-colors duration-200 ${isDark
+    <div className={`workspace-chrome h-full flex flex-col justify-between py-5 px-3 select-none transition-colors duration-200 ${isDark
       ? 'bg-[#1c1b18] border-r border-neutral-800/80 text-[#f2efe9]'
       : 'bg-white border-r border-slate-200 text-slate-800'
       }`}>
@@ -237,6 +237,8 @@ export default function Sidebar({
           {/* Desktop Collapse Toggle */}
           {!isMobileOpen && (
             <button
+              type="button"
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               onClick={() => setIsCollapsed(!isCollapsed)}
               className={`hidden md:flex p-1.5 rounded-lg border transition-all ${isDark
                 ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'
@@ -250,6 +252,8 @@ export default function Sidebar({
           {/* Mobile Drawer Close */}
           {isMobileOpen && (
             <button
+              type="button"
+              aria-label="Close workspace navigation"
               onClick={() => setIsMobileOpen(false)}
               className={`md:hidden p-1.5 rounded-lg border transition-all ${isDark
                 ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'

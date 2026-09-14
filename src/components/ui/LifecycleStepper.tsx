@@ -3,11 +3,11 @@ import {
   Check,
   Clock,
   Play,
-  FileCheck2,
-  CheckCircle2,
-  AlertTriangle,
+  ClipboardText as FileCheck2,
+  CheckCircle as CheckCircle2,
+  Warning as AlertTriangle,
   XCircle,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 
 export type EngagementLifecycleStatus =
   | 'pending_provider'

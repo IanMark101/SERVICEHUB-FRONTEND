@@ -1,4 +1,4 @@
-import { MapPin, Search, X } from 'lucide-react';
+import { MapPin, MagnifyingGlass as Search, X } from '@phosphor-icons/react';
 import Image from 'next/image';
 import type { User } from '../../../types';
 
@@ -25,6 +25,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
       <div className="relative flex items-center">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9] pointer-events-none"><Search className="w-3.5 h-3.5" /></span>
         <input
+          aria-label="Search users"
           type="text"
           autoFocus
           value={query}
@@ -35,7 +36,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
           placeholder="Search users..."
           className={`w-full border rounded-xl pl-9 pr-9 py-2 text-xs transition-all ${isDark ? `bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 ${ringClass}` : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${ringClass}`}`}
         />
-        <button type="button" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+        <button type="button" aria-label="Close user search" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
       </div>
 
       {showResults && (

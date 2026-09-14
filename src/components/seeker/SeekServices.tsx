@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
-import { Search } from 'lucide-react';
+import { MagnifyingGlass as Search } from '@phosphor-icons/react';
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -207,12 +207,12 @@ export default function SeekServices() {
   }, [paginatedServices]);
 
   return (
-    <div className={`space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       <LimitedModeDashboardCard role="seeker" />
 
       {/* Search Banner */}
-      <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
+      <div className={`workspace-surface rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
         }`}>
         <div className="max-w-2xl relative z-10 space-y-3 w-full">
           <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
@@ -229,6 +229,7 @@ export default function SeekServices() {
               <Search className="w-4 h-4" />
             </span>
             <input
+              aria-label="Search service listings"
               type="text"
               placeholder="What service are you looking for?"
               value={searchQuery}
@@ -253,6 +254,8 @@ export default function SeekServices() {
       <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>Quick Filters:</span>
         <button
+          type="button"
+          aria-pressed={activeFilter === 'all'}
           onClick={() => handleFilterChange('all')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
               ? isDark
@@ -266,6 +269,8 @@ export default function SeekServices() {
           All
         </button>
         <button
+          type="button"
+          aria-pressed={activeFilter === 'available'}
           onClick={() => handleFilterChange('available')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'available'
               ? isDark
@@ -280,6 +285,8 @@ export default function SeekServices() {
           Available Now
         </button>
         <button
+          type="button"
+          aria-pressed={activeFilter === 'rated'}
           onClick={() => handleFilterChange('rated')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'rated'
               ? isDark
@@ -294,6 +301,8 @@ export default function SeekServices() {
           Top Rated
         </button>
         <button
+          type="button"
+          aria-pressed={activeFilter === 'low-queue'}
           onClick={() => handleFilterChange('low-queue')}
           className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'low-queue'
               ? isDark
@@ -314,6 +323,8 @@ export default function SeekServices() {
         {categories.map((cat) => (
           <button
             key={cat}
+            type="button"
+            aria-pressed={selectedCategory === cat}
             onClick={() => handleCategoryChange(cat)}
             className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${selectedCategory === cat
                 ? isDark

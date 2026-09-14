@@ -1,5 +1,5 @@
 import { FormEvent } from 'react';
-import { AlertTriangle, Loader2, X } from 'lucide-react';
+import { Warning as AlertTriangle, CircleNotch as Loader2, X } from '@phosphor-icons/react';
 import { JobEngagement } from '../../../types';
 
 interface SeekerDisputeModalProps {

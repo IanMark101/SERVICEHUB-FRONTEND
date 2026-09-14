@@ -226,7 +226,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         text: comment,
         tags
       });
-      success('Review Updated! ⭐', 'Your review has been updated.');
+      success('Review updated', 'Your review has been updated.');
     } else {
       if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
       await apiSubmitReview({
@@ -235,7 +235,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         text: comment,
         tags
       });
-      success('Review Submitted! ⭐', 'Thank you for your feedback.');
+      success('Review submitted', 'Thank you for your feedback.');
     }
     refreshEngagements();
   };
@@ -365,7 +365,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   };
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
 
 

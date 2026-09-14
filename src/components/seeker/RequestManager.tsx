@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { ClipboardList, Trash2, Edit2, MessageSquare, UsersRound, AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import {
+  ClipboardText as ClipboardList,
+  Trash as Trash2,
+  PencilSimple as Edit2,
+  ChatCircle as MessageSquare,
+  UsersThree as UsersRound,
+  WarningCircle as AlertCircle,
+  ArrowRight,
+  CircleNotch as Loader2,
+  FolderSimple,
+  Alarm,
+  MapPin,
+} from '@phosphor-icons/react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -166,7 +178,7 @@ export default function RequestManager({
   };
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
       
       {/* Header Action Strip & Status Filter Tabs */}
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
@@ -216,7 +228,7 @@ export default function RequestManager({
               return (
                 <div 
                   key={req.id} 
-                  className={`rounded-[26px] p-6 border transition-all duration-200 flex flex-col space-y-4 shadow-sm hover:shadow-md ${
+                  className={`workspace-card rounded-[26px] p-6 border transition-all duration-200 flex flex-col space-y-4 shadow-sm hover:shadow-md ${
                     isDark 
                       ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' 
                       : 'bg-white border-slate-200 hover:border-slate-300'
@@ -229,19 +241,19 @@ export default function RequestManager({
                       <span className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
                         isDark ? 'bg-orange-950/30 border-orange-900/40 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-700'
                       }`}>
-                        📁 {req.category}
+                        <FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {req.category}
                       </span>
 
                       <span className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 border ${
                         isDark ? 'bg-amber-955/20 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-200 text-amber-800'
                       }`}>
-                        ⏰ Needed: {formatUrgencyDisplay(req.urgency)}
+                        <Alarm className="h-3.5 w-3.5" weight="duotone" /> Needed: {formatUrgencyDisplay(req.urgency)}
                       </span>
 
-                      <span className={`px-2.5 py-1 rounded-xl text-xs font-semibold border ${
+                      <span className={`px-2.5 py-1 rounded-xl text-xs font-semibold border inline-flex items-center gap-1 ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-400' : 'bg-slate-50 border-slate-200 text-slate-500'
                       }`}>
-                        📍 Central Cordova
+                        <MapPin className="h-3.5 w-3.5" weight="duotone" /> Central Cordova
                       </span>
                     </div>
 
@@ -428,9 +440,7 @@ export default function RequestManager({
 
                       {loadingAiMap[req.id] ? (
                         <div className="flex items-center space-x-2 py-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
+                          <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
                           <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Analyzing provider capabilities and trust scores...</span>
                         </div>
                       ) : !aiSuggestions[req.id] ? (

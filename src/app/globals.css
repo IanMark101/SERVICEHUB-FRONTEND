@@ -541,4 +541,159 @@ h6 {
   mask-image: radial-gradient(ellipse 95% 85% at 50% 20%, #000 50%, transparent 100%);
 }
 
+/* Authenticated marketplace visual system. The workspace layout stays intact;
+   these tokens align its surfaces and interactions with the landing page. */
+.workspace-shell {
+  --workspace-canvas: #f5f4f2;
+  --workspace-surface: #fffdfa;
+  --workspace-surface-muted: #f8f6f2;
+  --workspace-ink: #171716;
+  --workspace-muted: #66645f;
+  --workspace-border: rgba(23, 23, 22, 0.11);
+  --workspace-border-strong: rgba(23, 23, 22, 0.2);
+  --workspace-focus: #c86544;
+  --workspace-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--workspace-canvas);
+  color: var(--workspace-ink);
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  caret-color: var(--workspace-focus);
+  isolation: isolate;
+}
 
+.workspace-shell--provider {
+  --workspace-focus: #059669;
+}
+
+.dark .workspace-shell {
+  --workspace-canvas: #121211;
+  --workspace-surface: #1a1918;
+  --workspace-surface-muted: #201f1d;
+  --workspace-ink: #f2efe9;
+  --workspace-muted: #aaa69f;
+  --workspace-border: rgba(242, 239, 233, 0.1);
+  --workspace-border-strong: rgba(242, 239, 233, 0.18);
+}
+
+.workspace-shell ::selection {
+  background: color-mix(in srgb, var(--workspace-focus) 24%, transparent);
+  color: var(--workspace-ink);
+}
+
+.workspace-shell :where(button, a, input, select, textarea) {
+  font: inherit;
+}
+
+.workspace-shell :where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--workspace-focus);
+  outline-offset: 2px;
+}
+
+.workspace-shell :where(button, a) {
+  transition-duration: 180ms;
+  transition-timing-function: var(--workspace-ease);
+}
+
+.workspace-shell button:not(:disabled):active,
+.workspace-shell a:active {
+  transform: scale(0.98);
+}
+
+.workspace-shell button svg,
+.workspace-shell a svg {
+  transition: transform 180ms var(--workspace-ease), color 180ms ease;
+}
+
+.workspace-shell button:not(:disabled):hover svg,
+.workspace-shell a:hover svg {
+  transform: translateY(-1px) scale(1.04);
+}
+
+.workspace-shell :where(input, select, textarea) {
+  border-color: var(--workspace-border);
+  background: var(--workspace-surface-muted);
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.workspace-shell :where(input, select, textarea):hover {
+  border-color: var(--workspace-border-strong);
+}
+
+.workspace-shell :where(input, select, textarea):focus {
+  border-color: var(--workspace-focus);
+  background: var(--workspace-surface);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-focus) 12%, transparent);
+}
+
+.workspace-surface {
+  background: var(--workspace-surface) !important;
+  border-color: var(--workspace-border) !important;
+  box-shadow: 0 1px 2px rgba(23, 23, 22, 0.035), 0 12px 30px -28px rgba(23, 23, 22, 0.34);
+}
+
+.workspace-chrome {
+  border-color: var(--workspace-border) !important;
+  background-color: color-mix(in srgb, var(--workspace-surface) 92%, transparent) !important;
+  color: var(--workspace-ink) !important;
+}
+
+.workspace-page h2,
+.workspace-page h3,
+.workspace-page h4 {
+  color: var(--workspace-ink);
+  letter-spacing: -0.025em;
+}
+
+.workspace-page :where(p, label) {
+  text-wrap: pretty;
+}
+
+.workspace-page :where(.tabular-nums, [data-numeric='true']) {
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-card {
+  background: var(--workspace-surface) !important;
+  border-color: var(--workspace-border) !important;
+  box-shadow: 0 1px 2px rgba(23, 23, 22, 0.035), 0 10px 24px -24px rgba(23, 23, 22, 0.38);
+  transition: border-color 200ms ease, box-shadow 220ms var(--workspace-ease), transform 220ms var(--workspace-ease) !important;
+}
+
+.workspace-card:hover {
+  border-color: var(--workspace-border-strong) !important;
+  box-shadow: 0 2px 3px rgba(23, 23, 22, 0.04), 0 18px 38px -28px rgba(23, 23, 22, 0.38);
+  transform: translateY(-1px);
+}
+
+.workspace-shell .workspace-content {
+  background-image: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--workspace-focus) 5%, transparent), transparent 34rem);
+  background-repeat: no-repeat;
+}
+
+.dark .workspace-shell .workspace-surface,
+.dark .workspace-shell .workspace-card {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.025), 0 16px 36px -30px rgba(0, 0, 0, 0.9);
+}
+
+.workspace-shell [aria-pressed='true'],
+.workspace-shell [aria-selected='true'] {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-shell *,
+  .workspace-shell *::before,
+  .workspace-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .workspace-card:hover,
+  .workspace-shell button:not(:disabled):active,
+  .workspace-shell a:active,
+  .workspace-shell button:not(:disabled):hover svg,
+  .workspace-shell a:hover svg {
+    transform: none !important;
+  }
+}

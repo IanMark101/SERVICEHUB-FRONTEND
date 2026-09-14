@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Search, CheckCircle2, CalendarDays, ShieldCheck, ArrowRight } from 'lucide-react';
+import { MagnifyingGlass as Search, CheckCircle as CheckCircle2, CalendarBlank as CalendarDays, ShieldCheck, ArrowRight, Alarm } from '@phosphor-icons/react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -150,12 +150,12 @@ export default function BrowseJobs({
   };
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       <LimitedModeDashboardCard role="provider" />
 
       {/* Header Banner */}
-      <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+      <div className={`workspace-surface rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
         }`}>
         <div className="max-w-2xl relative z-10 space-y-3 w-full">
           <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
@@ -172,6 +172,7 @@ export default function BrowseJobs({
               <Search className="w-4 h-4" />
             </span>
             <input
+              aria-label="Search job requests"
               type="text"
               placeholder="What job or service request are you looking for?"
               value={searchQuery}
@@ -195,6 +196,8 @@ export default function BrowseJobs({
         <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-300'}`}>
           <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Quick Filters:</span>
           <button
+            type="button"
+            aria-pressed={activeFilter === 'all'}
             onClick={() => handleFilterChange('all')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
                 ? isDark
@@ -208,6 +211,8 @@ export default function BrowseJobs({
             All
           </button>
           <button
+            type="button"
+            aria-pressed={activeFilter === 'urgent'}
             onClick={() => handleFilterChange('urgent')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'urgent'
                 ? isDark
@@ -222,6 +227,8 @@ export default function BrowseJobs({
             Urgent
           </button>
           <button
+            type="button"
+            aria-pressed={activeFilter === 'high-budget'}
             onClick={() => handleFilterChange('high-budget')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'high-budget'
                 ? isDark
@@ -236,6 +243,8 @@ export default function BrowseJobs({
             High Budget
           </button>
           <button
+            type="button"
+            aria-pressed={activeFilter === 'few-offers'}
             onClick={() => handleFilterChange('few-offers')}
             className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'few-offers'
                 ? isDark
@@ -257,6 +266,8 @@ export default function BrowseJobs({
             {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
+                aria-pressed={selectedCategory === cat}
                 onClick={() => handleCategoryChange(cat)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedCategory === cat
                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
@@ -314,7 +325,7 @@ export default function BrowseJobs({
               return (
                 <div
                   key={req.id}
-                  className={`rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full group ${
+                  className={`workspace-card rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full group ${
                     isOwned || hasSentBid
                       ? 'border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
                       : isDark
@@ -385,7 +396,7 @@ export default function BrowseJobs({
                             ? isDark ? 'text-amber-400 bg-amber-955/30 border-amber-900/40' : 'text-amber-700 bg-amber-50 border-amber-200'
                             : isDark ? 'text-slate-300 bg-neutral-900/30 border-neutral-800' : 'text-slate-700 bg-slate-100 border-slate-200'
                       }`}>
-                        <span>⏰ Needed:</span>
+                        <span className="inline-flex items-center gap-1"><Alarm className="h-3.5 w-3.5" weight="duotone" /> Needed:</span>
                         <span className="font-black">{formatUrgencyDisplay(req.urgency)}</span>
                       </span>
 

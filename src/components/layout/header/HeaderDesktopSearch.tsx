@@ -2,7 +2,7 @@
 
 import type { RefObject } from 'react';
 import Image from 'next/image';
-import { MapPin, Search, X } from 'lucide-react';
+import { MapPin, MagnifyingGlass as Search, X } from '@phosphor-icons/react';
 import type { User } from '../../../types';
 
 interface HeaderDesktopSearchModel {
@@ -42,6 +42,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
           <Search className="w-3.5 h-3.5" />
         </span>
         <input
+          aria-label="Search users"
           type="text"
           value={userSearch}
           onChange={(e) => {

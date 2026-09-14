@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Clock, Play, Search } from 'lucide-react';
+import { Warning as AlertTriangle, CheckCircle as CheckCircle2, Clock, Play, MagnifyingGlass as Search } from '@phosphor-icons/react';
 import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
 import { ActivityItemSkeleton } from '../../ui/SkeletonCard';
@@ -56,6 +56,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
                 <Search className="w-4 h-4 mr-2" />
               </span>
               <input
+                aria-label="Search seeker activity"
                 type="text"
                 placeholder="Search by job title or provider name..."
                 value={searchQuery}
@@ -68,6 +69,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
             <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
               <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>Sort by:</span>
               <select
+                aria-label="Sort seeker activity"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SeekerActivitySort)}
                 className={`px-3 py-2 rounded-xl border outline-none font-bold text-xs transition-all ${isDark

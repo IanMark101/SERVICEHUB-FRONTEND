@@ -69,8 +69,8 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
   const currentRole = 'provider';
 
   return (
-    <div className={`h-screen overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#191919] text-[#f2efe9]' : 'bg-[#fbfaf7] text-slate-800'
+    <div className={`workspace-shell workspace-shell--provider h-screen overflow-hidden flex transition-colors duration-200 ${
+      isDark ? 'bg-[#121211] text-[#f2efe9]' : 'bg-[#f5f4f2] text-slate-800'
     }`}>
       
       {/* Sidebar Component */}
@@ -104,7 +104,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-5">
+        <main className="workspace-content flex-1 w-full max-w-[1440px] mx-auto px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-5">
           
           {/* The sticky header already identifies the current page. Only show
               actionable status here when a queue needs the user's attention. */}

@@ -1,7 +1,16 @@
 "use client";
 import Image from 'next/image';
 
-import { Bell, CheckCircle2, Clock, MapPin, Search, ShieldCheck, Smartphone, Star } from 'lucide-react';
+import {
+  Bell,
+  CheckCircle as CheckCircle2,
+  Clock,
+  MapPin,
+  MagnifyingGlass as Search,
+  ShieldCheck,
+  DeviceMobile as Smartphone,
+  Star,
+} from '@phosphor-icons/react';
 import type { ServiceListing } from '../../../types';
 import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
@@ -146,7 +155,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
               return (
                 <div
                   key={service.id}
-                  className={`rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full ${isDark
+                  className={`workspace-card rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full ${isDark
                       ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
                       : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
                     }`}

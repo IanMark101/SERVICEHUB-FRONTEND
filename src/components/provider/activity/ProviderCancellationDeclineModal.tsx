@@ -1,5 +1,5 @@
 import type { FormEvent } from "react";
-import { AlertTriangle, Loader2, X } from "lucide-react";
+import { Warning as AlertTriangle, CircleNotch as Loader2, X } from "@phosphor-icons/react";
 
 interface ProviderCancellationDeclineModalProps {
   requestId: string | null;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { CaretLeft as ChevronLeft, CaretRight as ChevronRight } from '@phosphor-icons/react';
 
 interface PaginationBarProps {
   currentPage: number;

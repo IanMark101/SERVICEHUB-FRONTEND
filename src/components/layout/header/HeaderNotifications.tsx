@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Bell, CheckCircle2, ChevronLeft, ChevronRight, DollarSign, ShieldAlert } from 'lucide-react';
+import {
+  Bell,
+  CheckCircle as CheckCircle2,
+  CaretLeft as ChevronLeft,
+  CaretRight as ChevronRight,
+  CurrencyDollar as DollarSign,
+  ShieldWarning as ShieldAlert,
+} from '@phosphor-icons/react';
 import type { Notification } from '../../../types';
 
 interface HeaderNotificationsProps {
@@ -71,7 +78,7 @@ export default function HeaderNotifications({
 
   return (
     <div className="relative">
-      <button onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`p-2.5 rounded-xl border transition-all relative ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'} ${isOpen ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}>
+      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`p-2.5 rounded-xl border transition-all relative ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'} ${isOpen ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}>
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${badgeClass} border border-white`} />}
       </button>

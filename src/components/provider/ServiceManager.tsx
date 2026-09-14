@@ -1,7 +1,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Edit3, Trash2, Plus, AlertTriangle, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import {
+  PencilSimple as Edit3,
+  Trash as Trash2,
+  Plus,
+  Warning as AlertTriangle,
+  Clock,
+  CheckCircle as CheckCircle2,
+  WarningCircle as AlertCircle,
+  CircleNotch as Loader2,
+  FolderSimple,
+  Money,
+  DeviceMobile,
+  Timer,
+  UsersThree,
+} from '@phosphor-icons/react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
@@ -186,7 +200,7 @@ export default function ServiceManager({
   };
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       {/* Header Action Strip & Status Filter Tabs */}
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
@@ -195,6 +209,7 @@ export default function ServiceManager({
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
+            aria-pressed={activeTab === 'all'}
             onClick={() => setActiveTab('all')}
             className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
               activeTab === 'all'
@@ -210,6 +225,7 @@ export default function ServiceManager({
 
           <button
             type="button"
+            aria-pressed={activeTab === 'active'}
             onClick={() => setActiveTab('active')}
             className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
               activeTab === 'active'
@@ -226,6 +242,7 @@ export default function ServiceManager({
 
           <button
             type="button"
+            aria-pressed={activeTab === 'pending'}
             onClick={() => setActiveTab('pending')}
             className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
               activeTab === 'pending'
@@ -244,6 +261,7 @@ export default function ServiceManager({
 
           <button
             type="button"
+            aria-pressed={activeTab === 'rejected'}
             onClick={() => setActiveTab('rejected')}
             className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
               activeTab === 'rejected'
@@ -295,7 +313,7 @@ export default function ServiceManager({
               return (
                 <div
                   key={service.id}
-                  className={`rounded-[26px] p-6 border transition-all duration-200 flex flex-col space-y-4 ${
+                  className={`workspace-card rounded-[26px] p-6 border transition-all duration-200 flex flex-col space-y-4 ${
                     isHighlighted ? 'ring-2 ring-emerald-500 shadow-lg' : 'shadow-sm hover:shadow-md'
                   } ${
                     isDark
@@ -314,7 +332,7 @@ export default function ServiceManager({
                       <span className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
                         isDark ? 'bg-emerald-950/30 border-emerald-900/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
                       }`}>
-                        📁 {service.category}
+                        <FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {service.category}
                       </span>
 
                       {isRejected && (
@@ -431,26 +449,26 @@ export default function ServiceManager({
 
                     {/* Metadata Pills */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        ⏱️ {service.estimatedDurationMins ? `${service.estimatedDurationMins}m Duration` : '60m Duration'}
+                        <Timer className="h-3.5 w-3.5" weight="duotone" /> {service.estimatedDurationMins ? `${service.estimatedDurationMins}m Duration` : '60m Duration'}
                       </span>
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        👥 {service.queueSize || 0} in Queue
+                        <UsersThree className="h-3.5 w-3.5" weight="duotone" /> {service.queueSize || 0} in Queue
                       </span>
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        💵 Cash
+                        <Money className="h-3.5 w-3.5" weight="duotone" /> Cash
                       </span>
                       {service.paymentMethods?.gcash && (
-                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${
+                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border inline-flex items-center gap-1 ${
                           isDark ? 'bg-emerald-950/30 border-emerald-900/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-600'
                         }`}>
-                          💳 GCash
+                          <DeviceMobile className="h-3.5 w-3.5" weight="duotone" /> GCash
                         </span>
                       )}
                     </div>

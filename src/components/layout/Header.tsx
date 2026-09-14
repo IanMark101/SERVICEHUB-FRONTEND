@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Menu, MessageSquare, Sun, Moon } from 'lucide-react';
+import { MagnifyingGlass as Search, List as Menu, ChatCircle as MessageSquare, Sun, Moon } from '@phosphor-icons/react';
 import { UserSession } from '../auth/LoginContainer';
 import { resolveNotificationLink } from '../../lib/notificationRoutes';
 import { useApp } from '../../context/AppContext';
@@ -261,13 +261,15 @@ export default function Header({
   };
 
   return (
-    <header className={`sticky top-0 right-0 z-30 w-full h-20 backdrop-blur-md border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
+    <header className={`workspace-chrome sticky top-0 right-0 z-30 w-full h-20 backdrop-blur-md border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
       }`}>
 
       {/* Left side: mobile navigation and workspace identity. The active sidebar
           item already identifies the current page, so the page name is not repeated. */}
       <div className="flex items-center space-x-4">
         <button
+          type="button"
+          aria-label="Open workspace navigation"
           onClick={() => setIsMobileOpen(true)}
           className={`md:hidden p-2 rounded-xl border transition-colors ${isDark ? 'border-neutral-800 bg-[#22211e] text-[#b4b0a9] hover:text-white' : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
             }`}
@@ -340,6 +342,7 @@ export default function Header({
         {/* Mobile Search Toggle Icon */}
         <button
           type="button"
+          aria-label="Search users"
           onClick={() => {
             setIsMobileSearchOpen(!isMobileSearchOpen);
             setShowNotifications(false);
@@ -359,6 +362,7 @@ export default function Header({
         {currentRole !== 'admin' && activeTab !== 'community-hub' && (
           <button
             type="button"
+            aria-label="Open direct messages"
             onClick={() => setActiveTab('community-hub')}
             className={`hidden lg:flex items-center space-x-1.5 px-3.5 py-2 border text-xs font-semibold rounded-xl transition-all ${isDark
                 ? 'border-neutral-800 hover:bg-[#22211e] text-[#f2efe9]'
@@ -392,6 +396,7 @@ export default function Header({
         {/* Global Theme Toggle Button */}
         <button
           type="button"
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={toggleTheme}
           className={`p-2.5 rounded-xl border transition-all ${isDark
               ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-amber-400'

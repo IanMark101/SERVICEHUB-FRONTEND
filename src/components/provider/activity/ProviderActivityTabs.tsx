@@ -17,6 +17,8 @@ export default function ProviderActivityTabs({
       {/* Filter Pills */}
       <div className={`flex flex-wrap gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         <button
+          type="button"
+          aria-pressed={activeTab === 'all'}
           onClick={() => onTabChange('all')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'all'
               ? isDark
@@ -31,6 +33,8 @@ export default function ProviderActivityTabs({
         </button>
 
         <button
+          type="button"
+          aria-pressed={activeTab === 'in_progress'}
           onClick={() => onTabChange('in_progress')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'in_progress'
               ? isDark
@@ -45,6 +49,8 @@ export default function ProviderActivityTabs({
         </button>
 
         <button
+          type="button"
+          aria-pressed={activeTab === 'waiting'}
           onClick={() => onTabChange('waiting')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'waiting'
               ? isDark
@@ -59,6 +65,8 @@ export default function ProviderActivityTabs({
         </button>
 
         <button
+          type="button"
+          aria-pressed={activeTab === 'pending_offers'}
           onClick={() => onTabChange('pending_offers')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'pending_offers'
               ? isDark
@@ -73,6 +81,8 @@ export default function ProviderActivityTabs({
         </button>
 
         <button
+          type="button"
+          aria-pressed={activeTab === 'awaiting_approval'}
           onClick={() => onTabChange('awaiting_approval')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'awaiting_approval'
               ? isDark
@@ -87,6 +97,8 @@ export default function ProviderActivityTabs({
         </button>
 
         <button
+          type="button"
+          aria-pressed={activeTab === 'disputed'}
           onClick={() => onTabChange('disputed')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'disputed'
               ? isDark
@@ -101,6 +113,8 @@ export default function ProviderActivityTabs({
         </button>
 
         <button
+          type="button"
+          aria-pressed={activeTab === 'completed'}
           onClick={() => onTabChange('completed')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'completed'
               ? isDark
@@ -115,6 +129,8 @@ export default function ProviderActivityTabs({
         </button>
 
         <button
+          type="button"
+          aria-pressed={activeTab === 'canceled'}
           onClick={() => onTabChange('canceled')}
           className={`px-3 py-1.5 rounded-xl text-[10px] font-bold border transition-all ${activeTab === 'canceled'
               ? isDark

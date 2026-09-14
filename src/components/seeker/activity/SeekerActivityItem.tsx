@@ -2,15 +2,18 @@
 import Image from 'next/image';
 
 import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle2,
+  WarningCircle as AlertCircle,
+  Warning as AlertTriangle,
+  CheckCircle as CheckCircle2,
   Clock,
-  Loader2,
-  MessageSquare,
-  RotateCcw,
-  Trash2
-} from 'lucide-react';
+  CircleNotch as Loader2,
+  ChatCircle as MessageSquare,
+  ArrowCounterClockwise as RotateCcw,
+  Trash as Trash2,
+  FolderSimple,
+  CalendarBlank,
+  CurrencyDollar,
+} from '@phosphor-icons/react';
 import LifecycleStepper from '../../ui/LifecycleStepper';
 import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement } from '../../../types';
@@ -67,7 +70,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                 <div
                   key={je.id}
                   id={`booking-${je.id}`}
-                  className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 ${
+                  className={`workspace-card rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 ${
                     je.id === highlightedBookingId
                       ? 'ring-2 ring-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.6)] border-orange-500 scale-[1.01]'
                       : isDark
@@ -79,10 +82,10 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                   {/* Top Line: Category & Date */}
                   <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
                     <span className={isDark ? 'text-orange-400' : 'text-orange-600'}>
-                      📁 {getCategoryForEngagement(je)}
+                      <span className="inline-flex items-center gap-1"><FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {getCategoryForEngagement(je)}</span>
                     </span>
                     <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
-                      📅 {formattedDate}
+                      <span className="inline-flex items-center gap-1"><CalendarBlank className="h-3.5 w-3.5" weight="duotone" /> {formattedDate}</span>
                     </span>
                   </div>
 
@@ -129,7 +132,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                     ) : (
                       <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'
                         }`}>
-                        <span className="font-semibold">💵 On-Site Cash Payment</span>
+                        <span className="inline-flex items-center gap-1 font-semibold"><CurrencyDollar className="h-3.5 w-3.5" weight="duotone" /> On-Site Cash Payment</span>
                         <span className="font-extrabold">₱{je.price} Payable</span>
                       </div>
                     )
@@ -299,7 +302,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                             className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
                               isDark
                                 ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-neutral-500'
-                                : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400'
+                                : 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100 hover:border-red-300'
                             }`}
                             title="Remove from activity view"
                           >
@@ -326,14 +329,14 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                           <p className="text-[10px] text-orange-500 font-semibold text-right max-w-xs">
                             {je.paymentMethod !== 'On-site Cash'
                               ? 'Confirming completion is final. It changes the internal Test Mode ledger to RELEASED; it does not perform a provider payout.'
-                              : '⚠️ Please ensure you pay the provider the agreed cash amount on-site. Confirming completes the transaction.'}
+                              : 'Please ensure you pay the provider the agreed cash amount on-site. Confirming completes the transaction.'}
                           </p>
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => setDisputingJob(je)}
                               className={`px-3 py-1.5 border font-bold text-[10px] rounded-xl transition-all cursor-pointer ${isDark
                                   ? 'border-neutral-800 hover:bg-red-955/20 hover:text-red-400 hover:border-red-900/30 text-[#b4b0a9]'
-                                  : 'border-slate-300 hover:bg-red-50 hover:text-red-655 hover:border-red-200 text-slate-550'
+                                  : 'border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300'
                                 }`}
                             >
                               Report Issue

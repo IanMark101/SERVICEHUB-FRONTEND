@@ -1,14 +1,17 @@
 "use client";
 
 import {
-  AlertTriangle,
-  CheckCircle2,
+  Warning as AlertTriangle,
+  CheckCircle as CheckCircle2,
   Clock,
-  Loader2,
-  MessageSquare,
+  CircleNotch as Loader2,
+  ChatCircle as MessageSquare,
   Play,
-  Trash2,
-} from 'lucide-react';
+  Trash as Trash2,
+  FolderSimple,
+  CalendarBlank,
+  CurrencyDollar,
+} from '@phosphor-icons/react';
 import LifecycleStepper from '../../ui/LifecycleStepper';
 import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement, JobRequest } from '../../../types';
@@ -74,16 +77,16 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                 return (
                   <div
                     key={b.id}
-                    className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors duration-200 border-orange-500/20 ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' : 'bg-white border-slate-300 hover:shadow-md'
+                    className={`workspace-card rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors duration-200 border-orange-500/20 ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' : 'bg-white border-slate-300 hover:shadow-md'
                       }`}
                   >
                     {/* Top line: Category and Date */}
                     <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
                       <span className="text-orange-500 dark:text-orange-400">
-                        📁 {req?.category || b.category || 'General'}
+                        <span className="inline-flex items-center gap-1"><FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {req?.category || b.category || 'General'}</span>
                       </span>
                       <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
-                        📅 {formattedDate}
+                        <span className="inline-flex items-center gap-1"><CalendarBlank className="h-3.5 w-3.5" weight="duotone" /> {formattedDate}</span>
                       </span>
                     </div>
 
@@ -147,7 +150,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                   <div
                     key={je.id}
                     id={`booking-${je.id}`}
-                    className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 border-emerald-500/20 ${
+                    className={`workspace-card rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 border-emerald-500/20 ${
                       je.id === highlightedBookingId
                         ? 'ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] border-emerald-500 scale-[1.01]'
                         : isDark
@@ -158,10 +161,10 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                     {/* Top line: Category and Date */}
                     <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider">
                       <span className="text-emerald-500 dark:text-emerald-400">
-                        📁 {getCategoryForEngagement(je)}
+                        <span className="inline-flex items-center gap-1"><FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {getCategoryForEngagement(je)}</span>
                       </span>
                       <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
-                        📅 {formattedDate}
+                        <span className="inline-flex items-center gap-1"><CalendarBlank className="h-3.5 w-3.5" weight="duotone" /> {formattedDate}</span>
                       </span>
                     </div>
 
@@ -199,7 +202,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                       ) : (
                         <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'
                           }`}>
-                          <span className="font-semibold">💵 On-Site Cash Payment</span>
+                          <span className="inline-flex items-center gap-1 font-semibold"><CurrencyDollar className="h-3.5 w-3.5" weight="duotone" /> On-Site Cash Payment</span>
                           <span className="font-extrabold">₱{je.price} Receivable</span>
                         </div>
                       )
@@ -223,7 +226,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                           <div className={`border rounded-xl p-4 text-xs flex flex-col space-y-3 ${isDark ? 'bg-orange-950/20 border-orange-900/30 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-700'
                             }`}>
                             <div className="flex items-start space-x-2">
-                              <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 animate-bounce" />
+                              <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" weight="duotone" />
                               <div>
                                 <span className="font-extrabold block">{requestedByProvider ? 'Your Cancellation Request' : 'Cancellation Requested by Seeker'}</span>
                                 <span className="text-[10px] leading-relaxed block mt-0.5">Reason: &quot;{activeReq.reason || 'No explanation provided'}&quot;</span>
@@ -389,7 +392,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                               className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
                                 isDark
                                   ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-neutral-500'
-                                  : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400'
+                                  : 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100 hover:border-red-300'
                               }`}
                               title="Remove from activity view"
                             >

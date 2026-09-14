@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { X } from 'lucide-react';
+import { X } from '@phosphor-icons/react';
 import type { ServiceListing } from '../../../types';
 
 export interface EditServiceState {
