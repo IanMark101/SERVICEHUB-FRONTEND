@@ -25,9 +25,19 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div
-      className="landing-shell min-h-[100dvh] font-sans flex flex-col bg-[#f5f4f2] dark:bg-[#121211] text-slate-900 dark:text-zinc-100 selection:bg-orange-500/20 selection:text-orange-900 dark:selection:bg-orange-500/30 dark:selection:text-orange-200"
+      className="landing-shell relative min-h-[100dvh] overflow-x-clip font-sans flex flex-col bg-[#f5f4f2] dark:bg-[#121211] text-slate-900 dark:text-zinc-100 selection:bg-orange-500/20 selection:text-orange-900 dark:selection:bg-orange-500/30 dark:selection:text-orange-200"
     >
       <LandingScrollProgress />
+      {/*
+       * Keep the atmospheric color field at the shell level so it starts at
+       * the viewport edge and remains visible around the floating header.
+       * The fade keeps the rest of the page calm and neutral.
+       */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(100svh,58rem)] overflow-hidden">
+        <div className="absolute -left-28 -top-24 h-[30rem] w-[42rem] rounded-full bg-[#d97757]/[0.11] blur-[120px] dark:bg-[#c86544]/[0.055]" />
+        <div className="absolute right-[2%] -top-16 h-[34rem] w-[46rem] rounded-full bg-[#e18463]/[0.085] blur-[135px] dark:bg-[#e18463]/[0.045]" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#f5f4f2] via-[#f5f4f2]/75 to-transparent dark:from-[#121211] dark:via-[#121211]/75" />
+      </div>
       <LandingHeader isDark={isDark} toggleTheme={toggleTheme} onGetStarted={onGetStarted} />
       <main className="overflow-x-clip">
         <LandingHero isDark={isDark} onGetStarted={onGetStarted} />
