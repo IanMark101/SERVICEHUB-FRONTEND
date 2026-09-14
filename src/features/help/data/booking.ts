@@ -78,7 +78,7 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
           'Inspect the completed work in person.',
           'Click the green "Confirm Completion" button.',
           'For a PayMongo Test Mode payment, ServiceHub records RELEASED in its internal ledger. For cash, pay the agreed amount directly to the provider and ServiceHub records CASH_CONFIRMED.',
-          'You will be prompted to leave an optional 1–5 star rating and feedback tags.',
+          'You will be prompted to leave an optional 1-5 star rating and feedback tags.',
         ],
       },
     ],

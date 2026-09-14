@@ -33,7 +33,7 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
     relatedArticleSlugs: ['payment-methods-overview', 'payment-release-and-refunds'],
     sections: [{
       heading: 'An Internal Workflow State',
-      paragraphs: ['After PayMongo Test Mode confirms a payment, ServiceHub records PAID_HELD while the service is unfinished. This is a platform bookkeeping state—not a licensed escrow account or a guarantee of real-money custody.'],
+      paragraphs: ['After PayMongo Test Mode confirms a payment, ServiceHub records PAID_HELD while the service is unfinished. This is a platform bookkeeping state, not a licensed escrow account or a guarantee of real-money custody.'],
       bullets: [
         'The browser redirect does not confirm payment or create a booking.',
         'A signed, deduplicated PayMongo webhook is the authoritative confirmation.',

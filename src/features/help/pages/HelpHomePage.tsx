@@ -50,9 +50,12 @@ export default function HelpHomePage() {
 
   return (
     <div className="space-y-24 pb-4 sm:space-y-28">
-      <section className="grid items-stretch gap-5 pt-3 lg:grid-cols-[1.08fr_0.92fr] lg:gap-7 lg:pt-8">
-        <div className="flex min-h-[30rem] flex-col justify-center rounded-2xl border border-black/8 bg-[#fffdfa] p-7 shadow-[0_14px_40px_rgba(23,23,22,0.06)] dark:border-white/10 dark:bg-[#171716] sm:p-10 lg:p-12">
-          <h1 className="max-w-[12ch] text-[clamp(2.6rem,5.1vw,4.8rem)] font-medium leading-[0.99] tracking-[-0.04em] text-[#171716] dark:text-[#f5f4f2]">
+      <section className="relative isolate grid items-stretch gap-5 pt-3 lg:grid-cols-[1.08fr_0.92fr] lg:gap-7 lg:pt-8">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-8 top-20 -z-10 h-80 w-[42rem] max-w-[82vw] rounded-full bg-[#d97757]/10 blur-[110px] dark:bg-[#c86544]/8" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-6 -z-10 h-64 w-[34rem] max-w-[70vw] rounded-full bg-[#e18463]/8 blur-[120px] dark:bg-[#e18463]/6" />
+
+        <div className="flex min-h-[30rem] flex-col justify-center rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_44px_rgba(200,101,68,0.075)] dark:border-white/10 dark:bg-[#171716]/96 dark:shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:p-10">
+          <h1 className="max-w-[15ch] text-[clamp(2.6rem,4.7vw,4.5rem)] font-medium leading-[0.99] tracking-[-0.04em] text-[#171716] dark:text-[#f5f4f2]">
             Help for every step of local work.
           </h1>
           <p className="mt-6 max-w-[37rem] text-sm leading-6 text-[#625d57] dark:text-white/64 sm:text-base sm:leading-7">
@@ -73,7 +76,7 @@ export default function HelpHomePage() {
           )}
         </div>
 
-        <div className="flex flex-col rounded-2xl bg-[#171716] p-7 text-[#f5f4f2] shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9 lg:p-10">
+        <div className="flex flex-col rounded-2xl bg-[#171716] p-7 text-[#f5f4f2] shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9">
           <div className="flex items-start justify-between gap-6 border-b border-white/12 pb-5">
             <div>
               <h2 className="text-xl font-semibold tracking-[-0.025em]">Start with a common question</h2>

@@ -5,7 +5,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
     slug: 'what-is-trust-score',
     title: 'What is Trust Score?',
     category: 'trust-reputation',
-    description: 'Understand ServiceHub Cordova’s 0–100 reputation metric and how it protects community members.',
+    description: 'Understand ServiceHub Cordova’s 0-100 reputation metric and how it protects community members.',
     lastUpdated: 'August 2026',
     readTimeMinutes: 3,
     popular: true,
@@ -22,9 +22,9 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'Trust Score Tiers',
         bullets: [
-          '90 – 100 (Highly Trusted / Green): Top-tier standing with consistent positive reviews, approved Cordova residency, and a flawless transaction record.',
-          '70 – 89 (Trusted / Blue): High standing with reliable completed services, verified residency, and strong client feedback.',
-          '50 – 69 (Average / Amber): Standard baseline standing. Default starting score for all new accounts is 50.',
+          '90-100 (Highly Trusted / Green): Top-tier standing with consistent positive reviews, approved Cordova residency, and a flawless transaction record.',
+          '70-89 (Trusted / Blue): High standing with reliable completed services, verified residency, and strong client feedback.',
+          '50-69 (Average / Amber): Standard baseline standing. Default starting score for all new accounts is 50.',
           'Below 50 (Needs Attention / Red): Accounts impacted by at-fault cancellations, validated reports, or repeated listing rejections.',
         ],
         callout: {

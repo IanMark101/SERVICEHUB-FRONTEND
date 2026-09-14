@@ -23,7 +23,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     slug: 'trust-reputation',
     title: 'Trust Score & Reputation',
     shortTitle: 'Trust Score',
-    description: 'How your 0–100 Trust Score works, how it changes, and what it unlocks.',
+    description: 'How your 0-100 Trust Score works, how it changes, and what it unlocks.',
     iconName: 'Award',
     color: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
     popular: true,
