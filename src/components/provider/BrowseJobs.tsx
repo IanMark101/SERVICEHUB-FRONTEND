@@ -155,9 +155,9 @@ export default function BrowseJobs({
       <LimitedModeDashboardCard role="provider" />
 
       {/* Header Banner */}
-      <div className="workspace-surface rounded-2xl border p-6 text-center sm:p-8">
-        <div className="max-w-2xl relative z-10 space-y-3 w-full">
-          <h2 className="text-3xl font-semibold leading-tight tracking-[-0.035em] text-[#171716] dark:text-[#f2efe9] sm:text-[2.15rem]">
+      <div className="workspace-surface rounded-2xl border px-5 py-5 text-center sm:px-7 sm:py-6">
+        <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
+          <h2 className="text-2xl font-semibold leading-tight tracking-[-0.035em] text-[#171716] dark:text-[#f2efe9] sm:text-3xl">
             Find client requests for any task.
           </h2>
           <p className="workspace-muted mx-auto max-w-md text-xs leading-relaxed sm:text-sm">
@@ -165,7 +165,7 @@ export default function BrowseJobs({
           </p>
 
           {/* Inputs Row inside Banner */}
-          <div className={`flex items-center rounded-2xl p-1.5 shadow-inner mt-6 max-w-xl mx-auto w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
+          <div className={`mx-auto mt-4 flex w-full max-w-xl items-center rounded-2xl border p-1.5 shadow-inner ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
             }`}>
             <span className={`pl-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
               <Search className="w-4 h-4" />

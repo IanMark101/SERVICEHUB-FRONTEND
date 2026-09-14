@@ -26,7 +26,6 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
   return (
     <div
       className="landing-shell min-h-[100dvh] font-sans flex flex-col bg-[#f5f4f2] dark:bg-[#121211] text-slate-900 dark:text-zinc-100 selection:bg-orange-500/20 selection:text-orange-900 dark:selection:bg-orange-500/30 dark:selection:text-orange-200"
-      style={{ overflowX: 'clip' }}
     >
       <LandingScrollProgress />
       <LandingHeader isDark={isDark} toggleTheme={toggleTheme} onGetStarted={onGetStarted} />

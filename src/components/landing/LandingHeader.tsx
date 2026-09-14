@@ -26,7 +26,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
   return (
     <>
       {/* Floating Header Container */}
-      <header className="fixed inset-x-0 top-4 z-50 px-4 sm:px-6 lg:px-8 pointer-events-none">
+      <header className="fixed inset-x-0 top-4 z-[100] px-4 sm:px-6 lg:px-8 pointer-events-none">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           {/* Left Floating Brand Card */}
           <a

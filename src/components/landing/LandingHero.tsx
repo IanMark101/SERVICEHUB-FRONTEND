@@ -36,7 +36,7 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
   const [simulatedAdvance, setSimulatedAdvance] = useState(false);
 
   return (
-    <section id="top" className="relative min-h-[calc(100svh-80px)] overflow-hidden border-b border-black/[0.06] bg-[#f5f4f2] dark:border-white/10 dark:bg-[#121211]">
+    <section id="top" className="relative min-h-[calc(100svh-128px)] overflow-hidden border-b border-black/[0.06] bg-[#f5f4f2] dark:border-white/10 dark:bg-[#121211]">
       {/* Background: Clean Warm Limestone with Soft Ambient Atmosphere */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         {/* Soft warm ambient glows */}
@@ -47,7 +47,7 @@ export default function LandingHero({ onGetStarted }: LandingHeroProps) {
         <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#f5f4f2] to-transparent dark:from-[#121211]" />
       </div>
 
-      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-80px)] max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10 lg:py-16">
+      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-128px)] max-w-7xl items-center gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10 lg:py-12">
         {/* Left Column: Calm High-Craft Typography */}
         <motion.div
           variants={heroSequence}
