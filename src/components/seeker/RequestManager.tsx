@@ -12,6 +12,7 @@ import {
   FolderSimple,
   Alarm,
   MapPin,
+  Lightning,
 } from '@phosphor-icons/react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
@@ -188,7 +189,7 @@ export default function RequestManager({
             <ClipboardList className="w-4 h-4" />
           </div>
           <div>
-            <h2 className={`text-sm font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+            <h2 className={`text-sm font-bold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
               Broadcasted Requests
             </h2>
             <p className={`text-[11px] ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
@@ -228,7 +229,7 @@ export default function RequestManager({
               return (
                 <div 
                   key={req.id} 
-                  className={`workspace-card rounded-[26px] p-6 border transition-all duration-200 flex flex-col space-y-4 shadow-sm hover:shadow-md ${
+                  className={`workspace-card rounded-2xl border p-5 sm:p-6 flex flex-col space-y-5 ${
                     isDark 
                       ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' 
                       : 'bg-white border-slate-200 hover:border-slate-300'
@@ -238,19 +239,19 @@ export default function RequestManager({
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     {/* Left: Category & Urgency Badges */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
+                      <span className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 border ${
                         isDark ? 'bg-orange-950/30 border-orange-900/40 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-700'
                       }`}>
                         <FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {req.category}
                       </span>
 
-                      <span className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 border ${
+                      <span className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 border ${
                         isDark ? 'bg-amber-955/20 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-200 text-amber-800'
                       }`}>
                         <Alarm className="h-3.5 w-3.5" weight="duotone" /> Needed: {formatUrgencyDisplay(req.urgency)}
                       </span>
 
-                      <span className={`px-2.5 py-1 rounded-xl text-xs font-semibold border inline-flex items-center gap-1 ${
+                      <span className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border inline-flex items-center gap-1 ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-400' : 'bg-slate-50 border-slate-200 text-slate-500'
                       }`}>
                         <MapPin className="h-3.5 w-3.5" weight="duotone" /> Central Cordova
@@ -262,7 +263,7 @@ export default function RequestManager({
                       {/* Offers count badge */}
                       <button
                         onClick={onNavigateToOffers}
-                        className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-xl transition-all text-xs font-extrabold cursor-pointer ${
+                        className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-lg transition-all text-xs font-semibold cursor-pointer ${
                           offerCount > 0
                             ? isDark 
                               ? 'bg-orange-950/40 text-orange-400 border-orange-800/60 hover:bg-orange-900/50' 
@@ -279,7 +280,7 @@ export default function RequestManager({
                       {/* AI suggestions button */}
                       <button
                         onClick={() => handleToggleAiSuggestions(req.id)}
-                        className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-xl transition-all text-xs font-bold cursor-pointer ${
+                        className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-lg transition-all text-xs font-semibold cursor-pointer ${
                           activeAiRequestId === req.id
                             ? isDark
                               ? 'bg-orange-500/20 text-orange-400 border-orange-500/40'
@@ -296,7 +297,7 @@ export default function RequestManager({
                       {/* Edit button */}
                       <button
                         onClick={() => handleOpenEdit(req)}
-                        className={`px-3 py-1.5 border font-bold text-xs rounded-xl transition-all flex items-center space-x-1 cursor-pointer ${
+                        className={`px-3 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1 cursor-pointer ${
                           isDark 
                             ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-[#f2efe9]' 
                             : 'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900'
@@ -309,7 +310,7 @@ export default function RequestManager({
                       {/* Delete button */}
                       <button
                         onClick={() => handleDeleteRequestClick(req)}
-                        className={`px-3 py-1.5 border font-bold text-xs rounded-xl transition-all flex items-center space-x-1 cursor-pointer ${
+                        className={`px-3 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1 cursor-pointer ${
                           isDark 
                             ? 'border-red-950/45 hover:bg-red-950/20 text-red-400' 
                             : 'border-red-200 hover:bg-red-50 text-red-500'
@@ -328,7 +329,7 @@ export default function RequestManager({
                                 ? 'bg-blue-950/40 text-blue-400 border-blue-900/50'
                                 : 'bg-blue-50 text-blue-700 border-blue-200'
                             }`}>
-                              ⚡ Booked
+                              <Lightning className="h-3.5 w-3.5" weight="fill" /> Booked
                             </span>
                             {onNavigateToActivity && (
                               <button
@@ -389,7 +390,7 @@ export default function RequestManager({
 
                   {/* Tier 2: Title & Description */}
                   <div className="space-y-1.5">
-                    <h3 className={`font-extrabold text-base sm:text-lg leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    <h3 className={`font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {req.title}
                     </h3>
                     {req.description && (
@@ -405,7 +406,7 @@ export default function RequestManager({
                   }`}>
                     {/* Budget Highlight */}
                     <div className="flex items-center space-x-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Est. Budget:</span>
+                      <span className="text-[11px] font-semibold text-slate-500">Estimated budget</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>
                         ₱{req.budget}
                       </span>
@@ -413,15 +414,15 @@ export default function RequestManager({
 
                     {/* Metadata Pills */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        💬 {offerCount} {offerCount === 1 ? 'Offer' : 'Offers'} Received
+                        <MessageSquare className="h-3.5 w-3.5" /> {offerCount} {offerCount === 1 ? 'Offer' : 'Offers'} Received
                       </span>
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        ⚡ {formatUrgencyDisplay(req.urgency)}
+                        <Alarm className="h-3.5 w-3.5" weight="duotone" /> {formatUrgencyDisplay(req.urgency)}
                       </span>
                     </div>
                   </div>

@@ -636,11 +636,92 @@ h6 {
   color: var(--workspace-ink) !important;
 }
 
+/* The authenticated header keeps its task-specific controls, but uses the same
+   inset, warm floating chrome as the landing navigation. */
+.workspace-dashboard-header {
+  isolation: isolate;
+  border-color: transparent !important;
+  background: transparent !important;
+  backdrop-filter: none;
+}
+
+.workspace-dashboard-header::before {
+  content: '';
+  position: absolute;
+  inset: 8px 12px;
+  z-index: -1;
+  border: 1px solid var(--workspace-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--workspace-surface) 94%, transparent);
+  box-shadow: 0 1px 2px rgba(23, 23, 22, 0.05), 0 14px 34px -26px rgba(23, 23, 22, 0.42);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
 .workspace-page h2,
 .workspace-page h3,
 .workspace-page h4 {
   color: var(--workspace-ink);
   letter-spacing: -0.025em;
+}
+
+.workspace-page {
+  color: var(--workspace-ink);
+}
+
+/* Legacy dashboard utilities used cool Slate neutrals. Remap their semantic
+   roles inside authenticated workspaces so the landing and app surfaces share
+   one warm neutral system without touching status colors or data behavior. */
+.workspace-shell :where(.text-slate-950, .text-slate-900, .text-slate-800) {
+  color: var(--workspace-ink) !important;
+}
+
+.workspace-shell :where(.text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400) {
+  color: var(--workspace-muted) !important;
+}
+
+.workspace-shell :where(.bg-slate-50, .bg-slate-100) {
+  background-color: var(--workspace-surface-muted) !important;
+}
+
+.workspace-shell :where(.border-slate-100, .border-slate-200, .border-slate-300) {
+  border-color: var(--workspace-border) !important;
+}
+
+.workspace-shell :where(.hover\:bg-slate-50, .hover\:bg-slate-100):hover {
+  background-color: color-mix(in srgb, var(--workspace-ink) 4%, var(--workspace-surface)) !important;
+}
+
+.workspace-page .workspace-muted {
+  color: var(--workspace-muted) !important;
+}
+
+.workspace-primary-button {
+  border-color: #171716 !important;
+  background: #171716 !important;
+  color: #fffdfa !important;
+  box-shadow: 0 10px 24px -18px rgba(23, 23, 22, 0.7);
+}
+
+.workspace-primary-button:hover {
+  border-color: #2a2927 !important;
+  background: #2a2927 !important;
+}
+
+.dark .workspace-primary-button {
+  border-color: #f2efe9 !important;
+  background: #f2efe9 !important;
+  color: #171716 !important;
+  box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.9);
+}
+
+.dark .workspace-primary-button:hover {
+  border-color: #fffdfa !important;
+  background: #fffdfa !important;
+}
+
+.workspace-card--muted {
+  background: var(--workspace-surface-muted) !important;
 }
 
 .workspace-page :where(p, label) {
@@ -656,6 +737,10 @@ h6 {
   border-color: var(--workspace-border) !important;
   box-shadow: 0 1px 2px rgba(23, 23, 22, 0.035), 0 10px 24px -24px rgba(23, 23, 22, 0.38);
   transition: border-color 200ms ease, box-shadow 220ms var(--workspace-ease), transform 220ms var(--workspace-ease) !important;
+}
+
+.workspace-card h3 {
+  font-weight: 700;
 }
 
 .workspace-card:hover {
@@ -695,5 +780,19 @@ h6 {
   .workspace-shell button:not(:disabled):hover svg,
   .workspace-shell a:hover svg {
     transform: none !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .workspace-dashboard-header::before {
+    inset-inline: 8px;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .workspace-dashboard-header::before {
+    background: var(--workspace-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

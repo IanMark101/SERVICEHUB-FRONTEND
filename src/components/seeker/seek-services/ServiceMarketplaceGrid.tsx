@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   DeviceMobile as Smartphone,
   Star,
+  UserCircle,
 } from '@phosphor-icons/react';
 import type { ServiceListing } from '../../../types';
 import PaginationBar from '../../ui/PaginationBar';
@@ -242,14 +243,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                             ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
                             : 'text-orange-655 bg-orange-50 border-orange-200'
                           }`}>
-                          👤 Owned by You
+                          <UserCircle className="mr-1 inline h-3.5 w-3.5" weight="duotone" /> Owned by You
                         </span>
                       )}
                     </div>
 
                     {/* Service Listing Details */}
                     <div className="mt-3">
-                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                      <h3 className={`font-bold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                         {service.title}
                       </h3>
                       <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
@@ -306,8 +307,8 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         </>
                       ) : (
                         <>
-                          <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Fixed price</span>
-                          <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{service.price}</span>
+                          <span className={`text-[10px] font-semibold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Fixed price</span>
+                          <span className={`text-base font-bold tabular-nums ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{service.price}</span>
                         </>
                       )}
                     </div>
@@ -339,9 +340,9 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           <button
                             type="button"
                             onClick={() => router.push(`/provider/service-manager?id=${service.id}`)}
-                            className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
-                                ? 'bg-orange-950/20 border border-orange-900/30 text-orange-400 hover:bg-orange-955'
-                                : 'bg-orange-50 border border-orange-200 text-orange-655 hover:bg-orange-100'
+                            className={`flex-1 font-semibold text-[11px] py-3 rounded-xl border transition-all active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
+                                ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9] hover:bg-[#2c2b27]'
+                                : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-50'
                               }`}
                           >
                             <span>Edit Listing</span>
@@ -370,11 +371,11 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         >
                           <Clock className="w-3.5 h-3.5" />
                           <span>
-                            {activeEngagement.status === 'in_progress' ? 'Job In Progress — View Activity' :
-                             activeEngagement.status === 'queued' ? 'In Queue — View Activity' :
-                             activeEngagement.status === 'pending_provider' ? 'Pending Approval — View Activity' :
-                             activeEngagement.status === 'awaiting_seeker_approval' ? 'Approval Needed — View Activity' :
-                             'Active Booking — View Activity'}
+                            {activeEngagement.status === 'in_progress' ? 'Job In Progress - View Activity' :
+                             activeEngagement.status === 'queued' ? 'In Queue - View Activity' :
+                             activeEngagement.status === 'pending_provider' ? 'Pending Approval - View Activity' :
+                             activeEngagement.status === 'awaiting_seeker_approval' ? 'Approval Needed - View Activity' :
+                             'Active Booking - View Activity'}
                           </span>
                         </button>
                         <p className={`text-[10px] font-medium text-center ${isDark ? 'text-orange-400/90' : 'text-orange-600'}`}>

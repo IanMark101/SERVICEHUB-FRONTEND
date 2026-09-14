@@ -313,8 +313,8 @@ export default function ServiceManager({
               return (
                 <div
                   key={service.id}
-                  className={`workspace-card rounded-[26px] p-6 border transition-all duration-200 flex flex-col space-y-4 ${
-                    isHighlighted ? 'ring-2 ring-emerald-500 shadow-lg' : 'shadow-sm hover:shadow-md'
+                  className={`workspace-card rounded-2xl border p-5 sm:p-6 flex flex-col space-y-5 ${
+                    isHighlighted ? 'ring-2 ring-emerald-500' : ''
                   } ${
                     isDark
                       ? isRejected
@@ -329,7 +329,7 @@ export default function ServiceManager({
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     {/* Left: Category & Type Badges */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
+                      <span className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 border ${
                         isDark ? 'bg-emerald-950/30 border-emerald-900/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700'
                       }`}>
                         <FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {service.category}
@@ -354,7 +354,7 @@ export default function ServiceManager({
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleOpenEdit(service)}
-                        className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all flex items-center space-x-1.5 cursor-pointer ${
+                        className={`px-3.5 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1.5 cursor-pointer ${
                           isRejected
                             ? 'bg-red-600 text-white hover:bg-red-700 border-red-600 shadow-sm'
                             : isDark
@@ -368,7 +368,7 @@ export default function ServiceManager({
 
                       <button
                         onClick={() => handleDeleteServiceClick(service)}
-                        className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all flex items-center space-x-1.5 cursor-pointer ${
+                        className={`px-3.5 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1.5 cursor-pointer ${
                           isDark
                             ? 'border-red-950/45 hover:bg-red-950/20 text-red-400'
                             : 'border-red-200 hover:bg-red-50 text-red-500'
@@ -422,7 +422,7 @@ export default function ServiceManager({
 
                   {/* Tier 2: Title & Description */}
                   <div className="space-y-1.5">
-                    <h3 className={`font-extrabold text-base sm:text-lg leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    <h3 className={`font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {service.title}
                     </h3>
                     {service.description && (
@@ -438,7 +438,7 @@ export default function ServiceManager({
                   }`}>
                     {/* Price & Unit */}
                     <div className="flex items-center space-x-2">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rate:</span>
+                      <span className="text-[11px] font-semibold text-slate-500">Rate</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                         ₱{service.price}
                         <span className="text-xs font-semibold ml-0.5 text-slate-400">

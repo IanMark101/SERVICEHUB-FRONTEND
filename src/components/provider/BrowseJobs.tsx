@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { MagnifyingGlass as Search, CheckCircle as CheckCircle2, CalendarBlank as CalendarDays, ShieldCheck, ArrowRight, Alarm } from '@phosphor-icons/react';
+import { MagnifyingGlass as Search, CheckCircle as CheckCircle2, CalendarBlank as CalendarDays, ShieldCheck, ArrowRight, Alarm, UserCircle } from '@phosphor-icons/react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -155,13 +155,12 @@ export default function BrowseJobs({
       <LimitedModeDashboardCard role="provider" />
 
       {/* Header Banner */}
-      <div className={`workspace-surface rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
-        }`}>
+      <div className="workspace-surface rounded-2xl border p-6 text-center sm:p-8">
         <div className="max-w-2xl relative z-10 space-y-3 w-full">
-          <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <h2 className="text-3xl font-semibold leading-tight tracking-[-0.035em] text-[#171716] dark:text-[#f2efe9] sm:text-[2.15rem]">
             Find client requests for any task.
           </h2>
-          <p className={`text-xs sm:text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+          <p className="workspace-muted mx-auto max-w-md text-xs leading-relaxed sm:text-sm">
             Browse and bid on open jobs in our trusted community marketplace.
           </p>
 
@@ -182,7 +181,7 @@ export default function BrowseJobs({
             />
             <button
               type="button"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex-shrink-0"
+              className="workspace-primary-button flex-shrink-0 rounded-xl border px-5 py-2.5 text-xs font-bold transition-all"
             >
               Search
             </button>
@@ -270,7 +269,7 @@ export default function BrowseJobs({
                 aria-pressed={selectedCategory === cat}
                 onClick={() => handleCategoryChange(cat)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedCategory === cat
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                    ? 'workspace-primary-button'
                     : isDark
                       ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9] hover:bg-[#2c2b27]'
                       : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
@@ -325,9 +324,9 @@ export default function BrowseJobs({
               return (
                 <div
                   key={req.id}
-                  className={`workspace-card rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full group ${
+                  className={`workspace-card rounded-2xl p-5 border flex flex-col justify-between h-full group ${
                     isOwned || hasSentBid
-                      ? 'border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
+                      ? 'workspace-card--muted'
                       : isDark
                         ? 'bg-[#22211e] border-neutral-800 hover:border-neutral-700'
                         : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
@@ -405,14 +404,14 @@ export default function BrowseJobs({
                             ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
                             : 'text-orange-600 bg-orange-50 border-orange-200'
                           }`}>
-                          👤 Owned By You
+                          <UserCircle className="mr-1 inline h-3.5 w-3.5" weight="duotone" /> Owned by You
                         </span>
                       )}
                     </div>
 
                     {/* Job Details */}
                     <div className="mt-3">
-                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                      <h3 className={`font-bold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                         {req.title}
                       </h3>
                       <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
@@ -428,10 +427,10 @@ export default function BrowseJobs({
                     {/* Budget and posting context */}
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col space-y-0.5">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
+                        <span className={`text-[10px] font-semibold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
                           Client Budget
                         </span>
-                        <span className={`text-lg font-black ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                        <span className={`text-lg font-bold tabular-nums ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                           ₱{req.budget}
                         </span>
                       </div>
@@ -456,7 +455,7 @@ export default function BrowseJobs({
                       ) : hasSentBid ? (
                         <div className={`w-full text-center text-xs font-bold py-2.5 rounded-xl border ${isDark ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
                           }`}>
-                          ✓ Proposal Submitted
+                          <CheckCircle2 className="mr-1 inline h-3.5 w-3.5" /> Proposal Submitted
                         </div>
                       ) : (
                         <button

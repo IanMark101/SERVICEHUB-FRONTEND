@@ -261,8 +261,13 @@ export default function Header({
   };
 
   return (
-    <header className={`workspace-chrome sticky top-0 right-0 z-30 w-full h-20 backdrop-blur-md border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
-      }`}>
+    <header className={`workspace-chrome sticky top-0 right-0 z-30 w-full h-20 border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${
+      currentRole === 'admin'
+        ? isDark
+          ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9] backdrop-blur-md'
+          : 'bg-white/95 border-slate-300 text-slate-800 backdrop-blur-md'
+        : `workspace-dashboard-header ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`
+    }`}>
 
       {/* Left side: mobile navigation and workspace identity. The active sidebar
           item already identifies the current page, so the page name is not repeated. */}

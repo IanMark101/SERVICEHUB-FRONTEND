@@ -212,13 +212,12 @@ export default function SeekServices() {
       <LimitedModeDashboardCard role="seeker" />
 
       {/* Search Banner */}
-      <div className={`workspace-surface rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
-        }`}>
+      <div className="workspace-surface rounded-2xl border p-6 text-center sm:p-8">
         <div className="max-w-2xl relative z-10 space-y-3 w-full">
-          <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+          <h2 className="text-3xl font-semibold leading-tight tracking-[-0.035em] text-[#171716] dark:text-[#f2efe9] sm:text-[2.15rem]">
             Find local experts for any task.
           </h2>
-          <p className={`text-xs sm:text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+          <p className="workspace-muted mx-auto max-w-md text-xs leading-relaxed sm:text-sm">
             Search our trusted community marketplace for specialized services.
           </p>
 
@@ -242,7 +241,7 @@ export default function SeekServices() {
             />
             <button
               type="button"
-              className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex-shrink-0"
+              className="workspace-primary-button flex-shrink-0 rounded-xl border px-5 py-2.5 text-xs font-bold transition-all"
             >
               Search
             </button>
@@ -329,7 +328,7 @@ export default function SeekServices() {
             className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${selectedCategory === cat
                 ? isDark
                   ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950'
-                  : 'bg-[#1a2238] border-[#1a2238] text-white shadow-sm'
+                  : 'workspace-primary-button'
                 : isDark
                   ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
                   : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
