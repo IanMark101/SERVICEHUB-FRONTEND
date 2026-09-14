@@ -34,7 +34,7 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
     <section
       id="problem"
       data-theme={isDark ? 'dark' : 'light'}
-      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
+      className="scroll-mt-0 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         {/* Section Header: Headline + Subhead, stacked cleanly without redundant eyebrow */}
