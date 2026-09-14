@@ -484,7 +484,11 @@ h6 {
 .auth-shell h1,
 .auth-shell h2,
 .auth-shell h3,
-.auth-shell h4 {
+.auth-shell h4,
+.help-shell h1,
+.help-shell h2,
+.help-shell h3,
+.help-shell h4 {
   font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   letter-spacing: -0.025em;
 }
