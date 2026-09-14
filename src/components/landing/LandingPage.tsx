@@ -29,18 +29,20 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
     >
       <LandingScrollProgress />
       <LandingHeader isDark={isDark} toggleTheme={toggleTheme} onGetStarted={onGetStarted} />
-      <LandingHero isDark={isDark} onGetStarted={onGetStarted} />
-      <LandingTicker isDark={isDark} variant="trust" />
-      <LandingProblem isDark={isDark} />
-      <LandingHowItWorks isDark={isDark} />
-      <LandingWorkspaces isDark={isDark} />
-      <LandingQueue isDark={isDark} />
-      <LandingTrust isDark={isDark} />
-      <LandingComparison isDark={isDark} />
-      <LandingCommunity isDark={isDark} />
-      <LandingReviews isDark={isDark} />
-      <LandingFaq isDark={isDark} />
-      <LandingCta isDark={isDark} onGetStarted={onGetStarted} />
+      <main className="overflow-x-clip">
+        <LandingHero isDark={isDark} onGetStarted={onGetStarted} />
+        <LandingTicker isDark={isDark} variant="trust" />
+        <LandingProblem isDark={isDark} />
+        <LandingHowItWorks isDark={isDark} />
+        <LandingWorkspaces isDark={isDark} />
+        <LandingQueue isDark={isDark} />
+        <LandingTrust isDark={isDark} />
+        <LandingComparison isDark={isDark} />
+        <LandingCommunity isDark={isDark} />
+        <LandingReviews isDark={isDark} />
+        <LandingFaq isDark={isDark} />
+        <LandingCta isDark={isDark} onGetStarted={onGetStarted} />
+      </main>
       <LandingFooter />
     </div>
   );

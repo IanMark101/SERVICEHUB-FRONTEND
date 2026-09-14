@@ -32,7 +32,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
           {/* Left Floating Brand Card */}
           <a
             href="#top"
-            className="pointer-events-auto group flex items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-2 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white hover:shadow-[0_12px_24px_-8px_rgba(15,15,15,0.22)] active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/85"
+            className="pointer-events-auto group flex shrink-0 items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-2 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white hover:shadow-[0_12px_24px_-8px_rgba(15,15,15,0.22)] active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/85"
             aria-label="ServiceHub Cordova home"
           >
             <Image
@@ -43,7 +43,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
               className="size-7 shrink-0 rounded-lg transition-transform group-hover:rotate-3"
               priority
             />
-            <div className="leading-none pr-1">
+            <div className="hidden pr-1 leading-none min-[380px]:block">
               <span className="block text-xs font-extrabold tracking-tight text-slate-900 dark:text-white">
                 ServiceHub
               </span>
@@ -54,9 +54,9 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
           </a>
 
           {/* Right Floating Liquid Glass Pill Navbar */}
-          <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-neutral-200/80 bg-white/80 p-1.5 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 dark:border-white/10 dark:bg-zinc-900/80">
+          <div className="pointer-events-auto flex shrink-0 items-center gap-1.5 rounded-full border border-neutral-200/80 bg-white/80 p-1.5 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 dark:border-white/10 dark:bg-zinc-900/80">
             {/* Desktop Navigation Links */}
-            <nav className="hidden items-center gap-0.5 lg:flex px-1" aria-label="Landing page">
+            <nav className="hidden items-center gap-0.5 px-1 xl:flex" aria-label="Landing page">
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.href}
@@ -111,7 +111,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="grid size-8 place-items-center rounded-full text-slate-700 lg:hidden hover:bg-black/[0.04] dark:text-zinc-200 dark:hover:bg-white/[0.06]"
+              className="grid size-8 place-items-center rounded-full text-slate-700 hover:bg-black/[0.04] dark:text-zinc-200 dark:hover:bg-white/[0.06] xl:hidden"
               aria-expanded={mobileOpen}
               aria-controls="mobile-navigation"
               aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
@@ -125,7 +125,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
         {mobileOpen && (
           <div
             id="mobile-navigation"
-            className="pointer-events-auto mx-auto mt-3 max-w-6xl rounded-2xl border border-black/[0.08] bg-white/95 p-4 shadow-xl backdrop-blur-xl lg:hidden dark:border-white/10 dark:bg-zinc-950/95"
+            className="pointer-events-auto mx-auto mt-3 max-w-6xl rounded-2xl border border-black/[0.08] bg-white/95 p-4 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/95 xl:hidden"
           >
             <nav className="grid gap-1" aria-label="Mobile landing page">
               {NAV_LINKS.map((link) => (
