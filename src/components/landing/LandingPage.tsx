@@ -26,6 +26,11 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
   return (
     <div
       className="landing-shell relative min-h-[100dvh] overflow-x-clip font-sans flex flex-col bg-[#f5f4f2] dark:bg-[#121211] text-slate-900 dark:text-zinc-100 selection:bg-orange-500/20 selection:text-orange-900 dark:selection:bg-orange-500/30 dark:selection:text-orange-200"
+      style={{
+        backgroundImage: isDark
+          ? 'radial-gradient(ellipse 78% 42% at 50% -8%, rgba(200, 101, 68, 0.075), transparent 72%)'
+          : 'radial-gradient(ellipse 78% 42% at 50% -8%, rgba(217, 119, 87, 0.115), transparent 72%)',
+      }}
     >
       <LandingScrollProgress />
       {/*
