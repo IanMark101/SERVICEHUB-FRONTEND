@@ -209,7 +209,7 @@ export default function SignupForm({
                 ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
                 : (step < 3 && isNextDisabled)
                   ? 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
-                  : 'bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white shadow-orange-950/15 cursor-pointer'
+                  : 'cursor-pointer bg-[#171716] text-[#f5f4f2] shadow-neutral-950/15 hover:bg-[#292826] active:translate-y-px dark:bg-[#e18463] dark:text-[#171716] dark:hover:bg-[#eb9577]'
             }`}
           >
             {isLoading ? (
@@ -232,7 +232,7 @@ export default function SignupForm({
               <div className="w-full border-t border-black/[0.08] dark:border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-[10px]">
-              <span className="bg-white dark:bg-[#181716] px-3 text-slate-400 dark:text-zinc-500 font-bold tracking-widest uppercase">
+              <span className="bg-[#fffdfa] px-3 font-bold uppercase tracking-widest text-neutral-500 dark:bg-[#181716] dark:text-zinc-400">
                 OR
               </span>
             </div>

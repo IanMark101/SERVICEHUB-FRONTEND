@@ -52,7 +52,7 @@ export default function AuthLeftPanel({
   return (
     <aside
       aria-label="ServiceHub Cordova overview"
-      className="relative hidden min-h-[100dvh] flex-shrink-0 overflow-hidden bg-[#171716] p-5 text-[#f5f4f2] lg:flex lg:w-[44%] xl:p-7"
+      className="relative hidden min-h-[100dvh] flex-shrink-0 overflow-hidden bg-[#171716] p-5 text-[#f5f4f2] lg:flex lg:w-1/2 xl:p-7"
     >
       <div className="relative flex min-h-0 w-full flex-1 flex-col border border-white/12 bg-[#171716]">
         <header className="flex min-h-20 items-center justify-between border-b border-white/10 px-5 xl:px-7">

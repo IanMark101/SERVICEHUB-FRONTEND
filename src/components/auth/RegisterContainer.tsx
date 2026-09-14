@@ -72,7 +72,7 @@ export default function RegisterContainer({
       />
 
       {/* Right Panel: the panel itself is the registration surface */}
-      <main className="relative z-10 min-h-[100dvh] w-full overflow-y-auto border-black/[0.06] bg-white transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-[56%] lg:border-l">
+      <main className="relative z-10 min-h-[100dvh] w-full overflow-y-auto border-black/[0.06] bg-[#fffdfa] transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-1/2 lg:border-l">
         <div className="mx-auto flex min-h-[100dvh] w-full max-w-4xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-14 xl:px-20">
         {/* Mobile Header Bar */}
         <div className="mb-8 flex w-full items-center justify-between lg:hidden">
@@ -105,7 +105,7 @@ export default function RegisterContainer({
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-[40rem] py-6 lg:py-9">
+        <div className="mx-auto w-full max-w-[38rem] py-6 lg:py-9">
           
           {/* Error Message Banner */}
           {error && (

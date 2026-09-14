@@ -39,7 +39,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+        <label htmlFor={inputId} className="mb-1.5 block text-xs font-semibold text-neutral-700 dark:text-zinc-300">
           {label}
         </label>
       )}
@@ -58,11 +58,11 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
           inputMode={inputMode}
           aria-invalid={Boolean(error)}
           aria-describedby={error || helperText ? messageId : undefined}
-          className={`w-full bg-slate-50/70 dark:bg-zinc-900/60 border ${
+          className={`w-full border bg-[#f8f6f2] dark:bg-zinc-900/60 ${
             error
               ? 'border-rose-500 ring-2 ring-rose-500/10 dark:ring-rose-500/20'
-              : 'border-black/[0.08] dark:border-white/10 hover:border-black/[0.14] dark:hover:border-white/20'
-          } rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 transition-all focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 ${
+              : 'border-[#dedbd5] hover:border-[#c8c3bb] dark:border-white/10 dark:hover:border-white/20'
+          } rounded-xl px-3.5 py-3 text-sm text-neutral-900 placeholder:text-neutral-500 transition-[background-color,border-color,box-shadow] focus:border-[#c86544] focus:bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#c86544]/15 dark:text-white dark:placeholder:text-zinc-400 dark:focus:border-orange-500 dark:focus:bg-zinc-900 dark:focus:ring-orange-500/20 ${
             children ? 'pr-11' : ''
           } ${className}`}
         />
