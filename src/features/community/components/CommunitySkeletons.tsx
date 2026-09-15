@@ -1,17 +1,23 @@
 import React from 'react';
 
-export function StatsSkeleton({ isDark = false }: { isDark?: boolean }) {
-  const shimmer = isDark ? 'bg-neutral-800 animate-pulse' : 'bg-slate-200 animate-pulse';
-  const card = isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200';
+function skeletonColors(isDark: boolean) {
+  return {
+    surface: isDark ? 'border-white/10 bg-[#201f1c]' : 'border-black/8 bg-[#fffdfa]',
+    line: isDark ? 'bg-white/10' : 'bg-[#e8e3dd]',
+    divider: isDark ? 'border-white/10' : 'border-black/8',
+  };
+}
 
+export function StatsSkeleton({ isDark = false }: { isDark?: boolean }) {
+  const colors = skeletonColors(isDark);
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5" aria-label="Loading community statistics" aria-busy="true">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className={`rounded-2xl p-4 border flex items-center space-x-3.5 shadow-sm ${card}`}>
-          <div className={`w-10 h-10 rounded-xl flex-shrink-0 ${shimmer}`} />
-          <div className="space-y-1.5 flex-1">
-            <div className={`h-5 w-16 rounded-md ${shimmer}`} />
-            <div className={`h-3 w-24 rounded-md ${shimmer}`} />
+    <div className={`grid overflow-hidden rounded-2xl border sm:grid-cols-2 lg:grid-cols-4 ${colors.surface}`} aria-label="Loading community statistics" aria-busy="true">
+      {[1, 2, 3, 4].map((index) => (
+        <div key={index} className={`flex min-h-24 items-center gap-3 border-b p-5 last:border-b-0 sm:border-r sm:[&:nth-child(2n)]:border-r-0 lg:border-b-0 lg:[&:nth-child(2n)]:border-r lg:last:border-r-0 ${colors.divider}`}>
+          <div className={`size-9 shrink-0 animate-pulse rounded-xl ${colors.line}`} />
+          <div className="space-y-2">
+            <div className={`h-5 w-14 animate-pulse rounded ${colors.line}`} />
+            <div className={`h-3 w-28 animate-pulse rounded ${colors.line}`} />
           </div>
         </div>
       ))}
@@ -20,22 +26,18 @@ export function StatsSkeleton({ isDark = false }: { isDark?: boolean }) {
 }
 
 export function UpdatesSkeleton({ isDark = false }: { isDark?: boolean }) {
-  const shimmer = isDark ? 'bg-neutral-800 animate-pulse' : 'bg-slate-200 animate-pulse';
-  const card = isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200';
-
+  const colors = skeletonColors(isDark);
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className={`rounded-2xl p-5 border space-y-3.5 shadow-sm ${card}`}>
-          <div className="flex justify-between items-center">
-            <div className={`h-4 w-24 rounded-full ${shimmer}`} />
-            <div className={`h-3 w-16 rounded-md ${shimmer}`} />
-          </div>
-          <div className={`h-4 w-3/4 rounded-md ${shimmer}`} />
-          <div className="space-y-1.5">
-            <div className={`h-3 w-full rounded-md ${shimmer}`} />
-            <div className={`h-3 w-5/6 rounded-md ${shimmer}`} />
-          </div>
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]" aria-label="Loading community updates" aria-busy="true">
+      {[1, 2].map((index) => (
+        <div key={index} className={`space-y-5 rounded-2xl border p-6 ${colors.surface}`}>
+          <div className={`h-4 w-40 animate-pulse rounded ${colors.line}`} />
+          {[1, 2, 3].map((row) => (
+            <div key={row} className={`space-y-2 border-t pt-4 ${colors.divider}`}>
+              <div className={`h-3 w-2/3 animate-pulse rounded ${colors.line}`} />
+              <div className={`h-3 w-full animate-pulse rounded ${colors.line}`} />
+            </div>
+          ))}
         </div>
       ))}
     </div>
@@ -43,22 +45,21 @@ export function UpdatesSkeleton({ isDark = false }: { isDark?: boolean }) {
 }
 
 export function RecentGridSkeleton({ isDark = false }: { isDark?: boolean }) {
-  const shimmer = isDark ? 'bg-neutral-800 animate-pulse' : 'bg-slate-200 animate-pulse';
-  const card = isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200';
-
+  const colors = skeletonColors(isDark);
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className={`rounded-2xl p-4 border space-y-3 shadow-sm ${card}`}>
-          <div className="flex justify-between items-center">
-            <div className={`h-4 w-20 rounded-md ${shimmer}`} />
-            <div className={`h-4 w-16 rounded-md ${shimmer}`} />
-          </div>
-          <div className={`h-4 w-40 rounded-md ${shimmer}`} />
-          <div className="flex items-center space-x-2 pt-1">
-            <div className={`w-6 h-6 rounded-full ${shimmer}`} />
-            <div className={`h-3 w-28 rounded-md ${shimmer}`} />
-          </div>
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]" aria-label="Loading recently approved services" aria-busy="true">
+      {[1, 2].map((index) => (
+        <div key={index} className={`space-y-5 rounded-2xl border p-6 ${colors.surface}`}>
+          <div className={`h-4 w-32 animate-pulse rounded ${colors.line}`} />
+          {[1, 2, 3].map((row) => (
+            <div key={row} className={`flex gap-3 border-t pt-4 ${colors.divider}`}>
+              <div className={`size-9 shrink-0 animate-pulse rounded-xl ${colors.line}`} />
+              <div className="flex-1 space-y-2">
+                <div className={`h-3 w-3/4 animate-pulse rounded ${colors.line}`} />
+                <div className={`h-3 w-1/2 animate-pulse rounded ${colors.line}`} />
+              </div>
+            </div>
+          ))}
         </div>
       ))}
     </div>
@@ -66,26 +67,23 @@ export function RecentGridSkeleton({ isDark = false }: { isDark?: boolean }) {
 }
 
 export function TopProvidersSkeleton({ isDark = false }: { isDark?: boolean }) {
-  const shimmer = isDark ? 'bg-neutral-800 animate-pulse' : 'bg-slate-200 animate-pulse';
-  const card = isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200';
-
+  const colors = skeletonColors(isDark);
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className={`rounded-2xl p-4 border space-y-3 shadow-sm ${card}`}>
-          <div className="flex items-center space-x-3">
-            <div className={`w-10 h-10 rounded-full ${shimmer}`} />
-            <div className="space-y-1.5 flex-1">
-              <div className={`h-4 w-24 rounded-md ${shimmer}`} />
-              <div className={`h-3 w-16 rounded-md ${shimmer}`} />
+    <div className={`rounded-2xl border p-6 ${colors.surface}`} aria-label="Loading provider recognition" aria-busy="true">
+      <div className="grid md:grid-cols-3">
+        {[1, 2, 3].map((index) => (
+          <div key={index} className={`space-y-4 border-b py-4 md:border-b-0 md:border-r md:px-5 md:last:border-r-0 ${colors.divider}`}>
+            <div className={`h-3 w-14 animate-pulse rounded ${colors.line}`} />
+            <div className="flex items-center gap-3">
+              <div className={`size-11 animate-pulse rounded-full ${colors.line}`} />
+              <div className="space-y-2">
+                <div className={`h-3 w-28 animate-pulse rounded ${colors.line}`} />
+                <div className={`h-3 w-20 animate-pulse rounded ${colors.line}`} />
+              </div>
             </div>
           </div>
-          <div className="flex justify-between items-center pt-2">
-            <div className={`h-3 w-20 rounded-md ${shimmer}`} />
-            <div className={`h-3 w-12 rounded-md ${shimmer}`} />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

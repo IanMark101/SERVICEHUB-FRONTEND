@@ -37,7 +37,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
   return (
     <>
       {/* Middle: Global User Search Bar (Responsive from sm up) */}
-      <div ref={userSearchRef} className="hidden sm:block flex-1 min-w-[150px] max-w-[220px] md:max-w-xs lg:max-w-sm relative mx-2 sm:mx-4">
+      <div ref={userSearchRef} className="relative mx-2 hidden min-w-[150px] max-w-[240px] flex-1 lg:block">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9] pointer-events-none">
           <Search className="w-3.5 h-3.5" />
         </span>
@@ -56,9 +56,9 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
             }
           }}
           placeholder="Search users..."
-          className={`w-full border rounded-xl pl-9 pr-8 py-2 text-xs transition-all ${isDark
-              ? `bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 ${theme.ring}`
-              : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${theme.ring}`
+          className={`w-full rounded-xl border py-2 pl-9 pr-8 text-xs transition-colors ${isDark
+              ? `border-white/10 bg-[#201f1c] text-[#f5f4f2] placeholder:text-[#8f8a82] focus:outline-none focus:ring-2 ${theme.ring}`
+              : `border-black/10 bg-[#fffdfa] text-[#171716] placeholder:text-[#8b857e] focus:outline-none focus:ring-2 ${theme.ring}`
             }`}
         />
         {userSearch && (

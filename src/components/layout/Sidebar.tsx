@@ -1,29 +1,31 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   Compass,
   PlusCircle,
-  Stack as Layers,
-  Tray as Inbox,
-  TrendUp as TrendingUp,
+  Stack,
+  Tray,
+  TrendUp,
   Tag,
-  ChatCircle as MessageSquare,
-  UsersThree as Users,
-  SignOut as LogOut,
-  CaretLeft as ChevronLeft,
-  CaretRight as ChevronRight,
+  ChatCircle,
+  UsersThree,
+  SignOut,
+  CaretLeft,
+  CaretRight,
   X,
   Briefcase,
-  MagnifyingGlass as Search,
-  ClockCounterClockwise as History,
-  ChartBar as BarChart2,
+  MagnifyingGlass,
+  ClockCounterClockwise,
+  ChartBar,
   ShieldCheck,
-  Warning as AlertTriangle,
-  Question as HelpCircle,
+  Warning,
+  Question,
   Megaphone,
 } from '@phosphor-icons/react';
-import { UserSession } from '../auth/LoginContainer';
+import type { UserSession } from '../auth/LoginContainer';
 import { useApp } from '../../context/AppContext';
 
 interface SidebarProps {
@@ -56,386 +58,189 @@ export default function Sidebar({
   isMobileOpen,
   setIsMobileOpen,
   onSignOut,
-  user
+  user,
 }: SidebarProps) {
-
-  // Bind to App Context
-  const { bids, jobRequests, jobEngagements, isDark, unreadMessagesCount } = useApp();
-
-  // Resolve current user ID
+  const { bids, jobRequests, jobEngagements, unreadMessagesCount } = useApp();
   const currentUserId = user?.id || '';
+  const pendingBidsCount = bids.filter(
+    (bid) => bid.status === 'pending' && jobRequests.some(
+      (request) => request.id === bid.requestId && request.seekerId === currentUserId,
+    ),
+  ).length;
+  const pendingRequestsCount = jobEngagements.filter(
+    (engagement) => engagement.providerId === currentUserId && engagement.status === 'pending_provider',
+  ).length;
 
-  // Dynamic Badge Calculations
-  const pendingBidsCount = bids.filter(b => b.status === 'pending' && jobRequests.some(r => r.id === b.requestId && r.seekerId === currentUserId)).length;
-  const pendingRequestsCount = jobEngagements.filter(je => je.providerId === currentUserId && je.status === 'pending_provider').length;
-
-  // Role styling configs
-  const roleThemes = {
-    seeker: {
-      accent: isDark ? 'text-orange-400' : 'text-orange-600',
-      bgActive: isDark ? 'bg-orange-950/20' : 'bg-orange-50/70',
-      borderActive: 'border-orange-500',
-      badge: isDark ? 'bg-orange-950/40 text-orange-400 border-orange-900/30' : 'bg-orange-50 text-orange-600 border-orange-200'
-    },
-    provider: {
-      accent: isDark ? 'text-emerald-400' : 'text-emerald-600',
-      bgActive: isDark ? 'bg-emerald-950/20' : 'bg-emerald-50/70',
-      borderActive: 'border-emerald-500',
-      badge: isDark ? 'bg-emerald-950/40 text-emerald-400 border-emerald-900/30' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
-    },
-    admin: {
-      accent: isDark ? 'text-neutral-100' : 'text-slate-950',
-      bgActive: isDark ? 'bg-neutral-100' : 'bg-slate-950',
-      borderActive: isDark ? 'border-neutral-100' : 'border-slate-950',
-      badge: isDark ? 'bg-neutral-100 text-neutral-950 border-neutral-200' : 'bg-slate-950 text-white border-slate-950'
-    }
-  };
-
-  const theme = roleThemes[currentRole];
-
-  // Define tab menus with computed badges
-  const menus: Record<'seeker' | 'provider' | 'admin', MenuItem[]> = {
+  const menus: Record<SidebarProps['currentRole'], MenuItem[]> = {
     seeker: [
       { id: 'seek-services', label: 'Seek Services', icon: Compass },
       { id: 'post-request', label: 'Post Request', icon: PlusCircle },
-      { id: 'incoming-offers', label: 'Offers Received', icon: Inbox, badge: pendingBidsCount > 0 ? pendingBidsCount : undefined },
-      { id: 'request-manager', label: 'Request Manager', icon: Layers },
-      { id: 'seeker-activity', label: 'Activity', icon: TrendingUp },
+      { id: 'incoming-offers', label: 'Offers Received', icon: Tray, badge: pendingBidsCount || undefined },
+      { id: 'request-manager', label: 'Request Manager', icon: Stack },
+      { id: 'seeker-activity', label: 'Activity', icon: TrendUp },
     ],
     provider: [
       { id: 'browse-services', label: 'Browse Jobs', icon: Compass },
       { id: 'offer-services', label: 'Offer Services', icon: PlusCircle },
-      { id: 'incoming-requests', label: 'Incoming Requests', icon: Inbox, badge: pendingRequestsCount > 0 ? pendingRequestsCount : undefined },
-      { id: 'service-manager', label: 'Service Manager', icon: Layers },
-      { id: 'provider-activity', label: 'Activity', icon: TrendingUp },
-      { id: 'transaction-history', label: 'Payment Records', icon: History },
+      { id: 'incoming-requests', label: 'Incoming Requests', icon: Tray, badge: pendingRequestsCount || undefined },
+      { id: 'service-manager', label: 'Service Manager', icon: Stack },
+      { id: 'provider-activity', label: 'Activity', icon: TrendUp },
+      { id: 'transaction-history', label: 'Payment Records', icon: ClockCounterClockwise },
     ],
     admin: [
-      { id: 'overview', label: 'Overview', icon: BarChart2 },
-      { id: 'users', label: 'User Management', icon: Users },
+      { id: 'overview', label: 'Overview', icon: ChartBar },
+      { id: 'users', label: 'User Management', icon: UsersThree },
       { id: 'verifications', label: 'Verifications', icon: ShieldCheck },
       { id: 'services', label: 'Service Listings', icon: Briefcase },
       { id: 'categories', label: 'Category Suggestions', icon: Tag },
       { id: 'announcements', label: 'Announcements', icon: Megaphone },
-      { id: 'reports', label: 'Disputes & Reports', icon: AlertTriangle },
+      { id: 'reports', label: 'Disputes & Reports', icon: Warning },
       { id: 'reviews', label: 'Review Moderation', icon: ShieldCheck },
-      { id: 'audit-logs', label: 'Audit Log', icon: History },
-      { id: 'account-deletions', label: 'Deletion Requests', icon: AlertTriangle },
-    ]
+      { id: 'audit-logs', label: 'Audit Log', icon: ClockCounterClockwise },
+      { id: 'account-deletions', label: 'Deletion Requests', icon: Warning },
+    ],
   };
 
   const sharedMenu: MenuItem[] = [
-    { id: 'messages', label: 'Messages', icon: MessageSquare, badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined },
-    { id: 'community-hub', label: 'Community Hub', icon: Users },
+    { id: 'messages', label: 'Messages', icon: ChatCircle, badge: unreadMessagesCount || undefined },
+    { id: 'community-hub', label: 'Community Hub', icon: UsersThree },
   ];
+
+  const showLabels = !isCollapsed || isMobileOpen;
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
-    if (isMobileOpen) {
-      setIsMobileOpen(false);
-    }
+    if (isMobileOpen) setIsMobileOpen(false);
   };
 
   const handleRoleChange = (role: 'seeker' | 'provider') => {
     localStorage.setItem('workspaceRole', role);
     setCurrentRole(role);
+    if (isMobileOpen) setIsMobileOpen(false);
   };
 
   const renderMenuItem = (item: MenuItem) => {
     const Icon = item.icon;
     const isActive = activeTab === item.id;
-    const itemTheme = item.id === 'community-hub'
-      ? {
-          accent: isDark ? 'text-slate-200' : 'text-slate-800',
-          bgActive: isDark ? 'bg-slate-800' : 'bg-slate-100',
-          borderActive: 'border-slate-600',
-          badge: isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-700 border-slate-200',
-        }
-      : theme;
-    const activeClasses = currentRole === 'admin' && item.id !== 'community-hub'
-      ? isDark
-        ? 'bg-neutral-100 text-neutral-950'
-        : 'bg-slate-950 text-white'
-      : `${itemTheme.accent} ${itemTheme.bgActive} border ${itemTheme.borderActive}`;
 
     return (
       <button
+        type="button"
         key={item.id}
         onClick={() => handleTabClick(item.id)}
-        className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl transition-all group relative ${isActive
-          ? activeClasses
-          : isDark
-            ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'
-            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
-          }`}
+        aria-current={isActive ? 'page' : undefined}
+        aria-label={showLabels ? undefined : item.label}
+        title={showLabels ? undefined : item.label}
+        className={`group relative flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-[12px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e9a58c] ${showLabels ? '' : 'justify-center px-0'} ${
+          isActive
+            ? 'bg-[#aa5032] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_20px_-10px_rgba(170,80,50,0.65)]'
+            : 'text-[#aaa59d] hover:bg-white/[0.07] hover:text-[#f5f4f2]'
+        }`}
       >
-        <Icon className={`w-4 h-4 flex-shrink-0 transition-transform group-hover:scale-105 ${isActive
-          ? ''
-          : isDark
-            ? 'text-neutral-500 group-hover:text-[#b4b0a9]'
-            : 'text-slate-400 group-hover:text-slate-500'
-          }`} />
-
-        {(!isCollapsed || isMobileOpen) && (
-          <span className="ml-3 tracking-wide transition-opacity duration-200 truncate">{item.label}</span>
-        )}
-
-        {/* Badge Indicator */}
-        {item.badge !== undefined && (!isCollapsed || isMobileOpen) && (
-          <span className={`ml-auto px-1.5 py-0.5 text-[9px] font-bold rounded-full border ${itemTheme.badge}`}>
-            {item.badge}
-          </span>
-        )}
-
-        {/* Collapsed Badge Dot indicator */}
-        {item.badge !== undefined && isCollapsed && !isMobileOpen && (
-          <span className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${currentRole === 'seeker' ? 'bg-orange-500' : currentRole === 'admin' ? 'bg-slate-950 dark:bg-neutral-100' : 'bg-emerald-500'}`} />
-        )}
-
-        {/* Tooltip on Hover when Collapsed */}
-        {isCollapsed && !isMobileOpen && (
-          <div className={`absolute left-16 hidden group-hover:block text-xs py-1 px-2.5 rounded-lg border shadow-lg whitespace-nowrap z-50 ${isDark
-            ? 'bg-[#22211e] text-[#f2efe9] border-neutral-800/80'
-            : 'bg-slate-900 text-white border-slate-800'
-            }`}>
-            {item.label}
-          </div>
+        <Icon size={18} className="shrink-0" aria-hidden="true" />
+        {showLabels && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
+        {item.badge !== undefined && (
+          showLabels
+            ? <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${isActive ? 'bg-black/20 text-white' : 'bg-white/10 text-[#f5f4f2]'}`}>{item.badge}</span>
+            : <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-[#e9a58c]" aria-hidden="true" />
         )}
       </button>
     );
   };
 
   const sidebarContent = (
-    <div className={`workspace-chrome h-full flex flex-col justify-between py-5 px-3 select-none transition-colors duration-200 ${isDark
-      ? 'bg-[#1c1b18] border-r border-neutral-800/80 text-[#f2efe9]'
-      : 'bg-white border-r border-slate-200 text-slate-800'
-      }`}>
-
-      {/* Brand & Workspace Role Switcher */}
-      <div>
-        <div className="flex items-center justify-between px-2 mb-4">
-          <div className="flex items-center space-x-2.5">
-            <Image width={32} height={32}
-              src="/logo.svg"
-              alt="ServiceHub Cordova"
-              className="w-8 h-8 rounded-xl object-contain shadow-xs shrink-0"
-            />
-            {(!isCollapsed || isMobileOpen) && (
-              <div className="flex flex-col">
-                <span className={`font-black text-sm tracking-tight leading-none ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                  ServiceHub
-                </span>
-                <span className={`text-[10px] font-extrabold tracking-wider uppercase mt-0.5 ${
-                  currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-slate-500 dark:text-neutral-400' : 'text-emerald-500'
-                }`}>
-                  Cordova
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Desktop Collapse Toggle */}
-          {!isMobileOpen && (
-            <button
-              type="button"
-              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className={`hidden md:flex p-1.5 rounded-lg border transition-all ${isDark
-                ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'
-                : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
-                }`}
-            >
-              {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
-            </button>
+    <div className="flex h-full min-h-0 flex-col rounded-[20px] border border-white/10 bg-[#171716] text-[#f5f4f2] shadow-[0_18px_40px_-22px_rgba(23,23,22,0.55)]">
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-4">
+        <div className={`flex items-center gap-2.5 px-1 ${showLabels ? '' : 'justify-center'}`}>
+          <Image src="/logo.svg" alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl bg-white p-1" />
+          {showLabels && (
+            <div className="min-w-0 flex-1 leading-none">
+              <span className="block truncate text-[13px] font-bold tracking-[-0.025em]">ServiceHub</span>
+              <span className="mt-1 block text-[9px] font-semibold uppercase tracking-[0.18em] text-[#e9a58c]">Cordova</span>
+            </div>
           )}
-
-          {/* Mobile Drawer Close */}
-          {isMobileOpen && (
-            <button
-              type="button"
-              aria-label="Close workspace navigation"
-              onClick={() => setIsMobileOpen(false)}
-              className={`md:hidden p-1.5 rounded-lg border transition-all ${isDark
-                ? 'border-neutral-800 bg-[#22211e] hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-white'
-                : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
-                }`}
-            >
-              <X className="w-4 h-4" />
+          {isMobileOpen ? (
+            <button type="button" onClick={() => setIsMobileOpen(false)} aria-label="Close workspace navigation" className="grid size-8 place-items-center rounded-lg border border-white/10 text-[#aaa59d] hover:bg-white/[0.07] hover:text-white md:hidden">
+              <X size={16} aria-hidden="true" />
+            </button>
+          ) : (
+            <button type="button" onClick={() => setIsCollapsed(!isCollapsed)} aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'} className="hidden size-8 shrink-0 place-items-center rounded-lg border border-white/10 text-[#aaa59d] transition-colors hover:bg-white/[0.07] hover:text-white md:grid">
+              {isCollapsed ? <CaretRight size={16} aria-hidden="true" /> : <CaretLeft size={16} aria-hidden="true" />}
             </button>
           )}
         </div>
 
-        {/* Workspace Role Switcher */}
-        {currentRole !== 'admin' ? (
-          <div className="mb-6 px-1">
-            {(!isCollapsed || isMobileOpen) ? (
-              <div className={`p-1 rounded-2xl border transition-all ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-slate-50 border-slate-200'
-                }`}>
-                <div className="flex flex-col space-y-1">
-                  <button
-                    onClick={() => handleRoleChange('seeker')}
-                    className={`w-full flex items-center px-3 py-2 rounded-xl text-xs font-semibold transition-all ${currentRole === 'seeker'
-                      ? isDark
-                        ? 'bg-[#1c1b18] text-orange-400 shadow-sm border border-neutral-800/40'
-                        : 'bg-white text-orange-600 shadow-sm border border-slate-100'
-                      : isDark
-                        ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
-                        : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                  >
-                    <Search className="w-3.5 h-3.5 mr-2" />
-                    Seeker
-                  </button>
-                  <button
-                    onClick={() => handleRoleChange('provider')}
-                    className={`w-full flex items-center px-3 py-2 rounded-xl text-xs font-semibold transition-all ${currentRole === 'provider'
-                      ? isDark
-                        ? 'bg-[#1c1b18] text-emerald-400 shadow-sm border border-neutral-800/40'
-                        : 'bg-white text-emerald-600 shadow-sm border border-slate-100'
-                      : isDark
-                        ? 'text-[#b4b0a9] hover:text-[#f2efe9]'
-                        : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                  >
-                    <Briefcase className="w-3.5 h-3.5 mr-2" />
-                    Provider
-                  </button>
-                </div>
-              </div>
-            ) : (
-              // Collapsed quick switcher icons
-              <div className={`flex flex-col items-center space-y-1.5 p-1 rounded-xl border transition-all ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-slate-50 border-slate-200'
-                }`}>
+        {currentRole !== 'admin' && (
+          <div className="mt-7">
+            {showLabels && <p className="px-2 text-[10px] font-semibold text-[#8f8a82]">Your workspace</p>}
+            <div className={`mt-2 rounded-xl border border-white/8 bg-white/[0.04] p-1 ${showLabels ? 'grid grid-cols-2 gap-1' : 'space-y-1'}`} aria-label="Choose workspace">
+              {([
+                { role: 'seeker' as const, label: 'Seeker', icon: MagnifyingGlass },
+                { role: 'provider' as const, label: 'Provider', icon: Briefcase },
+              ]).map(({ role, label, icon: Icon }) => (
                 <button
-                  onClick={() => handleRoleChange('seeker')}
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${currentRole === 'seeker'
-                    ? isDark ? 'bg-[#1c1b18] text-orange-400 shadow-sm' : 'bg-white text-orange-600 shadow-sm'
-                    : isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-700'
-                    }`}
-                  title="Switch to Seeker"
+                  key={role}
+                  type="button"
+                  onClick={() => handleRoleChange(role)}
+                  aria-pressed={currentRole === role}
+                  aria-label={showLabels ? undefined : `Switch to ${label} workspace`}
+                  title={showLabels ? undefined : `Switch to ${label} workspace`}
+                  className={`flex min-h-9 items-center justify-center gap-1.5 rounded-lg text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e9a58c] ${currentRole === role ? 'bg-[#f5f4f2] text-[#171716] shadow-sm' : 'text-[#aaa59d] hover:bg-white/[0.06] hover:text-white'}`}
                 >
-                  <Search className="w-3.5 h-3.5" />
+                  <Icon size={15} aria-hidden="true" />
+                  {showLabels && label}
                 </button>
-                <button
-                  onClick={() => handleRoleChange('provider')}
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${currentRole === 'provider'
-                    ? isDark ? 'bg-[#1c1b18] text-emerald-400 shadow-sm' : 'bg-white text-emerald-600 shadow-sm'
-                    : isDark ? 'text-[#b4b0a9] hover:text-[#f2efe9]' : 'text-slate-400 hover:text-slate-700'
-                    }`}
-                  title="Switch to Provider"
-                >
-                  <Briefcase className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          (!isCollapsed || isMobileOpen) && (
-            <div className="mb-6 px-1">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-slate-600 dark:border-neutral-800 dark:bg-[#22211e] dark:text-neutral-300">
-                Administrator
-              </div>
+              ))}
             </div>
-          )
+          </div>
         )}
 
-        {/* Role Menu Headers and Listings */}
-        <div className="space-y-5">
-          <div>
-            <div className="space-y-0.5">
-              {menus[currentRole].map(renderMenuItem)}
-            </div>
-          </div>
+        <nav aria-label={currentRole === 'admin' ? 'Administration' : `${currentRole} workspace`} className="mt-7">
+          {showLabels && <p className="mb-2 px-2 text-[10px] font-semibold text-[#8f8a82]">{currentRole === 'admin' ? 'Administration' : 'Workspace'}</p>}
+          <div className="space-y-1">{menus[currentRole].map(renderMenuItem)}</div>
+        </nav>
 
-          {currentRole !== 'admin' && (
-            <div className={`border-t pt-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
-              <div className="space-y-0.5">
-                {sharedMenu.map(renderMenuItem)}
-              </div>
-            </div>
-          )}
-        </div>
+        {currentRole !== 'admin' && (
+          <nav aria-label="Community and messages" className="mt-6 border-t border-white/10 pt-5">
+            {showLabels && <p className="mb-2 px-2 text-[10px] font-semibold text-[#8f8a82]">Connect</p>}
+            <div className="space-y-1">{sharedMenu.map(renderMenuItem)}</div>
+          </nav>
+        )}
       </div>
 
-      {/* Bottom Controls */}
-      <div className={`space-y-2 pt-4 border-t ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
-
-        {/* User Mini Profile */}
-        {(!isCollapsed || isMobileOpen) && user && (
-          <div className={`mx-1 p-2 rounded-xl border flex items-center space-x-2.5 transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-slate-50 border-slate-200/60'
-            }`}>
-            <Image unoptimized width={32} height={32}
-              src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`}
-              alt="Avatar"
-              className={`w-8 h-8 rounded-full object-cover border-2 ${currentRole === 'seeker'
-                ? isDark ? 'border-orange-500/40' : 'border-orange-600/30'
-                : isDark ? 'border-emerald-500/40' : 'border-emerald-600/30'
-                }`}
-            />
-            <div className="min-w-0 flex-1">
-              <h4 className={`text-xs font-bold truncate ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>{user.firstName} {user.lastName}</h4>
-              <p className={`text-[9px] truncate tracking-wider uppercase font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>{currentRole}</p>
-            </div>
+      <div className="shrink-0 border-t border-white/10 px-3 py-3">
+        <Link href="/help" target="_blank" rel="noopener noreferrer" aria-label={showLabels ? undefined : 'Help Center'} title={showLabels ? undefined : 'Help Center'} className={`flex min-h-9 items-center gap-3 rounded-xl px-3 text-[12px] font-medium text-[#aaa59d] transition-colors hover:bg-white/[0.06] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e9a58c] ${showLabels ? '' : 'justify-center px-0'}`}>
+          <Question size={18} aria-hidden="true" />
+          {showLabels && <span>Help Center</span>}
+        </Link>
+        {user && (
+          <div className={`mt-2 flex items-center gap-2.5 border-t border-white/10 pt-3 ${showLabels ? 'px-1' : 'justify-center'}`}>
+            <Image unoptimized width={32} height={32} src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`} alt="" className="size-8 shrink-0 rounded-full border border-white/15 object-cover" />
+            {showLabels && (
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-semibold text-white">{user.firstName} {user.lastName}</p>
+                <p className="mt-0.5 text-[10px] capitalize text-[#8f8a82]">{currentRole}</p>
+              </div>
+            )}
           </div>
         )}
-
-        {/* Help Center Link */}
-        <Link
-          href="/help"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl transition-all group ${
-            isDark
-              ? 'text-[#b4b0a9] hover:text-[#f2efe9] hover:bg-[#2c2b27]/40'
-              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/50'
-          }`}
-          title="Help Center & User Documentation"
-        >
-          <HelpCircle className={`w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform ${
-              currentRole === 'seeker' ? 'text-orange-500' : currentRole === 'admin' ? 'text-slate-500 dark:text-neutral-400' : 'text-emerald-500'
-          }`} />
-          {(!isCollapsed || isMobileOpen) && (
-            <span className="ml-3">Help Center</span>
-          )}
-        </Link>
-
-        {/* Sign out */}
-        <button
-          onClick={onSignOut}
-          className={`w-full flex items-center px-4 py-2.5 text-xs font-semibold rounded-xl text-red-600 hover:text-red-500 border border-transparent transition-all group ${isDark ? 'hover:bg-red-950/20 hover:border-red-950/30' : 'hover:bg-red-50 hover:border-red-100'
-            }`}
-        >
-          <LogOut className="w-4 h-4 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
-          {(!isCollapsed || isMobileOpen) && (
-            <span className="ml-3">Sign Out</span>
-          )}
+        <button type="button" onClick={onSignOut} aria-label={showLabels ? undefined : 'Sign Out'} title={showLabels ? undefined : 'Sign Out'} className={`mt-2 flex min-h-9 w-full items-center gap-3 rounded-xl px-3 text-left text-[12px] font-medium text-[#e9a58c] transition-colors hover:bg-[#c86544]/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e9a58c] ${showLabels ? '' : 'justify-center px-0'}`}>
+          <SignOut size={18} aria-hidden="true" />
+          {showLabels && <span>Sign Out</span>}
         </button>
-
       </div>
     </div>
   );
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
-      <aside className={`hidden md:block h-screen fixed top-0 left-0 border-r z-25 transition-all duration-300 ${isDark ? 'bg-[#1c1b18] border-neutral-800/80' : 'bg-white border-slate-200'
-        } ${isCollapsed ? 'w-20' : 'w-64'}`}>
+      <aside className={`fixed bottom-2 left-2 top-2 z-25 hidden transition-[width] duration-200 md:block ${isCollapsed ? 'w-16' : 'w-60'}`} aria-label="Workspace sidebar">
         {sidebarContent}
       </aside>
-
-      {/* Mobile Sidebar Overlay Drawer */}
       {isMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop Clicker */}
-          <div
-            onClick={() => setIsMobileOpen(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-          />
-          {/* Drawer Sidebar */}
-          <aside className={`relative flex-1 flex flex-col max-w-xs w-full h-full transform transition-transform duration-300 ease-in-out ${isDark ? 'bg-[#1c1b18]' : 'bg-white'
-            }`}>
-            {sidebarContent}
-          </aside>
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <button type="button" onClick={() => setIsMobileOpen(false)} aria-label="Close workspace navigation" className="absolute inset-0 bg-[#171716]/65 backdrop-blur-sm" />
+          <aside className="relative h-full w-full max-w-[18rem] p-2" aria-label="Mobile workspace sidebar">{sidebarContent}</aside>
         </div>
       )}
     </>

@@ -21,7 +21,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
   if (!isOpen) return null;
 
   return (
-    <div className={`sm:hidden absolute top-full left-0 right-0 p-3 border-b shadow-xl z-50 transition-all ${isDark ? 'bg-[#191919] border-neutral-800' : 'bg-white border-slate-200'}`}>
+    <div className={`absolute left-0 right-0 top-full z-50 border-b p-3 shadow-xl lg:hidden ${isDark ? 'border-white/10 bg-[#201f1c]' : 'border-black/10 bg-[#fffdfa]'}`}>
       <div className="relative flex items-center">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9] pointer-events-none"><Search className="w-3.5 h-3.5" /></span>
         <input
@@ -34,7 +34,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
             onShowResultsChange(Boolean(event.target.value.trim()));
           }}
           placeholder="Search users..."
-          className={`w-full border rounded-xl pl-9 pr-9 py-2 text-xs transition-all ${isDark ? `bg-[#22211e] border-neutral-800/80 text-[#f2efe9] placeholder-[#b4b0a9] focus:outline-none focus:ring-1 ${ringClass}` : `bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 ${ringClass}`}`}
+          className={`w-full rounded-xl border py-2 pl-9 pr-9 text-xs transition-colors ${isDark ? `border-white/10 bg-[#171716] text-[#f5f4f2] placeholder:text-[#8f8a82] focus:outline-none focus:ring-2 ${ringClass}` : `border-black/10 bg-[#fffdfa] text-[#171716] placeholder:text-[#8b857e] focus:outline-none focus:ring-2 ${ringClass}`}`}
         />
         <button type="button" aria-label="Close user search" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
       </div>

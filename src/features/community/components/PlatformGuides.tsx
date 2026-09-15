@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowUpRight, CreditCard, Repeat2, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, CreditCard, ArrowsClockwise, ShieldCheck } from '@phosphor-icons/react';
 
 const guides = [
   {
@@ -18,26 +18,25 @@ const guides = [
     title: 'Reusable local services',
     description: 'Each request creates an independent one-time booking, and you can request the same listing again after the earlier job is resolved.',
     href: '/help/bookings/how-direct-booking-works',
-    icon: Repeat2,
+    icon: ArrowsClockwise,
   },
 ];
 
-export default function PlatformGuides({ isDark = false }: { isDark?: boolean }) {
+export default function PlatformGuides() {
   return (
-    <div className="grid gap-3 md:grid-cols-3">
+    <div className="mt-5 divide-y divide-white/12">
       {guides.map(({ title, description, href, icon: Icon }) => (
         <Link
           key={title}
           href={href}
-          className={`group rounded-2xl border p-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ${isDark ? 'border-neutral-800 bg-[#22211e] hover:bg-neutral-800/60' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
+          className="group flex gap-3 py-4 text-[#f5f4f2] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e9a58c]"
         >
-          <div className="flex items-start justify-between gap-3">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${isDark ? 'bg-neutral-800 text-neutral-300' : 'bg-slate-100 text-slate-700'}`}><Icon className="h-4 w-4" aria-hidden="true" /></span>
-            <ArrowUpRight className="h-4 w-4 text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
-          </div>
-          <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-[#f2efe9]">{title}</h3>
-          <p className="mt-1.5 text-xs leading-5 text-slate-600 dark:text-[#b4b0a9]">{description}</p>
-          <span className="mt-3 inline-block text-[11px] font-bold text-slate-600 dark:text-neutral-300">Read guide</span>
+          <Icon size={18} className="mt-0.5 shrink-0 text-[#e9a58c]" aria-hidden="true" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold tracking-[-0.02em] group-hover:text-[#e9a58c]">{title}</span>
+            <span className="mt-1 block text-xs leading-5 text-[#aaa59d]">{description}</span>
+          </span>
+          <ArrowUpRight size={15} className="mt-0.5 shrink-0 text-[#aaa59d] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
         </Link>
       ))}
     </div>

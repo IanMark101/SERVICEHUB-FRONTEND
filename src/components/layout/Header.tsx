@@ -12,6 +12,22 @@ import HeaderProfileMenu from './header/HeaderProfileMenu';
 import HeaderMobileSearch from './header/HeaderMobileSearch';
 import HeaderDesktopSearch from './header/HeaderDesktopSearch';
 
+const pageNames: Record<string, string> = {
+  'seek-services': 'Seek Services',
+  'post-request': 'Post Request',
+  'incoming-offers': 'Offers Received',
+  'request-manager': 'Request Manager',
+  'seeker-activity': 'Activity',
+  'browse-services': 'Browse Jobs',
+  'offer-services': 'Offer Services',
+  'incoming-requests': 'Incoming Requests',
+  'service-manager': 'Service Manager',
+  'provider-activity': 'Activity',
+  'transaction-history': 'Payment Records',
+  messages: 'Messages',
+  'community-hub': 'Community Hub',
+};
+
 interface HeaderProps {
   currentRole: 'seeker' | 'provider' | 'admin';
   activeTab: string;
@@ -56,6 +72,7 @@ export default function Header({
   const userNotifications = notifications.filter(n => n.userId === userId);
   const unreadCount = userNotifications.filter(n => !n.read).length;
   const isCommunityHub = activeTab === 'community-hub';
+  const pageName = pageNames[activeTab] || activeTab.replaceAll('-', ' ');
 
 
   // Theme styling helpers based on active role
@@ -64,14 +81,14 @@ export default function Header({
       accent: 'text-orange-600',
       ring: 'focus:ring-orange-500 focus:border-orange-500',
       borderHover: 'hover:border-orange-500/50',
-      badge: 'bg-orange-600 text-white',
+      badge: 'bg-orange-700 text-white',
       badgeBg: 'bg-orange-50 text-orange-600 border-orange-100',
     },
     provider: {
       accent: 'text-emerald-600',
       ring: 'focus:ring-emerald-500 focus:border-emerald-500',
       borderHover: 'hover:border-emerald-500/50',
-      badge: 'bg-emerald-600 text-white',
+      badge: 'bg-emerald-700 text-white',
       badgeBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     admin: {
@@ -82,11 +99,11 @@ export default function Header({
       badgeBg: 'bg-slate-950 text-white border-slate-950',
     },
     community: {
-      accent: 'text-slate-700',
-      ring: 'focus:ring-slate-500 focus:border-slate-500',
-      borderHover: 'hover:border-slate-500/50',
-      badge: 'bg-slate-700 text-white',
-      badgeBg: 'bg-slate-100 text-slate-700 border-slate-200',
+      accent: 'text-orange-700',
+      ring: 'focus:ring-orange-500 focus:border-orange-500',
+      borderHover: 'hover:border-orange-500/50',
+      badge: 'bg-orange-700 text-white',
+      badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
     }
   };
 
@@ -261,7 +278,7 @@ export default function Header({
   };
 
   return (
-    <header className={`workspace-chrome sticky top-0 right-0 z-30 w-full h-20 border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${
+    <header className={`workspace-chrome sticky top-0 right-0 z-30 flex h-20 w-full items-center justify-between gap-3 border-b px-5 py-3.5 font-sans transition-colors duration-200 sm:px-8 ${
       currentRole === 'admin'
         ? isDark
           ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9] backdrop-blur-md'
@@ -269,40 +286,26 @@ export default function Header({
         : `workspace-dashboard-header ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`
     }`}>
 
-      {/* Left side: mobile navigation and workspace identity. The active sidebar
-          item already identifies the current page, so the page name is not repeated. */}
-      <div className="flex items-center space-x-4">
+      {/* Page context follows the same compact type hierarchy as the landing header. */}
+      <div className="flex min-w-0 items-center gap-3">
         <button
           type="button"
           aria-label="Open workspace navigation"
           onClick={() => setIsMobileOpen(true)}
-          className={`md:hidden p-2 rounded-xl border transition-colors ${isDark ? 'border-neutral-800 bg-[#22211e] text-[#b4b0a9] hover:text-white' : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
+          className={`grid size-9 shrink-0 place-items-center rounded-xl border transition-colors md:hidden ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
             }`}
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="flex min-w-0 items-center space-x-3">
-          <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider flex items-center gap-1.5 ${isDark
-              ? (isCommunityHub
-                  ? 'bg-blue-950/20 text-blue-400 border-blue-900/30'
-                  : currentRole === 'seeker'
-                  ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                  : currentRole === 'admin'
-                  ? 'bg-neutral-100 text-neutral-950 border-neutral-200'
-                  : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
-              : theme.badgeBg
-            }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${
-              isCommunityHub
-                ? 'bg-blue-500'
-                : currentRole === 'seeker'
-                ? 'bg-orange-500'
-                : currentRole === 'admin'
-                ? 'bg-slate-950 dark:bg-neutral-100'
-                : 'bg-emerald-500'
-            }`} />
-            {isCommunityHub ? 'Community Hub' : `${currentRole} Workspace`}
-          </span>
+        <div className="flex min-w-0 items-center gap-3">
+          {currentRole === 'admin' ? (
+            <span className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2]' : 'border-black/10 bg-[#fffdfa] text-[#171716]'}`}>Administrator</span>
+          ) : (
+            <div className="min-w-0 leading-tight">
+              <span className={`block truncate text-[10px] font-medium ${isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'}`}>{currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}</span>
+              <span className={`block truncate text-[14px] font-semibold capitalize tracking-[-0.025em] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{pageName}</span>
+            </div>
+          )}
 
           {user && user.role !== 'admin' && user.verificationStatus !== 'APPROVED' && (
             <span
@@ -342,7 +345,7 @@ export default function Header({
       />
 
       {/* Right side: Notifications & Profile Avatar dropdowns */}
-      <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
 
         {/* Mobile Search Toggle Icon */}
         <button
@@ -353,10 +356,10 @@ export default function Header({
             setShowNotifications(false);
             setShowProfileMenu(false);
           }}
-          className={`sm:hidden p-2.5 rounded-xl border transition-all ${
+          className={`grid size-9 place-items-center rounded-xl border transition-colors lg:hidden ${
             isMobileSearchOpen
-              ? isDark ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' : 'bg-orange-50 border-orange-200 text-orange-600'
-              : isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#b4b0a9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600'
+              ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/15 text-[#e9a58c]' : 'border-[#c86544]/35 bg-[#f5ebe6] text-[#aa5032]'
+              : isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
           }`}
           title="Search Users"
         >
@@ -367,11 +370,11 @@ export default function Header({
         {currentRole !== 'admin' && activeTab !== 'community-hub' && (
           <button
             type="button"
-            aria-label="Open direct messages"
+            aria-label="Open Community Hub"
             onClick={() => setActiveTab('community-hub')}
-            className={`hidden lg:flex items-center space-x-1.5 px-3.5 py-2 border text-xs font-semibold rounded-xl transition-all ${isDark
-                ? 'border-neutral-800 hover:bg-[#22211e] text-[#f2efe9]'
-                : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+            className={`hidden items-center rounded-xl border px-3 py-2 text-xs font-semibold transition-colors xl:flex ${isDark
+                ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
+                : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
               }`}
           >
             <span>Community Hub</span>
@@ -383,9 +386,9 @@ export default function Header({
           <button
             type="button"
             onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
-            className={`p-2.5 rounded-xl border transition-all relative cursor-pointer ${isDark
-                ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
-                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
+            className={`relative grid size-9 cursor-pointer place-items-center rounded-xl border transition-colors ${isDark
+                ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
+                : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
               }`}
             title="Direct Messages"
           >
@@ -403,9 +406,9 @@ export default function Header({
           type="button"
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={toggleTheme}
-          className={`p-2.5 rounded-xl border transition-all ${isDark
-              ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-amber-400'
-              : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
+          className={`grid size-9 place-items-center rounded-xl border transition-colors ${isDark
+              ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
+              : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
             }`}
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >

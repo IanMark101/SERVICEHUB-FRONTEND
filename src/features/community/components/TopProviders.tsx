@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Trophy, Users } from 'lucide-react';
+import { Trophy, UsersThree } from '@phosphor-icons/react';
 import { TopProvider } from '../types/community.types';
 import { TopProvidersSkeleton } from './CommunitySkeletons';
 import CommunityEmptyState from './CommunityEmptyState';
@@ -28,13 +28,8 @@ export default function TopProviders({
 
   if (loading) {
     return (
-      <div className="space-y-3.5">
-        <div className="flex items-center space-x-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Providers of the Week
-          </h2>
-        </div>
+      <div className="space-y-5">
+        <h2 className={`text-xl font-semibold tracking-[-0.025em] sm:text-2xl ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>Providers of the week</h2>
         <TopProvidersSkeleton isDark={isDark} />
       </div>
     );
@@ -42,15 +37,10 @@ export default function TopProviders({
 
   if (providers.length === 0) {
     return (
-      <div className="space-y-3.5">
-        <div className="flex items-center space-x-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Providers of the Week
-          </h2>
-        </div>
+      <div className="space-y-5">
+        <h2 className={`text-xl font-semibold tracking-[-0.025em] sm:text-2xl ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>Providers of the week</h2>
         <CommunityEmptyState
-          icon={Users}
+          icon={UsersThree}
           title="No provider recognition is available this week"
           description="Providers with verified services completed this week will appear here."
           isDark={isDark}
@@ -70,13 +60,13 @@ export default function TopProviders({
   };
 
   return (
-    <div className="space-y-4">
+    <section className="space-y-5" aria-labelledby="top-providers-title">
       {/* Section Header */}
       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center space-x-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Providers of the Week
+          <Trophy size={20} className="text-[#c86544]" aria-hidden="true" />
+          <h2 id="top-providers-title" className={`text-xl font-semibold tracking-[-0.025em] sm:text-2xl ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>
+            Providers of the week
           </h2>
         </div>
         <span className={`text-[10px] font-semibold sm:text-right ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
@@ -86,10 +76,10 @@ export default function TopProviders({
         </span>
       </div>
 
-      {/* Main Podium & Leaderboard Card */}
+      {/* Recognition and rankings share one reading surface. */}
       <div
-        className={`rounded-2xl border p-6 shadow-sm transition-colors duration-200 overflow-hidden ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'
+        className={`overflow-hidden rounded-2xl border p-5 sm:p-6 ${
+          isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2]' : 'border-black/8 bg-[#fffdfa] text-[#171716]'
         }`}
       >
         <PodiumChampions
@@ -108,6 +98,6 @@ export default function TopProviders({
           onSelect={handleSelectProvider}
         />
       </div>
-    </div>
+    </section>
   );
 }

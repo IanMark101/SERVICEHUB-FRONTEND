@@ -78,7 +78,7 @@ export default function HeaderNotifications({
 
   return (
     <div className="relative">
-      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`p-2.5 rounded-xl border transition-all relative ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'} ${isOpen ? (isDark ? 'bg-[#2c2b27] border-neutral-700' : 'bg-slate-100 border-slate-300') : ''}`}>
+      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`relative grid size-9 place-items-center rounded-xl border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'} ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${badgeClass} border border-white`} />}
       </button>

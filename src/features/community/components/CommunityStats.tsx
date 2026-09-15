@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Users, CheckCircle2, Tag, AlertCircle, RefreshCw } from 'lucide-react';
+import { ShieldCheck, UsersThree, SealCheck, Tag, Warning, ArrowClockwise } from '@phosphor-icons/react';
 import { CommunityStatsData } from '../types/community.types';
 import { StatsSkeleton } from './CommunitySkeletons';
 
@@ -32,7 +32,7 @@ export default function CommunityStats({
         }`}
       >
         <div className="flex items-center space-x-2">
-          <AlertCircle className="w-4 h-4" />
+          <Warning className="w-4 h-4" />
           <span>{error || 'Unable to load community statistics.'}</span>
         </div>
         {onRetry && (
@@ -40,7 +40,7 @@ export default function CommunityStats({
             onClick={onRetry}
             className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border font-bold text-[10px] hover:opacity-80 active:scale-95 cursor-pointer"
           >
-            <RefreshCw className="w-3 h-3" />
+            <ArrowClockwise className="w-3 h-3" />
             <span>Try Again</span>
           </button>
         )}
@@ -53,55 +53,43 @@ export default function CommunityStats({
       label: 'Verified Residents',
       value: stats.verifiedUsers.toLocaleString(),
       icon: ShieldCheck,
-      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
-      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
     },
     {
       label: 'Active Providers',
       value: stats.activeProviders.toLocaleString(),
-      icon: Users,
-      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
-      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
+      icon: UsersThree,
     },
     {
       label: 'Services Completed',
       value: stats.totalCompleted.toLocaleString(),
-      icon: CheckCircle2,
-      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
-      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
+      icon: SealCheck,
     },
     {
       label: 'Active Service Listings',
       value: stats.activeListings.toLocaleString(),
       icon: Tag,
-      iconColor: isDark ? 'text-slate-300' : 'text-slate-700',
-      iconBg: isDark ? 'bg-slate-950/30' : 'bg-slate-50',
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5" aria-label="Community statistics">
+    <div className={`grid overflow-hidden rounded-2xl border sm:grid-cols-2 lg:grid-cols-4 ${isDark ? 'border-white/10 bg-[#201f1c]' : 'border-black/8 bg-[#fffdfa]'}`} aria-label="Community statistics">
       {statItems.map((item) => (
         <div
           key={item.label}
-          className={`rounded-2xl p-4 border flex items-center space-x-3.5 shadow-sm transition-all duration-200 ${
-            isDark
-              ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]'
-              : 'bg-white border-slate-200 text-slate-900'
-          }`}
+          className={`flex min-h-24 items-center gap-3 border-b p-5 last:border-b-0 sm:border-r sm:[&:nth-child(2n)]:border-r-0 lg:border-b-0 lg:[&:nth-child(2n)]:border-r lg:last:border-r-0 ${isDark ? 'border-white/10 text-[#f5f4f2]' : 'border-black/8 text-[#171716]'}`}
         >
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${item.iconBg} ${item.iconColor}`}
+            className={`grid size-9 shrink-0 place-items-center rounded-xl ${isDark ? 'bg-white/[0.06] text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#c86544]'}`}
           >
-            <item.icon className="w-5 h-5" />
+            <item.icon className="size-4.5" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <p className="text-lg font-extrabold tracking-tight leading-tight">
+            <p className="text-xl font-semibold tabular-nums tracking-[-0.03em]">
               {item.value}
             </p>
             <p
-              className={`text-[10px] font-bold uppercase tracking-wide ${
-                isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
+              className={`mt-0.5 text-xs leading-4 ${
+                isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'
               }`}
             >
               {item.label}

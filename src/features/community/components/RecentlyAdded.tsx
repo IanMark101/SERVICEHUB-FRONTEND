@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { FolderPlus } from 'lucide-react';
+import { FolderPlus } from '@phosphor-icons/react';
 import { RecentCategory, RecentService } from '../types/community.types';
 import { RecentGridSkeleton } from './CommunitySkeletons';
 import NewCategoriesSection from './NewCategoriesSection';
@@ -23,14 +23,9 @@ export default function RecentlyAdded({
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            <FolderPlus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-            <span>Recently Added</span>
-          </h2>
-          <div className="grid gap-4 xl:grid-cols-2"><RecentGridSkeleton isDark={isDark} /><RecentGridSkeleton isDark={isDark} /></div>
-        </div>
+      <div className="space-y-5">
+        <h2 className={`text-xl font-semibold tracking-[-0.025em] sm:text-2xl ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>Newly approved</h2>
+        <RecentGridSkeleton isDark={isDark} />
       </div>
     );
   }
@@ -46,12 +41,12 @@ export default function RecentlyAdded({
   };
 
   return (
-    <section className="space-y-3.5" aria-labelledby="recently-added-title">
+    <section className="space-y-5" aria-labelledby="recently-added-title">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <FolderPlus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-          <h2 id="recently-added-title" className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Recently Added
+          <h2 id="recently-added-title" className={`text-xl font-semibold tracking-[-0.025em] sm:text-2xl ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>
+            Newly approved
           </h2>
         </div>
         <span className={`text-[10px] font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
@@ -59,7 +54,7 @@ export default function RecentlyAdded({
         </span>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
         <NewCategoriesSection
           categories={categories}
           isDark={isDark}
