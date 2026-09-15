@@ -228,13 +228,20 @@ export default function SeekServices() {
           </p>
 
           {/* Inputs Row inside Banner */}
-          <div className={`mx-auto mt-4 flex w-full max-w-xl items-center rounded-2xl border p-1.5 shadow-inner ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
+          <form role="search" onSubmit={(event) => {
+            event.preventDefault();
+            document.getElementById('service-results')?.scrollIntoView({
+              behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+              block: 'start',
+            });
+          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl items-center rounded-2xl border p-1.5 ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-[#fffdfa] border-slate-200'
             }`}>
             <span className={`pl-3 ${isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'}`}>
               <Search className="w-4 h-4" />
             </span>
+            <label htmlFor="service-search-query" className="sr-only">Search service listings</label>
             <input
-              aria-label="Search service listings"
+              id="service-search-query"
               type="text"
               placeholder="What service are you looking for?"
               value={searchQuery}
@@ -242,21 +249,17 @@ export default function SeekServices() {
                 setLinkedServiceId(null);
                 setSearchQuery(e.target.value);
               }}
-              className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder:text-[#aaa59d]' : 'text-[#171716] placeholder:text-[#6f6a64]'
+              className={`service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm ${isDark ? 'text-[#f2efe9] placeholder:text-[#aaa59d]' : 'text-[#171716] placeholder:text-[#6f6a64]'
                 }`}
             />
             <button
-              type="button"
+              type="submit"
               aria-controls="service-results"
-              onClick={() => document.getElementById('service-results')?.scrollIntoView({
-                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-                block: 'start',
-              })}
               className="workspace-primary-button flex-shrink-0 rounded-xl border px-5 py-2.5 text-xs font-bold transition-all"
             >
               Search
             </button>
-          </div>
+          </form>
         </div>
       </div>
 

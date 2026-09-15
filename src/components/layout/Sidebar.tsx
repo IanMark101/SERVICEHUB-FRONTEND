@@ -157,7 +157,7 @@ export default function Sidebar({
     <div className="flex h-full min-h-0 flex-col rounded-[18px] border border-[#e6e2dc] bg-[#fffdfa] text-[#171716] shadow-[0_14px_36px_-28px_rgba(23,23,22,0.3)] dark:border-white/10 dark:bg-[#1a1918] dark:text-[#f5f4f2] dark:shadow-[0_18px_40px_-22px_rgba(0,0,0,0.55)]">
       <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-4">
         <div className={`flex items-center gap-2.5 ${showLabels ? 'px-1' : 'flex-col px-0'}`}>
-          <Image src="/logo.svg?v=4" alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl bg-white p-1" />
+          <Image src="/logo.svg?v=5" alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl bg-white p-1" />
           {showLabels && (
             <div className="min-w-0 flex-1 leading-none">
               <span className="block truncate text-[13px] font-bold tracking-[-0.025em]">ServiceHub</span>

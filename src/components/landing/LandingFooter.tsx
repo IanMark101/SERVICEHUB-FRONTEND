@@ -21,7 +21,7 @@ export default function LandingFooter() {
         <div className="grid gap-10 md:grid-cols-[1.2fr_0.8fr]">
           <div className="max-w-md">
             <div className="flex items-center gap-3">
-              <Image src="/logo.svg?v=4" alt="" width={40} height={40} className="size-10 rounded-xl" />
+              <Image src="/logo.svg?v=5" alt="" width={40} height={40} className="size-10 rounded-xl" />
               <div>
                 <p className="text-sm font-extrabold text-white">ServiceHub Cordova</p>
                 <p className="mt-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#c86544]">

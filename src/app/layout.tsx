@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   title: "ServiceHub Cordova",
   description: "Hyperlocal service marketplace and queue management for Cordova, Cebu",
   icons: {
-    icon: [{ url: '/favicon.svg?v=4', type: 'image/svg+xml', sizes: 'any' }, { url: '/favicon.ico?v=4', sizes: 'any' }],
-    apple: '/logo.png?v=4',
+    icon: [{ url: '/favicon.svg?v=5', type: 'image/svg+xml', sizes: 'any' }, { url: '/favicon.ico?v=5', sizes: 'any' }],
+    apple: '/logo.png?v=5',
   },
 };
 

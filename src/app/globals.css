@@ -658,6 +658,28 @@ h6 {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-focus) 12%, transparent);
 }
 
+.workspace-shell .service-search-control {
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.workspace-shell .service-search-control:focus-within {
+  border-color: var(--workspace-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--workspace-focus) 18%, transparent);
+}
+
+.workspace-shell .service-search-input,
+.workspace-shell .service-search-input:focus {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.875rem;
+  user-select: text;
+}
+
+.workspace-shell .service-search-input:focus-visible {
+  outline: none;
+}
+
 .workspace-surface {
   background: var(--workspace-surface) !important;
   border-color: var(--workspace-border) !important;

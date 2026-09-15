@@ -93,7 +93,7 @@ export default function LoginContainer({
           </button>
           <div className="flex items-center gap-2">
             <Image
-              src="/logo.svg?v=4"
+              src="/logo.svg?v=5"
               alt="ServiceHub Logo"
               width={26}
               height={26}

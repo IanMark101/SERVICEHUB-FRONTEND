@@ -36,7 +36,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
             aria-label="ServiceHub Cordova home"
           >
             <Image
-              src="/logo.svg?v=4"
+              src="/logo.svg?v=5"
               alt=""
               width={30}
               height={30}

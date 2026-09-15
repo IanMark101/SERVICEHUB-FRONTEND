@@ -69,7 +69,7 @@ export default function AuthLeftPanel({
 
             <div className="flex items-center gap-2.5">
               <Image
-                src="/logo.svg?v=4"
+                src="/logo.svg?v=5"
                 alt="ServiceHub Cordova"
                 width={30}
                 height={30}
