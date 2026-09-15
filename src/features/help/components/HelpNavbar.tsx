@@ -30,7 +30,7 @@ export default function HelpNavbar() {
             href="/help"
             className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-black/10 bg-[#fffdfa] px-3 py-2 shadow-[0_8px_22px_rgba(23,23,22,0.10)] transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-[#201f1c]"
           >
-            <Image width={30} height={30} src="/logo.svg?v=5" alt="" className="size-[30px] rounded-lg object-contain" priority />
+            <Image width={30} height={30} src="/logo.svg?v=6" alt="" className="size-[30px] rounded-lg object-contain" priority />
             <span className="leading-none">
               <span className="block text-xs font-semibold tracking-tight">ServiceHub</span>
               <span className="mt-1 block text-[8px] font-bold uppercase tracking-[0.18em] text-[#c86544] dark:text-[#e18463]">Help Center</span>
