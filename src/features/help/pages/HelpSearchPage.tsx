@@ -1,8 +1,9 @@
 "use client";
+
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MagnifyingGlass } from '@phosphor-icons/react';
 import HelpSearch from '../components/HelpSearch';
 import HelpBreadcrumbs from '../components/HelpBreadcrumbs';
 import { searchHelpArticles } from '../utils/helpSearch';
@@ -12,118 +13,121 @@ import { HELP_CATEGORIES } from '../data/categories';
 export default function HelpSearchPage() {
   const searchParams = useSearchParams();
   const rawQuery = searchParams.get('q') || '';
-
   const results: SearchResult[] = rawQuery ? searchHelpArticles(rawQuery) : [];
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
   const filteredResults = selectedCategory === 'all'
     ? results
-    : results.filter((r) => r.article.category === selectedCategory);
+    : results.filter((result) => result.article.category === selectedCategory);
 
   return (
-    <div className="w-full space-y-8 animate-in fade-in duration-200">
-      <HelpBreadcrumbs items={[{ label: 'Search Results' }]} />
+    <div className="space-y-14 pb-4 sm:space-y-18">
+      <HelpBreadcrumbs items={[{ label: 'Search help' }]} />
 
-      {/* Search Header */}
-      <div className="space-y-4 max-w-3xl">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-          Search Documentation
+      <header className="relative max-w-5xl border-b border-black/10 pb-9 dark:border-white/10 sm:pb-11">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-14 -top-20 -z-10 h-72 w-[42rem] max-w-[90vw] rounded-full bg-[#d97757]/8 blur-[120px] dark:bg-[#c86544]/6" />
+        <div className="flex items-center gap-2 text-xs font-medium text-[#827c75] dark:text-white/48">
+          <MagnifyingGlass size={16} className="text-[#c86544] dark:text-[#e18463]" aria-hidden="true" />
+          Search the Help Center
+        </div>
+        <h1 className="mt-6 max-w-[14ch] text-[clamp(2.5rem,4.8vw,5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-[#171716] dark:text-[#f5f4f2]">
+          Find the answer you need.
         </h1>
-        <HelpSearch initialQuery={rawQuery} autoFocus={true} size="lg" showLiveDropdown={false} />
-      </div>
+        <p className="mt-5 max-w-2xl text-sm leading-6 text-[#625d57] dark:text-white/64 sm:text-base sm:leading-7">
+          Search verified guidance for accounts, local services, bookings, queues, messages, and payment records.
+        </p>
+        <div className="mt-8 max-w-3xl">
+          <HelpSearch initialQuery={rawQuery} autoFocus size="lg" showLiveDropdown={false} />
+        </div>
+      </header>
 
-      {/* Results Section */}
-      <div className="space-y-6">
-        {rawQuery ? (
-          <>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-neutral-800 text-xs">
-              <span className="font-semibold text-slate-700 dark:text-neutral-300 text-sm">
-                {results.length} {results.length === 1 ? 'result' : 'results'} found for &quot;{rawQuery}&quot;
-              </span>
-
-              {/* Category Filter Pills */}
-              {results.length > 0 && (
-                <div className="flex items-center gap-2 overflow-x-auto">
-                  <button
-                    onClick={() => setSelectedCategory('all')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                      selectedCategory === 'all'
-                        ? 'bg-orange-600 text-white'
-                        : 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-700'
-                    }`}
-                  >
-                    All ({results.length})
-                  </button>
-                  {HELP_CATEGORIES.map((cat) => {
-                    const count = results.filter((r) => r.article.category === cat.slug).length;
-                    if (count === 0) return null;
-                    return (
-                      <button
-                        key={cat.slug}
-                        onClick={() => setSelectedCategory(cat.slug)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                          selectedCategory === cat.slug
-                            ? 'bg-orange-600 text-white'
-                            : 'bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-700'
-                        }`}
-                      >
-                        {cat.shortTitle || cat.title} ({count})
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+      {rawQuery ? (
+        <section aria-labelledby="search-results-heading">
+          <div className="flex flex-col gap-5 border-b border-black/10 pb-5 dark:border-white/10 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 id="search-results-heading" className="text-2xl font-semibold tracking-[-0.03em] text-[#171716] dark:text-[#f5f4f2] sm:text-3xl">
+                {results.length} {results.length === 1 ? 'result' : 'results'} for &quot;{rawQuery}&quot;
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[#6f6a64] dark:text-white/58">Narrow the results to a documentation collection when useful.</p>
             </div>
 
-            {filteredResults.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                {filteredResults.map((res) => (
-                  <Link
-                    key={res.article.slug}
-                    href={`/help/${res.article.category}/${res.article.slug}`}
-                    className="flex flex-col justify-between p-6 rounded-2xl border transition-all duration-200 group bg-white dark:bg-[#1a1916] border-slate-200 dark:border-neutral-800/80 hover:border-orange-500/60 hover:-translate-y-0.5 text-slate-800 dark:text-neutral-200 shadow-xs hover:shadow-md"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400">
-                          {res.category.title}
-                        </span>
-                        <span className="text-slate-300 dark:text-neutral-700">·</span>
-                        <span className="text-[11px] text-slate-400 font-medium">
-                          {res.article.readTimeMinutes} min read
-                        </span>
-                      </div>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                        {res.article.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-neutral-400 line-clamp-3 mt-2 leading-relaxed">
-                        {res.article.description}
-                      </p>
-                    </div>
-                    <div className="mt-6 pt-4 border-t border-slate-100 dark:border-neutral-800/60 flex items-center justify-between text-xs font-bold text-orange-600 dark:text-orange-400">
-                      <span>Read article</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="p-12 text-center space-y-3 rounded-2xl border border-dashed border-slate-200 dark:border-neutral-800">
-                <p className="text-base font-bold text-slate-700 dark:text-neutral-300">
-                  No articles matched your search query.
-                </p>
-                <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-                  Try searching for general terms like &quot;verification&quot;, &quot;queue&quot;, &quot;payment hold&quot;, or &quot;trust score&quot;.
-                </p>
+            {results.length > 0 && (
+              <div className="flex max-w-full gap-2 overflow-x-auto pb-1" aria-label="Filter search results by collection">
+                <FilterButton active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')}>All ({results.length})</FilterButton>
+                {HELP_CATEGORIES.map((category) => {
+                  const count = results.filter((result) => result.article.category === category.slug).length;
+                  return count > 0 ? (
+                    <FilterButton key={category.slug} active={selectedCategory === category.slug} onClick={() => setSelectedCategory(category.slug)}>
+                      {category.shortTitle || category.title} ({count})
+                    </FilterButton>
+                  ) : null;
+                })}
               </div>
             )}
-          </>
-        ) : (
-          <div className="p-12 text-center text-xs sm:text-sm text-slate-400 border rounded-2xl border-dashed border-slate-200 dark:border-neutral-800">
-            Type keywords above to search across all ServiceHub Cordova documentation.
           </div>
-        )}
-      </div>
+
+          {filteredResults.length > 0 ? (
+            <div className="grid gap-x-10 md:grid-cols-2">
+              {filteredResults.map((result) => (
+                <Link
+                  key={result.article.slug}
+                  href={`/help/${result.article.category}/${result.article.slug}`}
+                  className="group grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-b border-black/8 py-6 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/10"
+                >
+                  <span>
+                    <span className="text-[11px] font-medium text-[#827c75] dark:text-white/48">
+                      {result.category.shortTitle || result.category.title} / {result.article.readTimeMinutes} min read
+                    </span>
+                    <span className="mt-2 block text-lg font-semibold leading-6 tracking-[-0.025em] text-[#171716] transition-colors group-hover:text-[#c86544] dark:text-[#f5f4f2] dark:group-hover:text-[#e18463]">
+                      {result.article.title}
+                    </span>
+                    <span className="mt-2 block text-sm leading-6 text-[#6f6a64] dark:text-white/58">{result.article.description}</span>
+                    <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#c86544] dark:text-[#e18463]">
+                      Read guide
+                      <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <EmptySearchState query={rawQuery} />
+          )}
+        </section>
+      ) : (
+        <section className="border-y border-black/8 py-10 dark:border-white/10">
+          <p className="text-xl font-semibold tracking-[-0.025em] text-[#171716] dark:text-[#f5f4f2]">Search across every guide</p>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[#6f6a64] dark:text-white/58">Try a topic such as verification, queue, payment hold, trust score, or direct booking.</p>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function FilterButton({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c86544] ${
+        active
+          ? 'border-[#171716] bg-[#171716] text-[#fffdfa] dark:border-[#f5f4f2] dark:bg-[#f5f4f2] dark:text-[#171716]'
+          : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:border-[#c86544]/40 hover:text-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function EmptySearchState({ query }: { query: string }) {
+  return (
+    <div className="border-b border-black/8 py-12 dark:border-white/10">
+      <p className="text-xl font-semibold tracking-[-0.025em] text-[#171716] dark:text-[#f5f4f2]">No guides matched &quot;{query}&quot;.</p>
+      <p className="mt-3 max-w-xl text-sm leading-6 text-[#6f6a64] dark:text-white/58">Try a broader term such as verification, queue, payment hold, or trust score.</p>
+      <Link href="/help" className="mt-6 inline-flex items-center gap-2 text-xs font-semibold text-[#c86544] hover:text-[#aa5032] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-[#e18463]">
+        Browse all collections
+        <ArrowRight size={14} aria-hidden="true" />
+      </Link>
     </div>
   );
 }
