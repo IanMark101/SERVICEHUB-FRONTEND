@@ -96,19 +96,19 @@ export default function LoginForm({
           <button
             type="submit"
             disabled={isLoading}
-            className={`flex w-full items-center justify-center space-x-2 rounded-xl py-3 text-sm font-bold shadow-md transition-all ${
+            className={`flex w-full items-center justify-center space-x-2 rounded-xl py-3 text-sm font-bold transition-all ${
               isLoading
                 ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
-                : 'cursor-pointer bg-[#171716] text-[#f5f4f2] shadow-neutral-950/15 hover:bg-[#292826] active:translate-y-px dark:bg-[#e18463] dark:text-[#171716] dark:hover:bg-[#eb9577]'
+                : 'servicehub-dark-cta cursor-pointer bg-[#171716] text-[#f5f4f2] hover:bg-[#292826] active:translate-y-px dark:bg-[#e18463] dark:text-[#171716] dark:hover:bg-[#eb9577]'
             }`}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>Signing In...</span>
+                <Loader2 className="relative z-10 w-4 h-4 animate-spin text-white" />
+                <span className="relative z-10">Signing In...</span>
               </>
             ) : (
-              <span>Sign In</span>
+              <span className="relative z-10">Sign In</span>
             )}
           </button>
         </div>

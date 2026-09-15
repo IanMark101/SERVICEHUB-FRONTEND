@@ -77,6 +77,36 @@
   .admin-page-button-active {
     @apply border-slate-950 bg-slate-950 text-white hover:border-slate-800 hover:text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950;
   }
+
+  /* A quieter version of the landing CTA's top light for task buttons. */
+  .servicehub-dark-cta {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 10px 22px -9px rgba(23, 23, 22, 0.42);
+  }
+
+  .servicehub-dark-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(130% 85% at 50% 0%, rgba(255, 255, 255, 0.14), transparent 62%);
+  }
+
+  .servicehub-dark-cta:hover {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 13px 26px -9px rgba(23, 23, 22, 0.48);
+  }
+
+  .dark .servicehub-dark-cta {
+    box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.35);
+  }
+
+  .dark .servicehub-dark-cta::before {
+    display: none;
+  }
 }
 
 /* Admin-only visual system: dense, neutral and operational. */
