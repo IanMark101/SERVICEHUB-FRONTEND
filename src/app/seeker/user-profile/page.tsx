@@ -3,6 +3,7 @@ import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import UserProfile from '../../../components/profile/UserProfile';
+import BrandLoading from '@/components/ui/BrandLoading';
 
 type ProfileTab = 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
 const PROFILE_TABS: ProfileTab[] = ['overview', 'reviews', 'trust', 'verification', 'settings'];
@@ -46,7 +47,7 @@ function ProfileContent() {
     }
   }
 
-  if (!targetUser) return null;
+  if (!targetUser) return <BrandLoading compact label="Loading profile" role="seeker" />;
 
   const isOwnProfile = !targetId || targetId === user?.id;
 
@@ -65,9 +66,7 @@ function ProfileContent() {
 export default function SeekerUserProfilePage() {
   return (
     <Suspense fallback={
-      <div className="flex justify-center p-8">
-        <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <BrandLoading compact label="Loading profile" role="seeker" />
     }>
       <ProfileContent />
     </Suspense>

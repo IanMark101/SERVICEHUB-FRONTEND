@@ -3,6 +3,7 @@
 import { apiResetPassword } from "@/api/auth.api";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { CheckCircle2, CircleAlert, KeyRound, LoaderCircle } from "lucide-react";
+import BrandLoading from '@/components/ui/BrandLoading';
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -205,11 +206,7 @@ function ResetPasswordContent() {
 export default function ResetPasswordPage() {
   return (
     <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#faf8f5]">
-          <LoaderCircle size={36} className="animate-spin text-orange-500" />
-        </main>
-      }
+      fallback={<BrandLoading label="Preparing password reset" />}
     >
       <ResetPasswordContent />
     </Suspense>

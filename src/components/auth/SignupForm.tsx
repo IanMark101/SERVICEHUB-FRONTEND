@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import SignupSteps from './signup/SignupSteps';
@@ -204,9 +205,9 @@ export default function SignupForm({
             disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
-            className={`flex flex-grow items-center justify-center space-x-2 rounded-xl py-3 text-sm font-bold transition-all ${
+            className={`flex flex-grow items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
               isLoading
-                ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
+                ? 'servicehub-dark-cta cursor-wait bg-[#171716] text-[#f5f4f2] dark:bg-[#e18463] dark:text-[#171716]'
                 : (step < 3 && isNextDisabled)
                   ? 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
                   : 'servicehub-dark-cta cursor-pointer bg-[#171716] text-[#f5f4f2] hover:bg-[#292826] active:translate-y-px dark:bg-[#e18463] dark:text-[#171716] dark:hover:bg-[#eb9577]'
@@ -214,14 +215,15 @@ export default function SignupForm({
           >
             {isLoading ? (
               <>
-                <Loader2 className="relative z-10 w-4 h-4 animate-spin text-white" />
-                <span className="relative z-10">Creating Account...</span>
+                <Image src="/logo.svg?v=4" alt="" width={20} height={20} className="relative z-10 size-5 rounded-md" />
+                <span className="relative z-10">Creating account...</span>
               </>
             ) : (
               <span className="relative z-10">{step === 3 ? 'Complete Registration' : 'Next Step'}</span>
             )}
           </button>
         </div>
+        {isLoading && <div className="brand-loading__track mt-2" role="status" aria-label="Creating account"><span /></div>}
       </form>
 
       {/* Google Login Component for Easy Registration */}

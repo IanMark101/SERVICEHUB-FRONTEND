@@ -1,5 +1,6 @@
 import React from 'react';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
 import AuthInput from './shared/AuthInput';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import type { FormEvent } from 'react';
@@ -48,7 +49,7 @@ export default function LoginForm({
       </div>
 
       {/* Main Email/Password Form */}
-      <form onSubmit={handleSubmit} className="space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-2" aria-busy={isLoading}>
         <AuthInput
           label="Email"
           type="email"
@@ -96,21 +97,18 @@ export default function LoginForm({
           <button
             type="submit"
             disabled={isLoading}
-            className={`flex w-full items-center justify-center space-x-2 rounded-xl py-3 text-sm font-bold transition-all ${
-              isLoading
-                ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
-                : 'servicehub-dark-cta cursor-pointer bg-[#171716] text-[#f5f4f2] hover:bg-[#292826] active:translate-y-px dark:bg-[#e18463] dark:text-[#171716] dark:hover:bg-[#eb9577]'
-            }`}
+            className="servicehub-dark-cta flex w-full items-center justify-center gap-2 rounded-xl bg-[#171716] py-3 text-sm font-bold text-[#f5f4f2] transition-all hover:bg-[#292826] active:translate-y-px disabled:cursor-wait dark:bg-[#e18463] dark:text-[#171716] dark:hover:bg-[#eb9577]"
           >
             {isLoading ? (
               <>
-                <Loader2 className="relative z-10 w-4 h-4 animate-spin text-white" />
-                <span className="relative z-10">Signing In...</span>
+                <Image src="/logo.svg?v=4" alt="" width={20} height={20} className="relative z-10 size-5 rounded-md" />
+                <span className="relative z-10">Signing in...</span>
               </>
             ) : (
               <span className="relative z-10">Sign In</span>
             )}
           </button>
+          {isLoading && <div className="brand-loading__track mt-2" role="status" aria-label="Signing in"><span /></div>}
         </div>
       </form>
 

@@ -9,6 +9,7 @@ import { apiLogout } from '../../api/auth.api';
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 import { clearAccessToken } from '../../lib/api/axios';
 import { ShieldCheck } from 'lucide-react';
+import BrandLoading from '@/components/ui/BrandLoading';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -52,14 +53,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin dark:border-neutral-100 dark:border-t-transparent"></div>
-      </div>
-    );
+    return <BrandLoading label="Opening the Admin workspace" />;
   }
 
-  if (!shouldRender) return null;
+  if (!shouldRender) return <BrandLoading label="Checking workspace access" />;
 
   const activeTab = pathname.split('/').pop() || 'overview';
 

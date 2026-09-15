@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import RegisterContainer from '@/components/auth/RegisterContainer';
 import { UserSession } from '@/components/auth/LoginContainer';
+import BrandLoading from '@/components/ui/BrandLoading';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -28,11 +29,7 @@ export default function RegisterPage() {
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f4f2] dark:bg-[#121211]">
-        <div className="w-8 h-8 border-3 border-[#c86544] border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <BrandLoading label="Preparing registration" />;
   }
 
   return (

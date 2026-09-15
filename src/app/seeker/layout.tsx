@@ -11,6 +11,7 @@ import { useRouteGuard } from '../../hooks/useRouteGuard';
 import { clearAccessToken } from '../../lib/api/axios';
 import OnboardingGate from '../../features/onboarding/components/OnboardingGate';
 import { usePersistentSidebarState } from '../../hooks/usePersistentSidebarState';
+import BrandLoading from '@/components/ui/BrandLoading';
 
 export default function SeekerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -54,14 +55,10 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <BrandLoading label="Opening your Seeker workspace" role="seeker" />;
   }
 
-  if (!shouldRender) return null;
+  if (!shouldRender) return <BrandLoading label="Checking workspace access" role="seeker" />;
 
   // Resolve activeTab from pathname
   const activeTab = pathname.split('/').pop() || 'seek-services';

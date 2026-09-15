@@ -85,7 +85,7 @@ export default function RegisterContainer({
           </button>
           <div className="flex items-center gap-2">
             <Image
-              src="/logo.svg?v=3"
+              src="/logo.svg?v=4"
               alt="ServiceHub Logo"
               width={26}
               height={26}

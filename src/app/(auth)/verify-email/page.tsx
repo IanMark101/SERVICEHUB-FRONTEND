@@ -2,7 +2,9 @@
 
 import { apiVerifyEmail } from "@/api/auth.api";
 import { getApiErrorMessage } from "@/lib/api/errors";
-import { CheckCircle2, CircleAlert, LoaderCircle, MailCheck } from "lucide-react";
+import { CheckCircle2, CircleAlert, MailCheck } from "lucide-react";
+import Image from 'next/image';
+import BrandLoading from '@/components/ui/BrandLoading';
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -114,7 +116,7 @@ function VerifyEmailContent() {
                 }`}
               >
                 {status === "loading" ? (
-                  <LoaderCircle size={30} className="animate-spin" />
+                  <Image src="/logo.svg?v=4" alt="" width={32} height={32} className="size-8 rounded-lg" />
                 ) : isSuccess ? (
                   <CheckCircle2 size={30} />
                 ) : (
@@ -163,11 +165,7 @@ function VerifyEmailContent() {
 export default function VerifyEmailPage() {
   return (
     <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#faf8f5]">
-          <LoaderCircle size={36} className="animate-spin text-orange-500" />
-        </main>
-      }
+      fallback={<BrandLoading label="Preparing email verification" />}
     >
       <VerifyEmailContent />
     </Suspense>
