@@ -38,11 +38,11 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
     <>
       {/* Middle: Global User Search Bar (Responsive from sm up) */}
       <div ref={userSearchRef} className="relative mx-2 hidden min-w-[150px] max-w-[240px] flex-1 lg:block">
-        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9] pointer-events-none">
+        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#6f6a64] dark:text-[#aaa59d] pointer-events-none">
           <Search className="w-3.5 h-3.5" />
         </span>
         <input
-          aria-label="Search users"
+          aria-label="Search people"
           type="text"
           value={userSearch}
           onChange={(e) => {
@@ -55,10 +55,10 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
               setShowUserSearchResults(false);
             }
           }}
-          placeholder="Search users..."
+          placeholder="Search people..."
           className={`w-full rounded-xl border py-2 pl-9 pr-8 text-xs transition-colors ${isDark
-              ? `border-white/10 bg-[#201f1c] text-[#f5f4f2] placeholder:text-[#8f8a82] focus:outline-none focus:ring-2 ${theme.ring}`
-              : `border-black/10 bg-[#fffdfa] text-[#171716] placeholder:text-[#8b857e] focus:outline-none focus:ring-2 ${theme.ring}`
+              ? `border-white/10 bg-[#201f1c] text-[#f5f4f2] placeholder:text-[#aaa59d] focus:outline-none focus:ring-2 ${theme.ring}`
+              : `border-black/10 bg-[#fffdfa] text-[#171716] placeholder:text-[#6f6a64] focus:outline-none focus:ring-2 ${theme.ring}`
             }`}
         />
         {userSearch && (

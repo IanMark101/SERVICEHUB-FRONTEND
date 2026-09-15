@@ -25,7 +25,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
       <div className="relative flex items-center">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9] pointer-events-none"><Search className="w-3.5 h-3.5" /></span>
         <input
-          aria-label="Search users"
+          aria-label="Search people"
           type="text"
           autoFocus
           value={query}
@@ -33,7 +33,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
             onQueryChange(event.target.value);
             onShowResultsChange(Boolean(event.target.value.trim()));
           }}
-          placeholder="Search users..."
+          placeholder="Search people..."
           className={`w-full rounded-xl border py-2 pl-9 pr-9 text-xs transition-colors ${isDark ? `border-white/10 bg-[#171716] text-[#f5f4f2] placeholder:text-[#8f8a82] focus:outline-none focus:ring-2 ${ringClass}` : `border-black/10 bg-[#fffdfa] text-[#171716] placeholder:text-[#8b857e] focus:outline-none focus:ring-2 ${ringClass}`}`}
         />
         <button type="button" aria-label="Close user search" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>

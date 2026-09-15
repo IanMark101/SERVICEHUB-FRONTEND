@@ -71,7 +71,6 @@ export default function Header({
   const userId = user?.id || '';
   const userNotifications = notifications.filter(n => n.userId === userId);
   const unreadCount = userNotifications.filter(n => !n.read).length;
-  const isCommunityHub = activeTab === 'community-hub';
   const pageName = pageNames[activeTab] || activeTab.replaceAll('-', ' ');
 
 
@@ -98,16 +97,9 @@ export default function Header({
       badge: 'bg-slate-950 text-white dark:bg-neutral-100 dark:text-neutral-950',
       badgeBg: 'bg-slate-950 text-white border-slate-950',
     },
-    community: {
-      accent: 'text-orange-700',
-      ring: 'focus:ring-orange-500 focus:border-orange-500',
-      borderHover: 'hover:border-orange-500/50',
-      badge: 'bg-orange-700 text-white',
-      badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
-    }
   };
 
-  const theme = isCommunityHub ? roleThemes.community : roleThemes[currentRole];
+  const theme = roleThemes[currentRole];
 
   // Resolve a safe display name from various possible server shapes
   const getDisplayName = (r: AppUser) => {
@@ -278,7 +270,7 @@ export default function Header({
   };
 
   return (
-    <header className={`workspace-chrome sticky top-0 right-0 z-30 flex h-20 w-full items-center justify-between gap-3 border-b px-5 py-3.5 font-sans transition-colors duration-200 sm:px-8 ${
+    <header className={`workspace-chrome sticky top-0 right-0 z-30 flex h-20 w-full items-center justify-between gap-3 border-b px-5 py-3.5 font-sans transition-colors duration-200 sm:px-7 ${
       currentRole === 'admin'
         ? isDark
           ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9] backdrop-blur-md'
@@ -302,8 +294,8 @@ export default function Header({
             <span className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2]' : 'border-black/10 bg-[#fffdfa] text-[#171716]'}`}>Administrator</span>
           ) : (
             <div className="min-w-0 leading-tight">
-              <span className={`block truncate text-[10px] font-medium ${isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'}`}>{currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}</span>
-              <span className={`block truncate text-[14px] font-semibold capitalize tracking-[-0.025em] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{pageName}</span>
+              <span className={`block truncate text-[11px] font-semibold ${currentRole === 'seeker' ? isDark ? 'text-[#f3b69f]' : 'text-[#92452b]' : isDark ? 'text-[#9be5c2]' : 'text-[#056b4f]'}`}>{currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}</span>
+              <span className={`mt-0.5 block truncate text-[16px] font-semibold capitalize leading-tight tracking-[-0.025em] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{pageName}</span>
             </div>
           )}
 
@@ -350,7 +342,7 @@ export default function Header({
         {/* Mobile Search Toggle Icon */}
         <button
           type="button"
-          aria-label="Search users"
+          aria-label="Search people"
           onClick={() => {
             setIsMobileSearchOpen(!isMobileSearchOpen);
             setShowNotifications(false);
@@ -361,7 +353,7 @@ export default function Header({
               ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/15 text-[#e9a58c]' : 'border-[#c86544]/35 bg-[#f5ebe6] text-[#aa5032]'
               : isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
           }`}
-          title="Search Users"
+          title="Search people"
         >
           <Search className="w-4 h-4" />
         </button>

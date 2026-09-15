@@ -68,6 +68,12 @@ export default function SeekServices() {
     'All Categories',
     ...dbCategories.map(c => c.name)
   ];
+  const quickFilters = [
+    { id: 'all', label: 'All', title: 'Show all active listings' },
+    { id: 'available', label: 'Available Now', title: 'Listings with open queue capacity' },
+    { id: 'rated', label: 'Top Rated', title: 'Listings rated 4.0 or higher' },
+    { id: 'low-queue', label: 'Low Queue', title: 'Listings with two or fewer people in queue' },
+  ] as const;
 
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'On-site Cash'>('On-site Cash');
@@ -224,7 +230,7 @@ export default function SeekServices() {
           {/* Inputs Row inside Banner */}
           <div className={`mx-auto mt-4 flex w-full max-w-xl items-center rounded-2xl border p-1.5 shadow-inner ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
             }`}>
-            <span className={`pl-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+            <span className={`pl-3 ${isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'}`}>
               <Search className="w-4 h-4" />
             </span>
             <input
@@ -236,11 +242,16 @@ export default function SeekServices() {
                 setLinkedServiceId(null);
                 setSearchQuery(e.target.value);
               }}
-              className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
+              className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder:text-[#aaa59d]' : 'text-[#171716] placeholder:text-[#6f6a64]'
                 }`}
             />
             <button
               type="button"
+              aria-controls="service-results"
+              onClick={() => document.getElementById('service-results')?.scrollIntoView({
+                behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                block: 'start',
+              })}
               className="workspace-primary-button flex-shrink-0 rounded-xl border px-5 py-2.5 text-xs font-bold transition-all"
             >
               Search
@@ -250,88 +261,38 @@ export default function SeekServices() {
       </div>
 
       {/* Quick Filters Row */}
-      <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
-        <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>Quick Filters:</span>
-        <button
-          type="button"
-          aria-pressed={activeFilter === 'all'}
-          onClick={() => handleFilterChange('all')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
+      <div role="group" aria-label="Quick service filters" className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-black/10'}`}>
+        <span className={`mr-2 text-xs font-semibold ${isDark ? 'text-[#aaa59d]' : 'text-[#625d57]'}`}>Quick filters</span>
+        {quickFilters.map((filter) => (
+          <button
+            key={filter.id}
+            type="button"
+            aria-pressed={activeFilter === filter.id}
+            onClick={() => handleFilterChange(filter.id)}
+            title={filter.title}
+            className={`min-h-9 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${activeFilter === filter.id
+              ? isDark ? 'border-[#c86544]/35 bg-[#c86544]/20 text-[#f3b69f]' : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
+              : isDark ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
             }`}
-        >
-          All
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeFilter === 'available'}
-          onClick={() => handleFilterChange('available')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'available'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-            }`}
-          title="Filter by listings that are not paused"
-        >
-          Available Now
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeFilter === 'rated'}
-          onClick={() => handleFilterChange('rated')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'rated'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-            }`}
-          title="Filter by rating 4.8 and above"
-        >
-          Top Rated
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeFilter === 'low-queue'}
-          onClick={() => handleFilterChange('low-queue')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'low-queue'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-            }`}
-          title="Filter by low workload queue size"
-        >
-          Low Queue
-        </button>
+          >{filter.label}</button>
+        ))}
       </div>
 
       {/* Horizontal Category pills row */}
-      <div className="flex flex-wrap gap-2.5 mt-2">
+      <div role="group" aria-label="Service categories" className="mt-2 flex flex-wrap gap-2.5">
         {categories.map((cat) => (
           <button
             key={cat}
             type="button"
             aria-pressed={selectedCategory === cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${selectedCategory === cat
+            className={`min-h-9 rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${selectedCategory === cat
                 ? isDark
-                  ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950'
-                  : 'workspace-primary-button'
+                  ? 'border-[#c86544]/35 bg-[#c86544]/20 text-[#f3b69f]'
+                  : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
                 : isDark
-                  ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                  : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
+                  ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10'
+                  : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
               }`}
           >
             {cat}
@@ -339,6 +300,7 @@ export default function SeekServices() {
         ))}
       </div>
 
+      <div id="service-results" className="scroll-mt-24">
       <ServiceMarketplaceGrid
         model={{
           router,
@@ -371,6 +333,7 @@ export default function SeekServices() {
           prefetchProviderSummary
         }}
       />
+      </div>
 
       {/* Direct Booking Modal trigger */}
       {selectedListing && (

@@ -164,27 +164,25 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                   <div>
                     {/* Card Header: Profile Info */}
                     <div className="flex items-start justify-between">
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (service.providerId) {
-                            router.push(`/seeker/user-profile?id=${service.providerId}`);
-                          }
-                        }}
-                        className="flex items-center space-x-3 group/author cursor-pointer select-none rounded-xl p-1 -m-1 transition-all hover:bg-slate-100/70 dark:hover:bg-neutral-800/60"
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/seeker/user-profile?id=${service.providerId}`)}
+                        disabled={!service.providerId}
+                        aria-label={`View ${service.providerName}'s profile`}
+                        className="group/author -m-1 flex min-w-0 items-center space-x-3 rounded-xl p-1 text-left transition-colors hover:bg-[#f5f4f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default dark:hover:bg-white/10"
                         title={`View ${service.providerName}'s profile`}
                       >
                         <div className="relative flex-shrink-0">
                           <Image unoptimized width={40} height={40}
                             src={service.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(service.providerName || 'Provider')}&background=random`}
-                            alt={service.providerName}
+                            alt=""
                             className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-all duration-200 group-hover/author:scale-105 group-hover/author:ring-2 group-hover/author:ring-orange-500/50"
                           />
                         </div>
-                        <div>
-                          <h4 className={`font-bold text-xs leading-tight transition-colors duration-200 group-hover/author:text-orange-500 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                        <span className="min-w-0">
+                          <span className={`block truncate text-xs font-bold leading-tight transition-colors duration-200 group-hover/author:text-[#aa5032] dark:group-hover/author:text-[#f3b69f] ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                             {service.providerName}
-                          </h4>
+                          </span>
 
                           {isVerified && (
                             <span className="inline-flex items-center text-[10px] text-emerald-600 font-semibold mt-0.5">
@@ -192,18 +190,16 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                               Verified
                             </span>
                           )}
-                        </div>
-                      </div>
+                        </span>
+                      </button>
 
                       {/* Rating star / Trust badge */}
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (service.providerId) {
-                            router.push(`/seeker/user-profile?id=${service.providerId}&tab=reviews`);
-                          }
-                        }}
-                        className="text-right flex flex-col items-end cursor-pointer group/rating select-none transition-all"
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/seeker/user-profile?id=${service.providerId}&tab=reviews`)}
+                        disabled={!service.providerId}
+                        aria-label={`View reviews and trust history for ${service.providerName}`}
+                        className="group/rating flex shrink-0 flex-col items-end text-right transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default"
                         title="View provider reviews and trust history"
                       >
                         {service.reviewCount && service.reviewCount > 0 ? (
@@ -227,7 +223,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         <span className={`text-[10px] font-semibold mt-1 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
                           {typeof trustScore === 'number' ? `Trust ${trustScore}/100` : 'Trust score unavailable'}
                         </span>
-                      </div>
+                      </button>
                     </div>
 
                     {/* Category Tag & Ownership Badge */}
