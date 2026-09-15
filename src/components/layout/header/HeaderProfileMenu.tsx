@@ -1,6 +1,6 @@
 import { CaretDown as ChevronDown, Question as HelpCircle, SignOut as LogOut, Gear as Settings, User } from '@phosphor-icons/react';
-import Image from 'next/image';
 import type { UserSession } from '../../auth/LoginContainer';
+import UserAvatar from '../../ui/UserAvatar';
 
 interface HeaderProfileMenuProps {
   currentRole: 'seeker' | 'provider' | 'admin';
@@ -20,7 +20,7 @@ export default function HeaderProfileMenu({ currentRole, user, isDark, isOpen, b
   return (
     <div className="relative">
       <button type="button" onClick={onToggle} aria-label="Open account menu" aria-expanded={isOpen} className={`flex items-center gap-2 rounded-xl border p-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${borderHoverClass} ${isDark ? 'border-white/10 bg-[#201f1c] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] hover:bg-[#f5f4f2]'} ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
-        <Image unoptimized width={28} height={28} src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`} alt="Profile Avatar" className={`w-7 h-7 rounded-full object-cover border ${currentRole === 'seeker' ? 'border-orange-500/30' : 'border-emerald-600/30'}`} />
+        <UserAvatar src={user.avatarUrl} name={`${user.firstName || ''} ${user.lastName || ''}`} alt="Profile avatar" size={28} role={currentRole} />
         <span className={`hidden max-w-[80px] truncate text-xs font-semibold sm:inline-block ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{user.firstName}</span>
         <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
       </button>

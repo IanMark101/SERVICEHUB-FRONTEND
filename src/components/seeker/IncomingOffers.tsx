@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { 
@@ -21,6 +20,7 @@ import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import EmptyState from '../ui/EmptyState';
 import { getServicePaymentMethods } from '../../lib/paymentUtils';
+import UserAvatar from '../ui/UserAvatar';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const router = useRouter();
@@ -233,8 +233,8 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 {loadingBidId === bid.id && loadingAction === 'accepting' && (
                   <div className="absolute inset-0 bg-orange-600/90 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all animate-in fade-in duration-200">
                     <div className="text-center text-white space-y-1">
-                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mx-auto text-xl font-bold border border-white/30 animate-bounce">
-                        ✓
+                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mx-auto border border-white/30">
+                        <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                       </div>
                       <h4 className="font-extrabold text-sm tracking-wide">Accepting Offer...</h4>
                       <p className="text-[10px] opacity-80">Creating contract and setting up payment...</p>
@@ -250,11 +250,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                     className="flex items-center gap-3 min-w-0 cursor-pointer group"
                     title={`View ${bid.providerName}'s profile`}
                   >
-                    <Image unoptimized width={40} height={40}
-                      src={bid.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(bid.providerName || 'Provider')}&background=random`} 
-                      alt={bid.providerName} 
-                      className="w-10 h-10 rounded-full object-cover border border-neutral-700/60 shadow-sm shrink-0 transition-transform group-hover:scale-105"
-                    />
+                    <UserAvatar src={bid.providerAvatar} name={bid.providerName || 'Provider'} alt={bid.providerName} size={40} role="provider" className="transition-transform group-hover:scale-[1.03]" />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className={`font-extrabold text-sm truncate group-hover:text-orange-500 transition-colors ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>

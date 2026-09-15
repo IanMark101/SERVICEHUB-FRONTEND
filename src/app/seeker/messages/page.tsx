@@ -116,7 +116,7 @@ export default function SeekerMessagesPage() {
                   onClick={() => selectConversation(conv)}
                   className={`w-full text-left p-3.5 transition-all flex items-start gap-3 relative cursor-pointer ${
                     active 
-                      ? (isDark ? 'bg-[#2a251e] border-l-4 border-orange-500 shadow-sm' : 'bg-orange-50/90 border-l-4 border-orange-500 shadow-sm') 
+                      ? (isDark ? 'mx-2 my-1 rounded-xl bg-[#2a251e] ring-1 ring-inset ring-orange-500/35' : 'mx-2 my-1 rounded-xl bg-orange-50/90 ring-1 ring-inset ring-orange-500/25')
                       : (isDark ? 'hover:bg-neutral-800/30' : 'hover:bg-slate-50/70')
                   }`}
                 >
@@ -244,7 +244,7 @@ export default function SeekerMessagesPage() {
                   className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                     isDark
                       ? 'border-neutral-800 hover:bg-red-950/20 hover:text-red-400 hover:border-red-900/30 text-neutral-400'
-                      : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400'
+                      : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-600'
                   }`}
                   title="Remove conversation from view"
                 >

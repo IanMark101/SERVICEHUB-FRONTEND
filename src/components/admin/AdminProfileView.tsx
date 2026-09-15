@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { AtSign, CheckCircle2, FileClock, MapPin, Phone, Settings, ShieldCheck, UserRound } from "lucide-react";
 import type { UserSession } from "../auth/LoginContainer";
 import { useApp } from "../../context/AppContext";
+import UserAvatar from "../ui/UserAvatar";
 
 export default function AdminProfileView({ user }: { user: UserSession }) {
   const { isDark } = useApp();
@@ -17,14 +17,7 @@ export default function AdminProfileView({ user }: { user: UserSession }) {
       <section className={`rounded-2xl border p-6 shadow-sm ${cardClass}`}>
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
-            <Image
-              unoptimized
-              width={72}
-              height={72}
-              src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0f172a&color=fff`}
-              alt={`${displayName} profile`}
-              className="h-18 w-18 shrink-0 rounded-full border border-slate-200 object-cover dark:border-neutral-700"
-            />
+            <UserAvatar src={user.avatarUrl} name={displayName} alt={`${displayName} profile`} size={72} role="admin" shape="soft" />
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="truncate text-xl font-bold tracking-tight">{displayName}</h3>

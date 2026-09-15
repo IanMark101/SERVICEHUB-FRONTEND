@@ -213,7 +213,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                           ? 'bg-neutral-800 border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                           : isDark 
                             ? 'border-neutral-800 hover:bg-red-950/30 hover:text-red-400 hover:border-red-900/40 text-[#b4b0a9]' 
-                            : 'border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-600'
+                            : 'border-slate-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-slate-700'
                       }`}
                     >
                       {loadingJobId === je.id && loadingAction === 'declining' ? (

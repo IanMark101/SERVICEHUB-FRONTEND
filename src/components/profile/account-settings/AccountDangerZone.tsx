@@ -42,7 +42,7 @@ export default function AccountDangerZone({
 }: AccountDangerZoneProps) {
   return (
     <>
-      <div className="space-y-3 rounded-[24px] border border-rose-500/20 bg-rose-500/5 p-6">
+      <div className="space-y-3 rounded-2xl border border-rose-500/20 bg-rose-500/5 p-5 sm:p-6">
         <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-rose-500">
           <Trash2 size={17} /> Danger Zone
         </h3>

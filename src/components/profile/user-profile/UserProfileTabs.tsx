@@ -29,7 +29,6 @@ interface UserProfileTabsModel extends ReturnType<typeof useUserProfile> {
   isProvider: boolean;
   isAdmin: boolean;
   accentColor: string;
-  activeTabBg: string;
 }
 
 const FacebookIcon = ({ size = 13 }: { size?: number }) => (
@@ -62,7 +61,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Identity Info Card */}
-          <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
+          <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-4`}>
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
               <User size={17} className={accentColor} /> Identity Details
             </h3>
@@ -142,7 +141,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
           </div>
 
           {/* Professional Details Card */}
-          <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
+          <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-4`}>
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
               <Briefcase size={17} className={accentColor} /> Professional Summary
             </h3>
@@ -206,7 +205,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
           </div>
 
           {/* 🚀 Posted Marketplace Activity Card */}
-          <div className={`${cardBg} rounded-[24px] p-6 border space-y-4 md:col-span-2`}>
+          <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-4 md:col-span-2`}>
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center justify-between ${headingText}`}>
               <span className="flex items-center gap-2">
                 <TrendingUp size={17} className={accentColor} />
@@ -300,7 +299,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
 
       {/* TAB 3: TRUST HISTORY (Explains how Trust Score was earned) */}
       {activeTab === 'trust' && (
-        <div className={`${cardBg} rounded-[28px] p-6 sm:p-7 border space-y-6 shadow-sm`}>
+        <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-6 shadow-sm`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-neutral-800 pb-4">
             <div>
               <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
@@ -383,7 +382,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
 
       {/* TAB 4: VERIFICATION (Residency Verification) */}
       {activeTab === 'verification' && (
-        <div className={`${cardBg} rounded-[28px] p-6 sm:p-7 border space-y-6 shadow-sm`}>
+        <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-6 shadow-sm`}>
           <div className="border-b border-slate-200/80 dark:border-neutral-800 pb-4">
             <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
               <ShieldCheck size={18} className={verStatus === 'APPROVED' ? "text-emerald-500" : "text-amber-500"} />

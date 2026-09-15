@@ -13,6 +13,7 @@ import {
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiGetMyCategorySuggestions } from '../../api/categories.api';
 import type { CategorySuggestion } from '../../types';
+import WorkspaceTabs from '../ui/WorkspaceTabs';
 
 interface SuggestCategoryModalProps {
   isOpen: boolean;
@@ -136,45 +137,18 @@ export default function SuggestCategoryModal({
           </button>
         </div>
 
-        {/* Tab Toggle */}
-        <div className="px-6 pt-4 flex gap-2">
-          <button
-            onClick={() => setActiveTab('submit')}
-            className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-              activeTab === 'submit'
-                ? 'bg-orange-600 text-white shadow-sm'
-                : isDark
-                ? 'bg-[#22211e] text-neutral-400 hover:text-neutral-200'
-                : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Submit Suggestion
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'history'
-                ? 'bg-orange-600 text-white shadow-sm'
-                : isDark
-                ? 'bg-[#22211e] text-neutral-400 hover:text-neutral-200'
-                : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>My Suggestions</span>
-            {mySuggestions.length > 0 && (
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                  activeTab === 'history'
-                    ? 'bg-white/20 text-white'
-                    : isDark
-                    ? 'bg-neutral-800 text-neutral-300'
-                    : 'bg-slate-200 text-slate-700'
-                }`}
-              >
-                {mySuggestions.length}
-              </span>
-            )}
-          </button>
+        <div className="px-6 pt-4">
+          <WorkspaceTabs
+            activeValue={activeTab}
+            onChange={setActiveTab}
+            ariaLabel="Category suggestion sections"
+            tone="seeker"
+            className="w-full"
+            items={[
+              { value: 'submit', label: 'Submit Suggestion', icon: <Send size={15} /> },
+              { value: 'history', label: 'My Suggestions', count: mySuggestions.length, icon: <Clock size={15} /> },
+            ]}
+          />
         </div>
 
         {/* Content Body */}

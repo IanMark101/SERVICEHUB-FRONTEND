@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
@@ -14,6 +13,7 @@ import {
   Edit3,
   Camera,
   Upload,
+  AlertTriangle,
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
@@ -22,6 +22,7 @@ import AccountDangerZone from './account-settings/AccountDangerZone';
 import { apiGetAccountDeletionRequest, apiRequestAccountDeletion, type AccountDeletionRequest } from '../../api/users.api';
 import { useToast } from '../ui/Toast';
 import { getApiErrorMessage } from '../../lib/api/errors';
+import UserAvatar from '../ui/UserAvatar';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -110,7 +111,6 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
   const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-slate-600 dark:text-neutral-300' : 'text-orange-500';
-  const btnBg = isProvider ? 'bg-emerald-600 hover:bg-emerald-700' : isAdmin ? 'bg-slate-950 hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950 dark:hover:bg-white' : 'bg-orange-600 hover:bg-orange-700';
   const verifiedBadge = isProvider
     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     : isAdmin
@@ -121,24 +121,29 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
   const innerBg = isDark ? 'bg-[#252420] border-neutral-800' : 'bg-slate-50 border-slate-200';
   const labelText = isDark ? 'text-neutral-400' : 'text-slate-500';
   const headingText = isDark ? 'text-[#f2efe9]' : 'text-slate-900';
-  const inputClass = `w-full px-3.5 py-2.5 rounded-xl border text-xs font-medium transition-all ${
-    isDark
-      ? 'bg-[#191815] border-neutral-800 text-[#f2efe9] focus:border-emerald-500 focus:outline-none'
-      : 'bg-white border-slate-200 text-slate-900 focus:border-emerald-500 focus:outline-none'
-  }`;
+  const inputClass = 'workspace-form-control w-full px-3.5 py-2.5 text-sm font-medium';
 
   return (
-    <div className={`max-w-4xl mx-auto space-y-6 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-5xl mx-auto space-y-5 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
       
       {/* Header Banner */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-1`}>
-        <h2 className={`text-xl font-extrabold tracking-tight ${headingText}`}>Account & Security Settings</h2>
-        <p className={`text-xs ${labelText}`}>Manage your login credentials, notification preferences, privacy controls, and security.</p>
+      <div className="workspace-profile-hero p-5 sm:p-6">
+        <p className={`mb-2 text-xs font-semibold ${accentColor}`}>Your ServiceHub account</p>
+        <h2 className={`text-2xl font-extrabold tracking-[-0.035em] ${headingText}`}>Account & Security Settings</h2>
+        <p className={`mt-2 max-w-2xl text-sm leading-6 ${labelText}`}>Manage your login credentials, notification preferences, privacy controls, and security.</p>
       </div>
 
+      <nav className="workspace-section-nav" aria-label="Account settings sections">
+        <a href="#account-identity">Account</a>
+        <a href="#contact-information">Profile</a>
+        <a href="#password-security">Security</a>
+        <a href="#appearance">Appearance</a>
+        {!isAdmin && <a href="#trust-safety">Trust & safety</a>}
+      </nav>
+
       {/* Account Details & Email Card */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
-        <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+      <section id="account-identity" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
+        <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
           <User size={17} className={accentColor} /> Account Identity
         </h3>
 
@@ -168,12 +173,12 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* 🌟 Profile & Social Presence Settings Card */}
-      <div id="contact-information" className={`${cardBg} scroll-mt-24 rounded-[24px] p-6 border space-y-4`}>
+      <section id="contact-information" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
         <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
-          <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+          <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
             <Edit3 size={17} className={accentColor} /> Personal & Social Profile
           </h3>
           <span className={`text-[11px] font-semibold ${labelText}`}>
@@ -258,11 +263,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <label className={`block font-semibold ${labelText}`}>Profile Picture</label>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative group flex-shrink-0">
-                <Image unoptimized width={80} height={80}
-                  src={editForm.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name || 'User')}&background=random`}
-                  alt="Profile Preview"
-                  className="w-20 h-20 rounded-full object-cover border-2 border-slate-300 dark:border-neutral-700 shadow-sm"
-                />
+                <UserAvatar src={editForm.avatarUrl} name={editForm.name} alt="Profile preview" size={80} role={isProvider ? 'provider' : isAdmin ? 'admin' : 'seeker'} shape="soft" />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -287,7 +288,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={processingImage}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold ${btnBg} text-white flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-60`}
+                    className="workspace-primary-button inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-sm transition-colors disabled:opacity-60"
                   >
                     <Upload size={13} />
                     <span>{processingImage ? 'Optimizing...' : 'Upload New Photo'}</span>
@@ -308,7 +309,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                   Supported formats: JPG, PNG, WebP (Max 10MB). Automatically cropped & optimized.
                 </p>
                 {uploadError && (
-                  <p className="text-[11px] font-bold text-rose-500">⚠️ {uploadError}</p>
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400"><AlertTriangle size={14} /> {uploadError}</p>
                 )}
               </div>
             </div>
@@ -361,17 +362,17 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             type="button"
             onClick={() => handleSaveProfile()}
             disabled={saving}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold ${btnBg} text-white transition-all shadow-sm active:scale-95 disabled:opacity-50 flex items-center gap-1.5`}
+            className="workspace-primary-button flex min-h-11 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
           >
             <Save size={14} />
             <span>{saving ? 'Saving Profile...' : 'Save Profile Changes'}</span>
           </button>
         </div>
-      </div>
+      </section>
 
       {/* Password Security Card */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
-        <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+      <section id="password-security" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
+        <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
           <Lock size={17} className={accentColor} /> Password & Security
         </h3>
 
@@ -417,16 +418,16 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           <button
             type="submit"
             disabled={pwSaving}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold ${btnBg} text-white transition-all shadow-sm active:scale-95 disabled:opacity-50`}
+            className="workspace-primary-button min-h-11 rounded-xl px-4 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
           >
             {pwSaving ? 'Updating Password...' : 'Update Password'}
           </button>
         </form>
-      </div>
+      </section>
 
       {/* Appearance Card */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
-        <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+      <section id="appearance" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
+        <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
           <Moon size={17} className="text-emerald-500" /> Appearance
         </h3>
 
@@ -446,10 +447,10 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {!isAdmin && (
-        <>
+        <section id="trust-safety" className="scroll-mt-24 space-y-5">
           <TrustScoreGuide
             isDark={isDark}
             isOpen={showTrustGuide}
@@ -478,7 +479,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             onConfirmationChange={setDeleteConfirmText}
             onDelete={handleDeleteAccount}
           />
-        </>
+        </section>
       )}
 
       {/* Phone Password Confirmation Modal */}

@@ -2,11 +2,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { apiListCategorySuggestions, apiResolveCategorySuggestion } from '../../../api/admin.api';
-import { Loader2, CheckCircle2, XCircle, Tag, User, RefreshCw } from 'lucide-react';
+import { CheckCircle2, XCircle, Tag, User, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
 import AdminCategoryCatalog from '../../../components/admin/AdminCategoryCatalog';
+import BrandLoading from '../../../components/ui/BrandLoading';
 
 const PAGE_SIZE = 10;
 
@@ -109,9 +110,7 @@ export default function AdminCategories() {
       {/* Suggested Categories queue items */}
       <div className="space-y-6">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
-          </div>
+          <BrandLoading compact label="Loading category suggestions" />
         ) : suggestions.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'

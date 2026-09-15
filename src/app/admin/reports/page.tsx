@@ -22,6 +22,7 @@ import { useToast } from "../../../components/ui/Toast";
 import ReasonModal from "../../../components/ui/ReasonModal";
 import { getApiErrorMessage } from "../../../lib/api/errors";
 import AdminPagination from "../../../components/admin/AdminPagination";
+import BrandLoading from "../../../components/ui/BrandLoading";
 
 const REPORT_PAGE_SIZE = 10;
 
@@ -365,7 +366,7 @@ export default function AdminReportsPage() {
 
       {loadError && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</div>}
       {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-7 w-7 animate-spin text-slate-900 dark:text-neutral-100" /></div>
+        <BrandLoading compact label="Loading moderation cases" />
       ) : cases.length === 0 ? (
         <div className={`rounded-2xl border p-12 text-center ${surface}`}>
           <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />

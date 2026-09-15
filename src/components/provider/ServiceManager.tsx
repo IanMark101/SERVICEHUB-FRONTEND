@@ -23,6 +23,7 @@ import { apiGetMyServices } from '../../api/services.api';
 import { mapServiceToListing } from '../../context/mappers';
 import type { ServiceListing } from '../../types';
 import EditServiceModal, { EditServiceState } from './service-manager/EditServiceModal';
+import WorkspaceTabs from '../ui/WorkspaceTabs';
 
 type ServiceFilterTab = 'all' | 'active' | 'pending' | 'rejected';
 
@@ -205,79 +206,18 @@ export default function ServiceManager({
       {/* Header Action Strip & Status Filter Tabs */}
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            aria-pressed={activeTab === 'all'}
-            onClick={() => setActiveTab('all')}
-            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
-              activeTab === 'all'
-                ? (isDark ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/50' : 'bg-emerald-50 text-emerald-700 border border-emerald-200')
-                : (isDark ? 'bg-[#1c1b18] text-neutral-400 hover:text-white border border-neutral-850' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200')
-            }`}
-          >
-            <span>All Listings</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isDark ? 'bg-neutral-800' : 'bg-slate-200'}`}>
-              {counts.all}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={activeTab === 'active'}
-            onClick={() => setActiveTab('active')}
-            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
-              activeTab === 'active'
-                ? (isDark ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/50' : 'bg-emerald-50 text-emerald-700 border border-emerald-200')
-                : (isDark ? 'bg-[#1c1b18] text-neutral-400 hover:text-white border border-neutral-850' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200')
-            }`}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Active</span>
-            <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isDark ? 'bg-neutral-800' : 'bg-slate-200'}`}>
-              {counts.active}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={activeTab === 'pending'}
-            onClick={() => setActiveTab('pending')}
-            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
-              activeTab === 'pending'
-                ? (isDark ? 'bg-amber-950/40 text-amber-400 border border-amber-900/50' : 'bg-amber-50 text-amber-700 border border-amber-200')
-                : (isDark ? 'bg-[#1c1b18] text-neutral-400 hover:text-white border border-neutral-850' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200')
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5 text-amber-500" />
-            <span>Under Review</span>
-            {counts.pending > 0 && (
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isDark ? 'bg-amber-950/60 text-amber-300' : 'bg-amber-100 text-amber-800'}`}>
-                {counts.pending}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            aria-pressed={activeTab === 'rejected'}
-            onClick={() => setActiveTab('rejected')}
-            className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center space-x-1.5 ${
-              activeTab === 'rejected'
-                ? (isDark ? 'bg-red-950/40 text-red-400 border border-red-900/50' : 'bg-red-50 text-red-700 border border-red-200')
-                : (isDark ? 'bg-[#1c1b18] text-neutral-400 hover:text-white border border-neutral-850' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200')
-            }`}
-          >
-            <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
-            <span>Needs Revision</span>
-            {counts.rejected > 0 && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-red-600 text-white font-bold animate-pulse">
-                {counts.rejected}
-              </span>
-            )}
-          </button>
-        </div>
+        <WorkspaceTabs
+          activeValue={activeTab}
+          onChange={setActiveTab}
+          ariaLabel="Filter service listings"
+          tone="provider"
+          items={[
+            { value: 'all', label: 'All Listings', count: counts.all, icon: <FolderSimple size={15} /> },
+            { value: 'active', label: 'Active', count: counts.active, icon: <CheckCircle2 size={15} /> },
+            { value: 'pending', label: 'Under Review', count: counts.pending, icon: <Clock size={15} /> },
+            { value: 'rejected', label: 'Needs Revision', count: counts.rejected, icon: <AlertTriangle size={15} /> },
+          ]}
+        />
 
         {/* New Listing CTA */}
         <button

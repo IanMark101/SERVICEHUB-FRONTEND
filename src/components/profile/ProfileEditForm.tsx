@@ -1,8 +1,8 @@
 "use client";
 import React, { useRef, useState } from 'react';
-import Image from 'next/image';
-import { Edit3, X, Save, Camera, Upload, Trash2, Lock } from 'lucide-react';
+import { AlertTriangle, Edit3, X, Save, Camera, Upload, Trash2, Lock } from 'lucide-react';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
+import UserAvatar from '../ui/UserAvatar';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -56,7 +56,6 @@ export default function ProfileEditForm({
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
   const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
-  const saveBtnBg = isProvider ? 'bg-emerald-600 hover:bg-emerald-700' : isAdmin ? 'bg-blue-600 hover:bg-blue-700' : 'bg-orange-600 hover:bg-orange-700';
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -79,7 +78,7 @@ export default function ProfileEditForm({
   };
 
   return (
-    <div className={`${cardBg} rounded-[24px] p-6 border shadow-md space-y-4`}>
+    <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border shadow-sm space-y-4`}>
       <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
         <h3 className={`font-extrabold text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
           <Edit3 size={16} className={accentColor} /> Edit Profile Information
@@ -161,11 +160,7 @@ export default function ProfileEditForm({
           <label className={`block text-xs font-bold ${labelText}`}>Profile Picture</label>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative group flex-shrink-0">
-              <Image unoptimized width={80} height={80}
-                src={editForm.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name || 'User')}&background=random`}
-                alt="Profile Preview"
-                className="w-20 h-20 rounded-full object-cover border-2 border-slate-300 dark:border-neutral-700 shadow-sm"
-              />
+              <UserAvatar src={editForm.avatarUrl} name={editForm.name} alt="Profile preview" size={80} role={isProvider ? 'provider' : isAdmin ? 'admin' : 'seeker'} shape="soft" />
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -190,7 +185,7 @@ export default function ProfileEditForm({
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={processingImage}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold ${saveBtnBg} text-white flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-60`}
+                  className="workspace-primary-button flex min-h-10 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-sm transition-colors disabled:opacity-60"
                 >
                   <Upload size={13} />
                   <span>{processingImage ? 'Optimizing...' : 'Upload New Photo'}</span>
@@ -211,7 +206,7 @@ export default function ProfileEditForm({
                 Supported formats: JPG, PNG, WebP (Max 10MB). Automatically cropped & optimized.
               </p>
               {uploadError && (
-                <p className="text-[11px] font-bold text-rose-500">⚠️ {uploadError}</p>
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400"><AlertTriangle size={14} /> {uploadError}</p>
               )}
             </div>
           </div>
@@ -264,7 +259,7 @@ export default function ProfileEditForm({
         <button
           onClick={() => handleSaveProfile()}
           disabled={saving}
-          className={`px-5 py-2 rounded-xl text-xs font-bold ${saveBtnBg} text-white flex items-center gap-1.5 disabled:opacity-60 transition-all shadow-sm active:scale-95`}
+          className="workspace-primary-button flex min-h-11 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold transition-colors shadow-sm disabled:opacity-60"
         >
           <Save size={14} />
           <span>{saving ? 'Saving...' : 'Save Profile'}</span>

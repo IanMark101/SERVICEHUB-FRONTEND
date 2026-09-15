@@ -116,7 +116,7 @@ export default function ProviderMessagesPage() {
                   onClick={() => selectConversation(conv)}
                   className={`w-full text-left p-3.5 transition-all flex items-start gap-3 relative cursor-pointer ${
                     active 
-                      ? (isDark ? 'bg-emerald-950/20 border-l-4 border-emerald-500 shadow-sm' : 'bg-emerald-50/90 border-l-4 border-emerald-500 shadow-sm') 
+                      ? (isDark ? 'mx-2 my-1 rounded-xl bg-emerald-950/20 ring-1 ring-inset ring-emerald-500/35' : 'mx-2 my-1 rounded-xl bg-emerald-50/90 ring-1 ring-inset ring-emerald-500/25')
                       : (isDark ? 'hover:bg-neutral-800/30' : 'hover:bg-slate-50/70')
                   }`}
                 >
@@ -244,7 +244,7 @@ export default function ProviderMessagesPage() {
                   className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
                     isDark 
                       ? 'border-neutral-800 text-neutral-400 hover:text-rose-400 hover:border-rose-900/50 hover:bg-rose-950/20' 
-                      : 'border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50'
+                      : 'border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50'
                   }`}
                   title="Remove / Hide conversation"
                 >

@@ -87,7 +87,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
       aria-live="polite"
       className={`flex items-start gap-3 p-4 rounded-2xl border backdrop-blur-xl min-w-[300px] max-w-[400px] relative overflow-hidden transition-all duration-200 select-none shadow-lg ${cfg.cardClasses}`}
       style={{
-        animation: 'toast-spring-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        animation: 'toast-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1)',
       }}
     >
       <span className={`flex-shrink-0 mt-0.5 ${cfg.iconColor}`}>{cfg.icon}</span>
@@ -129,7 +129,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
   return (
     <>
       <style>{`
-        @keyframes toast-spring-in {
+        @keyframes toast-enter {
           0% { opacity: 0; transform: translateX(100%) scale(0.95); }
           100% { opacity: 1; transform: translateX(0) scale(1); }
         }

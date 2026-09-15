@@ -9,6 +9,7 @@ import ProfileHeader, { getTrustBand } from './ProfileHeader';
 import ProfileEditForm from './ProfileEditForm';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import UserProfileTabs from './user-profile/UserProfileTabs';
+import WorkspaceTabs from '../ui/WorkspaceTabs';
 
 interface UserProfileProps {
   targetUser: UserSession;
@@ -67,7 +68,7 @@ export default function UserProfile({
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
   const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
-  const activeTabBg = isProvider ? 'bg-emerald-600 text-white shadow-sm' : isAdmin ? 'bg-blue-600 text-white shadow-sm' : 'bg-orange-600 text-white shadow-sm';
+  const tabTone = isProvider ? 'provider' : isAdmin ? 'neutral' : 'seeker';
 
   return (
     <div className={`max-w-5xl mx-auto space-y-4 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
@@ -116,59 +117,22 @@ export default function UserProfile({
         />
       )}
 
-      {/* 📌 Clean Tabbed Navigation Bar */}
-      <div className={`p-1 rounded-2xl border ${cardBg} flex items-center gap-1 overflow-x-auto shadow-sm`}>
-        <button
-          onClick={() => setActiveTab('overview')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'overview'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <User size={15} />
-          <span>Overview</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('reviews')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'reviews'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <MessageSquare size={15} />
-          <span>Reviews ({reviews.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('trust')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'trust'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <Award size={15} />
-          <span>Trust History</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('verification')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'verification'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <ShieldCheck size={15} />
-          <span>{isOwnProfile ? 'Verification' : 'Verification Status'}</span>
-          {verStatus === 'APPROVED' && (
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          )}
-        </button>
-      </div>
+      <WorkspaceTabs
+        activeValue={activeTab}
+        onChange={setActiveTab}
+        ariaLabel="Profile sections"
+        tone={tabTone}
+        items={[
+          { value: 'overview', label: 'Overview', icon: <User size={16} /> },
+          { value: 'reviews', label: 'Reviews', count: reviews.length, icon: <MessageSquare size={16} /> },
+          { value: 'trust', label: 'Trust History', icon: <Award size={16} /> },
+          {
+            value: 'verification',
+            label: isOwnProfile ? 'Verification' : 'Verification Status',
+            icon: <ShieldCheck size={16} />,
+          },
+        ]}
+      />
 
       <UserProfileTabs
         model={{
@@ -178,8 +142,7 @@ export default function UserProfile({
           trustBand,
           isProvider,
           isAdmin,
-          accentColor,
-          activeTabBg
+          accentColor
         }}
       />
 

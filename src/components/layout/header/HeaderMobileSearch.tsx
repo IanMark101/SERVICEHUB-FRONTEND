@@ -1,6 +1,6 @@
 import { MapPin, MagnifyingGlass as Search, X } from '@phosphor-icons/react';
-import Image from 'next/image';
 import type { User } from '../../../types';
+import UserAvatar from '../../ui/UserAvatar';
 
 interface HeaderMobileSearchProps {
   isOpen: boolean;
@@ -55,7 +55,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
                 className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-[#2c2b27]' : 'border-slate-100 hover:bg-slate-50'}`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Image src={result.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`} alt={`${getDisplayName(result)} avatar`} width={32} height={32} unoptimized className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-neutral-700" />
+                  <UserAvatar src={result.avatarUrl} name={getDisplayName(result)} alt={`${getDisplayName(result)} avatar`} size={32} role={result.role === 'provider' ? 'provider' : 'seeker'} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-bold text-xs truncate">{getDisplayName(result)}</div>

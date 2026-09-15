@@ -77,7 +77,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                 return (
                   <div
                     key={b.id}
-                    className={`workspace-card rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors duration-200 border-orange-500/20 ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' : 'bg-white border-slate-300 hover:shadow-md'
+                    className={`workspace-card workspace-activity-card flex flex-col justify-between space-y-4 border border-orange-500/20 transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' : 'bg-white border-slate-300 hover:shadow-md'
                       }`}
                   >
                     {/* Top line: Category and Date */}
@@ -150,9 +150,9 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                   <div
                     key={je.id}
                     id={`booking-${je.id}`}
-                    className={`workspace-card rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 border-emerald-500/20 ${
+                    className={`workspace-card workspace-activity-card flex flex-col justify-between space-y-4 border border-emerald-500/20 transition-all duration-200 ${
                       je.id === highlightedBookingId
-                        ? 'ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)] border-emerald-500 scale-[1.01]'
+                        ? 'border-emerald-500/60 bg-emerald-50/40 ring-2 ring-emerald-500/25 dark:bg-emerald-950/10'
                         : isDark
                           ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
                           : 'bg-white border-slate-300 hover:shadow-md'

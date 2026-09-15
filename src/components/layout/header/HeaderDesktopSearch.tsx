@@ -1,9 +1,9 @@
 "use client";
 
 import type { RefObject } from 'react';
-import Image from 'next/image';
 import { MapPin, MagnifyingGlass as Search, X } from '@phosphor-icons/react';
 import type { User } from '../../../types';
+import UserAvatar from '../../ui/UserAvatar';
 
 interface HeaderDesktopSearchModel {
   userSearchRef: RefObject<HTMLDivElement | null>;
@@ -104,17 +104,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
                       className={`w-full text-left px-3.5 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-[#242424]' : 'border-slate-100 hover:bg-slate-50'}`}
                     >
                       <div className="flex items-start gap-2.5">
-                        <Image
-                          src={result.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`}
-                          alt={`${getDisplayName(result)} avatar`}
-                          width={36}
-                          height={36}
-                          unoptimized
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getDisplayName(result))}&background=random`;
-                          }}
-                          className="w-9 h-9 rounded-xl object-cover flex-shrink-0 border border-slate-200 dark:border-neutral-800"
-                        />
+                        <UserAvatar src={result.avatarUrl} name={getDisplayName(result)} alt={`${getDisplayName(result)} avatar`} size={36} role={result.role === 'provider' ? 'provider' : 'seeker'} shape="soft" />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <div className="font-bold text-xs truncate text-slate-900 dark:text-[#f2efe9]">{getDisplayName(result)}</div>

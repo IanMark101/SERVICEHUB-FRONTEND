@@ -7,7 +7,7 @@ export function ServiceListingSkeleton({ count = 6 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-[22px] p-5 border border-slate-200 dark:border-neutral-800/90 bg-white dark:bg-[#22211e] flex flex-col justify-between space-y-4 shadow-sm"
+          className="workspace-card rounded-2xl p-5 border flex flex-col justify-between space-y-4"
         >
           <div className="space-y-3.5">
             {/* Header: Provider Avatar + Info */}
@@ -51,7 +51,7 @@ export function JobRequestSkeleton({ count = 6 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-[24px] p-5 border border-slate-200 dark:border-neutral-800/80 bg-white dark:bg-[#22211e] flex flex-col justify-between shadow-sm"
+          className="workspace-card rounded-2xl p-5 border flex flex-col justify-between"
         >
           <div>
             {/* Top Seeker info */}
@@ -119,7 +119,7 @@ export function ActivityItemSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="rounded-[22px] p-5 border border-slate-200 dark:border-neutral-800/90 bg-white dark:bg-[#22211e] space-y-4 shadow-sm"
+          className="workspace-card rounded-2xl p-5 border space-y-4"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">

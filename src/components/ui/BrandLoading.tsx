@@ -17,6 +17,11 @@ export default function BrandLoading({
       aria-busy="true"
     >
       <div className="brand-loading__content">
+        <div className="brand-loading__signal" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
         <p className="brand-loading__label">{label}</p>
         <div className="brand-loading__track" aria-hidden="true"><span /></div>
       </div>

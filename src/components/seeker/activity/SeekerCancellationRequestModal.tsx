@@ -27,7 +27,7 @@ export default function SeekerCancellationRequestModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
-      <div className={`rounded-[24px] max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
+      <div className={`rounded-2xl max-w-lg w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
         <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-850 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'}`}>
           <h3 className={`font-extrabold text-sm flex items-center space-x-1.5 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
             <AlertCircle className="w-4 h-4 text-orange-500" />

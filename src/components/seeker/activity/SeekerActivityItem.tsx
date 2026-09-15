@@ -1,6 +1,4 @@
 "use client";
-import Image from 'next/image';
-
 import {
   WarningCircle as AlertCircle,
   Warning as AlertTriangle,
@@ -18,6 +16,7 @@ import LifecycleStepper from '../../ui/LifecycleStepper';
 import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement } from '../../../types';
 import type { ConfirmModalState } from '../../ui/ConfirmModal';
+import UserAvatar from '../../ui/UserAvatar';
 
 export interface SeekerActivityItemModel {
   isDark: boolean;
@@ -70,9 +69,9 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                 <div
                   key={je.id}
                   id={`booking-${je.id}`}
-                  className={`workspace-card rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all duration-500 ${
+                  className={`workspace-card workspace-activity-card flex flex-col justify-between space-y-4 border transition-all duration-200 ${
                     je.id === highlightedBookingId
-                      ? 'ring-2 ring-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.6)] border-orange-500 scale-[1.01]'
+                      ? 'border-orange-500/60 bg-orange-50/40 ring-2 ring-orange-500/25 dark:bg-orange-950/10'
                       : isDark
                         ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
                         : 'bg-white border-slate-300 hover:shadow-md'
@@ -96,11 +95,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                     </h3>
 
                     <div className="flex items-center space-x-2.5">
-                      <Image unoptimized width={28} height={28}
-                        src={je.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(je.providerName || 'Provider')}&background=random`}
-                        alt={je.providerName}
-                        className="w-7 h-7 rounded-full object-cover border border-slate-105 shadow-sm"
-                      />
+                      <UserAvatar src={je.providerAvatar} name={je.providerName || 'Provider'} alt="" size={30} role="provider" />
                       <div className="flex flex-wrap items-center gap-1 text-[11px] font-bold">
                         <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}>Provider:</span>
                         <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-700'}>{je.providerName}</span>

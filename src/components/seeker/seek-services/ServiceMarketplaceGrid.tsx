@@ -1,5 +1,4 @@
 "use client";
-import Image from 'next/image';
 
 import {
   Bell,
@@ -20,6 +19,7 @@ import { getServicePaymentMethods } from '../../../lib/paymentUtils';
 import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement, User } from '../../../types';
 import type { UserSession } from '../../auth/LoginContainer';
+import UserAvatar from '../../ui/UserAvatar';
 
 type MarketplaceFilter = 'all' | 'available' | 'rated' | 'low-queue';
 type PaymentMethod = 'GCash' | 'On-site Cash';
@@ -173,11 +173,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         title={`View ${service.providerName}'s profile`}
                       >
                         <div className="relative flex-shrink-0">
-                          <Image unoptimized width={40} height={40}
-                            src={service.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(service.providerName || 'Provider')}&background=random`}
-                            alt=""
-                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-all duration-200 group-hover/author:scale-105 group-hover/author:ring-2 group-hover/author:ring-orange-500/50"
-                          />
+                          <UserAvatar src={service.providerAvatar} name={service.providerName || 'Provider'} alt="" size={40} role="provider" className="transition-transform duration-200 group-hover/author:scale-[1.03]" />
                         </div>
                         <span className="min-w-0">
                           <span className={`block truncate text-xs font-bold leading-tight transition-colors duration-200 group-hover/author:text-[#aa5032] dark:group-hover/author:text-[#f3b69f] ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>

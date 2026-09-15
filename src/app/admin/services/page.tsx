@@ -8,6 +8,8 @@ import { getSocket } from '../../../lib/socket';
 import { useSearchParams } from 'next/navigation';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
+import BrandLoading from '../../../components/ui/BrandLoading';
+import WorkspaceTabs from '../../../components/ui/WorkspaceTabs';
 
 const PAGE_SIZE = 10;
 
@@ -156,18 +158,16 @@ export default function AdminServices() {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter service listings by status">
-        {['PENDING_REVIEW', 'LIVE', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED', 'ALL'].map((option) => (
-          <button key={option} type="button" role="tab" aria-selected={status === option}
-            onClick={() => { setStatus(option); setPage(1); }}
-            className={`rounded-xl border px-3 py-2 text-[10px] font-bold transition-colors ${status === option
-              ? 'border-slate-950 bg-slate-950 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950'
-              : isDark ? 'border-neutral-700 text-neutral-300 hover:bg-neutral-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-            }`}>
-            {option === 'ALL' ? 'All Listings' : option === 'LIVE' ? 'Live Marketplace' : option.replace(/_/g, ' ')}
-          </button>
-        ))}
-      </div>
+      <WorkspaceTabs
+        activeValue={status}
+        onChange={(option) => { setStatus(option); setPage(1); }}
+        ariaLabel="Filter service listings by status"
+        tone="neutral"
+        items={['PENDING_REVIEW', 'LIVE', 'ACTIVE', 'INACTIVE', 'SUSPENDED', 'REJECTED', 'ALL'].map((option) => ({
+          value: option,
+          label: option === 'ALL' ? 'All Listings' : option === 'LIVE' ? 'Live Marketplace' : option.replace(/_/g, ' '),
+        }))}
+      />
 
       {error && (
         <div className="p-5 text-sm text-red-500 bg-red-500/10 border border-red-500/25 rounded-2xl font-medium">
@@ -178,9 +178,7 @@ export default function AdminServices() {
       {/* Services Listings queue */}
       <div className="space-y-6">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
-          </div>
+          <BrandLoading compact label="Loading service listings" />
         ) : services.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'

@@ -47,15 +47,14 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
   return (
     <>
       {/* Grid of job/bid cards */}
-      <div className="space-y-6">
+      <div className="space-y-5">
 
         {/* Search & Sort Panel */}
         {(myPendingBids.length > 0 || myEngagements.length > 0) && (
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="workspace-activity-toolbar">
             {/* Search Box */}
-            <div className={`flex items-center rounded-xl px-3 py-2 w-full sm:max-w-md border transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-800/80' : 'bg-slate-50 border-slate-300'
-              }`}>
-              <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}>
+            <div className="workspace-activity-search w-full sm:max-w-md">
+              <span className="workspace-muted">
                 <Search className="w-4 h-4 mr-2" />
               </span>
               <input
@@ -64,21 +63,18 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                 placeholder="Search by job title, client name or category..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs w-full text-slate-800 dark:text-[#f2efe9] placeholder-slate-400"
+                className="service-search-input w-full border-0 bg-transparent text-xs outline-none placeholder:text-[#8a857e]"
               />
             </div>
 
             {/* Sort Dropdown */}
-            <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-              <span className={`text-xs font-semibold whitespace-nowrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`}>Sort by:</span>
+            <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+              <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort by:</span>
               <select
                 aria-label="Sort provider activity"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as ProviderActivitySort)}
-                className={`px-3 py-2 rounded-xl border outline-none font-bold text-xs transition-all ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]'
-                    : 'bg-white border-slate-300 text-slate-700'
-                  }`}
+                className="min-h-11 rounded-xl border px-3 py-2 text-xs font-semibold outline-none"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -89,7 +85,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {isLoading ? (
             <div className="col-span-2">
               <ActivityItemSkeleton count={3} />

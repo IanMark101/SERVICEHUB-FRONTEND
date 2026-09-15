@@ -59,7 +59,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
       
       {/* Header Section */}
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4 animate-bounce">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4 animate-in fade-in zoom-in-95 duration-300">
           <Mail className="w-7 h-7" />
         </div>
         <h2 className="font-sans text-2xl font-semibold text-[#0a0a0a] dark:text-white tracking-tight mb-2">

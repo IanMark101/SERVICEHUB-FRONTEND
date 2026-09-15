@@ -365,7 +365,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   };
 
   return (
-    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
 
 

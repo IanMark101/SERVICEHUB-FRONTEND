@@ -3,12 +3,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { useRouter } from 'next/navigation';
 import { apiGetAdminOverview } from '../../../api/admin.api';
-import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, Loader2, RefreshCw, Activity, Database, Radio } from 'lucide-react';
+import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, RefreshCw, Activity, Database, Radio } from 'lucide-react';
 import { getSocket } from '../../../lib/socket';
 import AdminOverviewCharts, {
   type AdminActivityPoint,
   type AdminChartMetric,
 } from '../../../components/admin/AdminOverviewCharts';
+import BrandLoading from '../../../components/ui/BrandLoading';
 
 interface StatsData {
   totalUsers: number;
@@ -72,11 +73,7 @@ export default function AdminOverview() {
   }, [fetchStats]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
-      </div>
-    );
+    return <BrandLoading compact label="Loading dashboard overview" />;
   }
 
   if (error) {

@@ -10,6 +10,7 @@ import {
 } from '../../../api/admin.api';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
+import BrandLoading from '../../../components/ui/BrandLoading';
 
 const PAGE_SIZE = 8;
 
@@ -186,7 +187,7 @@ export default function AdminAnnouncementsPage() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-slate-900 dark:text-neutral-100" /></div>
+          <BrandLoading compact label="Loading announcements" />
         ) : announcements.length === 0 ? (
           <div className={`rounded-2xl border p-8 text-center ${card}`}>
             <Megaphone className="w-8 h-8 mx-auto text-slate-400 mb-3" />

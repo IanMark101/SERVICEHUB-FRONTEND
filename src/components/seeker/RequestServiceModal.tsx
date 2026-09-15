@@ -2,7 +2,7 @@ import React, { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { CircleAlert, MessageSquareText, X } from 'lucide-react';
+import { CircleAlert, Loader2, MessageSquareText, X } from 'lucide-react';
 import { apiGetProviderSummary, getCachedProviderSummary } from '../../api/ai.api';
 import { apiBookDirect } from '../../api/bookings.api';
 import { getServicePaymentMethods } from '../../lib/paymentUtils';
@@ -241,9 +241,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   </h4>
                 </div>
                 <div className="flex items-center space-x-2 py-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-100" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-bounce delay-200" />
+                  <Loader2 className="h-4 w-4 animate-spin text-orange-500" aria-hidden="true" />
                   <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Getting review information...</span>
                 </div>
               </div>

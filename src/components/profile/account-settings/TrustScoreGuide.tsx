@@ -10,7 +10,7 @@ export default function TrustScoreGuide({ isDark, isOpen, cardBg, accentColor, h
     { range: 'Below 50', title: 'Needs Attention', description: 'Impacted by cancellations or issues', card: isDark ? 'bg-rose-950/20 border-rose-900/30' : 'bg-rose-50 border-rose-200', rangeClass: 'text-rose-500', descriptionClass: 'text-rose-600 dark:text-rose-400' }
   ];
   return (
-    <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
+    <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-4`}>
       <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
         <div className="flex items-center gap-2"><ShieldCheck size={18} className={accentColor} /><h3 className={`font-black text-sm uppercase tracking-wider ${headingText}`}>How Trust Score Works</h3></div>
         <button type="button" onClick={onToggle} className={`text-xs font-bold flex items-center gap-1 ${labelText} hover:opacity-80 transition-opacity`}><span>{isOpen ? 'Hide Guide' : 'Show Guide'}</span>{isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button>

@@ -27,6 +27,7 @@ import {
 } from '@phosphor-icons/react';
 import type { UserSession } from '../auth/LoginContainer';
 import { useApp } from '../../context/AppContext';
+import UserAvatar from '../ui/UserAvatar';
 
 interface SidebarProps {
   currentRole: 'seeker' | 'provider' | 'admin';
@@ -220,7 +221,7 @@ export default function Sidebar({
         </Link>
         {user && (
           <div className={`mt-2 flex items-center gap-2.5 border-t border-black/10 pt-3 dark:border-white/10 ${showLabels ? 'px-1' : 'justify-center'}`}>
-            <Image unoptimized width={32} height={32} src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User')}&background=random`} alt="" className="size-8 shrink-0 rounded-full border border-black/10 object-cover dark:border-white/15" />
+            <UserAvatar src={user.avatarUrl} name={`${user.firstName || ''} ${user.lastName || ''}`} alt="" size={32} role={currentRole} />
             {showLabels && (
               <div className="min-w-0">
                 <p className="truncate text-[11px] font-semibold text-[#171716] dark:text-white">{user.firstName} {user.lastName}</p>

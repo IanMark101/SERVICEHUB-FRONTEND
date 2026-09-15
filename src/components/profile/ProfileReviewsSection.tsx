@@ -82,7 +82,7 @@ export default function ProfileReviewsSection({
     : '0.0';
 
   return (
-    <div className={`${cardBg} rounded-[28px] p-6 sm:p-7 border shadow-sm space-y-6`}>
+    <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border shadow-sm space-y-6`}>
       {/* Title Bar */}
       <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-neutral-800 pb-4">
         <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>

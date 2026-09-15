@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { MagnifyingGlass as Search, CheckCircle as CheckCircle2, CalendarBlank as CalendarDays, ShieldCheck, ArrowRight, Alarm, UserCircle } from '@phosphor-icons/react';
@@ -13,6 +12,7 @@ import { JobRequestSkeleton } from '../ui/SkeletonCard';
 import ProposalModal from './browse-jobs/ProposalModal';
 import { formatUrgencyDisplay } from './browse-jobs/browseJobs.utils';
 import { useToast } from '../ui/Toast';
+import UserAvatar from '../ui/UserAvatar';
 
 export default function BrowseJobs({
   currentProviderId
@@ -346,11 +346,7 @@ export default function BrowseJobs({
                         title={`View ${req.seekerName}'s profile`}
                       >
                         <div className="relative flex-shrink-0">
-                          <Image unoptimized width={40} height={40}
-                            src={req.seekerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(req.seekerName || 'Client')}&background=random`}
-                            alt={req.seekerName}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-transform duration-200 group-hover/seeker:scale-105 group-hover/seeker:ring-2 group-hover/seeker:ring-emerald-500/50"
-                          />
+                          <UserAvatar src={req.seekerAvatar} name={req.seekerName || 'Client'} alt={req.seekerName} size={40} role="seeker" className="transition-transform duration-200 group-hover/seeker:scale-[1.03]" />
                         </div>
                         <div>
                           <h4 className={`font-bold text-xs leading-tight transition-colors duration-200 group-hover/seeker:text-emerald-500 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
