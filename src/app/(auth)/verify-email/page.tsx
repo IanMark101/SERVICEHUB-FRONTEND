@@ -3,7 +3,6 @@
 import { apiVerifyEmail } from "@/api/auth.api";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import { CheckCircle2, CircleAlert, MailCheck } from "lucide-react";
-import Image from 'next/image';
 import BrandLoading from '@/components/ui/BrandLoading';
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -116,7 +115,7 @@ function VerifyEmailContent() {
                 }`}
               >
                 {status === "loading" ? (
-                  <Image src="/logo.svg?v=4" alt="" width={32} height={32} className="size-8 rounded-lg" />
+                  <MailCheck size={30} />
                 ) : isSuccess ? (
                   <CheckCircle2 size={30} />
                 ) : (
@@ -135,6 +134,7 @@ function VerifyEmailContent() {
                 <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-[#b4b0a9]">
                   {message}
                 </p>
+                {status === 'loading' && <div className="brand-loading__track" aria-hidden="true"><span /></div>}
               </div>
 
               <div className="mt-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-[#1c1b18] p-4 text-xs text-slate-600 dark:text-[#b4b0a9] text-center">

@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import Image from 'next/image';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import SignupSteps from './signup/SignupSteps';
@@ -214,10 +213,7 @@ export default function SignupForm({
             }`}
           >
             {isLoading ? (
-              <>
-                <Image src="/logo.svg?v=4" alt="" width={20} height={20} className="relative z-10 size-5 rounded-md" />
-                <span className="relative z-10">Creating account...</span>
-              </>
+              <span className="relative z-10">Creating account...</span>
             ) : (
               <span className="relative z-10">{step === 3 ? 'Complete Registration' : 'Next Step'}</span>
             )}

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import Image from 'next/image';
 import AuthInput from './shared/AuthInput';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import type { FormEvent } from 'react';
@@ -100,10 +99,7 @@ export default function LoginForm({
             className="servicehub-dark-cta flex w-full items-center justify-center gap-2 rounded-xl bg-[#171716] py-3 text-sm font-bold text-[#f5f4f2] transition-all hover:bg-[#292826] active:translate-y-px disabled:cursor-wait dark:bg-[#e18463] dark:text-[#171716] dark:hover:bg-[#eb9577]"
           >
             {isLoading ? (
-              <>
-                <Image src="/logo.svg?v=4" alt="" width={20} height={20} className="relative z-10 size-5 rounded-md" />
-                <span className="relative z-10">Signing in...</span>
-              </>
+              <span className="relative z-10">Signing in...</span>
             ) : (
               <span className="relative z-10">Sign In</span>
             )}
