@@ -270,17 +270,15 @@ export default function Header({
   };
 
   return (
-    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 h-[80px] w-full px-4 py-3 font-sans sm:px-5 ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`}>
-
-      <div className="workspace-header-bar flex min-h-14 w-full items-center gap-2 px-2 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(220px,320px)_minmax(0,1fr)]">
+    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 flex h-[76px] w-full items-center justify-between gap-3 px-4 py-3 font-sans sm:px-5 ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`}>
 
       {/* Page context follows the same compact type hierarchy as the landing header. */}
-      <div className="workspace-header-island workspace-header-context flex min-w-0 flex-1 items-center gap-3 rounded-2xl px-2.5 py-2 sm:px-3 lg:flex-none">
+      <div className="workspace-header-island workspace-header-context flex min-w-0 items-center gap-3 rounded-2xl px-2.5 py-2 sm:px-3">
         <button
           type="button"
           aria-label="Open workspace navigation"
           onClick={() => setIsMobileOpen(true)}
-          className={`workspace-header-control grid size-11 shrink-0 place-items-center rounded-full border transition-colors md:hidden ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
+          className={`workspace-header-control grid size-9 shrink-0 place-items-center rounded-full border transition-colors md:hidden ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
             }`}
         >
           <Menu className="w-5 h-5" />
@@ -290,8 +288,8 @@ export default function Header({
             <span className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2]' : 'border-black/10 bg-[#fffdfa] text-[#171716]'}`}>Administrator</span>
           ) : (
             <div className="min-w-0 leading-tight">
-              <span className={`block truncate text-[10px] font-semibold sm:text-[11px] ${currentRole === 'seeker' ? isDark ? 'text-[#f3b69f]' : 'text-[#92452b]' : isDark ? 'text-[#9be5c2]' : 'text-[#056b4f]'}`}>{currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}</span>
-              <span className={`mt-0.5 block truncate text-[14px] font-semibold capitalize leading-tight tracking-[-0.025em] sm:text-[16px] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{pageName}</span>
+              <span className={`block truncate text-[11px] font-semibold ${currentRole === 'seeker' ? isDark ? 'text-[#f3b69f]' : 'text-[#92452b]' : isDark ? 'text-[#9be5c2]' : 'text-[#056b4f]'}`}>{currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}</span>
+              <span className={`mt-0.5 block truncate text-[16px] font-semibold capitalize leading-tight tracking-[-0.025em] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{pageName}</span>
             </div>
           )}
 
@@ -333,7 +331,7 @@ export default function Header({
       />
 
       {/* Right side: Notifications & Profile Avatar dropdowns */}
-      <div className="workspace-header-island workspace-header-actions ml-auto flex shrink-0 items-center gap-0.5 rounded-full p-1.5 lg:justify-self-end">
+      <div className="workspace-header-island workspace-header-actions flex shrink-0 items-center gap-0.5 rounded-full p-1.5">
 
         {/* Mobile Search Toggle Icon */}
         <button
@@ -344,7 +342,7 @@ export default function Header({
             setShowNotifications(false);
             setShowProfileMenu(false);
           }}
-          className={`workspace-header-control grid size-11 place-items-center rounded-full border transition-colors lg:hidden ${
+          className={`workspace-header-control grid size-9 place-items-center rounded-full border transition-colors lg:hidden ${
             isMobileSearchOpen
               ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/15 text-[#e9a58c]' : 'border-[#c86544]/35 bg-[#f5ebe6] text-[#aa5032]'
               : isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
@@ -360,7 +358,7 @@ export default function Header({
             type="button"
             aria-label="Open Community Hub"
             onClick={() => setActiveTab('community-hub')}
-            className={`workspace-header-control hidden min-h-11 items-center rounded-full border px-3.5 py-2 text-xs font-semibold transition-colors xl:flex ${isDark
+            className={`workspace-header-control hidden min-h-9 items-center rounded-full border px-3.5 py-2 text-xs font-semibold transition-colors xl:flex ${isDark
                 ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
                 : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
               }`}
@@ -374,7 +372,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
-            className={`workspace-header-control relative hidden size-11 cursor-pointer place-items-center rounded-full border transition-colors sm:grid ${isDark
+            className={`workspace-header-control relative hidden size-9 cursor-pointer place-items-center rounded-full border transition-colors sm:grid ${isDark
                 ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
                 : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
               }`}
@@ -394,7 +392,7 @@ export default function Header({
           type="button"
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={toggleTheme}
-          className={`workspace-header-control grid size-11 place-items-center rounded-full border transition-colors ${isDark
+          className={`workspace-header-control grid size-9 place-items-center rounded-full border transition-colors ${isDark
               ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
               : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
             }`}
@@ -432,8 +430,6 @@ export default function Header({
           onOpenSettings={() => router.push(`/${currentRole}/account-settings`)}
           onSignOut={onSignOut}
         />
-
-      </div>
 
       </div>
 

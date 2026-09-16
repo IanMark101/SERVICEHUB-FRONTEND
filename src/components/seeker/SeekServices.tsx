@@ -18,7 +18,7 @@ import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 
 export default function SeekServices() {
   const router = useRouter();
-  const { services, servicesLoading, users, isDark, user, dbCategories, jobEngagements } = useApp();
+  const { services, users, isDark, user, dbCategories, jobEngagements } = useApp();
   const { canTransact } = useTransactionPermission();
   const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -31,6 +31,12 @@ export default function SeekServices() {
 
   // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 450);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -45,13 +51,17 @@ export default function SeekServices() {
 
   const handleCategoryChange = (cat: string) => {
     if (cat === selectedCategory) return;
+    setIsLoading(true);
     setLinkedServiceId(null);
     setSelectedCategory(cat);
+    setTimeout(() => setIsLoading(false), 300);
   };
 
   const handleFilterChange = (filter: typeof activeFilter) => {
     if (filter === activeFilter) return;
+    setIsLoading(true);
     setActiveFilter(filter);
+    setTimeout(() => setIsLoading(false), 250);
   };
 
   const categories = [
@@ -185,22 +195,8 @@ export default function SeekServices() {
     nextPage,
     prevPage,
     startIndex,
-    endIndex,
-    reset: resetPage,
+    endIndex
   } = usePagination(filteredServices, 6);
-
-  useEffect(() => {
-    resetPage();
-  }, [activeFilter, resetPage, searchQuery, selectedCategory]);
-
-  const hasActiveFilters = Boolean(searchQuery.trim()) || selectedCategory !== 'All Categories' || activeFilter !== 'all';
-
-  const clearFilters = () => {
-    setLinkedServiceId(null);
-    setSearchQuery('');
-    setSelectedCategory('All Categories');
-    setActiveFilter('all');
-  };
 
   // Helper to fetch matching provider user details (like verification flags)
   const getProviderDetails = (providerId: string) => {
@@ -217,30 +213,30 @@ export default function SeekServices() {
   }, [paginatedServices]);
 
   return (
-    <div className={`workspace-page space-y-5 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
 
       <LimitedModeDashboardCard role="seeker" />
 
-      <section className="marketplace-discovery workspace-surface" aria-labelledby="marketplace-title">
-        <div className="marketplace-discovery__copy">
-          <h2 id="marketplace-title">Find the right local expert.</h2>
-          <p className="workspace-muted">
-            Compare verified providers, availability, trust, and pricing in one place.
+      {/* Search Banner */}
+      <div className="workspace-surface rounded-2xl border px-5 py-5 text-center sm:px-7 sm:py-6">
+        <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
+          <h2 className="text-2xl font-semibold leading-tight tracking-[-0.035em] text-[#171716] dark:text-[#f2efe9] sm:text-3xl">
+            Find local experts for any task.
+          </h2>
+          <p className="workspace-muted mx-auto max-w-md text-xs leading-relaxed sm:text-sm">
+            Search our trusted community marketplace for specialized services.
           </p>
-        </div>
 
-        <form
-          role="search"
-          onSubmit={(event) => {
+          {/* Inputs Row inside Banner */}
+          <form role="search" onSubmit={(event) => {
             event.preventDefault();
             document.getElementById('service-results')?.scrollIntoView({
               behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
               block: 'start',
             });
-          }}
-          className="service-search-control marketplace-search"
-        >
-            <span className="marketplace-search__icon" aria-hidden="true">
+          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl items-center rounded-2xl border p-1.5 ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-[#fffdfa] border-slate-200'
+            }`}>
+            <span className={`pl-3 ${isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'}`}>
               <Search className="w-4 h-4" />
             </span>
             <label htmlFor="service-search-query" className="sr-only">Search service listings</label>
@@ -253,95 +249,93 @@ export default function SeekServices() {
                 setLinkedServiceId(null);
                 setSearchQuery(e.target.value);
               }}
-              className="service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm"
+              className={`service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm ${isDark ? 'text-[#f2efe9] placeholder:text-[#aaa59d]' : 'text-[#171716] placeholder:text-[#6f6a64]'
+                }`}
             />
             <button
               type="submit"
               aria-controls="service-results"
-              className="workspace-primary-button min-h-11 flex-shrink-0 rounded-xl border px-5 py-2.5 text-xs font-bold transition-all"
+              className="workspace-primary-button flex-shrink-0 rounded-xl border px-5 py-2.5 text-xs font-bold transition-all"
             >
               Search
             </button>
-        </form>
-      </section>
-
-      <section className="marketplace-filter-panel" aria-label="Filter service listings">
-        <div className="marketplace-filter-row">
-          <div role="group" aria-label="Availability filters" className="marketplace-filter-group">
-            <span className="marketplace-filter-label">Availability</span>
-            <div className="marketplace-filter-options">
-              {quickFilters.map((filter) => (
-                <button
-                  key={filter.id}
-                  type="button"
-                  aria-pressed={activeFilter === filter.id}
-                  onClick={() => handleFilterChange(filter.id)}
-                  title={filter.title}
-                  className="marketplace-filter-chip"
-                >{filter.label}</button>
-              ))}
-            </div>
-          </div>
-
-          <div className="marketplace-results-summary" aria-live="polite" aria-atomic="true">
-            <span>{servicesLoading ? 'Loading services' : `${filteredServices.length} ${filteredServices.length === 1 ? 'service' : 'services'}`}</span>
-            {hasActiveFilters && (
-              <button type="button" onClick={clearFilters}>Clear filters</button>
-            )}
-          </div>
+          </form>
         </div>
+      </div>
 
-        <div className="marketplace-filter-row marketplace-filter-row--categories">
-          <span className="marketplace-filter-label">Category</span>
-          <div role="group" aria-label="Service categories" className="marketplace-category-strip">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                aria-pressed={selectedCategory === cat}
-                onClick={() => handleCategoryChange(cat)}
-                className="marketplace-filter-chip marketplace-filter-chip--category"
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Quick Filters Row */}
+      <div role="group" aria-label="Quick service filters" className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-black/10'}`}>
+        <span className={`mr-2 text-xs font-semibold ${isDark ? 'text-[#aaa59d]' : 'text-[#625d57]'}`}>Quick filters</span>
+        {quickFilters.map((filter) => (
+          <button
+            key={filter.id}
+            type="button"
+            aria-pressed={activeFilter === filter.id}
+            onClick={() => handleFilterChange(filter.id)}
+            title={filter.title}
+            className={`min-h-9 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${activeFilter === filter.id
+              ? isDark ? 'border-[#c86544]/35 bg-[#c86544]/20 text-[#f3b69f]' : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
+              : isDark ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
+            }`}
+          >{filter.label}</button>
+        ))}
+      </div>
+
+      {/* Horizontal Category pills row */}
+      <div role="group" aria-label="Service categories" className="mt-2 flex flex-wrap gap-2.5">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            aria-pressed={selectedCategory === cat}
+            onClick={() => handleCategoryChange(cat)}
+            className={`min-h-9 rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${selectedCategory === cat
+                ? isDark
+                  ? 'border-[#c86544]/35 bg-[#c86544]/20 text-[#f3b69f]'
+                  : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
+                : isDark
+                  ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10'
+                  : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
+              }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
       <div id="service-results" className="scroll-mt-24">
-        <ServiceMarketplaceGrid
-          model={{
-            router,
-            isDark,
-            isLoading: servicesLoading,
-            activeFilter,
-            setActiveFilter,
-            searchQuery,
-            setSearchQuery,
-            selectedCategory,
-            setSelectedCategory,
-            filteredServices,
-            paginatedServices,
-            currentPage,
-            totalPages,
-            goToPage,
-            nextPage,
-            prevPage,
-            startIndex,
-            endIndex,
-            getProviderDetails,
-            user,
-            jobEngagements,
-            canTransact,
-            setBlockedModalOpen,
-            handleBookListing,
-            handleJoinWaitlist,
-            joiningWaitlistId,
-            setIsSuggestModalOpen,
-            prefetchProviderSummary,
-          }}
-        />
+      <ServiceMarketplaceGrid
+        model={{
+          router,
+          isDark,
+          isLoading,
+          activeFilter,
+          setActiveFilter,
+          searchQuery,
+          setSearchQuery,
+          selectedCategory,
+          setSelectedCategory,
+          filteredServices,
+          paginatedServices,
+          currentPage,
+          totalPages,
+          goToPage,
+          nextPage,
+          prevPage,
+          startIndex,
+          endIndex,
+          getProviderDetails,
+          user,
+          jobEngagements,
+          canTransact,
+          setBlockedModalOpen,
+          handleBookListing,
+          handleJoinWaitlist,
+          joiningWaitlistId,
+          setIsSuggestModalOpen,
+          prefetchProviderSummary
+        }}
+      />
       </div>
 
       {/* Direct Booking Modal trigger */}
