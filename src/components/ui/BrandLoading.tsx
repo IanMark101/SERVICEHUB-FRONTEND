@@ -17,13 +17,12 @@ export default function BrandLoading({
       aria-busy="true"
     >
       <div className="brand-loading__content">
-        <div className="brand-loading__signal" aria-hidden="true">
-          <span />
-          <span />
-          <span />
+        <div className="brand-loading__wordmark" aria-hidden="true">
+          <span className="brand-loading__wordmark-base">ServiceHub</span>
+          <span className="brand-loading__wordmark-reveal">ServiceHub</span>
         </div>
-        <p className="brand-loading__label">{label}</p>
-        <div className="brand-loading__track" aria-hidden="true"><span /></div>
+        <p className="brand-loading__label" aria-hidden="true">Loading</p>
+        <span className="sr-only">{label}</span>
       </div>
     </div>
   );

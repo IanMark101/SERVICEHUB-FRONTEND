@@ -10,7 +10,7 @@ import {
 } from '../../../api/admin.api';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
-import BrandLoading from '../../../components/ui/BrandLoading';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 
 const PAGE_SIZE = 8;
 
@@ -187,7 +187,7 @@ export default function AdminAnnouncementsPage() {
         </div>
 
         {loading ? (
-          <BrandLoading compact label="Loading announcements" />
+          <WorkspacePageSkeleton label="Loading announcements" role="admin" variant="table" />
         ) : announcements.length === 0 ? (
           <div className={`rounded-2xl border p-8 text-center ${card}`}>
             <Megaphone className="w-8 h-8 mx-auto text-slate-400 mb-3" />

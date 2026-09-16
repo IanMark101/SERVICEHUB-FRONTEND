@@ -6,7 +6,7 @@ import { apiListAdminCategories, apiUpdateAdminCategory } from "../../api/admin.
 import { getApiErrorMessage } from "../../lib/api/errors";
 import { useToast } from "../ui/Toast";
 import AdminPagination from "./AdminPagination";
-import BrandLoading from "../ui/BrandLoading";
+import WorkspacePageSkeleton from "../ui/WorkspacePageSkeleton";
 
 const PAGE_SIZE = 10;
 
@@ -95,7 +95,7 @@ export default function AdminCategoryCatalog({ isDark }: { isDark: boolean }) {
 
       <div className={`overflow-hidden rounded-2xl border shadow-sm ${isDark ? "border-neutral-800 bg-[#22211e]" : "border-slate-200 bg-white"}`}>
         {loading ? (
-          <BrandLoading compact label="Loading category catalog" />
+          <WorkspacePageSkeleton label="Loading category catalog" role="admin" variant="table" />
         ) : categories.length === 0 ? (
           <p className="p-10 text-center text-sm text-slate-500">No marketplace categories found.</p>
         ) : (

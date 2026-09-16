@@ -7,7 +7,7 @@ import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
 import AdminCategoryCatalog from '../../../components/admin/AdminCategoryCatalog';
-import BrandLoading from '../../../components/ui/BrandLoading';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 
 const PAGE_SIZE = 10;
 
@@ -110,7 +110,7 @@ export default function AdminCategories() {
       {/* Suggested Categories queue items */}
       <div className="space-y-6">
         {loading ? (
-          <BrandLoading compact label="Loading category suggestions" />
+          <WorkspacePageSkeleton label="Loading category suggestions" role="admin" variant="table" />
         ) : suggestions.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'

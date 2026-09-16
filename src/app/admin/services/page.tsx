@@ -8,7 +8,7 @@ import { getSocket } from '../../../lib/socket';
 import { useSearchParams } from 'next/navigation';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
-import BrandLoading from '../../../components/ui/BrandLoading';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 import WorkspaceTabs from '../../../components/ui/WorkspaceTabs';
 
 const PAGE_SIZE = 10;
@@ -178,7 +178,7 @@ export default function AdminServices() {
       {/* Services Listings queue */}
       <div className="space-y-6">
         {loading ? (
-          <BrandLoading compact label="Loading service listings" />
+          <WorkspacePageSkeleton label="Loading service listings" role="admin" variant="table" />
         ) : services.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'

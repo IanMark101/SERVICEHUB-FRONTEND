@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import BrandLoading from '@/components/ui/BrandLoading';
+import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
 
 export default function ProviderPage() {
   const router = useRouter();
@@ -9,5 +9,5 @@ export default function ProviderPage() {
     router.replace('/provider/browse-services');
   }, [router]);
 
-  return <BrandLoading compact label="Opening Provider services" role="provider" />;
+  return <WorkspacePageSkeleton label="Opening Provider services" role="provider" />;
 }

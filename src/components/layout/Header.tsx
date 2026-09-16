@@ -270,21 +270,15 @@ export default function Header({
   };
 
   return (
-    <header className={`workspace-chrome sticky top-0 right-0 z-30 flex h-20 w-full items-center justify-between gap-3 border-b px-5 py-3.5 font-sans transition-colors duration-200 sm:px-7 ${
-      currentRole === 'admin'
-        ? isDark
-          ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9] backdrop-blur-md'
-          : 'bg-white/95 border-slate-300 text-slate-800 backdrop-blur-md'
-        : `workspace-dashboard-header ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`
-    }`}>
+    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 flex h-[76px] w-full items-center justify-between gap-3 px-4 py-3 font-sans sm:px-5 ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`}>
 
       {/* Page context follows the same compact type hierarchy as the landing header. */}
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="workspace-header-island workspace-header-context flex min-w-0 items-center gap-3 rounded-2xl px-2.5 py-2 sm:px-3">
         <button
           type="button"
           aria-label="Open workspace navigation"
           onClick={() => setIsMobileOpen(true)}
-          className={`grid size-9 shrink-0 place-items-center rounded-xl border transition-colors md:hidden ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
+          className={`workspace-header-control grid size-9 shrink-0 place-items-center rounded-full border transition-colors md:hidden ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
             }`}
         >
           <Menu className="w-5 h-5" />
@@ -337,7 +331,7 @@ export default function Header({
       />
 
       {/* Right side: Notifications & Profile Avatar dropdowns */}
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+      <div className="workspace-header-island workspace-header-actions flex shrink-0 items-center gap-0.5 rounded-full p-1.5">
 
         {/* Mobile Search Toggle Icon */}
         <button
@@ -348,7 +342,7 @@ export default function Header({
             setShowNotifications(false);
             setShowProfileMenu(false);
           }}
-          className={`grid size-9 place-items-center rounded-xl border transition-colors lg:hidden ${
+          className={`workspace-header-control grid size-9 place-items-center rounded-full border transition-colors lg:hidden ${
             isMobileSearchOpen
               ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/15 text-[#e9a58c]' : 'border-[#c86544]/35 bg-[#f5ebe6] text-[#aa5032]'
               : isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
@@ -364,7 +358,7 @@ export default function Header({
             type="button"
             aria-label="Open Community Hub"
             onClick={() => setActiveTab('community-hub')}
-            className={`hidden items-center rounded-xl border px-3 py-2 text-xs font-semibold transition-colors xl:flex ${isDark
+            className={`workspace-header-control hidden min-h-9 items-center rounded-full border px-3.5 py-2 text-xs font-semibold transition-colors xl:flex ${isDark
                 ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
                 : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
               }`}
@@ -378,7 +372,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
-            className={`relative grid size-9 cursor-pointer place-items-center rounded-xl border transition-colors ${isDark
+            className={`workspace-header-control relative hidden size-9 cursor-pointer place-items-center rounded-full border transition-colors sm:grid ${isDark
                 ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
                 : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
               }`}
@@ -398,7 +392,7 @@ export default function Header({
           type="button"
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={toggleTheme}
-          className={`grid size-9 place-items-center rounded-xl border transition-colors ${isDark
+          className={`workspace-header-control grid size-9 place-items-center rounded-full border transition-colors ${isDark
               ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
               : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
             }`}

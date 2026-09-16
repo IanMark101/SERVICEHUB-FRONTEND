@@ -1,5 +1,5 @@
-import BrandLoading from '@/components/ui/BrandLoading';
+import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
 
 export default function Loading() {
-  return <BrandLoading compact label="Loading your Provider page" role="provider" />;
+  return <WorkspacePageSkeleton label="Loading your Provider page" role="provider" />;
 }

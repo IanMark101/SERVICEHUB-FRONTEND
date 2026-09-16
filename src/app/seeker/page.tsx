@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import BrandLoading from '@/components/ui/BrandLoading';
+import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
 
 export default function SeekerPage() {
   const router = useRouter();
@@ -9,5 +9,5 @@ export default function SeekerPage() {
     router.replace('/seeker/seek-services');
   }, [router]);
 
-  return <BrandLoading compact label="Opening Seeker services" role="seeker" />;
+  return <WorkspacePageSkeleton label="Opening Seeker services" role="seeker" />;
 }

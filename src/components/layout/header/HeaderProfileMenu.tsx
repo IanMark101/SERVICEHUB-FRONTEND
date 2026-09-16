@@ -19,7 +19,7 @@ export default function HeaderProfileMenu({ currentRole, user, isDark, isOpen, b
   if (!user) return null;
   return (
     <div className="relative">
-      <button type="button" onClick={onToggle} aria-label="Open account menu" aria-expanded={isOpen} className={`flex items-center gap-2 rounded-xl border p-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${borderHoverClass} ${isDark ? 'border-white/10 bg-[#201f1c] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] hover:bg-[#f5f4f2]'} ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
+      <button type="button" onClick={onToggle} aria-label="Open account menu" aria-expanded={isOpen} className={`workspace-header-control flex min-h-9 items-center gap-2 rounded-full border p-1 pr-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${borderHoverClass} ${isDark ? 'border-white/10 bg-[#201f1c] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] hover:bg-[#f5f4f2]'} ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
         <UserAvatar src={user.avatarUrl} name={`${user.firstName || ''} ${user.lastName || ''}`} alt="Profile avatar" size={28} role={currentRole} />
         <span className={`hidden max-w-[80px] truncate text-xs font-semibold sm:inline-block ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{user.firstName}</span>
         <ChevronDown className="w-3.5 h-3.5 text-slate-400" />

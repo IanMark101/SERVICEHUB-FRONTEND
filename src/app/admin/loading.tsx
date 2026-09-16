@@ -1,5 +1,5 @@
-import BrandLoading from '@/components/ui/BrandLoading';
+import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
 
 export default function Loading() {
-  return <BrandLoading compact label="Loading an Admin page" />;
+  return <WorkspacePageSkeleton label="Loading an Admin page" role="admin" variant="table" />;
 }

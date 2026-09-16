@@ -8,7 +8,7 @@ import { getSocket } from '../../../lib/socket';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import Image from 'next/image';
 import AdminPagination from '../../../components/admin/AdminPagination';
-import BrandLoading from '../../../components/ui/BrandLoading';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 
 const PAGE_SIZE = 10;
 
@@ -150,7 +150,7 @@ export default function AdminVerifications() {
       {/* Verification Queue items */}
       <div className="space-y-6">
         {loading ? (
-          <BrandLoading compact label="Loading verification queue" />
+          <WorkspacePageSkeleton label="Loading verification queue" role="admin" variant="table" />
         ) : verifications.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
             }`}>

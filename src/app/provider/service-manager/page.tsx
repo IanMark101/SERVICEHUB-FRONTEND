@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import ServiceManager from '../../../components/provider/ServiceManager';
-import BrandLoading from '@/components/ui/BrandLoading';
+import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
 
 function ServiceManagerContent() {
   const router = useRouter();
@@ -19,7 +19,7 @@ function ServiceManagerContent() {
 
 export default function ServiceManagerPage() {
   return (
-    <Suspense fallback={<BrandLoading compact label="Loading service manager" role="provider" />}>
+    <Suspense fallback={<WorkspacePageSkeleton label="Loading service manager" role="provider" variant="table" />}>
       <ServiceManagerContent />
     </Suspense>
   );

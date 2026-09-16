@@ -9,7 +9,7 @@ import AdminOverviewCharts, {
   type AdminActivityPoint,
   type AdminChartMetric,
 } from '../../../components/admin/AdminOverviewCharts';
-import BrandLoading from '../../../components/ui/BrandLoading';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 
 interface StatsData {
   totalUsers: number;
@@ -73,7 +73,7 @@ export default function AdminOverview() {
   }, [fetchStats]);
 
   if (loading) {
-    return <BrandLoading compact label="Loading dashboard overview" />;
+    return <WorkspacePageSkeleton label="Loading dashboard overview" role="admin" variant="table" />;
   }
 
   if (error) {
