@@ -78,7 +78,7 @@ export default function HeaderNotifications({
 
   return (
     <div className="relative">
-      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`workspace-header-control relative grid size-9 place-items-center rounded-full border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'} ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
+      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`workspace-header-control relative grid size-11 place-items-center rounded-full border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'} ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${badgeClass} border border-white`} />}
       </button>

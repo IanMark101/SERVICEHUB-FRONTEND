@@ -686,40 +686,43 @@ h6 {
   color: var(--workspace-ink) !important;
 }
 
-/* The authenticated header keeps task-specific controls while matching the
-   landing header's separated floating-island composition. */
+/* The authenticated header uses one composed task rail. The sidebar already
+   carries the brand, so the content header should read as a single tool. */
 .workspace-dashboard-header {
   background: transparent !important;
   color: var(--workspace-ink);
 }
 
-.workspace-header-island {
+.workspace-header-bar {
   border: 1px solid var(--workspace-border);
-  background: color-mix(in srgb, var(--workspace-surface) 88%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--workspace-surface) 92%, transparent);
   box-shadow:
     0 1px 2px rgba(23, 23, 22, 0.04),
-    0 8px 22px -12px color-mix(in srgb, var(--workspace-ink) 24%, transparent);
+    0 12px 30px -22px color-mix(in srgb, var(--workspace-ink) 28%, transparent);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
+}
+
+.workspace-header-island {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .workspace-header-context {
-  min-height: 52px;
-  max-width: min(22rem, 34vw);
+  min-height: 48px;
+  max-width: none;
 }
 
 .workspace-header-actions {
-  min-height: 52px;
+  min-height: 48px;
 }
 
 .workspace-header-search .workspace-header-control {
-  min-height: 42px;
-  background: color-mix(in srgb, var(--workspace-surface) 91%, transparent) !important;
-  box-shadow:
-    0 1px 2px rgba(23, 23, 22, 0.04),
-    0 8px 22px -14px color-mix(in srgb, var(--workspace-ink) 22%, transparent);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+  min-height: 40px;
+  background: var(--workspace-surface-muted) !important;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--workspace-surface) 76%, transparent);
 }
 
 .workspace-header-control {
@@ -751,13 +754,12 @@ h6 {
 
 .workspace-sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--workspace-focus) 34%, var(--workspace-border-strong)) transparent;
-  scrollbar-gutter: stable;
+  scrollbar-color: color-mix(in srgb, var(--workspace-ink) 22%, transparent) transparent;
   overscroll-behavior: contain;
 }
 
 .workspace-sidebar-scroll::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .workspace-sidebar-scroll::-webkit-scrollbar-track {
@@ -765,15 +767,12 @@ h6 {
 }
 
 .workspace-sidebar-scroll::-webkit-scrollbar-thumb {
-  border: 2px solid transparent;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--workspace-focus) 34%, var(--workspace-border-strong));
-  background-clip: padding-box;
+  background: color-mix(in srgb, var(--workspace-ink) 22%, transparent);
 }
 
 .workspace-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--workspace-focus) 56%, var(--workspace-border-strong));
-  background-clip: padding-box;
+  background: color-mix(in srgb, var(--workspace-ink) 36%, transparent);
 }
 
 .workspace-page h2,
@@ -812,6 +811,234 @@ h6 {
 
 .workspace-page .workspace-muted {
   color: var(--workspace-muted) !important;
+}
+
+/* Seeker marketplace: compact task-first discovery and filtering. */
+.marketplace-discovery {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.8fr) minmax(22rem, 1.2fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4.5rem);
+  padding: 1.5rem;
+  border: 1px solid var(--workspace-border);
+  border-radius: 16px;
+}
+
+.marketplace-discovery__copy h2 {
+  max-width: 20ch;
+  font-size: 1.625rem;
+  font-weight: 650;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.marketplace-discovery__copy p {
+  max-width: 42ch;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.marketplace-search {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  padding: 0.375rem;
+  border: 1px solid var(--workspace-border);
+  border-radius: 14px;
+  background: var(--workspace-surface-muted);
+}
+
+.marketplace-search__icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  padding-left: 0.75rem;
+  color: var(--workspace-muted);
+}
+
+.marketplace-search .service-search-input {
+  color: var(--workspace-ink);
+}
+
+.marketplace-search .service-search-input::placeholder {
+  color: color-mix(in srgb, var(--workspace-muted) 84%, transparent);
+}
+
+.marketplace-filter-panel {
+  border-block: 1px solid var(--workspace-border);
+}
+
+.marketplace-filter-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 0.875rem;
+}
+
+.marketplace-filter-row--categories {
+  display: block;
+  border-top: 1px solid var(--workspace-border);
+}
+
+.marketplace-filter-row--categories > .marketplace-filter-label {
+  display: block;
+  margin-bottom: 0.625rem;
+}
+
+.marketplace-filter-group,
+.marketplace-filter-options,
+.marketplace-category-strip,
+.marketplace-results-summary {
+  display: flex;
+  align-items: center;
+}
+
+.marketplace-filter-group {
+  min-width: 0;
+  gap: 1rem;
+}
+
+.marketplace-filter-options,
+.marketplace-category-strip {
+  gap: 0.5rem;
+}
+
+.marketplace-filter-label {
+  flex: 0 0 4.75rem;
+  color: var(--workspace-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.marketplace-filter-chip {
+  min-height: 44px;
+  flex: 0 0 auto;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--workspace-border);
+  border-radius: 12px;
+  background: var(--workspace-surface);
+  color: var(--workspace-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.marketplace-filter-chip:hover {
+  border-color: var(--workspace-border-strong);
+  background: var(--workspace-surface-muted);
+  color: var(--workspace-ink);
+}
+
+.marketplace-filter-chip[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--workspace-focus) 34%, var(--workspace-border));
+  background: color-mix(in srgb, var(--workspace-focus) 11%, var(--workspace-surface));
+  color: color-mix(in srgb, var(--workspace-focus) 76%, var(--workspace-ink));
+}
+
+.marketplace-filter-chip--category {
+  border-radius: 999px;
+  padding-inline: 0.75rem;
+  font-size: 0.71875rem;
+}
+
+.marketplace-category-strip {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.marketplace-results-summary {
+  min-height: 44px;
+  flex: 0 0 auto;
+  gap: 0.875rem;
+  margin-left: auto;
+  color: var(--workspace-muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.marketplace-results-summary button {
+  min-height: 44px;
+  padding-inline: 0.25rem;
+  color: color-mix(in srgb, var(--workspace-focus) 80%, var(--workspace-ink));
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--workspace-focus) 35%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.marketplace-results-summary button:hover {
+  text-decoration-color: currentColor;
+}
+
+@media (max-width: 899px) {
+  .marketplace-discovery {
+    grid-template-columns: 1fr;
+    gap: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .workspace-header-context {
+    max-width: min(22rem, 34vw);
+  }
+}
+
+@media (max-width: 639px) {
+  .marketplace-discovery {
+    padding: 1.125rem;
+  }
+
+  .marketplace-discovery__copy h2 {
+    font-size: 1.375rem;
+  }
+
+  .marketplace-filter-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .marketplace-filter-group {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .marketplace-filter-label {
+    flex-basis: auto;
+  }
+
+  .marketplace-filter-options,
+  .marketplace-category-strip {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+  }
+
+  .marketplace-filter-options::-webkit-scrollbar,
+  .marketplace-category-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .marketplace-category-strip {
+    flex-wrap: nowrap;
+  }
+
+  .marketplace-results-summary {
+    order: -1;
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
 }
 
 .workspace-primary-button {
@@ -1019,8 +1246,7 @@ h6 {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .workspace-header-island,
-  .workspace-header-search .workspace-header-control {
+  .workspace-header-bar {
     background: var(--workspace-surface);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;

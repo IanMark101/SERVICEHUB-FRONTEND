@@ -53,6 +53,7 @@ export function useAppDataSync({
 }: UseAppDataSyncOptions) {
   // Data states — start with empty state, populated strictly by live database APIs
   const [services, setServices] = useState<ServiceListing[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
   const [jobRequests, setJobRequests] = useState<JobRequest[]>([]);
   const [bids, setBids] = useState<Bid[]>([]);
   const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>([]);
@@ -117,6 +118,8 @@ export function useAppDataSync({
       }
     } catch {
       // ignore
+    } finally {
+      setServicesLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -487,6 +490,7 @@ export function useAppDataSync({
 
   return {
     services,
+    servicesLoading,
     setServices,
     jobRequests,
     setJobRequests,

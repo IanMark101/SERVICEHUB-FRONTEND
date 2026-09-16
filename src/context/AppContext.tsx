@@ -27,6 +27,7 @@ import { useToast } from '../components/ui/Toast';
 interface AppContextType {
   users: User[];
   services: ServiceListing[];
+  servicesLoading: boolean;
   setServices: React.Dispatch<React.SetStateAction<ServiceListing[]>>;
   refreshServices: () => void;
   jobRequests: JobRequest[];
@@ -148,6 +149,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const {
     services,
+    servicesLoading,
     setServices,
     jobRequests,
     setJobRequests,
@@ -367,6 +369,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       users,
       services,
+      servicesLoading,
       setServices,
       refreshServices: syncPublicServices,
       jobRequests,

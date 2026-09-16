@@ -139,8 +139,8 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
           </div>
         </div>
       ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {paginatedServices.map((service: ServiceListing) => {
               const provider = getProviderDetails(service.providerId);
               const trustScore = service.providerTrustScore ?? provider?.trustScore;
@@ -156,10 +156,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
               return (
                 <div
                   key={service.id}
-                  className={`workspace-card rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full ${isDark
-                      ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
-                      : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
-                    }`}
+                  className="workspace-card flex h-full flex-col justify-between rounded-2xl border p-5"
                 >
                   <div>
                     {/* Card Header: Profile Info */}
@@ -169,7 +166,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         onClick={() => router.push(`/seeker/user-profile?id=${service.providerId}`)}
                         disabled={!service.providerId}
                         aria-label={`View ${service.providerName}'s profile`}
-                        className="group/author -m-1 flex min-w-0 items-center space-x-3 rounded-xl p-1 text-left transition-colors hover:bg-[#f5f4f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default dark:hover:bg-white/10"
+                        className="group/author -m-1 flex min-h-11 min-w-0 items-center space-x-3 rounded-xl p-1 text-left transition-colors hover:bg-[#f5f4f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default dark:hover:bg-white/10"
                         title={`View ${service.providerName}'s profile`}
                       >
                         <div className="relative flex-shrink-0">
@@ -195,7 +192,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         onClick={() => router.push(`/seeker/user-profile?id=${service.providerId}&tab=reviews`)}
                         disabled={!service.providerId}
                         aria-label={`View reviews and trust history for ${service.providerName}`}
-                        className="group/rating flex shrink-0 flex-col items-end text-right transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default"
+                        className="group/rating flex min-h-11 shrink-0 flex-col items-end justify-center rounded-lg text-right transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default"
                         title="View provider reviews and trust history"
                       >
                         {service.reviewCount && service.reviewCount > 0 ? (
@@ -242,14 +239,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
 
                     {/* Service Listing Details */}
                     <div className="mt-3">
-                      <h3 className={`font-bold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                      <h3 className={`text-base font-bold leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                         {service.title}
                       </h3>
-                      <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
+                      <p className={`mt-2 line-clamp-2 text-[13px] leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
                         {service.description}
                       </p>
                       {service.estimatedDurationMins ? (
-                        <p className={`mt-2 flex items-center gap-1 text-[10px] font-medium ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                        <p className={`mt-2 flex items-center gap-1 text-[11px] font-medium ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
                           <Clock className="h-3 w-3" /> Estimated duration: {service.estimatedDurationMins} minutes
                         </p>
                       ) : null}
@@ -257,7 +254,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                   </div>
 
                   {/* Divider Line */}
-                  <div className={`border-t my-4 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`} />
+                  <div className={`my-3.5 border-t ${isDark ? 'border-neutral-850' : 'border-slate-100'}`} />
 
                   {/* Availability/Queue & Price block */}
                   <div className="flex items-center justify-between">
