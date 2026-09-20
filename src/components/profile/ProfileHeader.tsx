@@ -69,22 +69,22 @@ export default function ProfileHeader({
 
   return (
     <section className={`workspace-profile-hero workspace-profile-hero--${roleTone} p-5 sm:p-6`} aria-labelledby="profile-name">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-0">
-        <div className="min-w-0 lg:pr-7">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-            <div className="relative mx-auto shrink-0 sm:mx-0">
-              <div className="rounded-[18px] border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-1.5">
-                <UserAvatar src={avatarUrl} name={displayName} alt={`${displayName} profile picture`} size={104} role={roleTone} shape="soft" />
-              </div>
-              <span
-                className={`absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border-2 border-[color:var(--workspace-surface)] text-white shadow-sm ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
-                title={verStatus === 'APPROVED' ? 'Verified Cordova Resident' : 'Residency Unverified'}
-              >
-                {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
-              </span>
-            </div>
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <div className="relative mx-auto shrink-0 sm:mx-0">
+          <div className="rounded-[18px] border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-1.5">
+            <UserAvatar src={avatarUrl} name={displayName} alt={`${displayName} profile picture`} size={104} role={roleTone} shape="soft" />
+          </div>
+          <span
+            className={`absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border-2 border-[color:var(--workspace-surface)] text-white shadow-sm ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
+            title={verStatus === 'APPROVED' ? 'Verified Cordova Resident' : 'Residency Unverified'}
+          >
+            {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
+          </span>
+        </div>
 
-            <div className="min-w-0 flex-1 text-center sm:text-left">
+        <div className="min-w-0 flex-1 text-center sm:text-left">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                 <h1 id="profile-name" className={`min-w-0 break-words text-2xl font-extrabold tracking-[-0.035em] sm:text-[1.75rem] ${headingText}`}>{displayName}</h1>
                 {verStatus === 'APPROVED' && <CheckCircle size={19} className="shrink-0 text-emerald-600" aria-label="Verified resident" />}
@@ -95,51 +95,46 @@ export default function ProfileHeader({
                 <span className="h-3 w-px bg-[color:var(--workspace-border-strong)]" aria-hidden="true" />
                 <span className="inline-flex items-center gap-1.5"><MapPin size={14} className={accentText} />{location ? `${location}, Cordova` : 'Cordova, Cebu'}</span>
               </div>
-
-              <p className="mt-4 max-w-[62ch] text-sm leading-6 text-[color:var(--workspace-muted)]">
-                {bio || (isProvider ? 'Professional service specialist based in Cordova, Cebu. Ready to help with home maintenance, repairs, and installations.' : 'Active member on ServiceHub Cordova. Looking for reliable local service providers.')}
-              </p>
-
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                {facebookUrl && <SocialLink href={facebookUrl} icon={<ExternalLink size={14} />} label="Facebook" />}
-                {instagramUrl && <SocialLink href={instagramUrl} icon={<ExternalLink size={14} />} label="Instagram" />}
-                {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={14} />} label="Website" />}
-              </div>
-
-              {createdAt && (
-                <p className={`mt-3 text-xs ${labelText}`}>
-                  Member since {new Date(createdAt).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}
-                </p>
-              )}
             </div>
+
+            {isOwnProfile && (
+              <button type="button" onClick={() => setShowEdit((value) => !value)} aria-expanded={showEdit} className="servicehub-dark-cta workspace-primary-button mx-auto inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold sm:w-auto lg:mx-0">
+                <Edit3 size={15} />
+                {showEdit ? 'Close form' : 'Edit profile'}
+              </button>
+            )}
+          </div>
+
+          <p className="mt-4 max-w-[62ch] text-sm leading-6 text-[color:var(--workspace-muted)]">
+            {bio || (isProvider ? 'Professional service specialist based in Cordova, Cebu. Ready to help with home maintenance, repairs, and installations.' : 'Active member on ServiceHub Cordova. Looking for reliable local service providers.')}
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+            {facebookUrl && <SocialLink href={facebookUrl} icon={<ExternalLink size={14} />} label="Facebook" />}
+            {instagramUrl && <SocialLink href={instagramUrl} icon={<ExternalLink size={14} />} label="Instagram" />}
+            {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={14} />} label="Website" />}
+            {createdAt && <span className={`px-1 text-xs ${labelText}`}>Member since {new Date(createdAt).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}</span>}
           </div>
         </div>
-
-        <aside className="border-t border-[color:var(--workspace-border)] pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0" aria-label="Profile reputation summary">
-          {isOwnProfile && (
-            <button type="button" onClick={() => setShowEdit((value) => !value)} aria-expanded={showEdit} className="servicehub-dark-cta workspace-primary-button inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold">
-              <Edit3 size={15} />
-              {showEdit ? 'Close form' : 'Edit profile'}
-            </button>
-          )}
-
-          <dl className={`${isOwnProfile ? 'mt-5' : ''} grid grid-cols-3 lg:grid-cols-1`}>
-            <ProfileStat value={completedJobs} label="Completed bookings" headingText={headingText} labelText={labelText} />
-            <ProfileStat value={<>{averageRating.toFixed(1)} <Star size={14} className="fill-amber-400 text-amber-500" /></>} label="Average rating" headingText={headingText} labelText={labelText} divided />
-            <ProfileStat value={<><Award size={15} /> {trustScore}</>} label="Trust score" detail={trustBand.label} headingText={accentText} labelText={labelText} divided />
-          </dl>
-        </aside>
       </div>
+
+      <dl className="mt-5 grid grid-cols-1 border-t border-[color:var(--workspace-border)] pt-4 sm:grid-cols-3" aria-label="Profile reputation summary">
+        <ProfileStat value={completedJobs} label="Completed bookings" headingText={headingText} labelText={labelText} />
+        <ProfileStat value={<>{averageRating.toFixed(1)} <Star size={14} className="fill-amber-400 text-amber-500" /></>} label="Average rating" headingText={headingText} labelText={labelText} divided />
+        <ProfileStat value={<><Award size={15} /> {trustScore}</>} label="Trust score" detail={trustBand.label} headingText={accentText} labelText={labelText} divided />
+      </dl>
     </section>
   );
 }
 
 function ProfileStat({ value, label, detail, headingText, labelText, divided = false }: { value: ReactNode; label: string; detail?: string; headingText: string; labelText: string; divided?: boolean }) {
   return (
-    <div className={`${divided ? 'border-l lg:border-l-0 lg:border-t' : ''} border-[color:var(--workspace-border)] px-3 py-2.5 text-left lg:px-0 lg:py-4`}>
+    <div className={`${divided ? 'border-t sm:border-l sm:border-t-0' : ''} border-[color:var(--workspace-border)] px-0 py-3 text-center sm:px-5 sm:py-1 sm:text-left`}>
       <dt className={`text-[11px] font-medium ${labelText}`}>{label}</dt>
-      <dd className={`mt-1 flex items-center gap-1.5 text-lg font-extrabold tabular-nums ${headingText}`}>{value}</dd>
-      {detail && <p className={`mt-0.5 text-[10px] font-semibold ${headingText}`}>{detail}</p>}
+      <dd className={`mt-1 flex items-center justify-center gap-1.5 text-lg font-extrabold tabular-nums sm:justify-start ${headingText}`}>
+        {value}
+        {detail && <span className="text-[10px] font-semibold">{detail}</span>}
+      </dd>
     </div>
   );
 }
