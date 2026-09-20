@@ -82,10 +82,10 @@ export default function ProfileHeader({
 
   return (
     <section className={`workspace-profile-hero workspace-profile-hero--${roleTone} p-5 sm:p-6`} aria-labelledby="profile-name">
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
+      <div className="flex flex-col gap-5 md:flex-row md:items-start">
         <div className="relative mx-auto shrink-0 md:mx-0">
           <div className="rounded-[18px] border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-1.5">
-            <UserAvatar src={avatarUrl} name={displayName} alt={`${displayName} profile picture`} size={112} role={roleTone} shape="soft" />
+            <UserAvatar src={avatarUrl} name={displayName} alt={`${displayName} profile picture`} size={104} role={roleTone} shape="soft" />
           </div>
           <span
             className={`absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border-2 border-[color:var(--workspace-surface)] text-white shadow-sm ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
@@ -95,9 +95,12 @@ export default function ProfileHeader({
           </span>
         </div>
 
-        <div className="min-w-0 flex-1 space-y-5 text-center md:text-left">
+        <div className="min-w-0 flex-1 space-y-4 text-center md:text-left">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
+              <p className={`mb-1.5 text-[11px] font-semibold ${accentText}`}>
+                {isOwnProfile ? 'Your public profile' : `${isProvider ? 'Provider' : isAdmin ? 'Administrator' : 'Seeker'} profile`}
+              </p>
               <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
                 <h1 id="profile-name" className={`text-2xl font-extrabold tracking-[-0.035em] sm:text-[1.75rem] ${headingText}`}>{displayName}</h1>
                 {verStatus === 'APPROVED' && <CheckCircle size={19} className="shrink-0 text-emerald-600" aria-label="Verified resident" />}
@@ -110,7 +113,7 @@ export default function ProfileHeader({
             </div>
 
             {isOwnProfile && (
-              <button type="button" onClick={() => setShowEdit((value) => !value)} className="servicehub-dark-cta workspace-primary-button mx-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold md:mx-0">
+              <button type="button" onClick={() => setShowEdit((value) => !value)} aria-expanded={showEdit} className="servicehub-dark-cta workspace-primary-button mx-auto inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold md:mx-0">
                 <Edit3 size={15} />
                 {showEdit ? 'Close form' : 'Edit profile'}
               </button>
@@ -122,16 +125,16 @@ export default function ProfileHeader({
           </p>
 
           <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] sm:grid-cols-4">
-            <Metric value={completedJobs} label="Completed" headingText={headingText} labelText={labelText} />
-            <Metric value={<>{averageRating.toFixed(1)} <Star size={14} className="fill-amber-400 text-amber-500" /></>} label="Rating" headingText={headingText} labelText={labelText} divided />
+            <Metric value={completedJobs} label="Completed bookings" headingText={headingText} labelText={labelText} />
+            <Metric value={<>{averageRating.toFixed(1)} <Star size={14} className="fill-amber-400 text-amber-500" /></>} label="Average rating" headingText={headingText} labelText={labelText} divided />
             <Metric value={<><Award size={15} /> {trustScore}</>} label="Trust score" headingText={accentText} labelText={labelText} divided topBorder />
             <div className="border-l border-t border-[color:var(--workspace-border)] px-3 py-3 text-left sm:border-t-0 sm:px-4">
               <div className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs font-semibold ${trustBand.bg} ${trustBand.color}`}>{trustBand.label}</div>
-              <div className={`mt-1 text-xs font-medium ${labelText}`}>Trust band</div>
+              <div className={`mt-1 text-xs font-medium ${labelText}`}>Current trust band</div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
+          <div className="flex flex-wrap items-center justify-center gap-2 border-t border-[color:var(--workspace-border)] pt-4 md:justify-start">
             {facebookUrl && <SocialLink href={facebookUrl} icon={<FacebookIcon />} label="Facebook" />}
             {instagramUrl && <SocialLink href={instagramUrl} icon={<InstagramIcon />} label="Instagram" />}
             {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={14} />} label="Website" />}

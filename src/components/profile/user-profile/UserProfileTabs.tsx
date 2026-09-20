@@ -62,22 +62,22 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Identity Info Card */}
           <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-4`}>
-            <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+            <h3 className={`flex items-center gap-2 text-base font-bold ${headingText}`}>
               <User size={17} className={accentColor} /> Identity Details
             </h3>
 
             <div className="space-y-3 text-xs">
-              <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
+              <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
                 <span className={labelText}>Full Name</span>
                 <span className={`font-bold ${headingText}`}>{displayName}</span>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
+              <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
                 <span className={labelText}>Username</span>
                 <span className={`font-bold ${headingText}`}>{usernameHandle}</span>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
+              <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
                 <span className={labelText}>Location</span>
                 <span className={`font-bold flex items-center gap-1 ${headingText}`}>
                   <MapPin size={13} className="text-rose-500" />
@@ -85,7 +85,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                 </span>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
+              <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
                 <span className={labelText}>Member Since</span>
                 <span className={`font-bold flex items-center gap-1 ${headingText}`}>
                   <Calendar size={13} className="text-emerald-500" />
@@ -101,7 +101,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
               </div>
 
               {(facebookUrl || instagramUrl || websiteUrl) && (
-                <div className="py-2 space-y-1.5 border-t border-slate-200/60 dark:border-neutral-800">
+                <div className="space-y-1.5 border-t border-[color:var(--workspace-border)] py-2">
                   <span className={`block font-semibold ${labelText}`}>Social Media & Links</span>
                   <div className="flex items-center gap-2 flex-wrap pt-0.5">
                     {facebookUrl && (
@@ -142,17 +142,17 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
 
           {/* Professional Details Card */}
           <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-4`}>
-            <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+            <h3 className={`flex items-center gap-2 text-base font-bold ${headingText}`}>
               <Briefcase size={17} className={accentColor} /> Professional Summary
             </h3>
 
             <div className="space-y-3 text-xs">
-              <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
+              <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
                 <span className={labelText}>Completed Bookings</span>
                 <span className={`font-extrabold ${headingText}`}>{completedJobs} verified</span>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
+              <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
                 <span className={labelText}>Average Client Rating</span>
                 <span className="font-extrabold text-amber-500 flex items-center gap-1">
                   <Star size={14} className="fill-amber-400 text-amber-400" />
@@ -160,10 +160,10 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                 </span>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-neutral-800">
+              <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
                 <span className={labelText}>Trust Score</span>
                 <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${trustBand.bg} ${trustBand.color}`}>
-                  {trustScore} — {trustBand.label}
+                  {trustScore} · {trustBand.label}
                 </span>
               </div>
 
@@ -432,7 +432,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                 </h4>
                 <p className={`text-xs ${labelText} max-w-md mx-auto leading-relaxed`}>
                   {isOwnProfile
-                    ? 'Your document photos are currently being reviewed by Cordova Administrators. Estimated review time: 24 – 48 hours.'
+                    ? 'Your document photos are currently being reviewed by Cordova Administrators. Estimated review time: 24 to 48 hours.'
                     : `${displayName} has submitted residency documents and is currently awaiting administrative review.`}
                 </p>
               </div>

@@ -99,12 +99,7 @@ export default function AuthLeftPanel({
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col justify-center px-7 py-8 xl:px-11 xl:py-10">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#d49b86]/55 bg-[#faf5f2] px-3 py-1.5 text-[11px] font-medium text-[#aa5032] dark:border-[#e18463]/35 dark:bg-[#e18463]/8 dark:text-[#e9a58c]">
-            <MapPin size={14} aria-hidden="true" />
-            <span>Built for Cordova, Cebu</span>
-          </div>
-
-          <h1 className="mt-7 max-w-[15ch] text-[clamp(2.35rem,3.05vw,3.25rem)] font-medium leading-[1.02] tracking-[-0.04em] text-[#171716] dark:text-[#f5f4f2]">
+          <h1 className="max-w-[15ch] text-[clamp(2.35rem,3.05vw,3.25rem)] font-medium leading-[1.02] tracking-[-0.04em] text-[#171716] dark:text-[#f5f4f2]">
             {isSignup
               ? 'One account for local help and local work.'
               : 'Welcome back to your local service community.'}
@@ -116,7 +111,12 @@ export default function AuthLeftPanel({
               : 'Manage requests, listings, messages, and bookings under one verified local identity.'}
           </p>
 
-          <section aria-label="How ServiceHub access works" className="mt-9 max-w-[33rem] rounded-2xl border border-black/8 bg-[#f5f4f2] px-5 shadow-[0_10px_28px_rgba(23,23,22,0.04)] dark:border-white/10 dark:bg-white/[0.035] dark:shadow-none">
+          <div className="mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-[#d49b86]/55 bg-[#faf5f2] px-3 py-1.5 text-[11px] font-medium text-[#aa5032] dark:border-[#e18463]/35 dark:bg-[#e18463]/8 dark:text-[#e9a58c]">
+            <MapPin size={14} aria-hidden="true" />
+            <span>Built for Cordova, Cebu</span>
+          </div>
+
+          <section aria-label="How ServiceHub access works" className="mt-5 max-w-[33rem] rounded-2xl border border-black/8 bg-[#f5f4f2] px-5 shadow-[0_10px_28px_rgba(23,23,22,0.04)] dark:border-white/10 dark:bg-white/[0.035] dark:shadow-none">
             <div className="flex items-center justify-between border-b border-black/8 py-4 dark:border-white/10">
               <h2 className="text-xs font-semibold text-[#171716] dark:text-white/88">
                 How access works

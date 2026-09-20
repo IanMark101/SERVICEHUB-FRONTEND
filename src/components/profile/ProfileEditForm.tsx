@@ -45,7 +45,6 @@ export default function ProfileEditForm({
   setShowEdit,
   handleSaveProfile,
   saving,
-  isDark,
   cardBg,
   labelText,
   headingText,
@@ -78,12 +77,14 @@ export default function ProfileEditForm({
   };
 
   return (
-    <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border shadow-sm space-y-4`}>
-      <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
-        <h3 className={`font-extrabold text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+    <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border shadow-sm space-y-5`}>
+      <div className="flex items-center justify-between border-b border-[color:var(--workspace-border)] pb-4">
+        <h3 className={`flex items-center gap-2 text-base font-bold ${headingText}`}>
           <Edit3 size={16} className={accentColor} /> Edit Profile Information
         </h3>
-        <X size={18} className="cursor-pointer text-slate-400 hover:text-slate-600" onClick={() => setShowEdit(false)} />
+        <button type="button" onClick={() => setShowEdit(false)} aria-label="Close profile editor" className="grid size-9 place-items-center rounded-xl text-slate-400 transition-colors hover:bg-[color:var(--workspace-surface-muted)] hover:text-slate-700 dark:hover:text-neutral-200">
+          <X size={18} />
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -126,7 +127,7 @@ export default function ProfileEditForm({
             </p>
           )}
           {!hasActiveEngagements && (
-            <p className={`mt-1 text-[10px] ${labelText}`}>Used for account and service contact—not as a PayMongo payout destination.</p>
+            <p className={`mt-1 text-[10px] ${labelText}`}>Used for account and service contact, not as a PayMongo payout destination.</p>
           )}
         </div>
 
@@ -156,7 +157,7 @@ export default function ProfileEditForm({
         </div>
 
         {/* 📸 Profile Photo Upload & Preview */}
-        <div className="sm:col-span-2 p-4 rounded-2xl border dark:border-neutral-800 bg-slate-50/50 dark:bg-[#1c1b18]/40 space-y-3">
+        <div className="sm:col-span-2 space-y-3 rounded-2xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-4">
           <label className={`block text-xs font-bold ${labelText}`}>Profile Picture</label>
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative group flex-shrink-0">
@@ -165,7 +166,7 @@ export default function ProfileEditForm({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={processingImage}
-                className="absolute inset-0 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-[24%] bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                 title="Change Photo"
               >
                 <Camera size={20} />
@@ -195,7 +196,7 @@ export default function ProfileEditForm({
                   <button
                     type="button"
                     onClick={() => setEditForm((form) => ({ ...form, avatarUrl: '' }))}
-                    className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-neutral-800 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 transition-all flex items-center gap-1"
+                    className="flex min-h-10 items-center gap-1 rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-3 py-2 text-xs font-bold text-[color:var(--workspace-muted)] transition-colors hover:border-rose-500/30 hover:text-rose-500"
                   >
                     <Trash2 size={13} />
                     <span>Reset</span>
@@ -213,8 +214,8 @@ export default function ProfileEditForm({
         </div>
 
         {/* Social Media Links */}
-        <div className="sm:col-span-2 pt-2 border-t dark:border-neutral-800">
-          <h4 className={`text-xs font-black uppercase tracking-wider mb-3 ${headingText}`}>
+        <div className="sm:col-span-2 border-t border-[color:var(--workspace-border)] pt-4">
+          <h4 className={`mb-3 text-sm font-bold ${headingText}`}>
             Social Media & Web Links
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -249,10 +250,11 @@ export default function ProfileEditForm({
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-3 border-t dark:border-neutral-800">
+      <div className="flex justify-end gap-2 border-t border-[color:var(--workspace-border)] pt-4">
         <button
+          type="button"
           onClick={() => setShowEdit(false)}
-          className={`px-4 py-2 rounded-xl text-xs font-bold border ${isDark ? 'border-neutral-800 text-[#b4b0a9]' : 'border-slate-200 text-slate-600'}`}
+          className="min-h-11 rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-4 py-2 text-xs font-bold text-[color:var(--workspace-muted)] transition-colors hover:border-[color:var(--workspace-border-strong)] hover:text-[color:var(--workspace-ink)]"
         >
           Cancel
         </button>

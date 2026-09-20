@@ -19,5 +19,5 @@ export default function Home() {
     return <BrandLoading label={authLoading ? 'Checking your session' : 'Opening your workspace'} />;
   }
 
-  return <LandingPage onGetStarted={() => router.push('/login')} />;
+  return <LandingPage onGetStarted={() => router.push('/register')} />;
 }

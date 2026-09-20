@@ -377,10 +377,10 @@ export function useUserProfile({
   };
 
   // Styling helper classes
-  const cardBg = isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200/90 shadow-sm';
-  const innerBg = isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-slate-50/70 border-slate-200/70';
-  const labelText = isDark ? 'text-[#b4b0a9]' : 'text-slate-500';
-  const headingText = isDark ? 'text-[#f2efe9]' : 'text-slate-900';
+  const cardBg = 'bg-[color:var(--workspace-surface)] border-[color:var(--workspace-border)] shadow-sm';
+  const innerBg = 'bg-[color:var(--workspace-surface-muted)] border-[color:var(--workspace-border)]';
+  const labelText = 'text-[color:var(--workspace-muted)]';
+  const headingText = 'text-[color:var(--workspace-ink)]';
   const focusBorder = workspaceRole === 'provider'
     ? (isDark ? 'focus:border-emerald-600' : 'focus:border-emerald-500')
     : workspaceRole === 'admin'

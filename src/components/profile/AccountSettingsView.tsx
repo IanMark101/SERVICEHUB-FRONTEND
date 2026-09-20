@@ -117,10 +117,10 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
       ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700'
       : 'bg-orange-500/10 text-orange-600 border-orange-500/20';
 
-  const cardBg = isDark ? 'bg-[#1e1d1a] border-neutral-800' : 'bg-white border-slate-200';
-  const innerBg = isDark ? 'bg-[#252420] border-neutral-800' : 'bg-slate-50 border-slate-200';
-  const labelText = isDark ? 'text-neutral-400' : 'text-slate-500';
-  const headingText = isDark ? 'text-[#f2efe9]' : 'text-slate-900';
+  const cardBg = 'bg-[color:var(--workspace-surface)] border-[color:var(--workspace-border)]';
+  const innerBg = 'bg-[color:var(--workspace-surface-muted)] border-[color:var(--workspace-border)]';
+  const labelText = 'text-[color:var(--workspace-muted)]';
+  const headingText = 'text-[color:var(--workspace-ink)]';
   const inputClass = 'workspace-form-control w-full px-3.5 py-2.5 text-sm font-medium';
 
   return (
@@ -177,7 +177,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
 
       {/* 🌟 Profile & Social Presence Settings Card */}
       <section id="contact-information" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
-        <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
+        <div className="flex items-center justify-between border-b border-[color:var(--workspace-border)] pb-4">
           <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
             <Edit3 size={17} className={accentColor} /> Personal & Social Profile
           </h3>
@@ -259,7 +259,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
 
           {/* 📸 Profile Photo Upload & Preview */}
-          <div className="sm:col-span-2 p-4 rounded-2xl border dark:border-neutral-800 bg-slate-50/50 dark:bg-[#1c1b18]/40 space-y-3">
+          <div className="sm:col-span-2 space-y-3 rounded-2xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-4">
             <label className={`block font-semibold ${labelText}`}>Profile Picture</label>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative group flex-shrink-0">
@@ -268,7 +268,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={processingImage}
-                  className="absolute inset-0 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-[24%] bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                   title="Change Photo"
                 >
                   <Camera size={20} />
@@ -298,7 +298,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                     <button
                       type="button"
                       onClick={() => setEditForm((form) => ({ ...form, avatarUrl: '' }))}
-                      className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-neutral-800 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 transition-all flex items-center gap-1"
+                      className="flex min-h-10 items-center gap-1 rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-3 py-2 text-xs font-bold text-[color:var(--workspace-muted)] transition-colors hover:border-rose-500/30 hover:text-rose-500"
                     >
                       <Trash2 size={13} />
                       <span>Reset</span>
@@ -316,8 +316,8 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
 
           {/* Social Media & Web Links */}
-          <div className="sm:col-span-2 pt-3 border-t dark:border-neutral-800 space-y-3">
-            <h4 className={`text-xs font-black uppercase tracking-wider ${headingText}`}>
+          <div className="sm:col-span-2 space-y-3 border-t border-[color:var(--workspace-border)] pt-4">
+            <h4 className={`text-sm font-bold ${headingText}`}>
               Social Media & Web Presence
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -357,7 +357,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
         </div>
 
-        <div className="flex justify-end pt-3 border-t dark:border-neutral-800">
+        <div className="flex justify-end border-t border-[color:var(--workspace-border)] pt-4">
           <button
             type="button"
             onClick={() => handleSaveProfile()}
