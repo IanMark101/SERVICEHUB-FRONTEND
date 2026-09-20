@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ArrowLeft, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, CircleAlert, Moon, Sun } from 'lucide-react';
 import useAuthForm from '../../schema/auth/useAuthForm';
 import AuthLeftPanel from './AuthLeftPanel';
 import LoginForm from './LoginForm';
@@ -41,6 +41,22 @@ export default function LoginContainer({
   const [theme] = useState<'orange'>('orange');
   const [initialResetToken] = useState(() => typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('resetToken') || '');
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot' | 'reset'>(() => initialResetToken ? 'reset' : 'login');
+  const [sessionNotice] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const reason = new URLSearchParams(window.location.search).get('reason');
+    return reason === 'session-expired' || window.sessionStorage.getItem('servicehub:auth-notice') === 'session-expired';
+  });
+
+  React.useEffect(() => {
+    if (!sessionNotice) return;
+
+    window.sessionStorage.removeItem('servicehub:auth-notice');
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('reason') === 'session-expired') {
+      url.searchParams.delete('reason');
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+  }, [sessionNotice]);
 
   const {
     formData,
@@ -115,6 +131,16 @@ export default function LoginContainer({
 
         <div className="flex flex-1 items-center py-6 lg:py-10">
         <div className="mx-auto w-full max-w-[27rem]">
+
+          {sessionNotice && mode === 'login' && (
+            <div role="status" className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-200">
+              <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-bold">Your session ended</p>
+                <p className="mt-0.5 text-xs leading-relaxed opacity-85">Sign in again to continue. Your account and saved marketplace activity are unchanged.</p>
+              </div>
+            </div>
+          )}
           
           {/* Error Message Banner */}
           {error && (

@@ -235,35 +235,22 @@ export default function RequestManager({
                       : 'bg-white border-slate-200 hover:border-slate-300'
                   }`}
                 >
-                  {/* Tier 1: Header Bar (Badges on Left, Action Controls on Right) */}
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    {/* Left: Category & Urgency Badges */}
-                    <div className="flex flex-wrap items-center gap-2">
+                  {/* Tier 1: Category on the left, controls on the right. */}
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 border ${
                         isDark ? 'bg-orange-950/30 border-orange-900/40 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-700'
                       }`}>
                         <FolderSimple className="h-3.5 w-3.5" weight="duotone" /> {req.category}
                       </span>
-
-                      <span className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1 border ${
-                        isDark ? 'bg-amber-955/20 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-200 text-amber-800'
-                      }`}>
-                        <Alarm className="h-3.5 w-3.5" weight="duotone" /> Needed: {formatUrgencyDisplay(req.urgency)}
-                      </span>
-
-                      <span className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border inline-flex items-center gap-1 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-400' : 'bg-slate-50 border-slate-200 text-slate-500'
-                      }`}>
-                        <MapPin className="h-3.5 w-3.5" weight="duotone" /> Central Cordova
-                      </span>
                     </div>
 
-                    {/* Right: Action Buttons & Toggle */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      {/* Offers count badge */}
+                    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                       <button
+                        type="button"
                         onClick={onNavigateToOffers}
-                        className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-lg transition-all text-xs font-semibold cursor-pointer ${
+                        aria-label={`View ${offerCount} ${offerCount === 1 ? 'offer' : 'offers'} for ${req.title}`}
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
                           offerCount > 0
                             ? isDark 
                               ? 'bg-orange-950/40 text-orange-400 border-orange-800/60 hover:bg-orange-900/50' 
@@ -274,13 +261,15 @@ export default function RequestManager({
                         }`}
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Offers [{offerCount}]</span>
+                        <span>Offers ({offerCount})</span>
                       </button>
 
-                      {/* AI suggestions button */}
                       <button
+                        type="button"
                         onClick={() => handleToggleAiSuggestions(req.id)}
-                        className={`inline-flex items-center space-x-1 px-3 py-1.5 border rounded-lg transition-all text-xs font-semibold cursor-pointer ${
+                        aria-expanded={activeAiRequestId === req.id}
+                        aria-controls={`request-${req.id}-matches`}
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
                           activeAiRequestId === req.id
                             ? isDark
                               ? 'bg-orange-500/20 text-orange-400 border-orange-500/40'
@@ -294,10 +283,11 @@ export default function RequestManager({
                         <span>AI Matches</span>
                       </button>
 
-                      {/* Edit button */}
                       <button
+                        type="button"
                         onClick={() => handleOpenEdit(req)}
-                        className={`px-3 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1 cursor-pointer ${
+                        aria-label={`Edit ${req.title}`}
+                        className={`flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
                           isDark 
                             ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-[#f2efe9]' 
                             : 'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900'
@@ -307,10 +297,11 @@ export default function RequestManager({
                         <span>Edit</span>
                       </button>
 
-                      {/* Delete button */}
                       <button
+                        type="button"
                         onClick={() => handleDeleteRequestClick(req)}
-                        className={`px-3 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1 cursor-pointer ${
+                        aria-label={`Delete ${req.title}`}
+                        className={`flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
                           isDark 
                             ? 'border-red-950/45 hover:bg-red-950/20 text-red-400' 
                             : 'border-red-200 hover:bg-red-50 text-red-500'
@@ -320,8 +311,7 @@ export default function RequestManager({
                         <span>Delete</span>
                       </button>
 
-                      {/* Toggle accepting switch — locked when already booked */}
-                      <div className={`flex items-center space-x-2 border-l pl-3 ml-1 ${isDark ? 'border-neutral-850' : 'border-slate-200'}`}>
+                      <div className={`ml-1 flex min-h-8 items-center gap-2 border-l pl-3 ${isDark ? 'border-neutral-800' : 'border-slate-200'}`}>
                         {isBooked ? (
                           <div className="flex items-center gap-2">
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold border ${
@@ -353,6 +343,9 @@ export default function RequestManager({
                                 type="button"
                                 disabled={isToggling}
                                 onClick={() => handleToggleAccepting(req)}
+                                role="switch"
+                                aria-checked={!isPaused}
+                                aria-label={`${isPaused ? 'Activate' : 'Pause'} ${req.title}`}
                                 className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none ${
                                   isToggling ? 'opacity-80 cursor-wait' : 'cursor-pointer'
                                 } ${
@@ -388,8 +381,8 @@ export default function RequestManager({
                     </div>
                   </div>
 
-                  {/* Tier 2: Title & Description */}
-                  <div className="space-y-1.5">
+                  {/* Tier 2: Request content */}
+                  <div className="min-w-0 space-y-1.5">
                     <h3 className={`font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                       {req.title}
                     </h3>
@@ -400,11 +393,10 @@ export default function RequestManager({
                     )}
                   </div>
 
-                  {/* Tier 3: Bottom Metrics Bar */}
+                  {/* Tier 3: Budget and request metadata */}
                   <div className={`pt-3.5 border-t flex flex-wrap items-center justify-between gap-3 text-xs ${
-                    isDark ? 'border-neutral-850/80' : 'border-slate-100'
+                    isDark ? 'border-neutral-800/80' : 'border-slate-100'
                   }`}>
-                    {/* Budget Highlight */}
                     <div className="flex items-center space-x-2">
                       <span className="text-[11px] font-semibold text-slate-500">Estimated budget</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>
@@ -412,30 +404,32 @@ export default function RequestManager({
                       </span>
                     </div>
 
-                    {/* Metadata Pills */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        <MessageSquare className="h-3.5 w-3.5" /> {offerCount} {offerCount === 1 ? 'Offer' : 'Offers'} Received
+                        <Alarm className="h-3.5 w-3.5" weight="duotone" /> Needed {formatUrgencyDisplay(req.urgency)}
                       </span>
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
                         isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}>
-                        <Alarm className="h-3.5 w-3.5" weight="duotone" /> {formatUrgencyDisplay(req.urgency)}
+                        <MapPin className="h-3.5 w-3.5" weight="duotone" /> Central Cordova
                       </span>
                     </div>
                   </div>
 
                   {/* Collapsible AI Recommendations Section */}
                   {activeAiRequestId === req.id && (
-                    <div className={`w-full border-t p-4 mt-2 rounded-2xl animate-in slide-in-from-top-3 duration-200 ${
-                      isDark ? 'border-neutral-850 bg-[#1c1b18]/50' : 'border-slate-100 bg-slate-50/70'
-                    }`}>
+                    <div
+                      id={`request-${req.id}-matches`}
+                      className={`w-full rounded-xl border p-4 animate-in slide-in-from-top-3 duration-200 ${
+                        isDark ? 'border-neutral-800 bg-[#1c1b18]/70' : 'border-slate-200 bg-slate-50/80'
+                      }`}
+                    >
                       <div className="flex items-center space-x-2 mb-3">
                         <UsersRound className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-                        <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-[#f2efe9]">
-                          Suggested Providers (Gemini Matchmaker)
+                        <h4 className="text-xs font-bold text-slate-800 dark:text-[#f2efe9]">
+                          Suggested providers
                         </h4>
                       </div>
 
@@ -470,7 +464,7 @@ export default function RequestManager({
                                   <span className="font-extrabold text-orange-600 dark:text-orange-400">Rank #{idx + 1}</span>
                                   <span className="font-extrabold text-slate-900 dark:text-white">{sug.name}</span>
                                 </div>
-                                <p className="text-slate-650 dark:text-[#b4b0a9] italic leading-normal">
+                                <p className="text-slate-600 dark:text-[#b4b0a9] italic leading-normal">
                                   {sug.rationale}
                                 </p>
                               </div>

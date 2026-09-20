@@ -28,6 +28,7 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
     'ONGOING': 'in_progress',
     'ACCEPTED': 'in_progress',
     'AWAITING_CONFIRMATION': 'awaiting_seeker_approval',
+    'UNDER_REVIEW': 'disputed',
     'DISPUTED': 'disputed',
     'DECLINED': 'canceled',
     'CANCELED': 'canceled',
@@ -123,7 +124,9 @@ export function mapServiceToListing(item: ApiService): ServiceListing {
     category: item.category?.name || 'General',
     description: item.description,
     price: Number(item.price),
-    queueSize: (item.queueEntries?.length || 0) + (item.bookings?.length || 0),
+    // Queue rows are the canonical online-capacity ledger. Bookings overlap
+    // with SERVING rows, while ongoing cash bookings must not consume it.
+    queueSize: item.queueEntries?.length || 0,
     queueLimit: item.queueLimit || 5,
     isPaused: !item.isAvailable,
     proofOfSkillUrl: '',

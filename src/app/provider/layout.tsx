@@ -67,7 +67,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
   return (
     <div className={`workspace-shell workspace-shell--provider h-screen overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#121211] text-[#f2efe9]' : 'bg-[#f5f4f2] text-slate-800'
+      isDark ? 'bg-[#141312] text-[#f2efe9]' : 'bg-[#f7f6f3] text-slate-800'
     }`}>
       
       {/* Sidebar Component */}
@@ -85,7 +85,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
       />
  
       {/* Main Content Pane */}
-      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-all duration-300 ${
+      <div className={`workspace-stage flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-all duration-300 ${
         isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         
@@ -101,7 +101,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="workspace-content flex-1 w-full max-w-[1440px] mx-auto px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-5">
+        <main className="workspace-content flex-1 w-full max-w-[1440px] mx-auto px-4 pb-5 pt-3 sm:px-6 sm:pb-6 md:px-8 md:pb-6">
           
           {/* The sticky header already identifies the current page. Only show
               actionable status here when a queue needs the user's attention. */}

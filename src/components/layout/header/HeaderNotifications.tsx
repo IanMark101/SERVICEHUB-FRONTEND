@@ -78,7 +78,7 @@ export default function HeaderNotifications({
 
   return (
     <div className="relative">
-      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`workspace-header-control relative grid size-9 place-items-center rounded-full border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'} ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
+      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`workspace-header-control relative grid size-9 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${badgeClass} border border-white`} />}
       </button>
@@ -102,7 +102,7 @@ export default function HeaderNotifications({
                 const Icon = iconDetails.icon;
                 const iconBg = isDark ? 'bg-neutral-800/80' : iconDetails.color;
                 return (
-                  <div key={notification.id} onClick={() => onNotificationClick(notification.link)} className={`px-4 py-3.5 cursor-pointer flex space-x-3 transition-colors ${isDark ? 'hover:bg-neutral-800/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-neutral-800/35' : 'bg-slate-50') : ''}`}>
+                  <button type="button" key={notification.id} onClick={() => onNotificationClick(notification.link)} className={`w-full px-4 py-3.5 cursor-pointer flex space-x-3 text-left transition-colors ${isDark ? 'hover:bg-neutral-800/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-neutral-800/35' : 'bg-slate-50') : ''}`}>
                     <div className={`rounded-lg ${iconBg} h-8 w-8 flex-shrink-0 flex items-center justify-center`}>
                       <Icon className={`w-4 h-4 ${isDark ? 'text-slate-300' : ''}`} />
                     </div>
@@ -123,7 +123,7 @@ export default function HeaderNotifications({
                         </div>
                       )}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

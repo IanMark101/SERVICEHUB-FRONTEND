@@ -37,7 +37,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
     loadingItemId, loadingActionType, setReviewingEngagement,
     handleDeleteClick, setDisputingJob, setConfirmModal,
     handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
-    handleRequestAgain,
+    handleRequestAgain, openSafetyReport,
     currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
   } = model;
 
@@ -175,7 +175,8 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
                   handleEscalateClick,
                   handleCancelClick,
                   handleRespondCancellation,
-                  handleRequestAgain
+                  handleRequestAgain,
+                  openSafetyReport
                 }}
               />
             ))

@@ -244,6 +244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setIsAuthenticated(true);
           } else {
             clearAccessToken();
+            window.sessionStorage.setItem('servicehub:auth-notice', 'session-expired');
             setUser(null);
             setIsAuthenticated(false);
           }
@@ -268,6 +269,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleSessionExpired = () => {
       clearAccessToken();
+      window.sessionStorage.setItem('servicehub:auth-notice', 'session-expired');
       setIsAuthenticated(false);
       setUser(null);
       clearPrivateData();

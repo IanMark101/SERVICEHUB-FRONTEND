@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MagnifyingGlass as Search, List as Menu, ChatCircle as MessageSquare, Sun, Moon } from '@phosphor-icons/react';
+import { ArrowRight, Briefcase, MagnifyingGlass as Search, List as Menu, ChatCircle as MessageSquare, Sun, Moon } from '@phosphor-icons/react';
 import { UserSession } from '../auth/LoginContainer';
 import { resolveNotificationLink } from '../../lib/notificationRoutes';
 import { useApp } from '../../context/AppContext';
@@ -270,34 +270,45 @@ export default function Header({
   };
 
   return (
-    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 flex h-[76px] w-full items-center justify-between gap-3 px-4 py-3 font-sans sm:px-5 ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`}>
+    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 h-[68px] w-full gap-3 px-4 py-3 font-sans sm:px-6 md:px-8 ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`}>
 
-      {/* Page context follows the same compact type hierarchy as the landing header. */}
-      <div className="workspace-header-island workspace-header-context flex min-w-0 items-center gap-3 rounded-2xl px-2.5 py-2 sm:px-3">
+      {/* Left identity card: dashboard counterpart to the landing brand card. */}
+      <div className="workspace-header-card workspace-header-context flex min-w-0 items-center gap-2.5">
         <button
           type="button"
           aria-label="Open workspace navigation"
           onClick={() => setIsMobileOpen(true)}
-          className={`workspace-header-control grid size-9 shrink-0 place-items-center rounded-full border transition-colors md:hidden ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
-            }`}
+          className={`workspace-header-control grid size-8 shrink-0 place-items-center rounded-full transition-colors md:hidden`}
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="flex min-w-0 items-center gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
           {currentRole === 'admin' ? (
-            <span className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2]' : 'border-black/10 bg-[#fffdfa] text-[#171716]'}`}>Administrator</span>
+            <span className={`text-xs font-semibold ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>Administrator</span>
           ) : (
-            <div className="min-w-0 leading-tight">
-              <span className={`block truncate text-[11px] font-semibold ${currentRole === 'seeker' ? isDark ? 'text-[#f3b69f]' : 'text-[#92452b]' : isDark ? 'text-[#9be5c2]' : 'text-[#056b4f]'}`}>{currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}</span>
-              <span className={`mt-0.5 block truncate text-[16px] font-semibold capitalize leading-tight tracking-[-0.025em] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>{pageName}</span>
-            </div>
+            <>
+              <span className="workspace-header-role-mark hidden size-8 shrink-0 place-items-center rounded-[10px] sm:grid" aria-hidden="true">
+                {currentRole === 'seeker'
+                  ? <Search size={16} weight="bold" />
+                  : <Briefcase size={16} weight="bold" />}
+              </span>
+              <div className="min-w-0 leading-tight">
+                <span className="workspace-header-role-label block truncate text-[9.5px] font-bold uppercase tracking-[0.12em]">
+                  {currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}
+                </span>
+                <span className={`mt-0.5 block truncate text-[14px] font-bold capitalize leading-none tracking-[-0.025em] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>
+                  {pageName}
+                </span>
+              </div>
+            </>
           )}
 
           {user && user.role !== 'admin' && user.verificationStatus !== 'APPROVED' && (
-            <span
+            <button
+              type="button"
               onClick={navigateToVerification}
               title="Click to go to verification profile"
-              className={`cursor-pointer px-2.5 py-1 text-[9px] font-extrabold rounded-lg border flex items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] ${
+              className={`cursor-pointer px-2 py-0.5 text-[9px] font-extrabold rounded-md border hidden items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] 2xl:flex ${
                 user.verificationStatus === 'PENDING_REVIEW'
                   ? isDark
                     ? 'bg-amber-950/20 border-amber-900/30 text-amber-400'
@@ -309,29 +320,30 @@ export default function Header({
             >
               <span className={`w-1.5 h-1.5 rounded-full ${user.verificationStatus === 'PENDING_REVIEW' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`} />
               <span>{user.verificationStatus === 'PENDING_REVIEW' ? 'Verification Under Review' : 'Limited Mode'}</span>
-            </span>
+            </button>
           )}
         </div>
       </div>
 
-      <HeaderDesktopSearch
-        model={{
-          userSearchRef,
-          userSearch,
-          setUserSearch: handleSearchChange,
-          setShowUserSearchResults,
-          showUserSearchResults,
-          userSearchLoading,
-          userSearchResults,
-          isDark,
-          theme,
-          getDisplayName,
-          handleOpenUserProfile
-        }}
-      />
+      {/* One coherent utility bar, following the landing header's nav pill. */}
+      <div className="workspace-header-toolbar workspace-header-actions flex min-w-0 shrink-0 items-center gap-1.5">
 
-      {/* Right side: Notifications & Profile Avatar dropdowns */}
-      <div className="workspace-header-island workspace-header-actions flex shrink-0 items-center gap-0.5 rounded-full p-1.5">
+        <HeaderDesktopSearch
+          model={{
+            userSearchRef,
+            userSearch,
+            setUserSearch: handleSearchChange,
+            setShowUserSearchResults,
+            showUserSearchResults,
+            userSearchLoading,
+            userSearchResults,
+            isDark,
+            getDisplayName,
+            handleOpenUserProfile
+          }}
+        />
+
+        <span className="workspace-header-divider hidden h-5 w-px lg:block" aria-hidden="true" />
 
         {/* Mobile Search Toggle Icon */}
         <button
@@ -342,10 +354,10 @@ export default function Header({
             setShowNotifications(false);
             setShowProfileMenu(false);
           }}
-          className={`workspace-header-control grid size-9 place-items-center rounded-full border transition-colors lg:hidden ${
+          className={`workspace-header-control grid size-9 place-items-center rounded-full transition-colors lg:hidden ${
             isMobileSearchOpen
-              ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/15 text-[#e9a58c]' : 'border-[#c86544]/35 bg-[#f5ebe6] text-[#aa5032]'
-              : isDark ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
+              ? isDark ? 'bg-[#c86544]/15 text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#aa5032]'
+              : ''
           }`}
           title="Search people"
         >
@@ -353,17 +365,28 @@ export default function Header({
         </button>
 
         {/* Global Hub Indicator */}
-        {currentRole !== 'admin' && activeTab !== 'community-hub' && (
+        {currentRole !== 'admin' && (
           <button
             type="button"
             aria-label="Open Community Hub"
+            title="Community Hub"
+            aria-current={activeTab === 'community-hub' ? 'page' : undefined}
             onClick={() => setActiveTab('community-hub')}
-            className={`workspace-header-control hidden min-h-9 items-center rounded-full border px-3.5 py-2 text-xs font-semibold transition-colors xl:flex ${isDark
-                ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
-                : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
-              }`}
+            className="workspace-landing-cta group/btn relative ml-6 inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full bg-[#0a0a0a] px-4 py-1.5 text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_6px_14px_-3px_rgba(0,0,0,0.4)] ring-1 ring-black/20 transition-all hover:scale-[1.02] hover:bg-[#161616] active:scale-[0.97] dark:bg-white dark:text-[#0a0a0a] dark:hover:bg-neutral-100"
           >
-            <span>Community Hub</span>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-full dark:hidden"
+              style={{
+                background: 'radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.16), transparent 60%)',
+              }}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 ease-out group-hover/btn:translate-x-full"
+            />
+            <span className="relative z-10">Community Hub</span>
+            <ArrowRight size={13} className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
           </button>
         )}
 
@@ -372,10 +395,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
-            className={`workspace-header-control relative hidden size-9 cursor-pointer place-items-center rounded-full border transition-colors sm:grid ${isDark
-                ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
-                : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
-              }`}
+            className={`workspace-header-control relative hidden size-9 cursor-pointer place-items-center rounded-full transition-colors sm:grid ${isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-950'}`}
             title="Direct Messages"
           >
             <MessageSquare className="w-4 h-4" />
@@ -392,10 +412,7 @@ export default function Header({
           type="button"
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={toggleTheme}
-          className={`workspace-header-control grid size-9 place-items-center rounded-full border transition-colors ${isDark
-              ? 'border-white/10 bg-[#201f1c] text-[#f5f4f2] hover:bg-white/10'
-              : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
-            }`}
+          className={`workspace-header-control grid size-9 place-items-center rounded-full transition-colors ${isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-950'}`}
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

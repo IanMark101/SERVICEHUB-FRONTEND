@@ -139,8 +139,8 @@ export async function apiListReports(params?: { page?: number; limit?: number })
   return response.data;
 }
 
-export async function apiResolveReport(id: string, action: 'warn' | 'trust_deduct' | 'suspend' | 'ban' | 'approve_refund' | 'release_provider_and_complete' | 'dismiss', adminNotes?: string) {
-  const response = await api.patch(`/admin/reports/${id}/resolve`, { action, adminNotes });
+export async function apiResolveReport(id: string, outcome: 'dismiss' | 'cancel_booking' | 'release_provider_and_complete', penaltyAction: 'none' | 'warn' | 'trust_deduct' | 'suspend' | 'ban', adminNotes?: string) {
+  const response = await api.patch(`/admin/reports/${id}/resolve`, { outcome, penaltyAction, adminNotes });
   return response.data;
 }
 
@@ -149,7 +149,7 @@ export async function apiListCompletionEscalations(params?: { page?: number; lim
   return response.data;
 }
 
-export async function apiResolveCompletionEscalation(id: string, action: 'release_provider_and_complete' | 'keep_awaiting', resolution: string) {
+export async function apiResolveCompletionEscalation(id: string, action: 'release_provider_and_complete' | 'refund_seeker' | 'keep_awaiting', resolution: string) {
   const response = await api.patch(`/admin/completion-escalations/${id}/resolve`, { action, resolution });
   return response.data;
 }

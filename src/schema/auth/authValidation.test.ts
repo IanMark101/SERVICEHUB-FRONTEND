@@ -12,6 +12,20 @@ describe('authentication validation', () => {
     expect(result.success).toBe(false);
   });
 
+  it('shows required messages before format errors for an empty login', () => {
+    const result = loginSchema.safeParse({ email: '', password: '' });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const firstMessageByField = new Map<string, string>();
+      result.error.issues.forEach((issue) => {
+        const field = String(issue.path[0]);
+        if (!firstMessageByField.has(field)) firstMessageByField.set(field, issue.message);
+      });
+      expect(firstMessageByField.get('email')).toBe('Email is required');
+      expect(firstMessageByField.get('password')).toBe('Password is required');
+    }
+  });
+
   it('requires strong matching signup credentials and terms consent', () => {
     const result = signupStep1Schema.safeParse({
       firstName: 'Ana',

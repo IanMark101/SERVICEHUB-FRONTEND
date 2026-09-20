@@ -15,7 +15,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { apiAccessReportEvidence, apiCancelAdminBooking, apiGetAdminBookingMessages, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
+import { apiAccessReportEvidence, apiCancelAdminBooking, apiGetAdminBookingMessages, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveEscalatedCancellation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
 import { useApp } from "../../../context/AppContext";
 import { getSocket } from "../../../lib/socket";
 import { useToast } from "../../../components/ui/Toast";
@@ -26,7 +26,8 @@ import WorkspacePageSkeleton from "../../../components/ui/WorkspacePageSkeleton"
 
 const REPORT_PAGE_SIZE = 10;
 
-type ResolutionAction = "warn" | "trust_deduct" | "suspend" | "ban" | "approve_refund" | "release_provider_and_complete" | "dismiss";
+type BookingOutcome = "dismiss" | "cancel_booking" | "release_provider_and_complete";
+type PenaltyAction = "none" | "warn" | "trust_deduct" | "suspend" | "ban";
 
 interface Party {
   id: string;
@@ -52,6 +53,8 @@ interface ReportCase {
   evidenceUrl?: string | null;
   hasPrivateEvidence?: boolean;
   status: string;
+  reportType?: string;
+  resolutionOperation?: { status: string; stage: string; lastError?: string | null } | null;
   createdAt: string;
   reporter: Party;
   reportedUser: Party;
@@ -69,6 +72,7 @@ interface ReportCase {
       id: string;
       reason?: string | null;
       providerNote?: string | null;
+      status?: string;
     } | null;
   };
 }
@@ -77,6 +81,8 @@ interface CompletionEscalationCase {
   id: string;
   reason: string;
   createdAt: string;
+  status: string;
+  resolutionOperation?: { status: string; stage: string; lastError?: string | null } | null;
   booking: {
     id: string;
     paymentMethod: string;
@@ -118,18 +124,23 @@ interface PaymentReconciliationItem {
   failureReason?: string | null;
 }
 
-const ACTION_LABELS: Record<ResolutionAction, string> = {
-  dismiss: "Dismiss report",
+const OUTCOME_LABELS: Record<BookingOutcome, string> = {
+  dismiss: "Dismiss and restore booking",
+  cancel_booking: "Cancel booking / refund online payment",
+  release_provider_and_complete: "Complete booking and settle payment",
+};
+
+const PENALTY_LABELS: Record<PenaltyAction, string> = {
+  none: "No additional penalty",
   warn: "Issue formal warning",
   trust_deduct: "Deduct 10 trust points",
   suspend: "Suspend account for 7 days",
   ban: "Permanently ban account",
-  approve_refund: "Cancel booking and issue PayMongo refund",
-  release_provider_and_complete: "Complete booking and update payment record",
 };
 
 type PendingReasonAction =
-  | { kind: 'completion'; item: CompletionEscalationCase; action: 'release_provider_and_complete' | 'keep_awaiting' }
+  | { kind: 'completion'; item: CompletionEscalationCase; action: 'release_provider_and_complete' | 'refund_seeker' | 'keep_awaiting' }
+  | { kind: 'cancellation'; item: ReportCase; approve: boolean }
   | { kind: 'cancel-booking'; booking: AdminBookingItem };
 
 export default function AdminReportsPage() {
@@ -149,7 +160,8 @@ export default function AdminReportsPage() {
   const [messagesByBooking, setMessagesByBooking] = useState<Record<string, CaseMessage[]>>({});
   const [messageLoadingId, setMessageLoadingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<ReportCase | null>(null);
-  const [action, setAction] = useState<ResolutionAction>("dismiss");
+  const [outcome, setOutcome] = useState<BookingOutcome>("dismiss");
+  const [penaltyAction, setPenaltyAction] = useState<PenaltyAction>("none");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [pendingReasonAction, setPendingReasonAction] = useState<PendingReasonAction | null>(null);
@@ -188,6 +200,11 @@ export default function AdminReportsPage() {
       if (pendingReasonAction.kind === 'completion') {
         await apiResolveCompletionEscalation(pendingReasonAction.item.id, pendingReasonAction.action, operationReason.trim());
         success('Escalation resolved', 'The decision was recorded in the administrator audit log.');
+      } else if (pendingReasonAction.kind === 'cancellation') {
+        const requestId = pendingReasonAction.item.booking.escalatedCancellation?.id;
+        if (!requestId) throw new Error('The cancellation request is not linked to this case.');
+        await apiResolveEscalatedCancellation(requestId, pendingReasonAction.approve, operationReason.trim());
+        success('Cancellation case resolved', pendingReasonAction.approve ? 'The cancellation and eligible refund were established.' : 'The booking remains active and the exact linked case was closed.');
       } else {
         await apiCancelAdminBooking(pendingReasonAction.booking.id, operationReason.trim());
         success('Booking cancelled', 'Queue and payment reconciliation were applied and audited.');
@@ -218,11 +235,12 @@ export default function AdminReportsPage() {
     if (!selected || notes.trim().length < 3) return;
     setSubmitting(true);
     try {
-      await apiResolveReport(selected.id, action, notes.trim());
+      await apiResolveReport(selected.id, outcome, penaltyAction, notes.trim());
       success("Case resolved", "The action was recorded and both parties were notified.");
       setSelected(null);
       setNotes("");
-      setAction("dismiss");
+      setOutcome("dismiss");
+      setPenaltyAction("none");
       await loadCases();
     } catch (cause: unknown) {
       showError("Resolution failed", getApiErrorMessage(cause, 'The resolution could not be saved.'));
@@ -302,9 +320,11 @@ export default function AdminReportsPage() {
                   </div>
                   <div className="flex shrink-0 gap-2">
                     <button onClick={() => { setPendingReasonAction({ kind: 'completion', item, action: 'keep_awaiting' }); setOperationReason(''); }} className="rounded-lg border px-3 py-2 text-[10px] font-bold">Keep awaiting</button>
+                    <button onClick={() => { setPendingReasonAction({ kind: 'completion', item, action: 'refund_seeker' }); setOperationReason(''); }} className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[10px] font-bold text-red-700 hover:bg-red-100">Refund seeker</button>
                     <button onClick={() => { setPendingReasonAction({ kind: 'completion', item, action: 'release_provider_and_complete' }); setOperationReason(''); }} className="rounded-lg bg-emerald-600 px-3 py-2 text-[10px] font-bold text-white">Record completion</button>
                   </div>
                 </div>
+                {item.resolutionOperation && item.resolutionOperation.status !== 'COMPLETED' && <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] font-semibold text-amber-800">Recovery state: {item.resolutionOperation.stage.replace(/_/g, ' ').toLowerCase()}. Retry the same decision to continue safely.</p>}
               </div>
             ))}
           </div>
@@ -464,9 +484,17 @@ export default function AdminReportsPage() {
                         ))}
                       </div>
                     )}
-                    <button onClick={() => { setSelected(item); setNotes(""); setAction("dismiss"); }} className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950">
-                      <Scale className="h-4 w-4" /> Review and resolve
-                    </button>
+                    {item.booking.escalatedCancellation ? (
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <button onClick={() => { setPendingReasonAction({ kind: 'cancellation', item, approve: false }); setOperationReason(''); }} className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-bold hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800">Keep booking active</button>
+                        <button onClick={() => { setPendingReasonAction({ kind: 'cancellation', item, approve: true }); setOperationReason(''); }} className="rounded-xl bg-red-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-red-700">Approve cancellation</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => { setSelected(item); setNotes(""); setOutcome("dismiss"); setPenaltyAction("none"); }} className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950">
+                        <Scale className="h-4 w-4" /> Review and resolve
+                      </button>
+                    )}
+                    {item.resolutionOperation && item.resolutionOperation.status !== 'COMPLETED' && <p className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[10px] font-semibold text-amber-800">Resolution interrupted at {item.resolutionOperation.stage.replace(/_/g, ' ').toLowerCase()}. Retry the same decision; financial effects are idempotent.</p>}
                   </div>
                 </div>
               </article>
@@ -485,18 +513,25 @@ export default function AdminReportsPage() {
               <button type="button" onClick={() => setSelected(null)}><X className="h-4 w-4" /></button>
             </div>
             <div className="space-y-4 p-5">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Resolution action
-                <select value={action} onChange={(event) => setAction(event.target.value as ResolutionAction)} className={`mt-1.5 w-full rounded-xl border p-3 text-xs normal-case ${mutedSurface}`}>
-                  {(Object.keys(ACTION_LABELS) as ResolutionAction[]).map((value) => (
-                    <option key={value} value={value}>{ACTION_LABELS[value]}</option>
+              <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Required booking outcome
+                <select value={outcome} onChange={(event) => setOutcome(event.target.value as BookingOutcome)} className={`mt-1.5 w-full rounded-xl border p-3 text-xs normal-case ${mutedSurface}`}>
+                  {(Object.keys(OUTCOME_LABELS) as BookingOutcome[]).map((value) => (
+                    <option key={value} value={value}>{OUTCOME_LABELS[value]}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Optional moderation consequence
+                <select value={penaltyAction} onChange={(event) => setPenaltyAction(event.target.value as PenaltyAction)} className={`mt-1.5 w-full rounded-xl border p-3 text-xs normal-case ${mutedSurface}`}>
+                  {(Object.keys(PENALTY_LABELS) as PenaltyAction[]).map((value) => (
+                    <option key={value} value={value}>{PENALTY_LABELS[value]}</option>
                   ))}
                 </select>
               </label>
               <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Decision explanation
                 <textarea required minLength={3} maxLength={2000} value={notes} onChange={(event) => setNotes(event.target.value)} rows={5} placeholder="State the evidence considered and explain the final decision..." className={`mt-1.5 w-full resize-none rounded-xl border p-3 text-xs normal-case leading-5 ${mutedSurface}`} />
               </label>
-              {action === "approve_refund" && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] leading-4 text-amber-800">This submits a refund through the configured PayMongo Test Mode account and applies only to held online test payments.</p>}
-              {action === "release_provider_and_complete" && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[10px] leading-4 text-emerald-800">This completes the disputed booking. Online funds enter the provider ledger; cash is recorded only as externally confirmed.</p>}
+              {outcome === "cancel_booking" && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] leading-4 text-amber-800">Online bookings use the configured PayMongo Test Mode refund. Cash bookings are cancelled without creating a platform refund.</p>}
+              {outcome === "release_provider_and_complete" && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[10px] leading-4 text-emerald-800">This completes the disputed booking. Online funds enter the provider ledger; cash is recorded only as externally confirmed.</p>}
             </div>
             <div className="flex justify-end gap-2 border-t border-slate-200 p-5 dark:border-neutral-800">
               <button type="button" onClick={() => setSelected(null)} className="rounded-xl border px-4 py-2 text-xs font-bold">Cancel</button>
@@ -509,16 +544,18 @@ export default function AdminReportsPage() {
       )}
       <ReasonModal
         isOpen={!!pendingReasonAction}
-        title={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel and reconcile booking' : pendingReasonAction?.action === 'keep_awaiting' ? 'Keep awaiting confirmation' : 'Record booking completion'}
+        title={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel and reconcile booking' : pendingReasonAction?.kind === 'cancellation' ? (pendingReasonAction.approve ? 'Approve cancellation' : 'Keep booking active') : pendingReasonAction?.action === 'keep_awaiting' ? 'Keep awaiting confirmation' : pendingReasonAction?.action === 'refund_seeker' ? 'Refund seeker' : 'Record booking completion'}
         description={pendingReasonAction?.kind === 'cancel-booking'
           ? 'Explain why this unstarted booking must be cancelled. Queue and eligible Test Mode payment reconciliation will be applied.'
-          : 'Explain the evidence supporting this completion-escalation decision. The decision is audit logged.'}
+          : pendingReasonAction?.kind === 'cancellation'
+          ? 'Explain the evidence supporting this cancellation decision. Only the exact linked cancellation case will close.'
+          : 'Explain the evidence supporting this completion-escalation decision. The decision is durable and audit logged.'}
         value={operationReason}
         onChange={setOperationReason}
         onClose={() => { if (!operationSubmitting) { setPendingReasonAction(null); setOperationReason(''); } }}
         onSubmit={submitReasonAction}
-        confirmText={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel booking' : 'Save decision'}
-        variant={pendingReasonAction?.kind === 'cancel-booking' ? 'danger' : 'primary'}
+        confirmText={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel booking' : pendingReasonAction?.kind === 'cancellation' ? (pendingReasonAction.approve ? 'Approve cancellation' : 'Keep booking active') : 'Save decision'}
+        variant={pendingReasonAction?.kind === 'cancel-booking' || (pendingReasonAction?.kind === 'cancellation' && pendingReasonAction.approve) || (pendingReasonAction?.kind === 'completion' && pendingReasonAction.action === 'refund_seeker') ? 'danger' : 'primary'}
         isSubmitting={operationSubmitting}
       />
     </div>

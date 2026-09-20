@@ -32,6 +32,11 @@ export async function apiRefresh() {
   return response.data;
 }
 
+export async function apiSession() {
+  const response = await api.post('/auth/session');
+  return response.data;
+}
+
 export async function apiGetMe() {
   const response = await api.get('/auth/me');
   return response.data;
@@ -45,11 +50,15 @@ export async function apiGetMe() {
 export function apiRecoverSession() {
   if (!sessionRecoveryRequest) {
     sessionRecoveryRequest = (async () => {
-      // Access tokens are intentionally memory-only. Restore a browser session
-      // from the rotated HttpOnly refresh cookie before requesting /auth/me.
-      const refreshResult = await apiRefresh();
-      const accessToken = refreshResult?.data?.accessToken || refreshResult?.accessToken;
-      if (!accessToken) throw new Error('No access token returned from refresh');
+      // Initial page recovery is intentionally non-rotating. A user can reload
+      // again before the previous response commits its Set-Cookie header; using
+      // the one-time rotation endpoint here would incorrectly revoke the session.
+      const sessionResult = await apiSession();
+      if (!sessionResult?.data?.authenticated) {
+        return { success: false, data: { user: null } };
+      }
+      const accessToken = sessionResult.data.accessToken;
+      if (!accessToken) throw new Error('No access token returned from session recovery');
       setAccessToken(accessToken);
       return apiGetMe();
     })().finally(() => {

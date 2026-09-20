@@ -80,9 +80,14 @@ export default function useAuthForm({
   const formData = useWatch({ control }) as AuthFormValues;
 
   const applyValidationIssues = (issues: ZodIssue[]) => {
+    const invalidFields = new Set<string>();
     issues.forEach((issue) => {
       const field = issue.path[0];
-      if (typeof field === 'string') {
+      // Zod can report several failures for one value (for example, an empty
+      // email also fails every format refinement). The first issue is the most
+      // useful and specific one; do not overwrite it with a later format error.
+      if (typeof field === 'string' && !invalidFields.has(field)) {
+        invalidFields.add(field);
         setRHFError(field as FieldPath<AuthFormValues>, { type: 'manual', message: issue.message });
       }
     });

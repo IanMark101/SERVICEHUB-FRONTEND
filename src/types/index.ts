@@ -144,6 +144,8 @@ export interface JobEngagement {
     responderNote?: string | null;
     providerNote?: string | null;
     adminNote?: string | null;
+    adminId?: string | null;
+    resolutionOutcome?: string | null;
   }>;
   queuePosition?: number;
 }

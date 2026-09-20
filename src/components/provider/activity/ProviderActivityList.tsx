@@ -40,7 +40,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
     handleCancelOffer, handleApproveCancellation, handleDeleteClick,
     handleProviderStartJob, handleRequestJobApproval, handleCompletionEscalation,
     handleProviderRemoveFromQueue, handleEscalateCancellation, setRespondingReqId, setDeclineNote,
-    setReviewingEngagement, resolvedProviderId, user, currentPage,
+    setReviewingEngagement, openSafetyReport, resolvedProviderId, user, currentPage,
     totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
   } = model;
 
@@ -184,7 +184,8 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                   setDeclineNote,
                   setReviewingEngagement,
                   resolvedProviderId,
-                  user
+                  user,
+                  openSafetyReport
                 }}
               />
             ))

@@ -14,7 +14,6 @@ interface HeaderDesktopSearchModel {
   userSearchLoading: boolean;
   userSearchResults: User[];
   isDark: boolean;
-  theme: { ring: string };
   getDisplayName: (user: User) => string;
   handleOpenUserProfile: (user: User) => void;
 }
@@ -29,7 +28,6 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
     userSearchLoading,
     userSearchResults,
     isDark,
-    theme,
     getDisplayName,
     handleOpenUserProfile
   } = model;
@@ -37,12 +35,16 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
   return (
     <>
       {/* Middle: Global User Search Bar (Responsive from sm up) */}
-      <div ref={userSearchRef} className="workspace-header-search relative mx-2 hidden min-w-[180px] max-w-[280px] flex-1 lg:block">
+      <div ref={userSearchRef} className="workspace-header-search relative hidden lg:block">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#6f6a64] dark:text-[#aaa59d] pointer-events-none">
           <Search className="w-3.5 h-3.5" />
         </span>
         <input
           aria-label="Search people"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={showUserSearchResults}
+          aria-controls="workspace-people-search-results"
           type="text"
           value={userSearch}
           onChange={(e) => {
@@ -56,9 +58,9 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
             }
           }}
           placeholder="Search people..."
-          className={`workspace-header-control w-full rounded-full border py-2 pl-9 pr-8 text-xs transition-colors ${isDark
-              ? `border-white/10 bg-[#201f1c] text-[#f5f4f2] placeholder:text-[#aaa59d] focus:outline-none focus:ring-2 ${theme.ring}`
-              : `border-black/10 bg-[#fffdfa] text-[#171716] placeholder:text-[#6f6a64] focus:outline-none focus:ring-2 ${theme.ring}`
+          className={`workspace-header-control h-9 w-full rounded-full py-1.5 pl-9 pr-8 text-xs transition-colors ${isDark
+              ? 'text-[#f5f4f2] placeholder:text-[#aaa59d] focus:outline-none'
+              : 'text-[#171716] placeholder:text-[#6f6a64] focus:outline-none'
             }`}
         />
         {userSearch && (
@@ -76,7 +78,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
         )}
 
         {showUserSearchResults && (
-          <div className={`absolute left-0 right-0 mt-2 z-50 rounded-2xl border shadow-2xl overflow-hidden max-h-72 overflow-y-auto ${isDark ? 'bg-[#191919] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'}`}>
+          <div id="workspace-people-search-results" role="listbox" aria-label="People search results" className={`absolute left-0 right-0 mt-2 z-50 rounded-2xl border shadow-2xl overflow-hidden max-h-72 overflow-y-auto ${isDark ? 'bg-[#191919] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'}`}>
             {userSearchLoading ? (
               <div className="px-4 py-3 text-xs text-slate-500 dark:text-neutral-400 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />

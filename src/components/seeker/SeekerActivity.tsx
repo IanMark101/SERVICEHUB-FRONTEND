@@ -20,6 +20,7 @@ import SeekerActivityList from './activity/SeekerActivityList';
 import ReasonModal from '../ui/ReasonModal';
 import RequestServiceModal from './RequestServiceModal';
 import { getApiErrorMessage } from '../../lib/api/errors';
+import SafetyReportModal from '../activity/SafetyReportModal';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -38,6 +39,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const [decliningCancellationId, setDecliningCancellationId] = useState<string | null>(null);
   const [declineCancellationReason, setDeclineCancellationReason] = useState('');
   const [repeatListing, setRepeatListing] = useState<ServiceListing | null>(null);
+  const [reportingEngagement, setReportingEngagement] = useState<JobEngagement | null>(null);
 
   const handleRequestAgain = (engagement: JobEngagement) => {
     const listing = services.find((service) => service.id === engagement.serviceId);
@@ -385,13 +387,25 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           loadingItemId, loadingActionType, setReviewingEngagement,
           handleDeleteClick, setDisputingJob, setConfirmModal,
           handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
-          handleRequestAgain,
+          handleRequestAgain, openSafetyReport: setReportingEngagement,
           currentUserId: resolvedUserId,
           currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
         }}
       />
 
       {repeatListing && <RequestServiceModal listing={repeatListing} onClose={() => setRepeatListing(null)} />}
+
+      <SafetyReportModal
+        engagement={reportingEngagement}
+        targetRole="provider"
+        isDark={isDark}
+        onClose={() => setReportingEngagement(null)}
+        onSubmitted={async (created) => {
+          if (created) success('Report submitted', 'Your private safety report was sent to an administrator.');
+          else info('Report already received', 'This same incident is already in the moderation queue.');
+          await refreshEngagements();
+        }}
+      />
 
       <SeekerDisputeModal
         engagement={disputingJob}

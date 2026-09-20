@@ -16,15 +16,13 @@ export function useRouteGuard(allowedRoles: UserRole[]) {
   useEffect(() => {
     if (!authLoading) {
       if (!isAuthenticated) {
-        router.push('/login');
+        const sessionExpired = typeof window !== 'undefined'
+          && window.sessionStorage.getItem('servicehub:auth-notice') === 'session-expired';
+        router.replace(sessionExpired ? '/login?reason=session-expired' : '/login');
       } else if (user) {
         const hasAccess = stableAllowedRoles.includes(userRoleType);
         if (!hasAccess) {
-          if (userRoleType === 'admin') {
-            router.push('/admin/overview');
-          } else {
-            router.push('/dashboard');
-          }
+          router.replace('/access-denied');
         }
       }
     }

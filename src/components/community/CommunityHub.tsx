@@ -6,7 +6,7 @@ import CommunityStats from '../../features/community/components/CommunityStats';
 import CommunityUpdates from '../../features/community/components/CommunityUpdates';
 import RecentlyAdded from '../../features/community/components/RecentlyAdded';
 import TopProviders from '../../features/community/components/TopProviders';
-import { Warning, ArrowClockwise } from '@phosphor-icons/react';
+import WorkspaceErrorState from '../ui/WorkspaceErrorState';
 
 export default function CommunityHub() {
   const { isDark, user } = useApp();
@@ -17,11 +17,11 @@ export default function CommunityHub() {
     return (
       <div className={`space-y-8 pb-10 ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>
         <CommunityHeader isDark={isDark} />
-        <div role="alert" className={`rounded-2xl p-6 border text-center flex flex-col items-center justify-center space-y-3 shadow-sm ${isDark ? 'bg-red-950/20 border-red-900/30 text-red-400' : 'bg-red-50 border-red-200 text-red-700'}`}>
-          <Warning size={32} aria-hidden="true" />
-          <div className="space-y-1"><h3 className="text-sm font-extrabold">Unable to load Community Hub</h3><p className="text-xs max-w-md font-medium opacity-90">{error}</p></div>
-          <button onClick={refetch} className="flex items-center space-x-1.5 px-4 py-2 rounded-xl font-bold text-xs bg-red-600 hover:bg-red-700 text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"><ArrowClockwise size={14} aria-hidden="true" /><span>Try again</span></button>
-        </div>
+        <WorkspaceErrorState
+          title="Unable to load Community Hub"
+          description={error}
+          onRetry={refetch}
+        />
       </div>
     );
   }

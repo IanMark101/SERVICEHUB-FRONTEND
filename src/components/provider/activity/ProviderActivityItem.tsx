@@ -37,6 +37,7 @@ export interface ProviderActivityItemModel {
   setRespondingReqId: Dispatch<SetStateAction<string | null>>;
   setDeclineNote: Dispatch<SetStateAction<string>>;
   setReviewingEngagement: Dispatch<SetStateAction<JobEngagement | null>>;
+  openSafetyReport: (engagement: JobEngagement) => void;
   resolvedProviderId?: string;
   user: UserSession | null;
 }
@@ -62,7 +63,8 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
     setDeclineNote,
     setReviewingEngagement,
     resolvedProviderId,
-    user
+    user,
+    openSafetyReport
   } = model;
 
               if (item.type === 'bid') {
@@ -268,6 +270,16 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                           </div>
                         );
                       }
+                      if (activeReq.status === 'UNDER_REVIEW') {
+                        const requestedByProvider = activeReq.requestedBy === resolvedProviderId;
+                        const canRetryApproval = !activeReq.adminId && !requestedByProvider;
+                        return (
+                          <div className={`flex flex-col gap-2 rounded-xl border p-3 text-[10px] ${isDark ? 'border-amber-900/30 bg-amber-950/15 text-amber-300' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+                            <div className="flex items-start gap-2"><Clock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /><span>{activeReq.adminId ? 'Administrator resolution is in progress. You can safely return to this page while the operation recovers.' : 'Cancellation approval is awaiting settlement. No duplicate cancellation will be created.'}</span></div>
+                            {canRetryApproval && <button disabled={!!loadingItemId} onClick={() => handleApproveCancellation(activeReq.id)} className="self-start rounded-lg border border-amber-300 bg-white px-2.5 py-1 font-bold text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-transparent dark:text-amber-200 dark:hover:bg-amber-950/30">{loadingItemId === activeReq.id ? 'Retrying…' : 'Retry approval'}</button>}
+                          </div>
+                        );
+                      }
                       if (activeReq.status === 'DECLINED') {
                         const requestedByProvider = activeReq.requestedBy === resolvedProviderId;
                         return (
@@ -311,7 +323,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                         <span className="text-sm font-extrabold text-emerald-500 dark:text-emerald-400">₱{je.price}</span>
                       </div>
 
-                      <div className="flex items-center space-x-1.5">
+                      <div className="flex flex-wrap items-center justify-end gap-1.5">
 
                         {/* Status badge */}
                         {je.status === 'in_progress' && (
@@ -413,6 +425,17 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                           </button>
                         )}
 
+                        {['queued', 'in_progress', 'awaiting_seeker_approval', 'disputed', 'completed', 'canceled'].includes(je.status) && (
+                          <button
+                            type="button"
+                            onClick={() => openSafetyReport(je)}
+                            className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10px] font-bold transition-colors ${isDark ? 'border-neutral-700 text-neutral-300 hover:border-emerald-800 hover:bg-emerald-950/20 hover:text-emerald-300' : 'border-emerald-200 text-emerald-800 hover:border-emerald-300 hover:bg-emerald-50'}`}
+                            title="Report a separate safety or conduct concern"
+                          >
+                            <AlertTriangle className="h-3.5 w-3.5" /> Safety report
+                          </button>
+                        )}
+
                         {/* Action buttons */}
                         {je.status === 'in_progress' && (() => {
                           const isStarted = !!je.started;
@@ -440,7 +463,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                                   </>
                                 )}
                               </button>
-                              {!je.cancellationRequests?.some((request) => ['PENDING', 'ESCALATED'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Cancel Booking</button>}
+                              {!je.cancellationRequests?.some((request) => ['PENDING', 'DECLINED', 'ESCALATED', 'UNDER_REVIEW'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Cancel Booking</button>}
                               </div>
                             );
                           }
@@ -464,7 +487,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                                 <span>Mark Completed</span>
                               )}
                             </button>
-                            {!je.cancellationRequests?.some((request) => ['PENDING', 'ESCALATED'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Request Cancellation</button>}
+                            {!je.cancellationRequests?.some((request) => ['PENDING', 'DECLINED', 'ESCALATED', 'UNDER_REVIEW'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Request Cancellation</button>}
                             </div>
                           );
                         })()}

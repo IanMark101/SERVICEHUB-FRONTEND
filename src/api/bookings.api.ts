@@ -108,7 +108,7 @@ export async function apiEscalateCancellationRequest(requestId: string) {
 }
 
 export async function apiAdminResolveCancellation(requestId: string, approve: boolean, adminNote?: string) {
-  const response = await api.patch(`/admin/cancellation-requests/${requestId}/resolve`, { approve, adminNote });
+  const response = await api.patch(`/admin/cancellation-requests/${requestId}/resolve`, { approve, adminNotes: adminNote });
   return response.data;
 }
 

@@ -18,6 +18,7 @@ import type { ProviderActivitySort, ProviderActivityTab } from './activity/types
 import ProviderActivityList from './activity/ProviderActivityList';
 import ReasonModal from '../ui/ReasonModal';
 import { getApiErrorMessage } from '../../lib/api/errors';
+import SafetyReportModal from '../activity/SafetyReportModal';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
@@ -71,6 +72,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
   const [cancelingBookingId, setCancelingBookingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+  const [reportingEngagement, setReportingEngagement] = useState<JobEngagement | null>(null);
 
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
@@ -420,7 +422,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
           handleCancelOffer, handleApproveCancellation, handleDeleteClick,
           handleProviderStartJob, handleRequestJobApproval, handleCompletionEscalation,
           handleProviderRemoveFromQueue, handleEscalateCancellation, setRespondingReqId, setDeclineNote,
-          setReviewingEngagement, resolvedProviderId, user, currentPage,
+          setReviewingEngagement, openSafetyReport: setReportingEngagement, resolvedProviderId, user, currentPage,
           totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
         }}
       />
@@ -437,6 +439,18 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         onDeclineNoteChange={setDeclineNote}
         onClose={() => setRespondingReqId(null)}
         onSubmit={handleDeclineSubmit}
+      />
+
+      <SafetyReportModal
+        engagement={reportingEngagement}
+        targetRole="seeker"
+        isDark={isDark}
+        onClose={() => setReportingEngagement(null)}
+        onSubmitted={async (created) => {
+          if (created) success('Report submitted', 'Your private safety report was sent to an administrator.');
+          else info('Report already received', 'This same incident is already in the moderation queue.');
+          await refreshEngagements();
+        }}
       />
 
       <ReasonModal

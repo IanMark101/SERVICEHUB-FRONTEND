@@ -35,6 +35,7 @@ export interface SeekerActivityItemModel {
   handleCancelClick: (engagement: JobEngagement) => void;
   handleRespondCancellation: (id: string, approve: boolean, note?: string) => void;
   handleRequestAgain: (engagement: JobEngagement) => void;
+  openSafetyReport: (engagement: JobEngagement) => void;
 }
 
 export default function SeekerActivityItem({ engagement: je, model }: { engagement: JobEngagement; model: SeekerActivityItemModel }) {
@@ -54,7 +55,8 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
     handleEscalateClick,
     handleCancelClick,
     handleRespondCancellation,
-    handleRequestAgain
+    handleRequestAgain,
+    openSafetyReport
   } = model;
 
               const formattedDate = new Date(je.createdAt).toLocaleDateString(undefined, {
@@ -155,6 +157,16 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                         </div>
                       );
                     }
+                    if (activeReq.status === 'UNDER_REVIEW') {
+                      const requestedBySeeker = activeReq.requestedBy === currentUserId;
+                      const canRetryApproval = !activeReq.adminId && !requestedBySeeker;
+                      return (
+                        <div className={`flex flex-col gap-2 rounded-xl border p-3 text-[10px] ${isDark ? 'border-amber-900/30 bg-amber-950/15 text-amber-300' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+                          <div className="flex items-start gap-2"><Clock className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" /><span>{activeReq.adminId ? 'Administrator resolution is in progress. You can safely return to this page while the operation recovers.' : 'Cancellation approval is awaiting settlement. No duplicate cancellation will be created.'}</span></div>
+                          {canRetryApproval && <button disabled={!!loadingItemId} onClick={() => handleRespondCancellation(activeReq.id, true)} className="self-start rounded-lg border border-amber-300 bg-white px-2.5 py-1 font-bold text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-transparent dark:text-amber-200 dark:hover:bg-amber-950/30">{loadingItemId === activeReq.id ? 'Retrying…' : 'Retry approval'}</button>}
+                        </div>
+                      );
+                    }
                     if (activeReq.status === 'DECLINED') {
                       const requestedBySeeker = activeReq.requestedBy === currentUserId;
                       return (
@@ -214,7 +226,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                     </div>
 
                     {/* Context actions */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
 
                       {/* Status Pills */}
                       {je.status === 'in_progress' && (
@@ -318,6 +330,17 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                         </button>
                       )}
 
+                      {['queued', 'in_progress', 'awaiting_seeker_approval', 'disputed', 'completed', 'canceled'].includes(je.status) && (
+                        <button
+                          type="button"
+                          onClick={() => openSafetyReport(je)}
+                          className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10px] font-bold transition-colors ${isDark ? 'border-neutral-700 text-neutral-300 hover:border-orange-800 hover:bg-orange-950/20 hover:text-orange-300' : 'border-orange-200 text-orange-800 hover:border-orange-300 hover:bg-orange-50'}`}
+                          title="Report a separate safety or conduct concern"
+                        >
+                          <AlertTriangle className="h-3.5 w-3.5" /> Safety report
+                        </button>
+                      )}
+
                       {/* Explicit Action Triggers */}
                       {je.status === 'awaiting_seeker_approval' && (
                         <div className="flex flex-col items-end space-y-2">
@@ -382,7 +405,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                       {['queued', 'pending_provider', 'in_progress'].includes(je.status) && (() => {
                         const activeReq = je.cancellationRequests?.[0];
                         // If there is an active request that is pending or escalated, do not show cancellation trigger buttons
-                        if (activeReq && ['PENDING', 'ESCALATED'].includes(activeReq.status)) {
+                        if (activeReq && ['PENDING', 'DECLINED', 'ESCALATED', 'UNDER_REVIEW'].includes(activeReq.status)) {
                           return null;
                         }
 

@@ -217,13 +217,16 @@ export default function SeekServices() {
 
       <LimitedModeDashboardCard role="seeker" />
 
-      {/* Search Banner */}
-      <div className="workspace-surface rounded-2xl border px-5 py-5 text-center sm:px-7 sm:py-6">
+      {/* Search Banner: Warm, integrated discovery hero */}
+      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-6 py-6 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:from-[#1e1d1a] dark:to-[#171615] dark:shadow-none">
+        {/* Subtle warm accent hairline */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#c86544]/50 to-transparent" />
+
         <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
-          <h2 className="text-2xl font-semibold leading-tight tracking-[-0.035em] text-[#171716] dark:text-[#f2efe9] sm:text-3xl">
+          <h2 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-[#171716] dark:text-[#f2efe9] sm:text-3xl">
             Find local experts for any task.
           </h2>
-          <p className="workspace-muted mx-auto max-w-md text-xs leading-relaxed sm:text-sm">
+          <p className="mx-auto max-w-md text-xs leading-relaxed text-[#66645f] dark:text-[#aaa69f] sm:text-sm">
             Search our trusted community marketplace for specialized services.
           </p>
 
@@ -234,8 +237,9 @@ export default function SeekServices() {
               behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
               block: 'start',
             });
-          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl items-center rounded-2xl border p-1.5 ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-[#fffdfa] border-slate-200'
-            }`}>
+          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-[#c86544]/20 ${
+            isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-white border-black/10'
+          }`}>
             <span className={`pl-3 ${isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'}`}>
               <Search className="w-4 h-4" />
             </span>
@@ -249,13 +253,14 @@ export default function SeekServices() {
                 setLinkedServiceId(null);
                 setSearchQuery(e.target.value);
               }}
-              className={`service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm ${isDark ? 'text-[#f2efe9] placeholder:text-[#aaa59d]' : 'text-[#171716] placeholder:text-[#6f6a64]'
-                }`}
+              className={`service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm focus:outline-none ${
+                isDark ? 'text-[#f2efe9] placeholder:text-[#aaa59d]' : 'text-[#171716] placeholder:text-[#6f6a64]'
+              }`}
             />
             <button
               type="submit"
               aria-controls="service-results"
-              className="workspace-primary-button flex-shrink-0 rounded-xl border px-5 py-2.5 text-xs font-bold transition-all"
+              className="workspace-primary-button flex-shrink-0 rounded-lg border px-5 py-2 text-xs font-bold transition-all"
             >
               Search
             </button>
@@ -273,29 +278,29 @@ export default function SeekServices() {
             aria-pressed={activeFilter === filter.id}
             onClick={() => handleFilterChange(filter.id)}
             title={filter.title}
-            className={`min-h-9 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors ${activeFilter === filter.id
-              ? isDark ? 'border-[#c86544]/35 bg-[#c86544]/20 text-[#f3b69f]' : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
-              : isDark ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
+            className={`min-h-8 rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors ${activeFilter === filter.id
+              ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]' : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
+              : isDark ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10 hover:text-white' : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-white hover:text-[#171716]'
             }`}
           >{filter.label}</button>
         ))}
       </div>
 
       {/* Horizontal Category pills row */}
-      <div role="group" aria-label="Service categories" className="mt-2 flex flex-wrap gap-2.5">
+      <div role="group" aria-label="Service categories" className="mt-2 flex flex-wrap gap-2">
         {categories.map((cat) => (
           <button
             key={cat}
             type="button"
             aria-pressed={selectedCategory === cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`min-h-9 rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${selectedCategory === cat
+            className={`min-h-8 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${selectedCategory === cat
                 ? isDark
-                  ? 'border-[#c86544]/35 bg-[#c86544]/20 text-[#f3b69f]'
+                  ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]'
                   : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
                 : isDark
-                  ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10'
-                  : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-[#f5f4f2]'
+                  ? 'border-white/10 bg-[#201f1d] text-[#aaa59d] hover:bg-white/10 hover:text-white'
+                  : 'border-black/10 bg-[#fffdfa] text-[#625d57] hover:bg-white hover:text-[#171716]'
               }`}
           >
             {cat}
