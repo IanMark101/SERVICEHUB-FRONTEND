@@ -17,6 +17,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement, JobRequest } from '../../../types';
 import type { UserSession } from '../../auth/LoginContainer';
 import type { ProviderActivityItemData } from './providerActivity.utils';
+import ActivitySituation from '../../activity/ActivitySituation';
 
 export interface ProviderActivityItemModel {
   isDark: boolean;
@@ -40,6 +41,7 @@ export interface ProviderActivityItemModel {
   openSafetyReport: (engagement: JobEngagement) => void;
   resolvedProviderId?: string;
   user: UserSession | null;
+  activeJobId?: string;
 }
 
 export default function ProviderActivityItem({ item, model }: { item: ProviderActivityItemData; model: ProviderActivityItemModel }) {
@@ -64,6 +66,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
     setReviewingEngagement,
     resolvedProviderId,
     user,
+    activeJobId,
     openSafetyReport
   } = model;
 
@@ -97,16 +100,27 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                       <h3 className={`font-extrabold text-sm leading-snug tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                         {req?.title || b.requestTitle || 'Service Request'}
                       </h3>
-                      <div className="flex items-center text-[11px] font-bold">
+                      <button type="button" onClick={() => {
+                        if (req?.seekerId) router.push(`/profile/${encodeURIComponent(req.seekerId)}`);
+                      }} className="group/profile flex items-center rounded-lg text-left text-[11px] font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500" aria-label={`View ${req?.seekerName || b.seekerName || 'seeker'} profile`}>
                         <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}>Client:</span>
-                        <span className={`ml-1 ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{req?.seekerName || b.seekerName || 'Seeker'}</span>
-                      </div>
+                        <span className={`ml-1 transition-colors group-hover/profile:text-emerald-600 dark:group-hover/profile:text-emerald-400 ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{req?.seekerName || b.seekerName || 'Seeker'}</span>
+                      </button>
                     </div>
 
+                    <section aria-label="Current offer situation" className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-stone-900 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h4 className="text-base font-bold leading-snug tracking-tight">Offer sent to seeker</h4>
+                        <span className="rounded-full border border-current/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide">Waiting on seeker</span>
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed">Your price and availability have been submitted, but there is no booking yet.</p>
+                      <p className="mt-3 border-t border-current/15 pt-2.5 text-xs leading-relaxed"><span className="font-bold">Next:</span> The seeker can choose an offer. You may cancel yours below while it is pending.</p>
+                    </section>
+
                     {/* Footer Rate and Actions */}
-                    <div className={`border-t pt-4 flex items-center justify-between ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+                    <div className={`border-t pt-4 flex flex-wrap items-center justify-between gap-3 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
                       <div>
-                        <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>Your Bid</span>
+                        <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>Your offer</span>
                         <span className="text-sm font-extrabold text-orange-500 dark:text-orange-400">₱{b.price}</span>
                       </div>
 
@@ -175,23 +189,14 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                       <h3 className={`font-extrabold text-sm leading-snug tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                         {je.title}
                       </h3>
-                      <div className="flex items-center text-[11px] font-bold">
+                      <button type="button" onClick={() => je.seekerId && router.push(`/profile/${encodeURIComponent(je.seekerId)}`)} className="group/profile flex items-center rounded-lg text-left text-[11px] font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500" aria-label={`View ${je.seekerName}'s profile`}>
                         <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}>Client:</span>
-                        <span className={`ml-1 ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{je.seekerName}</span>
-                        <span className="text-slate-300 dark:text-neutral-800 mx-1.5">•</span>
-                        <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                          92% Trust
-                        </span>
-                      </div>
+                        <span className={`ml-1 transition-colors group-hover/profile:text-emerald-600 dark:group-hover/profile:text-emerald-400 ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{je.seekerName}</span>
+                        {typeof je.seekerTrustScore === 'number' && <><span className="mx-1.5 text-slate-300 dark:text-neutral-800">•</span><span className={`inline-flex items-center rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>{je.seekerTrustScore}% Trust</span></>}
+                      </button>
                     </div>
 
-                    {/* 5-Step Visual Lifecycle Stepper */}
-                    <LifecycleStepper
-                      status={je.status}
-                      role="provider"
-                      queuePosition={je.queuePosition}
-                      isDark={isDark}
-                    />
+                    <ActivitySituation booking={je} role="provider" currentUserId={resolvedProviderId || user?.id} activeJobId={activeJobId} />
 
                     {/* Internal payment-status details */}
                     {showsPaymentStatus && (
@@ -315,7 +320,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                     })()}
 
                     {/* Footer Rate and Actions */}
-                    <div className={`border-t pt-4 flex items-center justify-between ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+                    <div className={`border-t pt-4 flex flex-wrap items-center justify-between gap-3 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
                       <div>
                         <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
                           {je.paymentMethod === 'On-site Cash' ? 'Service Amount' : 'Online Payment'}
@@ -340,10 +345,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                           </span>
                         )}
                         {je.status === 'pending_provider' && (
-                          <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-neutral-450 bg-[#1c1b18] border border-neutral-850' : 'text-slate-450 bg-slate-50 border border-slate-150'
-                            }`}>
-                            Incoming
-                          </span>
+                          <button type="button" onClick={() => router.push('/provider/incoming-requests')} className="rounded-xl bg-emerald-600 px-3.5 py-1.5 text-[10px] font-extrabold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500">Review request</button>
                         )}
                         {je.status === 'awaiting_seeker_approval' && (
                           <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-orange-400 bg-orange-950/20 border-orange-900/30' : 'text-orange-655 bg-orange-55 border-orange-100'
@@ -443,10 +445,11 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                             return (
                               <div className="flex items-center gap-1.5">
                               <button
-                                disabled={!!loadingItemId}
+                                disabled={!!loadingItemId || !!(activeJobId && activeJobId !== je.id)}
                                 onClick={() => handleProviderStartJob(je.id)}
+                                title={activeJobId && activeJobId !== je.id ? 'Finish your current job before starting another' : 'Start this accepted booking'}
                                 className={`px-3.5 py-1.5 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer ${
-                                  loadingItemId === je.id && loadingActionType === 'start'
+                                  (loadingItemId === je.id && loadingActionType === 'start') || (activeJobId && activeJobId !== je.id)
                                     ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                                     : 'bg-emerald-600 hover:bg-emerald-700'
                                 }`}
@@ -519,15 +522,15 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                         {je.status === 'queued' && (
                           <div className="flex items-center space-x-1.5">
                             <button
-                              disabled={!!loadingItemId || je.queuePosition !== 1}
+                              disabled={!!loadingItemId || je.queuePosition !== 1 || !!(activeJobId && activeJobId !== je.id)}
                               onClick={() => {
                                 if (je.queuePosition === 1) handleProviderStartJob(je.id);
                               }}
                               title={je.queuePosition === 1
-                                ? 'Start the first booking in this service queue'
+                                ? activeJobId && activeJobId !== je.id ? 'Finish your current job before starting another' : 'Start the first booking in this service queue'
                                 : `Queue position ${je.queuePosition || 'unavailable'} must wait until earlier bookings are completed`}
                               className={`px-3.5 py-1.5 text-white font-extrabold text-[10px] rounded-xl transition-all shadow-sm active:scale-95 flex items-center space-x-1 cursor-pointer ${
-                                loadingItemId === je.id && loadingActionType === 'start'
+                                (loadingItemId === je.id && loadingActionType === 'start') || (activeJobId && activeJobId !== je.id)
                                   ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
                                   : je.queuePosition !== 1
                                     ? 'bg-neutral-700 text-neutral-400 cursor-not-allowed opacity-60 shadow-none active:scale-100'
@@ -571,6 +574,16 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
 
                       </div>
                     </div>
+
+                    <LifecycleStepper
+                      status={je.status}
+                      role="provider"
+                      queuePosition={je.queuePosition}
+                      isDark={isDark}
+                      isOnline={je.paymentMethod === 'GCash'}
+                      started={je.started}
+                      compact
+                    />
                   </div>
                 );
               }

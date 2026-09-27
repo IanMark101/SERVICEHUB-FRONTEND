@@ -28,4 +28,13 @@ describe('LifecycleStepper', () => {
     expect(screen.getByText('Engagement Paused in Dispute')).toBeInTheDocument();
     expect(screen.getByText('Under Review')).toBeInTheDocument();
   });
+
+  it('does not show accepted onsite work as underway before Start Job', () => {
+    const { rerender } = render(<LifecycleStepper status="in_progress" started={false} isOnline={false} compact isDark={false} />);
+    expect(screen.getByText('Step 2 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Accepted')).toHaveClass('text-orange-700');
+    rerender(<LifecycleStepper status="in_progress" started isOnline={false} compact isDark={false} />);
+    expect(screen.getByText('Step 3 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Working')).toHaveClass('text-orange-700');
+  });
 });

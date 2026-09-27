@@ -22,10 +22,10 @@ export function countProviderActivityTab(
 ): number {
   switch (tab) {
     case "in_progress":
-      return engagements.filter((item) => item.status === "in_progress").length;
+      return engagements.filter((item) => item.status === "in_progress" && !!item.started).length;
     case "waiting":
       return engagements.filter(
-        (item) => item.status === "queued" || item.status === "pending_provider",
+        (item) => item.status === "queued" || item.status === "pending_provider" || (item.status === "in_progress" && !item.started),
       ).length;
     case "pending_offers":
       return pendingBids.length;
@@ -98,9 +98,9 @@ export function filterProviderActivityItems({
 
     const matchesTab =
       activeTab === "all" ||
-      (activeTab === "in_progress" && engagement.status === "in_progress") ||
+      (activeTab === "in_progress" && engagement.status === "in_progress" && !!engagement.started) ||
       (activeTab === "waiting" &&
-        (engagement.status === "queued" || engagement.status === "pending_provider")) ||
+        (engagement.status === "queued" || engagement.status === "pending_provider" || (engagement.status === "in_progress" && !engagement.started))) ||
       (activeTab === "awaiting_approval" &&
         engagement.status === "awaiting_seeker_approval") ||
       (activeTab === "disputed" && engagement.status === "disputed") ||

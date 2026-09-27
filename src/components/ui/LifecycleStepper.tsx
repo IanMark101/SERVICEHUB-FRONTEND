@@ -26,6 +26,10 @@ interface LifecycleStepperProps {
   queuePosition?: number;
   isDark?: boolean;
   className?: string;
+  completedSublabel?: string;
+  compact?: boolean;
+  isOnline?: boolean;
+  started?: boolean;
 }
 
 interface StepConfig {
@@ -41,6 +45,10 @@ export default function LifecycleStepper({
   queuePosition,
   isDark = true,
   className = '',
+  completedSublabel = 'Paid',
+  compact = false,
+  isOnline = false,
+  started,
 }: LifecycleStepperProps) {
   const normStatus = status?.toLowerCase();
 
@@ -115,10 +123,47 @@ export default function LifecycleStepper({
     {
       id: 5,
       label: 'Completed',
-      sublabel: 'Paid',
+      sublabel: completedSublabel,
       icon: CheckCircle2,
     },
   ];
+
+  if (compact) {
+    const journeyStep = normStatus === 'in_progress' && started === false ? 2 : currentStep;
+    const journeySteps = ['Booked', isOnline ? 'Queue' : 'Accepted', 'Working', 'Review', 'Complete'];
+    return (
+      <div className={`border-t pt-3 ${isDark ? 'border-neutral-800' : 'border-stone-200'} ${className}`}>
+        <div className="mb-2.5 flex items-center justify-between gap-3">
+          <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-neutral-400' : 'text-stone-600'}`}>Booking journey</span>
+          <span className={`text-[10px] font-medium ${isDark ? 'text-neutral-400' : 'text-stone-600'}`}>
+            {isCanceled ? 'Stopped' : isDisputed ? 'Paused for review' : `Step ${journeyStep} of 5`}
+          </span>
+        </div>
+        <ol aria-label="Booking journey" className="grid grid-cols-5 gap-1">
+          {journeySteps.map((label, index) => {
+            const step = index + 1;
+            const reached = !isCanceled && step <= journeyStep;
+            const current = !isCanceled && step === journeyStep;
+            return (
+              <li key={label} className="min-w-0 text-center">
+                <span aria-hidden="true" className={`mx-auto flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${
+                  reached
+                    ? role === 'provider' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-orange-600 bg-orange-600 text-white'
+                    : isDark ? 'border-neutral-700 bg-neutral-800 text-neutral-400' : 'border-stone-300 bg-white text-stone-500'
+                } ${current ? 'ring-2 ring-offset-1 ring-current/20' : ''}`}>
+                  {step < journeyStep && !isDisputed ? <Check className="h-3 w-3" /> : step}
+                </span>
+                <span className={`mt-1 block truncate text-[9px] font-semibold sm:text-[10px] ${
+                  current ? role === 'provider' ? 'text-emerald-700 dark:text-emerald-400' : 'text-orange-700 dark:text-orange-400'
+                    : isDark ? 'text-neutral-400' : 'text-stone-600'
+                }`}>{label}</span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    );
+  }
 
   // Special view for Canceled
   if (isCanceled) {

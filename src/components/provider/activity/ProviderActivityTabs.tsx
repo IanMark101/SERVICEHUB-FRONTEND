@@ -15,10 +15,10 @@ export default function ProviderActivityTabs({
 }: ProviderActivityTabsProps) {
   const tabs: WorkspaceTabItem<ProviderActivityTab>[] = [
     { value: 'all', label: 'All', count: countTabItems('all') },
-    { value: 'in_progress', label: 'In Progress', count: countTabItems('in_progress') },
-    { value: 'waiting', label: 'Waiting', count: countTabItems('waiting') },
+    { value: 'in_progress', label: 'Work Underway', count: countTabItems('in_progress') },
+    { value: 'waiting', label: 'Before Work', count: countTabItems('waiting') },
     { value: 'pending_offers', label: 'Pending Offers', count: countTabItems('pending_offers') },
-    { value: 'awaiting_approval', label: 'Awaiting Approval', count: countTabItems('awaiting_approval') },
+    { value: 'awaiting_approval', label: 'Awaiting Seeker', count: countTabItems('awaiting_approval') },
     { value: 'disputed', label: 'Disputes', count: countTabItems('disputed') },
     { value: 'completed', label: 'Completed', count: countTabItems('completed') },
     { value: 'canceled', label: 'Canceled', count: countTabItems('canceled') },

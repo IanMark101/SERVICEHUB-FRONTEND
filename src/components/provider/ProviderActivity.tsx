@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement } from '../../types';
@@ -24,6 +24,10 @@ import SafetyReportModal from '../activity/SafetyReportModal';
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
+  const tabParam = searchParams.get('tab');
+  const deepLinkKey = `${tabParam ?? ''}:${bookingIdParam ?? ''}`;
+  const manuallyOverriddenLink = useRef<string | null>(null);
+  const appliedBookingLink = useRef<string | null>(null);
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
   const {
     jobEngagements,
@@ -49,6 +53,9 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const myEngagements = useMemo(() => resolvedProviderId
     ? jobEngagements.filter(je => je.providerId === resolvedProviderId)
     : jobEngagements, [jobEngagements, resolvedProviderId]);
+  const activeJobId = resolvedProviderId
+    ? myEngagements.find((engagement) => engagement.status === 'in_progress' && engagement.started)?.id
+    : undefined;
   const myPendingBids = useMemo(() => resolvedProviderId
     ? bids.filter(b => b.providerId === resolvedProviderId && b.status === 'pending')
     : bids.filter(b => b.status === 'pending'), [bids, resolvedProviderId]);
@@ -64,6 +71,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
   const handleTabChange = (tab: typeof activeTab) => {
     if (tab === activeTab) return;
+    manuallyOverriddenLink.current = deepLinkKey;
     setIsLoading(true);
     setActiveTab(tab);
     setTimeout(() => setIsLoading(false), 250);
@@ -101,24 +109,24 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     };
   }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
 
-  const tabParam = searchParams.get('tab');
-
   useEffect(() => {
-    if (tabParam) {
+    if (tabParam && manuallyOverriddenLink.current !== deepLinkKey) {
       const allowed: ProviderActivityTab[] = ['all', 'in_progress', 'waiting', 'pending_offers', 'awaiting_approval', 'disputed', 'canceled'];
       if (allowed.includes(tabParam as ProviderActivityTab)) {
-        const timer = window.setTimeout(() => setActiveTab(tabParam as ProviderActivityTab), 0);
+        const timer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current !== deepLinkKey) setActiveTab(tabParam as ProviderActivityTab);
+        }, 0);
         return () => window.clearTimeout(timer);
       }
     }
-  }, [tabParam]);
+  }, [tabParam, deepLinkKey]);
 
   useEffect(() => {
-    if (bookingIdParam) {
+    if (bookingIdParam && manuallyOverriddenLink.current !== deepLinkKey && appliedBookingLink.current !== deepLinkKey) {
       const found = myEngagements.find(e => e.id === bookingIdParam || e.completedServiceId === bookingIdParam);
       if (found) {
         let targetTab: typeof activeTab = 'all';
-        if (found.status === 'in_progress') targetTab = 'in_progress';
+        if (found.status === 'in_progress') targetTab = found.started ? 'in_progress' : 'waiting';
         else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
         else if (found.status === 'awaiting_seeker_approval') targetTab = 'awaiting_approval';
         else if (found.status === 'disputed') targetTab = 'disputed';
@@ -126,29 +134,26 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         const stateTimer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current === deepLinkKey) return;
+          appliedBookingLink.current = deepLinkKey;
           setActiveTab(targetTab);
           setHighlightedBookingId(found.id);
         }, 0);
 
-        const scrollTimer = setTimeout(() => {
-          const element = document.getElementById(`booking-${found.id}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 300);
-
-        const clearTimer = setTimeout(() => {
-          setHighlightedBookingId(null);
-        }, 3000);
-
         return () => {
           window.clearTimeout(stateTimer);
-          clearTimeout(scrollTimer);
-          clearTimeout(clearTimer);
         };
       }
+    } else if (!bookingIdParam) {
+      appliedBookingLink.current = null;
     }
-  }, [bookingIdParam, myEngagements]);
+  }, [bookingIdParam, deepLinkKey, myEngagements]);
+
+  useEffect(() => {
+    if (!highlightedBookingId) return;
+    const timer = window.setTimeout(() => setHighlightedBookingId(null), 3000);
+    return () => window.clearTimeout(timer);
+  }, [highlightedBookingId]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -422,6 +427,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
           handleCancelOffer, handleApproveCancellation, handleDeleteClick,
           handleProviderStartJob, handleRequestJobApproval, handleCompletionEscalation,
           handleProviderRemoveFromQueue, handleEscalateCancellation, setRespondingReqId, setDeclineNote,
+          activeJobId,
           setReviewingEngagement, openSafetyReport: setReportingEngagement, resolvedProviderId, user, currentPage,
           totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
         }}

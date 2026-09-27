@@ -6,7 +6,7 @@ interface SeekerActivityTabsProps {
   activeTab: SeekerActivityTab;
   isDark: boolean;
   totalCount: number;
-  countStatus: (status: JobEngagement['status'] | 'action_required') => number;
+  countStatus: (status: JobEngagement['status'] | 'action_required' | 'before_work') => number;
   onTabChange: (tab: SeekerActivityTab) => void;
 }
 
@@ -19,8 +19,8 @@ export default function SeekerActivityTabs({
   const tabs: WorkspaceTabItem<SeekerActivityTab>[] = [
     { value: 'all', label: 'All', count: totalCount },
     { value: 'action_required', label: 'Action Required', count: countStatus('action_required') },
-    { value: 'pending', label: 'Pending Provider', count: countStatus('pending_provider') },
-    { value: 'active', label: 'Active Now', count: countStatus('in_progress') },
+    { value: 'pending', label: 'Before Work', count: countStatus('before_work') },
+    { value: 'active', label: 'Work Underway', count: countStatus('in_progress') },
     { value: 'waiting', label: 'In Queue', count: countStatus('queued') },
     { value: 'disputed', label: 'Disputes', count: countStatus('disputed') },
     { value: 'completed', label: 'Completed', count: countStatus('completed') },

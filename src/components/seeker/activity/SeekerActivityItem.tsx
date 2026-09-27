@@ -17,6 +17,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement } from '../../../types';
 import type { ConfirmModalState } from '../../ui/ConfirmModal';
 import UserAvatar from '../../ui/UserAvatar';
+import ActivitySituation from '../../activity/ActivitySituation';
 
 export interface SeekerActivityItemModel {
   isDark: boolean;
@@ -96,27 +97,17 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                       {je.title}
                     </h3>
 
-                    <div className="flex items-center space-x-2.5">
+                    <button type="button" onClick={() => je.providerId && router.push(`/profile/${encodeURIComponent(je.providerId)}`)} className="group/profile flex items-center space-x-2.5 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500" aria-label={`View ${je.providerName}'s profile`}>
                       <UserAvatar src={je.providerAvatar} name={je.providerName || 'Provider'} alt="" size={30} role="provider" />
                       <div className="flex flex-wrap items-center gap-1 text-[11px] font-bold">
                         <span className={isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}>Provider:</span>
-                        <span className={isDark ? 'text-[#f2efe9]' : 'text-slate-700'}>{je.providerName}</span>
-                        <span className="text-slate-300 dark:text-neutral-800">•</span>
-                        <span className={`inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-md font-bold ${isDark ? 'bg-orange-500/10 text-orange-400' : 'bg-orange-50 text-orange-600'
-                          }`}>
-                          92% Trust
-                        </span>
+                        <span className={`transition-colors group-hover/profile:text-orange-600 dark:group-hover/profile:text-orange-400 ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>{je.providerName}</span>
+                        {typeof je.providerTrustScore === 'number' && <><span className="text-slate-300 dark:text-neutral-800">•</span><span className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[9px] font-bold ${isDark ? 'bg-orange-500/10 text-orange-400' : 'bg-orange-50 text-orange-600'}`}>{je.providerTrustScore}% Trust</span></>}
                       </div>
-                    </div>
+                    </button>
                   </div>
 
-                  {/* 5-Step Visual Lifecycle Stepper */}
-                  <LifecycleStepper
-                    status={je.status}
-                    role="seeker"
-                    queuePosition={je.queuePosition}
-                    isDark={isDark}
-                  />
+                  <ActivitySituation booking={je} role="seeker" currentUserId={currentUserId} />
 
                   {/* Internal payment-status details */}
                   {showsPaymentStatus && (
@@ -219,7 +210,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                   })()}
 
                   {/* Footer details & Context Actions */}
-                  <div className={`border-t pt-4 flex items-center justify-between ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+                  <div className={`border-t pt-4 flex flex-wrap items-center justify-between gap-3 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
                     <div>
                       <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>Contract Rate</span>
                       <span className={`text-sm font-extrabold ${isDark ? 'text-orange-500' : 'text-orange-600'}`}>₱{je.price}</span>
@@ -437,6 +428,16 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
 
                     </div>
                   </div>
+
+                  <LifecycleStepper
+                    status={je.status}
+                    role="seeker"
+                    queuePosition={je.queuePosition}
+                    isDark={isDark}
+                    isOnline={je.paymentMethod === 'GCash'}
+                    started={je.started}
+                    compact
+                  />
 
                 </div>
               );

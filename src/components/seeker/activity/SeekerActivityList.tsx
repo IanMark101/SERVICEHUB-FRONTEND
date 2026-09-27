@@ -82,13 +82,13 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           {isLoading ? (
-            <div className="col-span-2">
+            <div className="col-span-full">
               <ActivityItemSkeleton count={3} />
             </div>
           ) : filteredEngagements.length === 0 ? (
-            <div className="col-span-2">
+            <div className="col-span-full">
               <EmptyState
                 icon={
                   activeTab === 'action_required'
@@ -106,8 +106,10 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
                 title={
                   activeTab === 'action_required'
                     ? 'All Caught Up!'
+                    : activeTab === 'pending'
+                    ? 'No Bookings Before Work'
                     : activeTab === 'active'
-                    ? 'No Active Services In Progress'
+                    ? 'No Work Underway'
                     : activeTab === 'waiting'
                     ? 'No Bookings Currently In Queue'
                     : activeTab === 'disputed'
@@ -122,9 +124,11 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
                 }
                 description={
                   activeTab === 'action_required'
-                    ? 'You have no service engagements requiring your confirmation or review right now.'
+                    ? 'You have no completion or cancellation decisions to make right now.'
+                    : activeTab === 'pending'
+                    ? 'You have no bookings awaiting provider approval or a start of work.'
                     : activeTab === 'active'
-                    ? 'None of your booked services are currently ongoing.'
+                    ? 'None of your booked services have been started by the provider.'
                     : activeTab === 'waiting'
                     ? 'You are not waiting in any provider queues at the moment.'
                     : activeTab === 'disputed'

@@ -40,9 +40,9 @@
   --color-community-primary: #334155;
   --color-community-hover: #1e293b;
 
-  --color-admin-light: #f1f5f9;
-  --color-admin-primary: #0f172a;
-  --color-admin-hover: #1e293b;
+  --color-admin-light: #faeae8;
+  --color-admin-primary: #cf4444;
+  --color-admin-hover: #b73535;
 
   --color-neutral-850: #2c2b27;
   --color-neutral-855: #33322e;
@@ -75,7 +75,15 @@
   }
 
   .admin-page-button-active {
-    @apply border-slate-950 bg-slate-950 text-white hover:border-slate-800 hover:text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950;
+    border-color: var(--admin-solid, #cd4141);
+    background: var(--admin-solid, #cd4141);
+    color: #fffaf8;
+  }
+
+  .admin-page-button-active:hover {
+    border-color: var(--admin-solid-hover, #b73535);
+    background: var(--admin-solid-hover, #b73535);
+    color: #fffaf8;
   }
 
   /* A quieter version of the landing CTA's top light for task buttons. */
@@ -139,13 +147,13 @@
 
 .admin-workspace .admin-page-body button:focus-visible,
 .admin-workspace .admin-page-body a:focus-visible {
-  outline: 2px solid #0f172a;
+  outline: 2px solid var(--workspace-focus);
   outline-offset: 2px;
 }
 
 .dark .admin-workspace .admin-page-body button:focus-visible,
 .dark .admin-workspace .admin-page-body a:focus-visible {
-  outline-color: #f5f5f5;
+  outline-color: var(--workspace-focus);
 }
 
 /* Claude Signature Terracotta/Coral Core Theme Tokens */
@@ -573,6 +581,18 @@ h6 {
 }
 
 .admin-workspace {
+  --admin-accent: #ae3333;
+  --admin-solid: #cd4141;
+  --admin-solid-hover: #b73535;
+  --admin-soft: #faeae8;
+  --admin-active: #f6dcd9;
+  --admin-border: #eac4c0;
+  --admin-muted: #a33838;
+  --admin-chart-primary: #cf4444;
+  --admin-chart-secondary: #a94c4c;
+  --admin-chart-tertiary: #d16b66;
+  --admin-chart-quaternary: #8f5a58;
+  --admin-chart-track: #ead7d4;
   --workspace-canvas: #f7f6f3;
   --workspace-surface: #fffdfa;
   --workspace-surface-muted: #fbf9f6;
@@ -580,7 +600,7 @@ h6 {
   --workspace-muted: #66645f;
   --workspace-border: rgba(23, 23, 22, 0.08);
   --workspace-border-strong: rgba(23, 23, 22, 0.16);
-  --workspace-focus: #64748b;
+  --workspace-focus: var(--admin-accent);
   --workspace-header-bg: rgba(255, 253, 250, 0.85);
 }
 
@@ -596,6 +616,18 @@ h6 {
 }
 
 .dark .admin-workspace {
+  --admin-accent: #f2605c;
+  --admin-solid: #cd4141;
+  --admin-solid-hover: #b73535;
+  --admin-soft: #382425;
+  --admin-active: #4c292a;
+  --admin-border: #804344;
+  --admin-muted: #e98b86;
+  --admin-chart-primary: #f05a5a;
+  --admin-chart-secondary: #d05353;
+  --admin-chart-tertiary: #e27670;
+  --admin-chart-quaternary: #f49791;
+  --admin-chart-track: #493334;
   --workspace-canvas: #141312;
   --workspace-surface: #1c1b18;
   --workspace-surface-muted: #24221f;
@@ -604,6 +636,7 @@ h6 {
   --workspace-border: rgba(242, 239, 233, 0.08);
   --workspace-border-strong: rgba(242, 239, 233, 0.16);
   --workspace-header-bg: rgba(28, 27, 24, 0.85);
+  --workspace-focus: var(--admin-accent);
 }
 
 .workspace-shell ::selection {
@@ -693,6 +726,7 @@ h6 {
 /* Grounded authenticated dashboard header (Operate mode) */
 .workspace-dashboard-header {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   background: transparent;
@@ -1660,7 +1694,7 @@ h6 {
 
 .user-avatar--seeker { --avatar-accent: #c86544; }
 .user-avatar--provider { --avatar-accent: #059669; }
-.user-avatar--admin { --avatar-accent: #64748b; }
+.user-avatar--admin { --avatar-accent: #cf4444; }
 .user-avatar--circle { border-radius: 999px; }
 .user-avatar--soft { border-radius: 24%; }
 
@@ -1779,7 +1813,293 @@ h6 {
 
 .workspace-profile-hero--seeker { --workspace-profile-accent: #c86544; }
 .workspace-profile-hero--provider { --workspace-profile-accent: #059669; }
-.workspace-profile-hero--admin { --workspace-profile-accent: #64748b; }
+.workspace-profile-hero--admin { --workspace-profile-accent: #cf4444; }
+
+/* Dedicated account-level marketplace profile. It shares the authenticated
+   product tokens without inheriting either workspace's sidebar composition. */
+.profile-page-shell {
+  --workspace-focus: #c86544;
+  background: var(--workspace-canvas);
+  color: var(--workspace-ink);
+}
+
+.profile-global-header {
+  -webkit-backdrop-filter: blur(16px) saturate(125%);
+  backdrop-filter: blur(16px) saturate(125%);
+}
+
+.marketplace-profile-hero {
+  --workspace-profile-accent: var(--workspace-focus);
+  overflow: hidden;
+  border-bottom: 1px solid var(--workspace-border);
+  border-radius: 0;
+  background: var(--workspace-surface);
+  box-shadow: none;
+}
+
+.marketplace-profile-tabs {
+  position: sticky;
+  top: 4rem;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--workspace-border);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--workspace-canvas) 92%, transparent);
+  box-shadow: 0 4px 16px -8px rgba(23, 23, 22, 0.08);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+
+@media (min-width: 640px) {
+  .marketplace-profile-tabs {
+    gap: 2.5rem;
+  }
+}
+
+.marketplace-profile-hero,
+.workspace-profile-hero {
+  position: relative;
+  border: 1px solid var(--workspace-border);
+  border-radius: 24px;
+  background: var(--workspace-surface);
+  box-shadow: 0 1px 3px rgba(23, 23, 22, 0.03), 0 12px 32px -16px rgba(23, 23, 22, 0.08);
+  overflow: hidden;
+  transition: box-shadow 200ms var(--workspace-ease), border-color 200ms var(--workspace-ease);
+}
+
+.dark .marketplace-profile-hero,
+.dark .workspace-profile-hero {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 16px 36px -16px rgba(0, 0, 0, 0.55);
+}
+
+.marketplace-profile-tabs .workspace-tabs__item {
+  min-height: 3rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  flex: 0 0 auto;
+  border-radius: 0;
+  padding-inline: 1rem;
+  color: var(--workspace-muted);
+  transition: color 150ms ease, box-shadow 150ms ease;
+}
+
+.marketplace-profile-tabs .workspace-tabs__item:hover {
+  color: var(--workspace-ink);
+}
+
+.marketplace-profile-tabs .workspace-tabs__item[aria-selected='true'] {
+  background: transparent;
+  color: var(--workspace-ink);
+  box-shadow: inset 0 -3px var(--workspace-focus);
+}
+
+.dark .marketplace-profile-tabs .workspace-tabs__item[aria-selected='true'] {
+  color: var(--workspace-ink);
+  box-shadow: inset 0 -3px var(--workspace-focus);
+}
+
+.marketplace-profile-hero button { align-self: start; }
+.profile-page-shell .workspace-section-nav {
+  position: sticky;
+  top: 64px;
+  z-index: 15;
+  background: var(--workspace-surface);
+}
+@media (max-width: 639px) {
+  .profile-page-shell .workspace-section-nav { position: static; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-activity-item:hover { transform: none; }
+}
+
+.workspace-header-context--account {
+  gap: 0.5rem;
+  padding-left: 0.4rem;
+}
+
+.workspace-header-context--admin {
+  min-width: 0;
+  width: fit-content;
+  max-width: none;
+  padding-inline: 0.75rem;
+}
+
+.admin-workspace .workspace-header-context--admin {
+  border-color: var(--admin-border);
+  background: var(--admin-soft);
+  color: var(--admin-accent);
+}
+
+.admin-workspace :where(button, a, input, select, textarea):focus-visible {
+  outline-color: var(--workspace-focus);
+}
+
+.workspace-account-back:hover {
+  background: color-mix(in srgb, var(--workspace-ink) 5%, transparent);
+  color: var(--workspace-ink);
+}
+
+.workspace-account-divider {
+  background: var(--workspace-border-strong);
+}
+
+.notification-filters {
+  scrollbar-width: none;
+}
+
+.notification-filters button {
+  font-size: 0.625rem;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.notification-filters::-webkit-scrollbar {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .workspace-header-search { width: 12rem; }
+}
+@media (max-width: 639px) {
+  .workspace-dashboard-header {
+    height: 4.25rem;
+    min-height: 4.25rem;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: color-mix(in srgb, var(--workspace-canvas) 94%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .workspace-header-context {
+    flex: 1 1 auto;
+    max-width: none;
+    min-width: 0;
+    padding-inline: 0.375rem;
+  }
+  .workspace-header-context .workspace-header-role-label { display: none; }
+  .workspace-header-context .workspace-header-role-mark { display: none; }
+  .workspace-header-page-name {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+    font-size: 0.75rem;
+    line-height: 1.05;
+  }
+  .workspace-header-toolbar {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 0;
+    gap: 0;
+    padding: 0.125rem;
+  }
+  .profile-page-shell .marketplace-profile-tabs { position: static; }
+}
+@media (min-width: 400px) and (max-width: 639px) {
+  .workspace-header-context .workspace-header-role-label { display: block; }
+}
+
+/* The marketplace grid responds to the content pane, which is narrower when
+   the tablet sidebar is visible. Viewport breakpoints alone split cards early. */
+.marketplace-results { container-type: inline-size; }
+.marketplace-results-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+.workspace-quick-filters > button { min-height: 2.5rem; }
+@container (min-width: 38rem) {
+  .marketplace-results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container (min-width: 56rem) {
+  .marketplace-results-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.profile-section {
+  min-width: 0;
+  border: 1px solid var(--workspace-border);
+  border-radius: 16px;
+  background: var(--workspace-surface);
+  padding: 1.25rem;
+  box-shadow: 0 1px 2px rgba(23, 23, 22, 0.025), 0 14px 32px -34px rgba(23, 23, 22, 0.42);
+}
+
+.profile-section__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.profile-section__heading h2 {
+  color: var(--workspace-ink);
+  font-size: 1rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.profile-section__heading p {
+  color: var(--workspace-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.profile-activity-item {
+  min-width: 0;
+  border: 1px solid var(--workspace-border);
+  border-radius: 13px;
+  background: var(--workspace-surface-muted);
+  padding: 1rem;
+  transition: border-color 180ms var(--workspace-ease), background-color 180ms var(--workspace-ease), transform 180ms var(--workspace-ease);
+}
+
+.profile-activity-item:hover {
+  border-color: var(--workspace-border-strong);
+  background: var(--workspace-surface);
+  transform: translateY(-1px);
+}
+
+.profile-activity-item h3 {
+  margin-top: 0.65rem;
+  overflow-wrap: anywhere;
+  color: var(--workspace-ink);
+  font-size: 0.875rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+
+.profile-activity-item p {
+  display: -webkit-box;
+  margin-top: 0.35rem;
+  overflow: hidden;
+  color: var(--workspace-muted);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (min-width: 640px) {
+  .profile-section { padding: 1.5rem; }
+}
+
+@media (max-width: 639px) {
+  .marketplace-profile-tabs {
+    top: 4.25rem;
+    margin-inline: -0.25rem;
+  }
+
+  .marketplace-profile-tabs .workspace-tabs__item {
+    flex: 0 0 auto;
+    min-height: 2.7rem;
+  }
+}
 
 .workspace-form-control {
   min-height: 2.75rem;
@@ -1805,6 +2125,10 @@ h6 {
   .workspace-activity-toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .workspace-activity-search {
+    flex-basis: auto;
   }
 }
 

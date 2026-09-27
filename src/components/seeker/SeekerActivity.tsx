@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement, ServiceListing } from '../../types';
@@ -13,7 +13,8 @@ import SeekerCancellationRequestModal from './activity/SeekerCancellationRequest
 import SeekerDisputeModal from './activity/SeekerDisputeModal';
 import {
   countSeekerActivityStatus,
-  filterSeekerActivityEngagements
+  filterSeekerActivityEngagements,
+  seekerNeedsAction,
 } from './activity/seekerActivity.utils';
 import { SeekerActivitySort, SeekerActivityTab } from './activity/types';
 import SeekerActivityList from './activity/SeekerActivityList';
@@ -32,6 +33,10 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
+  const tabParam = searchParams.get('tab');
+  const deepLinkKey = `${tabParam ?? ''}:${bookingIdParam ?? ''}`;
+  const manuallyOverriddenLink = useRef<string | null>(null);
+  const appliedBookingLink = useRef<string | null>(null);
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
 
   // Confirm Modal state
@@ -67,6 +72,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   const handleTabChange = (tab: typeof activeTab) => {
     if (tab === activeTab) return;
+    manuallyOverriddenLink.current = deepLinkKey;
     setIsLoading(true);
     setActiveTab(tab);
     setTimeout(() => setIsLoading(false), 250);
@@ -96,54 +102,52 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     };
   }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
 
-  const tabParam = searchParams.get('tab');
-
   useEffect(() => {
-    if (tabParam) {
+    if (tabParam && manuallyOverriddenLink.current !== deepLinkKey) {
       const allowed: SeekerActivityTab[] = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'canceled'];
       if (allowed.includes(tabParam as SeekerActivityTab)) {
-        const timer = window.setTimeout(() => setActiveTab(tabParam as SeekerActivityTab), 0);
+        const timer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current !== deepLinkKey) setActiveTab(tabParam as SeekerActivityTab);
+        }, 0);
         return () => window.clearTimeout(timer);
       }
     }
-  }, [tabParam]);
+  }, [tabParam, deepLinkKey]);
 
   useEffect(() => {
-    if (bookingIdParam) {
+    if (bookingIdParam && manuallyOverriddenLink.current !== deepLinkKey && appliedBookingLink.current !== deepLinkKey) {
       const found = myEngagements.find(e => e.id === bookingIdParam || e.completedServiceId === bookingIdParam);
       if (found) {
         let targetTab: typeof activeTab = 'all';
-        if (found.status === 'in_progress') targetTab = 'active';
-        else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
-        else if (found.status === 'awaiting_seeker_approval') targetTab = 'action_required';
+        if (seekerNeedsAction(found, resolvedUserId)) targetTab = 'action_required';
+        else if (found.status === 'in_progress') targetTab = found.started ? 'active' : 'pending';
+        else if (found.status === 'queued') targetTab = 'waiting';
+        else if (found.status === 'pending_provider') targetTab = 'pending';
         else if (found.status === 'disputed') targetTab = 'disputed';
         else if (found.status === 'completed') targetTab = 'completed';
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         const stateTimer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current === deepLinkKey) return;
+          appliedBookingLink.current = deepLinkKey;
           setActiveTab(targetTab);
           setHighlightedBookingId(found.id);
         }, 0);
 
-        const scrollTimer = setTimeout(() => {
-          const element = document.getElementById(`booking-${found.id}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 300);
-
-        const clearTimer = setTimeout(() => {
-          setHighlightedBookingId(null);
-        }, 3000);
-
         return () => {
           window.clearTimeout(stateTimer);
-          clearTimeout(scrollTimer);
-          clearTimeout(clearTimer);
         };
       }
+    } else if (!bookingIdParam) {
+      appliedBookingLink.current = null;
     }
-  }, [bookingIdParam, myEngagements]);
+  }, [bookingIdParam, deepLinkKey, myEngagements, resolvedUserId]);
+
+  useEffect(() => {
+    if (!highlightedBookingId) return;
+    const timer = window.setTimeout(() => setHighlightedBookingId(null), 3000);
+    return () => window.clearTimeout(timer);
+  }, [highlightedBookingId]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -167,15 +171,16 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   // Review Modal State
   const [reviewingEngagement, setReviewingEngagement] = useState<JobEngagement | null>(null);
 
-  const countStatus = (status: JobEngagement['status'] | 'action_required') =>
-    countSeekerActivityStatus(myEngagements, status);
+  const countStatus = (status: JobEngagement['status'] | 'action_required' | 'before_work') =>
+    countSeekerActivityStatus(myEngagements, status, resolvedUserId);
 
   const filteredEngagements = filterSeekerActivityEngagements({
     activeTab,
     engagements: myEngagements,
     searchQuery,
     sortBy,
-    categoryForEngagement: getCategoryForEngagement
+    categoryForEngagement: getCategoryForEngagement,
+    currentUserId: resolvedUserId,
   });
 
 

@@ -40,6 +40,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
     handleCancelOffer, handleApproveCancellation, handleDeleteClick,
     handleProviderStartJob, handleRequestJobApproval, handleCompletionEscalation,
     handleProviderRemoveFromQueue, handleEscalateCancellation, setRespondingReqId, setDeclineNote,
+    activeJobId,
     setReviewingEngagement, openSafetyReport, resolvedProviderId, user, currentPage,
     totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
   } = model;
@@ -85,13 +86,13 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           {isLoading ? (
-            <div className="col-span-2">
+            <div className="col-span-full">
               <ActivityItemSkeleton count={3} />
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="col-span-2">
+            <div className="col-span-full">
               <EmptyState
                 icon={
                   activeTab === 'awaiting_approval'
@@ -106,11 +107,11 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                 }
                 title={
                   activeTab === 'awaiting_approval'
-                    ? 'All Actions Addressed!'
+                    ? 'No Work Awaiting Seeker Confirmation'
                     : activeTab === 'in_progress'
-                    ? 'No Active Jobs In Progress'
+                    ? 'No Work Underway'
                     : activeTab === 'waiting'
-                    ? 'No Bookings Waiting in Queue'
+                    ? 'No Bookings Before Work'
                     : activeTab === 'pending_offers'
                     ? 'No Submitted Proposals'
                     : activeTab === 'disputed'
@@ -125,11 +126,11 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                 }
                 description={
                   activeTab === 'awaiting_approval'
-                    ? 'You have no pending direct requests or cancellation reviews needing response.'
+                    ? 'You have not marked any work complete that still needs seeker confirmation.'
                     : activeTab === 'in_progress'
-                    ? 'You are not currently working on any active service engagements.'
+                    ? 'You have no jobs that have been started and are still underway.'
                     : activeTab === 'waiting'
-                    ? 'Your service queues currently have no clients waiting in line.'
+                    ? 'You have no incoming approvals, queued bookings, or accepted bookings waiting to start.'
                     : activeTab === 'pending_offers'
                     ? 'You haven’t submitted any offers to open seeker job requests yet.'
                     : activeTab === 'disputed'
@@ -179,6 +180,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                   handleCompletionEscalation,
                   handleProviderRemoveFromQueue,
                   handleEscalateCancellation,
+                  activeJobId,
                   router,
                   setRespondingReqId,
                   setDeclineNote,
