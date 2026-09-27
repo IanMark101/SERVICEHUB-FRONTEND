@@ -70,7 +70,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                 <div
                   key={je.id}
                   id={`booking-${je.id}`}
-                  className={`workspace-card flex w-full flex-col space-y-5 border p-5 transition-all duration-200 sm:p-7 ${
+                  className={`workspace-card flex w-full flex-col space-y-5 rounded-2xl border p-5 transition-all duration-200 sm:p-7 ${
                     je.id === highlightedBookingId
                       ? 'border-orange-500/60 bg-orange-50/40 ring-2 ring-orange-500/25 dark:bg-orange-950/10'
                       : isDark

@@ -60,12 +60,16 @@ export default function ActivityFeed({ entries, tone, onOpen, empty }: {
                     ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'
                     : canceled
                       ? 'border-stone-300 bg-stone-100 text-stone-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-stone-200'
-                      : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300';
+                      : tone === 'seeker'
+                        ? 'border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-300'
+                        : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300';
                   const outcomeEdge = underReview
                     ? 'border-l-[3px] border-l-amber-500 dark:border-l-amber-500'
                     : canceled
                       ? 'border-l-[3px] border-l-stone-400 dark:border-l-neutral-500'
-                      : 'border-l-[3px] border-l-emerald-500 dark:border-l-emerald-500';
+                      : tone === 'seeker'
+                        ? 'border-l-[3px] border-l-orange-500 dark:border-l-orange-500'
+                        : 'border-l-[3px] border-l-emerald-500 dark:border-l-emerald-500';
                   return (
                     <button
                       key={`${entry.kind || 'booking'}-${entry.id}`}

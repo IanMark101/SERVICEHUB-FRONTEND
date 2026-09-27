@@ -133,6 +133,7 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(journey.closest('details')).toHaveClass('xl:col-start-1');
     expect(facts.closest('aside')).toHaveClass('xl:col-start-2');
     expect(view.container.querySelector('[class*="xl:grid-cols-"]')).toBeTruthy();
+    expect(view.container.querySelector('.workspace-card')).toHaveClass('rounded-2xl');
   });
 
   it('keeps canceled booking history distinct from a booking awaiting Admin review', () => {

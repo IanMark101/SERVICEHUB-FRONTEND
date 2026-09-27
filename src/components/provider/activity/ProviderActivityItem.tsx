@@ -164,7 +164,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                   <div
                     key={je.id}
                     id={`booking-${je.id}`}
-                    className={`workspace-card flex w-full flex-col space-y-5 border border-emerald-500/20 p-5 transition-all duration-200 sm:p-7 ${
+                    className={`workspace-card flex w-full flex-col space-y-5 rounded-2xl border border-emerald-500/20 p-5 transition-all duration-200 sm:p-7 ${
                       je.id === highlightedBookingId
                         ? 'border-emerald-500/60 bg-emerald-50/40 ring-2 ring-emerald-500/25 dark:bg-emerald-950/10'
                         : isDark
