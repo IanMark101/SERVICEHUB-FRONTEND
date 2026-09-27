@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle as CheckCircle2, Clock, Play, MagnifyingGlass as Search, PaperPlaneTilt as Send } from '@phosphor-icons/react';
+import { CheckCircle as CheckCircle2, Clock, Play, MagnifyingGlass as Search, PaperPlaneTilt as Send, ArrowLeft } from '@phosphor-icons/react';
 import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
 import { ActivityItemSkeleton } from '../../ui/SkeletonCard';
@@ -10,6 +10,9 @@ import type { Bid, JobEngagement } from '../../../types';
 import type { ProviderActivityItemModel } from './ProviderActivityItem';
 import type { ProviderActivityItemData } from './providerActivity.utils';
 import type { ProviderActivitySort, ProviderActivityTab } from './types';
+import ActivityFeed, { type ActivityFeedEntry } from '../../activity/ActivityFeed';
+import { getActivityPaymentCopy, getActivityQueueCopy, getBookingActivityGroup } from '../../activity/activityPresentation';
+import { getActivitySituation } from '../../activity/ActivitySituation';
 
 interface ProviderActivityListModel extends ProviderActivityItemModel {
   myPendingBids: Bid[];
@@ -29,6 +32,9 @@ interface ProviderActivityListModel extends ProviderActivityItemModel {
   prevPage: () => void;
   startIndex: number;
   endIndex: number;
+  openItemId: string | null;
+  openItem: (id: string, kind: 'booking' | 'offer') => void;
+  closeItem: () => void;
 }
 
 export default function ProviderActivityList({ model }: { model: ProviderActivityListModel }) {
@@ -42,8 +48,65 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
     handleProviderRemoveFromQueue, handleEscalateCancellation, setRespondingReqId, setDeclineNote,
     activeJobId,
     setReviewingEngagement, openSafetyReport, resolvedProviderId, user, currentPage,
-    totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
+    totalPages, goToPage, nextPage, prevPage, startIndex, endIndex,
+    openItemId, openItem, closeItem
   } = model;
+
+  const itemModel: ProviderActivityItemModel = {
+    isDark, getRequestForBid, getCategoryForEngagement, loadingItemId,
+    loadingActionType, highlightedBookingId, handleCancelOffer,
+    handleApproveCancellation, handleDeleteClick, handleProviderStartJob,
+    handleRequestJobApproval, handleCompletionEscalation,
+    handleProviderRemoveFromQueue, handleEscalateCancellation,
+    activeJobId, router, setRespondingReqId, setDeclineNote,
+    setReviewingEngagement, resolvedProviderId, user, openSafetyReport,
+  };
+  const selectedItem: ProviderActivityItemData | undefined = openItemId?.startsWith('offer:')
+    ? (() => { const bid = myPendingBids.find((item) => item.id === openItemId.slice(6)); return bid ? { type: 'bid', data: bid } : undefined; })()
+    : (() => { const booking = myEngagements.find((item) => item.id === openItemId); return booking ? { type: 'engagement', data: booking } : undefined; })();
+  const entries: ActivityFeedEntry[] = paginatedItems.map((item) => {
+    if (item.type === 'bid') {
+      const request = getRequestForBid(item.data.requestId);
+      return {
+        id: item.data.id,
+        kind: 'offer',
+        group: 'waiting',
+        title: request?.title || item.data.requestTitle || 'Service request',
+        participant: `Seeker: ${request?.seekerName || item.data.seekerName || 'Seeker'}`,
+        status: 'Offer sent to seeker',
+        explanation: 'Your offer has been submitted. No booking exists yet.',
+        next: 'The seeker may choose an offer. You can cancel yours while it is pending.',
+        price: item.data.price,
+        payment: 'No payment yet',
+        queue: 'No booking queue',
+        action: 'None right now',
+      };
+    }
+    const booking = item.data;
+    const situation = getActivitySituation(booking, 'provider', resolvedProviderId || user?.id, activeJobId);
+    return {
+      id: booking.id,
+      group: getBookingActivityGroup(booking, 'provider', resolvedProviderId || user?.id, activeJobId),
+      title: booking.title,
+      participant: `Seeker: ${booking.seekerName}`,
+      status: situation.title,
+      explanation: situation.detail,
+      next: situation.next,
+      price: booking.price,
+      payment: getActivityPaymentCopy(booking).label,
+      queue: getActivityQueueCopy(booking).label,
+      action: situation.tone === 'action' ? 'Response needed' : 'None right now',
+    };
+  });
+
+  if (openItemId) return (
+    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-[#171715] sm:static sm:z-auto sm:mx-auto sm:max-w-4xl sm:overflow-visible sm:bg-transparent sm:p-0">
+      <button type="button" onClick={closeItem} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-stone-200 dark:hover:bg-neutral-800">
+        <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
+      </button>
+      {selectedItem ? <ProviderActivityItem item={selectedItem} model={itemModel} /> : <p role="status" className="rounded-2xl border border-stone-200 p-6 text-sm dark:border-neutral-700">This booking or offer is not available in your Activity.</p>}
+    </div>
+  );
 
   return (
     <>
@@ -70,7 +133,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
 
             {/* Sort Dropdown */}
             <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
-              <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort by:</span>
+              <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort each section:</span>
               <select
                 aria-label="Sort provider activity"
                 value={sortBy}
@@ -86,13 +149,13 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div>
           {isLoading ? (
-            <div className="col-span-full">
+            <div>
               <ActivityItemSkeleton count={3} />
             </div>
           ) : filteredItems.length === 0 ? (
-            <div className="col-span-full">
+            <div>
               <EmptyState
                 icon={
                   activeTab === 'awaiting_approval'
@@ -161,36 +224,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
               />
             </div>
           ) : (
-            paginatedItems.map((item) => (
-              <ProviderActivityItem
-                key={item.data.id}
-                item={item}
-                model={{
-                  isDark,
-                  getRequestForBid,
-                  getCategoryForEngagement,
-                  loadingItemId,
-                  loadingActionType,
-                  highlightedBookingId,
-                  handleCancelOffer,
-                  handleApproveCancellation,
-                  handleDeleteClick,
-                  handleProviderStartJob,
-                  handleRequestJobApproval,
-                  handleCompletionEscalation,
-                  handleProviderRemoveFromQueue,
-                  handleEscalateCancellation,
-                  activeJobId,
-                  router,
-                  setRespondingReqId,
-                  setDeclineNote,
-                  setReviewingEngagement,
-                  resolvedProviderId,
-                  user,
-                  openSafetyReport
-                }}
-              />
-            ))
+            <ActivityFeed entries={entries} tone="provider" onOpen={(entry) => openItem(entry.id, entry.kind || 'booking')} />
           )}
         </div>
 

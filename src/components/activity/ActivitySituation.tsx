@@ -59,13 +59,13 @@ export function getActivitySituation(
         : { tone: 'waiting', label: 'Waiting on provider', title: 'Booking accepted, work not started', detail: 'Your provider has accepted the booking.', next: 'The provider will start the job when ready. You can coordinate in Messages.' };
     }
     return role === 'provider'
-      ? { tone: 'active', label: 'Work underway', title: 'This job is in progress', detail: 'You have started this booking.', next: 'When the work is done, use Mark Completed; the seeker will then review it.' }
-      : { tone: 'active', label: 'Work underway', title: 'Your service is in progress', detail: 'The provider has started work on this booking.', next: 'After the provider marks it complete, you will confirm the work or report an issue.' };
+      ? { tone: 'active', label: 'Work underway', title: 'This job is in progress', detail: 'You have started this booking.', next: 'When the work is done, use Mark Work Finished; the seeker will then confirm it or report an issue.' }
+      : { tone: 'active', label: 'Work underway', title: 'Your service is in progress', detail: 'The provider has started work on this booking.', next: 'After the provider marks the work finished, you will confirm it or report an issue.' };
   }
   if (booking.status === 'awaiting_seeker_approval') {
     return role === 'seeker'
-      ? { tone: 'action', label: 'Your confirmation needed', title: 'Provider marked the work complete', detail: 'The booking is not final until you review the result.', next: 'Confirm completion if the work is done, or Report Issue if something is wrong.' }
-      : { tone: 'waiting', label: 'Waiting on seeker', title: 'Work submitted for confirmation', detail: 'You marked the work complete. The seeker has not confirmed it yet.', next: 'The seeker can confirm or report an issue. Admin review may be requested after 72 hours.' };
+      ? { tone: 'action', label: 'Your confirmation needed', title: 'Provider marked the work finished', detail: 'The booking is not final until you confirm the result or report an issue.', next: 'Confirm completion if the work is done, or Report Issue if something is wrong.' }
+      : { tone: 'waiting', label: 'Waiting on seeker', title: 'Work submitted for confirmation', detail: 'You marked the work finished. The seeker has not confirmed it yet.', next: 'The seeker can confirm or report an issue. Admin review may be requested after 72 hours.' };
   }
   if (booking.status === 'disputed') {
     return { tone: 'review', label: 'Admin review', title: 'This booking is under dispute', detail: 'The issue is being reviewed; completion and payment settlement are paused.', next: 'An administrator will decide the outcome. You can use Messages or Safety report as needed.' };

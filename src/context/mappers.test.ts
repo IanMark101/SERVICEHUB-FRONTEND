@@ -23,6 +23,17 @@ describe('workspace API mappers', () => {
     expect(engagement.status).toBe('disputed');
   });
 
+  it('preserves server payment and queue status for role-specific Activity wording', () => {
+    const engagement = mapBookingToEngagement({
+      id: 'booking-queued', seekerId: 'seeker-1', providerId: 'provider-1',
+      status: 'QUEUED', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD',
+      queue: { status: 'WAITING', position: 2 },
+    });
+    expect(engagement.paymentStatus).toBe('PAID_HELD');
+    expect(engagement.queueStatus).toBe('WAITING');
+    expect(engagement.queuePosition).toBe(2);
+  });
+
   it.each([
     ['one online SERVING row', [{}], [{}], 1],
     ['SERVING plus WAITING rows', [{}, {}], [{}, {}], 2],

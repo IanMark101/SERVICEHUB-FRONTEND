@@ -10,14 +10,14 @@ import {
   Trash as Trash2,
   FolderSimple,
   CalendarBlank,
-  CurrencyDollar,
 } from '@phosphor-icons/react';
 import LifecycleStepper from '../../ui/LifecycleStepper';
 import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement, JobRequest } from '../../../types';
 import type { UserSession } from '../../auth/LoginContainer';
 import type { ProviderActivityItemData } from './providerActivity.utils';
-import ActivitySituation from '../../activity/ActivitySituation';
+import ActivityWorkroomSituation from '../../activity/ActivityWorkroomSituation';
+import ActivityBookingFacts from '../../activity/ActivityBookingFacts';
 
 export interface ProviderActivityItemModel {
   isDark: boolean;
@@ -160,13 +160,11 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                   day: 'numeric',
                   year: 'numeric'
                 });
-                const showsPaymentStatus = ['in_progress', 'awaiting_seeker_approval', 'queued', 'disputed'].includes(je.status);
-
                 return (
                   <div
                     key={je.id}
                     id={`booking-${je.id}`}
-                    className={`workspace-card workspace-activity-card flex flex-col justify-between space-y-4 border border-emerald-500/20 transition-all duration-200 ${
+                    className={`workspace-card flex w-full flex-col space-y-5 border border-emerald-500/20 p-5 transition-all duration-200 sm:p-7 ${
                       je.id === highlightedBookingId
                         ? 'border-emerald-500/60 bg-emerald-50/40 ring-2 ring-emerald-500/25 dark:bg-emerald-950/10'
                         : isDark
@@ -196,24 +194,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                       </button>
                     </div>
 
-                    <ActivitySituation booking={je} role="provider" currentUserId={resolvedProviderId || user?.id} activeJobId={activeJobId} />
-
-                    {/* Internal payment-status details */}
-                    {showsPaymentStatus && (
-                      je.paymentMethod !== 'On-site Cash' ? (
-                        <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-emerald-955/15 border-emerald-900/20 text-emerald-400' : 'bg-emerald-50/40 border-emerald-100 text-emerald-700'
-                          }`}>
-                          <span className="font-semibold">{je.paymentMethod} Test Payment Recorded</span>
-                          <span className="font-extrabold">₱{je.price} Internal PAID_HELD</span>
-                        </div>
-                      ) : (
-                        <div className={`rounded-xl p-3 border text-[10px] leading-relaxed flex items-center justify-between transition-all ${isDark ? 'bg-blue-950/15 border-blue-900/20 text-blue-400' : 'bg-blue-50/40 border-blue-100 text-blue-700'
-                          }`}>
-                          <span className="inline-flex items-center gap-1 font-semibold"><CurrencyDollar className="h-3.5 w-3.5" weight="duotone" /> On-Site Cash Payment</span>
-                          <span className="font-extrabold">₱{je.price} Receivable</span>
-                        </div>
-                      )
-                    )}
+                    <ActivityWorkroomSituation booking={je} role="provider" currentUserId={resolvedProviderId || user?.id} activeJobId={activeJobId} />
 
                     {/* Dispute note inside card */}
                     {je.status === 'disputed' && je.disputeReason && (
@@ -320,14 +301,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                     })()}
 
                     {/* Footer Rate and Actions */}
-                    <div className={`border-t pt-4 flex flex-wrap items-center justify-between gap-3 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                      <div>
-                        <span className={`text-[9px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                          {je.paymentMethod === 'On-site Cash' ? 'Service Amount' : 'Online Payment'}
-                        </span>
-                        <span className="text-sm font-extrabold text-emerald-500 dark:text-emerald-400">₱{je.price}</span>
-                      </div>
-
+                    <div aria-label="Booking actions" className={`border-t pt-4 flex flex-wrap items-center justify-end gap-3 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
                       <div className="flex flex-wrap items-center justify-end gap-1.5">
 
                         {/* Status badge */}
@@ -484,10 +458,10 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                               {loadingItemId === je.id && loadingActionType === 'complete' ? (
                                 <>
                                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                                  <span>Completing...</span>
+                                  <span>Submitting...</span>
                                 </>
                               ) : (
-                                <span>Mark Completed</span>
+                                <span>Mark Work Finished</span>
                               )}
                             </button>
                             {!je.cancellationRequests?.some((request) => ['PENDING', 'DECLINED', 'ESCALATED', 'UNDER_REVIEW'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Request Cancellation</button>}
@@ -575,15 +549,11 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                       </div>
                     </div>
 
-                    <LifecycleStepper
-                      status={je.status}
-                      role="provider"
-                      queuePosition={je.queuePosition}
-                      isDark={isDark}
-                      isOnline={je.paymentMethod === 'GCash'}
-                      started={je.started}
-                      compact
-                    />
+                    <ActivityBookingFacts booking={je} role="provider" />
+                    <details className="group rounded-2xl border border-stone-200 px-4 py-3 dark:border-neutral-700" open={je.status !== 'completed' && je.status !== 'canceled'}>
+                      <summary className="cursor-pointer text-xs font-bold text-stone-700 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-stone-200">Booking journey</summary>
+                      <LifecycleStepper status={je.status} role="provider" queuePosition={je.queuePosition} isDark={isDark} isOnline={je.paymentMethod === 'GCash'} started={je.started} compact />
+                    </details>
                   </div>
                 );
               }

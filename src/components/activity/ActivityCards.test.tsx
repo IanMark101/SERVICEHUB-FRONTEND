@@ -47,7 +47,7 @@ describe('Activity card actions with the new hierarchy', () => {
   it('keeps seeker completion and dispute actions while explaining the decision', () => {
     const model = seekerModel();
     render(<SeekerActivityItem engagement={{ ...booking, status: 'awaiting_seeker_approval' }} model={model} />);
-    expect(screen.getByText('Provider marked the work complete')).toBeInTheDocument();
+    expect(screen.getByText('Provider marked the work finished')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Report Issue' }));
     expect(model.setDisputingJob).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Confirm Completion' }));
@@ -84,7 +84,7 @@ describe('Activity card actions with the new hierarchy', () => {
   it('keeps provider completion and cash-approval navigation available', () => {
     const model = providerModel();
     const { rerender } = render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'in_progress', started: true } }} model={model} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Mark Completed' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mark Work Finished' }));
     expect(model.handleRequestJobApproval).toHaveBeenCalledWith('booking-1');
     rerender(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'pending_provider', paymentMethod: 'On-site Cash' } }} model={model} />);
     fireEvent.click(screen.getByRole('button', { name: 'Review request' }));

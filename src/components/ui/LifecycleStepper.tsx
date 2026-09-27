@@ -116,8 +116,8 @@ export default function LifecycleStepper({
     },
     {
       id: 4,
-      label: 'Review',
-      sublabel: 'Confirmation',
+      label: 'Confirmation',
+      sublabel: 'Seeker decision',
       icon: FileCheck2,
     },
     {
@@ -130,7 +130,7 @@ export default function LifecycleStepper({
 
   if (compact) {
     const journeyStep = normStatus === 'in_progress' && started === false ? 2 : currentStep;
-    const journeySteps = ['Booked', isOnline ? 'Queue' : 'Accepted', 'Working', 'Review', 'Complete'];
+    const journeySteps = ['Booked', isOnline ? 'In Queue' : 'Accepted', 'In Progress', 'Confirmation', 'Completed'];
     return (
       <div className={`border-t pt-3 ${isDark ? 'border-neutral-800' : 'border-stone-200'} ${className}`}>
         <div className="mb-2.5 flex items-center justify-between gap-3">
@@ -143,7 +143,7 @@ export default function LifecycleStepper({
           {journeySteps.map((label, index) => {
             const step = index + 1;
             const reached = !isCanceled && step <= journeyStep;
-            const current = !isCanceled && step === journeyStep;
+            const current = !isCanceled && !isDisputed && step === journeyStep;
             return (
               <li key={label} className="min-w-0 text-center">
                 <span aria-hidden="true" className={`mx-auto flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${
@@ -153,7 +153,7 @@ export default function LifecycleStepper({
                 } ${current ? 'ring-2 ring-offset-1 ring-current/20' : ''}`}>
                   {step < journeyStep && !isDisputed ? <Check className="h-3 w-3" /> : step}
                 </span>
-                <span className={`mt-1 block truncate text-[9px] font-semibold sm:text-[10px] ${
+                <span className={`mt-1 block text-[9px] font-semibold leading-tight sm:text-[10px] ${
                   current ? role === 'provider' ? 'text-emerald-700 dark:text-emerald-400' : 'text-orange-700 dark:text-orange-400'
                     : isDark ? 'text-neutral-400' : 'text-stone-600'
                 }`}>{label}</span>

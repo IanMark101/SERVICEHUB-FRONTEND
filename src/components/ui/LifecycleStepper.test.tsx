@@ -35,6 +35,6 @@ describe('LifecycleStepper', () => {
     expect(screen.getByText('Accepted')).toHaveClass('text-orange-700');
     rerender(<LifecycleStepper status="in_progress" started isOnline={false} compact isDark={false} />);
     expect(screen.getByText('Step 3 of 5')).toBeInTheDocument();
-    expect(screen.getByText('Working')).toHaveClass('text-orange-700');
+    expect(screen.getByText('In Progress')).toHaveClass('text-orange-700');
   });
 });

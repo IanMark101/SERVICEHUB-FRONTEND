@@ -19,16 +19,39 @@ import ProviderActivityList from './activity/ProviderActivityList';
 import ReasonModal from '../ui/ReasonModal';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import SafetyReportModal from '../activity/SafetyReportModal';
+import { activityGroupOrder, getBookingActivityGroup } from '../activity/activityPresentation';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
+  const offerIdParam = searchParams.get('offer');
+  const urlItemId = offerIdParam ? `offer:${offerIdParam}` : bookingIdParam;
+  const [openOverride, setOpenOverride] = useState<{ from: string | null; id: string | null } | null>(null);
+  const openItemId = openOverride?.from === urlItemId ? openOverride.id : urlItemId;
   const tabParam = searchParams.get('tab');
   const deepLinkKey = `${tabParam ?? ''}:${bookingIdParam ?? ''}`;
   const manuallyOverriddenLink = useRef<string | null>(null);
   const appliedBookingLink = useRef<string | null>(null);
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
+
+  const openItem = (id: string, kind: 'booking' | 'offer') => {
+    setOpenOverride({ from: urlItemId, id: kind === 'offer' ? `offer:${id}` : id });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('booking');
+    params.delete('offer');
+    params.set(kind === 'offer' ? 'offer' : 'booking', id);
+    router.push(`/provider/provider-activity?${params.toString()}`, { scroll: false });
+  };
+
+  const closeItem = () => {
+    setOpenOverride({ from: urlItemId, id: null });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('booking');
+    params.delete('offer');
+    const query = params.toString();
+    router.push(`/provider/provider-activity${query ? `?${query}` : ''}`, { scroll: false });
+  };
   const {
     jobEngagements,
     bids,
@@ -186,6 +209,13 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     sortBy,
   });
 
+  const prioritizedItems = [...filteredItems].sort((left, right) => {
+    const groupFor = (item: typeof left) => item.type === 'bid'
+      ? 'waiting' as const
+      : getBookingActivityGroup(item.data, 'provider', resolvedProviderId, activeJobId);
+    return activityGroupOrder.indexOf(groupFor(left)) - activityGroupOrder.indexOf(groupFor(right));
+  });
+
   // Pagination
   const {
     currentPage,
@@ -196,7 +226,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     prevPage,
     startIndex,
     endIndex
-  } = usePagination(filteredItems, 6);
+  } = usePagination(prioritizedItems, 6);
 
   const [respondingReqId, setRespondingReqId] = useState<string | null>(null);
   const [declineNote, setDeclineNote] = useState<string>('');
@@ -411,12 +441,12 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
 
 
-      <ProviderActivityTabs
+      {!openItemId && <ProviderActivityTabs
         activeTab={activeTab}
         isDark={isDark}
         countTabItems={countTabItems}
         onTabChange={handleTabChange}
-      />
+      />}
 
       <ProviderActivityList
         model={{
@@ -429,7 +459,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
           handleProviderRemoveFromQueue, handleEscalateCancellation, setRespondingReqId, setDeclineNote,
           activeJobId,
           setReviewingEngagement, openSafetyReport: setReportingEngagement, resolvedProviderId, user, currentPage,
-          totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
+          totalPages, goToPage, nextPage, prevPage, startIndex, endIndex,
+          openItemId, openItem, closeItem
         }}
       />
 

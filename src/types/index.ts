@@ -119,6 +119,7 @@ export interface JobEngagement {
   price: number;
   status: 'pending_provider' | 'queued' | 'in_progress' | 'awaiting_seeker_approval' | 'completed' | 'disputed' | 'canceled';
   paymentMethod: 'GCash' | 'On-site Cash';
+  paymentStatus?: string;
   createdAt: string;
   completedServiceId?: string;
   reviews?: Array<{
@@ -148,6 +149,7 @@ export interface JobEngagement {
     resolutionOutcome?: string | null;
   }>;
   queuePosition?: number;
+  queueStatus?: string;
 }
 
 export interface Transaction {

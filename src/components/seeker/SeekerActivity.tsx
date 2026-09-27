@@ -22,6 +22,7 @@ import ReasonModal from '../ui/ReasonModal';
 import RequestServiceModal from './RequestServiceModal';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import SafetyReportModal from '../activity/SafetyReportModal';
+import { activityGroupOrder, getBookingActivityGroup } from '../activity/activityPresentation';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -33,11 +34,28 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
+  const [openOverride, setOpenOverride] = useState<{ from: string | null; id: string | null } | null>(null);
+  const openBookingId = openOverride?.from === bookingIdParam ? openOverride.id : bookingIdParam;
   const tabParam = searchParams.get('tab');
   const deepLinkKey = `${tabParam ?? ''}:${bookingIdParam ?? ''}`;
   const manuallyOverriddenLink = useRef<string | null>(null);
   const appliedBookingLink = useRef<string | null>(null);
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
+
+  const openBooking = (id: string) => {
+    setOpenOverride({ from: bookingIdParam, id });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('booking', id);
+    router.push(`/seeker/seeker-activity?${params.toString()}`, { scroll: false });
+  };
+
+  const closeBooking = () => {
+    setOpenOverride({ from: bookingIdParam, id: null });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('booking');
+    const query = params.toString();
+    router.push(`/seeker/seeker-activity${query ? `?${query}` : ''}`, { scroll: false });
+  };
 
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
@@ -183,6 +201,11 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     currentUserId: resolvedUserId,
   });
 
+  const prioritizedEngagements = [...filteredEngagements].sort((left, right) =>
+    activityGroupOrder.indexOf(getBookingActivityGroup(left, 'seeker', resolvedUserId)) -
+    activityGroupOrder.indexOf(getBookingActivityGroup(right, 'seeker', resolvedUserId))
+  );
+
 
   // Pagination
   const {
@@ -194,7 +217,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     prevPage,
     startIndex,
     endIndex
-  } = usePagination(filteredEngagements, 6);
+  } = usePagination(prioritizedEngagements, 6);
 
   const handleConfirmJobCompletion = async (jobId: string) => {
     setLoadingItemId(jobId);
@@ -376,13 +399,13 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
 
 
-      <SeekerActivityTabs
+      {!openBookingId && <SeekerActivityTabs
         activeTab={activeTab}
         isDark={isDark}
         totalCount={myEngagements.length}
         countStatus={countStatus}
         onTabChange={handleTabChange}
-      />
+      />}
 
       <SeekerActivityList
         model={{
@@ -394,7 +417,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
           handleRequestAgain, openSafetyReport: setReportingEngagement,
           currentUserId: resolvedUserId,
-          currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
+          currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex,
+          openBookingId, openBooking, closeBooking
         }}
       />
 

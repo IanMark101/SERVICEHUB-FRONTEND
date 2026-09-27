@@ -1,6 +1,6 @@
 "use client";
 
-import { Warning as AlertTriangle, CheckCircle as CheckCircle2, Clock, Play, MagnifyingGlass as Search } from '@phosphor-icons/react';
+import { Warning as AlertTriangle, CheckCircle as CheckCircle2, Clock, Play, MagnifyingGlass as Search, ArrowLeft } from '@phosphor-icons/react';
 import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
 import { ActivityItemSkeleton } from '../../ui/SkeletonCard';
@@ -9,6 +9,9 @@ import type { JobEngagement } from '../../../types';
 import type { Dispatch, SetStateAction } from 'react';
 import type { SeekerActivityItemModel } from './SeekerActivityItem';
 import type { SeekerActivitySort, SeekerActivityTab } from './types';
+import ActivityFeed, { type ActivityFeedEntry } from '../../activity/ActivityFeed';
+import { getActivityPaymentCopy, getActivityQueueCopy, getBookingActivityGroup } from '../../activity/activityPresentation';
+import { getActivitySituation } from '../../activity/ActivitySituation';
 
 interface SeekerActivityListModel extends SeekerActivityItemModel {
   myEngagements: JobEngagement[];
@@ -27,6 +30,9 @@ interface SeekerActivityListModel extends SeekerActivityItemModel {
   prevPage: () => void;
   startIndex: number;
   endIndex: number;
+  openBookingId: string | null;
+  openBooking: (id: string) => void;
+  closeBooking: () => void;
 }
 
 export default function SeekerActivityList({ model }: { model: SeekerActivityListModel }) {
@@ -38,8 +44,43 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
     handleDeleteClick, setDisputingJob, setConfirmModal,
     handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
     handleRequestAgain, openSafetyReport,
-    currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
+    currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex,
+    openBookingId, openBooking, closeBooking
   } = model;
+
+  const selectedBooking = openBookingId ? myEngagements.find((booking) => booking.id === openBookingId) : null;
+  const itemModel: SeekerActivityItemModel = {
+    isDark, highlightedBookingId, getCategoryForEngagement, currentUserId,
+    loadingItemId, loadingActionType, setReviewingEngagement, handleDeleteClick,
+    router, setDisputingJob, setConfirmModal, handleConfirmJobCompletion,
+    handleEscalateClick, handleCancelClick, handleRespondCancellation,
+    handleRequestAgain, openSafetyReport,
+  };
+  const entries: ActivityFeedEntry[] = paginatedEngagements.map((booking) => {
+    const situation = getActivitySituation(booking, 'seeker', currentUserId);
+    return {
+      id: booking.id,
+      group: getBookingActivityGroup(booking, 'seeker', currentUserId),
+      title: booking.title,
+      participant: `Provider: ${booking.providerName}`,
+      status: situation.title,
+      explanation: situation.detail,
+      next: situation.next,
+      price: booking.price,
+      payment: getActivityPaymentCopy(booking).label,
+      queue: getActivityQueueCopy(booking).label,
+      action: situation.tone === 'action' ? 'Response needed' : 'None right now',
+    };
+  });
+
+  if (openBookingId) return (
+    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-[#171715] sm:static sm:z-auto sm:mx-auto sm:max-w-4xl sm:overflow-visible sm:bg-transparent sm:p-0">
+      <button type="button" onClick={closeBooking} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-orange-500 dark:text-stone-200 dark:hover:bg-neutral-800">
+        <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
+      </button>
+      {selectedBooking ? <SeekerActivityItem engagement={selectedBooking} model={itemModel} /> : <p role="status" className="rounded-2xl border border-stone-200 p-6 text-sm dark:border-neutral-700">This booking is not available in your Activity.</p>}
+    </div>
+  );
 
   return (
     <>
@@ -66,7 +107,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
 
             {/* Sort Dropdown */}
             <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
-              <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort by:</span>
+              <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort each section:</span>
               <select
                 aria-label="Sort seeker activity"
                 value={sortBy}
@@ -82,13 +123,13 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div>
           {isLoading ? (
-            <div className="col-span-full">
+            <div>
               <ActivityItemSkeleton count={3} />
             </div>
           ) : filteredEngagements.length === 0 ? (
-            <div className="col-span-full">
+            <div>
               <EmptyState
                 icon={
                   activeTab === 'action_required'
@@ -159,31 +200,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
               />
             </div>
           ) : (
-            paginatedEngagements.map((engagement: JobEngagement) => (
-              <SeekerActivityItem
-                key={engagement.id}
-                engagement={engagement}
-                model={{
-                  isDark,
-                  highlightedBookingId,
-                  getCategoryForEngagement,
-                  currentUserId,
-                  loadingItemId,
-                  loadingActionType,
-                  setReviewingEngagement,
-                  handleDeleteClick,
-                  router,
-                  setDisputingJob,
-                  setConfirmModal,
-                  handleConfirmJobCompletion,
-                  handleEscalateClick,
-                  handleCancelClick,
-                  handleRespondCancellation,
-                  handleRequestAgain,
-                  openSafetyReport
-                }}
-              />
-            ))
+            <ActivityFeed entries={entries} tone="seeker" onOpen={(entry) => openBooking(entry.id)} />
           )}
         </div>
 

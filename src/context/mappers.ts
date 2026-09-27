@@ -15,8 +15,8 @@ interface ApiCategory { name?: string }
 interface ApiService { id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
 interface ApiDirectRequest { agreedPrice?: number | string; message?: string; schedule?: string; service?: { title?: string } }
 interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; message?: string; status?: string; createdAt?: string; request?: { title?: string; seeker?: ApiUser; category?: ApiCategory | string } }
-export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string }; offer?: ApiOffer; directRequest?: ApiDirectRequest; queue?: { status?: string; position?: number; estimatedWait?: number } | null; paymentMethod?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests'] }
-export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; completedAt?: string; reviews?: JobEngagement['reviews'] }
+export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string }; offer?: ApiOffer; directRequest?: ApiDirectRequest; queue?: { status?: string; position?: number; estimatedWait?: number } | null; paymentMethod?: string; paymentStatus?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests'] }
+export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; paymentStatus?: string; completedAt?: string; reviews?: JobEngagement['reviews'] }
 interface ApiRequest { id: string; seekerId?: string; seeker?: ApiUser; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: unknown[] }
 interface ApiNotification { id: string; userId: string; title: string; body: string; createdAt: string; isRead: boolean; link?: string | null }
 interface ApiTransaction { id: string; relatedBookingId?: string; walletOwnerId: string; amount: number | string; description?: string; createdAt?: string }
@@ -62,6 +62,7 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
     price: Number(b.directRequest?.agreedPrice || b.offer?.offeredPrice || b.service?.price || 0),
     status: mappedStatus as JobEngagement['status'],
     paymentMethod: b.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
+    paymentStatus: b.paymentStatus,
     createdAt: b.createdAt || '',
     completedAt: b.updatedAt || '',
     description: b.directRequest?.message || b.offer?.message || b.description || '',
@@ -69,6 +70,7 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
     disputeReason: b.reports?.[0]?.description || '',
     started: b.started,
     queuePosition: b.queue?.position,
+    queueStatus: b.queue?.status,
     cancellationRequests: b.cancellationRequests || []
   };
 }
@@ -95,6 +97,8 @@ export function mapCompletedServiceToEngagement(cs: ApiCompletedService): JobEng
     price: Number(cs.finalPrice),
     status: 'completed',
     paymentMethod: booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
+    paymentStatus: cs.paymentStatus || booking?.paymentStatus,
+    queueStatus: booking?.queue?.status,
     createdAt: cs.completedAt?.split('T')[0] || '',
     completedAt: cs.completedAt?.split('T')[0] || '',
     completedServiceId: cs.id,

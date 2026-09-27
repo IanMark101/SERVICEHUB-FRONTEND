@@ -38,7 +38,7 @@ export function countProviderActivityTab(
     case "canceled":
       return engagements.filter((item) => item.status === "canceled").length;
     default:
-      return engagements.filter((item) => item.status !== "canceled").length + pendingBids.length;
+      return engagements.length + pendingBids.length;
   }
 }
 
@@ -89,7 +89,7 @@ export function filterProviderActivityItems({
   }
 
   engagements.forEach((engagement) => {
-    if (engagement.status === "canceled" && activeTab !== "canceled") return;
+    if (engagement.status === "canceled" && activeTab !== "canceled" && activeTab !== "all") return;
     if (
       engagement.status === "completed" &&
       activeTab !== "all" &&

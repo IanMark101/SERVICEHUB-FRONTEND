@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
-vi.mock('./activity/ProviderActivityList', () => ({ default: () => <div id="booking-johnlyy-booking" /> }));
+vi.mock('./activity/ProviderActivityList', () => ({ default: ({ model }: { model: { openItemId: string | null } }) => <div data-testid="activity-view">{model.openItemId ?? 'overview'}</div> }));
 vi.mock('./activity/ProviderCancellationDeclineModal', () => ({ default: () => null }));
 vi.mock('../activity/SafetyReportModal', () => ({ default: () => null }));
 vi.mock('../ui/ReasonModal', () => ({ default: () => null }));
@@ -40,7 +40,7 @@ describe('Provider Activity deep-link tab selection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     HTMLElement.prototype.scrollIntoView = vi.fn();
-    vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('tab=waiting&booking=johnlyy-booking') as ReturnType<typeof useSearchParams>);
+    vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('tab=waiting') as ReturnType<typeof useSearchParams>);
     vi.mocked(useToast).mockReturnValue({ success: vi.fn(), error: vi.fn(), info: vi.fn() } as unknown as ReturnType<typeof useToast>);
     setEngagements([queuedBooking, activeBooking]);
   });
@@ -62,10 +62,9 @@ describe('Provider Activity deep-link tab selection', () => {
     expect(waitingTab).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('still follows a different incoming booking link after a manual tab choice', async () => {
+  it('opens an incoming booking link as a focused workroom after a manual tab choice', async () => {
     const { rerender } = render(<ProviderActivity currentProviderId="ian" />);
     const allTab = screen.getByRole('tab', { name: /^All/ });
-    const inProgressTab = screen.getByRole('tab', { name: /Work Underway/ });
     await waitFor(() => expect(screen.getByRole('tab', { name: /Before Work/ })).toHaveAttribute('aria-selected', 'true'));
 
     fireEvent.click(allTab);
@@ -74,7 +73,8 @@ describe('Provider Activity deep-link tab selection', () => {
     vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('tab=in_progress&booking=johncarlo-booking') as ReturnType<typeof useSearchParams>);
     rerender(<ProviderActivity currentProviderId="ian" />);
 
-    await waitFor(() => expect(inProgressTab).toHaveAttribute('aria-selected', 'true'));
+    await waitFor(() => expect(screen.getByTestId('activity-view')).toHaveTextContent('johncarlo-booking'));
+    expect(screen.queryByRole('tab', { name: /Work Underway/ })).not.toBeInTheDocument();
   });
 
   it('does not apply a pending deep-link timer after an immediate manual tab click', async () => {
@@ -88,6 +88,7 @@ describe('Provider Activity deep-link tab selection', () => {
   });
 
   it('does not scroll the page on a booking-link load or later refresh', async () => {
+    vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams('tab=waiting&booking=johnlyy-booking') as ReturnType<typeof useSearchParams>);
     const { rerender } = render(<ProviderActivity currentProviderId="ian" />);
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 350)); });
     setEngagements([{ ...queuedBooking }, { ...activeBooking }]);
