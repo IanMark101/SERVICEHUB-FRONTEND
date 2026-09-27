@@ -126,7 +126,12 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(screen.getByRole('region', { name: 'Booking facts' })).toBeInTheDocument();
     expect(screen.getByText('Payment confirmed')).toBeInTheDocument();
     expect(screen.getByText('Position #1')).toBeInTheDocument();
-    expect(screen.getByRole('list', { name: 'Booking journey' })).toBeInTheDocument();
+    const journey = screen.getByRole('list', { name: 'Booking journey' });
+    const facts = screen.getByRole('region', { name: 'Booking facts' });
+    expect(facts.closest('aside')).not.toContainElement(journey);
+    expect(journey.closest('details')?.parentElement).toBe(facts.closest('aside')?.parentElement);
+    expect(journey.closest('details')).toHaveClass('xl:col-start-1');
+    expect(facts.closest('aside')).toHaveClass('xl:col-start-2');
     expect(view.container.querySelector('[class*="xl:grid-cols-"]')).toBeTruthy();
   });
 

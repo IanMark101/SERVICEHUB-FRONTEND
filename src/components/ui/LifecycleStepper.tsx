@@ -133,27 +133,26 @@ export default function LifecycleStepper({
     const journeySteps = ['Booked', isOnline ? 'In Queue' : 'Accepted', 'In Progress', 'Confirmation', 'Completed'];
     return (
       <div className={`border-t pt-3 ${isDark ? 'border-neutral-800' : 'border-stone-200'} ${className}`}>
-        <div className="mb-2.5 flex items-center justify-between gap-3">
-          <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-neutral-400' : 'text-stone-600'}`}>Booking journey</span>
+        <div className="mb-2 flex justify-end">
           <span className={`text-[10px] font-medium ${isDark ? 'text-neutral-400' : 'text-stone-600'}`}>
             {isCanceled ? 'Stopped' : isDisputed ? 'Paused for review' : `Step ${journeyStep} of 5`}
           </span>
         </div>
-        <ol aria-label="Booking journey" className="grid grid-cols-5 gap-1">
+        <ol aria-label="Booking journey" className="grid grid-cols-1 gap-1 sm:grid-cols-5">
           {journeySteps.map((label, index) => {
             const step = index + 1;
             const reached = !isCanceled && step <= journeyStep;
             const current = !isCanceled && !isDisputed && step === journeyStep;
             return (
-              <li key={label} className="min-w-0 text-center">
-                <span aria-hidden="true" className={`mx-auto flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-bold ${
+              <li key={label} className="flex min-w-0 items-center gap-3 py-1 text-left sm:block sm:py-0 sm:text-center">
+                <span aria-hidden="true" className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold sm:mx-auto ${
                   reached
                     ? role === 'provider' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-orange-600 bg-orange-600 text-white'
                     : isDark ? 'border-neutral-700 bg-neutral-800 text-neutral-400' : 'border-stone-300 bg-white text-stone-500'
                 } ${current ? 'ring-2 ring-offset-1 ring-current/20' : ''}`}>
                   {step < journeyStep && !isDisputed ? <Check className="h-3 w-3" /> : step}
                 </span>
-                <span className={`mt-1 block text-[9px] font-semibold leading-tight sm:text-[10px] ${
+                <span className={`block min-w-0 text-xs font-semibold leading-tight sm:mt-1 sm:text-[10px] ${
                   current ? role === 'provider' ? 'text-emerald-700 dark:text-emerald-400' : 'text-orange-700 dark:text-orange-400'
                     : isDark ? 'text-neutral-400' : 'text-stone-600'
                 }`}>{label}</span>

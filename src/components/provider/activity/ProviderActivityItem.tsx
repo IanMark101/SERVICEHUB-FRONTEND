@@ -553,13 +553,13 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                     </div>
                       </div>
 
-                      <aside className="min-w-0 space-y-4 xl:border-l xl:border-stone-200 xl:pl-7 dark:xl:border-neutral-700">
+                      <aside className="min-w-0 xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:border-l xl:border-stone-200 xl:pl-7 dark:xl:border-neutral-700">
                     <ActivityBookingFacts booking={je} role="provider" />
-                    <details className="group rounded-2xl border border-stone-200 px-4 py-3 dark:border-neutral-700" open={je.status !== 'completed' && je.status !== 'canceled'}>
+                      </aside>
+                    <details className="group min-w-0 self-start rounded-2xl border border-stone-200 px-4 py-3 dark:border-neutral-700 xl:col-start-1 xl:row-start-2" open={je.status !== 'completed' && je.status !== 'canceled'}>
                       <summary className="cursor-pointer text-xs font-bold text-stone-700 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-stone-200">Booking journey</summary>
                       <LifecycleStepper status={je.status} role="provider" queuePosition={je.queuePosition} isDark={isDark} isOnline={je.paymentMethod === 'GCash'} started={je.started} compact />
                     </details>
-                      </aside>
                     </div>
                   </div>
                 );

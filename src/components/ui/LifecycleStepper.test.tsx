@@ -37,4 +37,13 @@ describe('LifecycleStepper', () => {
     expect(screen.getByText('Step 3 of 5')).toBeInTheDocument();
     expect(screen.getByText('In Progress')).toHaveClass('text-orange-700');
   });
+
+  it('lays out the compact journey as readable rows on narrow screens and five steps when wide', () => {
+    render(<LifecycleStepper status="completed" role="seeker" compact isDark={false} isOnline />);
+    const journey = screen.getByRole('list', { name: 'Booking journey' });
+    expect(journey).toHaveClass('grid-cols-1', 'sm:grid-cols-5');
+    expect(journey.children).toHaveLength(5);
+    expect(screen.getByText('Confirmation').closest('li')).not.toBe(screen.getByText('Completed').closest('li'));
+    expect(screen.getByText('Step 5 of 5')).toBeInTheDocument();
+  });
 });
