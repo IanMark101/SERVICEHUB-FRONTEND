@@ -93,6 +93,8 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
       explanation: situation.detail,
       next: situation.next,
       price: booking.price,
+      outcome: booking.status === 'completed' || booking.status === 'canceled' ? booking.status : undefined,
+      date: new Date(booking.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
       payment: getActivityPaymentCopy(booking).label,
       queue: getActivityQueueCopy(booking).label,
       action: situation.tone === 'action' ? 'Response needed' : 'None right now',
@@ -100,7 +102,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
   });
 
   if (openItemId) return (
-    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-[#171715] sm:static sm:z-auto sm:mx-auto sm:max-w-4xl sm:overflow-visible sm:bg-transparent sm:p-0">
+    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-[#171715] sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
       <button type="button" onClick={closeItem} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-stone-200 dark:hover:bg-neutral-800">
         <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
       </button>

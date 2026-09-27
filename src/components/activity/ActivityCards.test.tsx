@@ -7,7 +7,7 @@ import ProviderActivityItem, { type ProviderActivityItemModel } from '../provide
 const booking: JobEngagement = {
   id: 'booking-1', title: 'House Cleaning', seekerId: 'johncarlo', seekerName: 'John Carlo', seekerAvatar: '',
   providerId: 'ian', providerName: 'Ian', providerAvatar: '', serviceId: 'service-1',
-  price: 250, status: 'queued', paymentMethod: 'GCash', queuePosition: 1,
+  price: 250, status: 'queued', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD', queuePosition: 1,
   createdAt: '2026-09-27T09:00:00.000Z', started: false,
 };
 
@@ -114,5 +114,28 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(model.handleRequestAgain).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Safety report' }));
     expect(model.openSafetyReport).toHaveBeenCalled();
+  });
+
+  it.each(['seeker', 'provider'] as const)('keeps the %s active workroom status, action, next step, payment, queue, and journey distinct', (role) => {
+    const view = role === 'seeker'
+      ? render(<SeekerActivityItem engagement={booking} model={seekerModel()} />)
+      : render(<ProviderActivityItem item={{ type: 'engagement', data: booking }} model={providerModel()} />);
+    expect(screen.getByRole('region', { name: 'What is happening now' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Your action' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'What happens next' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Booking facts' })).toBeInTheDocument();
+    expect(screen.getByText('Payment confirmed')).toBeInTheDocument();
+    expect(screen.getByText('Position #1')).toBeInTheDocument();
+    expect(screen.getByRole('list', { name: 'Booking journey' })).toBeInTheDocument();
+    expect(view.container.querySelector('[class*="xl:grid-cols-"]')).toBeTruthy();
+  });
+
+  it('keeps canceled booking history distinct from a booking awaiting Admin review', () => {
+    const { rerender } = render(<SeekerActivityItem engagement={{ ...booking, status: 'canceled' }} model={seekerModel()} />);
+    expect(screen.getByText('No action needed for this booking.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Safety report' })).toBeInTheDocument();
+    rerender(<SeekerActivityItem engagement={{ ...booking, status: 'disputed', paymentStatus: 'FROZEN_HELD' }} model={seekerModel()} />);
+    expect(screen.getByText('Funds temporarily held')).toBeInTheDocument();
+    expect(screen.queryByText('No action needed for this booking.')).not.toBeInTheDocument();
   });
 });

@@ -96,8 +96,8 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                     </div>
 
                     {/* Title & Info */}
-                    <div className="space-y-2">
-                      <h3 className={`font-extrabold text-sm leading-snug tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    <div className="space-y-2 border-b border-stone-200 pb-5 dark:border-neutral-700">
+                      <h3 className={`text-xl font-extrabold leading-snug tracking-tight sm:text-2xl ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
                         {req?.title || b.requestTitle || 'Service Request'}
                       </h3>
                       <button type="button" onClick={() => {
@@ -194,6 +194,8 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                       </button>
                     </div>
 
+                    <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(19rem,0.85fr)] xl:gap-7">
+                      <div className="min-w-0 space-y-4">
                     <ActivityWorkroomSituation booking={je} role="provider" currentUserId={resolvedProviderId || user?.id} activeJobId={activeJobId} />
 
                     {/* Dispute note inside card */}
@@ -301,8 +303,9 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                     })()}
 
                     {/* Footer Rate and Actions */}
-                    <div aria-label="Booking actions" className={`border-t pt-4 flex flex-wrap items-center justify-end gap-3 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-                      <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    <div aria-label="Booking actions" className={`flex flex-wrap items-center justify-start gap-3 rounded-2xl border p-3 sm:p-4 [&_button]:min-h-9 ${isDark ? 'border-neutral-700 bg-neutral-800/30' : 'border-stone-200 bg-stone-50/70'}`}>
+                      <p className="w-full text-xs font-bold text-stone-700 dark:text-stone-200">Booking actions</p>
+                      <div className="flex flex-wrap items-center justify-start gap-1.5">
 
                         {/* Status badge */}
                         {je.status === 'in_progress' && (
@@ -548,12 +551,16 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
 
                       </div>
                     </div>
+                      </div>
 
+                      <aside className="min-w-0 space-y-4 xl:border-l xl:border-stone-200 xl:pl-7 dark:xl:border-neutral-700">
                     <ActivityBookingFacts booking={je} role="provider" />
                     <details className="group rounded-2xl border border-stone-200 px-4 py-3 dark:border-neutral-700" open={je.status !== 'completed' && je.status !== 'canceled'}>
                       <summary className="cursor-pointer text-xs font-bold text-stone-700 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-stone-200">Booking journey</summary>
                       <LifecycleStepper status={je.status} role="provider" queuePosition={je.queuePosition} isDark={isDark} isOnline={je.paymentMethod === 'GCash'} started={je.started} compact />
                     </details>
+                      </aside>
+                    </div>
                   </div>
                 );
               }

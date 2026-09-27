@@ -60,4 +60,24 @@ describe('Activity presentation from authoritative booking state', () => {
     fireEvent.click(screen.getByRole('button', { name: /Open booking Faucet Repair/ }));
     expect(onOpen).toHaveBeenCalledWith(entries[1]);
   });
+
+  it.each(['seeker', 'provider'] as const)('distinguishes completed, canceled, and Admin review outcomes for the %s', (tone) => {
+    const onOpen = vi.fn();
+    const entries: ActivityFeedEntry[] = [
+      { id: 'done', group: 'history', outcome: 'completed', title: 'Haircut', participant: 'Ian', status: 'This booking is complete', explanation: '', next: 'Leave a review', date: 'Sep 25, 2026', price: 250 },
+      { id: 'closed', group: 'history', outcome: 'canceled', title: 'Cleaning', participant: 'John Carlo', status: 'This booking is closed', explanation: '', next: 'Find another service', date: 'Sep 26, 2026', price: 500 },
+      { id: 'review', group: 'under_review', title: 'Tutoring', participant: 'Lee', status: 'Admin is reviewing this booking', explanation: 'A dispute is open', next: 'Await an Admin decision', price: 100 },
+    ];
+    render(<ActivityFeed entries={entries} tone={tone} onOpen={onOpen} />);
+    const review = screen.getByRole('region', { name: 'Under Review 1' });
+    const history = screen.getByRole('region', { name: 'History 2' });
+    expect(review).toHaveTextContent('Under review');
+    expect(review).toHaveTextContent('Await an Admin decision');
+    expect(history).toHaveTextContent('Completed');
+    expect(history).toHaveTextContent('Canceled');
+    expect(history).toHaveTextContent('Sep 25, 2026');
+    expect(history).toHaveTextContent('Sep 26, 2026');
+    fireEvent.click(screen.getByRole('button', { name: /Open booking Cleaning/ }));
+    expect(onOpen).toHaveBeenCalledWith(entries[1]);
+  });
 });
