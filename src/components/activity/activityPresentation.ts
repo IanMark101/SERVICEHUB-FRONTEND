@@ -51,12 +51,18 @@ export function getActivityPaymentCopy(booking: JobEngagement): ActivityPaymentC
 
 export function getActivityQueueCopy(booking: JobEngagement): ActivityPaymentCopy {
   if (booking.paymentMethod === 'On-site Cash') return { label: 'No service queue', detail: 'On-site cash bookings do not join a queue.' };
+  if (booking.status === 'disputed') return {
+    label: booking.queuePosition ? `Position #${booking.queuePosition} paused` : 'Queue paused',
+    detail: 'This booking is under review. Its service queue progress is paused while the case is resolved.',
+  };
+  if (booking.status === 'completed' || booking.status === 'awaiting_seeker_approval') return { label: 'Queue finished', detail: 'The booking is no longer waiting in this service queue.' };
+  if (booking.status === 'canceled') return { label: 'Left the queue', detail: 'This booking no longer has an active queue position.' };
   if (booking.queueStatus === 'SERVING' || (booking.status === 'in_progress' && booking.started)) return { label: 'Service underway', detail: 'This booking is being served, not waiting in line.' };
   if (booking.queueStatus === 'WAITING' || booking.status === 'queued') return {
     label: booking.queuePosition ? `Position #${booking.queuePosition}` : 'Waiting for position',
     detail: 'First-come, first-served within this service listing. The provider may perform only one active job at a time.',
   };
-  if (booking.queueStatus === 'DONE' || booking.status === 'completed' || booking.status === 'awaiting_seeker_approval') return { label: 'Queue finished', detail: 'The booking is no longer waiting in this service queue.' };
-  if (booking.queueStatus === 'CANCELLED' || booking.queueStatus === 'REMOVED' || booking.status === 'canceled') return { label: 'Left the queue', detail: 'This booking no longer has an active queue position.' };
+  if (booking.queueStatus === 'DONE') return { label: 'Queue finished', detail: 'The booking is no longer waiting in this service queue.' };
+  if (booking.queueStatus === 'CANCELLED' || booking.queueStatus === 'REMOVED') return { label: 'Left the queue', detail: 'This booking no longer has an active queue position.' };
   return { label: 'Queue status updating', detail: 'The current position is not available here yet.' };
 }

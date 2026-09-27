@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { JobEngagement } from '../../types';
 import ActivityFeed, { type ActivityFeedEntry } from './ActivityFeed';
 import ActivityBookingFacts from './ActivityBookingFacts';
-import { getActivityPaymentCopy, getBookingActivityGroup } from './activityPresentation';
+import { getActivityPaymentCopy, getActivityQueueCopy, getBookingActivityGroup } from './activityPresentation';
 
 const booking: JobEngagement = {
   id: 'one', title: 'House Cleaning', seekerId: 'johncarlo', seekerName: 'John Carlo', seekerAvatar: '',
@@ -27,6 +27,8 @@ describe('Activity presentation from authoritative booking state', () => {
     expect(getBookingActivityGroup({ ...booking, cancellationRequests: [{ id: 'cancel-1', status: 'ESCALATED', requestedBy: 'johncarlo' }] }, 'provider')).toBe('under_review');
     expect(getBookingActivityGroup({ ...booking, status: 'completed' }, 'provider')).toBe('history');
     expect(getBookingActivityGroup({ ...booking, status: 'canceled' }, 'seeker')).toBe('history');
+    expect(getActivityQueueCopy({ ...booking, status: 'disputed' }).label).toBe('Position #2 paused');
+    expect(getActivityQueueCopy({ ...booking, status: 'canceled' }).label).toBe('Left the queue');
   });
 
   it('translates actual payment states instead of exposing internal enums or assuming a payout', () => {
