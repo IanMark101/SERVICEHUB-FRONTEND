@@ -4,6 +4,7 @@ import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLo
 import { UserSession } from '../../components/auth/LoginContainer';
 import { signupStep1Schema, signupStep2Schema, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
 import { setAccessToken } from '@/lib/api/axios';
+import { markSessionPresent } from '@/lib/browserStorage';
 import { getApiErrorBody, getApiErrorMessage } from '@/lib/api/errors';
 import type { FieldPath } from 'react-hook-form';
 import type { ZodIssue } from 'zod';
@@ -134,6 +135,7 @@ export default function useAuthForm({
         if (res.success) {
           const user = res.data.user;
           setAccessToken(res.data.accessToken);
+          markSessionPresent();
           const names = (user.name || '').split(' ');
           const firstName = names[0] || '';
           const lastName = names.slice(1).join(' ') || '';
@@ -226,6 +228,7 @@ export default function useAuthForm({
           if (res.success) {
             const user = res.data.user;
             setAccessToken(res.data.accessToken);
+            markSessionPresent();
             const names = (user.name || '').split(' ');
             const firstName = names[0] || '';
             const lastName = names.slice(1).join(' ') || '';

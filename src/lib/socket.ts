@@ -1,6 +1,7 @@
 "use client";
 import { io, Socket } from "socket.io-client";
 import { api, clearAccessToken, getAccessToken, setAccessToken } from "./api/axios";
+import { clearLegacyAuthStorage, clearSessionHint, markSessionPresent } from "./browserStorage";
 
 let socket: Socket | null = null;
 let isRefreshingSocketAuth = false;
@@ -39,7 +40,8 @@ export function connectSocket(token: string): Socket | null {
 
   socket.on("forceLogout", () => {
     clearAccessToken();
-    localStorage.removeItem("userSession");
+    clearLegacyAuthStorage();
+    clearSessionHint();
     localStorage.removeItem("workspaceRole");
     window.dispatchEvent(new Event("auth_session_expired"));
     disconnectSocket();
@@ -65,6 +67,7 @@ export function connectSocket(token: string): Socket | null {
 
         if (newAccessToken && socket) {
           setAccessToken(newAccessToken);
+          markSessionPresent();
           socket.auth = { token: newAccessToken };
           socket.connect();
         } else {
@@ -73,7 +76,8 @@ export function connectSocket(token: string): Socket | null {
       } catch {
         // Session expired or user logged out; cleanly disconnect without repeating errors
         clearAccessToken();
-        localStorage.removeItem("userSession");
+        clearLegacyAuthStorage();
+        clearSessionHint();
         window.dispatchEvent(new Event("auth_session_expired"));
         disconnectSocket();
       } finally {

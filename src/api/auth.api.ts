@@ -1,4 +1,5 @@
-import { api, setAccessToken } from '../lib/api/axios';
+import { api, clearAccessToken, setAccessToken } from '../lib/api/axios';
+import { clearSessionHint, markSessionPresent } from '../lib/browserStorage';
 
 let sessionRecoveryRequest: ReturnType<typeof apiGetMe> | null = null;
 
@@ -23,12 +24,22 @@ export async function apiLogin(data: { email: string; password: string }) {
 }
 
 export async function apiLogout() {
-  const response = await api.post('/auth/logout');
-  return response.data;
+  try {
+    const response = await api.post('/auth/logout');
+    return response.data;
+  } finally {
+    clearAccessToken();
+    clearSessionHint();
+  }
 }
 
 export async function apiRefresh() {
   const response = await api.post('/auth/refresh');
+  return response.data;
+}
+
+export async function apiSession() {
+  const response = await api.post('/auth/session');
   return response.data;
 }
 
@@ -47,10 +58,16 @@ export function apiRecoverSession() {
     sessionRecoveryRequest = (async () => {
       // Access tokens are intentionally memory-only. Restore a browser session
       // from the rotated HttpOnly refresh cookie before requesting /auth/me.
-      const refreshResult = await apiRefresh();
-      const accessToken = refreshResult?.data?.accessToken || refreshResult?.accessToken;
-      if (!accessToken) throw new Error('No access token returned from refresh');
+      const sessionResult = await apiSession();
+      if (!sessionResult?.data?.authenticated) {
+        clearAccessToken();
+        clearSessionHint();
+        return sessionResult;
+      }
+      const accessToken = sessionResult.data.accessToken;
+      if (!accessToken) throw new Error('No access token returned from session recovery');
       setAccessToken(accessToken);
+      markSessionPresent();
       return apiGetMe();
     })().finally(() => {
       sessionRecoveryRequest = null;

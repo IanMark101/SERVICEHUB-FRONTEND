@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearSessionHint, markSessionPresent } from '../browserStorage';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -86,6 +87,7 @@ api.interceptors.response.use(
       const errData = error.response.data;
       if (errData?.error === "Account suspended" || errData?.code === "EMAIL_NOT_VERIFIED") {
         clearAccessToken();
+        clearSessionHint();
         if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(error);
       }
@@ -129,6 +131,7 @@ api.interceptors.response.use(
           throw new Error('No access token returned from refresh');
         }
         setAccessToken(accessToken);
+        markSessionPresent();
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         processQueue(null, accessToken);
@@ -140,6 +143,7 @@ api.interceptors.response.use(
         isRefreshing = false;
         // Clean up token and trigger redirect or logout event
         clearAccessToken();
+        clearSessionHint();
         if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(refreshError);
       }
