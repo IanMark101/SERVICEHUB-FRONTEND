@@ -62,8 +62,8 @@ export default function GoogleSignInButton({
           client_id: clientId,
           auto_select: false,
           cancel_on_tap_outside: true,
-          // Keep the familiar Google account-selection popup.
-          use_fedcm_for_button: false,
+          // Let supported browsers mediate sign-in without popup postMessage.
+          use_fedcm_for_button: true,
           callback: (response: GoogleCredentialResponse) => {
             if (active && !handlers.current.disabled && response?.credential) {
               handlers.current.onSuccess(response.credential);
