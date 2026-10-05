@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Vercel supplies its own build adapter; standalone output is for Docker.
+  output: process.env.VERCEL === "1" ? undefined : "standalone",
   async headers() {
     return [
       {
