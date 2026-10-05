@@ -19,7 +19,7 @@ describe('LifecycleStepper', () => {
   it('shows the terminal canceled state without active lifecycle steps', () => {
     render(<LifecycleStepper status="canceled" />);
     expect(screen.getByText('Booking Canceled')).toBeInTheDocument();
-    expect(screen.getByText('Inactive')).toBeInTheDocument();
+    expect(screen.getByText('Ended without completion')).toBeInTheDocument();
     expect(screen.queryByText('In Progress')).not.toBeInTheDocument();
   });
 
@@ -27,5 +27,30 @@ describe('LifecycleStepper', () => {
     render(<LifecycleStepper status="disputed" />);
     expect(screen.getByText('Engagement Paused in Dispute')).toBeInTheDocument();
     expect(screen.getByText('Under Review')).toBeInTheDocument();
+  });
+
+  it.each(['seeker', 'provider'] as const)('shows a gray canceled compact journey for %s without a completed milestone', (role) => {
+    render(<LifecycleStepper status="canceled" role={role} compact isDark={false} />);
+    expect(screen.getByText('Booking Canceled').parentElement).toHaveClass('border-stone-300');
+    expect(screen.queryByText('Completed')).not.toBeInTheDocument();
+    expect(screen.queryByRole('list', { name: 'Booking journey' })).not.toBeInTheDocument();
+  });
+
+  it('does not show accepted onsite work as underway before Start Job', () => {
+    const { rerender } = render(<LifecycleStepper status="in_progress" started={false} isOnline={false} compact isDark={false} />);
+    expect(screen.getByText('Step 2 of 5')).toBeInTheDocument();
+    expect(screen.getByText('Accepted')).toHaveClass('text-orange-700');
+    rerender(<LifecycleStepper status="in_progress" started isOnline={false} compact isDark={false} />);
+    expect(screen.getByText('Step 3 of 5')).toBeInTheDocument();
+    expect(screen.getByText('In Progress')).toHaveClass('text-orange-700');
+  });
+
+  it('lays out the compact journey as readable rows on narrow screens and five steps when wide', () => {
+    render(<LifecycleStepper status="completed" role="seeker" compact isDark={false} isOnline />);
+    const journey = screen.getByRole('list', { name: 'Booking journey' });
+    expect(journey).toHaveClass('grid-cols-1', 'sm:grid-cols-5');
+    expect(journey.children).toHaveLength(5);
+    expect(screen.getByText('Confirmation').closest('li')).not.toBe(screen.getByText('Completed').closest('li'));
+    expect(screen.getByText('Step 5 of 5')).toBeInTheDocument();
   });
 });

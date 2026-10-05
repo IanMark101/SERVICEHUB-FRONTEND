@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { Search, CheckCircle2, CalendarDays, ShieldCheck, ArrowRight } from 'lucide-react';
+import { MagnifyingGlass as Search } from '@phosphor-icons/react';
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -11,8 +10,14 @@ import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import EmptyState from '../ui/EmptyState';
 import { JobRequestSkeleton } from '../ui/SkeletonCard';
 import ProposalModal from './browse-jobs/ProposalModal';
-import { formatUrgencyDisplay } from './browse-jobs/browseJobs.utils';
+import JobRequestDetailsModal from './browse-jobs/JobRequestDetailsModal';
+import { requestUrgencyRank } from '../../lib/requestUrgency';
 import { useToast } from '../ui/Toast';
+import { apiGetMyServices } from '../../api/services.api';
+import { mapServiceToListing } from '../../context/mappers';
+import type { ServiceListing, JobRequest } from '../../types';
+import { hasActiveOffer } from '../../lib/offerStatus';
+import JobRequestCard from './browse-jobs/JobRequestCard';
 
 export default function BrowseJobs({
   currentProviderId
@@ -28,9 +33,32 @@ export default function BrowseJobs({
     serverCount ?? bids.filter((bid) => bid.requestId === requestId && (bid.status === 'pending' || bid.status === 'PENDING')).length;
 
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [linkedRequestId, setLinkedRequestId] = useState<string | null>(null);
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setLinkedRequestId(new URLSearchParams(window.location.search).get('request')), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [activeFilter, setActiveFilter] = useState<'all' | 'urgent' | 'high-budget' | 'few-offers'>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [listingCheck, setListingCheck] = useState<{ status: 'loading' | 'ready' | 'error'; items: ServiceListing[] }>({ status: 'loading', items: [] });
+
+  const loadMyListings = React.useCallback(async () => {
+    try {
+      const response = await apiGetMyServices();
+      if (!response?.success || !Array.isArray(response.data)) throw new Error('Listings unavailable');
+      setListingCheck({ status: 'ready', items: response.data.map(mapServiceToListing) });
+    } catch {
+      setListingCheck({ status: 'error', items: [] });
+    }
+  }, []);
+
+  React.useEffect(() => {
+    let active = true;
+    queueMicrotask(() => { if (active) void loadMyListings(); });
+    window.addEventListener('focus', loadMyListings);
+    return () => { active = false; window.removeEventListener('focus', loadMyListings); };
+  }, [loadMyListings]);
 
   React.useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 450);
@@ -53,17 +81,33 @@ export default function BrowseJobs({
 
   // Modal State
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [previewRequest, setPreviewRequest] = useState<JobRequest | null>(null);
   const [bidPrice, setBidPrice] = useState<number>(0);
+  const [bidDuration, setBidDuration] = useState<number>(60);
   const [bidMessage, setBidMessage] = useState<string>('');
+  const [bidAvailability, setBidAvailability] = useState('');
+  const sendingOfferRef = React.useRef(false);
+  const [selectedServiceId, setSelectedServiceId] = useState<string>('');
+  const [sendingOffer, setSendingOffer] = useState(false);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
 
   const categories = ['All Categories', ...Array.from(new Set(jobRequests.map((request) => request.category))).sort()];
+
+  const quickFilters: { id: 'all' | 'urgent' | 'high-budget' | 'few-offers'; label: string; title: string }[] = [
+    { id: 'all', label: 'All', title: 'Show all requests' },
+    { id: 'urgent', label: 'Urgent', title: 'Filter by high urgency job requests' },
+    { id: 'high-budget', label: 'High Budget', title: 'Filter by budget ₱500 and above' },
+    { id: 'few-offers', label: 'Few Offers', title: 'Filter by low competition jobs (1 or fewer offers)' },
+  ];
 
   // Filtering Logic
   const filteredRequests = jobRequests.filter((req) => {
     // 0. Only show active OPEN requests (hide paused, closed, canceled, or already booked requests)
     const isClosedOrPaused = req.status === 'CLOSED' || (req.status as string) === 'closed' || (req.status as string) === 'paused' || req.status === 'CANCELED' || req.status === 'IN_PROGRESS' || (req.status as string) === 'in_progress';
     if (isClosedOrPaused) return false;
+    // A public post cannot become private because of old provider-only metadata.
+    // Listing inquiries remain restricted, with the owner's read-only card visible.
+    if (req.targetServiceId && req.targetProviderId !== effectiveProviderId && req.seekerId !== effectiveProviderId) return false;
 
     // 1. Search Query Filter
     const query = searchQuery.toLowerCase().trim();
@@ -79,8 +123,7 @@ export default function BrowseJobs({
     // 3. Quick Filter Buttons Logic
     let matchesFilter = true;
     if (activeFilter === 'urgent') {
-      const u = (req.urgency || '').toLowerCase();
-      matchesFilter = u.includes('high') || u.includes('urgent') || u.includes('immediate') || u.includes('asap') || u.includes('today') || u.includes('24') || u.includes('emergency') || req.urgency === 'high';
+      matchesFilter = requestUrgencyRank(req.urgency) >= 3;
     } else if (activeFilter === 'high-budget') {
       // ₱500+ is considered high-budget for local neighborhood services
       matchesFilter = req.budget >= 500;
@@ -94,14 +137,11 @@ export default function BrowseJobs({
 
   // Sorting Logic driven by active Quick Filter
   const sortedRequests = [...filteredRequests].sort((a, b) => {
+    if (linkedRequestId && (a.id === linkedRequestId || b.id === linkedRequestId)) {
+      return a.id === linkedRequestId ? -1 : 1;
+    }
     if (activeFilter === 'urgent') {
-      const getRank = (u: string) => {
-        const s = (u || '').toLowerCase();
-        if (s.includes('high') || s.includes('emergency')) return 3;
-        if (s.includes('medium')) return 2;
-        return 1;
-      };
-      return getRank(b.urgency) - getRank(a.urgency);
+      return requestUrgencyRank(b.urgency) - requestUrgencyRank(a.urgency);
     } else if (activeFilter === 'high-budget') {
       return b.budget - a.budget;
     } else if (activeFilter === 'few-offers') {
@@ -124,19 +164,37 @@ export default function BrowseJobs({
     endIndex
   } = usePagination(sortedRequests, 6);
 
-  const handleOpenBid = (reqId: string, initialPrice: number) => {
+  const eligibleListingsFor = (category: string) => listingCheck.items.filter((listing) =>
+    listing.providerId === effectiveProviderId && listing.category.trim().toLocaleLowerCase() === category.trim().toLocaleLowerCase()
+    && listing.status === 'ACTIVE' && !listing.isPaused);
+
+  const handleOpenBid = (reqId: string, initialPrice: number, serviceId: string) => {
     if (!canTransact) {
       setBlockedModalOpen(true);
       return;
     }
     setSelectedRequestId(reqId);
-    setBidPrice(initialPrice);
+    const targetServiceId = jobRequests.find((request) => request.id === reqId)?.targetServiceId || serviceId;
+    setSelectedServiceId(targetServiceId);
+    const selectedListing = listingCheck.items.find((listing) => listing.id === targetServiceId);
+    setBidPrice(selectedListing?.price || initialPrice);
+    setBidDuration(selectedListing?.estimatedDurationMins || 60);
     setBidMessage('');
+    setBidAvailability('');
   };
 
-  const handleSendOfferSubmit = (e: React.FormEvent) => {
+  const handleServiceChange = (serviceId: string) => {
+    setSelectedServiceId(serviceId);
+    const listing = listingCheck.items.find((item) => item.id === serviceId);
+    if (listing) {
+      setBidPrice(listing.price);
+      setBidDuration(listing.estimatedDurationMins || 60);
+    }
+  };
+
+  const handleSendOfferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRequestId) return;
+    if (!selectedRequestId || sendingOfferRef.current) return;
 
     const targetReq = jobRequests.find(r => r.id === selectedRequestId);
     if (targetReq && (targetReq.status === 'CLOSED' || (targetReq.status as string) === 'closed' || (targetReq.status as string) === 'paused')) {
@@ -145,124 +203,108 @@ export default function BrowseJobs({
       return;
     }
 
-    submitBid(selectedRequestId, effectiveProviderId, bidPrice, bidMessage);
-    setSelectedRequestId(null);
+    sendingOfferRef.current = true;
+    setSendingOffer(true);
+    try {
+      const sent = await submitBid(selectedRequestId, effectiveProviderId, selectedServiceId || undefined, bidPrice, bidDuration, bidMessage, bidAvailability.trim() || undefined);
+      if (sent) setSelectedRequestId(null);
+    } finally {
+      setSendingOffer(false);
+      sendingOfferRef.current = false;
+    }
   };
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       <LimitedModeDashboardCard role="provider" />
 
-      {/* Header Banner */}
-      <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
-        }`}>
-        <div className="max-w-2xl relative z-10 space-y-3 w-full">
-          <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+      {/* Search Banner: mirrors the seeker discovery hero with provider color semantics. */}
+      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:from-[#1e1d1a] dark:to-[#171615] dark:shadow-none">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+
+        <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
+          <h2 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">
             Find client requests for any task.
           </h2>
-          <p className={`text-xs sm:text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-            Browse and bid on open jobs in our trusted community marketplace.
+          <p className="workspace-muted mx-auto max-w-md text-xs leading-relaxed sm:text-sm">
+            Browse open requests and send offers to local clients.
           </p>
 
           {/* Inputs Row inside Banner */}
-          <div className={`flex items-center rounded-2xl p-1.5 shadow-inner mt-6 max-w-xl mx-auto w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
+          <form role="search" onSubmit={(event) => {
+            event.preventDefault();
+            document.getElementById('job-request-results')?.scrollIntoView({
+              behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+              block: 'start',
+            });
+          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-emerald-500/20 ${isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-white border-black/10'
             }`}>
-            <span className={`pl-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+            <span className={`pl-3 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
               <Search className="w-4 h-4" />
             </span>
             <input
+              aria-label="Search job requests"
               type="text"
               placeholder="What job or service request are you looking for?"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
+              className={`service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm focus:outline-none ${isDark ? 'text-white placeholder:text-ink-muted' : 'text-ink placeholder:text-ink-muted'
                 }`}
             />
             <button
-              type="button"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex-shrink-0"
+              type="submit"
+              aria-controls="job-request-results"
+              className="workspace-primary-button flex-shrink-0 rounded-lg border px-3 py-2 text-xs font-bold transition-all sm:px-5"
             >
               Search
             </button>
-          </div>
+          </form>
         </div>
       </div>
 
       {/* Filter and Category Controls */}
       <div className="space-y-4">
         {/* Quick Filters Row */}
-        <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-300'}`}>
-          <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Quick Filters:</span>
-          <button
-            onClick={() => handleFilterChange('all')}
-            className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
+        <div role="group" aria-label="Quick job filters" className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-black/10'}`}>
+          <span className={`mr-2 text-xs font-semibold ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>Quick filters</span>
+          {quickFilters.map((filter) => (
+            <button
+              key={filter.id}
+              type="button"
+              aria-pressed={activeFilter === filter.id}
+              onClick={() => handleFilterChange(filter.id)}
+              title={filter.title}
+              className={`min-h-10 rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors ${activeFilter === filter.id
                 ? isDark
-                  ? 'bg-emerald-950/20 text-emerald-450 border-emerald-900/30'
-                  : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                  ? 'border-[#059669]/40 bg-[#059669]/20 text-[#9be5c2]'
+                  : 'border-[#a7f3d0] bg-[#e7f4ec] text-[#056b4f]'
                 : isDark
-                  ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                  : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-500'
+                  ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white'
+                  : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
               }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => handleFilterChange('urgent')}
-            className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'urgent'
-                ? isDark
-                  ? 'bg-emerald-950/20 text-emerald-450 border-emerald-900/30'
-                  : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                : isDark
-                  ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                  : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-500'
-              }`}
-            title="Filter by high urgency job requests"
-          >
-            Urgent
-          </button>
-          <button
-            onClick={() => handleFilterChange('high-budget')}
-            className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'high-budget'
-                ? isDark
-                  ? 'bg-emerald-950/20 text-emerald-455 border-emerald-900/30'
-                  : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                : isDark
-                  ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                  : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-500'
-              }`}
-            title="Filter by budget ₱500 and above"
-          >
-            High Budget
-          </button>
-          <button
-            onClick={() => handleFilterChange('few-offers')}
-            className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'few-offers'
-                ? isDark
-                  ? 'bg-emerald-950/20 text-emerald-455 border-emerald-900/30'
-                  : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                : isDark
-                  ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                  : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-500'
-              }`}
-            title="Filter by low competition jobs (1 or fewer offers)"
-          >
-            Few Offers
-          </button>
+            >
+              {filter.label}
+            </button>
+          ))}
         </div>
 
         {/* Categories Bar and Sort Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex flex-wrap gap-2">
+        <div className="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div role="group" aria-label="Job categories" className="flex flex-wrap gap-2">
             {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
+                aria-pressed={selectedCategory === cat}
                 onClick={() => handleCategoryChange(cat)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${selectedCategory === cat
-                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                className={`min-h-10 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${selectedCategory === cat
+                    ? isDark
+                      ? 'border-[#059669]/40 bg-[#059669]/20 text-[#9be5c2]'
+                      : 'border-[#a7f3d0] bg-[#e7f4ec] text-[#056b4f]'
                     : isDark
-                      ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9] hover:bg-[#2c2b27]'
-                      : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                      ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white'
+                      : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
                   }`}
               >
                 {cat}
@@ -271,9 +313,9 @@ export default function BrowseJobs({
           </div>
 
           <div className="flex items-center space-x-3 flex-shrink-0">
-            <span className={`text-[10px] font-bold px-3 py-2 rounded-xl border ${isDark
+            <span className={`inline-flex items-center min-h-10 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${isDark
                 ? 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30'
-                : 'bg-emerald-50 text-emerald-600 border-slate-300'
+                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
               }`}>
               {sortedRequests.length} Job{sortedRequests.length === 1 ? '' : 's'} Available
             </span>
@@ -282,6 +324,7 @@ export default function BrowseJobs({
       </div>
 
       {/* Job Requests Card Grid */}
+      <section id="job-request-results" aria-label="Job request results" className="marketplace-results scroll-mt-24">
       {isLoading ? (
         <JobRequestSkeleton count={6} />
       ) : sortedRequests.length === 0 ? (
@@ -303,164 +346,29 @@ export default function BrowseJobs({
         />
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="marketplace-results-grid">
             {paginatedRequests.map((req) => {
               const totalBids = getProposalCount(req.id, req.offersCount);
-              const hasSentBid = bids.some(b => b.requestId === req.id && b.providerId === effectiveProviderId && (b.status === 'pending' || b.status === 'PENDING'));
+              const previousOffer = bids.find(b => b.requestId === req.id && b.providerId === effectiveProviderId && hasActiveOffer(b));
+              const hasSentBid = Boolean(previousOffer);
 
               // Check if request belongs to currently logged-in user
               const isOwned = !!(user && req.seekerId === user.id);
 
-              return (
-                <div
-                  key={req.id}
-                  className={`rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full group ${
-                    isOwned || hasSentBid
-                      ? 'border-dashed bg-slate-50/50 dark:bg-neutral-900/10'
-                      : isDark
-                        ? 'bg-[#22211e] border-neutral-800 hover:border-neutral-700'
-                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
-                    }`}
-                >
-                  <div>
-                    {/* Card Header: Client Info */}
-                    <div className="flex items-start justify-between">
-                      <div 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (req.seekerId) {
-                            router.push(`/provider/user-profile?id=${req.seekerId}`);
-                          }
-                        }}
-                        className="flex items-center space-x-3 group/seeker cursor-pointer select-none rounded-xl p-1 -m-1 transition-all hover:bg-slate-100/70 dark:hover:bg-neutral-800/60"
-                        title={`View ${req.seekerName}'s profile`}
-                      >
-                        <div className="relative flex-shrink-0">
-                          <Image unoptimized width={40} height={40}
-                            src={req.seekerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(req.seekerName || 'Client')}&background=random`}
-                            alt={req.seekerName}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-transform duration-200 group-hover/seeker:scale-105 group-hover/seeker:ring-2 group-hover/seeker:ring-emerald-500/50"
-                          />
-                        </div>
-                        <div>
-                          <h4 className={`font-bold text-xs leading-tight transition-colors duration-200 group-hover/seeker:text-emerald-500 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'
-                            }`}>
-                            {req.seekerName}
-                          </h4>
-                          <span className={`inline-flex items-center text-[10px] font-semibold mt-0.5 border px-1.5 py-0.25 rounded-md ${isDark
-                              ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                              : 'text-orange-655 bg-orange-50 border-orange-200'
-                            }`}>
-                            <CheckCircle2 className={`w-3 h-3 mr-0.5 ${isDark ? 'fill-orange-950/20 text-orange-400' : 'fill-orange-50 text-orange-600'
-                              }`} />
-                            Client
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Proposal count & Trust */}
-                      <div className="text-right flex flex-col items-end gap-0.5 select-none">
-                        <span className={`text-[10px] font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
-                          {totalBids} proposal{totalBids === 1 ? '' : 's'}
-                        </span>
-                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                          <ShieldCheck className="h-3 w-3" /> Verified resident
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Category Tag, Needed Timeline Badge & Owned Indicator */}
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
-                          ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
-                          : 'text-emerald-600 bg-emerald-50 border-slate-300'
-                        }`}>
-                        {req.category}
-                      </span>
-
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold rounded-lg border ${
-                        (req.urgency || '').toLowerCase().includes('high') || (req.urgency || '').toLowerCase().includes('urgent') || (req.urgency || '').toLowerCase().includes('asap') || (req.urgency || '').toLowerCase().includes('today') || req.urgency === 'high'
-                          ? isDark ? 'text-red-400 bg-red-955/30 border-red-900/40' : 'text-red-600 bg-red-50 border-red-200'
-                          : (req.urgency || '').toLowerCase().includes('medium') || (req.urgency || '').toLowerCase().includes('24') || (req.urgency || '').toLowerCase().includes('tomorrow') || req.urgency === 'medium'
-                            ? isDark ? 'text-amber-400 bg-amber-955/30 border-amber-900/40' : 'text-amber-700 bg-amber-50 border-amber-200'
-                            : isDark ? 'text-slate-300 bg-neutral-900/30 border-neutral-800' : 'text-slate-700 bg-slate-100 border-slate-200'
-                      }`}>
-                        <span>⏰ Needed:</span>
-                        <span className="font-black">{formatUrgencyDisplay(req.urgency)}</span>
-                      </span>
-
-                      {isOwned && (
-                        <span className={`inline-block px-2.5 py-1 text-[9px] font-extrabold rounded-lg border uppercase tracking-wider ${isDark
-                            ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                            : 'text-orange-600 bg-orange-50 border-orange-200'
-                          }`}>
-                          👤 Owned By You
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Job Details */}
-                    <div className="mt-3">
-                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                        {req.title}
-                      </h3>
-                      <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
-                        {req.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    {/* Divider Line */}
-                    <div className={`border-t my-3.5 ${isDark ? 'border-neutral-850' : 'border-slate-200/80'}`} />
-
-                    {/* Budget and posting context */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-col space-y-0.5">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                          Client Budget
-                        </span>
-                        <span className={`text-lg font-black ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                          ₱{req.budget}
-                        </span>
-                      </div>
-
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-semibold ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        {req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) : 'Recently posted'}
-                      </span>
-                    </div>
-
-                    <p className={`mt-2 text-[10px] leading-4 ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
-                      Submit an exact offer. The seeker chooses cash or an eligible online method only after accepting an offer.
-                    </p>
-
-                    {/* Action CTA Button */}
-                    <div className="mt-3.5">
-                      {isOwned ? (
-                        <div className={`w-full text-center text-xs font-bold py-2.5 rounded-xl border ${isDark ? 'text-neutral-500 bg-[#1c1b18] border-neutral-850' : 'text-slate-400 bg-slate-100 border-slate-200'
-                          }`}>
-                          Your Request (Cannot Bid)
-                        </div>
-                      ) : hasSentBid ? (
-                        <div className={`w-full text-center text-xs font-bold py-2.5 rounded-xl border ${isDark ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-700 bg-emerald-50 border-emerald-200'
-                          }`}>
-                          ✓ Proposal Submitted
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleOpenBid(req.id, req.budget)}
-                          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-emerald-500/25 active:scale-98 cursor-pointer flex items-center justify-center gap-1.5"
-                        >
-                          <span>Send Offer</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
+              return <JobRequestCard
+                key={req.id}
+                request={req}
+                proposalCount={totalBids}
+                isOwned={isOwned}
+                offerState={hasSentBid ? (previousOffer?.status === 'accepted' || previousOffer?.status === 'ACCEPTED' ? 'accepted' : 'submitted') : null}
+                isDark={isDark}
+                onProfile={(reviews) => router.push(`/profile/${encodeURIComponent(req.seekerId)}${reviews ? '?tab=reviews' : ''}`)}
+                onDetails={() => setPreviewRequest(req)}
+                onSendOffer={() => {
+                  if (!canTransact) { setBlockedModalOpen(true); return; }
+                  handleOpenBid(req.id, req.budget, req.targetServiceId || '');
+                }}
+              />;
             })}
           </div>
 
@@ -477,16 +385,59 @@ export default function BrowseJobs({
           />
         </div>
       )}
+      </section>
 
       <ProposalModal
         request={jobRequests.find((request) => request.id === selectedRequestId)}
+        listings={eligibleListingsFor(jobRequests.find((request) => request.id === selectedRequestId)?.category || '').filter((listing) => !jobRequests.find((request) => request.id === selectedRequestId)?.targetServiceId || listing.id === jobRequests.find((request) => request.id === selectedRequestId)?.targetServiceId)}
+        serviceId={selectedServiceId}
+        onServiceChange={handleServiceChange}
+        isSubmitting={sendingOffer}
         isDark={isDark}
         price={bidPrice}
+        duration={bidDuration}
         message={bidMessage}
+        availability={bidAvailability}
+        onAvailabilityChange={setBidAvailability}
         onPriceChange={setBidPrice}
+        onDurationChange={setBidDuration}
         onMessageChange={setBidMessage}
-        onClose={() => setSelectedRequestId(null)}
+        onClose={() => { if (!sendingOfferRef.current) setSelectedRequestId(null); }}
         onSubmit={handleSendOfferSubmit}
+      />
+
+      <JobRequestDetailsModal
+        request={previewRequest}
+        isOpen={Boolean(previewRequest)}
+        onClose={() => setPreviewRequest(null)}
+        onOpenBid={(reqId, budget, targetSvcId) => {
+          setPreviewRequest(null);
+          handleOpenBid(reqId, budget || 0, targetSvcId || '');
+        }}
+        isOwned={Boolean(user && previewRequest && previewRequest.seekerId === user.id)}
+        hasSentBid={Boolean(
+          previewRequest &&
+            bids.some(
+              (b) =>
+                b.requestId === previewRequest.id &&
+                b.providerId === effectiveProviderId &&
+                hasActiveOffer(b)
+            )
+        )}
+        previousOffer={
+          previewRequest
+            ? bids.find(
+                (b) =>
+                  b.requestId === previewRequest.id &&
+                  b.providerId === effectiveProviderId &&
+                  hasActiveOffer(b)
+              )
+            : undefined
+        }
+        canTransact={canTransact}
+        onOpenBlockedModal={() => setBlockedModalOpen(true)}
+        isDark={isDark}
+        router={router}
       />
 
       {/* Transaction Blocked Modal */}

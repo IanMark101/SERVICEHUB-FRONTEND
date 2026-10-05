@@ -1,0 +1,23 @@
+.trust-score-badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid #a7cdbb;
+  border-radius: 6px;
+  background: #edf8f1;
+  color: #14532d;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.trust-score-badge[data-band="average"] { background: #fff8e8; border-color: #ddc58f; color: #71420f; }
+.trust-score-badge[data-band="attention"] { background: #fff0ed; border-color: #e3b4ac; color: #8c231b; }
+.dark .trust-score-badge { background: #183629; border-color: #537d63; color: #b8e8c8; }
+.dark .trust-score-badge[data-band="average"] { background: #362b1a; border-color: #8a7145; color: #f3d59c; }
+.dark .trust-score-badge[data-band="attention"] { background: #3a2320; border-color: #9c625b; color: #fecaca; }

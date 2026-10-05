@@ -76,7 +76,7 @@ export default function ReviewModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className={`rounded-[24px] max-w-md w-full overflow-hidden shadow-2xl border animate-in zoom-in-95 duration-200 ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+        isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
       }`}>
         
         {/* Header */}
@@ -84,17 +84,17 @@ export default function ReviewModal({
           isDark ? 'border-neutral-850 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
         }`}>
           <div>
-            <h3 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+            <h3 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
               {isEdit ? "Edit Your Review" : isClientTarget ? "Rate & Review Client" : "Write a Review"}
             </h3>
-            <p className={`text-[10px] ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+            <p className={`text-[10px] ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
               {isEdit ? "Editable within 24 hours of posting • " : ""}For {isClientTarget ? "client" : "provider"} <strong className="font-bold">{nameToDisplay}</strong>
             </p>
           </div>
           <button
             onClick={onClose}
             className={`p-1.5 rounded-lg border transition-colors ${
-              isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'
+              isDark ? 'border-neutral-800 hover:bg-slate-800 text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'
             }`}
           >
             <X className="w-4 h-4" />
@@ -111,7 +111,7 @@ export default function ReviewModal({
 
           {/* Rating */}
           <div className="flex flex-col items-center justify-center space-y-2">
-            <span className={`text-xs font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+            <span className={`text-xs font-bold ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
               {isClientTarget ? "How was your experience working with this client?" : "How was your overall service?"}
             </span>
             <div className="flex items-center space-x-1.5">
@@ -129,7 +129,7 @@ export default function ReviewModal({
                       star <= (hoverRating || rating)
                         ? 'fill-amber-400 text-amber-400'
                         : isDark
-                          ? 'text-neutral-700'
+                          ? 'text-ink-secondary'
                           : 'text-slate-200'
                     }`}
                   />
@@ -140,7 +140,7 @@ export default function ReviewModal({
 
           {/* Tags */}
           <div className="space-y-2">
-            <label className={`text-xs font-semibold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+            <label className={`text-xs font-semibold block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
               Select tags that apply
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -161,8 +161,8 @@ export default function ReviewModal({
                             ? 'bg-orange-500/15 border-orange-500/30 text-orange-400'
                             : 'bg-orange-50 border-orange-200 text-orange-600'
                         : isDark
-                          ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9] hover:bg-[#2c2b27]'
-                          : 'bg-slate-50 border-slate-200 text-slate-550 hover:bg-slate-100'
+                          ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted hover:bg-[#2c2b27]'
+                          : 'bg-slate-50 border-slate-200 text-ink-muted hover:bg-slate-100'
                     }`}
                   >
                     {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -175,7 +175,7 @@ export default function ReviewModal({
 
           {/* Text Area */}
           <div className="space-y-1.5">
-            <label className={`text-xs font-semibold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+            <label className={`text-xs font-semibold block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
               Describe your experience (optional)
             </label>
             <textarea
@@ -188,8 +188,8 @@ export default function ReviewModal({
               }
               className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed transition-all ${
                 isDark
-                  ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-neutral-700'
-                  : 'bg-slate-50 border-slate-300 text-slate-800 focus:border-slate-400 focus:bg-white'
+                  ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-neutral-700'
+                  : 'bg-slate-50 border-slate-300 text-ink focus:border-slate-400 focus:bg-white'
               }`}
             />
           </div>

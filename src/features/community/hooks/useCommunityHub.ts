@@ -3,9 +3,10 @@ import { api } from '../../../lib/api/axios';
 import { CommunityHubData } from '../types/community.types';
 import { getSocket } from '../../../lib/socket';
 import { getApiErrorMessage } from '../../../lib/api/errors';
+import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
 
-async function requestCommunityData(): Promise<CommunityHubData> {
-  const response = await api.get('/community/stats');
+async function requestCommunityData(force = false): Promise<CommunityHubData> {
+  const response = await api.get('/community/stats', { apiCache: force ? 'reload' : 'default' });
   if (!response.data?.success || !response.data?.data) {
     throw new Error('Unable to load community data. Please try again.');
   }
@@ -20,11 +21,11 @@ export function useCommunityHub() {
   const mountedRef = useRef(true);
   const requestRef = useRef<Promise<CommunityHubData> | null>(null);
 
-  const fetchCommunityData = useCallback(async () => {
+  const fetchCommunityData = useCallback(async (force = false) => {
     setRefreshing(true);
     setError(null);
     try {
-      requestRef.current ??= requestCommunityData();
+      requestRef.current ??= requestCommunityData(force);
       const nextData = await requestRef.current;
       if (mountedRef.current) setData(nextData);
     } catch (error: unknown) {
@@ -37,6 +38,7 @@ export function useCommunityHub() {
       }
     }
   }, []);
+  useApiCacheRefresh(['community'], () => fetchCommunityData());
 
   useEffect(() => {
     mountedRef.current = true;
@@ -52,9 +54,10 @@ export function useCommunityHub() {
     const socket = getSocket();
     if (!socket) return;
     const events = ['COMMUNITY_ANNOUNCEMENTS_CHANGED', 'COMMUNITY_CATEGORIES_CHANGED', 'SERVICE_LISTINGS_CHANGED'];
-    events.forEach((event) => socket.on(event, fetchCommunityData));
+    const refresh = () => { void fetchCommunityData(); };
+    events.forEach((event) => socket.on(event, refresh));
     return () => {
-      events.forEach((event) => socket.off(event, fetchCommunityData));
+      events.forEach((event) => socket.off(event, refresh));
     };
   }, [fetchCommunityData]);
 
@@ -63,6 +66,6 @@ export function useCommunityHub() {
     loading,
     refreshing,
     error,
-    refetch: fetchCommunityData,
+    refetch: () => fetchCommunityData(true),
   };
 }

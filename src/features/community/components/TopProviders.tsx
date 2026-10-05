@@ -1,11 +1,10 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Trophy, Users } from 'lucide-react';
+import { Trophy, UsersThree } from '@phosphor-icons/react';
 import { TopProvider } from '../types/community.types';
 import { TopProvidersSkeleton } from './CommunitySkeletons';
 import CommunityEmptyState from './CommunityEmptyState';
-import PodiumChampions from './PodiumChampions';
-import LeaderboardTable from './LeaderboardTable';
+import SteppedPodiumGraph from './SteppedPodiumGraph';
 
 interface TopProvidersProps {
   providers: TopProvider[];
@@ -20,7 +19,6 @@ export default function TopProviders({
   providers = [],
   loading = false,
   isDark = false,
-  workspaceRole = 'seeker',
   currentUserId,
   leaderboardPeriod,
 }: TopProvidersProps) {
@@ -28,86 +26,66 @@ export default function TopProviders({
 
   if (loading) {
     return (
-      <div className="space-y-3.5">
-        <div className="flex items-center space-x-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Providers of the Week
-          </h2>
+      <section id="community-providers" className="scroll-mt-24 space-y-5">
+        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400"><Trophy size={20} weight="fill" aria-hidden="true" /></div>
+            <div className="min-w-0 flex-1"><h2 className={`text-lg font-black tracking-tight sm:text-2xl ${isDark ? 'text-white' : 'text-ink'}`}>Providers of the week</h2><p className="text-[11px] leading-relaxed text-ink-muted sm:text-xs">Ranked by trust score, completed work, and client ratings</p></div>
+          </div>
         </div>
         <TopProvidersSkeleton isDark={isDark} />
-      </div>
+      </section>
     );
   }
 
   if (providers.length === 0) {
     return (
-      <div className="space-y-3.5">
-        <div className="flex items-center space-x-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Providers of the Week
-          </h2>
-        </div>
+      <section id="community-providers" className="scroll-mt-24 space-y-4">
+        <h2 className={`text-xl font-extrabold tracking-tight sm:text-2xl ${isDark ? 'text-white' : 'text-ink'}`}>
+          Providers of the week
+        </h2>
         <CommunityEmptyState
-          icon={Users}
+          icon={UsersThree}
           title="No provider recognition is available this week"
           description="Providers with verified services completed this week will appear here."
           isDark={isDark}
         />
-      </div>
+      </section>
     );
   }
 
-  const firstPlace = providers.find((p) => p.rank === 1);
-  const secondPlace = providers.find((p) => p.rank === 2);
-  const thirdPlace = providers.find((p) => p.rank === 3);
-  const remainingProviders = providers.filter((p) => p.rank > 3);
-
   const handleSelectProvider = (id: string) => {
-    const prefix = workspaceRole === 'provider' ? '/provider' : '/seeker';
-    router.push(`${prefix}/user-profile?id=${id}`);
+    router.push(`/profile/${encodeURIComponent(id)}`);
   };
 
   return (
-    <div className="space-y-4">
+    <section id="community-providers" className="scroll-mt-24 space-y-5" aria-labelledby="top-providers-title">
       {/* Section Header */}
       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center space-x-2">
-          <Trophy className="w-4 h-4 text-amber-500" />
-          <h2 className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Top Providers of the Week
-          </h2>
+        <div className="flex items-center gap-2.5">
+          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
+            <Trophy size={20} weight="fill" aria-hidden="true" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 id="top-providers-title" className={`text-lg sm:text-2xl font-black tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
+              Providers of the week
+            </h2>
+            <p className={`text-[11px] sm:text-xs leading-relaxed ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+              {leaderboardPeriod
+                ? `Week of ${new Date(leaderboardPeriod.start).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} · Ranked by trust, completed work, and client ratings`
+                : 'Ranked by trust score, completed work, and client ratings'}
+            </p>
+          </div>
         </div>
-        <span className={`text-[10px] font-semibold sm:text-right ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-          {leaderboardPeriod
-            ? `Week of ${new Date(leaderboardPeriod.start).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })} · Ranked by trust, completed work, and client ratings`
-            : 'Ranked by trust, completed work, and client ratings'}
-        </span>
       </div>
 
-      {/* Main Podium & Leaderboard Card */}
-      <div
-        className={`rounded-2xl border p-6 shadow-sm transition-colors duration-200 overflow-hidden ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'
-        }`}
-      >
-        <PodiumChampions
-          firstPlace={firstPlace}
-          secondPlace={secondPlace}
-          thirdPlace={thirdPlace}
-          currentUserId={currentUserId}
-          isDark={isDark}
-          onSelect={handleSelectProvider}
-        />
-
-        <LeaderboardTable
-          providers={remainingProviders}
-          currentUserId={currentUserId}
-          isDark={isDark}
-          onSelect={handleSelectProvider}
-        />
-      </div>
-    </div>
+      {/* Stepped Olympic Podium Bar Graph with floating provider cards */}
+      <SteppedPodiumGraph
+        providers={providers}
+        currentUserId={currentUserId}
+        isDark={isDark}
+        onSelect={handleSelectProvider}
+      />
+    </section>
   );
 }

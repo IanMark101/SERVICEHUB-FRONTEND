@@ -15,7 +15,7 @@ export interface ServicePayload {
 }
 
 export async function apiBrowseServices(params?: { categoryId?: string; search?: string; availableOnly?: boolean }) {
-  const response = await api.get('/services', { params });
+  const response = await api.get('/services', { params, timeout: 15_000 });
   return response.data;
 }
 
@@ -25,17 +25,20 @@ export async function apiGetServiceById(id: string) {
 }
 
 export async function apiGetMyServices() {
-  const response = await api.get('/services/mine');
+  const response = await api.get('/services/mine', { timeout: 15_000 });
   return response.data;
 }
 
 export async function apiCreateService(data: ServicePayload) {
-  const response = await api.post('/services', data);
+  const response = await api.post('/services', { ...data, title: data.title.trim().toUpperCase() });
   return response.data;
 }
 
 export async function apiUpdateService(id: string, data: Partial<ServicePayload>) {
-  const response = await api.patch(`/services/${id}`, data);
+  const response = await api.patch(`/services/${id}`, {
+    ...data,
+    ...(data.title !== undefined && { title: data.title.trim().toUpperCase() }),
+  });
   return response.data;
 }
 

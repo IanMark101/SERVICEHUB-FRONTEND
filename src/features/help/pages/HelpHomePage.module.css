@@ -1,0 +1,12 @@
+.hero {
+  padding-top: 0.75rem;
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    margin-top: -1.25rem;
+    min-height: calc(100dvh - 10rem);
+    align-content: center;
+    padding-top: 0;
+  }
+}

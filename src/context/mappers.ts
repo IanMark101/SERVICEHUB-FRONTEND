@@ -6,28 +6,33 @@ import {
   Transaction,
   Notification
 } from '../types';
+import { normalizeOfferStatus } from '../lib/offerStatus';
+import { notificationCopy } from '../lib/notificationCopy';
 
 const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200';
 
 interface ApiReview { rating?: number }
-interface ApiUser { id?: string; name?: string; avatarUrl?: string | null; trustScore?: number; verificationStatus?: string; location?: string; reviewsReceived?: ApiReview[] }
+interface ApiUser { id?: string; name?: string; avatarUrl?: string | null; trustScore?: number; verificationStatus?: string; location?: string; reviewsReceived?: ApiReview[]; clientRating?: number; clientReviewCount?: number }
 interface ApiCategory { name?: string }
-interface ApiService { id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
-interface ApiDirectRequest { agreedPrice?: number | string; message?: string; schedule?: string; service?: { title?: string } }
-interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; message?: string; status?: string; createdAt?: string; request?: { title?: string; seeker?: ApiUser; category?: ApiCategory | string } }
-export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string }; offer?: ApiOffer; directRequest?: ApiDirectRequest; queue?: { status?: string; position?: number; estimatedWait?: number } | null; paymentMethod?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests'] }
-export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; completedAt?: string; reviews?: JobEngagement['reviews'] }
-interface ApiRequest { id: string; seekerId?: string; seeker?: ApiUser; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: unknown[] }
+interface ApiService { id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; providerWaitingCount?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
+interface ApiDirectRequest { agreedPrice?: number | string; quantity?: number; message?: string; schedule?: string; service?: { title?: string } }
+interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; estimatedDuration?: number; availability?: string; message?: string; status?: string; decisionReason?: Bid['decisionReason']; createdAt?: string; request?: { title?: string; status?: string; seekerId?: string; seeker?: ApiUser; category?: ApiCategory | string; paymentMethods?: JobRequest['paymentMethods']; preferredPaymentMethod?: JobRequest['preferredPaymentMethod'] } }
+export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string; priceType?: ServiceListing['priceType'] }; offer?: ApiOffer; directRequest?: ApiDirectRequest; agreedAmount?: number | string | null; queue?: { status?: string; position?: number; estimatedWait?: number; paymentStatus?: string } | null; paymentMethod?: string; paymentStatus?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests'] }
+export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; paymentStatus?: string; completedAt?: string; reviews?: JobEngagement['reviews'] }
+interface ApiRequest { id: string; seekerId?: string; seeker?: ApiUser; targetProviderId?: string | null; targetServiceId?: string | null; preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null; paymentMethods?: JobRequest['paymentMethods']; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: { status?: string; booking?: { status?: string } | null }[]; canDelete?: boolean; deleteBlockedReason?: string | null }
 interface ApiNotification { id: string; userId: string; title: string; body: string; createdAt: string; isRead: boolean; link?: string | null }
 interface ApiTransaction { id: string; relatedBookingId?: string; walletOwnerId: string; amount: number | string; description?: string; createdAt?: string }
 
 export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
-  const title = b.service?.title || b.offer?.request?.title || b.directRequest?.service?.title || 'Job Engagement';
+  const title = b.offer?.request?.title || b.service?.title || b.directRequest?.service?.title || 'Job Engagement';
   const statusMap: Record<string, string> = {
+    'PENDING_APPROVAL': 'pending_provider',
+    'QUEUED': 'queued',
     'WAITING': 'queued',
     'ONGOING': 'in_progress',
     'ACCEPTED': 'in_progress',
     'AWAITING_CONFIRMATION': 'awaiting_seeker_approval',
+    'UNDER_REVIEW': 'disputed',
     'DISPUTED': 'disputed',
     'DECLINED': 'canceled',
     'CANCELED': 'canceled',
@@ -58,23 +63,33 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
     providerVerificationStatus: b.provider?.verificationStatus,
     providerLocation: b.provider?.location || 'Cordova, Cebu',
     serviceId: b.serviceId || null,
-    price: Number(b.directRequest?.agreedPrice || b.offer?.offeredPrice || b.service?.price || 0),
+    price: Number(b.agreedAmount ?? b.directRequest?.agreedPrice ?? b.offer?.offeredPrice ?? b.service?.price ?? 0),
+    quantity: b.directRequest?.quantity,
+    priceType: b.service?.priceType,
     status: mappedStatus as JobEngagement['status'],
+    bookingStatus: b.status,
+    providerAvailability: b.offer?.availability,
     paymentMethod: b.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
+    paymentStatus: b.paymentStatus,
     createdAt: b.createdAt || '',
-    completedAt: b.updatedAt || '',
+    completedAt: b.status === 'COMPLETED' ? b.updatedAt || '' : undefined,
     description: b.directRequest?.message || b.offer?.message || b.description || '',
     preferredSchedule: b.directRequest?.schedule || '',
     disputeReason: b.reports?.[0]?.description || '',
     started: b.started,
     queuePosition: b.queue?.position,
+    queueEstimatedWait: b.queue?.estimatedWait,
+    queueStatus: b.queue?.status,
+    queuePaymentStatus: b.queue?.paymentStatus,
     cancellationRequests: b.cancellationRequests || []
   };
 }
 
 export function mapCompletedServiceToEngagement(cs: ApiCompletedService): JobEngagement {
   const booking = cs.booking;
-  const title = booking?.service?.title || booking?.offer?.request?.title || booking?.directRequest?.service?.title || 'Completed Job';
+  // A stale completion record must never turn its canceled/active booking into completed work.
+  if (booking?.status && booking.status !== 'COMPLETED') return mapBookingToEngagement(booking);
+  const title = booking?.offer?.request?.title || booking?.service?.title || booking?.directRequest?.service?.title || 'Completed Job';
   return {
     id: cs.bookingId || cs.id,
     title,
@@ -93,12 +108,30 @@ export function mapCompletedServiceToEngagement(cs: ApiCompletedService): JobEng
     serviceId: booking?.serviceId || null,
     price: Number(cs.finalPrice),
     status: 'completed',
+    bookingStatus: 'COMPLETED',
+    providerAvailability: booking?.offer?.availability,
     paymentMethod: booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
+    paymentStatus: cs.paymentStatus || booking?.paymentStatus,
+    queueStatus: booking?.queue?.status,
+    queuePaymentStatus: booking?.queue?.paymentStatus,
     createdAt: cs.completedAt?.split('T')[0] || '',
     completedAt: cs.completedAt?.split('T')[0] || '',
     completedServiceId: cs.id,
     reviews: cs.reviews
   };
+}
+
+export function mapEngagements(bookings: ApiBooking[], completedServices: ApiCompletedService[]): JobEngagement[] {
+  const authoritative = new Map(bookings.map(booking => [booking.id, booking]));
+  const engagements = new Map(bookings.map(booking => [booking.id, mapBookingToEngagement(booking)]));
+  for (const completed of completedServices) {
+    const bookingId = completed.bookingId || completed.booking?.id;
+    const booking = bookingId ? authoritative.get(bookingId) || completed.booking : undefined;
+    if (bookingId && booking?.status !== 'COMPLETED') continue;
+    const engagement = mapCompletedServiceToEngagement(booking ? { ...completed, booking } : completed);
+    engagements.set(engagement.id, engagement);
+  }
+  return [...engagements.values()];
 }
 
 export function mapServiceToListing(item: ApiService): ServiceListing {
@@ -123,8 +156,11 @@ export function mapServiceToListing(item: ApiService): ServiceListing {
     category: item.category?.name || 'General',
     description: item.description,
     price: Number(item.price),
-    queueSize: (item.queueEntries?.length || 0) + (item.bookings?.length || 0),
+    // Queue rows are the canonical online-capacity ledger. Bookings overlap
+    // with SERVING rows, while ongoing cash bookings must not consume it.
+    queueSize: item.queueEntries?.length || 0,
     queueLimit: item.queueLimit || 5,
+    providerWaitingCount: item.providerWaitingCount,
     isPaused: !item.isAvailable,
     proofOfSkillUrl: '',
     rating: avgRating,
@@ -150,17 +186,31 @@ export function mapServiceToListing(item: ApiService): ServiceListing {
 export function mapRequestToJobRequest(r: ApiRequest): JobRequest {
   return {
     id: r.id,
+    targetProviderId: r.targetServiceId ? r.targetProviderId : null,
+    targetServiceId: r.targetServiceId,
+    preferredPaymentMethod: r.preferredPaymentMethod,
+    paymentMethods: r.paymentMethods,
     seekerId: r.seekerId || r.seeker?.id || '',
     seekerName: r.seeker?.name || 'Seeker',
     seekerAvatar: r.seeker?.avatarUrl || DEFAULT_AVATAR,
+    seekerTrustScore: r.seeker?.trustScore,
+    seekerVerificationStatus: r.seeker?.verificationStatus,
+    seekerRating: r.seeker?.clientRating,
+    seekerReviewCount: r.seeker?.clientReviewCount,
     title: r.title,
     category: r.category?.name || 'General',
-    urgency: r.urgency || 'Medium Urgency (Next 1-2 days)',
+    urgency: r.urgency || 'Flexible Schedule',
     budget: Number(r.budgetMax || r.budgetMin || 0),
     description: r.description,
     status: r.status,
     createdAt: r.createdAt?.split('T')[0] || '',
-    offersCount: r.offers?.length || 0
+    offersCount: r.offers?.length || 0,
+    hasCompletedBooking: r.offers?.some((offer) => offer.booking?.status === 'COMPLETED') || false,
+    hasActiveBooking: r.offers?.some(offer => offer.booking?.status && !['DECLINED', 'CANCELED', 'REMOVED', 'COMPLETED'].includes(offer.booking.status)) || false,
+    hasAcceptedOffer: r.offers?.some(offer => offer.status === 'ACCEPTED') || false,
+    hasPendingPaymentOffer: r.offers?.some(offer => offer.status === 'PENDING_PAYMENT') || false,
+    canDelete: r.canDelete,
+    deleteBlockedReason: r.deleteBlockedReason,
   };
 }
 
@@ -175,15 +225,22 @@ export function mapOfferToBid(o: ApiOffer): Bid {
   return {
     id: o.id,
     requestId: o.requestId,
+      seekerId: o.request?.seekerId,
     providerId: o.providerId || o.provider?.id || '',
     serviceId: o.serviceId,
+    requestPaymentMethods: o.request?.paymentMethods,
+    requestPreferredPaymentMethod: o.request?.preferredPaymentMethod,
+    estimatedDuration: o.estimatedDuration,
+    availability: o.availability,
+    requestStatus: o.request?.status,
+    decisionReason: o.decisionReason,
     providerName: o.provider?.name || 'Provider',
     providerAvatar: o.provider?.avatarUrl || DEFAULT_AVATAR,
     providerRating: avgRating,
     price: Number(o.offeredPrice),
     message: o.message || '',
-    status: o.status === 'PENDING' || o.status === 'PENDING_PAYMENT' ? 'pending' : o.status === 'ACCEPTED' ? 'accepted' : 'declined',
-    createdAt: o.createdAt?.split('T')[0] || '',
+    status: normalizeOfferStatus(o.status),
+    createdAt: o.createdAt || '',
     requestTitle: o.request?.title,
     seekerName: o.request?.seeker?.name,
     category: typeof o.request?.category === 'object' ? o.request?.category?.name : o.request?.category,
@@ -191,20 +248,26 @@ export function mapOfferToBid(o: ApiOffer): Bid {
 }
 
 export function mapDbNotification(n: ApiNotification): Notification {
+  const copy = notificationCopy(n.title, n.body);
   const createdAt = new Date(n.createdAt);
   const now = new Date();
   const diffMs = now.getTime() - createdAt.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   let time = 'Just now';
-  if (diffMins < 60) time = `${diffMins} mins ago`;
-  else if (diffMins < 1440) time = `${Math.floor(diffMins / 60)} hours ago`;
-  else time = `${Math.floor(diffMins / 1440)} days ago`;
+  if (diffMins >= 1 && diffMins < 60) time = `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
+  else if (diffMins >= 60 && diffMins < 1440) {
+    const hours = Math.floor(diffMins / 60);
+    time = `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+  } else if (diffMins >= 1440) {
+    const days = Math.floor(diffMins / 1440);
+    time = `${days} ${days === 1 ? 'day' : 'days'} ago`;
+  }
 
   return {
     id: n.id,
     userId: n.userId,
-    title: n.title,
-    desc: n.body,
+    title: copy.title,
+    desc: copy.description,
     time,
     read: n.isRead,
     link: n.link || null,

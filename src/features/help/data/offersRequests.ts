@@ -48,7 +48,7 @@ export const OFFERS_REQUESTS_ARTICLES: HelpArticle[] = [
           'Compare the provider bids side-by-side, checking their offered price, Trust Score, and past customer reviews.',
           'When you find the best offer, click "Accept Offer".',
           'Choose an available payment method: On-site Cash or GCash.',
-          'For cash, accepting the offer creates the booking. For online payment, the booking is created only after the signed PayMongo webhook confirms the Test Mode checkout. Chat then unlocks for the participants.',
+          'For cash, accepting the offer creates the booking. For GCash, the booking is created only after ServiceHub verifies the Test Mode payment with PayMongo. Chat then unlocks for the participants.',
         ],
         callout: {
           type: 'info',
@@ -72,7 +72,7 @@ export const OFFERS_REQUESTS_ARTICLES: HelpArticle[] = [
         heading: 'Why Pause an Open Request?',
         paragraphs: [
           'When you publish a task in Cordova (e.g. "Install 2 Ceiling Fans"), you may receive multiple competitive bids within the first few hours.',
-          'If you have already received 3–4 strong offers, you can pause your request to prevent other providers from spending time submitting new proposals.',
+          'If you have already received 3-4 strong offers, you can pause your request to prevent other providers from spending time submitting new proposals.',
         ],
         steps: [
           'Navigate to "Request Manager" in your Seeker Workspace.',

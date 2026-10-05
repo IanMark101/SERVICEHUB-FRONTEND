@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { FolderPlus } from 'lucide-react';
+import { Sparkle } from '@phosphor-icons/react';
 import { RecentCategory, RecentService } from '../types/community.types';
 import { RecentGridSkeleton } from './CommunitySkeletons';
 import NewCategoriesSection from './NewCategoriesSection';
@@ -23,15 +23,13 @@ export default function RecentlyAdded({
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="space-y-3">
-          <h2 className={`font-extrabold text-sm uppercase tracking-wider flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            <FolderPlus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-            <span>Recently Added</span>
-          </h2>
-          <div className="grid gap-4 xl:grid-cols-2"><RecentGridSkeleton isDark={isDark} /><RecentGridSkeleton isDark={isDark} /></div>
+      <section id="community-newly-approved" className="scroll-mt-24 space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+          <div className="flex items-center gap-2.5"><Sparkle size={18} className="text-[#c86544]" aria-hidden="true" /><h2 className={`text-lg font-black tracking-tight sm:text-2xl ${isDark ? 'text-white' : 'text-ink'}`}>Recently added</h2></div>
+          <span className="text-xs text-ink-muted">Added in the last 30 days</span>
         </div>
-      </div>
+        <RecentGridSkeleton isDark={isDark} />
+      </section>
     );
   }
 
@@ -45,27 +43,36 @@ export default function RecentlyAdded({
     router.push(`/seeker/seek-services?serviceId=${encodeURIComponent(id)}`);
   };
 
+  const handleSelectProvider = (id: string) => {
+    router.push(`/profile/${encodeURIComponent(id)}`);
+  };
+
   return (
-    <section className="space-y-3.5" aria-labelledby="recently-added-title">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <FolderPlus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-          <h2 id="recently-added-title" className={`workspace-section-title ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-            Recently Added
+    <section id="community-newly-approved" className="scroll-mt-24 space-y-4" aria-labelledby="recently-added-title">
+      <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+        <div className="flex items-center gap-2.5">
+          <Sparkle size={18} className="text-[#c86544]" aria-hidden="true" />
+          <h2 id="recently-added-title" className={`text-lg sm:text-2xl font-black tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
+            Recently added
           </h2>
         </div>
-        <span className={`text-[10px] font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-          Approved in the last 30 days
+        <span className={`text-xs ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
+          Added in the last 30 days
         </span>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(17rem,0.85fr)]">
+        <NewServicesSection
+          services={services}
+          isDark={isDark}
+          onSelectService={handleSelectService}
+          onSelectProvider={handleSelectProvider}
+        />
         <NewCategoriesSection
           categories={categories}
           isDark={isDark}
           onSelectCategory={handleSelectCategory}
         />
-        <NewServicesSection services={services} isDark={isDark} onSelectService={handleSelectService} />
       </div>
     </section>
   );

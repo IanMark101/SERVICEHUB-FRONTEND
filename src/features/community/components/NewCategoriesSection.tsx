@@ -1,6 +1,6 @@
 import React from 'react';
-import { Tag, ArrowUpRight, Calendar, FolderPlus } from 'lucide-react';
-import { RecentCategory } from '../types/community.types';
+import { ArrowUpRight, Tag } from '@phosphor-icons/react';
+import type { RecentCategory } from '../types/community.types';
 import CommunityEmptyState from './CommunityEmptyState';
 
 interface NewCategoriesSectionProps {
@@ -9,71 +9,45 @@ interface NewCategoriesSectionProps {
   onSelectCategory: (name: string) => void;
 }
 
-export default function NewCategoriesSection({
-  categories = [],
-  isDark = false,
-  onSelectCategory,
-}: NewCategoriesSectionProps) {
+export default function NewCategoriesSection({ categories = [], isDark = false, onSelectCategory }: NewCategoriesSectionProps) {
   return (
-    <div
-      className={`rounded-2xl p-4 border shadow-sm space-y-3 ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
-      }`}
-    >
-      <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800/80">
-        <h3 className={`font-extrabold text-xs uppercase tracking-wider flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-          <Tag className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
-          <span>New Categories</span>
-        </h3>
-        <span className={`text-[10px] font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-          {categories.length} approved
-        </span>
+    <section className={`min-w-0 rounded-3xl border p-4 sm:p-6 transition-all ${
+      isDark
+        ? 'bg-[#1c1b18] border-neutral-800/90 shadow-xl shadow-black/40'
+        : 'bg-white border-slate-200/90 shadow-sm shadow-slate-900/5'
+    }`} aria-labelledby="new-categories-title">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-neutral-800/80 pb-3.5">
+        <div className="flex items-center gap-2">
+          <Tag size={18} className="text-[#c86544]" aria-hidden="true" />
+          <h3 id="new-categories-title" className={`text-base font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>New categories</h3>
+        </div>
+        <span className={`text-xs font-semibold ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>{categories.length} approved</span>
       </div>
 
       {categories.length === 0 ? (
-        <CommunityEmptyState
-          icon={FolderPlus}
-          title="No new categories have been added recently"
-          description="When the administration approves community category suggestions, they will be highlighted here."
-          isDark={isDark}
-        />
+        <div className="pt-4">
+          <CommunityEmptyState title="No new categories have been added recently" description="New categories appear here after admins approve a category suggestion." isDark={isDark} />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-2.5">
-          {categories.map((cat) => (
+        <div className="divide-y divide-slate-100 dark:divide-neutral-800/80">
+          {categories.map((category) => (
             <button
               type="button"
-              key={cat.id}
-              onClick={() => onSelectCategory(cat.name)}
-              className={`w-full text-left border rounded-xl p-3.5 space-y-1.5 transition-all duration-200 cursor-pointer select-none group/cat hover:border-slate-500/50 hover:shadow-sm ${
-                isDark
-                  ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/40 text-[#f2efe9]'
-                  : 'bg-slate-50 border-slate-200/80 hover:bg-white text-slate-900'
-              }`}
-              title={`Browse ${cat.name} services`}
+              key={category.id}
+              onClick={() => onSelectCategory(category.name)}
+              aria-label={`Browse ${category.name} services`}
+              className="group flex w-full items-start gap-3 py-3.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]"
             >
-              <div className="flex items-center justify-between">
-                <h4 className="font-extrabold text-xs uppercase tracking-wide truncate group-hover/cat:text-slate-600 dark:group-hover/cat:text-slate-400 transition-colors">
-                  {cat.name}
-                </h4>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover/cat:text-slate-600 dark:group-hover/cat:text-slate-400 transition-colors" />
-              </div>
-              {cat.description && (
-                <p className={`text-[10.5px] font-medium leading-relaxed line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                  {cat.description}
-                </p>
-              )}
-              {cat.reviewedAt && (
-                <div className={`text-[9px] font-bold flex items-center pt-1 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-                  <Calendar className="w-3 h-3 mr-1" />
-                  <span>
-                    Approved {new Date(cat.reviewedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </span>
-                </div>
-              )}
+              <span className="min-w-0 flex-1">
+                <span className={`block text-sm font-semibold leading-5 tracking-[-0.02em] transition-colors group-hover:text-[#aa5032] dark:group-hover:text-[#e9a58c] ${isDark ? 'text-white' : 'text-ink'}`}>{category.name}</span>
+                {category.description && <span className={`mt-1 block text-xs leading-5 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>{category.description}</span>}
+                {category.reviewedAt && <span className={`mt-2 block text-[11px] ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>Approved {new Date(category.reviewedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
+              </span>
+              <ArrowUpRight size={16} className="mt-0.5 shrink-0 text-ink-subtle transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
             </button>
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

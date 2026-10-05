@@ -1,8 +1,18 @@
-import { ServiceListing } from '../types';
+import { ServiceListing, JobRequest } from '../types';
 
 export interface ResolvedPaymentMethods {
   cash: boolean;
   gcash: boolean;
+}
+
+export function getRequestPaymentMethods(request?: Pick<JobRequest, 'paymentMethods' | 'preferredPaymentMethod'> | null): ResolvedPaymentMethods {
+  if (!request) return { cash: false, gcash: false };
+  // Older requests did not collect preferences; direct inquiries still retain their chosen method.
+  const methods = request.paymentMethods ?? { cash: true, gcash: true };
+  return {
+    cash: methods.cash === true && (!request.preferredPaymentMethod || request.preferredPaymentMethod === 'On-site Cash'),
+    gcash: methods.gcash === true && (!request.preferredPaymentMethod || request.preferredPaymentMethod === 'GCash'),
+  };
 }
 
 type ServicePaymentSource = {

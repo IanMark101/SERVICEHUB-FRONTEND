@@ -34,8 +34,18 @@ export function clearSessionHint(): void {
 export function clearLegacyAuthStorage(): void {
   if (typeof window === 'undefined') return;
 
-  const hadLegacySession = LEGACY_AUTH_STORAGE_KEYS.some(
-    (key) => window.localStorage.getItem(key) !== null || window.sessionStorage.getItem(key) !== null,
+  const hadLegacySession = [window.localStorage, window.sessionStorage].some(storage =>
+    LEGACY_AUTH_STORAGE_KEYS.some(key => {
+      const value = storage.getItem(key);
+      if (!value) return false;
+      if (key !== 'user' && key !== 'userSession') return true;
+      try {
+        const profile = JSON.parse(value);
+        return typeof profile?.id === 'string' && profile.id.length > 0;
+      } catch {
+        return false;
+      }
+    }),
   );
 
   for (const storage of [window.localStorage, window.sessionStorage]) {

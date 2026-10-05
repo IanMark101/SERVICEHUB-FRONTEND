@@ -1,5 +1,10 @@
+import React from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, CreditCard, Repeat2, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, CreditCard, ArrowsClockwise, ShieldCheck } from '@phosphor-icons/react';
+
+interface PlatformGuidesProps {
+  isDark?: boolean;
+}
 
 const guides = [
   {
@@ -9,8 +14,8 @@ const guides = [
     icon: ShieldCheck,
   },
   {
-    title: 'Payments and service queues',
-    description: 'Online Test Mode bookings use listing-specific FCFS queues. On-site cash arrangements never enter the online queue.',
+    title: 'Payments and provider queues',
+    description: 'Online Test Mode bookings share one FCFS paid queue per provider. On-site cash arrangements do not receive a numbered place.',
     href: '/help/queue/how-the-queue-works',
     icon: CreditCard,
   },
@@ -18,26 +23,45 @@ const guides = [
     title: 'Reusable local services',
     description: 'Each request creates an independent one-time booking, and you can request the same listing again after the earlier job is resolved.',
     href: '/help/bookings/how-direct-booking-works',
-    icon: Repeat2,
+    icon: ArrowsClockwise,
   },
 ];
 
-export default function PlatformGuides({ isDark = false }: { isDark?: boolean }) {
+export default function PlatformGuides({ isDark = false }: PlatformGuidesProps) {
   return (
-    <div className="grid gap-3 md:grid-cols-3">
+    <div className={`divide-y ${isDark ? 'divide-neutral-800/80' : 'divide-slate-100'}`}>
       {guides.map(({ title, description, href, icon: Icon }) => (
         <Link
           key={title}
           href={href}
-          className={`group rounded-2xl border p-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ${isDark ? 'border-neutral-800 bg-[#22211e] hover:bg-neutral-800/60' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
+          className={`group flex items-start gap-2.5 sm:gap-3.5 py-3 sm:py-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${
+            isDark ? 'text-neutral-200 hover:text-white' : 'text-ink hover:text-ink'
+          }`}
         >
-          <div className="flex items-start justify-between gap-3">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${isDark ? 'bg-neutral-800 text-neutral-300' : 'bg-slate-100 text-slate-700'}`}><Icon className="h-4 w-4" aria-hidden="true" /></span>
-            <ArrowUpRight className="h-4 w-4 text-slate-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+          <div className={`grid size-8 sm:size-9 shrink-0 place-items-center rounded-xl transition-colors ${
+            isDark
+              ? 'bg-orange-500/15 text-orange-400 group-hover:bg-orange-500/25'
+              : 'bg-orange-50 text-orange-600 group-hover:bg-orange-100'
+          }`}>
+            <Icon size={17} weight="duotone" aria-hidden="true" />
           </div>
-          <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-[#f2efe9]">{title}</h3>
-          <p className="mt-1.5 text-xs leading-5 text-slate-600 dark:text-[#b4b0a9]">{description}</p>
-          <span className="mt-3 inline-block text-[11px] font-bold text-slate-600 dark:text-neutral-300">Read guide</span>
+          <div className="min-w-0 flex-1">
+            <span className={`block text-sm font-bold tracking-tight transition-colors ${
+              isDark ? 'group-hover:text-orange-400' : 'group-hover:text-orange-600'
+            }`}>
+              {title}
+            </span>
+            <p className={`mt-1 text-xs leading-relaxed ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+              {description}
+            </p>
+          </div>
+          <ArrowUpRight
+            size={16}
+            className={`mt-1 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${
+              isDark ? 'text-ink-muted group-hover:text-neutral-300' : 'text-ink-subtle group-hover:text-ink-muted'
+            }`}
+            aria-hidden="true"
+          />
         </Link>
       ))}
     </div>

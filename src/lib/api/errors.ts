@@ -4,6 +4,8 @@ type ApiErrorBody = {
   error?: string;
   message?: string;
   errors?: Array<{ message?: string }>;
+  code?: string;
+  field?: 'title' | 'description' | 'category';
 };
 
 export function getApiErrorBody(error: unknown): ApiErrorBody | undefined {
@@ -13,7 +15,7 @@ export function getApiErrorBody(error: unknown): ApiErrorBody | undefined {
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   const body = getApiErrorBody(error);
-  return body?.message || body?.error || (error instanceof Error ? error.message : fallback);
+  return body?.errors?.[0]?.message || body?.message || body?.error || (error instanceof Error ? error.message : fallback);
 }
 
 export function getApiErrorStatus(error: unknown): number | undefined {

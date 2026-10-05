@@ -29,13 +29,18 @@ export default function ScrollReveal({
   hoverLift = false,
 }: ScrollRevealProps) {
   const shouldReduceMotion = useReducedMotion();
+  const from = hiddenByDirection[direction];
 
   return (
     <motion.div
-      initial={shouldReduceMotion ? false : hiddenByDirection[direction]}
-      whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      // Server HTML and delayed/missing observers must leave content visible.
+      // Run the existing entrance as keyframes only once visibility is known.
+      initial={false}
+      whileInView={shouldReduceMotion ? { opacity: 1, x: 0, y: 0, scale: 1 } : {
+        opacity: [0.8, 1], x: [from.x ?? 0, 0], y: [from.y ?? 0, 0], scale: [from.scale ?? 1, 1],
+      }}
       whileHover={shouldReduceMotion || !hoverLift ? undefined : { y: -4 }}
-      viewport={{ once: true, amount }}
+      viewport={{ once: false, amount }}
       transition={{ duration: 0.68, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >

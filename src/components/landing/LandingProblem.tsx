@@ -10,22 +10,22 @@ interface LandingProblemProps {
 
 const pillars = [
   {
-    title: 'Residency Verification First',
-    description: 'Verify genuine Cordova residency before starting new marketplace transactions, keeping interactions accountable and local.',
+    title: 'Clear Terms Upfront',
+    description: 'See the price, estimated duration, and accepted payment options before choosing a service.',
     icon: ShieldCheck,
-    tag: 'Identity Protection',
+    tag: 'Informed Choices',
   },
   {
-    title: 'Protected Booking Lifecycles',
-    description: 'Track requests, provider offers, job-scoped messages, and verified completion receipts instead of relying on chaotic social group chats.',
+    title: 'Room for Specific Needs',
+    description: 'Describe a task in your own words and set a budget when a published service does not fit.',
     icon: FileCheck2,
-    tag: 'Structured Flow',
+    tag: 'Custom Requests',
   },
   {
-    title: 'First-Paid, First-Served Queues',
-    description: 'Fair listing-specific queues with backend payment confirmation for online work, alongside direct arrangements for on-site cash.',
+    title: 'A Record You Can Follow',
+    description: 'Keep agreed work and its progress in one booking record instead of piecing together separate posts and conversations.',
     icon: CheckCircle2,
-    tag: 'Fair Capacity',
+    tag: 'Organized Work',
   },
 ];
 
@@ -34,16 +34,16 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
     <section
       id="problem"
       data-theme={isDark ? 'dark' : 'light'}
-      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
+      className="scroll-mt-0 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         {/* Section Header: Headline + Subhead, stacked cleanly without redundant eyebrow */}
         <ScrollReveal className="max-w-3xl">
-          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
-            Local service work deserves more structure than an unverified social post.
+          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-[#0a0a0a] dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            Local service work deserves more structure than a social media post.
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-300 sm:text-lg">
-            ServiceHub replaces casual, unmoderated group posts with a verified community workflow designed specifically for Cordova households and local trades.
+          <p className="mt-5 text-base leading-relaxed text-neutral-600 dark:text-zinc-300 sm:text-lg">
+            Arranging a job takes more effort when its price, scope, and progress are scattered across posts. ServiceHub keeps those decisions organized.
           </p>
         </ScrollReveal>
 
@@ -63,14 +63,14 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
                   <div className="grid size-12 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
                     <Icon size={22} />
                   </div>
-                  <span className="text-[11px] font-bold text-slate-400 dark:text-zinc-500">
+                  <span className="text-[11px] font-bold text-neutral-400 dark:text-zinc-500">
                     {pillar.tag}
                   </span>
                 </div>
-                <h3 className="mt-8 text-lg font-bold text-slate-950 dark:text-white">
+                <h3 className="mt-8 text-lg font-bold text-[#0a0a0a] dark:text-white">
                   {pillar.title}
                 </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
+                <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-zinc-400">
                   {pillar.description}
                 </p>
               </ScrollReveal>
@@ -80,14 +80,14 @@ export default function LandingProblem({ isDark }: LandingProblemProps) {
 
         {/* Action Link */}
         <ScrollReveal className="mt-10 flex items-center justify-between border-t border-slate-200/80 pt-6 dark:border-zinc-800">
-          <p className="text-xs font-medium text-slate-500 dark:text-zinc-400">
-            Engineered for genuine community accountability across Cordova, Cebu.
+          <p className="text-xs font-medium text-neutral-500 dark:text-zinc-400">
+            Built for accountable local service work across Cordova, Cebu.
           </p>
           <a
             href="#how-it-works"
             className="inline-flex items-center gap-2 text-xs font-bold text-[#c86544] transition-colors hover:text-[#aa5032] active:scale-[0.98]"
           >
-            <span>Follow the marketplace flow</span>
+            <span>See how ServiceHub works</span>
             <ArrowDown size={14} />
           </a>
         </ScrollReveal>

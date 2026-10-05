@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useApiCacheRefresh } from './useApiCacheRefresh';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../context/AppContext';
-import { apiGetMessages, apiSendMessage, apiGetConversations } from '../api/messages.api';
+import { apiGetMessages, apiSendMessage, apiGetConversationGroups, apiGetConversationGroupForBooking } from '../api/messages.api';
 import { apiHideBooking } from '../api/bookings.api';
 import { joinBookingRoom, getSocket } from '../lib/socket';
 import { processMessageImage } from '../lib/imageUtils';
@@ -35,14 +36,28 @@ export interface Conversation {
   unreadCount: number;
 }
 
+export interface ConversationGroup {
+  otherPartyId: string;
+  otherPartyName: string;
+  otherPartyAvatar?: string;
+  lastMessage?: string;
+  lastMessageTime?: string;
+  unreadCount: number;
+  bookings: Conversation[];
+}
+
+export const isConversationClosed = (status: string) =>
+  ['PENDING_APPROVAL', 'DECLINED', 'CANCELED', 'REMOVED', 'COMPLETED'].includes(status);
+
 export function useMessagesPage() {
   const { isDark, user, syncUnreadMessages } = useApp();
   const searchParams = useSearchParams();
   const bookingParam = searchParams.get('booking');
 
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversationGroups, setConversationGroups] = useState<ConversationGroup[]>([]);
   const [conversationPage, setConversationPage] = useState(1);
   const [conversationTotalPages, setConversationTotalPages] = useState(1);
+  const [initialSyncComplete, setInitialSyncComplete] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
@@ -53,25 +68,38 @@ export function useMessagesPage() {
   const [error, setError] = useState('');
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messageScrollRef = useRef<HTMLDivElement>(null);
+  const shouldStickToBottomRef = useRef(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const selectedConvRef = useRef<Conversation | null>(null);
+  const messageLoadIdRef = useRef(0);
 
-  const filteredConversations = conversations.filter(conv => {
+  const conversations = conversationGroups.flatMap(group => group.bookings);
+  const selectedGroup = conversationGroups.find(group => group.otherPartyId === selectedConv?.otherPartyId);
+  const filteredConversationGroups = conversationGroups.filter(group => {
     if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.trim().toLowerCase();
     return (
-      conv.otherPartyName.toLowerCase().includes(q) ||
-      conv.title.toLowerCase().includes(q) ||
-      (conv.lastMessage && conv.lastMessage.toLowerCase().includes(q))
+      group.otherPartyName.toLowerCase().includes(q) ||
+      group.bookings.some(booking => booking.title.toLowerCase().includes(q) || booking.lastMessage?.toLowerCase().includes(q))
     );
   });
 
   // Sync conversation list from backend
   const syncConversations = useCallback(async () => {
     try {
-      const res = await apiGetConversations(conversationPage, 20);
+      const res = await apiGetConversationGroups(conversationPage, 20);
       if (res.success) {
-        setConversations(res.data || []);
+        const next: ConversationGroup[] = res.data || [];
+        setConversationGroups(prev => {
+          const selected = selectedConvRef.current;
+          const pinned = selected && !next.some(group => group.otherPartyId === selected.otherPartyId)
+            ? prev.find(group => group.otherPartyId === selected.otherPartyId)
+            : null;
+          return pinned ? [pinned, ...next] : next;
+        });
+        setSelectedConv(prev => next.flatMap(group => group.bookings).find(booking => booking.bookingId === prev?.bookingId) || prev);
         setConversationTotalPages(Math.max(1, res.pagination?.totalPages || 1));
       }
     } catch (e: unknown) {
@@ -80,10 +108,11 @@ export function useMessagesPage() {
       if (getApiErrorStatus(e) !== 401) {
         if (process.env.NODE_ENV === 'development') console.error("Failed to sync conversations:", e);
       }
+    } finally {
+      setInitialSyncComplete(true);
     }
   }, [conversationPage]);
 
-  const selectedConvRef = useRef<Conversation | null>(null);
   const hasProcessedInitialDeepLink = useRef(false);
 
   useEffect(() => {
@@ -92,10 +121,12 @@ export function useMessagesPage() {
 
   // Load messages for chosen conversation
   const loadMessages = useCallback(async (bookingId: string) => {
+    const loadId = ++messageLoadIdRef.current;
     setLoading(true);
     setError('');
     try {
       const res = await apiGetMessages(bookingId);
+      if (loadId !== messageLoadIdRef.current) return;
       if (res.success) {
         setMessages(res.data || []);
         syncUnreadMessages();
@@ -103,14 +134,22 @@ export function useMessagesPage() {
         setError(res.error || 'Failed to load messages.');
       }
     } catch (e: unknown) {
-      setError(getApiErrorMessage(e, 'Failed to load messages.'));
+      if (loadId === messageLoadIdRef.current) setError(getApiErrorMessage(e, 'Failed to load messages.'));
     } finally {
-      setLoading(false);
+      if (loadId === messageLoadIdRef.current) setLoading(false);
     }
   }, [syncUnreadMessages]);
 
+  useApiCacheRefresh(['messages'], async change => {
+    await syncConversations();
+    if (['focus', 'online', 'reconnect'].includes(change.reason) && selectedConvRef.current) {
+      await loadMessages(selectedConvRef.current.bookingId);
+    }
+  });
+
   // Select conversation & join room
   const selectConversation = useCallback((conv: Conversation) => {
+    shouldStickToBottomRef.current = true;
     setSelectedConv(conv);
     setMessages([]);
     setError('');
@@ -118,10 +157,22 @@ export function useMessagesPage() {
     joinBookingRoom(conv.bookingId);
 
     // Optimistically zero unread count
-    setConversations(prev =>
-      prev.map(c => c.bookingId === conv.bookingId ? { ...c, unreadCount: 0 } : c)
-    );
+    setConversationGroups(prev => prev.map(group => {
+      if (group.otherPartyId !== conv.otherPartyId) return group;
+      return {
+        ...group,
+        unreadCount: Math.max(0, group.unreadCount - conv.unreadCount),
+        bookings: group.bookings.map(booking => booking.bookingId === conv.bookingId ? { ...booking, unreadCount: 0 } : booking),
+      };
+    }));
   }, [loadMessages]);
+
+  const selectGroup = useCallback((group: ConversationGroup) => {
+    const target = group.bookings.find(booking => booking.bookingId === selectedConvRef.current?.bookingId)
+      || group.bookings.find(booking => !isConversationClosed(booking.status))
+      || group.bookings[0];
+    if (target) selectConversation(target);
+  }, [selectConversation]);
 
   // Load conversations initial load
   useEffect(() => {
@@ -131,7 +182,7 @@ export function useMessagesPage() {
 
   // Handle deep-link query parameter (runs ONCE on first load of conversations)
   useEffect(() => {
-    if (hasProcessedInitialDeepLink.current || conversations.length === 0) return;
+    if (hasProcessedInitialDeepLink.current || !initialSyncComplete) return;
 
     const timer = window.setTimeout(() => {
       hasProcessedInitialDeepLink.current = true;
@@ -141,11 +192,21 @@ export function useMessagesPage() {
           selectConversation(match);
           return;
         }
+        void apiGetConversationGroupForBooking(bookingParam).then((res) => {
+          const group = res.data as ConversationGroup | undefined;
+          const linked = group?.bookings.find(booking => booking.bookingId === bookingParam);
+          if (!group || !linked) return;
+          setConversationGroups(prev => prev.some(existing => existing.otherPartyId === group.otherPartyId) ? prev : [group, ...prev]);
+          selectConversation(linked);
+        }).catch(() => {
+          if (conversations[0]) selectConversation(conversations[0]);
+        });
+        return;
       }
-      if (!selectedConv) selectConversation(conversations[0]);
+      if (!selectedConv && conversationGroups[0]) selectGroup(conversationGroups[0]);
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [bookingParam, conversations, selectConversation, selectedConv]);
+  }, [bookingParam, conversationGroups, conversations, initialSyncComplete, selectConversation, selectGroup, selectedConv]);
 
   // Real-time listener
   useEffect(() => {
@@ -177,9 +238,16 @@ export function useMessagesPage() {
     };
   }, [syncConversations, syncUnreadMessages]);
 
-  // Scroll to bottom when messages update
+  const handleMessageScroll = () => {
+    const pane = messageScrollRef.current;
+    if (!pane) return;
+    shouldStickToBottomRef.current = pane.scrollHeight - pane.scrollTop - pane.clientHeight <= 80;
+  };
+
+  // Keep the conversation pane at the bottom only while the reader is already there.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const pane = messageScrollRef.current;
+    if (pane && shouldStickToBottomRef.current) pane.scrollTop = pane.scrollHeight;
   }, [messages]);
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,6 +265,7 @@ export function useMessagesPage() {
 
   const handleSend = async () => {
     if ((!input.trim() && !attachedImage) || !selectedConv || sending) return;
+    shouldStickToBottomRef.current = true;
     const content = input.trim() || 'Sent an attachment';
     const img = attachedImage;
     setInput('');
@@ -230,21 +299,33 @@ export function useMessagesPage() {
 
   const handleHideConversation = (bookingId: string) => {
     const targetConv = conversations.find(c => c.bookingId === bookingId);
-    const targetName = targetConv?.otherPartyName || 'this conversation';
+    const targetTitle = targetConv?.title || 'this job';
 
     setConfirmModal({
       isOpen: true,
-      title: 'Remove Conversation',
-      message: `Are you sure you want to remove your conversation with ${targetName}? It will be hidden from your inbox list.`,
-      confirmText: 'Remove',
+      title: 'Hide booking',
+      message: `Hide ${targetTitle} from your Activity and Messages views? Other bookings with this person will remain visible.`,
+      confirmText: 'Hide booking',
       cancelText: 'Keep',
       variant: 'danger',
       onConfirm: async () => {
         setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
         try {
           await apiHideBooking(bookingId);
-          setConversations(prev => prev.filter(c => c.bookingId !== bookingId));
+          setConversationGroups(prev => prev.flatMap(group => {
+            const bookings = group.bookings.filter(booking => booking.bookingId !== bookingId);
+            if (bookings.length === 0) return [];
+            const latest = bookings[0];
+            return [{
+              ...group,
+              bookings,
+              lastMessage: latest.lastMessage,
+              lastMessageTime: latest.lastMessageTime,
+              unreadCount: bookings.reduce((total, booking) => total + booking.unreadCount, 0),
+            }];
+          }));
           if (selectedConv?.bookingId === bookingId) {
+            messageLoadIdRef.current += 1;
             setSelectedConv(null);
             setMessages([]);
           }
@@ -257,7 +338,7 @@ export function useMessagesPage() {
     });
   };
 
-  const isReadOnly = selectedConv ? ['PENDING_APPROVAL', 'DECLINED', 'CANCELED', 'REMOVED', 'COMPLETED'].includes(selectedConv.status) : false;
+  const isReadOnly = selectedConv ? isConversationClosed(selectedConv.status) : false;
 
   const cardBg = isDark ? 'bg-[#1c1b18] border-neutral-800/70' : 'bg-white border-slate-200';
   const textPrimary = isDark ? 'text-[#f2efe9]' : 'text-slate-800';
@@ -268,6 +349,8 @@ export function useMessagesPage() {
     isDark,
     user,
     conversations,
+    conversationGroups,
+    selectedGroup,
     conversationPage,
     setConversationPage,
     conversationTotalPages,
@@ -286,10 +369,13 @@ export function useMessagesPage() {
     confirmModal,
     setConfirmModal,
     bottomRef,
+    messageScrollRef,
+    handleMessageScroll,
     textareaRef,
     fileInputRef,
-    filteredConversations,
+    filteredConversationGroups,
     selectConversation,
+    selectGroup,
     handleImageSelect,
     handleSend,
     handleKeyDown,

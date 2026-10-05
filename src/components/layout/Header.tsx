@@ -1,16 +1,38 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Menu, MessageSquare, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Briefcase, Gear, MagnifyingGlass as Search, List as Menu, ChatCircle as MessageSquare, Sun, Moon, User as UserIcon, UsersThree } from '@phosphor-icons/react';
 import { UserSession } from '../auth/LoginContainer';
 import { resolveNotificationLink } from '../../lib/notificationRoutes';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiSearchUsers } from '../../api/users.api';
+import { normalizeUserSearchName } from '../../lib/userSearchName';
 import type { User as AppUser } from '../../types';
 import HeaderNotifications from './header/HeaderNotifications';
 import HeaderProfileMenu from './header/HeaderProfileMenu';
 import HeaderMobileSearch from './header/HeaderMobileSearch';
 import HeaderDesktopSearch from './header/HeaderDesktopSearch';
+
+const pageNames: Record<string, string> = {
+  users: 'User Management',
+  'ban-appeals': 'Ban Appeals',
+  'seek-services': 'Seek Services',
+  'post-request': 'Post Request',
+  'incoming-offers': 'Offers Received',
+  'request-manager': 'Request Manager',
+  'seeker-activity': 'Activity',
+  'payment-return': 'GCash Payment',
+  'browse-services': 'Browse Jobs',
+  'offer-services': 'Offer Services',
+  'incoming-requests': 'Incoming Requests',
+  'service-manager': 'Service Manager',
+  'provider-activity': 'Activity',
+  'transaction-history': 'Payment Records',
+  messages: 'Messages',
+  'community-hub': 'Community Hub',
+  'user-profile': 'User Profile',
+  'account-settings': 'Account Settings',
+};
 
 interface HeaderProps {
   currentRole: 'seeker' | 'provider' | 'admin';
@@ -20,8 +42,9 @@ interface HeaderProps {
   user: UserSession | null;
   onSignOut: () => void;
   onViewProfile?: (user: UserSession) => void;
+  accountPage?: boolean;
+  communityPage?: boolean;
 }
-
 function getResponseStatus(error: unknown): number | undefined {
   if (typeof error !== 'object' || error === null || !('response' in error)) return undefined;
   const response = (error as { response?: { status?: unknown } }).response;
@@ -35,7 +58,9 @@ export default function Header({
   setIsMobileOpen,
   user,
   onSignOut,
-  onViewProfile
+  onViewProfile,
+  accountPage = false,
+  communityPage = false,
 }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
@@ -55,7 +80,12 @@ export default function Header({
   const userId = user?.id || '';
   const userNotifications = notifications.filter(n => n.userId === userId);
   const unreadCount = userNotifications.filter(n => !n.read).length;
-  const isCommunityHub = activeTab === 'community-hub';
+  const pageName = pageNames[activeTab] || activeTab.replaceAll('-', ' ');
+  const PageContextIcon = communityPage
+    ? UsersThree
+    : activeTab === 'account-settings'
+      ? Gear
+      : UserIcon;
 
 
   // Theme styling helpers based on active role
@@ -64,33 +94,26 @@ export default function Header({
       accent: 'text-orange-600',
       ring: 'focus:ring-orange-500 focus:border-orange-500',
       borderHover: 'hover:border-orange-500/50',
-      badge: 'bg-orange-600 text-white',
+      badge: 'bg-orange-700 text-white',
       badgeBg: 'bg-orange-50 text-orange-600 border-orange-100',
     },
     provider: {
       accent: 'text-emerald-600',
       ring: 'focus:ring-emerald-500 focus:border-emerald-500',
       borderHover: 'hover:border-emerald-500/50',
-      badge: 'bg-emerald-600 text-white',
+      badge: 'bg-emerald-700 text-white',
       badgeBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     admin: {
-      accent: 'text-slate-900 dark:text-neutral-100',
-      ring: 'focus:ring-slate-500 focus:border-slate-500',
-      borderHover: 'hover:border-slate-500/50',
-      badge: 'bg-slate-950 text-white dark:bg-neutral-100 dark:text-neutral-950',
-      badgeBg: 'bg-slate-950 text-white border-slate-950',
+      accent: 'text-[var(--admin-accent)]',
+      ring: 'focus:ring-[var(--admin-accent)] focus:border-[var(--admin-accent)]',
+      borderHover: 'hover:border-[var(--admin-border)]',
+      badge: 'bg-[var(--admin-solid)] text-white',
+      badgeBg: 'bg-[var(--admin-soft)] text-[var(--admin-accent)] border-[var(--admin-border)]',
     },
-    community: {
-      accent: 'text-slate-700',
-      ring: 'focus:ring-slate-500 focus:border-slate-500',
-      borderHover: 'hover:border-slate-500/50',
-      badge: 'bg-slate-700 text-white',
-      badgeBg: 'bg-slate-100 text-slate-700 border-slate-200',
-    }
   };
 
-  const theme = isCommunityHub ? roleThemes.community : roleThemes[currentRole];
+  const theme = roleThemes[currentRole];
 
   // Resolve a safe display name from various possible server shapes
   const getDisplayName = (r: AppUser) => {
@@ -115,8 +138,9 @@ export default function Header({
         try {
           const res = await apiSearchUsers({ search: query, page: 1, limit: 6 });
           if (res && res.success && Array.isArray(res.data)) {
-            setUserSearchResults(res.data as AppUser[]);
-            setShowUserSearchResults((res.data as AppUser[]).length > 0);
+            const results = (res.data as AppUser[]).map(normalizeUserSearchName);
+            setUserSearchResults(results);
+            setShowUserSearchResults(results.length > 0);
             setUserSearchLoading(false);
             return;
           }
@@ -219,7 +243,7 @@ export default function Header({
 
     const targetUrl = currentRole === 'admin'
       ? `/admin/users?search=${encodeURIComponent(selectedUser.email || `${selectedUser.firstName} ${selectedUser.lastName}`)}`
-      : `/${currentRole}/user-profile?id=${selectedUser.id}`;
+      : `/profile/${encodeURIComponent(selectedUser.id)}`;
 
     if (onViewProfile) {
       onViewProfile({
@@ -260,48 +284,224 @@ export default function Header({
     }
   };
 
-  return (
-    <header className={`sticky top-0 right-0 z-30 w-full h-20 backdrop-blur-md border-b flex items-center justify-between px-6 sm:px-8 py-3.5 select-none transition-all duration-200 ${isDark ? 'bg-[#191919]/95 border-neutral-800/80 text-[#f2efe9]' : 'bg-white/95 border-slate-300 text-slate-800'
-      }`}>
+  if (accountPage || communityPage) {
+    return (
+      <header className={`profile-account-header sticky right-0 top-0 z-30 h-16 w-full font-sans transition-colors duration-200 backdrop-blur-md bg-[color:var(--workspace-header-bg)] border-b border-[color:var(--workspace-border)] ${isDark ? 'text-white' : 'text-ink'}`}>
+        <div className="mx-auto flex h-full w-full max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          {/* Left identity context */}
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              aria-label="Return to workspace"
+              title="Return to workspace"
+              onClick={() => {
+                const storedRole = window.localStorage.getItem('workspaceRole');
+                const workspaceRole = storedRole === 'provider' || storedRole === 'seeker' ? storedRole : currentRole;
+                router.push(`/${workspaceRole}`);
+              }}
+              className="group grid size-9 shrink-0 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)]"
+            >
+              <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" weight="bold" aria-hidden="true" />
+            </button>
+            <span className="h-5 w-px shrink-0 bg-[color:var(--workspace-border)]" aria-hidden="true" />
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-sm" aria-hidden="true">
+                <PageContextIcon size={18} weight="bold" />
+              </span>
+              <div className="min-w-0 leading-tight">
+                <span className="block truncate text-[10px] font-bold uppercase tracking-[0.1em] text-orange-700 dark:text-orange-400">
+                  {communityPage ? 'ServiceHub community' : 'ServiceHub account'}
+                </span>
+                <span className={`block truncate text-[15px] font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
+                  {pageName}
+                </span>
+              </div>
+            </div>
 
-      {/* Left side: mobile navigation and workspace identity. The active sidebar
-          item already identifies the current page, so the page name is not repeated. */}
-      <div className="flex items-center space-x-4">
+            {user && user.role !== 'admin' && user.verificationStatus !== 'APPROVED' && (
+              <button
+                type="button"
+                onClick={navigateToVerification}
+                title="Click to go to verification profile"
+                className={`cursor-pointer px-2.5 py-1 text-[10px] font-bold rounded-full border hidden items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] 2xl:flex ${
+                  user.verificationStatus === 'PENDING_REVIEW'
+                    ? isDark
+                      ? 'bg-amber-950/30 border-amber-800/40 text-amber-300'
+                      : 'bg-amber-50 border-amber-200 text-amber-700'
+                    : isDark
+                      ? 'bg-rose-950/30 border-rose-800/40 text-rose-300'
+                      : 'bg-rose-50 border-rose-200 text-rose-700'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${user.verificationStatus === 'PENDING_REVIEW' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span>{user.verificationStatus === 'PENDING_REVIEW' ? 'Verification Under Review' : 'Limited Mode'}</span>
+              </button>
+            )}
+          </div>
+
+          {/* Right utility toolbar */}
+          <div className="workspace-header-actions flex min-w-0 shrink-0 items-center gap-2">
+            <HeaderDesktopSearch
+              model={{
+                userSearchRef,
+                userSearch,
+                setUserSearch: handleSearchChange,
+                setShowUserSearchResults,
+                showUserSearchResults,
+                userSearchLoading,
+                userSearchResults,
+                isDark,
+                getDisplayName,
+                handleOpenUserProfile
+              }}
+            />
+
+            <span className="hidden h-5 w-px bg-[color:var(--workspace-border)] lg:block" aria-hidden="true" />
+
+            {/* Mobile Search Toggle Icon */}
+            <button
+              type="button"
+              aria-label="Search people"
+              onClick={() => {
+                setIsMobileSearchOpen(!isMobileSearchOpen);
+                setShowNotifications(false);
+                setShowProfileMenu(false);
+              }}
+              className={`grid size-9 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98] lg:hidden ${
+                isMobileSearchOpen
+                  ? isDark ? 'border-orange-500/30 bg-orange-500/10 text-orange-400' : 'border-orange-200 bg-orange-50 text-orange-600'
+                  : ''
+              }`}
+              title="Search people"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            {/* Global Messages Quick Access */}
+            {currentRole !== 'admin' && (
+              <button
+                type="button"
+                onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
+                aria-label="Open messages"
+                className="relative grid size-9 cursor-pointer place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
+                title="Direct Messages"
+              >
+                <MessageSquare className="w-4 h-4" />
+                {unreadMessagesCount > 0 && (
+                  <span className={`absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full ${theme.badge} text-[9px] font-bold flex items-center justify-center border border-white dark:border-neutral-900 shadow-sm`}>
+                    {unreadMessagesCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Global Theme Toggle Button */}
+            <button
+              type="button"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={toggleTheme}
+              className="grid size-9 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            <HeaderNotifications
+              isDark={isDark}
+              isOpen={showNotifications}
+              notifications={userNotifications}
+              unreadCount={unreadCount}
+              badgeClass={theme.badge}
+              onToggle={handleToggleNotifications}
+              onClose={() => setShowNotifications(false)}
+              onNotificationClick={handleNotificationClick}
+              onMarkAllRead={() => markNotificationsRead(userId)}
+              hasMore={hasMoreNotifications}
+              onLoadMore={loadMoreNotifications}
+            />
+
+            <HeaderProfileMenu
+              currentRole={currentRole}
+              user={user}
+              isDark={isDark}
+              isOpen={showProfileMenu}
+              borderHoverClass={theme.borderHover}
+              showHelpCenter
+              onToggle={() => {
+                setShowProfileMenu(!showProfileMenu);
+                setShowNotifications(false);
+              }}
+              onClose={() => setShowProfileMenu(false)}
+              onViewProfile={onViewProfile}
+              onOpenSettings={() => router.push(currentRole === 'admin' ? '/admin/account-settings' : '/account/settings')}
+              onSignOut={onSignOut}
+            />
+          </div>
+        </div>
+
+        <HeaderMobileSearch
+          isOpen={isMobileSearchOpen}
+          isDark={isDark}
+          query={userSearch}
+          showResults={showUserSearchResults}
+          loading={userSearchLoading}
+          results={userSearchResults}
+          ringClass={theme.ring}
+          getDisplayName={getDisplayName}
+          onQueryChange={handleSearchChange}
+          onShowResultsChange={setShowUserSearchResults}
+          onClose={() => {
+            setUserSearch('');
+            setShowUserSearchResults(false);
+            setIsMobileSearchOpen(false);
+          }}
+          onOpenUser={handleOpenUserProfile}
+        />
+      </header>
+    );
+  }
+
+  return (
+    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 h-[68px] w-full shrink-0 gap-3 px-4 py-3 font-sans sm:px-6 md:px-8 ${isDark ? 'text-white' : 'text-ink'}`}>
+
+      {/* Left identity card: dashboard counterpart to the landing brand card. */}
+      <div className={`workspace-header-card workspace-header-context flex min-w-0 items-center gap-2.5 ${currentRole === 'admin' ? 'workspace-header-context--admin' : ''}`}>
         <button
+          type="button"
+          aria-label="Open workspace navigation"
           onClick={() => setIsMobileOpen(true)}
-          className={`md:hidden p-2 rounded-xl border transition-colors ${isDark ? 'border-neutral-800 bg-[#22211e] text-[#b4b0a9] hover:text-white' : 'border-slate-200 hover:bg-slate-50 text-slate-400 hover:text-slate-700'
-            }`}
+          className="workspace-header-control grid size-9 shrink-0 place-items-center rounded-full transition-colors md:hidden"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="flex min-w-0 items-center space-x-3">
-          <span className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border uppercase tracking-wider flex items-center gap-1.5 ${isDark
-              ? (isCommunityHub
-                  ? 'bg-blue-950/20 text-blue-400 border-blue-900/30'
-                  : currentRole === 'seeker'
-                  ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                  : currentRole === 'admin'
-                  ? 'bg-neutral-100 text-neutral-950 border-neutral-200'
-                  : 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30')
-              : theme.badgeBg
-            }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${
-              isCommunityHub
-                ? 'bg-blue-500'
-                : currentRole === 'seeker'
-                ? 'bg-orange-500'
-                : currentRole === 'admin'
-                ? 'bg-slate-950 dark:bg-neutral-100'
-                : 'bg-emerald-500'
-            }`} />
-            {isCommunityHub ? 'Community Hub' : `${currentRole} Workspace`}
-          </span>
+
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          {currentRole === 'admin' ? (
+            <span className="text-xs font-semibold text-[var(--admin-accent)]">Administrator</span>
+          ) : (
+            <>
+              <span className="workspace-header-role-mark hidden size-8 shrink-0 place-items-center rounded-[10px] sm:grid" aria-hidden="true">
+                {currentRole === 'seeker'
+                  ? <Search size={16} weight="bold" />
+                  : <Briefcase size={16} weight="bold" />}
+              </span>
+              <div className="min-w-0 leading-tight">
+                <span className="workspace-header-role-label block truncate text-[9.5px] font-bold uppercase tracking-[0.12em]">
+                  {currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}
+                </span>
+                <span className={`workspace-header-page-name mt-0.5 block truncate text-[14px] font-bold capitalize leading-none tracking-[-0.025em] ${isDark ? 'text-white' : 'text-ink'}`}>
+                  {pageName}
+                </span>
+              </div>
+            </>
+          )}
 
           {user && user.role !== 'admin' && user.verificationStatus !== 'APPROVED' && (
-            <span
+            <button
+              type="button"
               onClick={navigateToVerification}
               title="Click to go to verification profile"
-              className={`cursor-pointer px-2.5 py-1 text-[9px] font-extrabold rounded-lg border flex items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] ${
+              className={`cursor-pointer px-2 py-0.5 text-[9px] font-extrabold rounded-md border hidden items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] 2xl:flex ${
                 user.verificationStatus === 'PENDING_REVIEW'
                   ? isDark
                     ? 'bg-amber-950/20 border-amber-900/30 text-amber-400'
@@ -313,60 +513,52 @@ export default function Header({
             >
               <span className={`w-1.5 h-1.5 rounded-full ${user.verificationStatus === 'PENDING_REVIEW' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'}`} />
               <span>{user.verificationStatus === 'PENDING_REVIEW' ? 'Verification Under Review' : 'Limited Mode'}</span>
-            </span>
+            </button>
           )}
         </div>
       </div>
 
-      <HeaderDesktopSearch
-        model={{
-          userSearchRef,
-          userSearch,
-          setUserSearch: handleSearchChange,
-          setShowUserSearchResults,
-          showUserSearchResults,
-          userSearchLoading,
-          userSearchResults,
-          isDark,
-          theme,
-          getDisplayName,
-          handleOpenUserProfile
-        }}
-      />
+      {/* One coherent utility bar, following the landing header's nav pill. */}
+      <div className="workspace-header-toolbar workspace-header-actions flex min-w-0 shrink-0 items-center gap-1.5">
 
-      {/* Right side: Notifications & Profile Avatar dropdowns */}
-      <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
+        {currentRole !== 'admin' && (
+          <>
+            <HeaderDesktopSearch
+              model={{
+                userSearchRef,
+                userSearch,
+                setUserSearch: handleSearchChange,
+                setShowUserSearchResults,
+                showUserSearchResults,
+                userSearchLoading,
+                userSearchResults,
+                isDark,
+                getDisplayName,
+                handleOpenUserProfile
+              }}
+            />
 
-        {/* Mobile Search Toggle Icon */}
-        <button
-          type="button"
-          onClick={() => {
-            setIsMobileSearchOpen(!isMobileSearchOpen);
-            setShowNotifications(false);
-            setShowProfileMenu(false);
-          }}
-          className={`sm:hidden p-2.5 rounded-xl border transition-all ${
-            isMobileSearchOpen
-              ? isDark ? 'bg-amber-500/15 border-amber-500/40 text-amber-400' : 'bg-orange-50 border-orange-200 text-orange-600'
-              : isDark ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#b4b0a9]' : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600'
-          }`}
-          title="Search Users"
-        >
-          <Search className="w-4 h-4" />
-        </button>
+            <span className="workspace-header-divider hidden h-5 w-px lg:block" aria-hidden="true" />
 
-        {/* Global Hub Indicator */}
-        {currentRole !== 'admin' && activeTab !== 'community-hub' && (
-          <button
-            type="button"
-            onClick={() => setActiveTab('community-hub')}
-            className={`hidden lg:flex items-center space-x-1.5 px-3.5 py-2 border text-xs font-semibold rounded-xl transition-all ${isDark
-                ? 'border-neutral-800 hover:bg-[#22211e] text-[#f2efe9]'
-                : 'border-slate-200 hover:bg-slate-50 text-slate-600'
+            {/* Mobile Search Toggle Icon */}
+            <button
+              type="button"
+              aria-label="Search people"
+              onClick={() => {
+                setIsMobileSearchOpen(!isMobileSearchOpen);
+                setShowNotifications(false);
+                setShowProfileMenu(false);
+              }}
+              className={`workspace-header-control grid size-9 place-items-center rounded-full transition-colors lg:hidden ${
+                isMobileSearchOpen
+                  ? isDark ? 'bg-[#c86544]/15 text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#aa5032]'
+                  : ''
               }`}
-          >
-            <span>Community Hub</span>
-          </button>
+              title="Search people"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </>
         )}
 
         {/* Global Messages Quick Access */}
@@ -374,10 +566,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
-            className={`p-2.5 rounded-xl border transition-all relative cursor-pointer ${isDark
-                ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-[#f2efe9]'
-                : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
-              }`}
+            className={`workspace-header-control relative hidden size-9 cursor-pointer place-items-center rounded-full transition-colors sm:grid ${isDark ? 'text-ink-subtle hover:text-white' : 'text-ink-muted hover:text-ink'}`}
             title="Direct Messages"
           >
             <MessageSquare className="w-4 h-4" />
@@ -392,11 +581,9 @@ export default function Header({
         {/* Global Theme Toggle Button */}
         <button
           type="button"
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={toggleTheme}
-          className={`p-2.5 rounded-xl border transition-all ${isDark
-              ? 'bg-[#22211e] border-neutral-800/80 hover:bg-[#2c2b27] text-amber-400'
-              : 'bg-slate-50 border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-800'
-            }`}
+          className={`workspace-header-control hidden size-9 place-items-center rounded-full transition-colors sm:grid ${isDark ? 'text-ink-subtle hover:text-white' : 'text-ink-muted hover:text-ink'}`}
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -434,24 +621,26 @@ export default function Header({
 
       </div>
 
-      <HeaderMobileSearch
-        isOpen={isMobileSearchOpen}
-        isDark={isDark}
-        query={userSearch}
-        showResults={showUserSearchResults}
-        loading={userSearchLoading}
-        results={userSearchResults}
-        ringClass={theme.ring}
-        getDisplayName={getDisplayName}
-        onQueryChange={handleSearchChange}
-        onShowResultsChange={setShowUserSearchResults}
-        onClose={() => {
-          setUserSearch('');
-          setShowUserSearchResults(false);
-          setIsMobileSearchOpen(false);
-        }}
-        onOpenUser={handleOpenUserProfile}
-      />
+      {currentRole !== 'admin' && (
+        <HeaderMobileSearch
+          isOpen={isMobileSearchOpen}
+          isDark={isDark}
+          query={userSearch}
+          showResults={showUserSearchResults}
+          loading={userSearchLoading}
+          results={userSearchResults}
+          ringClass={theme.ring}
+          getDisplayName={getDisplayName}
+          onQueryChange={handleSearchChange}
+          onShowResultsChange={setShowUserSearchResults}
+          onClose={() => {
+            setUserSearch('');
+            setShowUserSearchResults(false);
+            setIsMobileSearchOpen(false);
+          }}
+          onOpenUser={handleOpenUserProfile}
+        />
+      )}
     </header>
   );
 }

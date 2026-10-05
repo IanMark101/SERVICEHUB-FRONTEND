@@ -3,9 +3,9 @@ import { HelpArticle } from '../types/help.types';
 export const QUEUE_ARTICLES: HelpArticle[] = [
   {
     slug: 'how-the-queue-works',
-    title: 'How the Service Queue Works',
+    title: 'How the Provider Work Queue Works',
     category: 'queue',
-    description: 'Learn how ServiceHub’s database-backed First-Come, First-Served queue limits online bookings and preserves service order.',
+    description: 'Learn how one provider-wide First-Come, First-Served queue orders online-paid bookings.',
     lastUpdated: 'August 2026',
     readTimeMinutes: 3,
     popular: true,
@@ -16,11 +16,11 @@ export const QUEUE_ARTICLES: HelpArticle[] = [
         heading: 'Why the Queue Exists',
         paragraphs: [
           'Solo service providers (e.g. plumbers, tutors, electricians) can only handle a limited number of clients. In traditional apps, providers can receive too many requests at once, leading to delayed replies and missed commitments.',
-          'ServiceHub Cordova uses a First-Come, First-Served (FCFS) queue for confirmed online bookings. Each service listing has a configurable waiting capacity, and the server assigns each eligible booking a visible position.',
+          'ServiceHub Cordova uses one First-Come, First-Served (FCFS) paid queue per provider. Bookings from all their service listings and accepted custom offers share the provider’s waiting capacity and a visible position.',
         ],
         example: {
-          title: 'Realistic Example: Math Tutoring Queue',
-          description: 'Maria offers one-time math tutoring and sets her waiting capacity to 3 bookings. If two bookings are already ahead of yours, the system shows position #3 and an estimated wait based on the listing duration. The estimate is not a guaranteed appointment time.',
+          title: 'Realistic Example: Maria’s Work Queue',
+          description: 'Maria accepts tutoring and plumbing jobs and allows 3 paid bookings to wait. If two paid jobs are already ahead of yours, you see position #3. The estimated wait adds the expected durations of jobs ahead; it is not a guaranteed appointment time.',
         },
       },
       {
@@ -35,7 +35,7 @@ export const QUEUE_ARTICLES: HelpArticle[] = [
     slug: 'queue-positions-and-wait-times',
     title: 'Understanding Queue Position, Capacity, and Wait Times',
     category: 'queue',
-    description: 'How queue positions and estimated wait times are calculated from provider duration settings.',
+    description: 'How provider-wide positions and approximate waits are calculated from the jobs ahead.',
     lastUpdated: 'August 2026',
     readTimeMinutes: 3,
     keywords: ['queue position', 'estimated wait time', 'queue limit', 'full queue', 'wait time calculation'],
@@ -44,9 +44,9 @@ export const QUEUE_ARTICLES: HelpArticle[] = [
       {
         heading: 'Queue Status Indicators',
         bullets: [
-          'Available Now (0 in queue): This listing has no queued online bookings. The provider still needs to start the work; this is not a guaranteed appointment or online presence indicator.',
-          'Position #2 or #3 (Serving Ahead): Other customers are currently being served. Estimated wait time is computed as: (Position - 1) × Estimated Duration.',
-          'Queue Full (At Capacity): The listing has reached its queue capacity (e.g., 3/3). Select "Notify Me" to request an in-app alert when capacity becomes available.',
+          'No paid jobs waiting: This provider has an open paid waiting place. The provider still needs to start the work; this is not an appointment or online-presence promise.',
+          'Position #2 or #3: Earlier paid bookings with this provider are ahead. Estimated wait adds their job-specific expected durations, including a current job where applicable.',
+          'Queue full: The provider has reached their paid waiting capacity (e.g., 3/3). Select "Notify Me" on a listing to request an alert when a place opens.',
         ],
       },
     ],
@@ -68,8 +68,8 @@ export const QUEUE_ARTICLES: HelpArticle[] = [
           'ServiceHub maintains strict integrity in its queue system:',
         ],
         bullets: [
-          'ONLINE PAYMENTS (GCash Test Mode): A booking enters the listing-specific FCFS queue only after signed webhook confirmation. The position is reserved in ServiceHub, while the provider starts only the first eligible booking.',
-          'ON-SITE CASH: Cash bookings operate through "Direct Arrangement". The provider reviews your requested schedule and agrees on an appointment time directly in chat, without displacing online queue slots.',
+          'ONLINE PAYMENTS (GCash Test Mode): A booking enters the provider-wide FCFS queue only after verified payment confirmation. The position is reserved in ServiceHub, but work starts only when the provider clicks Start Job for the first eligible booking.',
+          'ON-SITE CASH: Cash bookings use a direct arrangement and do not take a numbered paid place. The provider coordinates timing in chat and cannot start new cash work while paid jobs are waiting.',
         ],
         callout: {
           type: 'tip',

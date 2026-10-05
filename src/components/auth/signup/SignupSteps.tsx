@@ -1,8 +1,10 @@
 "use client";
 
-import { Camera, Check, Eye, EyeOff, Images, Loader2, Upload } from 'lucide-react';
+import FormSelect from '../../ui/FormSelect';
+import { Camera, Check, Circle, Eye, EyeOff, Images, Loader2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import AuthInput from '../shared/AuthInput';
+import { passwordRequirements } from '../../../schema/auth/passwordValidation';
 import { avatars } from '../../../schema/auth/useAuthForm';
 import Link from 'next/link';
 import type { ChangeEvent, RefObject } from 'react';
@@ -110,40 +112,14 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 dark:text-zinc-500 hover:text-slate-700 dark:hover:text-zinc-300 cursor-pointer focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-ink-subtle dark:text-ink-subtle hover:text-ink-secondary dark:hover:text-ink-secondary cursor-pointer focus:outline-none"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </AuthInput>
 
-              {/* Live Password Strength Indicators */}
-              <div className="space-y-1 px-1 flex flex-col">
-                <div className="flex items-center space-x-1.5 text-[10px] font-semibold transition-all">
-                  <span className={formData.password.length >= 8 ? 'text-emerald-500' : 'text-neutral-400 dark:text-neutral-500'}>
-                    {formData.password.length >= 8 ? '✓' : '○'}
-                  </span>
-                  <span className={formData.password.length >= 8 ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-600 dark:text-neutral-400'}>
-                    Minimum 8 characters
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1.5 text-[10px] font-semibold transition-all">
-                  <span className={/\d/.test(formData.password) ? 'text-emerald-500' : 'text-neutral-400 dark:text-neutral-500'}>
-                    {/\d/.test(formData.password) ? '✓' : '○'}
-                  </span>
-                  <span className={/\d/.test(formData.password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-600 dark:text-neutral-400'}>
-                    At least one number
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1.5 text-[10px] font-semibold transition-all">
-                  <span className={/[A-Z]/.test(formData.password) ? 'text-emerald-500' : 'text-neutral-400 dark:text-neutral-500'}>
-                    {/[A-Z]/.test(formData.password) ? '✓' : '○'}
-                  </span>
-                  <span className={/[A-Z]/.test(formData.password) ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-600 dark:text-neutral-400'}>
-                    At least one uppercase letter
-                  </span>
-                </div>
-              </div>
+              <ul className="grid gap-1 px-1 text-xs" aria-label="Password requirements">{passwordRequirements.map(rule => <li key={rule.label} className={`flex items-center gap-2 ${rule.test(formData.password) ? 'text-emerald-700 dark:text-emerald-300' : 'text-ink-muted dark:text-ink-muted'}`}>{rule.test(formData.password) ? <Check size={14} /> : <Circle size={12} />}{rule.label}</li>)}</ul>
             </div>
 
             {/* Confirm Password with Live Matching Feedback */}
@@ -160,7 +136,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                     : undefined)
                 }
                 {...register('confirmPassword')}
-              />
+              ><button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide confirmation password' : 'Show confirmation password'} className="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-ink-muted dark:text-ink-secondary cursor-pointer focus-visible:outline-2">{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button></AuthInput>
 
               {/* Live Match Status Badge */}
               {formData.confirmPassword?.length > 0 && formData.password === formData.confirmPassword && !fieldErrors.confirmPassword && (
@@ -186,7 +162,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                       : 'border-black/[0.12] dark:border-white/20'
                   }`}
                 />
-                <label htmlFor="agreeTerms" className="text-[11px] font-medium text-slate-600 dark:text-zinc-400 select-none cursor-pointer leading-none">
+                <label htmlFor="agreeTerms" className="text-[11px] font-medium text-ink-muted dark:text-ink-muted select-none cursor-pointer leading-none">
                   I agree to the{' '}
                   <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors">
                     Terms of Service
@@ -203,7 +179,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 className={`text-[11px] font-medium pl-6.5 ${
                   fieldErrors.agreeTerms
                     ? 'text-red-600 dark:text-red-400'
-                    : 'text-slate-500 dark:text-slate-400'
+                    : 'text-ink-muted dark:text-ink-muted'
                 }`}
               >
                 {fieldErrors.agreeTerms || 'Required before continuing to the next step.'}
@@ -216,7 +192,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
         {step === 2 && (
           <div className="space-y-4 animate-fade-in">
             <div>
-              <label htmlFor="registration-phone" className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+              <label htmlFor="registration-phone" className="block text-xs font-semibold text-ink-secondary dark:text-ink-secondary mb-1.5">
                 Contact Number
               </label>
               <div className={`flex items-center rounded-xl border bg-slate-50/70 dark:bg-zinc-900/60 overflow-hidden transition-all focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:ring-2 focus-within:ring-[#c86544]/15 ${
@@ -225,9 +201,9 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                   : 'border-black/[0.08] dark:border-white/10 focus-within:border-[#c86544] dark:focus-within:border-orange-500'
               }`}>
                 {/* Philippine Flag Badge with +63 */}
-                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-100/80 dark:bg-zinc-800/80 border-r border-black/[0.06] dark:border-white/10 text-slate-700 dark:text-zinc-200 text-xs font-bold select-none flex-shrink-0">
+                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-100/80 dark:bg-zinc-800/80 border-r border-black/[0.06] dark:border-white/10 text-ink-secondary dark:text-ink text-xs font-bold select-none flex-shrink-0">
                   <PhilippineFlag className="w-5 h-3.5 rounded-[2px] shadow-xs" />
-                  <span className="font-mono text-xs font-extrabold text-slate-900 dark:text-white tracking-tight">+63</span>
+                  <span className="font-mono text-xs font-extrabold text-ink dark:text-white tracking-tight">+63</span>
                 </div>
 
                 {/* Formatted 10-digit Input */}
@@ -246,7 +222,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                   }}
                   onBlur={register('phone').onBlur}
                   name="phone"
-                  className="w-full bg-transparent px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none tracking-wide font-medium"
+                  className="w-full bg-transparent px-3.5 py-2.5 text-sm text-ink dark:text-white placeholder-ink-subtle dark:placeholder-ink-subtle focus:outline-none tracking-wide font-medium"
                 />
               </div>
 
@@ -257,13 +233,13 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                     {fieldErrors.phone}
                   </span>
                 ) : (
-                  <span className="text-slate-500 dark:text-zinc-400 font-medium">
+                  <span className="text-ink-muted dark:text-ink-muted font-medium">
                     Philippine mobile number (e.g. 917 123 4567)
                   </span>
                 )}
                 {formData.phone && (
                   <span className={`text-[10px] font-mono font-bold ${
-                    isPhoneValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-zinc-500'
+                    isPhoneValid ? 'text-emerald-600 dark:text-emerald-400' : 'text-ink-subtle dark:text-ink-subtle'
                   }`}>
                     {formData.phone.replace(/\D/g, '').length}/10 digits
                   </span>
@@ -272,14 +248,14 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             </div>
 
             <div>
-              <label htmlFor="registration-location" className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+              <label htmlFor="registration-location" className="block text-xs font-semibold text-ink-secondary dark:text-ink-secondary mb-1.5">
                 Cordova Barangay / Location
               </label>
-              <select
+              <FormSelect
                 id="registration-location"
                 autoComplete="address-level3"
                 {...register('location')}
-                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 transition-all cursor-pointer"
+                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 transition-all cursor-pointer"
               >
                 <option value="Alegria, Cordova">Alegria</option>
                 <option value="Bangbang, Cordova">Bangbang</option>
@@ -294,8 +270,8 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 <option value="Pilipog, Cordova">Pilipog</option>
                 <option value="Poblacion, Cordova">Poblacion (Downtown)</option>
                 <option value="San Miguel, Cordova">San Miguel</option>
-              </select>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-2 leading-relaxed">
+              </FormSelect>
+              <p className="text-[11px] text-ink-muted dark:text-ink-muted mt-2 leading-relaxed">
                 Your selected barangay helps connect you with nearby community members. Your residency will be verified later through Identity Verification.
               </p>
             </div>
@@ -315,7 +291,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             />
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-2">
+              <label className="block text-xs font-semibold text-ink-secondary dark:text-ink-secondary mb-2">
                 Profile Picture
               </label>
 
@@ -338,7 +314,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 border border-black/[0.08] dark:border-white/10 text-slate-800 dark:text-zinc-200 hover:border-[#c86544] hover:text-[#c86544] dark:hover:text-orange-400 transition-all shadow-xs active:scale-95 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 border border-black/[0.08] dark:border-white/10 text-ink dark:text-ink hover:border-[#c86544] hover:text-[#c86544] dark:hover:text-orange-400 transition-all shadow-xs active:scale-95 cursor-pointer"
                     >
                       {uploading ? (
                         <>
@@ -359,7 +335,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                       </span>
                     )}
                   </div>
-                  <p className="text-[10.5px] text-slate-500 dark:text-zinc-400 mt-1 truncate">
+                  <p className="text-[10.5px] text-ink-muted dark:text-ink-muted mt-1 truncate">
                     JPG, PNG, or WebP (max 10MB)
                   </p>
                 </div>
@@ -375,7 +351,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             {/* Animated Avatar Presets */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-ink-secondary dark:text-ink-secondary flex items-center gap-1.5">
                   <Images size={13} className="text-[#c86544]" /> Or pick an avatar preset
                 </span>
               </div>
@@ -412,14 +388,14 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">
+              <label className="block text-xs font-semibold text-ink-secondary dark:text-ink-secondary mb-1.5">
                 About You (Bio)
               </label>
               <textarea
                 rows={3}
                 placeholder="Tell the community a little about yourself, your services, or what you are looking for..."
                 {...register('bio')}
-                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 resize-none transition-all"
+                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink dark:text-white placeholder-ink-subtle dark:placeholder-ink-subtle focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 resize-none transition-all"
               />
             </div>
           </div>

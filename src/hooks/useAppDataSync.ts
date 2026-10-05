@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   Bid,
   CategorySuggestion,
@@ -23,9 +23,10 @@ import { apiGetTransactions } from "../api/transactions.api";
 import { apiGetConversations } from "../api/messages.api";
 import { connectSocket, disconnectSocket } from "../lib/socket";
 import { getAccessToken } from "../lib/api/axios";
+import { useApiCacheRefresh } from './useApiCacheRefresh';
+import { invalidateApiCache } from '../lib/api/responseCache';
 import {
-  mapBookingToEngagement,
-  mapCompletedServiceToEngagement,
+  mapEngagements,
   mapServiceToListing,
   mapRequestToJobRequest,
   mapOfferToBid,
@@ -39,7 +40,7 @@ interface ConversationSummary { unreadCount?: number }
 interface UseAppDataSyncOptions {
   isAuthenticated: boolean;
   authLoading: boolean;
-  shouldLoadMarketplaceData: boolean;
+  shouldLoadMarketplaceData?: boolean;
   user: UserSession | null;
   toastSuccess: (title: string, message?: string) => void;
   toastError: (title: string, message?: string) => void;
@@ -48,16 +49,21 @@ interface UseAppDataSyncOptions {
 export function useAppDataSync({
   isAuthenticated,
   authLoading,
-  shouldLoadMarketplaceData,
+  shouldLoadMarketplaceData = true,
   user,
   toastSuccess,
   toastError
 }: UseAppDataSyncOptions) {
   // Data states — start with empty state, populated strictly by live database APIs
   const [services, setServices] = useState<ServiceListing[]>([]);
+  const [servicesStatus, setServicesStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const serviceRequestVersion = useRef(0);
   const [jobRequests, setJobRequests] = useState<JobRequest[]>([]);
   const [bids, setBids] = useState<Bid[]>([]);
   const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>([]);
+  const [requestsStatus, setRequestsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [offersStatus, setOffersStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [engagementsStatus, setEngagementsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationPage, setNotificationPage] = useState(1);
@@ -69,11 +75,16 @@ export function useAppDataSync({
   const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>([]);
   const [userReports, setUserReports] = useState<UserReport[]>([]);
   const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
+  const isAdmin = user?.role === 'admin';
+  const canLoadWorkspace = isAuthenticated && user?.moderationStatus !== 'BANNED' && (isAdmin || user?.emailVerified === true);
 
   const clearPrivateData = useCallback(() => {
     setJobRequests([]);
     setBids([]);
     setJobEngagements([]);
+    setRequestsStatus('loading');
+    setOffersStatus('loading');
+    setEngagementsStatus('loading');
     setTransactions([]);
     setNotifications([]);
     setNotificationPage(1);
@@ -86,41 +97,54 @@ export function useAppDataSync({
     setUserReports([]);
   }, []);
   // ─── Live Data Sync Helpers ────────────────────────────────────
+  const userModerationStatus = user?.moderationStatus;
 
   const syncPublicServices = useCallback(async () => {
-    try {
-      if (isAuthenticated) {
-        const [browseRes, mineRes] = await Promise.allSettled([
-          apiBrowseServices(),
-          apiGetMyServices(),
-        ]);
+    const version = ++serviceRequestVersion.current;
+    setServicesStatus('loading');
+    const current = () => version === serviceRequestVersion.current;
+    const loadMine = isAuthenticated && userModerationStatus !== 'BANNED' && !isAdmin;
+    let owned: ServiceListing[] | undefined;
+    let published: ServiceListing[] | undefined;
+    const browse = apiBrowseServices().then(res => {
+      if (!current()) return;
+      if (!res?.success || !Array.isArray(res.data)) throw new Error('Services could not be loaded');
+      const listings: ServiceListing[] = res.data.map(mapServiceToListing);
+      published = listings;
+      setServices(previous => {
+        const mine = owned ?? (loadMine ? previous.filter(service => service.providerId === user?.id) : []);
+        const merged = new Map(listings.map(service => [service.id, service]));
+        mine.forEach(service => merged.set(service.id, service));
+        return Array.from(merged.values());
+      });
+      setServicesStatus('ready');
+    }).catch(() => { if (current()) setServicesStatus('error'); });
+    const mine = loadMine ? apiGetMyServices().then(res => {
+      if (!current() || !res?.success || !Array.isArray(res.data)) return;
+      owned = res.data.map(mapServiceToListing);
+      setServices(previous => {
+        const base = published ?? previous.filter(service => service.providerId !== user?.id);
+        const merged = new Map(base.map(service => [service.id, service]));
+        owned!.forEach(service => merged.set(service.id, service));
+        return Array.from(merged.values());
+      });
+    }).catch(() => { /* A private listing failure must not erase public listings. */ }) : Promise.resolve();
+    // Each side updates independently: browsing never waits for private listings.
+    await Promise.all([browse, mine]);
+  }, [isAuthenticated, isAdmin, userModerationStatus, user?.id]);
 
-        const publicServices: ServiceListing[] =
-          browseRes.status === 'fulfilled' && browseRes.value?.success && Array.isArray(browseRes.value.data)
-            ? browseRes.value.data.map(mapServiceToListing)
-            : [];
-
-        const myServices: ServiceListing[] =
-          mineRes.status === 'fulfilled' && mineRes.value?.success && Array.isArray(mineRes.value.data)
-            ? mineRes.value.data.map(mapServiceToListing)
-            : [];
-
-        const serviceMap = new Map<string, ServiceListing>();
-        publicServices.forEach(s => serviceMap.set(s.id, s));
-        myServices.forEach(s => serviceMap.set(s.id, s));
-
-        setServices(Array.from(serviceMap.values()));
-      } else {
-        // Unauthenticated visitor (landing page): fetch public active listings only
-        const browseRes = await apiBrowseServices();
-        if (browseRes?.success && Array.isArray(browseRes.data)) {
-          setServices(browseRes.data.map(mapServiceToListing));
-        }
-      }
-    } catch {
-      // ignore
+  useEffect(() => {
+    if (!authLoading && !canLoadWorkspace) {
+      const timer = window.setTimeout(() => {
+        serviceRequestVersion.current++;
+        setServices([]);
+        setServicesStatus('loading');
+      }, 0);
+      return () => window.clearTimeout(timer);
     }
-  }, [isAuthenticated]);
+  }, [authLoading, canLoadWorkspace]);
+
+  useEffect(() => () => { serviceRequestVersion.current++; }, []);
 
   const syncCategories = useCallback(async () => {
     try {
@@ -134,56 +158,64 @@ export function useAppDataSync({
   }, []);
 
   const refreshCategories = useCallback(() => {
+    invalidateApiCache(['categories']);
     syncCategories();
   }, [syncCategories]);
 
   const syncRequests = useCallback(async () => {
     const token = getAccessToken();
-    if (!token) {
+    if (!token || isAdmin) {
       setJobRequests([]);
+      setRequestsStatus('loading');
       return;
     }
     try {
-      const res = await apiGetRequests();
-      if (res.success && Array.isArray(res.data)) {
-        setJobRequests(res.data.map(mapRequestToJobRequest));
+      const response = await apiGetRequests();
+      if (response?.success && Array.isArray(response.data)) {
+        setJobRequests(response.data.map(mapRequestToJobRequest));
+        setRequestsStatus('ready');
+      } else {
+        setRequestsStatus('error');
       }
     } catch {
-      // ignore
+      setRequestsStatus('error');
     }
-  }, []);
+  }, [isAdmin]);
 
   const syncBids = useCallback(async () => {
     const token = getAccessToken();
-    if (!token) {
+    if (!token || isAdmin) {
       setBids([]);
+      setOffersStatus('loading');
       return;
     }
-    try {
-      const [receivedRes, mineBidsRes] = await Promise.allSettled([
-        apiGetReceivedOffers(),
-        apiGetMyOffers(),
-      ]);
-
-      const receivedOffers: Bid[] = receivedRes.status === 'fulfilled' && receivedRes.value?.success
-        ? receivedRes.value.data.map(mapOfferToBid)
-        : [];
-
-      const myOffers: Bid[] = mineBidsRes.status === 'fulfilled' && mineBidsRes.value?.success
-        ? mineBidsRes.value.data.map(mapOfferToBid)
-        : [];
-
-      setBids([...receivedOffers, ...myOffers]);
-    } catch {
-      // ignore
-    }
-  }, []);
+    // Each response updates its own side of the inbox. A slow /offers/mine
+    // request must not hold back a newly received offer (or vice versa).
+    await Promise.allSettled([
+      apiGetReceivedOffers().then((res) => {
+        if (res?.success && Array.isArray(res.data)) {
+          const receivedOffers: Bid[] = res.data.map(mapOfferToBid);
+          setBids((current) => [...receivedOffers, ...current.filter((bid) => bid.providerId === user?.id)]);
+          setOffersStatus('ready');
+        } else {
+          setOffersStatus('error');
+        }
+      }).catch(() => { setOffersStatus('error'); }),
+      apiGetMyOffers().then((res) => {
+        if (res?.success && Array.isArray(res.data)) {
+          const myOffers: Bid[] = res.data.map(mapOfferToBid);
+          setBids((current) => [...current.filter((bid) => bid.providerId !== user?.id), ...myOffers]);
+        }
+      }),
+    ]);
+  }, [isAdmin, user?.id]);
 
   const syncEngagements = useCallback(async () => {
     const token = getAccessToken();
-    if (!token) {
+    if (!token || isAdmin) {
       setJobEngagements([]);
       setTransactions([]);
+      setEngagementsStatus('loading');
       return;
     }
     try {
@@ -192,17 +224,15 @@ export function useAppDataSync({
         const dbBookings = (res.data.bookings || []) as ApiBooking[];
         const dbCompleted = (res.data.completedServices || []) as ApiCompletedService[];
 
-        const mappedBookings = dbBookings
-          .filter((booking) => booking.status !== "COMPLETED")
-          .map(mapBookingToEngagement);
-        const mappedCompleted = dbCompleted.map(mapCompletedServiceToEngagement);
-
-        setJobEngagements([...mappedBookings, ...mappedCompleted]);
+        setJobEngagements(mapEngagements(dbBookings, dbCompleted));
+        setEngagementsStatus('ready');
+      } else {
+        setEngagementsStatus('error');
       }
     } catch {
-      // ignore
+      setEngagementsStatus('error');
     }
-  }, []);
+  }, [isAdmin]);
 
   const syncNotifications = useCallback(async (page = 1, append = false) => {
     const token = getAccessToken();
@@ -225,7 +255,7 @@ export function useAppDataSync({
 
   const syncUnreadMessages = useCallback(async () => {
     const token = getAccessToken();
-    if (!token) {
+    if (!token || isAdmin) {
       setUnreadMessagesCount(0);
       return;
     }
@@ -240,11 +270,11 @@ export function useAppDataSync({
     } catch {
       // ignore
     }
-  }, []);
+  }, [isAdmin]);
 
   const syncTransactions = useCallback(async (page = 1, append = false) => {
     const token = getAccessToken();
-    if (!token) {
+    if (!token || isAdmin) {
       setTransactions([]);
       return;
     }
@@ -259,7 +289,7 @@ export function useAppDataSync({
     } catch {
       // ignore
     }
-  }, []);
+  }, [isAdmin]);
 
   const loadMoreNotifications = useCallback(() => {
     if (notificationPage < notificationTotalPages) void syncNotifications(notificationPage + 1, true);
@@ -270,38 +300,60 @@ export function useAppDataSync({
   }, [transactionPage, transactionTotalPages, syncTransactions]);
 
   const refreshEngagements = useCallback(() => {
-    syncEngagements();
+    invalidateApiCache(['bookings']);
+    return syncEngagements();
   }, [syncEngagements]);
 
   const refreshAll = useCallback(() => {
+    if (!canLoadWorkspace) return;
+    invalidateApiCache();
     syncPublicServices();
     if (isAuthenticated && !authLoading) {
+      syncNotifications();
+    }
+    if (isAuthenticated && !authLoading && !isAdmin) {
       syncRequests();
       syncBids();
       syncEngagements();
-      syncNotifications();
       syncTransactions();
       syncUnreadMessages();
     }
-  }, [isAuthenticated, authLoading, syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
+  }, [isAuthenticated, authLoading, isAdmin, canLoadWorkspace, syncPublicServices, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
 
-  // ─── Initial Data Load on Mount ────────────────────────────────
+  const cacheSyncEnabled = !authLoading && canLoadWorkspace && !!user?.id;
+  useApiCacheRefresh(['categories'], () => syncCategories(), cacheSyncEnabled);
+  useApiCacheRefresh(['services'], () => syncPublicServices(), cacheSyncEnabled);
+  useApiCacheRefresh(['requests'], () => syncRequests(), cacheSyncEnabled && !isAdmin);
+  useApiCacheRefresh(['offers'], () => syncBids(), cacheSyncEnabled && !isAdmin);
+  useApiCacheRefresh(['bookings'], () => syncEngagements(), cacheSyncEnabled && !isAdmin);
+  useApiCacheRefresh(['transactions'], () => syncTransactions(), cacheSyncEnabled && !isAdmin);
+  useApiCacheRefresh(['notifications'], () => syncNotifications(), cacheSyncEnabled);
+  useApiCacheRefresh(['messages'], () => syncUnreadMessages(), cacheSyncEnabled && !isAdmin);
+
+  // ─── Marketplace data is needed after session recovery, not on public pages ──
   useEffect(() => {
-    if (!shouldLoadMarketplaceData) return;
+    if (!shouldLoadMarketplaceData || authLoading || !canLoadWorkspace || !user?.id) return;
 
-    // Marketplace workspaces and Limited Mode use these public resources.
     const timer = window.setTimeout(() => {
       syncCategories();
       syncPublicServices();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [shouldLoadMarketplaceData, syncCategories, syncPublicServices]);
+  }, [shouldLoadMarketplaceData, authLoading, canLoadWorkspace, user?.id, syncCategories, syncPublicServices]);
 
   useEffect(() => {
     // Load private data only after the authoritative session check succeeds.
     if (authLoading) return;
-    if (!isAuthenticated || !user?.id) {
+    if (!canLoadWorkspace || !user?.id) {
       const timer = window.setTimeout(clearPrivateData, 0);
+      return () => window.clearTimeout(timer);
+    }
+
+    if (isAdmin) {
+      const timer = window.setTimeout(() => {
+        clearPrivateData();
+        syncNotifications();
+      }, 0);
       return () => window.clearTimeout(timer);
     }
 
@@ -315,52 +367,65 @@ export function useAppDataSync({
         syncUnreadMessages();
       }, 0);
 
-      // Check for returning GCash payment checkout
-      if (typeof window !== "undefined") {
-        const pendingPaymentIntentId = localStorage.getItem('pending_payment_intent_id');
-        const pendingServiceId = localStorage.getItem('pending_service_id');
-        const pendingOfferId = localStorage.getItem('pending_offer_id');
-
-        if (pendingPaymentIntentId && pendingServiceId) {
-          localStorage.removeItem('pending_payment_intent_id');
-          localStorage.removeItem('pending_service_id');
-          localStorage.removeItem('pending_offer_id');
-
-          apiConfirmOnlineBooking({
-            serviceId: pendingServiceId,
-            paymentIntentId: pendingPaymentIntentId,
-            offerId: pendingOfferId || undefined,
-          })
-            .then((res) => {
-              if (res.success && res.data?.status === 'SUCCEEDED') {
-                toastSuccess("Payment confirmed", "Your booking was created and added to the provider queue.");
-                refreshAll();
-              } else if (res.success && res.data?.status === 'PENDING') {
-                toastSuccess("Payment submitted", "Secure provider confirmation is still processing. Your Activity page will update automatically.");
-              } else {
-                toastError("Booking Verification Failed", res.error || "Payment could not be verified.");
-              }
-            })
-            .catch((err) => {
-              if (process.env.NODE_ENV === 'development') console.error("Error confirming online booking:", err);
-              toastError("Booking Verification Error", err.response?.data?.error || err.message);
-            })
-            .finally(() => {
-              // Smoothly remove payment_intent_id query param from address bar
-              if (typeof window !== "undefined" && window.history && window.history.replaceState) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-              }
-            });
-        }
-      }
       return () => window.clearTimeout(timer);
     }
-  }, [authLoading, isAuthenticated, user?.id, clearPrivateData, refreshAll, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages, toastError, toastSuccess]);
+  }, [authLoading, canLoadWorkspace, user?.id, isAdmin, clearPrivateData, syncRequests, syncBids, syncEngagements, syncNotifications, syncTransactions, syncUnreadMessages]);
+
+  useEffect(() => {
+    if (authLoading || !canLoadWorkspace || !user?.id || isAdmin || !window.location.pathname.includes('/seeker/seeker-activity')) return;
+    const paymentIntentId = localStorage.getItem('pending_payment_intent_id');
+    const serviceId = localStorage.getItem('pending_service_id');
+    const offerId = localStorage.getItem('pending_offer_id');
+    if (!paymentIntentId || !serviceId) return;
+    if (window.location.search.includes('payment_intent_id')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    let stopped = false;
+    let checks = 0;
+    let pendingNotified = false;
+    let retryTimer: ReturnType<typeof setTimeout>;
+    const clearPending = () => {
+      localStorage.removeItem('pending_payment_intent_id');
+      localStorage.removeItem('pending_service_id');
+      localStorage.removeItem('pending_offer_id');
+    };
+    const check = async () => {
+      checks += 1;
+      try {
+        const res = await apiConfirmOnlineBooking({ serviceId, paymentIntentId, offerId: offerId || undefined });
+        if (stopped) return;
+        if (res.success && res.data?.status === 'SUCCEEDED') {
+          clearPending();
+          toastSuccess('Payment confirmed', 'Your booking was created and added to the provider queue.');
+          refreshAll();
+          return;
+        }
+        if (res.success && res.data?.status === 'PENDING') {
+          if (!pendingNotified) {
+            pendingNotified = true;
+            toastSuccess('Payment processing', 'Waiting for secure GCash confirmation. This is not a completed booking yet.');
+          }
+        } else if (res.success) {
+          clearPending();
+          toastError('Payment not booked', 'The payment could not be added to the queue. Check your payment status before trying again.');
+          return;
+        }
+      } catch (error) {
+        if (stopped) return;
+        if (process.env.NODE_ENV === 'development') console.error('Error checking online payment:', error);
+      }
+      if (checks < 12) retryTimer = setTimeout(() => { void check(); }, 5000);
+      else if (!stopped) toastError('Payment confirmation pending', 'We could not confirm the booking yet. Reopen Activity to check again; do not pay a second time.');
+    };
+    retryTimer = setTimeout(() => { void check(); }, 0);
+    return () => { stopped = true; clearTimeout(retryTimer); };
+  }, [authLoading, canLoadWorkspace, user?.id, isAdmin, refreshAll, toastError, toastSuccess]);
 
   // ─── Socket.io — connect when authenticated, disconnect on logout ───
   useEffect(() => {
     const token = getAccessToken();
-    if (!token || authLoading || !isAuthenticated || !user?.id) return;
+    if (!token || authLoading || !canLoadWorkspace || !user?.id) return;
 
     const sock = connectSocket(token);
     if (!sock) return;
@@ -388,6 +453,9 @@ export function useAppDataSync({
     sock.on('notification', () => {
       scheduleRefresh('notifications', syncNotifications);
     });
+    sock.on('accountStatusChanged', () => {
+      window.dispatchEvent(new Event('servicehub_account_updated'));
+    });
 
     // Real-time booking / engagement status updates (create, accept, decline, cancel, start, complete, dispute)
     sock.on('ENGAGEMENT_CHANGED', () => {
@@ -402,7 +470,7 @@ export function useAppDataSync({
           const newSize = data.currentSize !== undefined
             ? data.currentSize
             : Math.max(0, (s.queueSize || 0) + data.delta);
-          return { ...s, queueSize: newSize };
+          return { ...s, queueSize: newSize, providerWaitingCount: newSize };
         })
       );
       scheduleRefresh('engagements', syncEngagements);
@@ -430,8 +498,11 @@ export function useAppDataSync({
       scheduleRefresh('requests', syncRequests);
       scheduleRefresh('bids', syncBids);
     });
+    sock.on('OFFERS_CHANGED', () => {
+      scheduleRefresh('bids', syncBids);
+    });
 
-    // Real-time service listing updates (active/paused toggles, edits, deletes, approvals)
+    // Real-time service listing updates (active/paused toggles, edits, deletes, and publication)
     sock.on('SERVICE_LISTING_TOGGLED', (data: { id: string; isAvailable: boolean }) => {
       setServices(prev =>
         prev.map(s => (s.id === data.id ? { ...s, isPaused: !data.isAvailable } : s))
@@ -445,16 +516,17 @@ export function useAppDataSync({
       setServices(prev => prev.filter(s => s.id !== data.id));
       scheduleRefresh('publicServices', syncPublicServices);
     });
-    sock.on('SERVICE_LISTING_APPROVED', () => {
-      scheduleRefresh('publicServices', syncPublicServices);
-    });
     sock.on('SERVICE_LISTINGS_CHANGED', () => {
       scheduleRefresh('publicServices', syncPublicServices);
+    });
+    sock.on('COMMUNITY_CATEGORIES_CHANGED', () => {
+      scheduleRefresh('categories', syncCategories);
     });
 
     return () => {
       refreshTimers.forEach(clearTimeout);
       sock.off('notification');
+      sock.off('accountStatusChanged');
       sock.off('ENGAGEMENT_CHANGED');
       sock.off('queue_update');
       sock.off('message_notification');
@@ -462,24 +534,25 @@ export function useAppDataSync({
       sock.off('SERVICE_REQUEST_UPDATED');
       sock.off('SERVICE_REQUEST_DELETED');
       sock.off('SERVICE_REQUESTS_CHANGED');
+      sock.off('OFFERS_CHANGED');
       sock.off('SERVICE_LISTING_TOGGLED');
       sock.off('SERVICE_LISTING_UPDATED');
       sock.off('SERVICE_LISTING_DELETED');
-      sock.off('SERVICE_LISTING_APPROVED');
       sock.off('SERVICE_LISTINGS_CHANGED');
+      sock.off('COMMUNITY_CATEGORIES_CHANGED');
     };
-  }, [authLoading, isAuthenticated, user?.id, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices, syncEngagements, syncTransactions]);
+  }, [authLoading, canLoadWorkspace, user?.id, syncCategories, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices, syncEngagements, syncTransactions]);
 
-  // Disconnect socket when user explicitly logs out
+  // An email-unverified session may authenticate but may not join workspace feeds.
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!canLoadWorkspace) {
       disconnectSocket();
     }
-  }, [isAuthenticated]);
+  }, [canLoadWorkspace]);
 
   // ─── Notification polling every 60 seconds when authenticated ──
   useEffect(() => {
-    if (authLoading || !isAuthenticated || !user?.id) return;
+    if (authLoading || !canLoadWorkspace || !user?.id) return;
 
     const interval = setInterval(() => {
       syncNotifications();
@@ -487,10 +560,11 @@ export function useAppDataSync({
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [authLoading, isAuthenticated, user?.id, syncNotifications, syncUnreadMessages]);
+  }, [authLoading, canLoadWorkspace, user?.id, syncNotifications, syncUnreadMessages]);
 
   return {
     services,
+    servicesStatus,
     setServices,
     jobRequests,
     setJobRequests,
@@ -498,6 +572,9 @@ export function useAppDataSync({
     setBids,
     jobEngagements,
     setJobEngagements,
+    requestsStatus,
+    offersStatus,
+    engagementsStatus,
     transactions,
     setTransactions,
     notifications,

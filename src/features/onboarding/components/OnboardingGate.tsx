@@ -47,7 +47,11 @@ export default function OnboardingGate({ workspace }: { workspace: MarketplaceWo
     if (status === 'COMPLETED' || isPending) await persistChoice(status);
     closeAndCleanUrl();
     if (destination) {
-      router.push(`/${workspace}/user-profile?tab=${destination === 'verification' ? 'verification' : 'settings'}`);
+      if (destination === 'verification' && user) {
+        router.push(`/profile/${encodeURIComponent(user.id)}?tab=verification`);
+      } else {
+        router.push(`/${workspace}/account-settings`);
+      }
     }
   };
 

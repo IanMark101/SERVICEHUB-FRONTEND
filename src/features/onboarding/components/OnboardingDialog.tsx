@@ -80,8 +80,8 @@ export default function OnboardingDialog({ user, workspace, isDark, saving, onSk
         <header className="border-b border-slate-200 px-5 py-4 dark:border-neutral-800 sm:px-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">Getting started</p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-neutral-400">{step + 1} of {TOTAL_STEPS}</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-ink-muted">Getting started</p>
+              <p className="mt-1 text-xs text-ink-muted dark:text-ink-muted">{step + 1} of {TOTAL_STEPS}</p>
             </div>
             <div className="flex items-center gap-1.5" role="progressbar" aria-label="Onboarding progress" aria-valuemin={1} aria-valuemax={TOTAL_STEPS} aria-valuenow={step + 1}>
               {Array.from({ length: TOTAL_STEPS }, (_, index) => <span key={index} className={`h-1.5 rounded-full transition-all ${index <= step ? 'w-7 bg-slate-900 dark:bg-neutral-100' : 'w-4 bg-slate-200 dark:bg-neutral-700'}`} />)}

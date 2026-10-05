@@ -1,8 +1,8 @@
 import React from 'react';
-import { LucideIcon, Inbox } from 'lucide-react';
+import { Tray } from '@phosphor-icons/react';
 
 interface CommunityEmptyStateProps {
-  icon?: LucideIcon;
+  icon?: React.ComponentType<{ className?: string }>;
   title: string;
   description?: string;
   isDark?: boolean;
@@ -11,7 +11,7 @@ interface CommunityEmptyStateProps {
 }
 
 export default function CommunityEmptyState({
-  icon: Icon = Inbox,
+  icon: Icon = Tray,
   title,
   description,
   isDark = false,
@@ -20,31 +20,31 @@ export default function CommunityEmptyState({
 }: CommunityEmptyStateProps) {
   return (
     <div
-      className={`rounded-2xl border p-6 text-center flex flex-col items-center justify-center space-y-2.5 transition-colors ${
+      className={`flex flex-col items-start gap-2 rounded-xl border border-dashed p-4 text-left transition-colors ${
         isDark
-          ? 'bg-[#191919]/60 border-neutral-800/80 text-[#b4b0a9]'
-          : 'bg-slate-50/70 border-slate-200/80 text-slate-500'
+          ? 'border-white/10 bg-white/[0.03] text-ink-muted'
+          : 'border-black/10 bg-[#f9f7f4] text-ink-muted'
       }`}
     >
       <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-          isDark ? 'bg-neutral-800 text-neutral-400' : 'bg-slate-200/70 text-slate-400'
+        className={`flex size-9 items-center justify-center rounded-lg ${
+          isDark ? 'bg-white/[0.06] text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#c86544]'
         }`}
       >
-        <Icon className="w-5 h-5 opacity-80" />
+        <Icon className="size-[18px] opacity-80" />
       </div>
-      <p className={`text-xs font-bold ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>
+      <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>
         {title}
       </p>
       {description && (
-        <p className="text-[11px] font-medium max-w-sm leading-relaxed opacity-80">
+        <p className="max-w-sm text-xs leading-5">
           {description}
         </p>
       )}
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="mt-1 px-3.5 py-1.5 rounded-xl font-bold text-[10px] bg-slate-600 hover:bg-slate-700 text-white transition-colors cursor-pointer shadow-sm"
+          className="mt-1 cursor-pointer rounded-xl bg-[#171716] px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#292826] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]"
         >
           {actionText}
         </button>

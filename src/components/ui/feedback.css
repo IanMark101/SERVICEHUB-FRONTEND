@@ -1,0 +1,39 @@
+:root,
+.workspace-seeker,
+[data-feedback-workspace="seeker"] {
+  --feedback-accent: #b54f2f;
+  --feedback-solid: #b54f2f;
+  --feedback-soft: #fff1e8;
+  --feedback-border: #e6b49f;
+  --feedback-surface: #fffdfa;
+}
+.workspace-provider,
+[data-feedback-workspace="provider"] {
+  --feedback-accent: #047857;
+  --feedback-solid: #047857;
+  --feedback-soft: #ecfdf5;
+  --feedback-border: #9cd9c3;
+  --feedback-surface: #fffdfa;
+}
+:root.dark,
+.dark [data-feedback-workspace="seeker"] {
+  --feedback-accent: #f2a07e;
+  --feedback-soft: #34221b;
+  --feedback-border: #81513d;
+  --feedback-surface: #22211e;
+}
+.dark.workspace-provider,
+.dark .workspace-provider,
+.dark [data-feedback-workspace="provider"] {
+  --feedback-accent: #6ee7b7;
+  --feedback-soft: #172e24;
+  --feedback-border: #39765d;
+  --feedback-surface: #22211e;
+}
+.servicehub-toast { background: var(--feedback-surface); border-color: var(--feedback-border); }
+.servicehub-toast__icon { color: var(--feedback-accent); }
+.servicehub-toast__progress { background: var(--feedback-accent); }
+.servicehub-dialog__feedback-icon { color: var(--feedback-accent); background: var(--feedback-soft); border-color: var(--feedback-border); }
+.servicehub-dialog button[data-dialog-action="info"],
+.servicehub-dialog button[data-dialog-action="warning"],
+.servicehub-dialog button[data-dialog-action="success"] { color: #fff; background: var(--feedback-solid); }

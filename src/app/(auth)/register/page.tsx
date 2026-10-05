@@ -11,29 +11,29 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (!authLoading && isAuthenticated && user) {
+      if (user.role !== 'admin' && user.emailVerified !== true) {
+        router.replace('/email-verification-required');
+        return;
+      }
       const finalRole = user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
-      router.push(`/${finalRole}`);
+      router.replace(`/${finalRole}`);
     }
   }, [isAuthenticated, user, authLoading, router]);
 
   const handleLoginSuccess = (userData: UserSession) => {
     setUser(userData);
     setIsAuthenticated(true);
+    if (userData.role !== 'admin' && userData.emailVerified !== true) {
+      router.replace('/email-verification-required');
+      return;
+    }
     const finalRole = userData.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
-    router.push(`/${finalRole}`);
+    router.replace(`/${finalRole}`);
   };
 
   const handleBackToHome = () => {
     router.push('/');
   };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f4f2] dark:bg-[#121211]">
-        <div className="w-8 h-8 border-3 border-[#c86544] border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f4f2] dark:bg-[#121211]">

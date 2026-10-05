@@ -1,15 +1,28 @@
 "use client";
 
-import { apiVerifyEmail } from "@/api/auth.api";
+import { apiGetMe, apiVerifyEmail } from "@/api/auth.api";
+import { useApp } from '@/context/AppContext';
 import { getApiErrorMessage } from "@/lib/api/errors";
-import { CheckCircle2, CircleAlert, LoaderCircle, MailCheck } from "lucide-react";
+import { CheckCircle2, CircleAlert, MailCheck } from "lucide-react";
+import BrandLoading from '@/components/ui/BrandLoading';
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+
+const verificationRequests = new Map<string, ReturnType<typeof apiVerifyEmail>>();
+function verifyEmailOnce(token: string) {
+  const pending = verificationRequests.get(token);
+  if (pending) return pending;
+  const request = apiVerifyEmail(token);
+  verificationRequests.set(token, request);
+  return request;
+}
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { authLoading, isAuthenticated, user, setUser } = useApp();
   const token = searchParams.get("token");
+  const [destination, setDestination] = useState('/login');
 
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     token ? "loading" : "error"
@@ -19,14 +32,14 @@ function VerifyEmailContent() {
   );
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || authLoading || (user?.emailVerified === true && verificationRequests.has(token))) return;
 
     let isMounted = true;
     let timeoutId: number | undefined;
 
     const verify = async () => {
       try {
-        const response = await apiVerifyEmail(token);
+        const response = await verifyEmailOnce(token);
 
         if (!isMounted) return;
 
@@ -35,8 +48,25 @@ function VerifyEmailContent() {
           response.message || "Your email has been verified successfully."
         );
 
+        let nextDestination = '/login';
+        if (isAuthenticated && user) {
+          try {
+            const session = await apiGetMe();
+            if (session?.success && session.data?.user?.id === user.id && session.data.user.emailVerified === true) {
+              setUser((current) => current ? { ...current, emailVerified: true, verificationStatus: session.data.user.verificationStatus } : current);
+              nextDestination = user.role === 'admin' ? '/admin' : localStorage.getItem('workspaceRole') === 'provider' ? '/provider' : '/seeker';
+            } else {
+              nextDestination = '/email-verification-required';
+            }
+          } catch {
+            nextDestination = '/email-verification-required';
+          }
+        }
+        if (!isMounted) return;
+        setDestination(nextDestination);
+
         timeoutId = window.setTimeout(() => {
-          if (isMounted) router.push("/login");
+          if (isMounted) router.replace(nextDestination);
         }, 3000);
       } catch (error: unknown) {
         if (!isMounted) return;
@@ -54,13 +84,13 @@ function VerifyEmailContent() {
         window.clearTimeout(timeoutId);
       }
     };
-  }, [router, token]);
+  }, [authLoading, isAuthenticated, router, setUser, token, user]);
 
   const isSuccess = status === "success";
   const isError = status === "error";
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#faf8f5] dark:bg-[#121212] px-4 py-8 text-slate-800 dark:text-[#f2efe9] sm:px-6 lg:px-8">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#faf8f5] dark:bg-[#121212] px-4 py-8 text-ink dark:text-white sm:px-6 lg:px-8">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -left-20 top-0 h-72 w-72 rounded-full bg-orange-500/10 blur-[120px]" />
         <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-orange-600/10 blur-[120px]" />
@@ -75,10 +105,10 @@ function VerifyEmailContent() {
                 ServiceHub Account Verification
               </div>
 
-              <h1 className="mt-6 text-3xl font-extrabold leading-tight sm:text-4xl text-[#f2efe9] font-serif tracking-tight">
+              <h1 className="mt-6 text-3xl font-extrabold leading-tight sm:text-4xl text-white font-serif tracking-tight">
                 One last step to unlock your account.
               </h1>
-              <p className="mt-4 max-w-md text-sm leading-7 text-[#b4b0a9] sm:text-base">
+              <p className="mt-4 max-w-md text-sm leading-7 text-ink-muted sm:text-base">
                 We’re confirming your email address so you can securely book and offer services in Cordova.
               </p>
             </div>
@@ -92,7 +122,7 @@ function VerifyEmailContent() {
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="h-2 w-2 rounded-full bg-orange-400" />
-                  You’ll be redirected automatically to sign in.
+                  You’ll continue to your workspace or sign in.
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -114,7 +144,7 @@ function VerifyEmailContent() {
                 }`}
               >
                 {status === "loading" ? (
-                  <LoaderCircle size={30} className="animate-spin" />
+                  <MailCheck size={30} />
                 ) : isSuccess ? (
                   <CheckCircle2 size={30} />
                 ) : (
@@ -123,23 +153,24 @@ function VerifyEmailContent() {
               </div>
 
               <div className="mt-6 text-center">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-2xl font-bold text-ink dark:text-white">
                   {status === "loading"
                     ? "Verifying your email"
                     : isSuccess
                       ? "Email verified"
                       : "Verification issue"}
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-[#b4b0a9]">
+                <p className="mt-3 text-sm leading-relaxed text-ink-muted dark:text-ink-muted">
                   {message}
                 </p>
+                {status === 'loading' && <div className="brand-loading__track" aria-hidden="true"><span /></div>}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-[#1c1b18] p-4 text-xs text-slate-600 dark:text-[#b4b0a9] text-center">
+              <div className="mt-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-[#1c1b18] p-4 text-xs text-ink-muted dark:text-ink-muted text-center">
                 {status === "loading" ? (
                   <p>Please wait while we complete the verification securely.</p>
                 ) : isSuccess ? (
-                  <p>Redirecting you to the login page shortly...</p>
+                  <p>Redirecting you {destination === '/login' ? 'to sign in' : 'to ServiceHub'} shortly...</p>
                 ) : (
                   <p>Return to login and request a fresh verification link if needed.</p>
                 )}
@@ -147,10 +178,10 @@ function VerifyEmailContent() {
 
               <button
                 type="button"
-                onClick={() => router.push("/login")}
+                onClick={() => router.replace(isSuccess ? destination : '/login')}
                 className="mt-6 flex w-full items-center justify-center rounded-xl bg-orange-600 hover:bg-orange-700 active:scale-[0.98] px-4 py-3 text-sm font-bold text-white shadow-sm transition-all cursor-pointer"
               >
-                {status === "loading" ? "Continue to login" : "Go to login"}
+                {status === "loading" ? "Continue to sign in" : isSuccess && destination !== '/login' ? 'Continue to ServiceHub' : 'Go to login'}
               </button>
             </div>
           </section>
@@ -163,11 +194,7 @@ function VerifyEmailContent() {
 export default function VerifyEmailPage() {
   return (
     <Suspense
-      fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#faf8f5]">
-          <LoaderCircle size={36} className="animate-spin text-orange-500" />
-        </main>
-      }
+      fallback={<BrandLoading label="Preparing email verification" />}
     >
       <VerifyEmailContent />
     </Suspense>

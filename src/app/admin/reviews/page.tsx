@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
+import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
 import { EyeOff, RotateCcw, Star } from 'lucide-react';
 import { apiListAdminReviews, apiModerateReview } from '../../../api/admin.api';
 import { useApp } from '../../../context/AppContext';
@@ -43,6 +44,7 @@ export default function AdminReviewsPage() {
       error('Unable to load reviews', getApiErrorMessage(cause, 'The review list could not be loaded.'));
     }
   }, [error, page]);
+  useApiCacheRefresh(['admin', 'reviews'], () => load(), !submitting);
   useEffect(() => {
     const timer = window.setTimeout(() => void load(), 0);
     return () => window.clearTimeout(timer);
@@ -69,7 +71,7 @@ export default function AdminReviewsPage() {
     <div className="space-y-5">
       <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
         <h2 className="text-base font-extrabold">Review Moderation</h2>
-        <p className="mt-1 text-xs text-slate-500">Hide policy-violating reviews or restore them. Every decision requires a reason and is audit logged.</p>
+        <p className="mt-1 text-xs text-ink-muted">Hide policy-violating reviews or restore them. Every decision requires a reason and is audit logged.</p>
       </section>
       <div className="space-y-3">
         {items.map((item) => (
@@ -79,7 +81,7 @@ export default function AdminReviewsPage() {
                 <p className="text-xs font-extrabold">{item.author.name} → {item.target.name}</p>
                 <p className="mt-1 flex items-center gap-1 text-xs text-amber-500"><Star className="h-3 w-3" /> {item.rating}/5</p>
                 <p className="mt-2 text-xs">{item.text || 'No written feedback.'}</p>
-                {item.moderationReason && <p className="mt-2 text-[10px] text-slate-500">Last moderation reason: {item.moderationReason}</p>}
+                {item.moderationReason && <p className="mt-2 text-[10px] text-ink-muted">Last moderation reason: {item.moderationReason}</p>}
               </div>
               <button onClick={() => { setSelectedReview(item); setReason(''); }} className="flex shrink-0 items-center gap-1 rounded-lg border px-3 py-2 text-[10px] font-bold">
                 {item.visibility === 'VISIBLE' ? <EyeOff className="h-3 w-3" /> : <RotateCcw className="h-3 w-3" />}

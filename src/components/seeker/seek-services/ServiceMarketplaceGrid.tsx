@@ -1,7 +1,17 @@
 "use client";
-import Image from 'next/image';
 
-import { Bell, CheckCircle2, Clock, MapPin, Search, ShieldCheck, Smartphone, Star } from 'lucide-react';
+import TrustScoreBadge from '../../ui/TrustScoreBadge';
+import { useState } from 'react';
+import {
+  Bell,
+  Clock,
+  Eye,
+  MapPin,
+  MagnifyingGlass as Search,
+  ShieldCheck,
+  DeviceMobile as Smartphone,
+  Star,
+} from '@phosphor-icons/react';
 import type { ServiceListing } from '../../../types';
 import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
@@ -10,6 +20,9 @@ import { getServicePaymentMethods } from '../../../lib/paymentUtils';
 import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement, User } from '../../../types';
 import type { UserSession } from '../../auth/LoginContainer';
+import UserAvatar from '../../ui/UserAvatar';
+import ContentCaseAction from '../../moderation/ContentCaseAction';
+import ServiceDetailsModal from './ServiceDetailsModal';
 
 type MarketplaceFilter = 'all' | 'available' | 'rated' | 'low-queue';
 type PaymentMethod = 'GCash' | 'On-site Cash';
@@ -18,6 +31,8 @@ interface ServiceMarketplaceGridModel {
   router: { push: (href: string) => void };
   isDark: boolean;
   isLoading: boolean;
+  servicesError?: boolean;
+  refreshServices?: () => void;
   activeFilter: MarketplaceFilter;
   setActiveFilter: Dispatch<SetStateAction<MarketplaceFilter>>;
   searchQuery: string;
@@ -50,6 +65,8 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
     router,
     isDark,
     isLoading,
+    servicesError,
+    refreshServices,
     activeFilter,
     setActiveFilter,
     searchQuery,
@@ -75,11 +92,19 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
     prefetchProviderSummary
   } = model;
 
+  const [previewListing, setPreviewListing] = useState<ServiceListing | null>(null);
+
   return (
     <>
+      {servicesError && filteredServices.length > 0 && <div role="alert" className="workspace-surface rounded-xl border p-4 text-sm">
+        Could not refresh services. Showing the last loaded listings.{' '}
+        <button type="button" className="underline" onClick={refreshServices}>Try again</button>
+      </div>}
       {/* Provider Services Card Grid */}
       {isLoading ? (
         <ServiceListingSkeleton count={6} />
+      ) : servicesError && filteredServices.length === 0 ? (
+        <div role="alert"><EmptyState icon={Search} title="Services could not be loaded" description="Check your connection and try again." actionLabel="Try again" onAction={refreshServices} /></div>
       ) : filteredServices.length === 0 ? (
         <div className="space-y-4">
           <EmptyState
@@ -108,14 +133,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
             className={`p-4 rounded-2xl border text-center flex flex-col sm:flex-row items-center justify-between gap-3 transition-colors ${
               isDark
                 ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300'
-                : 'bg-slate-50 border-slate-200 text-slate-700'
+                : 'bg-slate-50 border-slate-200 text-ink-secondary'
             }`}
           >
             <div className="text-left text-xs">
-              <span className="font-extrabold block text-slate-900 dark:text-[#f2efe9]">
+              <span className="font-extrabold block text-ink dark:text-white">
                 Can&apos;t find what you&apos;re looking for?
               </span>
-              <span className="text-[11px] text-slate-500 dark:text-[#b4b0a9]">
+              <span className="text-[11px] text-ink-muted dark:text-ink-muted">
                 Suggest a new service category for Cordova, and we will source local providers.
               </span>
             </div>
@@ -130,7 +155,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="marketplace-results-grid">
             {paginatedServices.map((service: ServiceListing) => {
               const provider = getProviderDetails(service.providerId);
               const trustScore = service.providerTrustScore ?? provider?.trustScore;
@@ -142,256 +167,337 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                 je.serviceId === service.id &&
                 ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
               );
+              const queueCount = service.providerWaitingCount ?? service.queueSize;
+              const queueLimit = service.queueLimit || 5;
+              const isQueueFull = queueCount >= queueLimit;
+              const priceUnavailable =
+                service.priceType === 'STARTS_AT' ||
+                service.priceType === 'CUSTOM' ||
+                Number(service.price) < 50;
 
               return (
                 <div
                   key={service.id}
-                  className={`rounded-2xl p-5 border transition-colors duration-200 flex flex-col justify-between h-full ${isDark
-                      ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
-                      : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
-                    }`}
+                  onClick={() => setPreviewListing(service)}
+                  className={`group relative min-w-0 rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col justify-between h-full cursor-pointer ${
+                    isDark
+                      ? 'bg-[#1f1e1b] border-neutral-800 hover:border-neutral-700 hover:bg-[#242320]'
+                      : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md shadow-xs'
+                  }`}
                 >
-                  <div>
-                    {/* Card Header: Profile Info */}
-                    <div className="flex items-start justify-between">
-                      <div
+                  <div className="min-w-0 space-y-3">
+                    {/* Top Row: Provider Identity & Refined Rating */}
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (service.providerId) {
-                            router.push(`/seeker/user-profile?id=${service.providerId}`);
-                          }
+                          router.push(`/profile/${encodeURIComponent(service.providerId)}`);
                         }}
-                        className="flex items-center space-x-3 group/author cursor-pointer select-none rounded-xl p-1 -m-1 transition-all hover:bg-slate-100/70 dark:hover:bg-neutral-800/60"
+                        disabled={!service.providerId}
+                        aria-label={`View ${service.providerName}'s profile`}
+                        className="group/author flex min-w-0 items-center gap-2.5 rounded-lg text-left transition-colors focus-visible:outline-2 focus-visible:outline-[#aa5032] disabled:cursor-default"
                         title={`View ${service.providerName}'s profile`}
                       >
-                        <div className="relative flex-shrink-0">
-                          <Image unoptimized width={40} height={40}
-                            src={service.providerAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(service.providerName || 'Provider')}&background=random`}
-                            alt={service.providerName}
-                            className="w-10 h-10 rounded-full object-cover border border-slate-100 dark:border-neutral-700 transition-all duration-200 group-hover/author:scale-105 group-hover/author:ring-2 group-hover/author:ring-orange-500/50"
-                          />
+                        <UserAvatar
+                          src={service.providerAvatar}
+                          name={service.providerName || 'Provider'}
+                          alt=""
+                          size={36}
+                          role="provider"
+                          className="shrink-0 ring-1 ring-slate-200 dark:ring-neutral-700 transition-transform duration-200 group-hover/author:scale-105"
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span
+                              className={`block truncate text-xs font-semibold leading-tight transition-colors duration-200 group-hover/author:text-orange-600 dark:group-hover/author:text-orange-400 ${
+                                isDark ? 'text-white' : 'text-ink'
+                              }`}
+                            >
+                              {service.providerName}
+                            </span>
+                            {isVerified && (
+                              <span title="Verified Provider" className="inline-flex items-center">
+                                <ShieldCheck
+                                  className={`w-3.5 h-3.5 shrink-0 ${
+                                    isDark ? 'text-emerald-400 fill-emerald-950/20' : 'text-emerald-600 fill-emerald-50'
+                                  }`}
+                                  weight="fill"
+                                />
+                              </span>
+                            )}
+                          </div>
+                          <span className="mt-1 block">{typeof trustScore === 'number' ? <TrustScoreBadge score={trustScore} /> : 'Cordova local'}</span>
                         </div>
-                        <div>
-                          <h4 className={`font-bold text-xs leading-tight transition-colors duration-200 group-hover/author:text-orange-500 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            {service.providerName}
-                          </h4>
+                      </button>
 
-                          {isVerified && (
-                            <span className="inline-flex items-center text-[10px] text-emerald-600 font-semibold mt-0.5">
-                              <ShieldCheck className={`w-3.5 h-3.5 mr-0.5 ${isDark ? 'text-emerald-455 fill-emerald-950/20' : 'fill-emerald-50 text-emerald-600'}`} />
-                              Verified
+                      {/* Refined Rating & Report Action */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/profile/${encodeURIComponent(service.providerId)}?tab=reviews`);
+                          }}
+                          disabled={!service.providerId}
+                          aria-label={`View reviews for ${service.providerName}`}
+                          className="shrink-0 transition-opacity hover:opacity-80"
+                          title="View provider reviews"
+                        >
+                          {service.reviewCount && service.reviewCount > 0 ? (
+                            <div className="flex items-center gap-1 text-xs font-medium text-ink-secondary dark:text-ink-secondary">
+                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" weight="fill" />
+                              <span className="font-semibold text-ink dark:text-ink">{service.rating.toFixed(1)}</span>
+                              <span className="text-[11px] text-ink-subtle dark:text-ink-subtle font-normal">({service.reviewCount})</span>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-semibold text-ink-subtle dark:text-ink-subtle tracking-wider">
+                              NEW
                             </span>
                           )}
-                        </div>
+                        </button>
+                        {!isOwned && (
+                          <ContentCaseAction
+                            caseType="REPORT"
+                            contentType="SERVICE_LISTING"
+                            resourceId={service.id}
+                            label="Report listing"
+                            variant="icon"
+                            isDark={isDark}
+                          />
+                        )}
                       </div>
+                    </div>
 
-                      {/* Rating star / Trust badge */}
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (service.providerId) {
-                            router.push(`/seeker/user-profile?id=${service.providerId}&tab=reviews`);
-                          }
-                        }}
-                        className="text-right flex flex-col items-end cursor-pointer group/rating select-none transition-all"
-                        title="View provider reviews and trust history"
-                      >
-                        {service.reviewCount && service.reviewCount > 0 ? (
-                          <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-md border text-[11px] font-bold transition-all group-hover/rating:border-amber-400 ${isDark
-                              ? 'bg-amber-950/20 text-amber-400 border-amber-900/30'
-                              : 'bg-amber-50 border-amber-150/50 text-amber-700'
-                            }`}>
-                            <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                            <span>{service.rating.toFixed(1)}</span>
-                            <span className="text-[9px] text-slate-400 font-normal">({service.reviewCount})</span>
-                          </span>
-                        ) : (
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-extrabold uppercase tracking-wider ${isDark
-                              ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/40'
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            }`}>
-                            <span>NEW</span>
+                    {/* Category Tag & Live Queue Status — Calm Neutral Harmony */}
+                    <div className="flex items-center justify-between gap-2 pt-0.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span
+                          className={`inline-block truncate max-w-[150px] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded border ${
+                            isDark
+                              ? 'text-neutral-300 bg-neutral-800/80 border-neutral-700/80'
+                              : 'text-ink-muted bg-slate-100 border-slate-200/80'
+                          }`}
+                        >
+                          {service.category}
+                        </span>
+                        {isOwned && (
+                          <span className="text-[10px] font-medium text-ink-subtle dark:text-ink-subtle">
+                            (Your listing)
                           </span>
                         )}
-
-                        <span className={`text-[10px] font-semibold mt-1 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                          {typeof trustScore === 'number' ? `Trust ${trustScore}/100` : 'Trust score unavailable'}
-                        </span>
                       </div>
-                    </div>
 
-                    {/* Category Tag & Ownership Badge */}
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className={`inline-block px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
-                          ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                          : 'text-orange-600 bg-orange-50 border-orange-100/50'
-                        }`}>
-                        {service.category}
-                      </span>
-                      {isOwned && (
-                        <span className={`inline-flex items-center px-2.5 py-1 text-[9px] font-bold rounded-lg border uppercase tracking-wider ${isDark
-                            ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                            : 'text-orange-655 bg-orange-50 border-orange-200'
-                          }`}>
-                          👤 Owned by You
+                      {/* Live Queue Status */}
+                      {isQueueFull ? (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[11px] font-medium shrink-0 ${
+                            isDark ? 'text-rose-400' : 'text-rose-600'
+                          }`}
+                        >
+                          <span className="size-1.5 rounded-full bg-rose-500 shrink-0" />
+                          <span>Queue full ({queueCount}/{queueLimit})</span>
+                        </span>
+                      ) : queueCount > 0 ? (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[11px] font-medium shrink-0 ${
+                            isDark ? 'text-ink-subtle' : 'text-ink-muted'
+                          }`}
+                        >
+                          <span className="size-1.5 rounded-full bg-amber-500 shrink-0" />
+                          <span>{queueCount} waiting</span>
+                        </span>
+                      ) : (
+                        <span
+                          className={`inline-flex items-center gap-1 text-[11px] font-medium shrink-0 ${
+                            isDark ? 'text-emerald-400' : 'text-emerald-700'
+                          }`}
+                        >
+                          <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          <span>Available</span>
                         </span>
                       )}
                     </div>
 
-                    {/* Service Listing Details */}
-                    <div className="mt-3">
-                      <h3 className={`font-extrabold text-sm leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    {/* Title & Description with Vertical Word Wrapping */}
+                    <div className="space-y-1">
+                      <h3
+                        className={`uppercase font-semibold text-sm leading-snug line-clamp-1 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors break-words [overflow-wrap:anywhere] ${
+                          isDark ? 'text-white' : 'text-ink'
+                        }`}
+                      >
                         {service.title}
                       </h3>
-                      <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>
+                      <p
+                        className={`text-xs line-clamp-2 leading-relaxed break-words [overflow-wrap:anywhere] ${
+                          isDark ? 'text-ink-subtle' : 'text-ink-muted'
+                        }`}
+                      >
                         {service.description}
                       </p>
+                    </div>
+
+                    {/* Price Block & Duration */}
+                    <div className="pt-2 flex items-baseline justify-between border-t border-slate-100 dark:border-neutral-800">
+                      <div>
+                        {priceUnavailable ? (
+                          <span className={`text-xs font-medium ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+                            Price unavailable
+                          </span>
+                        ) : service.priceType && service.priceType !== 'FIXED' ? (
+                          <div className="flex items-baseline gap-1">
+                            <span className={`text-base font-bold tabular-nums ${isDark ? 'text-white' : 'text-ink'}`}>
+                              ₱{Number(service.price).toLocaleString()}
+                            </span>
+                            <span className={`text-xs ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+                              {service.priceType === 'PER_HOUR'
+                                ? '/ hour'
+                                : service.priceType === 'PER_DAY'
+                                ? '/ day'
+                                : service.priceType === 'PER_PROJECT'
+                                ? '/ project'
+                                : ''}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-baseline gap-1">
+                            <span className={`text-base font-bold tabular-nums ${isDark ? 'text-white' : 'text-ink'}`}>
+                              ₱{Number(service.price).toLocaleString()}
+                            </span>
+                            <span className={`text-xs font-normal ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
+                              fixed
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
                       {service.estimatedDurationMins ? (
-                        <p className={`mt-2 flex items-center gap-1 text-[10px] font-medium ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
-                          <Clock className="h-3 w-3" /> Estimated duration: {service.estimatedDurationMins} minutes
-                        </p>
+                        <span className={`flex items-center gap-1 text-[11px] font-medium ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
+                          <Clock className="size-3 text-ink-subtle dark:text-ink-subtle" />
+                          <span>{service.estimatedDurationMins}m</span>
+                        </span>
                       ) : null}
                     </div>
-                  </div>
 
-                  {/* Divider Line */}
-                  <div className={`border-t my-4 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`} />
-
-                  {/* Availability/Queue & Price block */}
-                  <div className="flex items-center justify-between">
-                    {/* Left: Status */}
-                    <div className="flex flex-col space-y-1">
-                      {service.queueSize >= (service.queueLimit || 5) ? (
-                        <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-rose-400' : 'text-rose-600'}`}>
-                          <Clock className="w-3.5 h-3.5 mr-1 text-rose-500 animate-none" />
-                          <span>Queue Full ({service.queueSize}/{service.queueLimit || 5})</span>
-                        </div>
-                      ) : service.queueSize > 0 ? (
-                        <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                          <Clock className="w-3.5 h-3.5 mr-1 text-amber-500 animate-none" />
-                          <span>Busy (Queue: {service.queueSize})</span>
-                        </div>
-                      ) : (
-                        <div className={`flex items-center text-xs font-semibold ${isDark ? 'text-emerald-450' : 'text-emerald-600'}`}>
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-500 animate-none" />
-                          <span>Open for Requests</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right: Price */}
-                    <div className="text-right">
-                      {service.priceType && service.priceType !== 'FIXED' ? (
-                        <>
-                          <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-                            ₱{service.price}
+                    {/* Accepted Payment Methods — Unified Neutral Professional Badges */}
+                    <div className="pt-1 space-y-1">
+                      <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
+                        Accepted payment methods
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {cash && (
+                          <span
+                            className={`inline-flex items-center gap-1 border text-[10px] font-medium px-2 py-0.5 rounded-md ${
+                              isDark
+                                ? 'bg-neutral-850/60 border-neutral-700/80 text-neutral-300'
+                                : 'bg-slate-50 border-slate-200 text-ink-muted'
+                            }`}
+                          >
+                            <MapPin className="w-2.5 h-2.5 text-ink-subtle dark:text-ink-muted" />
+                            <span>On-site Cash</span>
                           </span>
-                          <span className={`text-[10px] font-bold ml-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-                            {service.priceType === 'PER_HOUR' ? '/ hour'
-                              : service.priceType === 'PER_DAY' ? '/ day'
-                              : service.priceType === 'PER_PROJECT' ? '/ project'
-                              : service.priceType === 'STARTS_AT' ? 'minimum'
-                              : service.priceType === 'CUSTOM' ? 'quote required'
-                              : ''}
+                        )}
+                        {gcash && (
+                          <span
+                            className={`inline-flex items-center gap-1 border text-[10px] font-medium px-2 py-0.5 rounded-md ${
+                              isDark
+                                ? 'bg-neutral-850/60 border-neutral-700/80 text-neutral-300'
+                                : 'bg-slate-50 border-slate-200 text-ink-muted'
+                            }`}
+                          >
+                            <Smartphone className="w-2.5 h-2.5 text-ink-subtle dark:text-ink-muted" />
+                            <span>GCash · Test Mode</span>
                           </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className={`text-[10px] font-bold uppercase tracking-wider block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Fixed price</span>
-                          <span className={`text-base font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>₱{service.price}</span>
-                        </>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Payment Methods Badges — driven by provider's selection */}
-                  <div className="flex flex-wrap gap-1.5 mt-4">
-                    {cash && (
-                      <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-[#1c1b18] border-neutral-855 text-[#b4b0a9]' : 'bg-slate-50 border-slate-200 text-slate-500'
-                        }`}>
-                        <MapPin className={`w-3 h-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`} />
-                        <span>On-site Cash</span>
-                      </span>
-                    )}
-                    {gcash && (
-                      <span className={`inline-flex items-center border text-[10px] font-semibold px-2 py-0.5 rounded-lg space-x-1 ${isDark ? 'bg-orange-950/20 border-orange-900/30 text-orange-400' : 'bg-orange-50 border-orange-100 text-orange-600'
-                        }`}>
-                        <Smartphone className={`w-3 h-3 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-                        <span>GCash</span>
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="mt-4 space-y-2">
+                  {/* Action Buttons Row */}
+                  <div
+                    className="mt-4 pt-3 border-t border-slate-100 dark:border-neutral-800 space-y-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {isOwned ? (
-                      <div className="space-y-2">
+                      <div className="space-y-1.5">
                         <div className="flex gap-2">
                           <button
                             type="button"
                             onClick={() => router.push(`/provider/service-manager?id=${service.id}`)}
-                            className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
-                                ? 'bg-orange-950/20 border border-orange-900/30 text-orange-400 hover:bg-orange-955'
-                                : 'bg-orange-50 border border-orange-200 text-orange-655 hover:bg-orange-100'
-                              }`}
+                            className={`flex-1 font-medium text-xs py-2 rounded-xl border transition-colors cursor-pointer ${
+                              isDark
+                                ? 'bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700'
+                                : 'bg-white border-slate-200 text-ink-secondary hover:bg-slate-50'
+                            }`}
                           >
-                            <span>Edit Listing</span>
+                            <span>Edit</span>
                           </button>
                           <button
                             type="button"
-                            onClick={() => router.push(`/provider/service-manager`)}
-                            className={`flex-1 font-bold text-[11px] py-3 rounded-xl transition-all shadow-sm active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer ${isDark
-                                ? 'bg-[#22211e] border border-neutral-800/80 text-[#b4b0a9] hover:bg-[#2c2b27]'
-                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                              }`}
+                            onClick={() => setPreviewListing(service)}
+                            className={`flex-1 font-medium text-xs py-2 rounded-xl border transition-colors flex items-center justify-center gap-1 cursor-pointer ${
+                              isDark
+                                ? 'bg-neutral-850 border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+                                : 'bg-slate-50 border-slate-200 text-ink-secondary hover:bg-slate-100'
+                            }`}
                           >
-                            <span>Listing Manager</span>
+                            <Eye className="w-3.5 h-3.5 text-ink-subtle" />
+                            <span>Details</span>
                           </button>
                         </div>
-                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} title="Self-transaction policy: Marketplace transactions with your own account are not allowed.">
-                          You cannot book your own service.
+                        <p className={`text-[10px] text-center ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
+                          Your own listing
                         </p>
                       </div>
                     ) : activeEngagement ? (
-                      <div className="space-y-2">
+                      <div className="space-y-1.5">
                         <button
                           type="button"
                           onClick={() => router.push(`/seeker/seeker-activity?tab=all&booking=${activeEngagement.id}`)}
-                          className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                          className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-neutral-100 dark:hover:bg-white text-white dark:text-charcoal font-semibold text-xs py-2 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer"
                         >
                           <Clock className="w-3.5 h-3.5" />
                           <span>
-                            {activeEngagement.status === 'in_progress' ? 'Job In Progress — View Activity' :
-                             activeEngagement.status === 'queued' ? 'In Queue — View Activity' :
-                             activeEngagement.status === 'pending_provider' ? 'Pending Approval — View Activity' :
-                             activeEngagement.status === 'awaiting_seeker_approval' ? 'Approval Needed — View Activity' :
-                             'Active Booking — View Activity'}
+                            {activeEngagement.status === 'in_progress' ? 'In Progress - View Activity' :
+                             activeEngagement.status === 'queued' ? 'In Queue - View Activity' :
+                             activeEngagement.status === 'pending_provider' ? 'Pending Approval - View Activity' :
+                             activeEngagement.status === 'awaiting_seeker_approval' ? 'Approval Needed - View Activity' :
+                             'Active Booking - View Activity'}
                           </span>
                         </button>
-                        <p className={`text-[10px] font-medium text-center ${isDark ? 'text-orange-400/90' : 'text-orange-600'}`}>
-                          You have an active booking for this service.
+                        <p className={`text-[10px] text-center ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+                          Active booking in progress
                         </p>
                       </div>
-                    ) : service.priceType && service.priceType !== 'FIXED' ? (
-                      <button
-                        type="button"
-                        onClick={() => router.push('/seeker/post-request')}
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] cursor-pointer"
-                      >
-                        Request a Quote
-                      </button>
-                    ) : service.queueSize >= (service.queueLimit || 5) ? (
-                      /* Queue is Full */
+                    ) : priceUnavailable ? (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewListing(service)}
+                          className={`w-full font-medium text-xs py-2.5 rounded-xl border transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+                            isDark
+                              ? 'border-neutral-700 bg-neutral-850 text-neutral-300 hover:bg-neutral-800'
+                              : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100'
+                          }`}
+                        >
+                          <Eye className="w-3.5 h-3.5 text-ink-subtle" />
+                          <span>View Details & Request Quote</span>
+                        </button>
+                      </div>
+                    ) : isQueueFull ? (
                       cash ? (
-                        /* If Cash is supported, allow direct cash booking OR join waitlist for online queue */
-                        <div className="flex gap-2">
+                        <div className="flex gap-1.5">
                           <button
                             type="button"
                             onClick={() => handleJoinWaitlist(service)}
                             disabled={joiningWaitlistId === service.id}
-                            className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1 cursor-pointer disabled:opacity-60"
+                            className={`flex-1 border text-xs font-medium py-2 rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer disabled:opacity-60 ${
+                              isDark
+                                ? 'border-neutral-700 bg-neutral-850 text-neutral-300 hover:bg-neutral-800'
+                                : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100'
+                            }`}
                           >
-                            <Bell className="w-3 h-3" />
+                            <Bell className="w-3 h-3 text-ink-subtle" />
                             <span>{joiningWaitlistId === service.id ? 'Joining...' : 'Notify Me'}</span>
                           </button>
                           <button
@@ -399,38 +505,56 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                             onClick={() => handleBookListing(service, 'On-site Cash')}
                             onMouseEnter={() => prefetchProviderSummary(service)}
                             onFocus={() => prefetchProviderSummary(service)}
-                            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold text-[11px] py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1 cursor-pointer"
+                            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs py-2 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
                           >
                             <MapPin className="w-3 h-3" />
                             <span>Direct Cash</span>
                           </button>
                         </div>
                       ) : (
-                        /* Online only and queue is full — waitlist only */
                         <button
                           type="button"
                           onClick={() => handleJoinWaitlist(service)}
                           disabled={joiningWaitlistId === service.id}
-                          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-60"
+                          className={`w-full border text-xs font-medium py-2 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-60 ${
+                            isDark
+                              ? 'border-neutral-700 bg-neutral-850 text-neutral-300 hover:bg-neutral-800'
+                              : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100'
+                          }`}
                         >
-                          <Bell className="w-3.5 h-3.5" />
+                          <Bell className="w-3.5 h-3.5 text-ink-subtle" />
                           <span>{joiningWaitlistId === service.id ? 'Joining Waitlist...' : 'Notify Me When Open'}</span>
                         </button>
                       )
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
-                        onMouseEnter={() => prefetchProviderSummary(service)}
-                        onFocus={() => prefetchProviderSummary(service)}
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
-                      >
-                        <MapPin className="w-3.5 h-3.5" />
-                        <span>Book Service</span>
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewListing(service)}
+                          aria-label={`Inspect ${service.title} details`}
+                          className={`px-3 py-2 rounded-xl border text-xs font-medium transition-colors flex items-center justify-center gap-1 cursor-pointer ${
+                            isDark
+                              ? 'border-neutral-700 bg-neutral-800 text-neutral-200 hover:bg-neutral-700'
+                              : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100 hover:text-ink'
+                          }`}
+                          title="View all details"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-ink-subtle" />
+                          <span className="hidden sm:inline">Details</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
+                          onMouseEnter={() => prefetchProviderSummary(service)}
+                          onFocus={() => prefetchProviderSummary(service)}
+                          className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs py-2 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                        >
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>Book Service</span>
+                        </button>
+                      </div>
                     )}
                   </div>
-
                 </div>
               );
             })}
@@ -449,6 +573,30 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
           />
         </div>
       )}
+
+      {/* Service Details Inspection Modal */}
+      <ServiceDetailsModal
+        listing={previewListing}
+        isOpen={!!previewListing}
+        onClose={() => setPreviewListing(null)}
+        onBookListing={handleBookListing}
+        onJoinWaitlist={handleJoinWaitlist}
+        joiningWaitlistId={joiningWaitlistId}
+        isOwned={!!(user && previewListing && previewListing.providerId === user.id)}
+        activeEngagement={
+          previewListing
+            ? jobEngagements.find(
+                (je) =>
+                  je.seekerId === user?.id &&
+                  je.serviceId === previewListing.id &&
+                  ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
+              )
+            : undefined
+        }
+        isDark={isDark}
+        router={router}
+        prefetchProviderSummary={prefetchProviderSummary}
+      />
     </>
   );
 }
