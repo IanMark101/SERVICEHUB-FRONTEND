@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import GoogleSignInButton from './GoogleSignInButton';
+import GoogleDeletionVerification from '../../profile/account-settings/GoogleDeletionVerification';
 
 const scriptUrl = 'https://accounts.google.com/gsi/client';
 const props = { onSuccess: vi.fn(), onError: vi.fn(), isDark: false, mode: 'login' };
@@ -28,6 +29,7 @@ describe('Google sign-in initialization and callbacks', () => {
     window.google = { accounts: { id: { initialize, renderButton: vi.fn() } } };
     const first = render(<GoogleSignInButton {...props} />);
     await waitFor(() => expect(initialize).toHaveBeenCalledTimes(1));
+    expect(initialize).toHaveBeenCalledWith(expect.objectContaining({ use_fedcm_for_button: true, auto_select: false }));
     const callback = initialize.mock.calls[0][0].callback;
     act(() => callback({ credential: 'first-credential' }));
     expect(props.onSuccess).toHaveBeenCalledWith('first-credential');
@@ -82,6 +84,29 @@ describe('Google sign-in initialization and callbacks', () => {
     fireEvent.error(document.querySelector(`script[src="${scriptUrl}"]`)!);
     expect(props.onError).toHaveBeenCalledWith(expect.stringContaining('Google sign-in could not load'));
     expect(screen.getByRole('button', { name: 'Retry Google sign-in' })).toBeEnabled();
+  });
+
+  it('preserves verification nonces and ignores disabled or obsolete Google verification callbacks', () => {
+    const initialize = vi.fn();
+    const onSuccess = vi.fn();
+    window.google = { accounts: { id: { initialize, renderButton: vi.fn() } } };
+    const verification = { nonce: 'first-nonce', isDark: false, disabled: false, onSuccess, onError: vi.fn() };
+    const view = render(<GoogleDeletionVerification {...verification} />);
+    expect(initialize).toHaveBeenCalledWith(expect.objectContaining({ nonce: 'first-nonce', use_fedcm_for_button: true, auto_select: false }));
+    const firstCallback = initialize.mock.calls[0][0].callback;
+    act(() => firstCallback({ credential: 'verified-credential' }));
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+
+    view.rerender(<GoogleDeletionVerification {...verification} disabled />);
+    act(() => firstCallback({ credential: 'disabled-credential' }));
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+
+    view.rerender(<GoogleDeletionVerification {...verification} nonce="new-nonce" />);
+    expect(initialize).toHaveBeenLastCalledWith(expect.objectContaining({ nonce: 'new-nonce', use_fedcm_for_button: true }));
+    act(() => firstCallback({ credential: 'obsolete-credential' }));
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    act(() => initialize.mock.calls[1][0].callback({ credential: 'current-credential' }));
+    expect(onSuccess).toHaveBeenLastCalledWith('current-credential');
   });
 
   it('reports a stalled SDK download', async () => {

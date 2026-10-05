@@ -19,7 +19,7 @@ export default function GoogleDeletionVerification({ nonce, isDark, disabled, on
       try {
         window.google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!, nonce,
-          auto_select: false, cancel_on_tap_outside: false, use_fedcm_for_button: false,
+          auto_select: false, cancel_on_tap_outside: false, use_fedcm_for_button: true,
           callback: response => { if (active && !blocked.current && response.credential) success.current(response.credential); },
         });
         initialized = true;
