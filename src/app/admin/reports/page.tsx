@@ -1,525 +1,146 @@
-"use client";
+'use client';
 
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ChevronDown,
-  ChevronUp,
-  FileImage,
-  Loader2,
-  MessageSquare,
-  PhilippinePeso,
-  RefreshCw,
-  Scale,
-  ShieldCheck,
-  X,
-} from "lucide-react";
-import { apiAccessReportEvidence, apiCancelAdminBooking, apiGetAdminBookingMessages, apiListAdminBookings, apiListAdminPaymentAttempts, apiListCompletionEscalations, apiListPaymentReconciliation, apiListReports, apiResolveCompletionEscalation, apiResolveReport, apiRetryPaymentReconciliation } from "../../../api/admin.api";
-import { useApp } from "../../../context/AppContext";
-import { getSocket } from "../../../lib/socket";
-import { useToast } from "../../../components/ui/Toast";
-import ReasonModal from "../../../components/ui/ReasonModal";
-import { getApiErrorMessage } from "../../../lib/api/errors";
-import AdminPagination from "../../../components/admin/AdminPagination";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useApiCacheRefresh } from '@/hooks/useApiCacheRefresh';
+import { invalidateApiCache } from '@/lib/api/responseCache';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowRight, ArrowClockwise, Scales } from '@phosphor-icons/react';
+import { apiGetModerationCase, apiListModerationCases, apiResolveCompletionEscalation, apiResolveEscalatedCancellation, apiResolveReport } from '@/api/admin.api';
+import AdminPagination from '@/components/admin/AdminPagination';
+import ReportWorkflowNav from '@/components/admin/ReportWorkflowNav';
+import CaseWorkroom from '@/components/admin/cases/CaseWorkroom';
+import CaseSkeleton from '@/components/admin/cases/CaseSkeleton';
+import CaseFilterBar from '@/components/admin/cases/CaseFilterBar';
+import BookingOperations from '@/components/admin/cases/BookingOperations';
+import { CASE_TYPES, CONCERNS, caseStatusLabel, dateLabel, money, stateLabel } from '@/components/admin/cases/labels';
+import type { CaseFilters, CaseSummary, ModerationCase, Penalty } from '@/components/admin/cases/types';
+import { getApiErrorMessage } from '@/lib/api/errors';
+import { getSocket } from '@/lib/socket';
+import { useToast } from '@/components/ui/Toast';
+import './reports.css';
 
-const REPORT_PAGE_SIZE = 10;
-
-type ResolutionAction = "warn" | "trust_deduct" | "suspend" | "ban" | "approve_refund" | "release_provider_and_complete" | "dismiss";
-
-interface Party {
-  id: string;
-  name: string;
-  trustScore: number;
-  verificationStatus: string;
-}
-
-interface CaseMessage {
-  id: string;
-  senderId: string;
-  content: string;
-  text?: string;
-  imageUrl?: string | null;
-  isSystem: boolean;
-  createdAt: string;
-}
-
-interface ReportCase {
-  id: string;
-  reason: string;
-  description: string;
-  evidenceUrl?: string | null;
-  hasPrivateEvidence?: boolean;
-  status: string;
-  createdAt: string;
-  reporter: Party;
-  reportedUser: Party;
-  booking: {
-    id: string;
-    seekerId: string;
-    providerId: string;
-    title: string;
-    amount: number;
-    paymentMethod: string;
-    paymentStatus: string;
-    status: string;
-    messageCount: number;
-    escalatedCancellation?: {
-      id: string;
-      reason?: string | null;
-      providerNote?: string | null;
-    } | null;
-  };
-}
-
-interface CompletionEscalationCase {
-  id: string;
-  reason: string;
-  createdAt: string;
-  booking: {
-    id: string;
-    paymentMethod: string;
-    agreedAmount: number | string;
-    seeker: { name: string };
-    provider: { name: string };
-    service?: { title: string } | null;
-  } | null;
-}
-
-interface AdminBookingItem {
-  id: string;
-  status: string;
-  paymentStatus: string;
-  paymentMethod: string;
-  agreedAmount?: number | string | null;
-  started: boolean;
-  seeker: { name: string };
-  provider: { name: string };
-  service?: { title: string } | null;
-  queue?: { status: string; position: number } | null;
-}
-
-interface AdminPaymentAttemptItem {
-  id: string;
-  amount: number | string;
-  currency: string;
-  paymentMethod: string;
-  status: string;
-  failureReason?: string | null;
-  providerIntentId?: string | null;
-  booking?: { id: string; status: string; paymentStatus: string } | null;
-}
-
-interface PaymentReconciliationItem {
-  id: string;
-  amount: number | string;
-  paymentMethod: string;
-  failureReason?: string | null;
-}
-
-const ACTION_LABELS: Record<ResolutionAction, string> = {
-  dismiss: "Dismiss report",
-  warn: "Issue formal warning",
-  trust_deduct: "Deduct 10 trust points",
-  suspend: "Suspend account for 7 days",
-  ban: "Permanently ban account",
-  approve_refund: "Cancel booking and issue PayMongo refund",
-  release_provider_and_complete: "Complete booking and update payment record",
-};
-
-type PendingReasonAction =
-  | { kind: 'completion'; item: CompletionEscalationCase; action: 'release_provider_and_complete' | 'keep_awaiting' }
-  | { kind: 'cancel-booking'; booking: AdminBookingItem };
-
+const PAGE_SIZE = 12;
+const DEFAULT_FILTERS: CaseFilters = { view: 'active', sort: 'attention' };
 export default function AdminReportsPage() {
-  const { isDark } = useApp();
-  const { success, error: showError } = useToast();
-  const [cases, setCases] = useState<ReportCase[]>([]);
-  const [completionEscalations, setCompletionEscalations] = useState<CompletionEscalationCase[]>([]);
-  const [paymentReconciliation, setPaymentReconciliation] = useState<PaymentReconciliationItem[]>([]);
-  const [recentBookings, setRecentBookings] = useState<AdminBookingItem[]>([]);
-  const [recentPaymentAttempts, setRecentPaymentAttempts] = useState<AdminPaymentAttemptItem[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('userId') || undefined;
+  const bookingId = searchParams.get('booking') || undefined;
+  const caseKey = searchParams.get('case') || (searchParams.get('report') ? `report:${searchParams.get('report')}` : null);
+  const { success } = useToast();
+  const [filters, setFilters] = useState<CaseFilters>({ ...DEFAULT_FILTERS, ...(bookingId ? { view: 'all' as const } : {}) });
+  const [search, setSearch] = useState('');
+  const [operations, setOperations] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [items, setItems] = useState<ModerationCase[]>([]);
+  const [summary, setSummary] = useState<CaseSummary | null>(null);
+  const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [messagesByBooking, setMessagesByBooking] = useState<Record<string, CaseMessage[]>>({});
-  const [messageLoadingId, setMessageLoadingId] = useState<string | null>(null);
-  const [selected, setSelected] = useState<ReportCase | null>(null);
-  const [action, setAction] = useState<ResolutionAction>("dismiss");
-  const [notes, setNotes] = useState("");
+  const [loadError, setLoadError] = useState('');
+  const [detail, setDetail] = useState<ModerationCase | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState('');
+  const [decisionError, setDecisionError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [pendingReasonAction, setPendingReasonAction] = useState<PendingReasonAction | null>(null);
-  const [operationReason, setOperationReason] = useState('');
-  const [operationSubmitting, setOperationSubmitting] = useState(false);
+  const listSequence = useRef(0);
+  const detailSequence = useRef(0);
+  const invalidateList = useCallback(() => { listSequence.current++; }, []);
+  const invalidateDetail = useCallback(() => { detailSequence.current++; }, []);
 
+  function changeFilters(next: Partial<CaseFilters>) { setFilters(current => ({ ...current, ...next })); setPage(1); }
+  function concernSelected(key: string) {
+    if (key === 'CANCELLATION_REVIEW') return filters.type === 'CANCELLATION_ESCALATION' && !filters.concern;
+    if (key === 'COMPLETION_REVIEW') return filters.type === 'COMPLETION_ESCALATION' && !filters.concern;
+    return filters.concern === key;
+  }
+  function chooseConcern(key: string) {
+    const escalation = key === 'CANCELLATION_REVIEW' ? 'CANCELLATION_ESCALATION' : key === 'COMPLETION_REVIEW' ? 'COMPLETION_ESCALATION' : undefined;
+    changeFilters(escalation
+      ? { type: concernSelected(key) ? undefined : escalation, concern: undefined }
+      : { concern: concernSelected(key) ? undefined : key, type: undefined });
+  }
+  function clearFilters() { setSearch(''); setFilters({ ...DEFAULT_FILTERS, view: filters.view, sort: filters.view === 'history' ? 'newest' : 'attention' }); setPage(1); }
+  function changeView(view: CaseFilters['view']) {
+    setOperations(false);
+    changeFilters({ view, status: undefined, sort: view === 'history' ? 'newest' : 'attention' });
+  }
+  function navigateCase(key: string | null) {
+    const query = new URLSearchParams(searchParams.toString());
+    query.delete('report');
+    if (key) query.set('case', key); else query.delete('case');
+    const url = `/admin/reports${query.size ? `?${query}` : ''}`;
+    if (key) router.push(url, { scroll: false }); else router.replace(url, { scroll: false });
+  }
   const loadCases = useCallback(async () => {
-    setLoading(true);
+    const sequence = ++listSequence.current;
+    setLoading(true); setLoadError('');
     try {
-      const [response, escalationResponse, paymentResponse, bookingsResponse, attemptsResponse] = await Promise.all([
-        apiListReports({ page, limit: REPORT_PAGE_SIZE }),
-        apiListCompletionEscalations({ page: 1, limit: 50 }),
-        apiListPaymentReconciliation(),
-        apiListAdminBookings({ page: 1, limit: 10 }),
-        apiListAdminPaymentAttempts({ page: 1, limit: 10 }),
-      ]);
-      setCases(response.data || []);
-      setCompletionEscalations(escalationResponse.data || []);
-      setPaymentReconciliation(paymentResponse.data || []);
-      setRecentBookings(bookingsResponse.data || []);
-      setRecentPaymentAttempts(attemptsResponse.data || []);
-      setTotal(response.pagination?.total || 0);
-      setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
-      setLoadError("");
-    } catch (cause: unknown) {
-      setLoadError(getApiErrorMessage(cause, "Unable to load moderation cases."));
-    } finally {
-      setLoading(false);
-    }
-  }, [page]);
-
-  const submitReasonAction = async () => {
-    if (!pendingReasonAction || operationReason.trim().length < 3) return;
-    setOperationSubmitting(true);
-    try {
-      if (pendingReasonAction.kind === 'completion') {
-        await apiResolveCompletionEscalation(pendingReasonAction.item.id, pendingReasonAction.action, operationReason.trim());
-        success('Escalation resolved', 'The decision was recorded in the administrator audit log.');
-      } else {
-        await apiCancelAdminBooking(pendingReasonAction.booking.id, operationReason.trim());
-        success('Booking cancelled', 'Queue and payment reconciliation were applied and audited.');
-      }
-      setPendingReasonAction(null);
-      setOperationReason('');
-      await loadCases();
-    } catch (cause: unknown) {
-      showError('Action failed', getApiErrorMessage(cause, 'The administrator action could not be saved.'));
-    } finally {
-      setOperationSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => void loadCases(), 0);
-    return () => window.clearTimeout(timer);
-  }, [loadCases]);
+      const response = await apiListModerationCases({ ...filters, page, limit: PAGE_SIZE, userId, bookingId });
+      if (sequence !== listSequence.current) return;
+      setItems(response.data || []); setSummary(response.summary);
+      setPagination({ total: response.pagination.total, totalPages: Math.max(1, response.pagination.totalPages) });
+      if (page > Math.max(1, response.pagination.totalPages)) setPage(Math.max(1, response.pagination.totalPages));
+    } catch (cause) { if (sequence === listSequence.current) setLoadError(getApiErrorMessage(cause, 'Cases could not be loaded. Try again.')); }
+    finally { if (sequence === listSequence.current) setLoading(false); }
+  }, [filters, page, userId, bookingId]);
+  const loadDetail = useCallback(async (startReview = false) => {
+    if (!caseKey) return;
+    const [source, id] = caseKey.split(':');
+    if (!['report', 'completion'].includes(source) || !id) { setDetailError('This case link is invalid. Return to the queue.'); return; }
+    const sequence = ++detailSequence.current;
+    setDetailLoading(true); setDetailError('');
+    try { const response = await apiGetModerationCase(source, id, startReview); if (sequence === detailSequence.current) setDetail(response.data); }
+    catch (cause) { if (sequence === detailSequence.current) setDetailError(getApiErrorMessage(cause, 'The case could not be opened. Try again.')); }
+    finally { if (sequence === detailSequence.current) setDetailLoading(false); }
+  }, [caseKey]);
+  useApiCacheRefresh(['admin'], () => loadCases(), !caseKey && !submitting);
+  useEffect(() => { const timer = setTimeout(() => { setFilters(current => ({ ...current, search: search.trim() || undefined })); setPage(1); }, 300); return () => clearTimeout(timer); }, [search]);
+  useEffect(() => { const timer = setTimeout(() => void loadCases(), 0); return () => { clearTimeout(timer); invalidateList(); }; }, [loadCases, invalidateList]);
+  useEffect(() => { const timer = setTimeout(() => { setDetail(null); setDecisionError(''); if (caseKey) void loadDetail(true); }, 0); return () => { clearTimeout(timer); invalidateDetail(); }; }, [caseKey, loadDetail, invalidateDetail]);
   useEffect(() => {
     const socket = getSocket();
-    if (!socket) return;
-    socket.on("ADMIN_MODERATION_CHANGED", loadCases);
-    return () => { socket.off("ADMIN_MODERATION_CHANGED", loadCases); };
-  }, [loadCases]);
-
-  const submitResolution = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!selected || notes.trim().length < 3) return;
-    setSubmitting(true);
+    const refresh = () => { if (!submitting) { void loadCases(); if (caseKey) void loadDetail(); } };
+    socket?.on('ADMIN_MODERATION_CHANGED', refresh);
+    return () => { socket?.off('ADMIN_MODERATION_CHANGED', refresh); };
+  }, [loadCases, loadDetail, caseKey, submitting]);
+  async function resolve(outcome: string, penalty: Penalty, notes: string, fault: 'none' | 'seeker' | 'provider' = 'none') {
+    if (!detail || submitting) return;
+    setSubmitting(true); setDecisionError('');
+    let decisionSaved = false;
+    invalidateDetail();
     try {
-      await apiResolveReport(selected.id, action, notes.trim());
-      success("Case resolved", "The action was recorded and both parties were notified.");
-      setSelected(null);
-      setNotes("");
-      setAction("dismiss");
-      await loadCases();
-    } catch (cause: unknown) {
-      showError("Resolution failed", getApiErrorMessage(cause, 'The resolution could not be saved.'));
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      if (detail.source === 'completion') await apiResolveCompletionEscalation(detail.id, outcome as 'keep_awaiting' | 'refund_seeker' | 'release_provider_and_complete', notes);
+      else if (detail.type === 'CANCELLATION_ESCALATION') {
+        if (!detail.cancellation) throw new Error('This case has no linked cancellation request.');
+        await apiResolveEscalatedCancellation(detail.cancellation.id, outcome === 'approve_cancellation', notes, fault);
+      } else await apiResolveReport(detail.id, outcome as 'dismiss' | 'resolve_safety' | 'cancel_booking' | 'release_provider_and_complete', penalty, notes);
+      decisionSaved = true;
+      invalidateApiCache(['admin']);
+      const updated = await apiGetModerationCase(detail.source, detail.id);
+      setDetail(updated.data);
+      if (['PENDING', 'UNDER_REVIEW'].includes(updated.data.status)) throw new Error('The booking action was processed, but the case is still open. Refresh the case and review its processing status before retrying.');
+      success('Case closed', 'The recorded outcome is now available in Case history.');
+      void loadCases();
+    } catch (cause) { setDecisionError(decisionSaved ? `Decision submitted, but closure could not be confirmed. ${getApiErrorMessage(cause, 'Refresh the case before retrying.')}` : getApiErrorMessage(cause, 'The decision could not be saved. Your explanation is preserved.')); }
+    finally { setSubmitting(false); }
+  }
 
-  const openPrivateEvidence = async (reportId: string) => {
-    try {
-      const response = await apiAccessReportEvidence(reportId, 'view');
-      window.open(response.data.url, '_blank', 'noopener,noreferrer');
-    } catch (cause: unknown) {
-      showError('Evidence access failed', getApiErrorMessage(cause, 'The evidence could not be opened.'));
-    }
-  };
-
-  const toggleMessages = async (item: ReportCase) => {
-    if (expandedId === item.id) {
-      setExpandedId(null);
-      return;
-    }
-    setExpandedId(item.id);
-    if (messagesByBooking[item.booking.id]) return;
-
-    setMessageLoadingId(item.id);
-    try {
-      const response = await apiGetAdminBookingMessages(item.booking.id);
-      setMessagesByBooking((current) => ({ ...current, [item.booking.id]: response.data?.messages || [] }));
-    } catch (cause: unknown) {
-      showError('Unable to load booking messages', getApiErrorMessage(cause, 'The booking messages could not be loaded.'));
-      setExpandedId(null);
-    } finally {
-      setMessageLoadingId(null);
-    }
-  };
-
-  const surface = isDark ? "bg-[#22211e] border-neutral-800 text-[#f2efe9]" : "bg-white border-slate-200 text-slate-800";
-  const mutedSurface = isDark ? "bg-[#1c1b18] border-neutral-800" : "bg-slate-50 border-slate-200";
-
-  return (
-    <div className="space-y-5">
-      <section className={`rounded-2xl border p-5 ${surface}`}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <Scale className="h-5 w-5 text-slate-600 dark:text-neutral-400" />
-              <h3 className="text-base font-extrabold">Moderation Case Queue</h3>
-            </div>
-            <p className="mt-1 text-xs text-slate-500">
-              Reports and escalated cancellations are reviewed here as one case file.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-[11px] font-bold text-red-700">
-              {total} open {total === 1 ? "case" : "cases"}
-            </span>
-            <button onClick={loadCases} className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold hover:bg-slate-50 dark:border-neutral-700 dark:hover:bg-neutral-800">
-              <RefreshCw className="h-3.5 w-3.5" /> Refresh
-            </button>
-          </div>
-        </div>
+  if (caseKey) return <div className="case-workspace"><ReportWorkflowNav current="booking" />{detailError ? <div className="case-empty" role="alert"><h2>Unable to open case</h2><p>{detailError}</p><div className="case-inline-actions"><button className="case-button" onClick={() => navigateCase(null)}>Back to cases</button><button className="case-button" onClick={() => void loadDetail()}>Retry</button></div></div> : detail && `${detail.source}:${detail.id}` === caseKey ? <CaseWorkroom key={caseKey} item={detail} onBack={() => navigateCase(null)} onResolve={resolve} submitting={submitting} error={decisionError} /> : <CaseSkeleton variant="detail" busy={detailLoading} />}</div>;
+  const filtered = !!(filters.concern || filters.type || filters.status || filters.payment || filters.search);
+  return <div className="case-workspace">
+    <ReportWorkflowNav current="booking" />
+    <header className="case-page-header"><div><h1>Disputes &amp; Reports</h1><p className="case-muted">Resolve complaints and escalation requests tied to a Seeker–Provider booking.</p><p className="case-muted">Review completed work, conduct, cancellations, and held payments. Listing content belongs in Content Reports &amp; Appeals.</p></div><div className="case-inline-actions"><button className="case-button" disabled={loading} onClick={() => { invalidateApiCache(['admin']); void loadCases(); }} aria-label="Refresh cases"><ArrowClockwise size={18} aria-hidden /> Refresh</button></div></header>
+    {(userId || bookingId) && <div className="case-notice">{userId ? 'Showing booking cases for the selected user.' : 'Showing cases for the selected booking.'}<Link href="/admin/reports" className="case-text-link">Show all cases</Link></div>}
+    <nav className="case-view-nav" aria-label="Moderation workspace"><button aria-current={!operations && filters.view === 'active' ? 'page' : undefined} onClick={() => changeView('active')}>Needs attention {summary && <span>{summary.active}</span>}</button><button aria-current={!operations && filters.view === 'history' ? 'page' : undefined} onClick={() => changeView('history')}>Case history {summary && <span>{summary.history}</span>}</button><button aria-current={operations ? 'page' : undefined} onClick={() => setOperations(true)}>Booking &amp; payment operations</button></nav>
+    {operations ? <BookingOperations userId={userId} /> : <>
+      <section className="case-queue" aria-labelledby="case-queue-title">
+        <div className="case-queue-heading"><div><h3 id="case-queue-title">{filters.view === 'history' ? 'Closed cases' : filters.view === 'all' ? 'All booking cases' : 'Cases needing a decision'}</h3><p className="case-muted">{filters.view === 'history' ? `Resolved and dismissed cases, ordered by ${filters.sort === 'newest' ? 'most recent' : 'oldest'} closure.` : filters.sort === 'attention' ? 'Pending cases appear first, with the oldest concerns first within each stage.' : filters.sort === 'newest' ? 'Showing the most recently submitted cases first.' : 'Showing the oldest submitted cases first.'}</p></div>{summary && filters.view === 'active' && <span className="case-muted">{summary.underReview} under review</span>}</div>
+        {summary && filters.view !== 'history' && Object.entries(summary.concerns).some(([,count]) => count > 0) && <div className="case-concern-counts" aria-label="Open concerns">{Object.entries(CONCERNS).filter(([key]) => summary.concerns[key] > 0).map(([key,label]) => <button key={key} className={concernSelected(key) ? 'is-selected' : ''} aria-pressed={concernSelected(key)} onClick={() => chooseConcern(key)}>{label}<strong>{summary.concerns[key]}</strong></button>)}</div>}
+        <CaseFilterBar filters={filters} search={search} onSearch={setSearch} onChange={changeFilters} onClear={clearFilters} />
+        {loadError ? <div className="case-empty" role="alert"><h3>Cases could not be loaded</h3><p>{loadError}</p><button className="case-button" onClick={() => { invalidateApiCache(['admin']); void loadCases(); }}>Retry loading</button></div> : loading ? <CaseSkeleton /> : !items.length ? <div className="case-empty"><Scales size={32} aria-hidden /><h3>{filtered ? 'No cases match these filters' : filters.view === 'history' ? 'No closed cases yet' : 'No cases need attention'}</h3><p>{filtered ? 'Try a different concern or clear the filters to see the rest of the queue.' : filters.view === 'history' ? 'Resolved and dismissed cases will appear here.' : 'New reports and escalations will appear here when they need an Admin decision.'}</p>{filtered && <button className="case-button" onClick={clearFilters}>Clear filters</button>}</div> : <ul className="case-list">{items.map(item => <li className="case-row" key={`${item.source}:${item.id}`}><div className="case-row-main"><div className="case-header-line"><h4>{CONCERNS[item.concern] || stateLabel(item.concern)}</h4><span className={`case-status ${['PENDING','UNDER_REVIEW'].includes(item.status) ? 'case-status-active' : ''}`}>{caseStatusLabel(item)}</span></div><p className="case-row-service">{item.booking.title}</p><p className="case-muted case-row-people"><span>Seeker: {item.booking.seeker.name}</span><span>Provider: {item.booking.provider.name}</span></p><p className="case-row-excerpt">{item.explanation}</p><p className="case-row-meta">{CASE_TYPES[item.type]}<time dateTime={filters.view === 'history' && item.resolvedAt ? item.resolvedAt : item.createdAt}>{filters.view === 'history' && item.resolvedAt ? `Closed ${dateLabel(item.resolvedAt)}` : dateLabel(item.createdAt)}</time></p></div><div className="case-row-payment"><strong>{money(item.booking.amount)}</strong><span>{item.booking.paymentMethod}</span><p className={item.booking.paymentStatus === 'FROZEN_HELD' ? 'case-danger-text' : 'case-muted'}>{stateLabel(item.booking.paymentStatus)}</p>{item.resolutionOperation?.status === 'FAILED_RETRYABLE' && <strong className="case-danger-text">Decision needs retry</strong>}</div><button className="case-button" onClick={() => navigateCase(`${item.source}:${item.id}`)}>Open case <ArrowRight size={17} aria-hidden /></button></li>)}</ul>}
+        {!loading && !loadError && <AdminPagination page={page} totalPages={pagination.totalPages} totalItems={pagination.total} pageSize={PAGE_SIZE} onPageChange={setPage} itemLabel="cases" />}
       </section>
-
-      {completionEscalations.length > 0 && (
-        <section className={`rounded-2xl border p-5 ${surface}`}>
-          <h3 className="text-sm font-extrabold">Completion escalations</h3>
-          <p className="mt-1 text-xs text-slate-500">Provider requests submitted after the 72-hour seeker response window.</p>
-          <div className="mt-4 space-y-3">
-            {completionEscalations.map((item) => (
-              <div key={item.id} className={`rounded-xl border p-4 ${mutedSurface}`}>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-xs font-extrabold">{item.booking?.service?.title || 'Service engagement'}</p>
-                    <p className="mt-1 text-[10px] text-slate-500">{item.booking?.provider.name} · Provider / {item.booking?.seeker.name} · Seeker</p>
-                    <p className="mt-2 text-xs">{item.reason}</p>
-                  </div>
-                  <div className="flex shrink-0 gap-2">
-                    <button onClick={() => { setPendingReasonAction({ kind: 'completion', item, action: 'keep_awaiting' }); setOperationReason(''); }} className="rounded-lg border px-3 py-2 text-[10px] font-bold">Keep awaiting</button>
-                    <button onClick={() => { setPendingReasonAction({ kind: 'completion', item, action: 'release_provider_and_complete' }); setOperationReason(''); }} className="rounded-lg bg-emerald-600 px-3 py-2 text-[10px] font-bold text-white">Record completion</button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {paymentReconciliation.length > 0 && (
-        <section className={`rounded-2xl border p-5 ${surface}`}>
-          <h3 className="text-sm font-extrabold">Payment reconciliation required</h3>
-          <p className="mt-1 text-xs text-slate-500">Captured Test Mode payments that could not be booked and still need a confirmed refund.</p>
-          <div className="mt-4 space-y-3">
-            {paymentReconciliation.map((attempt) => (
-              <div key={attempt.id} className={`flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between ${mutedSurface}`}>
-                <div>
-                  <p className="text-xs font-extrabold">₱{Number(attempt.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })} · {attempt.paymentMethod.toUpperCase()}</p>
-                  <p className="mt-1 text-[10px] text-slate-500">{attempt.failureReason || 'Captured payment requires reconciliation'} · Attempt {attempt.id.slice(0, 10)}</p>
-                </div>
-                <button onClick={async () => {
-                  try { await apiRetryPaymentReconciliation(attempt.id); success('Refund retried', 'The reconciliation state was refreshed.'); await loadCases(); }
-                  catch (cause: unknown) { showError('Refund retry failed', getApiErrorMessage(cause, 'The refund retry failed.')); }
-                }} className="rounded-lg bg-red-600 px-3 py-2 text-[10px] font-bold text-white">Retry refund</button>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className={`rounded-2xl border p-5 ${surface}`}>
-        <h3 className="text-sm font-extrabold">Recent booking operations</h3>
-        <p className="mt-1 text-xs text-slate-500">Lifecycle, payment, and queue state needed for moderation and reconciliation.</p>
-        <div className="mt-4 space-y-2">
-          {recentBookings.length === 0 ? <p className="text-xs text-slate-400">No bookings found.</p> : recentBookings.map((booking) => (
-            <div key={booking.id} className={`flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between ${mutedSurface}`}>
-              <div>
-                <p className="text-xs font-extrabold">{booking.service?.title || "Service engagement"} · ₱{Number(booking.agreedAmount || 0).toLocaleString("en-PH", { minimumFractionDigits: 2 })}</p>
-                <p className="mt-1 text-[10px] text-slate-500">{booking.seeker.name} → {booking.provider.name} · {booking.status.replace(/_/g, " ")} · {booking.paymentStatus.replace(/_/g, " ")} · {booking.paymentMethod}{booking.queue ? ` · Queue ${booking.queue.position} (${booking.queue.status})` : " · No queue"}</p>
-              </div>
-              {!booking.started && ["PENDING_APPROVAL", "WAITING", "ACCEPTED"].includes(booking.status) && (
-                <button onClick={() => { setPendingReasonAction({ kind: 'cancel-booking', booking }); setOperationReason(''); }} className="shrink-0 rounded-lg bg-red-600 px-3 py-2 text-[10px] font-bold text-white">Cancel and reconcile</button>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className={`rounded-2xl border p-5 ${surface}`}>
-        <h3 className="text-sm font-extrabold">Recent PayMongo Test Mode attempts</h3>
-        <p className="mt-1 text-xs text-slate-500">Safe operational identifiers and state only; credentials and client secrets are never returned.</p>
-        <div className="mt-4 grid gap-2 md:grid-cols-2">
-          {recentPaymentAttempts.length === 0 ? <p className="text-xs text-slate-400">No payment attempts found.</p> : recentPaymentAttempts.map((attempt) => (
-            <div key={attempt.id} className={`rounded-xl border p-3 ${mutedSurface}`}>
-              <p className="text-xs font-extrabold">₱{Number(attempt.amount).toLocaleString("en-PH", { minimumFractionDigits: 2 })} {attempt.currency} · {attempt.status.replace(/_/g, " ")}</p>
-              <p className="mt-1 text-[10px] text-slate-500">{attempt.paymentMethod.toUpperCase()} · Attempt {attempt.id.slice(0, 10)}{attempt.providerIntentId ? ` · Intent ${attempt.providerIntentId.slice(0, 12)}` : ""}</p>
-              {attempt.failureReason && <p className="mt-2 text-[10px] text-red-600">{attempt.failureReason}</p>}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {loadError && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</div>}
-      {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-7 w-7 animate-spin text-slate-900 dark:text-neutral-100" /></div>
-      ) : cases.length === 0 ? (
-        <div className={`rounded-2xl border p-12 text-center ${surface}`}>
-          <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
-          <h4 className="mt-3 text-sm font-extrabold">Moderation queue is clear</h4>
-          <p className="mt-1 text-xs text-slate-500">There are no unresolved reports or escalated cancellations.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {cases.map((item) => {
-            const expanded = expandedId === item.id;
-            const bookingMessages = messagesByBooking[item.booking.id] || [];
-            return (
-              <article key={item.id} className={`overflow-hidden rounded-2xl border shadow-sm ${surface}`}>
-                <div className="border-b border-slate-100 p-5 dark:border-neutral-800">
-                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-                    <div className="flex gap-3">
-                      <span className="rounded-xl bg-red-50 p-2 text-red-600 dark:bg-red-950/30"><AlertTriangle className="h-4 w-4" /></span>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="text-sm font-extrabold">{item.booking.title}</h4>
-                          {item.booking.escalatedCancellation && (
-                            <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[9px] font-bold uppercase text-amber-700">Escalated cancellation</span>
-                          )}
-                        </div>
-                        <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-red-600">{item.reason.replace(/_/g, " ")}</p>
-                      </div>
-                    </div>
-                    <div className="text-right text-[10px] text-slate-500">
-                      <p>Case {item.id.slice(0, 10)}</p>
-                      <p>{new Date(item.createdAt).toLocaleString()}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 p-5 lg:grid-cols-[1fr_1fr]">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      {[["Reporter", item.reporter], ["Reported user", item.reportedUser]].map(([label, party]) => {
-                        const person = party as Party;
-                        return (
-                          <div key={label as string} className={`rounded-xl border p-3 ${mutedSurface}`}>
-                            <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">{label as string}</p>
-                            <p className="mt-1 text-xs font-extrabold">{person.name}</p>
-                            <div className="mt-2 flex items-center justify-between text-[10px] text-slate-500">
-                              <span>Trust {person.trustScore}/100</span>
-                              <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> {person.verificationStatus.replace(/_/g, " ")}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    <div>
-                      <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">Reported issue</p>
-                      <p className="mt-1 text-xs leading-5">{item.description}</p>
-                    </div>
-                    {item.booking.escalatedCancellation && (
-                      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-                        <p><strong>Cancellation reason:</strong> {item.booking.escalatedCancellation.reason || "Not supplied"}</p>
-                        <p className="mt-1"><strong>Provider response:</strong> {item.booking.escalatedCancellation.providerNote || "Not supplied"}</p>
-                      </div>
-                    )}
-                    {item.evidenceUrl && (
-                      <a href={item.evidenceUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white">
-                        <FileImage className="h-4 w-4" /> Open submitted evidence
-                      </a>
-                    )}
-                    {item.hasPrivateEvidence && (
-                      <button type="button" onClick={() => void openPrivateEvidence(item.id)} className="flex items-center gap-2 rounded-xl border border-slate-200 p-3 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-950 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white">
-                        <FileImage className="h-4 w-4" /> View private evidence (audit logged)
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className={`grid grid-cols-2 gap-3 rounded-xl border p-3 text-xs ${mutedSurface}`}>
-                      <div><p className="text-[9px] font-bold uppercase text-slate-400">Booking</p><p className="mt-1 font-bold">{item.booking.status.replace(/_/g, " ")}</p></div>
-                      <div><p className="text-[9px] font-bold uppercase text-slate-400">Payment</p><p className="mt-1 font-bold">{item.booking.paymentStatus.replace(/_/g, " ")}</p></div>
-                      <div className="flex items-center gap-1.5"><PhilippinePeso className="h-3.5 w-3.5 text-slate-500" /> <span className="font-bold">{item.booking.amount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}</span></div>
-                      <div className="col-span-2 text-[10px] text-slate-500">Method: {item.booking.paymentMethod}</div>
-                    </div>
-
-                    <button onClick={() => void toggleMessages(item)} disabled={messageLoadingId === item.id} className={`flex w-full items-center justify-between rounded-xl border p-3 text-xs font-bold disabled:opacity-60 ${mutedSurface}`}>
-                      <span className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-slate-600 dark:text-neutral-400" /> Booking chat ({item.booking.messageCount})</span>
-                      {messageLoadingId === item.id ? <Loader2 className="h-4 w-4 animate-spin" /> : expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </button>
-                    {expanded && (
-                      <div className={`max-h-72 space-y-2 overflow-y-auto rounded-xl border p-3 ${mutedSurface}`}>
-                        {bookingMessages.length === 0 ? <p className="py-6 text-center text-xs text-slate-400">No messages for this booking.</p> : bookingMessages.map((message) => (
-                          <div key={message.id} className={`rounded-xl border p-2.5 text-xs ${message.isSystem ? "border-amber-200 bg-amber-50 text-amber-900" : "border-slate-200 bg-white dark:border-neutral-700 dark:bg-neutral-900"}`}>
-                            <div className="mb-1 flex justify-between text-[9px] font-bold text-slate-400"><span>{message.senderId === item.reporter.id ? item.reporter.name : item.reportedUser.name}</span><span>{new Date(message.createdAt).toLocaleString()}</span></div>
-                            <p className="whitespace-pre-wrap leading-5">{message.text || message.content}</p>
-                            {message.imageUrl && <a className="mt-1 block font-bold text-red-600" href={message.imageUrl} target="_blank" rel="noreferrer">View attachment</a>}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <button onClick={() => { setSelected(item); setNotes(""); setAction("dismiss"); }} className="flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950">
-                      <Scale className="h-4 w-4" /> Review and resolve
-                    </button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
-
-      <AdminPagination page={page} totalPages={totalPages} totalItems={total} pageSize={REPORT_PAGE_SIZE} onPageChange={setPage} itemLabel="moderation cases" />
-
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true">
-          <form onSubmit={submitResolution} className={`w-full max-w-lg rounded-2xl border shadow-2xl ${surface}`}>
-            <div className="flex items-center justify-between border-b border-slate-200 p-5 dark:border-neutral-800">
-              <div><h3 className="text-sm font-extrabold">Resolve moderation case</h3><p className="mt-1 text-[10px] text-slate-500">Decision applies once and is recorded in the Admin audit log.</p></div>
-              <button type="button" onClick={() => setSelected(null)}><X className="h-4 w-4" /></button>
-            </div>
-            <div className="space-y-4 p-5">
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Resolution action
-                <select value={action} onChange={(event) => setAction(event.target.value as ResolutionAction)} className={`mt-1.5 w-full rounded-xl border p-3 text-xs normal-case ${mutedSurface}`}>
-                  {(Object.keys(ACTION_LABELS) as ResolutionAction[]).map((value) => (
-                    <option key={value} value={value}>{ACTION_LABELS[value]}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-500">Decision explanation
-                <textarea required minLength={3} maxLength={2000} value={notes} onChange={(event) => setNotes(event.target.value)} rows={5} placeholder="State the evidence considered and explain the final decision..." className={`mt-1.5 w-full resize-none rounded-xl border p-3 text-xs normal-case leading-5 ${mutedSurface}`} />
-              </label>
-              {action === "approve_refund" && <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[10px] leading-4 text-amber-800">This submits a refund through the configured PayMongo Test Mode account and applies only to held online test payments.</p>}
-              {action === "release_provider_and_complete" && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[10px] leading-4 text-emerald-800">This completes the disputed booking. Online funds enter the provider ledger; cash is recorded only as externally confirmed.</p>}
-            </div>
-            <div className="flex justify-end gap-2 border-t border-slate-200 p-5 dark:border-neutral-800">
-              <button type="button" onClick={() => setSelected(null)} className="rounded-xl border px-4 py-2 text-xs font-bold">Cancel</button>
-              <button disabled={submitting || notes.trim().length < 3} className="flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-950">
-                {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Confirm resolution
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      <ReasonModal
-        isOpen={!!pendingReasonAction}
-        title={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel and reconcile booking' : pendingReasonAction?.action === 'keep_awaiting' ? 'Keep awaiting confirmation' : 'Record booking completion'}
-        description={pendingReasonAction?.kind === 'cancel-booking'
-          ? 'Explain why this unstarted booking must be cancelled. Queue and eligible Test Mode payment reconciliation will be applied.'
-          : 'Explain the evidence supporting this completion-escalation decision. The decision is audit logged.'}
-        value={operationReason}
-        onChange={setOperationReason}
-        onClose={() => { if (!operationSubmitting) { setPendingReasonAction(null); setOperationReason(''); } }}
-        onSubmit={submitReasonAction}
-        confirmText={pendingReasonAction?.kind === 'cancel-booking' ? 'Cancel booking' : 'Save decision'}
-        variant={pendingReasonAction?.kind === 'cancel-booking' ? 'danger' : 'primary'}
-        isSubmitting={operationSubmitting}
-      />
-    </div>
-  );
+    </>}
+  </div>;
 }

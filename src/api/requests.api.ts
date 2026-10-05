@@ -1,7 +1,9 @@
 import { api } from '../lib/api/axios';
+import type { PaymentMethods } from '../types';
+import type { RequestUrgency } from '../lib/requestUrgency';
 
-export async function apiCreateRequest(data: { categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency?: string }) {
-  const response = await api.post('/requests', data);
+export async function apiCreateRequest(data: { categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency: RequestUrgency; paymentMethods: PaymentMethods }) {
+  const response = await api.post('/requests', { ...data, title: data.title.trim().toUpperCase() });
   return response.data;
 }
 
@@ -20,12 +22,16 @@ type RequestUpdate = Partial<{
   description: string;
   budgetMin: number;
   budgetMax: number;
-  urgency: string;
+  urgency: RequestUrgency;
   status: string;
+  paymentMethods: PaymentMethods;
 }>;
 
 export async function apiUpdateRequest(id: string, data: RequestUpdate) {
-  const response = await api.patch(`/requests/${id}`, data);
+  const response = await api.patch(`/requests/${id}`, {
+    ...data,
+    ...(data.title !== undefined && { title: data.title.trim().toUpperCase() }),
+  });
   return response.data;
 }
 

@@ -3,11 +3,11 @@ import {
   Check,
   Clock,
   Play,
-  FileCheck2,
-  CheckCircle2,
-  AlertTriangle,
+  ClipboardText as FileCheck2,
+  CheckCircle as CheckCircle2,
+  Warning as AlertTriangle,
   XCircle,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 
 export type EngagementLifecycleStatus =
   | 'pending_provider'
@@ -26,6 +26,11 @@ interface LifecycleStepperProps {
   queuePosition?: number;
   isDark?: boolean;
   className?: string;
+  completedSublabel?: string;
+  compact?: boolean;
+  isOnline?: boolean;
+  started?: boolean;
+  closedLabel?: string;
 }
 
 interface StepConfig {
@@ -41,6 +46,11 @@ export default function LifecycleStepper({
   queuePosition,
   isDark = true,
   className = '',
+  completedSublabel = 'Paid',
+  compact = false,
+  isOnline = false,
+  started,
+  closedLabel = 'Canceled',
 }: LifecycleStepperProps) {
   const normStatus = status?.toLowerCase();
 
@@ -108,37 +118,59 @@ export default function LifecycleStepper({
     },
     {
       id: 4,
-      label: 'Review',
-      sublabel: 'Confirmation',
+      label: 'Confirmation',
+      sublabel: 'Seeker decision',
       icon: FileCheck2,
     },
     {
       id: 5,
       label: 'Completed',
-      sublabel: 'Paid',
+      sublabel: completedSublabel,
       icon: CheckCircle2,
     },
   ];
 
-  // Special view for Canceled
+  // A terminal cancellation stops the journey; do not show a future Completed step.
   if (isCanceled) {
+    return <div className={`flex w-full items-center gap-2 rounded-2xl border border-stone-300 bg-stone-50 p-3.5 text-sm text-ink-secondary dark:border-neutral-700 dark:bg-neutral-800/40 dark:text-ink ${className}`}>
+      <XCircle className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden="true" />
+      <span className="font-semibold">Booking {closedLabel}</span>
+      <span className="ml-auto text-xs text-ink-muted">Ended without completion</span>
+    </div>;
+  }
+
+  if (compact) {
+    const journeyStep = normStatus === 'in_progress' && started === false ? 2 : currentStep;
+    const journeySteps = ['Booked', isOnline ? 'In Queue' : 'Accepted', 'In Progress', 'Confirmation', 'Completed'];
     return (
-      <div
-        className={`w-full rounded-2xl p-3.5 border flex items-center justify-between text-xs transition-all ${
-          isDark
-            ? 'bg-neutral-900/60 border-neutral-800 text-neutral-400'
-            : 'bg-slate-50 border-slate-200 text-slate-500'
-        } ${className}`}
-      >
-        <div className="flex items-center gap-2">
-          <XCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
-          <span className="font-bold text-slate-800 dark:text-neutral-200">
-            Booking Canceled
+      <div className={`border-t pt-3 ${isDark ? 'border-neutral-800' : 'border-stone-200'} ${className}`}>
+        <div className="mb-2 flex justify-end">
+          <span className={`text-[10px] font-medium ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+            {isCanceled ? 'Stopped' : isDisputed ? 'Paused for review' : `Step ${journeyStep} of 5`}
           </span>
         </div>
-        <span className="text-[10px] font-semibold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-md">
-          Inactive
-        </span>
+        <ol aria-label="Booking journey" className="grid grid-cols-1 gap-1 sm:grid-cols-5">
+          {journeySteps.map((label, index) => {
+            const step = index + 1;
+            const reached = !isCanceled && step <= journeyStep;
+            const current = !isCanceled && !isDisputed && step === journeyStep;
+            return (
+              <li key={label} className="flex min-w-0 items-center gap-3 py-1 text-left sm:block sm:py-0 sm:text-center">
+                <span aria-hidden="true" className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold sm:mx-auto ${
+                  reached
+                    ? role === 'provider' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-orange-600 bg-orange-600 text-white'
+                    : isDark ? 'border-neutral-700 bg-neutral-800 text-ink-subtle' : 'border-stone-300 bg-white text-ink-muted'
+                } ${current ? 'ring-2 ring-offset-1 ring-current/20' : ''}`}>
+                  {step < journeyStep && !isDisputed ? <Check className="h-3 w-3" /> : step}
+                </span>
+                <span className={`block min-w-0 text-xs font-semibold leading-tight sm:mt-1 sm:text-[10px] ${
+                  current ? role === 'provider' ? 'text-emerald-700 dark:text-emerald-400' : 'text-orange-700 dark:text-orange-400'
+                    : isDark ? 'text-ink-subtle' : 'text-ink-muted'
+                }`}>{label}</span>
+              </li>
+            );
+          })}
+        </ol>
       </div>
     );
   }
@@ -231,8 +263,8 @@ export default function LifecycleStepper({
                       : isCurrent
                       ? `${accentBg} ${accentBorder} text-white ring-4 ${accentPulse} scale-110 shadow-md`
                       : isDark
-                      ? 'bg-[#22211e] border-neutral-700 text-neutral-500'
-                      : 'bg-white border-slate-300 text-slate-400'
+                      ? 'bg-[#22211e] border-neutral-700 text-ink-muted'
+                      : 'bg-white border-slate-300 text-ink-subtle'
                   }`}
                 >
                   {isPassed ? (
@@ -254,10 +286,10 @@ export default function LifecycleStepper({
                       : isPassed
                       ? isDark
                         ? 'text-neutral-300'
-                        : 'text-slate-700'
+                        : 'text-ink-secondary'
                       : isDark
-                      ? 'text-neutral-500'
-                      : 'text-slate-400'
+                      ? 'text-ink-muted'
+                      : 'text-ink-subtle'
                   }`}
                 >
                   {step.label}
@@ -266,11 +298,11 @@ export default function LifecycleStepper({
                   className={`hidden sm:block text-[9px] font-medium leading-none mt-0.5 ${
                     isCurrent
                       ? isDark
-                        ? 'text-neutral-400'
-                        : 'text-slate-600'
+                        ? 'text-ink-subtle'
+                        : 'text-ink-muted'
                       : isDark
-                      ? 'text-neutral-600'
-                      : 'text-slate-400'
+                      ? 'text-ink-muted'
+                      : 'text-ink-subtle'
                   }`}
                 >
                   {step.sublabel}

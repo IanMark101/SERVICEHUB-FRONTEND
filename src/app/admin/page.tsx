@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -8,5 +9,5 @@ export default function AdminPage() {
     router.replace('/admin/overview');
   }, [router]);
 
-  return null;
+  return <WorkspacePageSkeleton label="Opening Admin overview" role="admin" variant="overview" />;
 }

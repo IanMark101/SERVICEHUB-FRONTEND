@@ -1,5 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useState } from 'react';
+import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { useApp } from '../../../context/AppContext';
 import { apiAccessVerificationProof, apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
 import { Loader2, CheckCircle2, XCircle, FileText, ExternalLink, RefreshCw } from 'lucide-react';
@@ -8,6 +10,7 @@ import { getSocket } from '../../../lib/socket';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import Image from 'next/image';
 import AdminPagination from '../../../components/admin/AdminPagination';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 
 const PAGE_SIZE = 10;
 
@@ -84,6 +87,7 @@ export default function AdminVerifications() {
         setLoading(false);
       });
   }, [page]);
+  useApiCacheRefresh(['admin'], () => fetchVerifications(), !submittingReview);
 
   useEffect(() => {
     const timer = window.setTimeout(fetchVerifications, 0);
@@ -128,12 +132,12 @@ export default function AdminVerifications() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+        <h4 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
           Pending Provider Verifications
         </h4>
         <button
-          onClick={fetchVerifications}
-          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200"
+          onClick={() => { invalidateApiCache(['admin']); fetchVerifications(); }}
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh Queue</span>
@@ -149,11 +153,9 @@ export default function AdminVerifications() {
       {/* Verification Queue items */}
       <div className="space-y-6">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
-          </div>
+          <WorkspacePageSkeleton label="Loading verification queue" role="admin" variant="verification" />
         ) : verifications.length === 0 ? (
-          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
+          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
             }`}>
             There are no verifications currently pending review.
           </div>
@@ -172,10 +174,10 @@ export default function AdminVerifications() {
                 {/* Header info */}
                 <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div>
-                    <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    <h4 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
                       {item.user?.name}
                     </h4>
-                    <p className={`text-[10px] font-semibold mt-0.5 uppercase tracking-wider ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                    <p className={`text-[10px] font-semibold mt-0.5 uppercase tracking-wider ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                       Provider ID: {item.userId} • Email: {item.user?.email}
                     </p>
                   </div>
@@ -186,7 +188,7 @@ export default function AdminVerifications() {
 
                 {/* Proofs documents grid */}
                 <div className="space-y-2">
-                  <span className={`text-xs font-bold block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
+                  <span className={`text-xs font-bold block ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                     Document Proofs:
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -195,19 +197,19 @@ export default function AdminVerifications() {
                       return (
                         <div
                           key={proof.id}
-                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
+                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'
                             }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5 truncate">
-                              <FileText className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                              <FileText className="w-3.5 h-3.5 text-ink-muted flex-shrink-0" />
                               <span className="truncate">{proof.documentType}</span>
                             </div>
                             <button
                               type="button"
                               disabled={accessingProofId === proof.id}
                               onClick={() => accessProof(item, proof, 'view')}
-                              className="flex flex-shrink-0 items-center space-x-0.5 text-[10px] text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white"
+                              className="flex flex-shrink-0 items-center space-x-0.5 text-[10px] text-ink-secondary hover:text-ink dark:text-ink-secondary dark:hover:text-white"
                             >
                               <span>{accessingProofId === proof.id ? 'Authorizing...' : 'View securely'}</span>
                               <ExternalLink className="w-3 h-3" />
@@ -232,12 +234,12 @@ export default function AdminVerifications() {
                               </div>
                             </div>
                           ) : (
-                            <div className="p-3 text-center text-slate-400 text-[10px]">
+                            <div className="p-3 text-center text-ink-subtle text-[10px]">
                               <button
                                 type="button"
                                 disabled={accessingProofId === proof.id}
                                 onClick={() => accessProof(item, proof, 'download')}
-                                className="font-bold text-slate-500 hover:text-slate-950 disabled:opacity-50 dark:hover:text-white"
+                                className="font-bold text-ink-muted hover:text-ink disabled:opacity-50 dark:hover:text-white"
                               >
                                 Download (audit logged)
                               </button>
@@ -286,14 +288,14 @@ export default function AdminVerifications() {
       {/* Review Dialog Overlay */}
       {reviewingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
             }`}>
             <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
               <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-emerald-500' : 'text-red-500'}`}>
                 {isApproveMode ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-red-500" />}
                 <span>{isApproveMode ? "Approve Verification" : "Reject Verification"}</span>
               </h4>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-ink-subtle">
                 Confirm action for provider {reviewingItem.user?.name}. Send remarks.
               </p>
               <div>
@@ -301,7 +303,7 @@ export default function AdminVerifications() {
                   placeholder="Explain rejection reason or add approval remarks here..."
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9]' : 'bg-slate-50 border-slate-300'
+                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                     }`}
                   rows={4}
                   required={!isApproveMode}
@@ -320,7 +322,7 @@ export default function AdminVerifications() {
                   type="submit"
                   disabled={submittingReview || (!isApproveMode && adminNotes.trim().length < 3)}
                   className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${submittingReview
-                      ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      ? 'bg-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
                       : isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
                     }`}
                 >

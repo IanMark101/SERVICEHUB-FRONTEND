@@ -3,13 +3,26 @@ import { SeekerActivitySort, SeekerActivityTab } from './types';
 
 export function countSeekerActivityStatus(
   engagements: JobEngagement[],
-  status: JobEngagement['status'] | 'action_required'
+  status: JobEngagement['status'] | 'action_required' | 'before_work',
+  currentUserId?: string,
 ) {
   if (status === 'action_required') {
-    return engagements.filter((engagement) => engagement.status === 'awaiting_seeker_approval').length;
+    return engagements.filter((engagement) => seekerNeedsAction(engagement, currentUserId)).length;
   }
 
+  if (status === 'before_work') return engagements.filter((engagement) => engagement.status === 'pending_provider' || (engagement.status === 'in_progress' && !engagement.started)).length;
+
+  if (status === 'in_progress') return engagements.filter((engagement) => engagement.status === 'in_progress' && !!engagement.started).length;
+
   return engagements.filter((engagement) => engagement.status === status).length;
+}
+
+export function seekerNeedsAction(engagement: JobEngagement, currentUserId?: string) {
+  const cancellation = engagement.cancellationRequests?.[0];
+  return engagement.status === 'awaiting_seeker_approval' || !!(
+    currentUserId && cancellation && cancellation.requestedBy !== currentUserId &&
+    (cancellation.status === 'PENDING' || (cancellation.status === 'UNDER_REVIEW' && !cancellation.adminId))
+  );
 }
 
 interface FilterSeekerActivityOptions {
@@ -18,6 +31,7 @@ interface FilterSeekerActivityOptions {
   searchQuery: string;
   sortBy: SeekerActivitySort;
   categoryForEngagement: (engagement: JobEngagement) => string;
+  currentUserId?: string;
 }
 
 export function filterSeekerActivityEngagements({
@@ -25,19 +39,20 @@ export function filterSeekerActivityEngagements({
   engagements,
   searchQuery,
   sortBy,
-  categoryForEngagement
+  categoryForEngagement,
+  currentUserId,
 }: FilterSeekerActivityOptions) {
   let list = engagements;
 
   switch (activeTab) {
     case 'action_required':
-      list = engagements.filter((engagement) => engagement.status === 'awaiting_seeker_approval');
+      list = engagements.filter((engagement) => seekerNeedsAction(engagement, currentUserId));
       break;
     case 'pending':
-      list = engagements.filter((engagement) => engagement.status === 'pending_provider');
+      list = engagements.filter((engagement) => engagement.status === 'pending_provider' || (engagement.status === 'in_progress' && !engagement.started));
       break;
     case 'active':
-      list = engagements.filter((engagement) => engagement.status === 'in_progress');
+      list = engagements.filter((engagement) => engagement.status === 'in_progress' && !!engagement.started);
       break;
     case 'waiting':
       list = engagements.filter((engagement) => engagement.status === 'queued');

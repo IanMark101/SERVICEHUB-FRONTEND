@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
 import { useApp } from '../../context/AppContext';
 import {
   Lightbulb,
@@ -13,6 +14,7 @@ import {
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiGetMyCategorySuggestions } from '../../api/categories.api';
 import type { CategorySuggestion } from '../../types';
+import WorkspaceTabs from '../ui/WorkspaceTabs';
 
 interface SuggestCategoryModalProps {
   isOpen: boolean;
@@ -54,6 +56,7 @@ export default function SuggestCategoryModal({
     }, 0);
     return () => window.clearTimeout(timer);
   }, [isOpen, initialQuery, fetchMySuggestions]);
+  useApiCacheRefresh(['categories'], () => fetchMySuggestions(), isOpen);
 
   // Combine context and DB suggestions for instant optimistic update + DB persistence
   const mySuggestions =
@@ -98,8 +101,8 @@ export default function SuggestCategoryModal({
       <div
         className={`w-full max-w-xl rounded-3xl border shadow-2xl overflow-hidden transition-all duration-200 ${
           isDark
-            ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]'
-            : 'bg-white border-slate-200 text-slate-900'
+            ? 'bg-[#1c1b18] border-neutral-800 text-white'
+            : 'bg-white border-slate-200 text-ink'
         }`}
       >
         {/* Header */}
@@ -118,7 +121,7 @@ export default function SuggestCategoryModal({
             </div>
             <div>
               <h3 className="font-extrabold text-base leading-snug">Suggest a Category</h3>
-              <p className={`text-xs ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+              <p className={`text-xs ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                 Help expand Cordova’s local marketplace
               </p>
             </div>
@@ -128,53 +131,26 @@ export default function SuggestCategoryModal({
             onClick={onClose}
             className={`p-2 rounded-xl border transition-all cursor-pointer ${
               isDark
-                ? 'border-neutral-800 hover:bg-neutral-800 text-neutral-400'
-                : 'border-slate-200 hover:bg-slate-100 text-slate-500'
+                ? 'border-neutral-800 hover:bg-neutral-800 text-ink-subtle'
+                : 'border-slate-200 hover:bg-slate-100 text-ink-muted'
             }`}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Tab Toggle */}
-        <div className="px-6 pt-4 flex gap-2">
-          <button
-            onClick={() => setActiveTab('submit')}
-            className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-              activeTab === 'submit'
-                ? 'bg-orange-600 text-white shadow-sm'
-                : isDark
-                ? 'bg-[#22211e] text-neutral-400 hover:text-neutral-200'
-                : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Submit Suggestion
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`flex-1 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'history'
-                ? 'bg-orange-600 text-white shadow-sm'
-                : isDark
-                ? 'bg-[#22211e] text-neutral-400 hover:text-neutral-200'
-                : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <span>My Suggestions</span>
-            {mySuggestions.length > 0 && (
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                  activeTab === 'history'
-                    ? 'bg-white/20 text-white'
-                    : isDark
-                    ? 'bg-neutral-800 text-neutral-300'
-                    : 'bg-slate-200 text-slate-700'
-                }`}
-              >
-                {mySuggestions.length}
-              </span>
-            )}
-          </button>
+        <div className="px-6 pt-4">
+          <WorkspaceTabs
+            activeValue={activeTab}
+            onChange={setActiveTab}
+            ariaLabel="Category suggestion sections"
+            tone="seeker"
+            className="w-full"
+            items={[
+              { value: 'submit', label: 'Submit Suggestion', icon: <Send size={15} /> },
+              { value: 'history', label: 'My Suggestions', count: mySuggestions.length, icon: <Clock size={15} /> },
+            ]}
+          />
         </div>
 
         {/* Content Body */}
@@ -221,7 +197,7 @@ export default function SuggestCategoryModal({
                 <div>
                   <label
                     className={`block text-xs font-bold mb-1.5 ${
-                      isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
+                      isDark ? 'text-ink-muted' : 'text-ink-muted'
                     }`}
                   >
                     Category Name
@@ -235,8 +211,8 @@ export default function SuggestCategoryModal({
                     onChange={(e) => setName(e.target.value)}
                     className={`w-full px-4 py-2.5 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${
                       isDark
-                        ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9] focus:border-orange-500'
-                        : 'bg-white border-slate-200 text-slate-800 focus:border-orange-500'
+                        ? 'bg-[#22211e] border-neutral-800 text-white focus:border-orange-500'
+                        : 'bg-white border-slate-200 text-ink focus:border-orange-500'
                     }`}
                   />
                 </div>
@@ -244,7 +220,7 @@ export default function SuggestCategoryModal({
                 <div>
                   <label
                     className={`block text-xs font-bold mb-1.5 ${
-                      isDark ? 'text-[#b4b0a9]' : 'text-slate-600'
+                      isDark ? 'text-ink-muted' : 'text-ink-muted'
                     }`}
                   >
                     Why should we add this?
@@ -258,8 +234,8 @@ export default function SuggestCategoryModal({
                     onChange={(e) => setDescription(e.target.value)}
                     className={`w-full px-4 py-2.5 rounded-xl border outline-none font-medium text-sm resize-none transition-all focus:ring-4 focus:ring-orange-500/10 ${
                       isDark
-                        ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9] focus:border-orange-500'
-                        : 'bg-white border-slate-200 text-slate-800 focus:border-orange-500'
+                        ? 'bg-[#22211e] border-neutral-800 text-white focus:border-orange-500'
+                        : 'bg-white border-slate-200 text-ink focus:border-orange-500'
                     }`}
                   />
                 </div>
@@ -270,8 +246,8 @@ export default function SuggestCategoryModal({
                     onClick={onClose}
                     className={`px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer ${
                       isDark
-                        ? 'border-neutral-800 hover:bg-neutral-800 text-neutral-400'
-                        : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+                        ? 'border-neutral-800 hover:bg-neutral-800 text-ink-subtle'
+                        : 'border-slate-200 hover:bg-slate-100 text-ink-muted'
                     }`}
                   >
                     Cancel
@@ -281,7 +257,7 @@ export default function SuggestCategoryModal({
                     disabled={loading || !canTransact}
                     className={`px-5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer ${
                       !canTransact
-                        ? 'bg-neutral-600 text-neutral-400 cursor-not-allowed'
+                        ? 'bg-neutral-600 text-ink-subtle cursor-not-allowed'
                         : 'bg-orange-600 hover:bg-orange-700 text-white'
                     }`}
                   >
@@ -295,8 +271,8 @@ export default function SuggestCategoryModal({
             <div className="space-y-3">
               {mySuggestions.length === 0 ? (
                 <div className="text-center py-8">
-                  <Lightbulb className="w-8 h-8 mx-auto text-slate-400 mb-2 opacity-50" />
-                  <p className="text-xs font-bold text-slate-400">No suggestions submitted yet.</p>
+                  <Lightbulb className="w-8 h-8 mx-auto text-ink-subtle mb-2 opacity-50" />
+                  <p className="text-xs font-bold text-ink-subtle">No suggestions submitted yet.</p>
                   <button
                     onClick={() => setActiveTab('submit')}
                     className="mt-3 text-xs font-bold text-orange-500 hover:underline cursor-pointer"
@@ -342,7 +318,7 @@ export default function SuggestCategoryModal({
                             <h4 className="font-extrabold text-xs tracking-tight">
                               {suggestion.name}
                             </h4>
-                            <span className="text-[9px] text-slate-400 font-medium">
+                            <span className="text-[9px] text-ink-subtle font-medium">
                               • {formattedDate}
                             </span>
                           </div>
@@ -350,9 +326,9 @@ export default function SuggestCategoryModal({
                             className={`text-[10px] leading-relaxed mt-1 ${
                               isExpanded
                                 ? isDark
-                                  ? 'text-[#e2ded6]'
-                                  : 'text-slate-700'
-                                : `line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`
+                                  ? 'text-ink-secondary'
+                                  : 'text-ink-secondary'
+                                : `line-clamp-2 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`
                             }`}
                           >
                             {suggestion.description}
@@ -380,7 +356,7 @@ export default function SuggestCategoryModal({
                           )}
 
                           <ChevronDown
-                            className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                            className={`w-3.5 h-3.5 text-ink-subtle transition-transform duration-200 ${
                               isExpanded ? 'rotate-180 text-orange-500' : ''
                             }`}
                           />

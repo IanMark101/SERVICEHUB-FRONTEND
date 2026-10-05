@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Sun, Moon, Search, ExternalLink } from 'lucide-react';
+import { ArrowLeft, MagnifyingGlass, Moon, Sun } from '@phosphor-icons/react';
 import { useApp } from '@/context/AppContext';
 
 export default function HelpNavbar() {
@@ -23,55 +23,53 @@ export default function HelpNavbar() {
     : '/';
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b transition-colors duration-200 bg-white/95 dark:bg-[#161616]/95 border-slate-200 dark:border-neutral-800 text-slate-900 dark:text-[#f2efe9] backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between gap-4">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <Link href="/help" className="flex items-center gap-3 group">
-            <Image width={32} height={32} src="/logo.svg" alt="ServiceHub Logo" className="w-8 h-8 rounded-lg object-contain shadow-xs" />
-            <div className="flex flex-col">
-              <span className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">
-                ServiceHub Cordova
-              </span>
-              <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 mt-0.5 uppercase tracking-wider">
-                Help Center
-              </span>
-            </div>
+    <>
+      <header className="pointer-events-none fixed inset-x-0 top-4 z-40 px-4 text-ink dark:text-white sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+          <Link
+            href="/help"
+            className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-black/10 bg-[#fffdfa] px-3 py-2 shadow-[0_8px_22px_rgba(23,23,22,0.10)] transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-[#201f1c]"
+          >
+            <Image width={30} height={30} src="/logo.svg?v=6" alt="" className="size-[30px] rounded-lg object-contain" priority />
+            <span className="leading-none">
+              <span className="block text-xs font-semibold tracking-tight">ServiceHub</span>
+              <span className="mt-1 block text-[8px] font-bold uppercase tracking-[0.18em] text-[#c86544] dark:text-[#e18463]">Help Center</span>
+            </span>
           </Link>
-        </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-3">
+          <nav aria-label="Help center actions" className="pointer-events-auto flex items-center gap-1 rounded-2xl border border-black/10 bg-[#fffdfa] p-1.5 shadow-[0_8px_22px_rgba(23,23,22,0.10)] dark:border-white/12 dark:bg-[#201f1c]">
           <Link
             href="/help/search"
-            className="px-3.5 py-2 rounded-xl border text-xs font-medium transition-all flex items-center gap-2.5 cursor-pointer border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-[#201f1c] hover:border-slate-300 dark:hover:border-neutral-700 text-slate-600 dark:text-[#b4b0a9]"
+            className="flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-medium text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-white/[0.06] dark:hover:text-white"
           >
-            <Search className="w-3.5 h-3.5 text-slate-400" />
-            <span className="hidden md:inline text-xs">Search documentation...</span>
+            <MagnifyingGlass size={15} aria-hidden="true" />
+            <span className="hidden sm:inline">Search help</span>
           </Link>
 
           <Link
             href={backHref}
             suppressHydrationWarning
-            className="px-3.5 py-2 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border-slate-200 dark:border-neutral-800 bg-white dark:bg-[#201f1c] hover:bg-slate-50 dark:hover:bg-[#282723] text-slate-700 dark:text-[#d4cfc7] hover:text-slate-900 dark:hover:text-white"
+            className="flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-white/[0.06] dark:hover:text-white"
           >
-            <span>Back to App</span>
-            <ExternalLink className="w-3.5 h-3.5 opacity-60" />
+            <ArrowLeft size={15} aria-hidden="true" />
+            <span className="hidden md:inline">Back to app</span>
           </Link>
 
           <button
             onClick={toggleTheme}
-            aria-label="Toggle Theme"
-            className="p-2.5 rounded-xl border transition-all cursor-pointer border-slate-200 dark:border-neutral-800 bg-white dark:bg-[#201f1c] hover:bg-slate-50 dark:hover:bg-[#282723] text-slate-700 dark:text-amber-400"
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="grid size-9 cursor-pointer place-items-center rounded-xl text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-white/[0.06] dark:hover:text-white"
           >
             {mounted ? (
-              isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />
+              isDark ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />
             ) : (
               <span className="w-4 h-4 block" />
             )}
           </button>
+          </nav>
         </div>
-      </div>
-    </header>
+      </header>
+      <div className="h-20" aria-hidden="true" />
+    </>
   );
 }

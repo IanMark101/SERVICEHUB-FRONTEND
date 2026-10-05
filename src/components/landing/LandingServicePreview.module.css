@@ -1,0 +1,44 @@
+/* Share the real modal's theme tokens, scaled to the hero device container. */
+.panel.panel { max-width: none; max-height: none; border-radius: 14px; }
+.header { padding: 3cqw 5cqw; background: var(--detail-button); color: var(--detail-button-ink); }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 2cqw; }
+.category { padding: 1cqw 3cqw; border: 1px solid var(--detail-border); border-radius: 6px; background: var(--detail-surface); color: var(--detail-accent); font-size: clamp(8px, 3cqw, 11px); font-weight: 700; }
+.close { width: 5cqw; height: 5cqw; flex-shrink: 0; }
+.title { margin-top: 2cqw; font-size: clamp(15px, 6.8cqw, 24px); line-height: 1.25; font-weight: 750; letter-spacing: -.025em; }
+.priceLine { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2cqw; margin-top: 1.5cqw; font-size: clamp(8px, 3.4cqw, 12px); }
+.price { font-size: clamp(21px, 9cqw, 32px); line-height: 1.2; font-weight: 750; font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+.body { padding: 3cqw 5cqw; color: var(--detail-muted); }
+.body > * + * { margin-top: 2cqw; }
+.identity { padding-bottom: 2cqw; border-bottom: 1px solid var(--detail-border); }
+.person { display: flex; align-items: center; gap: 3cqw; }
+.avatar { display: grid; place-items: center; width: 10cqw; height: 10cqw; flex-shrink: 0; border-radius: 50%; color: var(--detail-accent); background: var(--detail-soft); }
+.avatar svg { width: 6cqw; height: 6cqw; }
+.name { color: var(--detail-ink); font-size: clamp(9px, 3.8cqw, 14px); font-weight: 700; line-height: 1.4; }
+.verified { display: flex; align-items: center; gap: 1cqw; margin-top: 1.5cqw; color: #047857; font-size: clamp(8px, 3cqw, 11px); }
+.verified svg, .star { width: 3.8cqw; height: 3.8cqw; flex-shrink: 0; }
+.panel[data-theme='dark'] .verified { color: #6ee7b7; }
+.reputation { display: flex; flex-wrap: wrap; align-items: center; gap: 2cqw; margin-top: 2cqw; font-size: clamp(8px, 3.2cqw, 12px); }
+.reputation > span { display: inline-flex; align-items: center; gap: 1cqw; }
+.star { fill: #f59e0b; color: #f59e0b; }
+.reputation :global(.trust-score-badge) { min-height: 0; padding: 1cqw 1.5cqw; font-size: clamp(8px, 3cqw, 11px); }
+.profile { display: inline-flex; align-items: center; gap: 1cqw; margin-top: 2cqw; padding: 1cqw 2cqw; border: 1px solid var(--detail-border); border-radius: 6px; font-size: clamp(8px, 3cqw, 11px); }
+.profile svg { width: 3.5cqw; height: 3.5cqw; }
+.label { font-size: clamp(9px, 3.4cqw, 12px); font-weight: 650; line-height: 1.5; }
+.description { margin-top: 1.5cqw; font-size: clamp(9px, 3.8cqw, 14px); line-height: 1.5; }
+.duration { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5cqw; padding-block: 2cqw; border-block: 1px solid var(--detail-border); font-size: clamp(9px, 3.4cqw, 12px); }
+.duration > span:last-child { display: inline-flex; align-items: center; gap: 1.5cqw; color: var(--detail-ink); font-weight: 600; }
+.duration svg, .payments svg { width: 4cqw; height: 4cqw; flex-shrink: 0; }
+.payments { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5cqw; margin-top: 1.5cqw; font-size: clamp(9px, 3.4cqw, 12px); }
+.payments > span { display: inline-flex; align-items: center; gap: 2cqw; padding: 1.5cqw 3cqw; border-radius: 7px; background: var(--detail-soft); }
+.payments img { width: clamp(36px, 20cqw, 65px); height: auto; }
+.footer { display: flex; align-items: stretch; gap: 2cqw; padding: 2cqw 5cqw; border-top: 1px solid var(--detail-border); font-size: clamp(8px, 3.4cqw, 12px); font-weight: 650; line-height: 1.5; }
+.cancel, .book { display: inline-flex; align-items: center; justify-content: center; padding: 2cqw; border-radius: 8px; }
+.cancel { color: var(--detail-muted); border: 1px solid var(--detail-border); }
+.book { flex: 1; gap: 1.5cqw; color: var(--detail-button-ink); background: var(--detail-button); }
+.book svg { width: 4cqw; height: 4cqw; flex-shrink: 0; }
+/* This is a miniature illustration, not the dashboard's actual touch targets. */
+@container (max-width: 180px) {
+  .name, .label, .description, .duration, .payments { font-size: 8px; }
+  .duration { flex-wrap: nowrap; }
+  .duration > span { white-space: nowrap; }
+}

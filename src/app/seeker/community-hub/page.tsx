@@ -1,7 +1,5 @@
-"use client";
-import React from 'react';
-import CommunityHub from '../../../components/community/CommunityHub';
+import { redirect } from 'next/navigation';
 
 export default function SeekerCommunityHubPage() {
-  return <CommunityHub />;
+  redirect('/community');
 }

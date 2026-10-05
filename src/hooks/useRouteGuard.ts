@@ -5,7 +5,7 @@ import { UserRole } from '../lib/routePolicy';
 
 export function useRouteGuard(allowedRoles: UserRole[]) {
   const router = useRouter();
-  const { isAuthenticated, authLoading, user } = useApp();
+  const { isAuthenticated, authLoading, authError, user } = useApp();
 
   // In the AppContext, normal users might have user.role as 'seeker' or 'provider'
   // but their actual database account tier is either 'user' or 'admin'.
@@ -14,22 +14,31 @@ export function useRouteGuard(allowedRoles: UserRole[]) {
   const stableAllowedRoles = useMemo(() => allowedKey.split(',') as UserRole[], [allowedKey]);
 
   useEffect(() => {
-    if (!authLoading) {
+    if (!authLoading && !authError) {
       if (!isAuthenticated) {
-        router.push('/login');
+        const sessionExpired = typeof window !== 'undefined'
+          && window.sessionStorage.getItem('servicehub:auth-notice') === 'session-expired';
+        router.replace(sessionExpired ? '/login?reason=session-expired' : '/login');
       } else if (user) {
+        if (user.moderationStatus === 'BANNED') {
+          router.replace('/account-banned');
+          return;
+        }
+        if (user.role !== 'admin' && user.emailVerified !== true) {
+          router.replace('/email-verification-required');
+          return;
+        }
         const hasAccess = stableAllowedRoles.includes(userRoleType);
         if (!hasAccess) {
-          if (userRoleType === 'admin') {
-            router.push('/admin/overview');
-          } else {
-            router.push('/dashboard');
-          }
+          router.replace('/access-denied');
         }
       }
     }
-  }, [isAuthenticated, authLoading, user, userRoleType, stableAllowedRoles, router]);
+  }, [isAuthenticated, authLoading, authError, user, userRoleType, stableAllowedRoles, router]);
 
-  const shouldRender = !authLoading && isAuthenticated && user && stableAllowedRoles.includes(userRoleType);
+  const shouldRender = !authLoading && !authError && isAuthenticated && user
+    && user.moderationStatus !== 'BANNED'
+    && (user.role === 'admin' || user.emailVerified === true)
+    && stableAllowedRoles.includes(userRoleType);
   return { shouldRender };
 }

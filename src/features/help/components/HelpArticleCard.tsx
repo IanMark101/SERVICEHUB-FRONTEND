@@ -16,7 +16,7 @@ export default function HelpArticleCard({ article, showCategory = true }: HelpAr
   return (
     <Link
       href={`/help/${article.category}/${article.slug}`}
-      className="group rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between hover:shadow-md hover:scale-[1.01] bg-white dark:bg-[#22211e] border-slate-200 dark:border-neutral-800/80 hover:border-slate-300 dark:hover:border-neutral-700 text-slate-900 dark:text-[#f2efe9] shadow-xs"
+      className="group rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between hover:shadow-md hover:scale-[1.01] bg-white dark:bg-[#22211e] border-slate-200 dark:border-neutral-800/80 hover:border-slate-300 dark:hover:border-neutral-700 text-ink dark:text-white shadow-xs"
     >
       <div>
         <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -25,7 +25,7 @@ export default function HelpArticleCard({ article, showCategory = true }: HelpAr
               {category.shortTitle || category.title}
             </span>
           )}
-          <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-neutral-500 ml-auto">
+          <div className="flex items-center gap-1 text-[10px] font-semibold text-ink-subtle dark:text-ink-subtle ml-auto">
             <Clock className="w-3 h-3" />
             <span>{article.readTimeMinutes} min read</span>
           </div>
@@ -34,7 +34,7 @@ export default function HelpArticleCard({ article, showCategory = true }: HelpAr
         <h4 className="text-sm font-bold tracking-tight group-hover:text-orange-500 transition-colors flex items-center gap-1.5">
           <span>{article.title}</span>
         </h4>
-        <p className="text-xs leading-relaxed text-slate-500 dark:text-neutral-400 mt-1.5 line-clamp-2">
+        <p className="text-xs leading-relaxed text-ink-muted dark:text-ink-muted mt-1.5 line-clamp-2">
           {article.description}
         </p>
       </div>

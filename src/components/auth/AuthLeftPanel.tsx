@@ -1,6 +1,14 @@
 import React from 'react';
 import Image from 'next/image';
-import { ArrowLeft, MapPin, Moon, ShieldCheck, Sun } from 'lucide-react';
+import {
+  ArrowLeft,
+  Briefcase,
+  Compass,
+  MapPin,
+  Moon,
+  ShieldCheck,
+  Sun,
+} from '@phosphor-icons/react';
 import { useApp } from '../../context/AppContext';
 
 interface AuthLeftPanelProps {
@@ -10,124 +18,136 @@ interface AuthLeftPanelProps {
   onBackToHome?: () => void;
 }
 
+const accessPath = [
+  {
+    title: 'Browse',
+    detail: 'Explore public services before signing in',
+    status: 'Open access',
+    icon: Compass,
+    statusClass: 'text-[#c86544] dark:text-[#e18463]',
+  },
+  {
+    title: 'Verify',
+    detail: 'Confirm residency before marketplace activity',
+    status: 'Trust gate',
+    icon: ShieldCheck,
+    statusClass: 'text-[#c86544] dark:text-[#e18463]',
+  },
+  {
+    title: 'Participate',
+    detail: 'Request help or offer local work with one profile',
+    status: 'Two roles',
+    icon: Briefcase,
+    statusClass: 'text-emerald-700 dark:text-emerald-400',
+  },
+];
+
 export default function AuthLeftPanel({
   mode,
   onBackToHome,
 }: AuthLeftPanelProps) {
   const { isDark, toggleTheme } = useApp();
+  const isSignup = mode === 'signup';
 
   return (
-    <aside aria-label="ServiceHub Cordova overview" className="relative hidden min-h-[100dvh] flex-shrink-0 flex-col justify-between overflow-hidden bg-[#f5f4f2] p-8 transition-colors duration-300 dark:bg-[#121211] lg:flex lg:w-[44%] xl:p-12">
+    <aside
+      aria-label="ServiceHub Cordova overview"
+      className="relative hidden min-h-[100dvh] flex-shrink-0 overflow-hidden bg-[#f5f4f2] p-5 text-ink lg:flex lg:w-1/2 dark:bg-[#121211] dark:text-white xl:p-7"
+    >
+      <div className="relative flex min-h-0 w-full flex-1 flex-col rounded-2xl border border-black/8 bg-[#fffdfa] shadow-[0_18px_48px_rgba(23,23,22,0.07)] dark:border-white/10 dark:bg-[#171716] dark:shadow-none">
+        <header className="flex min-h-20 items-center justify-between border-b border-black/8 px-5 dark:border-white/10 xl:px-7">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={onBackToHome}
+              className="grid size-10 cursor-pointer place-items-center rounded-xl border border-black/10 bg-[#f5f4f2] text-ink-muted transition-colors hover:border-black/20 hover:text-ink active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/68 dark:hover:border-white/24 dark:hover:text-white"
+              title="Back to Landing Page"
+              aria-label="Back to Landing Page"
+            >
+              <ArrowLeft size={18} aria-hidden="true" />
+            </button>
 
-      {/* Top Header Bar */}
-      <div className="relative z-10 flex items-center justify-between w-full">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBackToHome}
-            className="flex size-10 items-center justify-center rounded-2xl border border-neutral-200/80 bg-white/80 text-neutral-700 shadow-xs backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/80 dark:text-zinc-200 cursor-pointer"
-            title="Back to Landing Page"
-            aria-label="Back to Landing Page"
-          >
-            <ArrowLeft size={18} />
-          </button>
-
-          {/* Floating Brand Pill Matching Landing Header */}
-          <div className="flex items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-1.5 shadow-xs backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/80">
-            <Image
-              src="/logo.svg?v=3"
-              alt="ServiceHub Cordova"
-              width={26}
-              height={26}
-              className="size-6.5 rounded-lg"
-              priority
-            />
-            <div className="leading-none pr-1">
-              <span className="block text-xs font-semibold tracking-tight text-[#0a0a0a] dark:text-white">
-                ServiceHub
-              </span>
-              <span className="mt-0.5 block text-[8.5px] font-bold uppercase tracking-[0.2em] text-[#c86544]">
-                Cordova
-              </span>
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/logo.svg?v=6"
+                alt="ServiceHub Cordova"
+                width={30}
+                height={30}
+                className="size-[30px] rounded-lg"
+                priority
+              />
+              <div className="leading-none">
+                <span className="block text-xs font-semibold tracking-tight text-ink dark:text-white">
+                  ServiceHub
+                </span>
+                <span className="mt-1 block text-[8px] font-bold uppercase tracking-[0.2em] text-[#c86544] dark:text-[#e18463]">
+                  Cordova
+                </span>
+              </div>
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="grid size-10 cursor-pointer place-items-center rounded-xl border border-black/10 bg-[#f5f4f2] text-ink-muted transition-colors hover:border-black/20 hover:text-ink active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/68 dark:hover:border-white/24 dark:hover:text-white"
+            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDark ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
+          </button>
+        </header>
+
+        <div className="flex min-h-0 flex-1 flex-col justify-center px-7 py-8 xl:px-11 xl:py-10">
+          <h1 className="mx-auto max-w-[15ch] text-center text-[clamp(2.35rem,3.05vw,3.25rem)] font-medium leading-[1.02] tracking-[-0.04em] text-ink dark:text-white">
+            {isSignup
+              ? 'One account for local help and local work.'
+              : 'Welcome back to your local service community.'}
+          </h1>
+
+          <p className="mx-auto mt-5 max-w-[32rem] text-center text-sm leading-6 text-ink-muted dark:text-white/64 xl:text-[15px]">
+            {isSignup
+              ? 'Move between Seeker and Provider workspaces without splitting your profile, verification, or trust history.'
+              : 'Manage requests, listings, messages, and bookings under one verified local identity.'}
+          </p>
+
+          <div className="mx-auto mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-[#d49b86]/55 bg-[#faf5f2] px-3 py-1.5 text-[11px] font-medium text-[#aa5032] dark:border-[#e18463]/35 dark:bg-[#e18463]/8 dark:text-[#e9a58c]">
+            <MapPin size={14} aria-hidden="true" />
+            <span>Built for Cordova, Cebu</span>
+          </div>
+
+          <section aria-label="How ServiceHub access works" className="mx-auto mt-5 w-full max-w-[33rem] rounded-2xl border border-black/8 bg-[#f5f4f2] px-5 shadow-[0_10px_28px_rgba(23,23,22,0.04)] dark:border-white/10 dark:bg-white/[0.035] dark:shadow-none">
+            <div className="flex items-center justify-between border-b border-black/8 py-4 dark:border-white/10">
+              <h2 className="text-xs font-semibold text-ink dark:text-white/88">
+                How access works
+              </h2>
+              <span className="text-[10px] font-medium text-ink-subtle dark:text-white/48">One local account</span>
+            </div>
+
+            <ol>
+              {accessPath.map(({ title, detail, status, icon: Icon, statusClass }) => (
+                <li
+                  key={title}
+                  className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-black/8 py-3.5 last:border-b-0 dark:border-white/10"
+                >
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#fffdfa] text-[#c86544] dark:bg-white/[0.055] dark:text-[#e18463]">
+                    <Icon size={16} aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-ink dark:text-white/90">{title}</span>
+                    <span className="mt-0.5 block text-[11px] leading-4 text-ink-muted dark:text-white/56">{detail}</span>
+                  </span>
+                  <span className={`pl-2 text-[10px] font-semibold ${statusClass}`}>{status}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
         </div>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="flex size-10 items-center justify-center rounded-2xl border border-neutral-200/80 bg-white/80 text-neutral-700 shadow-xs backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/80 dark:text-zinc-200 cursor-pointer"
-          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        >
-          {isDark ? <Sun size={17} /> : <Moon size={17} />}
-        </button>
-      </div>
-
-      {/* Main Showcase Centerpiece */}
-      <div className="relative z-10 w-full max-w-lg mx-auto my-auto flex flex-col items-start text-left py-6">
-        
-        {/* Product context */}
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.08] px-3.5 py-1 text-[12px] font-medium tracking-tight text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
-          <MapPin size={13} aria-hidden="true" />
-          <span>Built for Cordova, Cebu</span>
-        </div>
-
-        {/* Display Title (Identical Sans Scale to Landing Hero) */}
-        <h1 className="font-sans text-3xl lg:text-[2.35rem] xl:text-[2.65rem] font-semibold tracking-tight text-[#0a0a0a] dark:text-white leading-[1.08]">
-          {mode === 'signup'
-            ? 'One account for local help and local work.'
-            : 'Welcome back to your local service community.'}
-        </h1>
-
-        {/* Subhead and Tagline */}
-        <p className="mt-2.5 text-base font-normal leading-snug tracking-tight text-neutral-800 dark:text-neutral-200">
-          {mode === 'signup'
-            ? 'Move between Seeker and Provider workspaces without splitting your profile, verification, or trust history.'
-            : 'Sign in to manage requests, service listings, messages, and booking activity under one identity.'}
-        </p>
-
-        <section
-          aria-label="How ServiceHub access works"
-          className="mt-6 w-full overflow-hidden rounded-2xl border border-black/10 bg-[#171716] p-5 text-white shadow-[0_16px_36px_-18px_rgba(15,15,15,0.35)] dark:border-white/10"
-        >
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#e18463]">
-            <ShieldCheck size={15} aria-hidden="true" />
-            <span>One local marketplace</span>
-          </div>
-          <h2 className="mt-3 max-w-md text-xl font-semibold leading-tight tracking-tight">
-            Browse first. Verify when you are ready to transact.
-          </h2>
-
-          <ol className="mt-5 grid grid-cols-3 border-y border-white/10 py-4">
-            {[
-              ['01', 'Browse', 'Explore public services'],
-              ['02', 'Verify', 'Confirm local eligibility'],
-              ['03', 'Participate', 'Request or offer work'],
-            ].map(([number, title, detail], index) => (
-              <li
-                key={number}
-                className={`min-w-0 px-3 first:pl-0 last:pr-0 ${index > 0 ? 'border-l border-white/10' : ''}`}
-              >
-                <span className="text-[10px] font-semibold tracking-[0.16em] text-white/45">{number}</span>
-                <span className="mt-1 block text-sm font-semibold">{title}</span>
-                <span className="mt-1 block text-[11px] leading-snug text-white/55">{detail}</span>
-              </li>
-            ))}
-          </ol>
-
-          <div className="mt-4 flex items-center gap-5 text-xs font-medium">
-            <span className="text-[#e18463]">Seek services</span>
-            <span className="h-3 w-px bg-white/15" aria-hidden="true" />
-            <span className="text-emerald-400">Offer services</span>
-          </div>
-        </section>
-
-      </div>
-
-      {/* Footer Assurance */}
-      <div className="relative z-10 flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400 pt-3 border-t border-black/[0.06] dark:border-white/10">
-        <span>Cordova, Cebu, Philippines</span>
-        <span>Online payments use PayMongo Test Mode</span>
+        <footer className="grid grid-cols-2 gap-5 border-t border-black/8 px-5 py-4 text-[10px] leading-4 text-ink-subtle dark:border-white/10 dark:text-white/48 xl:px-7">
+          <span>Cordova, Cebu, Philippines</span>
+          <span className="text-right">Online payments use PayMongo Test Mode</span>
+        </footer>
       </div>
     </aside>
   );

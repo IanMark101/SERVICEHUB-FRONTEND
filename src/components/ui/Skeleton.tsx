@@ -20,14 +20,15 @@ export default function Skeleton({
   };
 
   const animationStyles = {
-    pulse: 'animate-pulse',
-    shimmer: 'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent',
+    pulse: 'workspace-skeleton--pulse',
+    shimmer: 'workspace-skeleton--shimmer',
     none: '',
   };
 
   return (
     <div
-      className={`bg-slate-200 dark:bg-neutral-800/80 ${variantStyles[variant]} ${animationStyles[animate]} ${className}`}
+      className={`workspace-skeleton ${variantStyles[variant]} ${animationStyles[animate]} ${className}`}
+      aria-hidden="true"
       {...props}
     />
   );

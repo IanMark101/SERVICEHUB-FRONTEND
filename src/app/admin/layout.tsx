@@ -9,6 +9,7 @@ import { apiLogout } from '../../api/auth.api';
 import { useRouteGuard } from '../../hooks/useRouteGuard';
 import { clearAccessToken } from '../../lib/api/axios';
 import { ShieldCheck } from 'lucide-react';
+import BrandLoading from '@/components/ui/BrandLoading';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -52,20 +53,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fbfaf7] dark:bg-[#191919]">
-        <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin dark:border-neutral-100 dark:border-t-transparent"></div>
-      </div>
-    );
+    return <BrandLoading label="Opening the Admin workspace" />;
   }
 
-  if (!shouldRender) return null;
+  if (!shouldRender) return <BrandLoading label="Checking workspace access" />;
 
-  const activeTab = pathname.split('/').pop() || 'overview';
+  const activeTab = pathname.split('/')[2] || 'overview';
 
   return (
     <div className={`admin-workspace h-screen overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#171717] text-[#f2efe9]' : 'bg-[#f5f6f8] text-slate-800'
+      isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'
     }`}>
       
       {/* Sidebar Component */}
@@ -99,9 +96,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
 
         {/* Warning strip */}
-        <div className="flex items-center justify-center gap-2 border-b border-slate-200 bg-white px-4 py-2 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:border-neutral-800 dark:bg-[#1d1d1d] dark:text-neutral-400">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          <span>Restricted administrator workspace · Actions are recorded in the audit log</span>
+        <div>
+          <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+            <div className="my-1 flex items-center justify-center gap-2 rounded-xl bg-[var(--admin-soft)] py-2 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--admin-accent)] ring-1 ring-inset ring-[var(--admin-border)]">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>Restricted administrator workspace · Actions are recorded in the audit log</span>
+            </div>
+          </div>
         </div>
  
         {/* Scrollable Layout Content Canvas */}

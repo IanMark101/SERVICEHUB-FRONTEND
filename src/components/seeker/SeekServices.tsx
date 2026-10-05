@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
-import { Search } from 'lucide-react';
+import { MagnifyingGlass as Search } from '@phosphor-icons/react';
 import RequestServiceModal from './RequestServiceModal';
 import { usePagination } from '../../hooks/usePagination';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
@@ -18,7 +18,7 @@ import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 
 export default function SeekServices() {
   const router = useRouter();
-  const { services, users, isDark, user, dbCategories, jobEngagements } = useApp();
+  const { services, servicesStatus, refreshServices, users, isDark, user, dbCategories, jobEngagements } = useApp();
   const { canTransact } = useTransactionPermission();
   const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -31,12 +31,7 @@ export default function SeekServices() {
 
   // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 450);
-    return () => clearTimeout(t);
-  }, []);
+  const isLoading = servicesStatus === 'loading' && services.length === 0;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -51,23 +46,25 @@ export default function SeekServices() {
 
   const handleCategoryChange = (cat: string) => {
     if (cat === selectedCategory) return;
-    setIsLoading(true);
     setLinkedServiceId(null);
     setSelectedCategory(cat);
-    setTimeout(() => setIsLoading(false), 300);
   };
 
   const handleFilterChange = (filter: typeof activeFilter) => {
     if (filter === activeFilter) return;
-    setIsLoading(true);
     setActiveFilter(filter);
-    setTimeout(() => setIsLoading(false), 250);
   };
 
   const categories = [
     'All Categories',
     ...dbCategories.map(c => c.name)
   ];
+  const quickFilters = [
+    { id: 'all', label: 'All', title: 'Show all active listings' },
+    { id: 'available', label: 'Available Now', title: 'Listings with open queue capacity' },
+    { id: 'rated', label: 'Top Rated', title: 'Listings rated 4.0 or higher' },
+    { id: 'low-queue', label: 'Low Queue', title: 'Listings with two or fewer people in queue' },
+  ] as const;
 
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'GCash' | 'On-site Cash'>('On-site Cash');
@@ -143,7 +140,7 @@ export default function SeekServices() {
 
   // Filter listings based on category tabs, search strings, and quick filter options
   const filteredServices = services.filter(service => {
-    // 0. Marketplace visibility guard: hide paused or unapproved listings
+    // 0. Marketplace visibility guard: hide paused or unpublished listings
     if (service.isPaused) return false;
     if (service.status && service.status !== 'ACTIVE') return false;
 
@@ -169,13 +166,13 @@ export default function SeekServices() {
     if (activeFilter === 'available') {
       // Show services that are not paused AND not at queue capacity
       const queueLimit = service.queueLimit ?? 5;
-      matchesQuickFilter = !service.isPaused && service.queueSize < queueLimit;
+      matchesQuickFilter = !service.isPaused && (service.providerWaitingCount ?? service.queueSize) < queueLimit;
     } else if (activeFilter === 'rated') {
       // Top Rated: trustScore >= 80 → rating >= 4.0 (trustScore / 20)
       matchesQuickFilter = service.rating >= 4.0;
     } else if (activeFilter === 'low-queue') {
       // Low queue: 2 or fewer people in line
-      matchesQuickFilter = service.queueSize <= 2;
+      matchesQuickFilter = (service.providerWaitingCount ?? service.queueSize) <= 2;
     }
     return matchesSearch && matchesCategory && matchesQuickFilter;
   });
@@ -207,28 +204,39 @@ export default function SeekServices() {
   }, [paginatedServices]);
 
   return (
-    <div className={`space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       <LimitedModeDashboardCard role="seeker" />
 
-      {/* Search Banner */}
-      <div className={`rounded-[24px] p-8 border shadow-sm relative overflow-hidden text-center flex flex-col items-center justify-center transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
-        }`}>
-        <div className="max-w-2xl relative z-10 space-y-3 w-full">
-          <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+      {/* Search Banner: Warm, integrated discovery hero */}
+      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:from-[#1e1d1a] dark:to-[#171615] dark:shadow-none">
+        {/* Subtle warm accent hairline */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#c86544]/50 to-transparent" />
+
+        <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
+          <h2 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">
             Find local experts for any task.
           </h2>
-          <p className={`text-xs sm:text-sm max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+          <p className="mx-auto max-w-md text-xs leading-relaxed text-ink-muted dark:text-ink-muted sm:text-sm">
             Search our trusted community marketplace for specialized services.
           </p>
 
           {/* Inputs Row inside Banner */}
-          <div className={`flex items-center rounded-2xl p-1.5 shadow-inner mt-6 max-w-xl mx-auto w-full border ${isDark ? 'bg-[#1c1b18] border-neutral-800/85' : 'bg-slate-50 border-slate-200'
-            }`}>
-            <span className={`pl-3 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+          <form role="search" onSubmit={(event) => {
+            event.preventDefault();
+            document.getElementById('service-results')?.scrollIntoView({
+              behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+              block: 'start',
+            });
+          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-[#c86544]/20 ${
+            isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-white border-black/10'
+          }`}>
+            <span className={`pl-3 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
               <Search className="w-4 h-4" />
             </span>
+            <label htmlFor="service-search-query" className="sr-only">Search service listings</label>
             <input
+              id="service-search-query"
               type="text"
               placeholder="What service are you looking for?"
               value={searchQuery}
@@ -236,92 +244,54 @@ export default function SeekServices() {
                 setLinkedServiceId(null);
                 setSearchQuery(e.target.value);
               }}
-              className={`w-full bg-transparent border-none py-2 px-3 text-xs focus:outline-none ${isDark ? 'text-[#f2efe9] placeholder-neutral-500' : 'text-slate-800 placeholder-slate-400'
-                }`}
+              className={`service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm focus:outline-none ${
+                isDark ? 'text-white placeholder:text-ink-muted' : 'text-ink placeholder:text-ink-muted'
+              }`}
             />
             <button
-              type="button"
-              className="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex-shrink-0"
+              type="submit"
+              aria-controls="service-results"
+              className="workspace-primary-button flex-shrink-0 rounded-lg border px-3 py-2 text-xs font-bold transition-all sm:px-5"
             >
               Search
             </button>
-          </div>
+          </form>
         </div>
       </div>
 
       {/* Quick Filters Row */}
-      <div className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
-        <span className={`text-[10px] font-bold uppercase tracking-wider mr-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-455'}`}>Quick Filters:</span>
-        <button
-          onClick={() => handleFilterChange('all')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'all'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
+      <div role="group" aria-label="Quick service filters" className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-black/10'}`}>
+        <span className={`mr-2 text-xs font-semibold ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>Quick filters</span>
+        {quickFilters.map((filter) => (
+          <button
+            key={filter.id}
+            type="button"
+            aria-pressed={activeFilter === filter.id}
+            onClick={() => handleFilterChange(filter.id)}
+            title={filter.title}
+            className={`min-h-10 rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors ${activeFilter === filter.id
+              ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]' : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
+              : isDark ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white' : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
             }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => handleFilterChange('available')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'available'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-            }`}
-          title="Filter by listings that are not paused"
-        >
-          Available Now
-        </button>
-        <button
-          onClick={() => handleFilterChange('rated')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'rated'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-            }`}
-          title="Filter by rating 4.8 and above"
-        >
-          Top Rated
-        </button>
-        <button
-          onClick={() => handleFilterChange('low-queue')}
-          className={`px-3 py-1 rounded-xl text-[10px] font-bold border transition-all ${activeFilter === 'low-queue'
-              ? isDark
-                ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                : 'bg-orange-50 text-orange-600 border border-orange-200'
-              : isDark
-                ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
-            }`}
-          title="Filter by low workload queue size"
-        >
-          Low Queue
-        </button>
+          >{filter.label}</button>
+        ))}
       </div>
 
       {/* Horizontal Category pills row */}
-      <div className="flex flex-wrap gap-2.5 mt-2">
+      <div role="group" aria-label="Service categories" className="mt-2 flex flex-wrap gap-2">
         {categories.map((cat) => (
           <button
             key={cat}
+            type="button"
+            aria-pressed={selectedCategory === cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${selectedCategory === cat
+            className={`min-h-10 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${selectedCategory === cat
                 ? isDark
-                  ? 'bg-[#f2efe9] border-[#f2efe9] text-slate-950'
-                  : 'bg-[#1a2238] border-[#1a2238] text-white shadow-sm'
+                  ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]'
+                  : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
                 : isDark
-                  ? 'bg-[#22211e] hover:bg-[#2c2b27] border-neutral-850 text-[#b4b0a9]'
-                  : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-600'
+                  ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white'
+                  : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
               }`}
           >
             {cat}
@@ -329,11 +299,14 @@ export default function SeekServices() {
         ))}
       </div>
 
+      <div id="service-results" className="marketplace-results scroll-mt-24">
       <ServiceMarketplaceGrid
         model={{
           router,
           isDark,
           isLoading,
+          servicesError: servicesStatus === 'error',
+          refreshServices,
           activeFilter,
           setActiveFilter,
           searchQuery,
@@ -361,6 +334,7 @@ export default function SeekServices() {
           prefetchProviderSummary
         }}
       />
+      </div>
 
       {/* Direct Booking Modal trigger */}
       {selectedListing && (

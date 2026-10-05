@@ -1,0 +1,81 @@
+/* Share field chrome, leaving layout, validation and actions with each form.
+   Important declarations replace the old utility/inline field chrome. */
+:root {
+  --form-accent: #c86544;
+  --form-surface: #fffdfa;
+  --form-border: #dedbd5;
+  --form-border-hover: #b8b3aa;
+  --form-invalid: #b42318;
+  --form-menu-hover: #f5f3ef;
+  --form-menu-shadow: 0 16px 40px -12px rgb(23 23 22 / 22%);
+  --form-overlay-layer: 90; /* Above the existing dialog layers (50–80). */
+}
+.dark {
+  --form-surface: #1c1b18;
+  --form-border: #504c46;
+  --form-border-hover: #77716a;
+  --form-invalid: #fca5a5;
+  --form-menu-hover: #2c2925;
+  --form-menu-shadow: 0 16px 40px -12px rgb(0 0 0 / 60%);
+}
+.workspace-shell, .admin-workspace { --form-accent: var(--workspace-focus); }
+/* Body portals inherit the active route's tone without depending on auth state. */
+body:has(.workspace-shell--provider) { --form-accent: #059669; }
+body:has(.admin-workspace) { --form-accent: #ae3333; }
+.dark body:has(.admin-workspace) { --form-accent: #f2605c; }
+[data-form-tone="seeker"] { --form-accent: #c86544; }
+[data-form-tone="provider"] { --form-accent: #059669; }
+[data-form-tone="admin"] { --form-accent: var(--admin-accent, #ae3333); }
+
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="color"]):not([type="submit"]):not([type="button"]):not(.service-search-input):not(.workspace-header-control), textarea, select.form-select__control):not([data-form-unstyled]) {
+  min-height: 44px;
+  border: 1px solid var(--form-border) !important;
+  border-radius: 12px !important;
+  background-color: var(--form-surface) !important;
+  color: var(--text-primary) !important;
+  caret-color: var(--form-accent);
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+:is(input, textarea, select.form-select__control):not(:is([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], .service-search-input, .workspace-header-control, [data-form-unstyled])):not(:disabled):hover { border-color: var(--form-border-hover) !important; }
+:is(input, textarea, select.form-select__control):not(:is([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], .service-search-input, .workspace-header-control, [data-form-unstyled])):not(:disabled):focus {
+  border-color: var(--form-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important;
+}
+:is(input, textarea, select.form-select__control):not(:is([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], .service-search-input, .workspace-header-control, [data-form-unstyled]))::placeholder { color: var(--text-muted) !important; opacity: 1; }
+:is(input, textarea, select.form-select__control)[aria-invalid="true"]:not(:disabled):not([data-form-unstyled]) { border-color: var(--form-invalid) !important; }
+:is(input, textarea, select.form-select__control)[aria-invalid="true"]:focus:not([data-form-unstyled]) { border-color: var(--form-invalid) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-invalid) 18%, transparent) !important; }
+:is(input, textarea, select.form-select__control):disabled:not([data-form-unstyled]) { cursor: not-allowed; opacity: .65; }
+.password-field__control.is-valid input:not(:focus) { border-color: #059669 !important; }
+.dark .password-field__control.is-valid input:not(:focus) { border-color: #6ee7b7 !important; }
+input:is([type="checkbox"], [type="radio"]) { accent-color: var(--form-accent) !important; }
+input:is([type="checkbox"], [type="radio"]):focus-visible { outline: 2px solid var(--form-accent) !important; outline-offset: 3px; box-shadow: none !important; }
+
+/* Compound search fields keep their existing wrapper and a single focus ring. */
+.service-search-input, .service-search-input:focus { outline: none !important; box-shadow: none !important; }
+.workspace-header-control:focus { outline: none !important; border-color: var(--form-accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important; }
+.service-search-control:focus-within { border-color: var(--form-accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important; }
+.form-control-group { min-height: 44px; border: 1px solid var(--form-border) !important; border-radius: 12px !important; background: var(--form-surface) !important; transition: border-color 150ms ease, box-shadow 150ms ease; }
+.form-control-group:hover { border-color: var(--form-border-hover) !important; }
+.form-control-group:focus-within { border-color: var(--form-accent) !important; outline: none !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important; }
+.form-control-group input[data-form-unstyled] { min-width: 0; border: 0 !important; background: transparent !important; outline: none !important; box-shadow: none !important; color: var(--text-primary); caret-color: var(--form-accent); }
+
+.form-select { position: relative; display: block; width: 100%; min-width: 0; }
+.form-select--compact { width: auto; max-width: 100%; }
+select.form-select__control { display: block; width: 100%; appearance: none; padding: 10px 40px 10px 14px; cursor: pointer; font: inherit; font-size: 14px; text-overflow: ellipsis; }
+.form-select__chevron { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted); transition: transform 150ms ease; }
+.form-select__chevron.is-open { color: var(--form-accent); transform: translateY(-50%) rotate(180deg); }
+.form-select__menu { position: fixed; z-index: var(--form-overlay-layer); margin: 0; overflow-y: auto; overscroll-behavior: contain; padding: 6px; border: 1px solid var(--form-border); border-radius: 16px; background: var(--form-surface); color: var(--text-primary); box-shadow: var(--form-menu-shadow); scrollbar-width: thin; scrollbar-color: var(--form-border-hover) transparent; }
+.form-select__option { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 10px 14px; border-radius: 10px; font-size: 14px; font-weight: 500; line-height: 1.5; cursor: pointer; overflow-wrap: anywhere; }
+.form-select__option[aria-disabled="true"] { color: var(--text-muted); cursor: not-allowed; opacity: .65; }
+.form-select__option[data-active="true"]:not([aria-disabled="true"]) { background: var(--form-menu-hover); }
+.form-select__option[aria-selected="true"]:not([aria-disabled="true"]) { color: var(--form-accent); background: color-mix(in srgb, var(--form-accent) 10%, var(--form-surface)); font-weight: 600; }
+.dark .form-select__option[aria-selected="true"]:not([aria-disabled="true"]) { color: color-mix(in srgb, var(--form-accent) 55%, white); }
+@media (max-width: 639px) {
+  :is(input, textarea, select.form-select__control):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not(.service-search-input):not(.workspace-header-control):not([data-form-unstyled]) { font-size: 16px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(input, textarea, select.form-select__control), .form-select__chevron { transition: none !important; }
+}

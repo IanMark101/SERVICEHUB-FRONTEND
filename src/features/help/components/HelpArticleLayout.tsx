@@ -1,18 +1,21 @@
 "use client";
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  Share2,
-  Check,
-  Smile,
-  Meh,
-  Frown,
+  ArrowLeft,
   ArrowRight,
+  BookOpen,
+  Check,
   Info,
-  AlertTriangle,
   Lightbulb,
-  CheckCircle2,
-} from 'lucide-react';
+  SealCheck,
+  ShareNetwork,
+  Smiley,
+  SmileyMeh,
+  SmileySad,
+  Warning,
+} from '@phosphor-icons/react';
 import { HelpArticle, ArticleCallout, ArticleExample } from '../types/help.types';
 import { getCategoryBySlug, getRelatedArticles } from '../data';
 import HelpBreadcrumbs from './HelpBreadcrumbs';
@@ -23,232 +26,227 @@ interface HelpArticleLayoutProps {
   nextArticle?: HelpArticle;
 }
 
-export default function HelpArticleLayout({
-  article,
-}: HelpArticleLayoutProps) {
+type CopyState = 'idle' | 'copied' | 'failed';
+
+export default function HelpArticleLayout({ article, prevArticle, nextArticle }: HelpArticleLayoutProps) {
   const category = getCategoryBySlug(article.category);
   const relatedArticles = getRelatedArticles(article, 4);
   const [feedbackGiven, setFeedbackGiven] = useState<'positive' | 'neutral' | 'negative' | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<CopyState>('idle');
+  const guideHeadings = article.sections.flatMap((section, index) =>
+    section.heading ? [{ id: `article-section-${index}`, label: section.heading }] : [],
+  );
 
-  const handleCopyLink = () => {
-    if (typeof window !== 'undefined') {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopyState('copied');
+    } catch {
+      setCopyState('failed');
     }
+
+    window.setTimeout(() => setCopyState('idle'), 2200);
   };
 
   const renderCallout = (callout: ArticleCallout) => {
     const configs = {
       tip: {
-        border: 'border-l-4 border-amber-500',
-        bg: 'bg-amber-50/70 dark:bg-amber-950/20 text-slate-800 dark:text-neutral-200',
+        background: 'border-amber-200/80 bg-amber-50/70 dark:border-amber-900/50 dark:bg-amber-950/20',
         icon: Lightbulb,
-        iconColor: 'text-amber-500',
+        iconColor: 'text-amber-700 dark:text-amber-300',
         defaultTitle: 'Tip',
       },
       info: {
-        border: 'border-l-4 border-blue-500',
-        bg: 'bg-blue-50/70 dark:bg-blue-950/20 text-slate-800 dark:text-neutral-200',
+        background: 'border-[#d9d3cc] bg-[#f5f4f2] dark:border-white/12 dark:bg-white/[0.05]',
         icon: Info,
-        iconColor: 'text-blue-500',
+        iconColor: 'text-[#c86544] dark:text-[#e18463]',
         defaultTitle: 'Note',
       },
       warning: {
-        border: 'border-l-4 border-red-500',
-        bg: 'bg-red-50/70 dark:bg-red-950/20 text-slate-800 dark:text-neutral-200',
-        icon: AlertTriangle,
-        iconColor: 'text-red-500',
+        background: 'border-red-200/80 bg-red-50/70 dark:border-red-900/45 dark:bg-red-950/20',
+        icon: Warning,
+        iconColor: 'text-red-700 dark:text-red-300',
         defaultTitle: 'Important',
       },
       important: {
-        border: 'border-l-4 border-emerald-500',
-        bg: 'bg-emerald-50/70 dark:bg-emerald-950/20 text-slate-800 dark:text-neutral-200',
-        icon: CheckCircle2,
-        iconColor: 'text-emerald-500',
+        background: 'border-emerald-200/80 bg-emerald-50/70 dark:border-emerald-900/45 dark:bg-emerald-950/20',
+        icon: SealCheck,
+        iconColor: 'text-emerald-700 dark:text-emerald-300',
         defaultTitle: 'Requirement',
       },
     };
 
-    const cfg = configs[callout.type] || configs.info;
-    const Icon = cfg.icon;
+    const config = configs[callout.type] || configs.info;
+    const Icon = config.icon;
 
     return (
-      <div className={`my-6 p-5 rounded-r-2xl ${cfg.border} ${cfg.bg}`}>
+      <aside className={`my-8 rounded-2xl border p-5 sm:p-6 ${config.background}`}>
         <div className="flex items-start gap-3.5">
-          <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${cfg.iconColor}`} />
-          <div className="space-y-1 text-sm sm:text-base leading-relaxed">
-            <p className="font-bold text-xs sm:text-sm uppercase tracking-wider opacity-90">
-              {callout.title || cfg.defaultTitle}
-            </p>
-            <p>{callout.text}</p>
+          <Icon size={20} weight="regular" className={`mt-0.5 shrink-0 ${config.iconColor}`} aria-hidden="true" />
+          <div>
+            <p className="text-sm font-semibold text-ink dark:text-white">{callout.title || config.defaultTitle}</p>
+            <p className="mt-2 text-sm leading-6 text-ink-secondary dark:text-white/68">{callout.text}</p>
           </div>
         </div>
-      </div>
+      </aside>
     );
   };
 
-  const renderExample = (example: ArticleExample) => {
-    return (
-      <div className="my-6 p-5 sm:p-6 rounded-2xl border bg-slate-50 dark:bg-[#1a1916] border-slate-200 dark:border-neutral-800 text-slate-700 dark:text-neutral-300 shadow-2xs">
-        <p className="text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 mb-2">
-          {example.title}
-        </p>
-        <p className="text-sm sm:text-base leading-relaxed">
-          {example.description}
-        </p>
-      </div>
-    );
-  };
+  const renderExample = (example: ArticleExample) => (
+    <aside className="my-8 rounded-2xl border border-black/8 bg-[#fffdfa] p-5 shadow-[0_10px_26px_rgba(23,23,22,0.045)] dark:border-white/10 dark:bg-white/[0.04] sm:p-6">
+      <p className="text-sm font-semibold text-ink dark:text-white">{example.title}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-muted dark:text-white/64">{example.description}</p>
+    </aside>
+  );
+
+  const shareLabel = copyState === 'copied' ? 'Link copied' : copyState === 'failed' ? 'Copy unavailable' : 'Share guide';
 
   return (
-    <div className="max-w-4xl lg:max-w-5xl mx-auto py-2">
-      {/* Breadcrumbs */}
+    <div className="space-y-14 pb-4 sm:space-y-18">
       <HelpBreadcrumbs
         items={[
-          {
-            label: category?.title || 'Collection',
-            href: category ? `/help/${category.slug}` : undefined,
-          },
+          { label: category?.title || 'Collection', href: category ? `/help/${category.slug}` : undefined },
           { label: article.title },
         ]}
       />
 
-      {/* Article Header */}
-      <header className="space-y-4 pb-8 border-b border-slate-200 dark:border-neutral-800">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+      <header className="relative max-w-5xl border-b border-black/10 pb-9 dark:border-white/10 sm:pb-11">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-20 -z-10 h-72 w-[42rem] max-w-[90vw] rounded-full bg-[#d97757]/8 blur-[120px] dark:bg-[#c86544]/6" />
+        <div className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">
+          <BookOpen size={16} className="text-[#c86544] dark:text-[#e18463]" aria-hidden="true" />
+          <span>{category?.title || 'Help guide'}</span>
+        </div>
+        <h1 className="mt-6 max-w-[20ch] text-[clamp(2.5rem,4.8vw,5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-ink dark:text-white">
           {article.title}
         </h1>
-
-        <p className="text-base sm:text-lg text-slate-600 dark:text-neutral-300 leading-relaxed font-normal">
+        <p className="mt-6 max-w-3xl text-base leading-7 text-ink-muted dark:text-white/64 sm:text-lg sm:leading-8">
           {article.description}
         </p>
-
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 text-xs sm:text-sm text-slate-500 dark:text-neutral-400">
-          <div className="flex items-center gap-3">
-            <span>Updated {article.lastUpdated}</span>
-            <span>·</span>
-            <span>{article.readTimeMinutes} min read</span>
-          </div>
-
+        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 text-xs text-ink-subtle dark:text-white/48">
+          <span>{article.readTimeMinutes} min read</span>
+          <span>Updated {article.lastUpdated}</span>
           <button
+            type="button"
             onClick={handleCopyLink}
-            className="flex items-center gap-1.5 font-semibold text-slate-600 dark:text-neutral-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 font-semibold text-ink-muted transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-white/64 dark:hover:text-[#e18463]"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Share2 className="w-4 h-4" />}
-            <span>{copied ? 'Link copied' : 'Share'}</span>
+            {copyState === 'copied' ? <Check size={16} aria-hidden="true" /> : <ShareNetwork size={16} aria-hidden="true" />}
+            {shareLabel}
           </button>
         </div>
       </header>
 
-      {/* Article Body */}
-      <div className="prose dark:prose-invert max-w-none pt-8 space-y-10">
-        {article.sections.map((section, idx) => (
-          <section key={idx} className="space-y-4">
-            {section.heading && (
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight pt-2">
-                {section.heading}
-              </h2>
-            )}
-
-            {section.paragraphs && section.paragraphs.map((p, pIdx) => (
-              <p key={pIdx} className="text-sm sm:text-base leading-relaxed text-slate-700 dark:text-neutral-300">
-                {p}
-              </p>
-            ))}
-
-            {section.bullets && (
-              <ul className="list-disc pl-6 space-y-2.5 text-sm sm:text-base text-slate-700 dark:text-neutral-300">
-                {section.bullets.map((bullet, bIdx) => (
-                  <li key={bIdx} className="leading-relaxed">
-                    {bullet}
-                  </li>
+      <div className="grid gap-10 lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-14">
+        <aside className="hidden lg:sticky lg:top-24 lg:block">
+          {guideHeadings.length > 0 && (
+            <nav aria-label="In this guide" className="border-l border-black/10 pl-4 dark:border-white/10">
+              <p className="text-sm font-semibold text-ink dark:text-white">In this guide</p>
+              <div className="mt-4 space-y-3">
+                {guideHeadings.map((heading) => (
+                  <a key={heading.id} href={`#${heading.id}`} className="block text-xs leading-5 text-ink-muted transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c86544] dark:text-white/56 dark:hover:text-[#e18463]">
+                    {heading.label}
+                  </a>
                 ))}
-              </ul>
-            )}
+              </div>
+            </nav>
+          )}
+        </aside>
 
-            {section.steps && (
-              <ol className="list-decimal pl-6 space-y-3 text-sm sm:text-base text-slate-700 dark:text-neutral-300 my-4">
-                {section.steps.map((step, sIdx) => (
-                  <li key={sIdx} className="leading-relaxed pl-1">
-                    {step}
-                  </li>
-                ))}
-              </ol>
-            )}
+        <article className="max-w-3xl">
+        <div className="space-y-10 text-ink-secondary dark:text-white/72">
+          {article.sections.map((section, index) => (
+            <section id={`article-section-${index}`} key={`${section.heading || 'section'}-${index}`} className="scroll-mt-24 space-y-4">
+              {section.heading && (
+                <h2 className="pt-2 text-2xl font-semibold tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">
+                  {section.heading}
+                </h2>
+              )}
+              {section.paragraphs?.map((paragraph, paragraphIndex) => (
+                <p key={paragraphIndex} className="text-sm leading-7 sm:text-base sm:leading-8">{paragraph}</p>
+              ))}
+              {section.bullets && (
+                <ul className="space-y-3 pl-5 text-sm leading-7 marker:text-[#c86544] dark:marker:text-[#e18463] sm:text-base sm:leading-8">
+                  {section.bullets.map((bullet, bulletIndex) => <li key={bulletIndex}>{bullet}</li>)}
+                </ul>
+              )}
+              {section.steps && (
+                <ol className="space-y-3 pl-5 text-sm leading-7 marker:font-semibold marker:text-[#c86544] dark:marker:text-[#e18463] sm:text-base sm:leading-8">
+                  {section.steps.map((step, stepIndex) => <li key={stepIndex}>{step}</li>)}
+                </ol>
+              )}
+              {section.callout && renderCallout(section.callout)}
+              {section.example && renderExample(section.example)}
+            </section>
+          ))}
+        </div>
 
-            {section.callout && renderCallout(section.callout)}
-            {section.example && renderExample(section.example)}
-          </section>
-        ))}
+        <section className="mt-14 border-t border-black/8 pt-8 dark:border-white/10" aria-labelledby="article-feedback-heading">
+          <h2 id="article-feedback-heading" className="text-xl font-semibold tracking-[-0.025em] text-ink dark:text-white">Was this guide useful?</h2>
+          {feedbackGiven ? (
+            <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-300">Thank you. Your feedback helps improve this documentation.</p>
+          ) : (
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <FeedbackButton label="Not helpful" onClick={() => setFeedbackGiven('negative')}><SmileySad size={19} /></FeedbackButton>
+              <FeedbackButton label="Partly helpful" onClick={() => setFeedbackGiven('neutral')}><SmileyMeh size={19} /></FeedbackButton>
+              <FeedbackButton label="Helpful" onClick={() => setFeedbackGiven('positive')}><Smiley size={19} /></FeedbackButton>
+            </div>
+          )}
+        </section>
+        </article>
       </div>
 
-      {/* Intercom / Sharetribe Style Feedback Box */}
-      <div className="mt-16 pt-10 border-t border-slate-200 dark:border-neutral-800 text-center space-y-4">
-        <p className="text-base font-bold text-slate-900 dark:text-white">
-          Did this answer your question?
-        </p>
+      {(prevArticle || nextArticle) && (
+        <nav className="grid gap-4 border-y border-black/8 py-6 dark:border-white/10 sm:grid-cols-2" aria-label="Guide navigation">
+          {prevArticle ? (
+            <Link href={`/help/${prevArticle.category}/${prevArticle.slug}`} className="group rounded-xl p-4 transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-white/[0.04]">
+              <span className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48"><ArrowLeft size={14} aria-hidden="true" />Previous guide</span>
+              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{prevArticle.title}</span>
+            </Link>
+          ) : <div aria-hidden="true" />}
+          {nextArticle ? (
+            <Link href={`/help/${nextArticle.category}/${nextArticle.slug}`} className="group rounded-xl p-4 text-right transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-white/[0.04]">
+              <span className="flex items-center justify-end gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">Next guide<ArrowRight size={14} aria-hidden="true" /></span>
+              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{nextArticle.title}</span>
+            </Link>
+          ) : <div aria-hidden="true" />}
+        </nav>
+      )}
 
-        {feedbackGiven ? (
-          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-            Thank you for your feedback!
-          </p>
-        ) : (
-          <div className="flex items-center justify-center gap-4 pt-1">
-            <button
-              onClick={() => setFeedbackGiven('negative')}
-              className="p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-red-500 transition-colors cursor-pointer"
-              title="Not helpful"
-            >
-              <Frown className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setFeedbackGiven('neutral')}
-              className="p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-amber-500 transition-colors cursor-pointer"
-              title="Neutral"
-            >
-              <Meh className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setFeedbackGiven('positive')}
-              className="p-3 rounded-2xl border border-slate-200 dark:border-neutral-800 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-500 hover:text-emerald-500 transition-colors cursor-pointer"
-              title="Helpful"
-            >
-              <Smile className="w-5 h-5" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Related Articles in Collection (2-Column Grid) */}
       {relatedArticles.length > 0 && (
-        <div className="mt-14 pt-10 border-t border-slate-200 dark:border-neutral-800 space-y-5">
-          <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-            Related Articles in {category?.title || 'this collection'}
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {relatedArticles.map((rel) => (
+        <section aria-labelledby="related-guides-heading">
+          <div className="mb-6 border-b border-black/8 pb-5 dark:border-white/10">
+            <h2 id="related-guides-heading" className="text-2xl font-semibold tracking-[-0.03em] text-ink dark:text-white">Related guides</h2>
+          </div>
+          <div className="grid gap-x-10 md:grid-cols-2">
+            {relatedArticles.map((relatedArticle) => (
               <Link
-                key={rel.slug}
-                href={`/help/${rel.category}/${rel.slug}`}
-                className="flex items-center justify-between p-5 rounded-2xl border transition-all duration-200 group bg-white dark:bg-[#1a1916] border-slate-200 dark:border-neutral-800 hover:border-orange-500/60 text-slate-800 dark:text-neutral-200 shadow-xs"
+                key={relatedArticle.slug}
+                href={`/help/${relatedArticle.category}/${relatedArticle.slug}`}
+                className="group grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-black/8 py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/10"
               >
-                <div className="min-w-0 pr-4">
-                  <p className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors truncate">
-                    {rel.title}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-neutral-400 line-clamp-1 mt-1">
-                    {rel.description}
-                  </p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-500 group-hover:translate-x-1 transition-all shrink-0" />
+                <span>
+                  <span className="block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{relatedArticle.title}</span>
+                  <span className="mt-1.5 block text-xs leading-5 text-ink-muted dark:text-white/58">{relatedArticle.description}</span>
+                </span>
+                <ArrowRight size={16} className="mt-1 text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-[#c86544] dark:text-white/44 dark:group-hover:text-[#e18463]" aria-hidden="true" />
               </Link>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
+  );
+}
+
+function FeedbackButton({ children, label, onClick }: { children: React.ReactNode; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-[#fffdfa] px-4 py-2.5 text-xs font-medium text-ink-secondary transition-colors hover:border-[#c86544]/40 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]"
+    >
+      <span aria-hidden="true">{children}</span>
+      {label}
+    </button>
   );
 }

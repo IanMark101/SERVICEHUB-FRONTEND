@@ -1,11 +1,15 @@
 "use client";
-import React, { useCallback, useEffect, useState } from 'react';
+import FormSelect from '../../../components/ui/FormSelect';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { useApp } from '../../../context/AppContext';
-import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser, apiRestorePostingPrivilege, apiPromoteUserToAdmin } from '../../../api/admin.api';
-import { Search, Award, ShieldAlert, Ban, RotateCcw, Filter, UserPlus } from 'lucide-react';
+import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser, apiRestorePostingPrivilege } from '../../../api/admin.api';
+import { Search, Award, ShieldAlert, Ban, RotateCcw, Filter, UserRound } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import AdminPagination from '../../../components/admin/AdminPagination';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import AdminUserModals from '../../../components/admin/users/AdminUserModals';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import type { AdminUserItem } from '../../../components/admin/users/types';
@@ -14,6 +18,7 @@ type UserItem = AdminUserItem;
 
 export default function AdminUsers() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { isDark, user: currentUser } = useApp();
   const { success: toastSuccess, error: toastError } = useToast();
 
@@ -25,19 +30,28 @@ export default function AdminUsers() {
   const initialSearch = searchParams.get('search') || '';
   const [search, setSearch] = useState<string>(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState<string>(initialSearch);
-  const [roleFilter, setRoleFilter] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>(['user', 'admin'].includes(searchParams.get('role') || '') ? searchParams.get('role')! : '');
+  const [statusFilter, setStatusFilter] = useState<string>(['active', 'suspended', 'banned'].includes(searchParams.get('status') || '') ? searchParams.get('status')! : '');
 
   // Pagination states
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(6);
+  const [page, setPage] = useState<number>(Math.max(1, Math.min(10000, Number(searchParams.get('page')) || 1)));
+  const [limit, setLimit] = useState<number>([4, 6, 10, 20].includes(Number(searchParams.get('limit'))) ? Number(searchParams.get('limit')) : 6);
   const [total, setTotal] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const fetchGeneration = useRef(0);
 
   // Overlay states
   const [editingTrustUser, setEditingTrustUser] = useState<UserItem | null>(null);
   const [trustDelta, setTrustDelta] = useState<number>(0);
   const [trustReason, setTrustReason] = useState<string>('');
+  const [trustPassword, setTrustPassword] = useState<string>('');
+  const trustOperation = useRef<{ key: string; payload: string } | null>(null);
+
+  const closeTrustModal = () => {
+    setEditingTrustUser(null);
+    setTrustPassword('');
+    trustOperation.current = null;
+  };
 
   const [suspendingUser, setSuspendingUser] = useState<UserItem | null>(null);
   const [suspendReason, setSuspendReason] = useState<string>('');
@@ -45,23 +59,26 @@ export default function AdminUsers() {
 
   const [banningUser, setBanningUser] = useState<UserItem | null>(null);
   const [banReason, setBanReason] = useState<string>('');
+  const [banBusy, setBanBusy] = useState(false);
 
   const [confirmRestoreUserId, setConfirmRestoreUserId] = useState<string | null>(null);
-  const [promotingUser, setPromotingUser] = useState<UserItem | null>(null);
-  const [promotionReason, setPromotionReason] = useState('');
-  const [promotionPassword, setPromotionPassword] = useState('');
+  const [restoreReason, setRestoreReason] = useState('');
+  const [restoreBusy, setRestoreBusy] = useState(false);
+  useEffect(() => { if (searchParams.has('appeals')) router.replace('/admin/ban-appeals'); }, [router, searchParams]);
 
   // Search Debouncing
   useEffect(() => {
+    if (search === debouncedSearch) return;
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1);
     }, 450);
     return () => clearTimeout(handler);
-  }, [search]);
+  }, [search, debouncedSearch]);
 
   // Fetch users when parameters change
   const fetchUsers = useCallback(() => {
+    const generation = ++fetchGeneration.current;
     setLoading(true);
     apiListUsers({
       search: debouncedSearch || undefined,
@@ -71,6 +88,7 @@ export default function AdminUsers() {
       limit
     })
       .then(res => {
+        if (generation !== fetchGeneration.current) return;
         if (res.success) {
           setUsers(res.data);
           setTotal(res.pagination.total);
@@ -82,11 +100,13 @@ export default function AdminUsers() {
         setLoading(false);
       })
       .catch(err => {
+        if (generation !== fetchGeneration.current) return;
         setError(err.message || "An error occurred.");
         setLoading(false);
       });
   }, [debouncedSearch, roleFilter, statusFilter, page, limit]);
 
+  useApiCacheRefresh(['admin'], () => fetchUsers());
   useEffect(() => {
     const timer = window.setTimeout(fetchUsers, 0);
     return () => window.clearTimeout(timer);
@@ -94,15 +114,21 @@ export default function AdminUsers() {
 
   const handleUpdateTrust = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingTrustUser || !trustReason.trim()) return;
+    if (!editingTrustUser || !trustReason.trim() || trustDelta === 0 || !trustPassword) return;
+    const payload = JSON.stringify([editingTrustUser.id, trustDelta, trustReason.trim()]);
+    if (!trustOperation.current || trustOperation.current.payload !== payload) {
+      trustOperation.current = { key: crypto.randomUUID(), payload };
+    }
     try {
-      const res = await apiUpdateTrustScore(editingTrustUser.id, trustDelta, trustReason);
+      const res = await apiUpdateTrustScore(editingTrustUser.id, trustDelta, trustReason.trim(), trustPassword, trustOperation.current.key);
       if (res.success) {
         const sign = trustDelta > 0 ? '+' : '';
         toastSuccess("Trust Updated", `Applied ${sign}${trustDelta} pts to ${editingTrustUser.name}. New score updates shortly.`);
         setEditingTrustUser(null);
         setTrustDelta(0);
         setTrustReason('');
+        setTrustPassword('');
+        trustOperation.current = null;
         fetchUsers();
       }
     } catch (err: unknown) {
@@ -128,30 +154,37 @@ export default function AdminUsers() {
 
   const handleBan = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!banningUser || !banReason.trim()) return;
+    if (!banningUser || !banReason.trim() || banBusy) return;
+    setBanBusy(true);
     try {
       const res = await apiBanUser(banningUser.id, banReason);
       if (res.success) {
-        toastSuccess("User Banned", `${banningUser.name} has been permanently banned.`);
+        setUsers((previous) => previous.map((item) => item.id === banningUser.id ? { ...item, moderationStatus: 'BANNED', isActive: true } : item));
+        toastSuccess("User Banned", `${banningUser.name} was removed from normal access. Review existing bookings and payments.`);
         setBanningUser(null);
         setBanReason('');
         fetchUsers();
       }
     } catch (err: unknown) {
       toastError("Banning Failed", getApiErrorMessage(err, 'The account could not be banned.'));
-    }
+    } finally { setBanBusy(false); }
   };
 
   const handleRestore = async (userId: string) => {
+    if (restoreBusy || restoreReason.trim().length < 3) return;
+    setRestoreBusy(true);
     try {
-      const res = await apiRestoreUser(userId);
+      const res = await apiRestoreUser(userId, restoreReason.trim());
       if (res.success) {
-        toastSuccess("Account Restored", "User account active status successfully restored.");
+        setUsers((previous) => previous.map((item) => item.id === userId ? { ...item, moderationStatus: 'ACTIVE', isActive: true } : item));
+        toastSuccess("Account Restored", "The user can sign in subject to normal verification requirements.");
+        setConfirmRestoreUserId(null);
+        setRestoreReason('');
         fetchUsers();
       }
     } catch (err: unknown) {
       toastError("Restoration Failed", getApiErrorMessage(err, 'The account could not be restored.'));
-    }
+    } finally { setRestoreBusy(false); }
   };
 
   const handleRestorePosting = async (userId: string) => {
@@ -164,21 +197,6 @@ export default function AdminUsers() {
     }
   };
 
-  const handlePromote = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!promotingUser || promotionReason.trim().length < 3 || promotionPassword.length < 8) return;
-    try {
-      await apiPromoteUserToAdmin(promotingUser.id, promotionReason.trim(), promotionPassword);
-      toastSuccess("Administrator Added", `${promotingUser.name} must sign in again to use the Admin workspace.`);
-      setPromotingUser(null);
-      setPromotionReason('');
-      setPromotionPassword('');
-      fetchUsers();
-    } catch (err: unknown) {
-      toastError("Promotion Failed", getApiErrorMessage(err, 'The administrator promotion could not be completed.'));
-    }
-  };
-
   return (
     <div className="space-y-6">
       
@@ -186,71 +204,78 @@ export default function AdminUsers() {
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         
         {/* Search */}
-        <div className={`flex items-center rounded-xl px-3 py-2 w-full md:max-w-xs border transition-all ${
+        <div className={`form-control-group flex items-center rounded-xl px-3 py-2 w-full md:max-w-xs border transition-all ${
           isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-slate-50 border-slate-200'
         }`}>
-          <Search className={`w-4 h-4 mr-2 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} />
+          <Search className={`w-4 h-4 mr-2 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`} />
           <input
+            data-form-unstyled
             type="text"
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent border-none outline-none text-xs w-full text-slate-800 dark:text-[#f2efe9] placeholder-slate-400"
+            className="bg-transparent border-none outline-none text-xs w-full text-ink dark:text-white placeholder-ink-subtle"
           />
         </div>
 
         {/* Filters */}
         <div className="flex flex-wrap gap-2 w-full md:w-auto items-center justify-end">
           
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-400">
+          <div className="flex items-center space-x-1.5 text-xs font-bold text-ink-subtle">
             <Filter className="w-3.5 h-3.5" />
             <span>Filters:</span>
           </div>
 
           {/* Role filter */}
-          <select
+          <FormSelect
+            compact
+            aria-label="Filter users by role"
             value={roleFilter}
             onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
             className={`px-3 py-2 rounded-xl text-xs font-bold border outline-none cursor-pointer ${
-              isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-600'
+              isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
             }`}
           >
             <option value="">All Roles</option>
             <option value="user">User (Seeker/Provider)</option>
             <option value="admin">Administrator</option>
-          </select>
+          </FormSelect>
 
           {/* Status filter */}
-          <select
+          <FormSelect
+            compact
+            aria-label="Filter users by status"
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className={`px-3 py-2 rounded-xl text-xs font-bold border outline-none cursor-pointer ${
-              isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-600'
+              isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
             }`}
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
             <option value="suspended">Suspended</option>
             <option value="banned">Banned</option>
-          </select>
+          </FormSelect>
 
           {/* Limit selector */}
-          <select
+          <FormSelect
+            compact
+            aria-label="Users per page"
             value={limit}
             onChange={(e) => { setLimit(parseInt(e.target.value)); setPage(1); }}
             className={`px-3 py-2 rounded-xl text-xs font-bold border outline-none cursor-pointer ${
-              isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-600'
+              isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
             }`}
           >
             <option value={4}>4 per page</option>
             <option value={6}>6 per page</option>
             <option value={10}>10 per page</option>
             <option value={20}>20 per page</option>
-          </select>
+          </FormSelect>
 
           <button
-            onClick={fetchUsers}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200"
+            onClick={() => { invalidateApiCache(['admin']); fetchUsers(); }}
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
           >
             Refresh
           </button>
@@ -287,7 +312,7 @@ export default function AdminUsers() {
         </div>
       ) : users.length === 0 ? (
         <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
+          isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
         }`}>
           No users match the search filters.
         </div>
@@ -303,10 +328,10 @@ export default function AdminUsers() {
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    <h4 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
                       {u.name}
                     </h4>
-                    <p className={`text-[10px] font-semibold mt-1 uppercase tracking-wider ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                    <p className={`text-[10px] font-semibold mt-1 uppercase tracking-wider ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                       📧 {u.email} • 📞 {u.phone || 'No phone'}
                     </p>
                   </div>
@@ -323,8 +348,8 @@ export default function AdminUsers() {
                   isDark ? 'bg-neutral-800/40 border-neutral-800' : 'bg-slate-50 border-slate-100'
                 }`}>
                   <div className="flex items-center space-x-1.5 font-semibold">
-                    <span className={`w-2.5 h-2.5 rounded-full ${u.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-                    <span>Status: {u.moderationStatus === 'BANNED' ? 'Banned' : u.moderationStatus === 'SUSPENDED' ? 'Suspended' : 'Active'}</span>
+                    <span className={`w-2.5 h-2.5 rounded-full ${u.moderationStatus === 'ACTIVE' && u.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+                    <span>Status: {u.moderationStatus === 'BANNED' ? 'Banned' : u.moderationStatus === 'SUSPENDED' ? 'Suspended' : u.isActive ? 'Active' : 'Inactive'}</span>
                   </div>
                   <div className="flex items-center space-x-1 font-bold">
                     <span>Trust Score:</span>
@@ -340,16 +365,20 @@ export default function AdminUsers() {
                     <button onClick={() => handleRestorePosting(u.id)} className="shrink-0 rounded-lg bg-amber-700 px-2.5 py-1.5 font-bold text-white">Restore posting</button>
                   </div>
                 )}
+                {u.moderationStatus === 'BANNED' && <Link href={`/admin/reports?userId=${encodeURIComponent(u.id)}`} className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800 underline dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">Review bookings, payments, and reports for this banned account</Link>}
 
                 {/* Moderation Actions */}
-                <div className={`border-t pt-4 flex items-center justify-end gap-2 ${
+                <div className={`border-t pt-4 flex flex-wrap items-center justify-end gap-2 ${
                   isDark ? 'border-neutral-800' : 'border-slate-100'
                 }`}>
+                  <Link href={`/admin/users/${encodeURIComponent(u.id)}?returnTo=${encodeURIComponent(`/admin/users?${new URLSearchParams({ search: debouncedSearch, role: roleFilter, status: statusFilter, page: String(page), limit: String(limit) })}`)}`} className="mr-auto inline-flex min-h-10 items-center gap-2 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-soft)] px-3 text-xs font-semibold text-[var(--admin-accent)] hover:bg-[var(--admin-active)]">
+                    <UserRound className="size-4" aria-hidden="true" />View profile
+                  </Link>
                   {u.role === 'admin' || u.id === currentUser?.id ? (
-                    <span className="rounded-lg border border-slate-200 px-3 py-1.5 text-[10px] font-bold uppercase text-slate-400 dark:border-neutral-700">
+                    <span className="rounded-lg border border-[var(--admin-border)] bg-[var(--admin-soft)] px-3 py-1.5 text-[10px] font-bold uppercase text-[var(--admin-accent)]">
                       Protected administrator
                     </span>
-                  ) : u.isActive ? (
+                  ) : u.moderationStatus === 'ACTIVE' && u.isActive ? (
                     <>
                       <button
                         onClick={() => {
@@ -357,7 +386,7 @@ export default function AdminUsers() {
                           setTrustDelta(0);
                           setTrustReason('');
                         }}
-                        className="flex items-center space-x-1 rounded-lg border border-slate-300 bg-slate-100 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-200 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                        className="flex items-center space-x-1 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-soft)] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-active)]"
                       >
                         <Award className="w-3.5 h-3.5" />
                         <span>Set Trust</span>
@@ -376,22 +405,18 @@ export default function AdminUsers() {
                         <Ban className="w-3.5 h-3.5" />
                         <span>Ban</span>
                       </button>
-                      <button
-                        onClick={() => { setPromotingUser(u); setPromotionReason(''); }}
-                        className="px-2.5 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-neutral-700 dark:text-slate-300 dark:hover:bg-neutral-800"
-                      >
-                        <UserPlus className="w-3.5 h-3.5" />
-                        <span>Make Admin</span>
-                      </button>
                     </>
                   ) : (
+                    <>
+                    {u.moderationStatus === 'SUSPENDED' && <button type="button" onClick={() => setBanningUser(u)} className="flex items-center gap-1 rounded-lg border border-red-500/20 bg-red-500/5 px-2.5 py-1.5 text-[10px] font-bold uppercase text-red-500 hover:bg-red-500/10"><Ban className="h-3.5 w-3.5" />Ban User</button>}
                     <button
                       onClick={() => setConfirmRestoreUserId(u.id)}
                       className="px-3 py-1.5 border rounded-lg text-[10px] font-bold tracking-wide uppercase transition-all flex items-center space-x-1 border-emerald-500/20 text-emerald-500 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Restore Account</span>
+                      <span>{u.moderationStatus === 'BANNED' ? 'Unban User' : 'Restore Account'}</span>
                     </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -414,11 +439,13 @@ export default function AdminUsers() {
         model={{
           isDark,
           editingTrustUser,
-          setEditingTrustUser,
+          closeTrustModal,
           trustDelta,
           setTrustDelta,
           trustReason,
           setTrustReason,
+          trustPassword,
+          setTrustPassword,
           handleUpdateTrust,
           suspendingUser,
           setSuspendingUser,
@@ -431,17 +458,15 @@ export default function AdminUsers() {
           setBanningUser,
           banReason,
           setBanReason,
+          banBusy,
           handleBan,
           confirmRestoreUserId,
           setConfirmRestoreUserId,
-          handleRestore,
-          promotingUser,
-          setPromotingUser,
-          promotionReason,
-          setPromotionReason,
-          promotionPassword,
-          setPromotionPassword,
-          handlePromote
+          restoreIsBan: users.find((item) => item.id === confirmRestoreUserId)?.moderationStatus === 'BANNED',
+          restoreReason,
+          setRestoreReason,
+          restoreBusy,
+          handleRestore
         }}
       />
 

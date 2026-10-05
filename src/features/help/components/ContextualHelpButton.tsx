@@ -48,7 +48,7 @@ export default function ContextualHelpButton({
     <Link
       href={href}
       title={tooltip || label}
-      className={`inline-flex items-center justify-center p-1 rounded-full text-slate-400 hover:text-orange-500 dark:text-neutral-500 dark:hover:text-orange-400 transition-colors cursor-pointer ${className}`}
+      className={`inline-flex items-center justify-center p-1 rounded-full text-ink-subtle hover:text-orange-500 dark:text-ink-subtle dark:hover:text-orange-400 transition-colors cursor-pointer ${className}`}
     >
       <HelpCircle className="w-3.5 h-3.5" />
     </Link>

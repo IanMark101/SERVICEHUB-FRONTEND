@@ -1,25 +1,14 @@
 "use client";
-import React from 'react';
-import Image from 'next/image';
-import { ShieldCheck, MapPin, Edit3, Star, CheckCircle, Clock, Award, Globe } from 'lucide-react';
 
-const FacebookIcon = ({ size = 13 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-  </svg>
-);
-
-const InstagramIcon = ({ size = 13 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-  </svg>
-);
+import type { ReactNode } from 'react';
+import { Award, CheckCircle, Clock, Edit3, ExternalLink, Globe, MapPin, ShieldCheck, Star } from 'lucide-react';
+import UserAvatar from '../ui/UserAvatar';
 
 export function getTrustBand(score: number) {
-  if (score >= 90) return { label: 'Highly Trusted', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' };
-  if (score >= 70) return { label: 'Trusted', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' };
-  if (score >= 50) return { label: 'Average', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' };
-  return { label: 'Needs Attention', color: 'text-rose-500', bg: 'bg-rose-500/10 border-rose-500/20' };
+  if (score >= 90) return { label: 'Highly Trusted', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' };
+  if (score >= 70) return { label: 'Trusted', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' };
+  if (score >= 50) return { label: 'Average', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-500/10 border-amber-500/20' };
+  return { label: 'Needs Attention', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' };
 }
 
 interface ProfileHeaderProps {
@@ -45,6 +34,24 @@ interface ProfileHeaderProps {
   innerBg: string;
   labelText: string;
   headingText: string;
+  variant?: 'workspace' | 'marketplace';
+}
+
+function formatDisplayName(name: string): string {
+  if (!name) return '';
+  const trimmed = name.trim();
+  const isAllUpper = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
+  if (!isAllUpper) return trimmed;
+  return trimmed
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => {
+      if (word.length <= 2 && (word.endsWith('.') || word.length === 1)) {
+        return word.toUpperCase();
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
 }
 
 export default function ProfileHeader({
@@ -65,188 +72,271 @@ export default function ProfileHeader({
   isOwnProfile,
   showEdit,
   setShowEdit,
-  isDark,
-  cardBg,
-  innerBg,
   labelText,
   headingText,
+  variant = 'workspace',
 }: ProfileHeaderProps) {
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
+  const roleTone = isProvider ? 'provider' : isAdmin ? 'admin' : 'seeker';
   const trustBand = getTrustBand(trustScore);
-
-  // Role accents
-  const borderRing = isProvider
-    ? 'from-emerald-500 via-teal-400 to-cyan-500'
+  const accentText = isProvider
+    ? 'text-emerald-700 dark:text-emerald-300'
     : isAdmin
-    ? 'from-blue-500 via-indigo-400 to-purple-500'
-    : 'from-orange-500 via-amber-400 to-yellow-500';
+      ? 'text-[var(--admin-accent)]'
+      : 'text-orange-700 dark:text-orange-300';
 
-  return (
-    <div className={`${cardBg} rounded-3xl p-4 sm:p-5 border shadow-sm transition-all relative overflow-hidden`}>
-      {/* Subtle top ambient glow */}
-      <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-15 bg-gradient-to-br ${borderRing}`} />
+  const formattedName = formatDisplayName(displayName);
 
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 relative z-10">
-        
-        {/* Large Circular Avatar with Instagram-style gradient story ring */}
-        <div className="relative flex-shrink-0 group">
-          <div className={`p-1 rounded-full bg-gradient-to-tr ${borderRing} shadow-lg transition-transform duration-300 group-hover:scale-105`}>
-            <div className="p-1 bg-white dark:bg-[#22211e] rounded-full">
-              <Image unoptimized width={112} height={112}
-                src={avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=random`}
-                alt={displayName}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=random`;
-                }}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
+  if (variant === 'marketplace') {
+    return (
+      <section className={`marketplace-profile-hero workspace-profile-hero--${roleTone} relative p-5 sm:p-6 sm:pb-5`} aria-labelledby="profile-name">
+        {/* Sleek Pill Edit Profile Button */}
+        {isOwnProfile && (
+          <div className="absolute top-4 right-4 sm:top-5 sm:right-6 z-10">
+            <button
+              type="button"
+              onClick={() => setShowEdit((value) => !value)}
+              aria-expanded={showEdit}
+              className="servicehub-dark-cta workspace-primary-button inline-flex min-h-8 sm:min-h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
+            >
+              <Edit3 size={13} />
+              <span>{showEdit ? 'Close editor' : 'Edit profile'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Centered Profile Hero Content */}
+        <div className="flex flex-col items-center text-center">
+          {/* Framed Circular Avatar & Verification Badge */}
+          <div className="relative shrink-0 mb-3 sm:mb-3.5">
+            <div className="rounded-full p-1.5 ring-4 ring-[color:var(--workspace-border)] border-2 border-[color:var(--workspace-border-strong)] bg-[color:var(--workspace-surface)] shadow-md transition-transform duration-300 hover:scale-[1.02]">
+              <UserAvatar
+                src={avatarUrl}
+                name={displayName}
+                alt={`${formattedName} profile picture`}
+                size={160}
+                role={roleTone}
+                shape="circle"
               />
             </div>
+            <span
+              className={`absolute bottom-1 right-1 grid size-8 sm:size-9 place-items-center rounded-full border-[3px] border-[color:var(--workspace-surface)] text-white shadow-md ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
+              title={verStatus === 'APPROVED' ? 'Verified Cordova resident' : 'Residency not verified'}
+            >
+              {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
+            </span>
           </div>
 
-          {verStatus === 'APPROVED' ? (
-            <div
-              className="absolute bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg border-2 border-white dark:border-[#22211e]"
-              title="Verified Cordova Resident"
-            >
-              <ShieldCheck size={17} />
-            </div>
-          ) : (
-            <div
-              className="absolute bottom-0.5 right-0.5 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg border-2 border-white dark:border-[#22211e]"
-              title="Residency Unverified"
-            >
-              <Clock size={16} />
+          {/* Member Name & Verification Badge */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <h1 id="profile-name" className={`break-words text-xl sm:text-2xl font-extrabold tracking-tight ${headingText}`}>
+              {formattedName}
+            </h1>
+            {verStatus === 'APPROVED' && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                <CheckCircle size={12} className="text-emerald-600 dark:text-emerald-400" /> Verified Resident
+              </span>
+            )}
+          </div>
+
+          {/* Unified Location, Handle & Member Since Row */}
+          <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm ${labelText}`}>
+            <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
+              <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
+              {location ? `${location}, Cordova` : 'Cordova, Cebu'}
+            </span>
+            <span className="text-[color:var(--workspace-border-strong)]" aria-hidden="true">•</span>
+            <span className="font-semibold text-[color:var(--workspace-ink)]">@{usernameHandle.replace(/^@/, '')}</span>
+            {createdAt && (
+              <>
+                <span className="text-[color:var(--workspace-border-strong)] hidden sm:inline" aria-hidden="true">•</span>
+                <span className="text-[color:var(--workspace-muted)] hidden sm:inline">
+                  Member since {new Date(createdAt).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Bio */}
+          {bio && (
+            <p className="mt-2 max-w-[56ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-ink)] font-normal">
+              {bio}
+            </p>
+          )}
+
+          {/* Social Links */}
+          {(facebookUrl || instagramUrl || websiteUrl) && (
+            <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+              {facebookUrl && <SocialLink href={facebookUrl} icon={<ExternalLink size={11} />} label="Facebook" />}
+              {instagramUrl && <SocialLink href={instagramUrl} icon={<ExternalLink size={11} />} label="Instagram" />}
+              {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={11} />} label="Website" />}
             </div>
           )}
         </div>
 
-        {/* User Identity Details & Marketplace Counters */}
-        <div className="flex-1 text-center md:text-left space-y-3 w-full">
-          
-          {/* Header Row: Username, Verification, Role & Trust Score Badge */}
-          <div className="flex flex-col sm:flex-row items-center md:items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${headingText}`}>
-                  {displayName}
-                </h1>
-                {verStatus === 'APPROVED' && (
-                  <span title="Verified Resident">
-                    <CheckCircle size={20} className="text-emerald-500 flex-shrink-0" />
-                  </span>
+        {/* 3-Column Minimal Stat Counters Row - Perfectly Centered via 3-Column Grid */}
+        <div className="mt-5 border-t border-[color:var(--workspace-border)] pt-4" aria-label="Marketplace reputation">
+          <div className="mx-auto grid max-w-xl grid-cols-3 divide-x divide-[color:var(--workspace-border)] text-center">
+            {/* Stat 1: Completed Bookings */}
+            <div className="flex flex-col items-center justify-center px-2">
+              <span className={`text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+                {completedJobs.toLocaleString()}
+              </span>
+              <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">
+                {completedJobs === 1 ? 'booking' : 'bookings'}
+              </span>
+            </div>
+
+            {/* Stat 2: Marketplace Rating */}
+            <div className="flex flex-col items-center justify-center px-2">
+              <span className={`flex items-center justify-center gap-1 text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+                {averageRating > 0 ? (
+                  <>
+                    {averageRating.toFixed(1)}
+                    <Star size={16} className="fill-amber-400 text-amber-500" />
+                  </>
+                ) : (
+                  <span className="text-xs sm:text-sm font-semibold text-[color:var(--workspace-muted)]">No ratings yet</span>
                 )}
-                <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border ${trustBand.bg} ${trustBand.color} flex items-center gap-1`}>
-                  <Award size={13} /> Trust: {trustScore} ({trustBand.label})
+              </span>
+              <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">
+                marketplace rating
+              </span>
+            </div>
+
+            {/* Stat 3: Trust Standing */}
+            <div className="flex flex-col items-center justify-center px-2">
+              <span className={`flex items-center justify-center gap-1.5 text-xl sm:text-2xl font-extrabold tabular-nums ${accentText}`}>
+                <Award size={18} className="shrink-0" />
+                {trustScore}
+              </span>
+              <span className="mt-0.5 flex flex-wrap items-center justify-center gap-1 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">
+                <span>trust standing</span>
+                <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full border ${trustBand.bg} ${trustBand.color}`}>
+                  {trustBand.label}
                 </span>
-              </div>
-              <p className={`text-xs font-semibold mt-1 ${labelText}`}>
-                {usernameHandle} • <span className="inline-flex items-center gap-1"><MapPin size={12} className="text-rose-500" /> {location ? `${location}, Cordova` : 'Cordova, Cebu'}</span>
-              </p>
-            </div>
-
-            {/* CTAs Below Bio / Header */}
-            {isOwnProfile && (
-              <div className="flex items-center gap-2 flex-shrink-0 pt-2 sm:pt-0">
-                <button
-                  onClick={() => setShowEdit(v => !v)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition-all shadow-sm active:scale-95 ${
-                    isProvider ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-orange-600 hover:bg-orange-700'
-                  }`}
-                >
-                  <Edit3 size={14} />
-                  <span>{showEdit ? 'Close Form' : 'Edit Profile'}</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* 3 Marketplace Metric Counters Row */}
-          <div className={`grid grid-cols-3 gap-2 p-2.5 rounded-2xl border text-center ${innerBg}`}>
-            <div>
-              <div className={`text-base sm:text-lg font-black ${headingText}`}>
-                {completedJobs}
-              </div>
-              <div className={`text-[11px] font-bold uppercase tracking-wider ${labelText}`}>
-                Completed
-              </div>
-            </div>
-
-            <div className="border-x border-neutral-200 dark:border-neutral-800">
-              <div className="text-base sm:text-lg font-black text-amber-500 flex items-center justify-center gap-1">
-                <span>{averageRating.toFixed(1)}</span>
-                <Star size={14} className="fill-amber-400 text-amber-400" />
-              </div>
-              <div className={`text-[11px] font-bold uppercase tracking-wider ${labelText}`}>
-                Rating
-              </div>
-            </div>
-
-            <div>
-              <div className="text-base sm:text-lg font-black text-emerald-500 flex items-center justify-center gap-1">
-                <Award size={16} />
-                <span>{trustScore}</span>
-              </div>
-              <div className={`text-[11px] font-bold uppercase tracking-wider ${labelText}`}>
-                Trust Score
-              </div>
+              </span>
             </div>
           </div>
+        </div>
+      </section>
+    );
+  }
 
-          {/* Bio & Details */}
-          <div className="space-y-2">
-            <p className={`text-sm leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>
-              {bio || (isProvider ? 'Professional service specialist based in Cordova, Cebu. Ready to help with home maintenance, repairs, and installations.' : 'Active member on ServiceHub Cordova. Looking for reliable local service providers.')}
-            </p>
+  return (
+    <section className={`workspace-profile-hero workspace-profile-hero--${roleTone} relative p-5 sm:p-6 sm:pb-5`} aria-labelledby="profile-name">
+      {isOwnProfile && (
+        <div className="absolute top-4 right-4 sm:top-5 sm:right-6 z-10">
+          <button
+            type="button"
+            onClick={() => setShowEdit((value) => !value)}
+            aria-expanded={showEdit}
+            className="servicehub-dark-cta workspace-primary-button inline-flex min-h-8 sm:min-h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
+          >
+            <Edit3 size={13} />
+            <span>{showEdit ? 'Close form' : 'Edit profile'}</span>
+          </button>
+        </div>
+      )}
 
-            {/* 🌐 Social Media & Web Links Pills */}
-            {(facebookUrl || instagramUrl || websiteUrl) && (
-              <div className="flex items-center gap-2 flex-wrap pt-1">
-                {facebookUrl && (
-                  <a
-                    href={facebookUrl.startsWith('http') ? facebookUrl : `https://${facebookUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border border-blue-500/20 transition-all"
-                  >
-                    <FacebookIcon size={13} />
-                    <span>Facebook</span>
-                  </a>
-                )}
-                {instagramUrl && (
-                  <a
-                    href={instagramUrl.startsWith('http') ? instagramUrl : `https://${instagramUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 border border-pink-500/20 transition-all"
-                  >
-                    <InstagramIcon size={13} />
-                    <span>Instagram</span>
-                  </a>
-                )}
-                {websiteUrl && (
-                  <a
-                    href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all"
-                  >
-                    <Globe size={13} />
-                    <span>Website</span>
-                  </a>
-                )}
-              </div>
-            )}
+      <div className="flex flex-col items-center text-center">
+        <div className="relative shrink-0 mb-3 sm:mb-3.5">
+          <div className="rounded-full p-1.5 ring-4 ring-[color:var(--workspace-border)] border-2 border-[color:var(--workspace-border-strong)] bg-[color:var(--workspace-surface)] shadow-md transition-transform duration-300 hover:scale-[1.02]">
+            <UserAvatar src={avatarUrl} name={displayName} alt={`${formattedName} profile picture`} size={160} role={roleTone} shape="circle" />
+          </div>
+          <span
+            className={`absolute bottom-1 right-1 grid size-8 sm:size-9 place-items-center rounded-full border-[3px] border-[color:var(--workspace-surface)] text-white shadow-md ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
+            title={verStatus === 'APPROVED' ? 'Verified Cordova Resident' : 'Residency Unverified'}
+          >
+            {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
+          </span>
+        </div>
 
-            {createdAt && (
-              <p className={`text-[11px] font-medium ${labelText}`}>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <h1 id="profile-name" className={`break-words text-xl sm:text-2xl font-extrabold tracking-tight ${headingText}`}>
+            {formattedName}
+          </h1>
+          {verStatus === 'APPROVED' && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+              <CheckCircle size={12} className="text-emerald-600 dark:text-emerald-400" /> Verified Resident
+            </span>
+          )}
+        </div>
+
+        <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm ${labelText}`}>
+          <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
+            <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
+            <span>{location ? `${location}, Cordova` : 'Cordova, Cebu'}</span>
+          </span>
+          <span className="h-3 w-px bg-[color:var(--workspace-border-strong)]" aria-hidden="true" />
+          <span className="font-semibold text-[color:var(--workspace-ink)]">@{usernameHandle.replace(/^@/, '')}</span>
+          {createdAt && (
+            <>
+              <span className="h-3 w-px bg-[color:var(--workspace-border-strong)] hidden sm:block" aria-hidden="true" />
+              <span className="text-[color:var(--workspace-muted)] hidden sm:inline">
                 Member since {new Date(createdAt).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}
-              </p>
-            )}
-          </div>
+              </span>
+            </>
+          )}
+        </div>
 
+        {bio && (
+          <p className="mt-2 max-w-[58ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-muted)]">
+            {bio}
+          </p>
+        )}
+
+        <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+          {facebookUrl && <SocialLink href={facebookUrl} icon={<ExternalLink size={12} />} label="Facebook" />}
+          {instagramUrl && <SocialLink href={instagramUrl} icon={<ExternalLink size={12} />} label="Instagram" />}
+          {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={12} />} label="Website" />}
         </div>
       </div>
-    </div>
+
+      <div className="mt-5 border-t border-[color:var(--workspace-border)] pt-4" aria-label="Profile reputation summary">
+        <div className="mx-auto grid max-w-xl grid-cols-3 divide-x divide-[color:var(--workspace-border)] text-center">
+          <div className="flex flex-col items-center justify-center px-2">
+            <span className={`text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+              {completedJobs}
+            </span>
+            <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">bookings</span>
+          </div>
+          <div className="flex flex-col items-center justify-center px-2">
+            <span className={`flex items-center justify-center gap-1 text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+              {averageRating > 0 ? (
+                <>
+                  {averageRating.toFixed(1)} <Star size={15} className="fill-amber-400 text-amber-500" />
+                </>
+              ) : (
+                <span className="text-xs sm:text-sm font-semibold text-[color:var(--workspace-muted)]">No ratings yet</span>
+              )}
+            </span>
+            <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">rating</span>
+          </div>
+          <div className="flex flex-col items-center justify-center px-2">
+            <span className={`flex items-center justify-center gap-1.5 text-xl sm:text-2xl font-extrabold tabular-nums ${accentText}`}>
+              <Award size={17} /> {trustScore}
+            </span>
+            <span className="mt-0.5 text-[10px] font-semibold text-[color:var(--workspace-muted)]">({trustBand.label})</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SocialLink({ href, icon, label }: { href: string; icon: ReactNode; label: string }) {
+  const safeHref = href.startsWith('http') ? href : `https://${href}`;
+  return (
+    <a
+      href={safeHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] px-2.5 py-0.5 text-[11px] font-medium text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
+    >
+      {icon}
+      <span>{label}</span>
+    </a>
   );
 }

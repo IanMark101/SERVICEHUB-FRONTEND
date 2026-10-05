@@ -14,7 +14,7 @@ export default function RelatedArticles({ articles }: RelatedArticlesProps) {
     <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-neutral-800">
       <div className="flex items-center gap-2">
         <BookOpen className="w-4 h-4 text-orange-500" />
-        <h4 className="text-sm font-extrabold tracking-tight text-slate-900 dark:text-[#f2efe9]">
+        <h4 className="text-sm font-extrabold tracking-tight text-ink dark:text-white">
           Related Help Topics
         </h4>
       </div>

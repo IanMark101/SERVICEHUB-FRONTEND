@@ -1,4 +1,6 @@
 import { api } from '../lib/api/axios';
+import { peekApiResponse } from '../lib/api/cachedAdapter';
+import { invalidateApiCache } from '../lib/api/responseCache';
 
 export interface ProviderSummaryPayload {
   summary: string | null;
@@ -6,6 +8,10 @@ export interface ProviderSummaryPayload {
   cached?: boolean;
   source?: 'gemini' | 'computed' | 'empty';
   refreshing?: boolean;
+  reviewCount?: number;
+  averageRating?: number;
+  reviewContext?: 'provider' | 'seeker';
+  reviewLimit?: number;
 }
 
 interface ProviderSummaryResponse {
@@ -13,25 +19,20 @@ interface ProviderSummaryResponse {
   data: ProviderSummaryPayload;
 }
 
-const SUMMARY_CACHE_TTL_MS = 5 * 60 * 1000;
-const summaryCache = new Map<string, { expiresAt: number; response: ProviderSummaryResponse }>();
-const summaryRequests = new Map<string, Promise<ProviderSummaryResponse>>();
-
-export function getCachedProviderSummary(providerId: string) {
-  const cached = summaryCache.get(providerId);
-  if (!cached || cached.expiresAt <= Date.now()) {
-    summaryCache.delete(providerId);
-    return null;
-  }
-  return cached.response;
+function summaryUrl(providerId: string, serviceId?: string, waitForFresh = false) {
+  const params = new URLSearchParams();
+  params.set('digest', '2'); // Do not reuse responses from the previous summary algorithm.
+  if (serviceId) params.set('serviceId', serviceId);
+  if (!waitForFresh) params.set('fast', '1');
+  return `/ai/provider-summary/${providerId}${params.size ? `?${params}` : ''}`;
 }
 
-export function invalidateProviderSummaryCache(providerId?: string) {
-  if (providerId) {
-    summaryCache.delete(providerId);
-    return;
-  }
-  summaryCache.clear();
+export function getCachedProviderSummary(providerId: string, serviceId?: string) {
+  return peekApiResponse<ProviderSummaryResponse>(summaryUrl(providerId, serviceId), api.defaults.baseURL || '');
+}
+
+export function invalidateProviderSummaryCache() {
+  invalidateApiCache(['summaries']);
 }
 
 export async function apiGetProviderSummary(
@@ -39,30 +40,25 @@ export async function apiGetProviderSummary(
   serviceId?: string,
   options?: { force?: boolean; waitForFresh?: boolean },
 ) {
-  const cached = options?.force ? null : getCachedProviderSummary(providerId);
-  if (cached) return cached;
+  const response = await api.get<ProviderSummaryResponse>(summaryUrl(providerId, serviceId, options?.waitForFresh), {
+    apiCache: options?.force ? 'reload' : 'default',
+  });
+  return response.data;
+}
 
-  const pending = summaryRequests.get(providerId);
-  if (pending) return pending;
+function seekerSummaryUrl(seekerId: string, waitForFresh = false) {
+  return `/ai/seeker-summary/${encodeURIComponent(seekerId)}?digest=2${waitForFresh ? '' : '&fast=1'}`;
+}
 
-  const params = new URLSearchParams();
-  if (serviceId) params.set('serviceId', serviceId);
-  if (!options?.waitForFresh) params.set('fast', '1');
-  const query = params.size ? `?${params.toString()}` : '';
-  const request = api.get<ProviderSummaryResponse>(`/ai/provider-summary/${providerId}${query}`)
-    .then((response) => {
-      if (response.data.success) {
-        summaryCache.set(providerId, {
-          expiresAt: Date.now() + (response.data.data?.refreshing ? 2000 : SUMMARY_CACHE_TTL_MS),
-          response: response.data,
-        });
-      }
-      return response.data;
-    })
-    .finally(() => summaryRequests.delete(providerId));
+export function getCachedSeekerSummary(seekerId: string) {
+  return peekApiResponse<ProviderSummaryResponse>(seekerSummaryUrl(seekerId), api.defaults.baseURL || '');
+}
 
-  summaryRequests.set(providerId, request);
-  return request;
+export async function apiGetSeekerSummary(seekerId: string, options?: { force?: boolean; waitForFresh?: boolean }) {
+  const response = await api.get<ProviderSummaryResponse>(seekerSummaryUrl(seekerId, options?.waitForFresh), {
+    apiCache: options?.force ? 'reload' : 'default',
+  });
+  return response.data;
 }
 
 export async function apiMatchProviders(requestId: string) {

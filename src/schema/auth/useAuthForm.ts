@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useRef, useState, FormEvent } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '@/api/auth.api';
 import { UserSession } from '../../components/auth/LoginContainer';
@@ -45,7 +45,7 @@ export default function useAuthForm({
   setMode,
   initialResetToken,
 }: UseAuthFormProps) {
-  const [resetToken] = useState<string>(initialResetToken);
+  const resetToken = initialResetToken;
   const [step, setStep] = useState<number>(1);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -53,6 +53,7 @@ export default function useAuthForm({
   const [isRegisterSuccess, setIsRegisterSuccess] = useState<boolean>(false);
   const [registrationEmailSent, setRegistrationEmailSent] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const recoveryBusy = useRef(false);
 
   const {
     register,
@@ -81,9 +82,14 @@ export default function useAuthForm({
   const formData = useWatch({ control }) as AuthFormValues;
 
   const applyValidationIssues = (issues: ZodIssue[]) => {
+    const invalidFields = new Set<string>();
     issues.forEach((issue) => {
       const field = issue.path[0];
-      if (typeof field === 'string') {
+      // Zod can report several failures for one value (for example, an empty
+      // email also fails every format refinement). The first issue is the most
+      // useful and specific one; do not overwrite it with a later format error.
+      if (typeof field === 'string' && !invalidFields.has(field)) {
+        invalidFields.add(field);
         setRHFError(field as FieldPath<AuthFormValues>, { type: 'manual', message: issue.message });
       }
     });
@@ -128,6 +134,9 @@ export default function useAuthForm({
   };
 
   const handleGoogleSuccessResponse = (idToken: string) => {
+    if (recoveryBusy.current || isLoading) return;
+    recoveryBusy.current = true;
+    setIsLoading(true);
     setError('');
     setSuccessMsg('');
     apiGoogleLogin(idToken)
@@ -153,6 +162,7 @@ export default function useAuthForm({
             verificationStatus: user.verificationStatus,
             emailVerified: user.emailVerified,
             onboardingStatus: user.onboardingStatus,
+            moderationStatus: user.moderationStatus,
           });
         } else {
           setError(res.error || 'Google Login failed');
@@ -160,11 +170,16 @@ export default function useAuthForm({
       })
       .catch((err: unknown) => {
         setError(getApiErrorMessage(err, 'Google authentication failed.'));
+      })
+      .finally(() => {
+        recoveryBusy.current = false;
+        setIsLoading(false);
       });
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (recoveryBusy.current || isLoading) return;
     clearErrors();
     setError('');
 
@@ -174,6 +189,7 @@ export default function useAuthForm({
         applyValidationIssues(result.error.issues);
         return;
       }
+      recoveryBusy.current = true; setIsLoading(true);
       apiForgotPassword(formData.email)
         .then((res) => {
           if (res.success) {
@@ -185,7 +201,7 @@ export default function useAuthForm({
         })
         .catch((err: unknown) => {
           setError(getApiErrorMessage(err, 'Something went wrong.'));
-        });
+        }).finally(() => { recoveryBusy.current = false; setIsLoading(false); });
       return;
     }
 
@@ -195,7 +211,8 @@ export default function useAuthForm({
         applyValidationIssues(result.error.issues);
         return;
       }
-      apiResetPassword({ token: resetToken, password: formData.password })
+      recoveryBusy.current = true; setIsLoading(true);
+      apiResetPassword({ token: resetToken, password: formData.password, confirmPassword: formData.confirmPassword })
         .then((res) => {
           if (res.success) {
             setSuccessMsg('Password reset successfully. Redirecting to login...');
@@ -204,6 +221,7 @@ export default function useAuthForm({
               setMode('login');
               setSuccessMsg('');
               setValue('password', '');
+              setValue('confirmPassword', '');
             }, 3000);
           } else {
             setError(res.error || 'Failed to reset password.');
@@ -211,7 +229,7 @@ export default function useAuthForm({
         })
         .catch((err: unknown) => {
           setError(getApiErrorMessage(err, 'Something went wrong.'));
-        });
+        }).finally(() => { recoveryBusy.current = false; setIsLoading(false); });
       return;
     }
 
@@ -222,6 +240,7 @@ export default function useAuthForm({
         return;
       }
 
+      recoveryBusy.current = true;
       setIsLoading(true);
       apiLogin({ email: formData.email, password: formData.password })
         .then((res) => {
@@ -246,6 +265,7 @@ export default function useAuthForm({
               verificationStatus: user.verificationStatus,
               emailVerified: user.emailVerified,
               onboardingStatus: user.onboardingStatus,
+              moderationStatus: user.moderationStatus,
             });
           } else {
             setError(res.error || 'Login failed');
@@ -255,6 +275,7 @@ export default function useAuthForm({
           setError(getApiErrorMessage(err, 'Invalid email or password'));
         })
         .finally(() => {
+          recoveryBusy.current = false;
           setIsLoading(false);
         });
     } else {

@@ -1,12 +1,15 @@
 "use client";
 import React, { useCallback, useEffect, useState } from 'react';
+import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { useApp } from '../../../context/AppContext';
 import { apiListCategorySuggestions, apiResolveCategorySuggestion } from '../../../api/admin.api';
-import { Loader2, CheckCircle2, XCircle, Tag, User, RefreshCw } from 'lucide-react';
+import { CheckCircle2, XCircle, Tag, User, RefreshCw } from 'lucide-react';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
 import AdminCategoryCatalog from '../../../components/admin/AdminCategoryCatalog';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 
 const PAGE_SIZE = 10;
 
@@ -58,6 +61,7 @@ export default function AdminCategories() {
         setLoading(false);
       });
   }, [page]);
+  useApiCacheRefresh(['admin', 'categories'], () => fetchSuggestions());
 
   useEffect(() => {
     const timer = window.setTimeout(fetchSuggestions, 0);
@@ -88,12 +92,12 @@ export default function AdminCategories() {
       <div className="border-t border-slate-200 pt-6 dark:border-neutral-800" />
 
       <div className="flex items-center justify-between">
-        <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+        <h4 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
           Suggested Categories Queue
         </h4>
         <button
-          onClick={fetchSuggestions}
-          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200"
+          onClick={() => { invalidateApiCache(['admin', 'categories']); fetchSuggestions(); }}
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh Suggestions</span>
@@ -109,12 +113,10 @@ export default function AdminCategories() {
       {/* Suggested Categories queue items */}
       <div className="space-y-6">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
-          </div>
+          <WorkspacePageSkeleton label="Loading category suggestions" role="admin" variant="suggestions" />
         ) : suggestions.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-300 text-slate-500'
+            isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
           }`}>
             No pending category suggestions found.
           </div>
@@ -134,14 +136,14 @@ export default function AdminCategories() {
                 {/* Header Info */}
                 <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div className="flex items-center space-x-2.5">
-                    <div className="p-2 rounded-xl bg-slate-100 text-slate-600 border border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700">
+                    <div className="p-2 rounded-xl bg-slate-100 text-ink-muted border border-slate-200 dark:bg-neutral-800 dark:text-ink-secondary dark:border-neutral-700">
                       <Tag className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className={`font-extrabold text-sm ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                      <h4 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
                         {item.name}
                       </h4>
-                      <p className={`text-[9px] font-semibold mt-0.5 uppercase tracking-wider ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                      <p className={`text-[9px] font-semibold mt-0.5 uppercase tracking-wider ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                         Suggested Category
                       </p>
                     </div>
@@ -154,22 +156,22 @@ export default function AdminCategories() {
                 {/* Description details */}
                 <div className="space-y-3">
                   <div className="space-y-1">
-                    <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                    <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                       Proposed Description
                     </span>
-                    <p className={`text-xs leading-relaxed ${isDark ? 'text-[#f2efe9]' : 'text-slate-700'}`}>
+                    <p className={`text-xs leading-relaxed ${isDark ? 'text-white' : 'text-ink-secondary'}`}>
                       {item.description}
                     </p>
                   </div>
 
                   {/* Submitter details */}
                   <div className={`rounded-xl p-2.5 border flex items-center space-x-2 text-[10px] ${
-                    isDark ? 'bg-neutral-800/40 border-neutral-800 text-[#f2efe9]' : 'bg-slate-50 border-slate-200 text-slate-700'
+                    isDark ? 'bg-neutral-800/40 border-neutral-800 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'
                   }`}>
-                    <User className="w-3.5 h-3.5 text-slate-500" />
-                    <span className="font-semibold text-slate-400">Suggested By:</span>
+                    <User className="w-3.5 h-3.5 text-ink-muted" />
+                    <span className="font-semibold text-ink-subtle">Suggested By:</span>
                     <span className="font-bold">{item.submitter?.name}</span>
-                    <span className="text-slate-400 font-medium">({item.submitter?.id})</span>
+                    <span className="text-ink-subtle font-medium">({item.submitter?.id})</span>
                   </div>
                 </div>
 
@@ -204,7 +206,7 @@ export default function AdminCategories() {
       {pendingAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+            isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <div className="p-5 space-y-4">
               <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${pendingAction.approve ? 'text-emerald-500' : 'text-red-500'}`}>

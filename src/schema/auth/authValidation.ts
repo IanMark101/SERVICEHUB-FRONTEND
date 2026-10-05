@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { strongPasswordSchema } from './passwordValidation';
 
 const baseEmailSchema = (requiredMessage: string) => z.string()
   .trim()
@@ -23,10 +24,7 @@ export const signupStep1Schema = z.object({
   firstName: z.string().trim().min(1, 'First name is required'),
   lastName: z.string().trim().min(1, 'Last name is required'),
   email: baseEmailSchema('Email address is required'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .regex(/\d/, 'Password must contain at least one number'),
+  password: strongPasswordSchema,
   confirmPassword: z.string().min(1, 'Please confirm your password'),
   agreeTerms: z.boolean().refine((val) => val === true, {
     message: 'You must agree to the Terms of Service and Privacy Policy',
@@ -61,6 +59,6 @@ export const forgotSchema = z.object({
 
 // Reset Password Form
 export const resetSchema = z.object({
-  password: z.string()
-    .min(8, 'Must be at least 8 characters'),
-});
+  password: strongPasswordSchema,
+  confirmPassword: z.string().min(1, 'Confirm your new password.'),
+}).refine(data => data.password === data.confirmPassword, { path: ['confirmPassword'], message: 'Passwords do not match.' });

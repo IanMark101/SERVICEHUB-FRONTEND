@@ -34,8 +34,9 @@ export function resolveNotificationLink(
   }
 
   if (link === '/community-hub') {
-    return currentRole === 'admin' ? '/admin/announcements' : `/${currentRole}/community-hub`;
+    return currentRole === 'admin' ? '/admin/announcements' : '/community';
   }
+  if (currentRole === 'admin' && /^\/admin\/users\?appeals=/.test(link)) return '/admin/ban-appeals';
 
   // Rewrite legacy or mismatched path aliases
   if (link.startsWith('/provider/manage-services') || link.startsWith('/manage-services')) {
@@ -43,9 +44,10 @@ export function resolveNotificationLink(
                .replace('/manage-services', '/provider/service-manager');
   }
 
-  if (link.startsWith('/profile') || link.startsWith('/settings')) {
-    link = link.replace('/profile', `/${currentRole}/user-profile`)
-               .replace('/settings', `/${currentRole}/account-settings`);
+  if (link === '/profile') {
+    link = `/${currentRole}/user-profile`;
+  } else if (link.startsWith('/settings')) {
+    link = link.replace('/settings', `/${currentRole}/account-settings`);
   }
 
   // Explicit absolute links are authoritative. A provider notification may be

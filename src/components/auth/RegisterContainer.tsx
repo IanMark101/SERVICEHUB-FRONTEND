@@ -72,32 +72,32 @@ export default function RegisterContainer({
       />
 
       {/* Right Panel: the panel itself is the registration surface */}
-      <main className="relative z-10 min-h-[100dvh] w-full overflow-y-auto border-black/[0.06] bg-white transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-[56%] lg:border-l">
+      <main className="relative z-10 min-h-[100dvh] w-full overflow-y-auto border-black/[0.06] bg-[#fffdfa] transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-1/2 lg:border-l">
         <div className="mx-auto flex min-h-[100dvh] w-full max-w-4xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-14 xl:px-20">
         {/* Mobile Header Bar */}
         <div className="mb-8 flex w-full items-center justify-between lg:hidden">
           <button
             onClick={onBackToHome}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-ink-muted dark:text-ink-secondary hover:text-ink dark:hover:text-white transition-colors"
           >
             <ArrowLeft size={16} />
             <span>Back to Home</span>
           </button>
           <div className="flex items-center gap-2">
             <Image
-              src="/logo.svg?v=3"
+              src="/logo.svg?v=6"
               alt="ServiceHub Logo"
               width={26}
               height={26}
               className="size-6.5 rounded-lg"
             />
-            <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] dark:text-white">
+            <span className="text-xs font-semibold tracking-tight text-ink dark:text-white">
               ServiceHub
             </span>
             <button
               type="button"
               onClick={toggleTheme}
-              className="ml-1 grid size-9 place-items-center rounded-xl border border-black/[0.08] bg-white text-slate-600 transition-colors hover:text-slate-950 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+              className="ml-1 grid size-9 place-items-center rounded-xl border border-black/[0.08] bg-white text-ink-muted transition-colors hover:text-ink dark:border-white/10 dark:bg-zinc-900 dark:text-ink-secondary dark:hover:text-white"
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
@@ -105,7 +105,7 @@ export default function RegisterContainer({
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-[40rem] py-6 lg:py-9">
+        <div className="mx-auto w-full max-w-[38rem] py-6 lg:py-9">
           
           {/* Error Message Banner */}
           {error && (

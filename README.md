@@ -25,8 +25,12 @@ npm install
 Create a `.env.local` file in the root of the frontend folder:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
-NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_web_client_id
 ```
+
+The Socket.IO endpoint is derived from `NEXT_PUBLIC_API_URL`; there is no
+separate socket environment variable. When using the sibling Docker Compose
+setup, these build-time values come from `SERVICEHUB-BACKEND/.env`.
 
 ### 3. Run the Development Server
 ```bash

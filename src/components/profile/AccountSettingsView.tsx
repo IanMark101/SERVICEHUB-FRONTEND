@@ -1,6 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import FormSelect from '../ui/FormSelect';
+import React, { useRef, useState } from 'react';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
@@ -14,14 +14,15 @@ import {
   Edit3,
   Camera,
   Upload,
+  AlertTriangle,
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import TrustScoreGuide from './account-settings/TrustScoreGuide';
-import AccountDangerZone from './account-settings/AccountDangerZone';
-import { apiGetAccountDeletionRequest, apiRequestAccountDeletion, type AccountDeletionRequest } from '../../api/users.api';
-import { useToast } from '../ui/Toast';
-import { getApiErrorMessage } from '../../lib/api/errors';
+import AccountDeletionPanel from './account-settings/AccountDeletionPanel';
+import PasswordSecurityPanel from './account-settings/PasswordSecurityPanel';
+import UserAvatar from '../ui/UserAvatar';
+import VerificationUpload from './VerificationUpload';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -34,16 +35,11 @@ interface AccountSettingsViewProps {
 }
 
 export default function AccountSettingsView({ user }: AccountSettingsViewProps) {
-  const { success: toastSuccess, error: toastError } = useToast();
   const {
     isDark,
     toggleTheme,
     email,
     role,
-    pwForm,
-    setPwForm,
-    pwSaving,
-    handleChangePassword,
     editForm,
     setEditForm,
     saving,
@@ -55,22 +51,12 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     phone,
   } = useUserProfile({ targetUser: user, isOwnProfile: true });
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
-  const [deleting, setDeleting] = useState(false);
-  const [deletionRequest, setDeletionRequest] = useState<AccountDeletionRequest | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [processingImage, setProcessingImage] = useState(false);
   const [showTrustGuide, setShowTrustGuide] = useState(true);
 
-  useEffect(() => {
-    if (user.role === 'admin') return;
-    apiGetAccountDeletionRequest()
-      .then((response) => setDeletionRequest(response.data))
-      .catch(() => setDeletionRequest(null));
-  }, [user.role]);
 
   const handleAvatarFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,57 +74,43 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     }
   };
 
-  const handleDeleteAccount = async () => {
-    setDeleting(true);
-    try {
-      const response = await apiRequestAccountDeletion();
-      setDeletionRequest(response.data);
-      setShowDeleteModal(false);
-      setDeleteConfirmText('');
-      if (response.data.status === 'BLOCKED') {
-        toastError('Deletion request blocked', 'Resolve the listed active marketplace or moderation obligations, then submit again.');
-      } else {
-        toastSuccess('Deletion request submitted', 'Your request is pending guarded administrator processing.');
-      }
-    } catch (cause: unknown) {
-      toastError('Request failed', getApiErrorMessage(cause, 'Unable to submit account deletion request.'));
-    } finally {
-      setDeleting(false);
-    }
-  };
 
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
-  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-slate-600 dark:text-neutral-300' : 'text-orange-500';
-  const btnBg = isProvider ? 'bg-emerald-600 hover:bg-emerald-700' : isAdmin ? 'bg-slate-950 hover:bg-slate-800 dark:bg-neutral-100 dark:text-neutral-950 dark:hover:bg-white' : 'bg-orange-600 hover:bg-orange-700';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-[var(--admin-accent)]' : 'text-orange-500';
   const verifiedBadge = isProvider
     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     : isAdmin
-      ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700'
+      ? 'bg-[var(--admin-soft)] text-[var(--admin-accent)] border-[var(--admin-border)]'
       : 'bg-orange-500/10 text-orange-600 border-orange-500/20';
 
-  const cardBg = isDark ? 'bg-[#1e1d1a] border-neutral-800' : 'bg-white border-slate-200';
-  const innerBg = isDark ? 'bg-[#252420] border-neutral-800' : 'bg-slate-50 border-slate-200';
-  const labelText = isDark ? 'text-neutral-400' : 'text-slate-500';
-  const headingText = isDark ? 'text-[#f2efe9]' : 'text-slate-900';
-  const inputClass = `w-full px-3.5 py-2.5 rounded-xl border text-xs font-medium transition-all ${
-    isDark
-      ? 'bg-[#191815] border-neutral-800 text-[#f2efe9] focus:border-emerald-500 focus:outline-none'
-      : 'bg-white border-slate-200 text-slate-900 focus:border-emerald-500 focus:outline-none'
-  }`;
+  const cardBg = 'bg-[color:var(--workspace-surface)] border-[color:var(--workspace-border)]';
+  const innerBg = 'bg-[color:var(--workspace-surface-muted)] border-[color:var(--workspace-border)]';
+  const labelText = 'text-[color:var(--workspace-muted)]';
+  const headingText = 'text-[color:var(--workspace-ink)]';
+  const inputClass = 'workspace-form-control w-full px-3.5 py-2.5 text-sm font-medium';
 
   return (
-    <div className={`max-w-4xl mx-auto space-y-6 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-5xl mx-auto space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
       
       {/* Header Banner */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-1`}>
-        <h2 className={`text-xl font-extrabold tracking-tight ${headingText}`}>Account & Security Settings</h2>
-        <p className={`text-xs ${labelText}`}>Manage your login credentials, notification preferences, privacy controls, and security.</p>
+      <div className="px-1 py-4">
+        <h2 className={`text-2xl font-extrabold tracking-[-0.035em] ${headingText}`}>Account & Security Settings</h2>
+        <p className={`mt-2 max-w-2xl text-sm leading-6 ${labelText}`}>Manage your profile, residency verification, password, and appearance.</p>
       </div>
 
+      <nav className="workspace-section-nav" aria-label="Account settings sections">
+        <a href="#account-identity">Account</a>
+        <a href="#contact-information">Profile</a>
+        {!isAdmin && <a href="#verification">Verification</a>}
+        <a href="#password-security">Security</a>
+        <a href="#appearance">Appearance</a>
+        {!isAdmin && <a href="#trust-safety">Trust & safety</a>}
+      </nav>
+
       {/* Account Details & Email Card */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
-        <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+      <section id="account-identity" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
+        <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
           <User size={17} className={accentColor} /> Account Identity
         </h3>
 
@@ -162,18 +134,18 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <label className={`block font-semibold ${labelText}`}>Account Role</label>
             <input
               type="text"
-              value={role.toUpperCase()}
+              value={isAdmin ? 'Administrator' : 'Member · Seeker and Provider'}
               disabled
               className={`${inputClass} opacity-80 cursor-not-allowed uppercase font-bold`}
             />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* 🌟 Profile & Social Presence Settings Card */}
-      <div id="contact-information" className={`${cardBg} scroll-mt-24 rounded-[24px] p-6 border space-y-4`}>
-        <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800">
-          <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+      <section id="contact-information" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
+        <div className="flex items-center justify-between border-b border-[color:var(--workspace-border)] pb-4">
+          <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
             <Edit3 size={17} className={accentColor} /> Personal & Social Profile
           </h3>
           <span className={`text-[11px] font-semibold ${labelText}`}>
@@ -212,7 +184,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-9' : ''}`}
               />
               {hasActiveEngagements && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle">
                   <Lock className="w-4 h-4" />
                 </div>
               )}
@@ -230,7 +202,8 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
 
           <div className="space-y-1.5">
             <label className={`block font-semibold ${labelText}`}>Barangay (Cordova, Cebu)</label>
-            <select
+            <FormSelect
+              aria-label="Barangay (Cordova, Cebu)"
               value={editForm.location}
               onChange={e => setEditForm((form) => ({ ...form, location: e.target.value }))}
               className={inputClass}
@@ -239,7 +212,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
               {CORDOVA_BARANGAYS.map(b => (
                 <option key={b} value={b}>{b}</option>
               ))}
-            </select>
+            </FormSelect>
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
@@ -254,20 +227,16 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
 
           {/* 📸 Profile Photo Upload & Preview */}
-          <div className="sm:col-span-2 p-4 rounded-2xl border dark:border-neutral-800 bg-slate-50/50 dark:bg-[#1c1b18]/40 space-y-3">
+          <div className="sm:col-span-2 space-y-3 rounded-2xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-4">
             <label className={`block font-semibold ${labelText}`}>Profile Picture</label>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative group flex-shrink-0">
-                <Image unoptimized width={80} height={80}
-                  src={editForm.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name || 'User')}&background=random`}
-                  alt="Profile Preview"
-                  className="w-20 h-20 rounded-full object-cover border-2 border-slate-300 dark:border-neutral-700 shadow-sm"
-                />
+                <UserAvatar src={editForm.avatarUrl} name={editForm.name} alt="Profile preview" size={80} role={isProvider ? 'provider' : isAdmin ? 'admin' : 'seeker'} shape="soft" />
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={processingImage}
-                  className="absolute inset-0 rounded-full bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-[24%] bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                   title="Change Photo"
                 >
                   <Camera size={20} />
@@ -287,7 +256,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={processingImage}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold ${btnBg} text-white flex items-center gap-1.5 shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-60`}
+                    className="workspace-primary-button inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-sm transition-colors disabled:opacity-60"
                   >
                     <Upload size={13} />
                     <span>{processingImage ? 'Optimizing...' : 'Upload New Photo'}</span>
@@ -297,7 +266,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                     <button
                       type="button"
                       onClick={() => setEditForm((form) => ({ ...form, avatarUrl: '' }))}
-                      className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-neutral-800 text-slate-500 hover:text-rose-500 hover:border-rose-500/30 transition-all flex items-center gap-1"
+                      className="flex min-h-10 items-center gap-1 rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-3 py-2 text-xs font-bold text-[color:var(--workspace-muted)] transition-colors hover:border-rose-500/30 hover:text-rose-500"
                     >
                       <Trash2 size={13} />
                       <span>Reset</span>
@@ -308,15 +277,15 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                   Supported formats: JPG, PNG, WebP (Max 10MB). Automatically cropped & optimized.
                 </p>
                 {uploadError && (
-                  <p className="text-[11px] font-bold text-rose-500">⚠️ {uploadError}</p>
+                  <p className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400"><AlertTriangle size={14} /> {uploadError}</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Social Media & Web Links */}
-          <div className="sm:col-span-2 pt-3 border-t dark:border-neutral-800 space-y-3">
-            <h4 className={`text-xs font-black uppercase tracking-wider ${headingText}`}>
+          <div className="sm:col-span-2 space-y-3 border-t border-[color:var(--workspace-border)] pt-4">
+            <h4 className={`text-sm font-bold ${headingText}`}>
               Social Media & Web Presence
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -356,77 +325,32 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
         </div>
 
-        <div className="flex justify-end pt-3 border-t dark:border-neutral-800">
+        <div className="flex justify-end border-t border-[color:var(--workspace-border)] pt-4">
           <button
             type="button"
             onClick={() => handleSaveProfile()}
             disabled={saving}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold ${btnBg} text-white transition-all shadow-sm active:scale-95 disabled:opacity-50 flex items-center gap-1.5`}
+            className="workspace-primary-button flex min-h-11 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
           >
             <Save size={14} />
             <span>{saving ? 'Saving Profile...' : 'Save Profile Changes'}</span>
           </button>
         </div>
-      </div>
+      </section>
 
-      {/* Password Security Card */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
-        <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
-          <Lock size={17} className={accentColor} /> Password & Security
-        </h3>
+      {!isAdmin && <section id="verification" className={`${cardBg} scroll-mt-24 rounded-2xl border p-5 sm:p-6`}>
+        <h2 className={`text-base font-bold ${headingText}`}>Residency verification</h2>
+        <p className={`mt-2 mb-5 text-sm ${labelText}`}>Manage your private verification submission. Only your verification status appears on your profile.</p>
+        {user.verificationStatus === 'APPROVED' ? <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Your Cordova residency is verified.</p>
+          : user.verificationStatus === 'PENDING_REVIEW' ? <p className={`text-sm ${labelText}`}>Your submission is awaiting review.</p>
+          : <VerificationUpload isDark={isDark} />}
+      </section>}
 
-        <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="space-y-3 text-xs">
-          <div className="space-y-1.5">
-            <label className={`block font-semibold ${labelText}`}>Current Password</label>
-            <input
-              type="password"
-              value={pwForm.currentPassword}
-              onChange={(e) => setPwForm(p => ({ ...p, currentPassword: e.target.value }))}
-              placeholder="Enter current password"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className={`block font-semibold ${labelText}`}>New Password</label>
-              <input
-                type="password"
-                value={pwForm.newPassword}
-                onChange={(e) => setPwForm(p => ({ ...p, newPassword: e.target.value }))}
-                placeholder="At least 8 characters"
-                className={inputClass}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className={`block font-semibold ${labelText}`}>Confirm New Password</label>
-              <input
-                type="password"
-                value={pwForm.confirmPassword}
-                onChange={(e) => setPwForm(p => ({ ...p, confirmPassword: e.target.value }))}
-                placeholder="Re-enter new password"
-                className={inputClass}
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={pwSaving}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold ${btnBg} text-white transition-all shadow-sm active:scale-95 disabled:opacity-50`}
-          >
-            {pwSaving ? 'Updating Password...' : 'Update Password'}
-          </button>
-        </form>
-      </div>
+      <PasswordSecurityPanel isDark={isDark} />
 
       {/* Appearance Card */}
-      <div className={`${cardBg} rounded-[24px] p-6 border space-y-4`}>
-        <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
+      <section id="appearance" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
+        <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
           <Moon size={17} className="text-emerald-500" /> Appearance
         </h3>
 
@@ -441,15 +365,15 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
               onClick={toggleTheme}
               className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${innerBg} ${headingText}`}
             >
-              {isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-slate-600" />}
+              {isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-ink-muted" />}
               <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {!isAdmin && (
-        <>
+        <section id="trust-safety" className="scroll-mt-24 space-y-5">
           <TrustScoreGuide
             isDark={isDark}
             isOpen={showTrustGuide}
@@ -460,25 +384,8 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             onToggle={() => setShowTrustGuide(!showTrustGuide)}
           />
 
-          <AccountDangerZone
-            isOpen={showDeleteModal}
-            confirmation={deleteConfirmText}
-            deleting={deleting}
-            request={deletionRequest}
-            cardBg={cardBg}
-            innerBg={innerBg}
-            headingText={headingText}
-            labelText={labelText}
-            inputClass={inputClass}
-            onOpen={() => setShowDeleteModal(true)}
-            onClose={() => {
-              setShowDeleteModal(false);
-              setDeleteConfirmText('');
-            }}
-            onConfirmationChange={setDeleteConfirmText}
-            onDelete={handleDeleteAccount}
-          />
-        </>
+          <AccountDeletionPanel email={email || user.email} isDark={isDark} />
+        </section>
       )}
 
       {/* Phone Password Confirmation Modal */}

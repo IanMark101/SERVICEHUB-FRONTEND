@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -11,6 +11,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
+  const appliedBookingLink = useRef<string | null>(null);
 
   // Filter transactions for currentUserId (as provider OR seeker)
   const myTransactions = useMemo(() => transactions.filter(tx => {
@@ -35,38 +36,34 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
   } = usePagination(myTransactions, 8);
 
   useEffect(() => {
-    if (bookingIdParam) {
+    if (bookingIdParam && appliedBookingLink.current !== bookingIdParam) {
       const idx = myTransactions.findIndex(tx => tx.jobId === bookingIdParam);
       if (idx !== -1) {
         const targetPage = Math.floor(idx / 8) + 1;
         const stateTimer = window.setTimeout(() => {
+          appliedBookingLink.current = bookingIdParam;
           goToPage(targetPage);
           setHighlightedBookingId(bookingIdParam);
         }, 0);
-        
-        const scrollTimer = setTimeout(() => {
-          const element = document.getElementById(`transaction-${bookingIdParam}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 400);
-
-        const clearTimer = setTimeout(() => {
-          setHighlightedBookingId(null);
-        }, 3400);
 
         return () => {
           window.clearTimeout(stateTimer);
-          clearTimeout(scrollTimer);
-          clearTimeout(clearTimer);
         };
       }
+    } else if (!bookingIdParam) {
+      appliedBookingLink.current = null;
     }
   }, [bookingIdParam, myTransactions, goToPage]);
 
+  useEffect(() => {
+    if (!highlightedBookingId) return;
+    const timer = window.setTimeout(() => setHighlightedBookingId(null), 3400);
+    return () => window.clearTimeout(timer);
+  }, [highlightedBookingId]);
+
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
-      
+    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
+
 
 
       {/* Date filter row */}
@@ -74,27 +71,28 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
         isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
       }`}>
         <div>
-          <span className={`text-[9px] font-bold uppercase tracking-widest block mb-0.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>Total Earnings</span>
-          <span className={`text-2xl font-extrabold ${isDark ? 'text-emerald-450' : 'text-emerald-600'}`}>₱{totalEarnings}</span>
+          <span className={`text-[9px] font-bold uppercase tracking-widest block mb-0.5 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>Total Earnings</span>
+          <span className={`text-2xl font-extrabold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>₱{totalEarnings}</span>
         </div>
 
-        <div className={`flex items-center rounded-xl px-3 py-2 text-xs border ${
+        <div className={`form-control-group flex items-center rounded-xl px-3 py-2 text-xs border ${
           isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-200'
         }`}>
-          <Calendar className={`w-4 h-4 mr-1.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`} />
-          <input 
-            type="date" 
+          <Calendar className={`w-4 h-4 mr-1.5 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`} />
+          <input
+            data-form-unstyled
+            type="date"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
             className={`bg-transparent border-none text-xs focus:outline-none w-28 select-none ${
-              isDark ? 'text-[#f2efe9] color-scheme-dark' : 'text-slate-800'
+              isDark ? 'text-white color-scheme-dark' : 'text-ink'
             }`}
             placeholder="mm/dd/yyyy"
           />
           {filterDate && (
-            <button 
+            <button
               onClick={() => setFilterDate('')}
-              className={`font-bold ml-1 transition-colors ${isDark ? 'text-neutral-500 hover:text-white' : 'text-slate-400 hover:text-slate-700'}`}
+              className={`font-bold ml-1 transition-colors ${isDark ? 'text-ink-muted hover:text-white' : 'text-ink-subtle hover:text-ink-secondary'}`}
             >
               ✕
             </button>
@@ -105,7 +103,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
       {/* Ledger Rows */}
       {myTransactions.length === 0 ? (
         <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
+          isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
         }`}>
           No transaction history found.
         </div>
@@ -113,22 +111,22 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
         <div className={`rounded-[24px] border overflow-hidden shadow-sm transition-colors duration-200 ${
           isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
         }`}>
-          
+
           {/* Navigation layout strips */}
           <div className="relative p-5 space-y-4">
-            
+
             {/* Arrows decorations */}
             <div className="absolute top-1/2 -left-4 -translate-y-1/2 hidden md:block">
               <button className={`w-8 h-8 rounded-full border flex items-center justify-center shadow transition-all active:scale-90 ${
-                isDark ? 'border-neutral-800 bg-[#1c1b18] text-[#b4b0a9] hover:text-white' : 'border-slate-200 bg-white text-slate-400 hover:text-slate-700'
+                isDark ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:text-white' : 'border-slate-200 bg-white text-ink-subtle hover:text-ink-secondary'
               }`}>
                 <ChevronLeft className="w-4 h-4" />
               </button>
             </div>
-            
+
             <div className="absolute top-1/2 -right-4 -translate-y-1/2 hidden md:block">
               <button className={`w-8 h-8 rounded-full border flex items-center justify-center shadow transition-all active:scale-90 ${
-                isDark ? 'border-neutral-800 bg-[#1c1b18] text-[#b4b0a9] hover:text-white' : 'border-slate-200 bg-white text-slate-400 hover:text-slate-700'
+                isDark ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:text-white' : 'border-slate-200 bg-white text-ink-subtle hover:text-ink-secondary'
               }`}>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -144,41 +142,41 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
               const isHighlighted = highlightedBookingId && tx.jobId === highlightedBookingId;
 
               return (
-                <div 
+                <div
                   key={tx.id}
                   id={`transaction-${tx.jobId}`}
-                  className={`border rounded-2xl p-4 flex items-center justify-between transition-all duration-500 ${
-                    isHighlighted 
+                  className={`border rounded-2xl p-4 flex min-w-0 flex-col gap-3 transition-all duration-500 sm:flex-row sm:items-center sm:justify-between ${
+                    isHighlighted
                       ? (isDark ? 'border-orange-500 bg-orange-950/10 ring-1 ring-orange-500/30' : 'border-orange-400 bg-orange-50/70 ring-1 ring-orange-400/40')
-                      : isDark 
-                      ? 'bg-[#1c1b18] border-neutral-850 hover:border-neutral-800' 
-                      : 'bg-slate-50 border-slate-100 hover:border-slate-250'
+                      : isDark
+                      ? 'bg-[#1c1b18] border-neutral-850 hover:border-neutral-800'
+                      : 'bg-slate-50 border-slate-100 hover:border-slate-200'
                   }`}
                 >
-                  <div className="space-y-1">
-                    <h4 className={`font-extrabold text-xs ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                  <div className="min-w-0 space-y-1">
+                    <h4 className={`break-words font-extrabold text-xs ${isDark ? 'text-white' : 'text-ink'}`}>
                       {tx.serviceTitle}
                     </h4>
-                    
-                    <div className={`flex items-center space-x-2 text-[10px] font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
+
+                    <div className={`flex flex-wrap items-center gap-2 text-[10px] font-bold ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
                       <span className="flex items-center">
                         <Calendar className="w-3 h-3 mr-1" />
                         {formattedDate}
                       </span>
                       <span>•</span>
-                      
+
                       {tx.paymentMethod !== 'On-site Cash' ? (
                         <span className={`inline-flex items-center text-[9px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold ${
-                          isDark 
-                            ? 'text-blue-400 bg-blue-950/20 border-blue-900/30' 
+                          isDark
+                            ? 'text-blue-400 bg-blue-950/20 border-blue-900/30'
                             : 'text-blue-600 bg-blue-50 border-blue-100'
                         }`}>
                           {tx.paymentMethod}
                         </span>
                       ) : (
                         <span className={`inline-flex items-center text-[9px] px-2 py-0.5 rounded border uppercase tracking-wider font-bold ${
-                          isDark 
-                            ? 'text-emerald-450 bg-emerald-955/20 border-emerald-900/30' 
+                          isDark
+                            ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30'
                             : 'text-emerald-600 bg-emerald-50 border-emerald-100'
                         }`}>
                           On-Site Cash
@@ -187,7 +185,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
                     </div>
                   </div>
 
-                  <span className={`text-sm font-extrabold ${isDark ? 'text-emerald-455' : 'text-emerald-600'}`}>
+                  <span className={`self-end whitespace-nowrap text-sm font-extrabold sm:self-auto ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                     + ₱{tx.amount}
                   </span>
 

@@ -21,7 +21,7 @@ export default function HelpArticlePage({ categorySlug, articleSlug }: HelpArtic
     return (
       <div className="max-w-3xl mx-auto py-20 text-center space-y-4">
         <h1 className="text-2xl font-bold">Article Not Found</h1>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           The help article you are looking for does not exist or may have been moved.
         </p>
         <Link

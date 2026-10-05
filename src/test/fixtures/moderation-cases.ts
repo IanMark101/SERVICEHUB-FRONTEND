@@ -1,0 +1,15 @@
+import type { ModerationCase } from '@/components/admin/cases/types';
+
+// Illustrative QA fixtures only. Never loaded by the production page.
+export const safetyCase: ModerationCase = {
+  id: 'qa-safety-case', source: 'report', type: 'SAFETY', concern: 'INAPPROPRIATE_BEHAVIOR', status: 'UNDER_REVIEW',
+  createdAt: '2026-09-30T06:10:00Z', submittedByRole: 'Seeker', explanation: 'The provider continued sending insulting messages after I asked them to stop. Please review our booking conversation.\n\n' + 'LongUnbrokenComplaint'.repeat(25),
+  reporter: { id: 'qa-seeker', name: 'Mara Cabahug', trustScore: 79, verificationStatus: 'APPROVED', moderationStatus: 'ACTIVE' },
+  reportedUser: { id: 'qa-provider', name: 'Rafael Abellana', trustScore: 89, verificationStatus: 'APPROVED', moderationStatus: 'ACTIVE' },
+  booking: { id: 'qa-booking', title: 'Phone repair', amount: 500, status: 'DISPUTED', statusBeforeDispute: 'ONGOING', paymentStatus: 'FROZEN_HELD', paymentMethod: 'GCash', seeker: { id: 'qa-seeker', name: 'Mara Cabahug', trustScore: 79, verificationStatus: 'APPROVED', moderationStatus: 'ACTIVE' }, provider: { id: 'qa-provider', name: 'Rafael Abellana', trustScore: 89, verificationStatus: 'APPROVED', moderationStatus: 'ACTIVE' }, queue: { status: 'SERVING', position: 1 }, messageCount: 2 },
+  hasPrivateEvidence: false, allowedOutcomes: ['dismiss','resolve_safety','cancel_booking'], otherBlockingCases: 0,
+  history: [{ id: 'qa-review', action: 'CASE_REVIEW_STARTED', createdAt: '2026-09-30T07:00:00Z', actor: { name: 'Admin Moderator' }, reason: 'Administrator opened the case for review' }],
+};
+export const completionCase: ModerationCase = { ...safetyCase, id: 'qa-completion-case', type: 'COMPLETION_DISPUTE', concern: 'INCOMPLETE_SERVICE', status: 'PENDING', explanation: 'The replacement screen works, but the speaker repair included in the agreement is unfinished.', booking: { ...safetyCase.booking, title: 'Screen and speaker repair', statusBeforeDispute: 'AWAITING_CONFIRMATION', amount: 1850 }, allowedOutcomes: ['dismiss','cancel_booking','release_provider_and_complete'] };
+export const escalationCase: ModerationCase = { ...safetyCase, id: 'qa-escalation-case', source: 'completion', type: 'COMPLETION_ESCALATION', concern: 'COMPLETION_REVIEW', reporter: safetyCase.booking.provider, reportedUser: null, submittedByRole: 'Provider', status: 'PENDING', explanation: 'I completed the cleaning on Monday and have not received confirmation after 72 hours.', booking: { ...safetyCase.booking, title: 'Move-out house cleaning', amount: 2300, status: 'AWAITING_CONFIRMATION', statusBeforeDispute: null, paymentStatus: 'PAID_HELD' }, allowedOutcomes: ['keep_awaiting','refund_seeker','release_provider_and_complete'] };
+export const closedCase: ModerationCase = { ...safetyCase, id: 'qa-closed-case', status: 'DISMISSED', resolvedAt: '2026-09-30T08:00:00Z', allowedOutcomes: [], decisionExplanation: 'The conversation did not support the allegation. No account penalty was applied.' };

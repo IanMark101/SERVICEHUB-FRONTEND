@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement } from '../../types';
@@ -10,20 +10,50 @@ import ReviewModal from '../seeker/ReviewModal';
 import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ProviderActivityTabs from './activity/ProviderActivityTabs';
 import ProviderCancellationDeclineModal from './activity/ProviderCancellationDeclineModal';
+import ProviderBookingCancellationModal from './activity/ProviderBookingCancellationModal';
 import {
   countProviderActivityTab,
   filterProviderActivityItems,
 } from './activity/providerActivity.utils';
 import type { ProviderActivitySort, ProviderActivityTab } from './activity/types';
 import ProviderActivityList from './activity/ProviderActivityList';
-import ReasonModal from '../ui/ReasonModal';
+import ProviderWorkloadPanel from './activity/ProviderWorkloadPanel';
 import { getApiErrorMessage } from '../../lib/api/errors';
+import { normalizeOfferStatus } from '../../lib/offerStatus';
+import SafetyReportModal from '../activity/SafetyReportModal';
+import { activityGroupOrder, getBookingActivityGroup } from '../activity/activityPresentation';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
+  const offerIdParam = searchParams.get('offer');
+  const urlItemId = offerIdParam ? `offer:${offerIdParam}` : bookingIdParam;
+  const [openOverride, setOpenOverride] = useState<{ from: string | null; id: string | null } | null>(null);
+  const openItemId = openOverride?.from === urlItemId ? openOverride.id : urlItemId;
+  const tabParam = searchParams.get('tab');
+  const deepLinkKey = `${tabParam ?? ''}:${bookingIdParam ?? ''}`;
+  const manuallyOverriddenLink = useRef<string | null>(null);
+  const appliedBookingLink = useRef<string | null>(null);
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
+
+  const openItem = (id: string, kind: 'booking' | 'offer') => {
+    setOpenOverride({ from: urlItemId, id: kind === 'offer' ? `offer:${id}` : id });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('booking');
+    params.delete('offer');
+    params.set(kind === 'offer' ? 'offer' : 'booking', id);
+    router.push(`/provider/provider-activity?${params.toString()}`, { scroll: false });
+  };
+
+  const closeItem = () => {
+    setOpenOverride({ from: urlItemId, id: null });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('booking');
+    params.delete('offer');
+    const query = params.toString();
+    router.push(`/provider/provider-activity${query ? `?${query}` : ''}`, { scroll: false });
+  };
   const {
     jobEngagements,
     bids,
@@ -48,9 +78,12 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const myEngagements = useMemo(() => resolvedProviderId
     ? jobEngagements.filter(je => je.providerId === resolvedProviderId)
     : jobEngagements, [jobEngagements, resolvedProviderId]);
-  const myPendingBids = useMemo(() => resolvedProviderId
-    ? bids.filter(b => b.providerId === resolvedProviderId && b.status === 'pending')
-    : bids.filter(b => b.status === 'pending'), [bids, resolvedProviderId]);
+  const activeJobId = resolvedProviderId
+    ? myEngagements.find((engagement) => engagement.started && ['in_progress', 'disputed'].includes(engagement.status))?.id
+    : undefined;
+  const paidWaiting = myEngagements.some((engagement) => engagement.status === 'queued' && engagement.paymentMethod === 'GCash');
+  const myOffers = useMemo(() => bids.filter(b => (!resolvedProviderId || b.providerId === resolvedProviderId)
+    && normalizeOfferStatus(b.status) !== 'accepted'), [bids, resolvedProviderId]);
 
   // Filter state
   const [activeTab, setActiveTab] = useState<ProviderActivityTab>('all');
@@ -63,6 +96,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
   const handleTabChange = (tab: typeof activeTab) => {
     if (tab === activeTab) return;
+    manuallyOverriddenLink.current = deepLinkKey;
     setIsLoading(true);
     setActiveTab(tab);
     setTimeout(() => setIsLoading(false), 250);
@@ -71,6 +105,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
   const [cancelingBookingId, setCancelingBookingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+  const cancelingBooking = myEngagements.find((booking) => booking.id === cancelingBookingId) || null;
+  const [reportingEngagement, setReportingEngagement] = useState<JobEngagement | null>(null);
 
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
@@ -99,24 +135,24 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     };
   }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
 
-  const tabParam = searchParams.get('tab');
-
   useEffect(() => {
-    if (tabParam) {
+    if (tabParam && manuallyOverriddenLink.current !== deepLinkKey) {
       const allowed: ProviderActivityTab[] = ['all', 'in_progress', 'waiting', 'pending_offers', 'awaiting_approval', 'disputed', 'canceled'];
       if (allowed.includes(tabParam as ProviderActivityTab)) {
-        const timer = window.setTimeout(() => setActiveTab(tabParam as ProviderActivityTab), 0);
+        const timer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current !== deepLinkKey) setActiveTab(tabParam as ProviderActivityTab);
+        }, 0);
         return () => window.clearTimeout(timer);
       }
     }
-  }, [tabParam]);
+  }, [tabParam, deepLinkKey]);
 
   useEffect(() => {
-    if (bookingIdParam) {
+    if (bookingIdParam && manuallyOverriddenLink.current !== deepLinkKey && appliedBookingLink.current !== deepLinkKey) {
       const found = myEngagements.find(e => e.id === bookingIdParam || e.completedServiceId === bookingIdParam);
       if (found) {
         let targetTab: typeof activeTab = 'all';
-        if (found.status === 'in_progress') targetTab = 'in_progress';
+        if (found.status === 'in_progress') targetTab = found.started ? 'in_progress' : 'waiting';
         else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
         else if (found.status === 'awaiting_seeker_approval') targetTab = 'awaiting_approval';
         else if (found.status === 'disputed') targetTab = 'disputed';
@@ -124,29 +160,26 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         const stateTimer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current === deepLinkKey) return;
+          appliedBookingLink.current = deepLinkKey;
           setActiveTab(targetTab);
           setHighlightedBookingId(found.id);
         }, 0);
 
-        const scrollTimer = setTimeout(() => {
-          const element = document.getElementById(`booking-${found.id}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 300);
-
-        const clearTimer = setTimeout(() => {
-          setHighlightedBookingId(null);
-        }, 3000);
-
         return () => {
           window.clearTimeout(stateTimer);
-          clearTimeout(scrollTimer);
-          clearTimeout(clearTimer);
         };
       }
+    } else if (!bookingIdParam) {
+      appliedBookingLink.current = null;
     }
-  }, [bookingIdParam, myEngagements]);
+  }, [bookingIdParam, deepLinkKey, myEngagements]);
+
+  useEffect(() => {
+    if (!highlightedBookingId) return;
+    const timer = window.setTimeout(() => setHighlightedBookingId(null), 3000);
+    return () => window.clearTimeout(timer);
+  }, [highlightedBookingId]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -167,16 +200,23 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     jobRequests.find((request) => request.id === requestId);
 
   const countTabItems = (tab: ProviderActivityTab) =>
-    countProviderActivityTab(tab, myEngagements, myPendingBids);
+    countProviderActivityTab(tab, myEngagements, myOffers);
 
   const filteredItems = filterProviderActivityItems({
     activeTab,
     engagements: myEngagements,
-    pendingBids: myPendingBids,
+    pendingBids: myOffers,
     jobRequests,
     services,
     searchQuery,
     sortBy,
+  });
+
+  const prioritizedItems = [...filteredItems].sort((left, right) => {
+    const groupFor = (item: typeof left) => item.type === 'bid'
+      ? 'waiting' as const
+      : getBookingActivityGroup(item.data, 'provider', resolvedProviderId, activeJobId, paidWaiting);
+    return activityGroupOrder.indexOf(groupFor(left)) - activityGroupOrder.indexOf(groupFor(right));
   });
 
   // Pagination
@@ -189,7 +229,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     prevPage,
     startIndex,
     endIndex
-  } = usePagination(filteredItems, 6);
+  } = usePagination(prioritizedItems, 6);
 
   const [respondingReqId, setRespondingReqId] = useState<string | null>(null);
   const [declineNote, setDeclineNote] = useState<string>('');
@@ -202,7 +242,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         text: comment,
         tags
       });
-      success('Review Updated! ⭐', 'Your review for the client has been updated.');
+      success('Review updated', 'Your review for the client has been updated.');
     } else {
       if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
       await apiSubmitReview({
@@ -211,12 +251,13 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         text: comment,
         tags
       });
-      success('Client Review Submitted! ⭐', 'Thank you for your rating and feedback.');
+      success('Client review submitted', 'Thank you for your rating and feedback.');
     }
     refreshEngagements();
   };
 
   const handleProviderStartJob = async (id: string) => {
+    if (loadingItemId) return;
     setLoadingItemId(id);
     setLoadingActionType('start');
     try {
@@ -314,11 +355,15 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
 
   const handleApproveCancellation = async (requestId: string) => {
+    const booking = myEngagements.find((item) => item.cancellationRequests?.some((request) => request.id === requestId));
+    const onlinePayment = booking?.paymentMethod === 'GCash';
     setConfirmModal({
       isOpen: true,
       title: 'Approve Cancellation',
-      message: 'Approve this cancellation request? The booking will be cancelled and the seeker refunded.',
-      confirmText: 'Approve & Refund',
+      message: onlinePayment
+        ? 'Approve this cancellation request? The booking will be cancelled and any eligible GCash Test Mode refund will be processed.'
+        : 'Approve this cancellation request? The booking will be cancelled. Cash payments are arranged directly, so ServiceHub does not issue a cash refund.',
+      confirmText: onlinePayment ? 'Approve & Refund' : 'Approve Cancellation',
       cancelText: 'Keep Booking',
       variant: 'warning',
       onConfirm: async () => {
@@ -328,7 +373,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         try {
           const res = await apiRespondCancellationRequest(requestId, true);
           if (res.success) {
-            success('Cancellation Approved', 'Booking cancelled and seeker will be refunded.');
+            success('Cancellation Approved', onlinePayment ? 'Booking cancelled and any eligible GCash Test Mode refund was submitted.' : 'Booking cancelled. ServiceHub has not collected a cash payment.');
             refreshEngagements();
           } else {
             toastError('Action Failed', res.message || 'Failed to approve cancellation.');
@@ -377,7 +422,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
   const handleDeclineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!respondingReqId) return;
+    if (!respondingReqId || declineNote.trim().length < 3 || loadingItemId) return;
     setLoadingItemId(respondingReqId);
     setLoadingActionType('decline_cancellation');
     try {
@@ -400,28 +445,38 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
 
 
-      <ProviderActivityTabs
+      {!openItemId && <ProviderWorkloadPanel
+        refreshKey={`${notifications.length}:${loadingItemId ?? ''}:${myEngagements.map((booking) => `${booking.id}:${booking.status}:${booking.queuePosition ?? ''}:${booking.queueEstimatedWait ?? ''}`).join('|')}`}
+        onOpen={(id) => openItem(id, 'booking')}
+        onStart={(id) => { void handleProviderStartJob(id); }}
+        startingBookingId={loadingActionType === 'start' ? loadingItemId : null}
+        isDark={isDark}
+      />}
+
+      {!openItemId && <ProviderActivityTabs
         activeTab={activeTab}
         isDark={isDark}
         countTabItems={countTabItems}
         onTabChange={handleTabChange}
-      />
+      />}
 
       <ProviderActivityList
         model={{
-          myPendingBids, myEngagements, isDark, searchQuery, setSearchQuery,
+          myOffers, myEngagements, isDark, searchQuery, setSearchQuery,
           sortBy, setSortBy, isLoading, filteredItems, activeTab, router,
           paginatedItems, getRequestForBid, getCategoryForEngagement,
           loadingItemId, loadingActionType, highlightedBookingId,
           handleCancelOffer, handleApproveCancellation, handleDeleteClick,
           handleProviderStartJob, handleRequestJobApproval, handleCompletionEscalation,
           handleProviderRemoveFromQueue, handleEscalateCancellation, setRespondingReqId, setDeclineNote,
-          setReviewingEngagement, resolvedProviderId, user, currentPage,
-          totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
+          activeJobId,
+          setReviewingEngagement, openSafetyReport: setReportingEngagement, resolvedProviderId, user, currentPage,
+          totalPages, goToPage, nextPage, prevPage, startIndex, endIndex,
+          openItemId, openItem, closeItem
         }}
       />
 
@@ -439,16 +494,24 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         onSubmit={handleDeclineSubmit}
       />
 
-      <ReasonModal
-        isOpen={!!cancelingBookingId}
-        title="Request booking cancellation"
-        description="Explain why this booking should be cancelled. If work has started, the seeker must review the request."
+      <SafetyReportModal
+        engagement={reportingEngagement}
+        targetRole="seeker"
+        isDark={isDark}
+        onClose={() => setReportingEngagement(null)}
+        onSubmitted={async (created) => {
+          if (created) success('Report submitted', 'Your private safety report was sent to an administrator.');
+          else info('Report already received', 'This same incident is already in the moderation queue.');
+          await refreshEngagements();
+        }}
+      />
+
+      <ProviderBookingCancellationModal
+        booking={cancelingBooking}
         value={cancelReason}
         onChange={setCancelReason}
         onClose={() => { if (!loadingItemId) { setCancelingBookingId(null); setCancelReason(''); } }}
         onSubmit={submitProviderCancellation}
-        confirmText="Submit request"
-        variant="danger"
         isSubmitting={loadingItemId === cancelingBookingId && loadingActionType === 'remove'}
       />
 

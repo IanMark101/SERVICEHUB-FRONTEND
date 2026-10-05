@@ -17,14 +17,14 @@ const reviewMilestones = [
   },
   {
     icon: MessageSquareText,
-    title: 'Verified Review Submitted',
-    copy: 'An eligible participant can review the completed service relationship.',
+    title: 'Both Sides Can Review',
+    copy: 'After completion, the Seeker and Provider can each leave one review.',
     tag: 'Step 2',
   },
   {
     icon: Star,
-    title: 'Reputation Score Updated',
-    copy: 'Public provider ratings and trust point history reflect completed service reviews.',
+    title: 'Trust History Updates',
+    copy: 'The feedback becomes part of the recipient\'s ratings and trust history.',
     tag: 'Step 3',
   },
 ];
@@ -33,20 +33,21 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
   return (
     <section
       id="reviews"
+      data-landing-framing="viewport"
       data-theme={isDark ? 'dark' : 'light'}
-      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-24"
+      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 pt-16 pb-16 dark:border-white/10 sm:px-8 sm:pt-20 lg:flex lg:min-h-[100svh] lg:items-center lg:px-10 lg:py-28"
     >
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-        <ScrollReveal>
-          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
-            Reviews require real service completion.
+      <div className="mx-auto w-full max-w-7xl">
+        <ScrollReveal className="max-w-3xl">
+          <h2 className="text-balance font-sans text-3xl font-extrabold tracking-tight text-[#0a0a0a] dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+            Reviews come from completed ServiceHub work.
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-slate-600 dark:text-zinc-400">
-            ServiceHub unlocks reviews only for eligible participants after the related work is formally confirmed as completed.
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-neutral-600 dark:text-zinc-400">
+            Feedback helps the next person make an informed choice. Here is how it becomes part of a ServiceHub profile.
           </p>
         </ScrollReveal>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-10 md:grid-cols-3 md:gap-6">
           {reviewMilestones.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -55,20 +56,20 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                 direction="scale"
                 delay={index * 0.09}
                 hoverLift
-                className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90"
+                className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-7"
               >
                 <div className="flex items-center justify-between">
                   <div className="grid size-10 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
                     <Icon size={18} />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500">
+                  <span className="text-[11px] font-semibold text-neutral-500 dark:text-zinc-400">
                     {item.tag}
                   </span>
                 </div>
-                <h3 className="mt-6 text-sm font-bold text-slate-950 dark:text-white">
+                <h3 className="mt-5 text-base font-bold text-[#0a0a0a] dark:text-white sm:text-lg">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-zinc-400">
+                <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-zinc-400">
                   {item.copy}
                 </p>
               </ScrollReveal>

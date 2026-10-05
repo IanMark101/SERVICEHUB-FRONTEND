@@ -1,124 +1,105 @@
+import TrustScoreBadge from '../../../components/ui/TrustScoreBadge';
 import React from 'react';
 import Image from 'next/image';
-import { Calendar, Wrench } from 'lucide-react';
-import { RecentService } from '../types/community.types';
+import { ArrowUpRight, Briefcase } from '@phosphor-icons/react';
+import type { RecentService } from '../types/community.types';
 import CommunityEmptyState from './CommunityEmptyState';
 
 interface NewServicesSectionProps {
   services: RecentService[];
   isDark?: boolean;
   onSelectService: (id: string) => void;
+  onSelectProvider?: (id: string) => void;
 }
 
-export default function NewServicesSection({
-  services = [],
-  isDark = false,
-  onSelectService,
-}: NewServicesSectionProps) {
-  const formatPrice = (service: RecentService) => {
-    if (service.priceType === 'CUSTOM' || service.price === null) return 'Request a quote';
-    const rawPrice = typeof service.price === 'number' ? service.price : parseFloat(service.price as string) || 0;
-    const formatted = `₱${rawPrice.toLocaleString()}`;
+function formatPrice(service: RecentService) {
+  if (service.priceType === 'CUSTOM' || service.priceType === 'STARTS_AT' || service.price === null) return 'Price unavailable';
+  const rawPrice = typeof service.price === 'number' ? service.price : parseFloat(service.price as string) || 0;
+  const formatted = `₱${rawPrice.toLocaleString()}`;
+  switch (service.priceType) {
+    case 'PER_HOUR': return `${formatted} / hr`;
+    case 'PER_DAY': return `${formatted} / day`;
+    case 'PER_PROJECT': return `${formatted} / project`;
+    default: return formatted;
+  }
+}
 
-    switch (service.priceType) {
-      case 'PER_HOUR':
-        return `${formatted} / hr`;
-      case 'PER_DAY':
-        return `${formatted} / day`;
-      case 'PER_PROJECT':
-        return `${formatted} / project`;
-      case 'STARTS_AT':
-        return `From ${formatted}`;
-      default:
-        return formatted;
-    }
-  };
-
+export default function NewServicesSection({ services = [], isDark = false, onSelectService, onSelectProvider }: NewServicesSectionProps) {
   return (
-    <div
-      className={`rounded-2xl p-5 border shadow-sm space-y-4 ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
-      }`}
-    >
-      <div className="flex items-center justify-between border-b pb-3 dark:border-neutral-800/80">
-        <h3 className={`font-extrabold text-xs uppercase tracking-wider flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-          <Wrench className="w-3.5 h-3.5 text-emerald-500" />
-          <span>New Services</span>
-        </h3>
-        <span className={`text-[10px] font-bold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-400'}`}>
-          {services.length} listings
-        </span>
+    <section className={`min-w-0 rounded-3xl border p-4 sm:p-6 transition-all ${
+      isDark
+        ? 'bg-[#1c1b18] border-neutral-800/90 shadow-xl shadow-black/40'
+        : 'bg-white border-slate-200/90 shadow-sm shadow-slate-900/5'
+    }`} aria-labelledby="new-services-title">
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-neutral-800/80 pb-3.5">
+        <div className="flex items-center gap-2">
+          <Briefcase size={18} className="text-[#c86544]" aria-hidden="true" />
+          <h3 id="new-services-title" className={`text-base font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>New services</h3>
+        </div>
+        <span className={`text-xs font-semibold ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>{services.length} listings</span>
       </div>
 
       {services.length === 0 ? (
-        <CommunityEmptyState
-          icon={Wrench}
-          title="No new services are available to display"
-          description="Recently approved and published services from local providers will appear here."
-          isDark={isDark}
-        />
+        <div className="pt-4">
+          <CommunityEmptyState title="No new services are available to display" description="Services recently published by local providers will appear here." isDark={isDark} />
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="divide-y divide-slate-100 dark:divide-neutral-800/80">
           {services.map((service) => (
-            <button
-              type="button"
-              key={service.id}
-              onClick={() => onSelectService(service.id)}
-              className={`w-full border rounded-xl p-3.5 space-y-2 text-left transition-all duration-200 cursor-pointer select-none group/srv hover:border-slate-500/50 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 ${
-                isDark
-                  ? 'bg-[#191919] border-neutral-800/80 hover:bg-neutral-800/40 text-[#f2efe9]'
-                  : 'bg-slate-50 border-slate-200/80 hover:bg-white text-slate-900'
-              }`}
-              title={`View ${service.title}`}
-            >
-              <div className="flex items-start justify-between">
-                <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md border ${
-                  isDark ? 'bg-neutral-800 border-neutral-700 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-600'
-                }`}>
-                  {service.category?.name || 'Service'}
-                </span>
-                <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
-                  {formatPrice(service)}
-                </span>
-              </div>
-
-              <h4 className="font-extrabold text-xs leading-snug line-clamp-1 group-hover/srv:text-emerald-500 transition-colors">
-                {service.title}
-              </h4>
-
-              {/* Provider Info */}
-              <div className="flex items-center space-x-2 pt-1 border-t border-neutral-700/20 dark:border-neutral-800/60">
-                {service.provider?.avatarUrl ? (
-                  <Image
-                    src={service.provider.avatarUrl}
-                    alt={service.provider.name}
-                    width={20}
-                    height={20}
-                    unoptimized
-                    className="w-5 h-5 rounded-full object-cover flex-shrink-0"
-                  />
+            <article key={service.id} className="group/row flex min-w-0 items-start gap-2.5 rounded-xl py-3.5 sm:gap-4">
+              <button
+                type="button"
+                onClick={() => onSelectProvider?.(service.provider.id)}
+                aria-label={`View ${service.provider.name} profile`}
+                disabled={!onSelectProvider}
+                className="shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] disabled:cursor-default"
+              >
+                {service.provider.avatarUrl ? (
+                  <Image src={service.provider.avatarUrl} alt="" width={40} height={40} unoptimized className="size-9 sm:size-10 rounded-xl object-cover" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full bg-neutral-700 text-[#f2efe9] text-[9px] font-extrabold flex items-center justify-center flex-shrink-0">
-                    {service.provider?.name?.charAt(0).toUpperCase() || 'P'}
-                  </div>
+                  <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-[#f5ebe6] text-sm font-semibold text-[#aa5032] dark:bg-[#c86544]/15 dark:text-[#e9a58c]">{service.provider.name?.charAt(0).toUpperCase() || 'P'}</span>
                 )}
-                <span className={`text-[10px] font-semibold truncate ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
-                  {service.provider?.name || 'Local Provider'}
-                </span>
-                <span className={`text-[8px] font-extrabold px-1 rounded border ml-auto ${
-                  isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-100 text-emerald-700'
-                }`}>
-                  {service.provider?.trustScore || 50}%
-                </span>
+              </button>
+
+              <div className="min-w-0 flex-1">
+                <button
+                  type="button"
+                  onClick={() => onSelectService(service.id)}
+                  className={`block uppercase break-words [overflow-wrap:anywhere] text-left text-sm font-semibold leading-5 tracking-[-0.02em] transition-colors hover:text-[#aa5032] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:hover:text-[#e9a58c] ${isDark ? 'text-white' : 'text-ink'}`}
+                >
+                  {service.title}
+                </button>
+                <p className={`mt-1 text-xs leading-5 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
+                  {service.category?.name || 'Service'} by{' '}
+                  <button
+                    type="button"
+                    onClick={() => onSelectProvider?.(service.provider.id)}
+                    disabled={!onSelectProvider}
+                    className="font-semibold underline decoration-transparent underline-offset-2 transition-colors hover:text-[#aa5032] hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] disabled:no-underline dark:hover:text-[#e9a58c]"
+                  >
+                    {service.provider.name || 'Local provider'}
+                  </button>
+                </p>
+                <p className={`mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
+                  <span>Published {new Date(service.publishedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  {service.provider.trustScore != null && <TrustScoreBadge score={service.provider.trustScore} />}
+                </p>
+                <span className={`mt-1.5 block text-xs font-semibold sm:hidden ${isDark ? 'text-[#e9a58c]' : 'text-[#aa5032]'}`}>{formatPrice(service)}</span>
               </div>
-              <div className={`flex items-center gap-1 pt-1 text-[9px] font-semibold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-                <Calendar className="h-3 w-3" aria-hidden="true" />
-                <span>Published {new Date(service.publishedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-              </div>
-            </button>
+
+              <button
+                type="button"
+                onClick={() => onSelectService(service.id)}
+                aria-label={`Open ${formatPrice(service)} listing`}
+                className="flex shrink-0 items-start gap-2 rounded-lg p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]"
+              >
+                <span className={`hidden text-xs font-semibold sm:block ${isDark ? 'text-[#e9a58c]' : 'text-[#aa5032]'}`}>{formatPrice(service)}</span>
+                <ArrowUpRight size={16} className="text-ink-subtle transition-transform group-hover/row:-translate-y-0.5 group-hover/row:translate-x-0.5" aria-hidden="true" />
+              </button>
+            </article>
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Playfair_Display, Plus_Jakarta_Sans, Geist } from "next/font/google";
 import Script from "next/script";
 import { AppProvider } from "../context/AppContext";
 import { ToastProvider } from "../components/ui/Toast";
 import "./globals.css";
+import "../components/ui/form-controls.css";
+import { cn } from "@/lib/utils";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -13,17 +15,15 @@ const playfair = Playfair_Display({
   preload: false,
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-  preload: true,
-});
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "ServiceHub Cordova",
   description: "Hyperlocal service marketplace and queue management for Cordova, Cebu",
+  icons: {
+    icon: [{ url: '/favicon.svg?v=6', type: 'image/svg+xml', sizes: 'any' }, { url: '/favicon.ico?v=6', sizes: 'any' }],
+    apple: '/logo.png?v=6',
+  },
 };
 
 export default function RootLayout({
@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${playfair.variable} h-full antialiased font-sans`}
+      className={cn("h-full", "antialiased", playfair.variable, "font-sans", geist.variable)}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

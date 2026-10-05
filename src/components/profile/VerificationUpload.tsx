@@ -1,4 +1,5 @@
 "use client";
+import FormSelect from '../ui/FormSelect';
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Shield, Upload, CheckCircle2, Clock, XCircle, AlertTriangle, FileCheck, Trash2, Camera, Plus, Eye } from 'lucide-react';
@@ -27,7 +28,7 @@ const STATUS_CONFIG = {
   NOT_SUBMITTED: { icon: <Upload size={16} />, color: '#9ca3af', label: 'Not Submitted', bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.3)' },
   PENDING_REVIEW: { icon: <Clock size={16} />, color: '#f59e0b', label: 'Under Review', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)' },
   APPROVED: { icon: <CheckCircle2 size={16} />, color: '#10b981', label: 'Verified ✅', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)' },
-  REJECTED: { icon: <XCircle size={16} />, color: '#ef4444', label: 'Rejected — Please resubmit', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)' },
+  REJECTED: { icon: <XCircle size={16} />, color: '#ef4444', label: 'Rejected: Please resubmit', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)' },
 };
 
 export default function VerificationUpload({ isDark, onClose }: VerificationUploadProps) {
@@ -219,7 +220,8 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                       <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: textMuted, marginBottom: '6px' }}>
                         Document Type #{i + 1}
                       </label>
-                      <select
+                      <FormSelect
+                        aria-label={`Document Type #${i + 1}`}
                         value={row.documentType}
                         onChange={e => updateRow(i, 'documentType', e.target.value)}
                         style={inputStyle}
@@ -227,7 +229,7 @@ export default function VerificationUpload({ isDark, onClose }: VerificationUplo
                         {DOCUMENT_TYPES.map(dt => (
                           <option key={dt.value} value={dt.value}>{dt.label}</option>
                         ))}
-                      </select>
+                      </FormSelect>
                     </div>
 
                     {rows.length > 1 && (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { JobEngagement, ServiceListing } from '../../types';
@@ -13,13 +13,16 @@ import SeekerCancellationRequestModal from './activity/SeekerCancellationRequest
 import SeekerDisputeModal from './activity/SeekerDisputeModal';
 import {
   countSeekerActivityStatus,
-  filterSeekerActivityEngagements
+  filterSeekerActivityEngagements,
+  seekerNeedsAction,
 } from './activity/seekerActivity.utils';
 import { SeekerActivitySort, SeekerActivityTab } from './activity/types';
 import SeekerActivityList from './activity/SeekerActivityList';
 import ReasonModal from '../ui/ReasonModal';
 import RequestServiceModal from './RequestServiceModal';
 import { getApiErrorMessage } from '../../lib/api/errors';
+import SafetyReportModal from '../activity/SafetyReportModal';
+import { activityGroupOrder, getBookingActivityGroup } from '../activity/activityPresentation';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
@@ -27,17 +30,39 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
-  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | 'hide' | 'respond_cancellation' | null>(null);
+  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | 'hide' | 'approve_cancellation' | 'decline_cancellation' | null>(null);
 
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
+  const [openOverride, setOpenOverride] = useState<{ from: string | null; id: string | null } | null>(null);
+  const openBookingId = openOverride?.from === bookingIdParam ? openOverride.id : bookingIdParam;
+  const tabParam = searchParams.get('tab');
+  const deepLinkKey = `${tabParam ?? ''}:${bookingIdParam ?? ''}`;
+  const manuallyOverriddenLink = useRef<string | null>(null);
+  const appliedBookingLink = useRef<string | null>(null);
   const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
+
+  const openBooking = (id: string) => {
+    setOpenOverride({ from: bookingIdParam, id });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('booking', id);
+    router.push(`/seeker/seeker-activity?${params.toString()}`, { scroll: false });
+  };
+
+  const closeBooking = () => {
+    setOpenOverride({ from: bookingIdParam, id: null });
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('booking');
+    const query = params.toString();
+    router.push(`/seeker/seeker-activity${query ? `?${query}` : ''}`, { scroll: false });
+  };
 
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
   const [decliningCancellationId, setDecliningCancellationId] = useState<string | null>(null);
   const [declineCancellationReason, setDeclineCancellationReason] = useState('');
   const [repeatListing, setRepeatListing] = useState<ServiceListing | null>(null);
+  const [reportingEngagement, setReportingEngagement] = useState<JobEngagement | null>(null);
 
   const handleRequestAgain = (engagement: JobEngagement) => {
     const listing = services.find((service) => service.id === engagement.serviceId);
@@ -57,17 +82,26 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<SeekerActivityTab>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const tabLoadingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 450);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      if (tabLoadingTimer.current) clearTimeout(tabLoadingTimer.current);
+    };
   }, []);
 
   const handleTabChange = (tab: typeof activeTab) => {
     if (tab === activeTab) return;
+    manuallyOverriddenLink.current = deepLinkKey;
     setIsLoading(true);
     setActiveTab(tab);
-    setTimeout(() => setIsLoading(false), 250);
+    if (tabLoadingTimer.current) clearTimeout(tabLoadingTimer.current);
+    tabLoadingTimer.current = setTimeout(() => {
+      setIsLoading(false);
+      tabLoadingTimer.current = null;
+    }, 250);
   };
 
   // Debounced auto-refresh effect
@@ -94,54 +128,52 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     };
   }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
 
-  const tabParam = searchParams.get('tab');
-
   useEffect(() => {
-    if (tabParam) {
+    if (tabParam && manuallyOverriddenLink.current !== deepLinkKey) {
       const allowed: SeekerActivityTab[] = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'canceled'];
       if (allowed.includes(tabParam as SeekerActivityTab)) {
-        const timer = window.setTimeout(() => setActiveTab(tabParam as SeekerActivityTab), 0);
+        const timer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current !== deepLinkKey) setActiveTab(tabParam as SeekerActivityTab);
+        }, 0);
         return () => window.clearTimeout(timer);
       }
     }
-  }, [tabParam]);
+  }, [tabParam, deepLinkKey]);
 
   useEffect(() => {
-    if (bookingIdParam) {
+    if (bookingIdParam && manuallyOverriddenLink.current !== deepLinkKey && appliedBookingLink.current !== deepLinkKey) {
       const found = myEngagements.find(e => e.id === bookingIdParam || e.completedServiceId === bookingIdParam);
       if (found) {
         let targetTab: typeof activeTab = 'all';
-        if (found.status === 'in_progress') targetTab = 'active';
-        else if (found.status === 'queued' || found.status === 'pending_provider') targetTab = 'waiting';
-        else if (found.status === 'awaiting_seeker_approval') targetTab = 'action_required';
+        if (seekerNeedsAction(found, resolvedUserId)) targetTab = 'action_required';
+        else if (found.status === 'in_progress') targetTab = found.started ? 'active' : 'pending';
+        else if (found.status === 'queued') targetTab = 'waiting';
+        else if (found.status === 'pending_provider') targetTab = 'pending';
         else if (found.status === 'disputed') targetTab = 'disputed';
         else if (found.status === 'completed') targetTab = 'completed';
         else if (found.status === 'canceled') targetTab = 'canceled';
 
         const stateTimer = window.setTimeout(() => {
+          if (manuallyOverriddenLink.current === deepLinkKey) return;
+          appliedBookingLink.current = deepLinkKey;
           setActiveTab(targetTab);
           setHighlightedBookingId(found.id);
         }, 0);
 
-        const scrollTimer = setTimeout(() => {
-          const element = document.getElementById(`booking-${found.id}`);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 300);
-
-        const clearTimer = setTimeout(() => {
-          setHighlightedBookingId(null);
-        }, 3000);
-
         return () => {
           window.clearTimeout(stateTimer);
-          clearTimeout(scrollTimer);
-          clearTimeout(clearTimer);
         };
       }
+    } else if (!bookingIdParam) {
+      appliedBookingLink.current = null;
     }
-  }, [bookingIdParam, myEngagements]);
+  }, [bookingIdParam, deepLinkKey, myEngagements, resolvedUserId]);
+
+  useEffect(() => {
+    if (!highlightedBookingId) return;
+    const timer = window.setTimeout(() => setHighlightedBookingId(null), 3000);
+    return () => window.clearTimeout(timer);
+  }, [highlightedBookingId]);
 
   // Search & Sort States
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -165,16 +197,22 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   // Review Modal State
   const [reviewingEngagement, setReviewingEngagement] = useState<JobEngagement | null>(null);
 
-  const countStatus = (status: JobEngagement['status'] | 'action_required') =>
-    countSeekerActivityStatus(myEngagements, status);
+  const countStatus = (status: JobEngagement['status'] | 'action_required' | 'before_work') =>
+    countSeekerActivityStatus(myEngagements, status, resolvedUserId);
 
   const filteredEngagements = filterSeekerActivityEngagements({
     activeTab,
     engagements: myEngagements,
     searchQuery,
     sortBy,
-    categoryForEngagement: getCategoryForEngagement
+    categoryForEngagement: getCategoryForEngagement,
+    currentUserId: resolvedUserId,
   });
+
+  const prioritizedEngagements = [...filteredEngagements].sort((left, right) =>
+    activityGroupOrder.indexOf(getBookingActivityGroup(left, 'seeker', resolvedUserId)) -
+    activityGroupOrder.indexOf(getBookingActivityGroup(right, 'seeker', resolvedUserId))
+  );
 
 
   // Pagination
@@ -187,7 +225,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     prevPage,
     startIndex,
     endIndex
-  } = usePagination(filteredEngagements, 6);
+  } = usePagination(prioritizedEngagements, 6);
 
   const handleConfirmJobCompletion = async (jobId: string) => {
     setLoadingItemId(jobId);
@@ -226,7 +264,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         text: comment,
         tags
       });
-      success('Review Updated! ⭐', 'Your review has been updated.');
+      success('Review updated', 'Your review has been updated.');
     } else {
       if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
       await apiSubmitReview({
@@ -235,7 +273,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         text: comment,
         tags
       });
-      success('Review Submitted! ⭐', 'Thank you for your feedback.');
+      success('Review submitted', 'Thank you for your feedback.');
     }
     refreshEngagements();
   };
@@ -252,11 +290,11 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   const handleCancelSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cancelingJob) return;
+    if (!cancelingJob || loadingItemId || cancelReason.trim().length < 3) return;
     setLoadingItemId(cancelingJob.id);
     setLoadingActionType('cancel_submit');
     try {
-      const res = await apiCancelBooking(cancelingJob.id, cancelReason);
+      const res = await apiCancelBooking(cancelingJob.id, cancelReason.trim());
       if (res.success) {
         if (cancelingJob.started) {
           info('Cancellation Request Sent', 'The provider will review your request.');
@@ -310,7 +348,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   };
 
   const handleRespondCancellation = async (requestId: string, approve: boolean, suppliedNote?: string) => {
-    if (!approve && !suppliedNote) {
+    if (loadingItemId) return;
+    if (!approve && suppliedNote === undefined) {
       setDecliningCancellationId(requestId);
       setDeclineCancellationReason('');
       return;
@@ -318,15 +357,16 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     const note = approve ? undefined : suppliedNote?.trim();
     if (!approve && (!note || note.length < 3)) return;
     setLoadingItemId(requestId);
-    setLoadingActionType('respond_cancellation');
+    setLoadingActionType(approve ? 'approve_cancellation' : 'decline_cancellation');
     try {
       await apiRespondCancellationRequest(requestId, approve, note);
       success(approve ? 'Cancellation Approved' : 'Cancellation Declined', approve ? 'The booking was cancelled and any eligible refund was submitted.' : 'The provider may escalate the decision to Admin.');
-      refreshEngagements();
+      await refreshEngagements();
       setDecliningCancellationId(null);
       setDeclineCancellationReason('');
     } catch (err: unknown) {
       toastError('Response failed', getApiErrorMessage(err, 'Unable to respond to the cancellation.'));
+      try { await refreshEngagements(); } catch { /* Keep the original response error visible. */ }
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -365,17 +405,17 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   };
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
 
 
-      <SeekerActivityTabs
+      {!openBookingId && <SeekerActivityTabs
         activeTab={activeTab}
         isDark={isDark}
         totalCount={myEngagements.length}
         countStatus={countStatus}
         onTabChange={handleTabChange}
-      />
+      />}
 
       <SeekerActivityList
         model={{
@@ -385,13 +425,26 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
           loadingItemId, loadingActionType, setReviewingEngagement,
           handleDeleteClick, setDisputingJob, setConfirmModal,
           handleConfirmJobCompletion, handleEscalateClick, handleCancelClick, handleRespondCancellation,
-          handleRequestAgain,
+          handleRequestAgain, openSafetyReport: setReportingEngagement,
           currentUserId: resolvedUserId,
-          currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex
+          currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex,
+          openBookingId, openBooking, closeBooking
         }}
       />
 
       {repeatListing && <RequestServiceModal listing={repeatListing} onClose={() => setRepeatListing(null)} />}
+
+      <SafetyReportModal
+        engagement={reportingEngagement}
+        targetRole="provider"
+        isDark={isDark}
+        onClose={() => setReportingEngagement(null)}
+        onSubmitted={async (created) => {
+          if (created) success('Report submitted', 'Your private safety report was sent to an administrator.');
+          else info('Report already received', 'This same incident is already in the moderation queue.');
+          await refreshEngagements();
+        }}
+      />
 
       <SeekerDisputeModal
         engagement={disputingJob}
@@ -424,7 +477,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         onSubmit={() => decliningCancellationId ? handleRespondCancellation(decliningCancellationId, false, declineCancellationReason) : undefined}
         confirmText="Decline request"
         variant="danger"
-        isSubmitting={loadingItemId === decliningCancellationId && loadingActionType === 'respond_cancellation'}
+        isSubmitting={loadingItemId === decliningCancellationId && loadingActionType === 'decline_cancellation'}
       />
       {reviewingEngagement && (() => {
         const existingReview = reviewingEngagement.reviews?.find((review) => review.authorId === currentUserId);

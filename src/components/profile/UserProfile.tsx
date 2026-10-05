@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
-import { Award, MessageSquare, ShieldCheck, User } from 'lucide-react';
+import Link from 'next/link';
+import { Award, MessageSquare, ShieldCheck, User, UserRoundX } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { useUserProfile } from '../../hooks/useUserProfile';
 
@@ -9,6 +10,9 @@ import ProfileHeader, { getTrustBand } from './ProfileHeader';
 import ProfileEditForm from './ProfileEditForm';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import UserProfileTabs from './user-profile/UserProfileTabs';
+import WorkspaceTabs from '../ui/WorkspaceTabs';
+import MarketplaceProfileOverview from './MarketplaceProfileOverview';
+import ProfilePageSkeleton from './ProfilePageSkeleton';
 
 interface UserProfileProps {
   targetUser: UserSession;
@@ -16,6 +20,7 @@ interface UserProfileProps {
   initialTab?: 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
   onProfileUpdated?: (updated: Partial<UserSession>) => void;
   onTriggerVerification?: () => void;
+  variant?: 'workspace' | 'marketplace';
 }
 
 export default function UserProfile({
@@ -23,6 +28,7 @@ export default function UserProfile({
   isOwnProfile = false,
   initialTab,
   onProfileUpdated,
+  variant = 'workspace',
 }: UserProfileProps) {
   const profile = useUserProfile({ targetUser, isOwnProfile, initialTab, onProfileUpdated });
   const {
@@ -60,6 +66,8 @@ export default function UserProfile({
     labelText,
     headingText,
     inputClass,
+    loading,
+    profileLoadError,
   } = profile;
 
   const trustBand = getTrustBand(trustScore);
@@ -67,10 +75,25 @@ export default function UserProfile({
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
   const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
-  const activeTabBg = isProvider ? 'bg-emerald-600 text-white shadow-sm' : isAdmin ? 'bg-blue-600 text-white shadow-sm' : 'bg-orange-600 text-white shadow-sm';
+  const tabTone = isProvider ? 'provider' : isAdmin ? 'neutral' : 'seeker';
+
+  if (loading && variant === 'marketplace') {
+    return <ProfilePageSkeleton isOwnProfile={isOwnProfile} displayName={displayName} usernameHandle={usernameHandle} location={location} />;
+  }
+
+  if (profileLoadError && variant === 'marketplace') {
+    return (
+      <section className="mx-auto flex min-h-[24rem] max-w-2xl flex-col items-center justify-center rounded-2xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-6 py-12 text-center">
+        <span className="grid size-14 place-items-center rounded-2xl bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)]" aria-hidden="true"><UserRoundX size={25} /></span>
+        <h1 className="mt-5 text-2xl font-extrabold tracking-[-0.035em] text-[color:var(--workspace-ink)]">Profile unavailable</h1>
+        <p className="mt-2 max-w-md text-sm leading-6 text-[color:var(--workspace-muted)]">This marketplace profile could not be found or is not available right now.</p>
+        <Link href="/seeker/seek-services" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-[color:var(--workspace-ink)] px-4 text-sm font-semibold text-[color:var(--workspace-surface)]">Browse ServiceHub</Link>
+      </section>
+    );
+  }
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-4 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`${variant === 'marketplace' ? 'mx-auto max-w-[1180px] space-y-5' : 'mx-auto max-w-5xl space-y-4'} transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
       
       {/* 🌟 Profile Hero Header */}
       <ProfileHeader
@@ -96,6 +119,7 @@ export default function UserProfile({
         innerBg={innerBg}
         labelText={labelText}
         headingText={headingText}
+        variant={variant}
       />
 
       {/* ✏️ Profile Edit Drawer (Toggled from Hero Button) */}
@@ -116,72 +140,60 @@ export default function UserProfile({
         />
       )}
 
-      {/* 📌 Clean Tabbed Navigation Bar */}
-      <div className={`p-1 rounded-2xl border ${cardBg} flex items-center gap-1 overflow-x-auto shadow-sm`}>
-        <button
-          onClick={() => setActiveTab('overview')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'overview'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <User size={15} />
-          <span>Overview</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('reviews')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'reviews'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <MessageSquare size={15} />
-          <span>Reviews ({reviews.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('trust')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'trust'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <Award size={15} />
-          <span>Trust History</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('verification')}
-          className={`flex-1 min-w-[110px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'verification'
-              ? activeTabBg
-              : `${labelText} hover:bg-slate-100 dark:hover:bg-neutral-800`
-          }`}
-        >
-          <ShieldCheck size={15} />
-          <span>{isOwnProfile ? 'Verification' : 'Verification Status'}</span>
-          {verStatus === 'APPROVED' && (
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          )}
-        </button>
-      </div>
-
-      <UserProfileTabs
-        model={{
-          ...profile,
-          targetUser,
-          isOwnProfile,
-          trustBand,
-          isProvider,
-          isAdmin,
-          accentColor,
-          activeTabBg
-        }}
+      <WorkspaceTabs
+        activeValue={activeTab}
+        onChange={setActiveTab}
+        ariaLabel="Profile sections"
+        tone={tabTone}
+        className={variant === 'marketplace' ? 'marketplace-profile-tabs' : ''}
+        idPrefix="marketplace-profile"
+        items={[
+          { value: 'overview', label: 'Overview', icon: <User size={16} /> },
+          { value: 'reviews', label: 'Reviews', count: reviews.length, icon: <MessageSquare size={16} /> },
+          { value: 'trust', label: 'Trust History', icon: <Award size={16} /> },
+          {
+            value: 'verification',
+            label: isOwnProfile ? 'Verification' : 'Verification Status',
+            icon: <ShieldCheck size={16} />,
+          },
+        ]}
       />
+
+      <div
+        role="tabpanel"
+        id={`marketplace-profile-panel-${activeTab}`}
+        aria-labelledby={`marketplace-profile-tab-${activeTab}`}
+        tabIndex={0}
+      >
+        {variant === 'marketplace' && activeTab === 'overview' ? (
+          <MarketplaceProfileOverview model={profile} />
+        ) : variant === 'marketplace' && activeTab === 'trust' && !isOwnProfile ? (
+          <section className="profile-section">
+            <h2 className="text-lg font-bold">Marketplace trust</h2>
+            <p className="mt-3 text-sm text-[color:var(--workspace-muted)]">The current trust standing is shown above. Detailed trust history is private to the account owner and administrators.</p>
+            <Link href="/help/trust-reputation/what-is-trust-score" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[color:var(--workspace-focus)]">How trust scores work</Link>
+          </section>
+        ) : variant === 'marketplace' && activeTab === 'verification' ? (
+          <section className="profile-section">
+            <h2 className="text-lg font-bold">Cordova residency</h2>
+            <p className="mt-3 text-sm font-semibold">{verStatus === 'APPROVED' ? 'Verified Cordova resident' : 'Residency not yet verified'}</p>
+            <p className="mt-2 text-sm text-[color:var(--workspace-muted)]">Only verification status is shared on this profile. Identity documents remain private.</p>
+            {isOwnProfile && <Link href="/account/settings#verification" className="mt-5 inline-flex min-h-11 items-center font-semibold text-[color:var(--workspace-focus)]">Manage your verification</Link>}
+          </section>
+        ) : (
+          <UserProfileTabs
+            model={{
+              ...profile,
+              targetUser,
+              isOwnProfile,
+              trustBand,
+              isProvider,
+              isAdmin,
+              accentColor
+            }}
+          />
+        )}
+      </div>
 
       {/* Phone Password Confirmation Modal */}
       <PhonePasswordConfirmModal

@@ -1,62 +1,83 @@
+import FormSelect from '../ui/FormSelect';
 import React, { useState, FormEvent } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PlusCircle, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
+import ContentCaseAction from '../moderation/ContentCaseAction';
+import FormalSelect from '../ui/FormalSelect';
+import ListingTitleInput from '../ui/ListingTitleInput';
+import PaymentMethodCheckboxes from '../ui/PaymentMethodCheckboxes';
+import { isRequestUrgency, REQUEST_URGENCY_OPTIONS } from '../../lib/requestUrgency';
 
-export default function PostRequest() {
-  const { user, postJobRequest, isDark } = useApp();
+export default function PostRequest({ appealRequestId = '' }: { appealRequestId?: string }) {
+  const { user, postJobRequest, isDark, dbCategories } = useApp();
   const { canTransact, navigateToVerification } = useTransactionPermission();
   const { error } = useToast();
   const [title, setTitle] = useState<string>('');
-  const [category, setCategory] = useState<string>('Plumbing');
+  const [category, setCategory] = useState<string>('');
   const [urgency, setUrgency] = useState<string>('');
   const [budget, setBudget] = useState<number>(500);
   const [description, setDescription] = useState<string>('');
+  const [paymentMethods, setPaymentMethods] = useState({ cash: true, gcash: true });
+  const hasPaymentMethod = paymentMethods.cash || paymentMethods.gcash;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const [moderationError, setModerationError] = useState<{ field?: 'title' | 'description' | 'category'; message: string } | null>(null);
+  const safeAppealRequestId = /^[a-z0-9]{20,32}$/i.test(appealRequestId) ? appealRequestId : '';
 
-  const categories = [
-    { label: 'Plumbing Repair', value: 'Plumbing' },
-    { label: 'Electrical Repair', value: 'Electrical Repair' },
-    { label: 'House Cleaning', value: 'House Cleaning' },
-    { label: 'Gardening & Lawn Care', value: 'Lawn Care' },
-    { label: 'Academic Tutoring', value: 'Tutoring' },
-    { label: 'Aircon Service', value: 'Aircon Service' },
-    { label: 'Appliance Repair', value: 'Appliance Repair' },
-    { label: 'Carpentry & Woodwork', value: 'Carpentry & Woodwork' }
-  ];
+  // Keep a previously selected ID from remaining selectable after Admin retires it.
+  const selectedCategoryId = dbCategories.some((item) => item.id === category) ? category : '';
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) {
-      error('Request details required', 'Enter a request title and a clear description before publishing.');
+    if (loading || !canTransact) return;
+    setModerationError(null);
+    if (title.trim().length < 3 || title.trim().length > 100 || description.trim().length < 10 || description.trim().length > 2000) {
+      error('Request details required', 'Use a 3–100 character title and a 10–2000 character description.');
       return;
     }
+    if (!Number.isFinite(budget) || budget < 50 || budget > 50_000) {
+      error('Invalid budget', 'Enter an estimated budget between ₱50 and ₱50,000.');
+      return;
+    }
+    if (!isRequestUrgency(urgency)) {
+      error('Urgency required', 'Select how soon you need this service.');
+      return;
+    }
+    if (!selectedCategoryId) {
+      error('Category required', 'Select an active service category.');
+      return;
+    }
+    if (!hasPaymentMethod) return;
 
     setLoading(true);
-
-    setTimeout(() => {
-      const seekerId = user?.id || '';
-      postJobRequest(seekerId, title, category, urgency.trim() || 'Flexible', budget, description);
-
-      setLoading(false);
+    setSuccess(false);
+    try {
+      const posted = await postJobRequest(user?.id || '', title.trim(), selectedCategoryId, urgency, budget, description.trim(), paymentMethods);
+      if (posted !== true) {
+        if (posted && typeof posted === 'object') setModerationError({ field: posted.field, message: posted.error });
+        return;
+      }
       setSuccess(true);
       setTitle('');
       setDescription('');
       setBudget(500);
-      setCategory('Plumbing');
+      setCategory('');
       setUrgency('');
+      setPaymentMethods({ cash: true, gcash: true });
 
       setTimeout(() => {
         setSuccess(false);
       }, 3000);
-    }, 800);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       {/* Form Container Card */}
       <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
@@ -69,10 +90,10 @@ export default function PostRequest() {
             <PlusCircle className="w-5 h-5" />
           </div>
           <div>
-            <h2 className={`text-base font-extrabold leading-none ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+            <h2 className={`text-base font-extrabold leading-none ${isDark ? 'text-white' : 'text-ink'}`}>
               Post a Request
             </h2>
-            <p className={`text-[10px] mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-450'}`}>
+            <p className={`text-[10px] mt-1 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
               Broadcast your task requirements to all local verified providers.
             </p>
           </div>
@@ -81,7 +102,7 @@ export default function PostRequest() {
         {/* Verification Required Alert Block */}
         {!canTransact && (
           <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 animate-in fade-in duration-200 ${
-            isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
+            isDark ? 'bg-amber-950/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-200 text-amber-800'
           }`}>
             <div>
               <span className="font-bold">Verification Required:</span>
@@ -102,7 +123,7 @@ export default function PostRequest() {
           <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 mb-6 animate-in fade-in duration-205 ${isDark ? 'bg-orange-950/20 border-orange-900/30 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-800'
             }`}>
             <span className="w-5 h-5 rounded-full bg-orange-600 text-white flex items-center justify-center text-[10px]">✓</span>
-            <span>Your request has been broadcasted publicly. Providers can now submit bids!</span>
+            <span>Your request is live. Providers can now send offers.</span>
           </div>
         )}
 
@@ -112,41 +133,56 @@ export default function PostRequest() {
           <div className="lg:col-span-3 space-y-5">
             {/* Title */}
             <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
                 Request Title
               </label>
-              <input
-                type="text"
+              <ListingTitleInput
                 required
+                minLength={3}
+                maxLength={100}
                 disabled={!canTransact}
                 placeholder="e.g. Need help fixing kitchen faucet leak"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => { setTitle(e.target.value); if (moderationError?.field === 'title') setModerationError(null); }}
+                aria-invalid={moderationError?.field === 'title'}
+                aria-describedby={moderationError?.field === 'title' ? 'request-title-policy-error' : undefined}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
-                    : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                  } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
+                    ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                    : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
+                  } ${moderationError?.field === 'title' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
+              {moderationError?.field === 'title' && <p id="request-title-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message} Edit the title and try again.</p>}
             </div>
 
             {/* Detailed Description */}
             <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
                 Detailed Description
               </label>
               <textarea
                 rows={7}
                 required
+                minLength={10}
+                maxLength={2000}
                 disabled={!canTransact}
                 placeholder="Describe the scope of work, timeline, and tools required so providers can submit accurate proposals."
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => { setDescription(e.target.value); if (moderationError?.field === 'description') setModerationError(null); }}
+                aria-invalid={moderationError?.field === 'description'}
+                aria-describedby={moderationError?.field === 'description' ? 'request-description-policy-error' : undefined}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500'
-                    : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                  } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
+                    ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500'
+                    : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
+                  } ${moderationError?.field === 'description' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
+              {moderationError?.field === 'description' && <p id="request-description-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message} Edit the description and try again.</p>}
             </div>
+            <PaymentMethodCheckboxes
+              value={paymentMethods} onChange={setPaymentMethods} isDark={isDark}
+              legend="Payment methods I can use" disabled={loading || !canTransact}
+              description="Choose one or both. Only checked methods will appear on your request. Posting does not charge you."
+              error={!hasPaymentMethod ? 'Select at least one payment method you can use.' : undefined}
+            />
           </div>
 
           {/* Right Column (2/5 width): Configuration & Summary notes */}
@@ -154,91 +190,67 @@ export default function PostRequest() {
             <div className="space-y-5">
               {/* Category */}
               <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
                   Service Category
                 </label>
-                <select
-                  value={category}
+                <FormalSelect
+                  ariaLabel="Service Category"
+                  value={selectedCategoryId}
+                  required
                   disabled={!canTransact}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
-                      : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
-                    } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
-                >
-                  {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value} className={isDark ? 'bg-[#1c1b18] text-[#f2efe9]' : ''}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(e) => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
+                  options={dbCategories.map((cat) => ({ value: cat.id, label: cat.name }))}
+                  placeholder="Select a category..."
+                  isDark={isDark}
+                  theme="seeker"
+                  ariaInvalid={moderationError?.field === 'category'}
+                  ariaDescribedBy={moderationError?.field === 'category' ? 'request-category-policy-error' : undefined}
+                />
+                {moderationError?.field === 'category' && <p id="request-category-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message}</p>}
               </div>
 
               {/* Urgency / Preferred Timeframe */}
               <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
-                  Urgency / Desired Timeline
+                <label htmlFor="request-urgency" className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
+                  Urgency
                 </label>
-                <input
-                  type="text"
-                  disabled={!canTransact}
-                  placeholder="e.g. ASAP / Today, Needs Tomorrow, July 16 at 2 PM, Flexible"
+                <FormSelect
+                  id="request-urgency"
+                  required
+                  disabled={!canTransact || loading}
                   value={urgency}
                   onChange={(e) => setUrgency(e.target.value)}
+                  aria-describedby="request-urgency-help"
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
-                      : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
+                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
-                />
-                
-                {/* Quick Presets */}
-                <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                  <span className={`text-[10px] font-bold ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Quick Select:</span>
-                  {[
-                    'ASAP / Today',
-                    'Needs Tomorrow',
-                    'Next 1-2 Days',
-                    'Flexible Schedule'
-                  ].map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      disabled={!canTransact}
-                      onClick={() => setUrgency(preset)}
-                      className={`px-2.5 py-1 text-[10px] font-extrabold rounded-lg border transition-all ${
-                        urgency === preset
-                          ? 'bg-orange-600 text-white border-orange-600 shadow-sm'
-                          : isDark
-                            ? 'bg-[#1c1b18] border-neutral-800/80 text-[#b4b0a9] hover:border-orange-500/50 hover:text-orange-400'
-                            : 'bg-slate-50 border-slate-200 text-slate-650 hover:border-orange-400 hover:text-orange-600'
-                      } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
-                    >
-                      {preset}
-                    </button>
-                  ))}
-                </div>
-
-                <p className={`text-[10px] mt-1.5 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
-                  Tell providers exactly when you need this done (e.g. ASAP / Today, Needs Tomorrow, or type a custom date).
+                >
+                  <option value="" disabled>Select urgency...</option>
+                  {REQUEST_URGENCY_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </FormSelect>
+                <p id="request-urgency-help" className={`text-[10px] mt-1.5 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
+                  Choose how soon you need help. Add any specific date or time to your description.
                 </p>
               </div>
 
               {/* Budget */}
               <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
                   Estimated Budget (₱)
                 </label>
                 <input
                   type="number"
-                  min={1}
+                  min={50}
+                  max={50000}
                   required
                   disabled={!canTransact}
                   placeholder="e.g. 500"
                   value={budget}
                   onChange={(e) => setBudget(Number(e.target.value))}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
-                      : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
+                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
                 />
               </div>
@@ -246,13 +258,14 @@ export default function PostRequest() {
 
             {/* Submit Action */}
             <div className="pt-3 flex items-center justify-end">
+              {moderationError && !moderationError.field && <p role="alert" className="mb-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message}</p>}
               <button
                 type="submit"
-                disabled={loading || !canTransact}
+                disabled={loading || !canTransact || !hasPaymentMethod}
                 className={`w-full py-3.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 ${
                   !canTransact
                     ? 'bg-neutral-500 cursor-not-allowed opacity-50'
-                    : 'bg-orange-600 hover:bg-orange-700 active:scale-95'
+                    : 'bg-orange-600 hover:bg-orange-700 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed'
                 }`}
               >
                 {loading ? 'Posting...' : 'Post Request Publicly'}
@@ -265,12 +278,12 @@ export default function PostRequest() {
       </div>
 
       {/* Form Note Box */}
-      <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-[#b4b0a9]' : 'bg-slate-50 border-slate-300 text-slate-500'
+      <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-ink-muted' : 'bg-slate-50 border-slate-300 text-ink-muted'
         }`}>
         <Info className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-        <p className="text-[10px] leading-relaxed">
-          Posting a public request allows multiple service providers to offer competitive bids on your work. You can review profiles, track incoming bids side-by-side, and choose the provider that best matches your budget and requirements.
-        </p>
+        <div><p className="text-[10px] leading-relaxed">
+          A request that passes ServiceHub content checks is shared with verified providers. You can compare their offers and profiles, then choose the provider who best matches your needs.
+        </p>{safeAppealRequestId && <div className="mt-2"><strong className="text-xs">Was your request removed?</strong><p className="text-xs">You can ask an Admin to review the removal. This will not republish the request automatically.</p><ContentCaseAction caseType="APPEAL" contentType="SERVICE_REQUEST" resourceId={safeAppealRequestId} isDark={isDark} label="Appeal this removal" /></div>}</div>
       </div>
 
     </div>

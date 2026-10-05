@@ -74,7 +74,7 @@ export const GETTING_STARTED_ARTICLES: HelpArticle[] = [
         ],
         bullets: [
           'Browse and filter available service listings published by Cordova providers.',
-          'Directly book a provider or join their live service queue.',
+          'Directly book a provider; confirmed GCash payment joins that provider’s paid work queue.',
           'Post custom job requests specifying your budget and urgency when you cannot find an existing listing.',
           'Review incoming price bids and select the provider of your choice.',
           'Confirm job completion and update the Test Mode payment record.',

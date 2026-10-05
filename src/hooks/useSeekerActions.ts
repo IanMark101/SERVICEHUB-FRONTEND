@@ -11,6 +11,7 @@ import {
   UserReport
 } from '../types';
 import { apiCreateRequest, apiUpdateRequest, apiDeleteRequest } from '../api/requests.api';
+import type { RequestUrgency } from '../lib/requestUrgency';
 import {
   apiBookDirect,
   apiInitiatePayment,
@@ -22,7 +23,9 @@ import {
 import { apiRejectOffer } from '../api/offers.api';
 import { apiSuggestCategory } from '../api/categories.api';
 import { useToast } from '../components/ui/Toast';
-import { getApiErrorMessage } from '../lib/api/errors';
+import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
+import { paymentReturnPath, rememberGcashCheckout } from '../lib/paymentCheckout';
+import { normalizeOfferStatus } from '../lib/offerStatus';
 
 interface SeekerActionsDeps {
   users: User[];
@@ -51,6 +54,7 @@ export function useSeekerActions({
   bids,
   dbCategories,
   setJobRequests,
+  setBids,
   setCategorySuggestions,
   syncRequests,
   syncEngagements,
@@ -60,47 +64,17 @@ export function useSeekerActions({
 }: SeekerActionsDeps) {
   const { success, error: toastError, info } = useToast();
 
-  const resolveCategoryId = (catName: string): string | undefined => {
-    if (!dbCategories || dbCategories.length === 0) return undefined;
-
-    // 0. Direct ID match
-    const directMatch = dbCategories.find(c => c.id === catName);
-    if (directMatch) return directMatch.id;
-
-    const target = catName.trim().toLowerCase();
-
-    // 1. Exact match
-    const exact = dbCategories.find(c => c.name.trim().toLowerCase() === target);
-    if (exact) return exact.id;
-
-    // 2. Keyword match
-    const match = dbCategories.find(c => {
-      const name = c.name.trim().toLowerCase();
-      return name.includes(target) || target.includes(name) ||
-        (target.includes('electric') && name.includes('electric')) ||
-        (target.includes('plumb') && name.includes('plumb')) ||
-        (target.includes('clean') && name.includes('clean')) ||
-        (target.includes('lawn') && (name.includes('lawn') || name.includes('garden'))) ||
-        (target.includes('tutor') && (name.includes('tutor') || name.includes('academic'))) ||
-        (target.includes('aircon') && name.includes('aircon')) ||
-        (target.includes('appliance') && name.includes('appliance')) ||
-        (target.includes('carpent') && name.includes('carpent'));
-    });
-    if (match) return match.id;
-
-    return dbCategories[0]?.id;
-  };
-
   const postJobRequest = async (
     seekerId: string,
     title: string,
     category: string,
-    urgency: string,
+    urgency: RequestUrgency,
     budget: number,
-    description: string
+    description: string,
+    paymentMethods = { cash: true, gcash: true }
   ) => {
     try {
-      const catId = resolveCategoryId(category);
+      const catId = dbCategories.find(c => c.id === category)?.id;
       if (catId) {
         const res = await apiCreateRequest({
           categoryId: catId,
@@ -109,46 +83,73 @@ export function useSeekerActions({
           budgetMin: budget,
           budgetMax: budget,
           urgency,
+          paymentMethods,
         });
 
         if (res.success) {
           await syncRequests();
-          success('Request Posted', 'Your service request has been broadcasted to providers.');
-          return;
+          success('Request posted', 'Providers can now see your request.');
+          return true;
         }
+        toastError('Failed to post request', res.error || 'Unable to post the request.');
       } else {
         toastError('Category Error', 'Please select a valid service category.');
       }
     } catch (err: unknown) {
-      toastError('Failed to post request', getApiErrorMessage(err, 'Unable to post the request.'));
+      const body = getApiErrorBody(err);
+      const validationIssue = body?.errors?.[0]?.message;
+      const message = validationIssue || getApiErrorMessage(err, 'Unable to post the request.');
+      toastError(body?.code === 'CONTENT_REVISION_REQUIRED' ? 'Please revise your request' : 'Failed to post request', message);
+      if (body?.code === 'CONTENT_REVISION_REQUIRED') return { success: false as const, error: message, field: body.field };
     }
+    return false;
   };
 
-  const editJobRequest = async (requestId: string, title: string, budget: number, description: string) => {
+  const editJobRequest = async (requestId: string, title: string, budget: number, description: string, urgency?: RequestUrgency): Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null> => {
     try {
-      const res = await apiUpdateRequest(requestId, { title, budgetMin: budget, budgetMax: budget, description });
+      const res = await apiUpdateRequest(requestId, { title, budgetMin: budget, budgetMax: budget, description, ...(urgency !== undefined && { urgency }) });
       if (res.success) {
-        await syncRequests();
+        const updated = {
+          title: res.data?.title ?? title.trim().toUpperCase(),
+          budget: Number(res.data?.budgetMax ?? res.data?.budgetMin ?? budget),
+          description: res.data?.description ?? description,
+          ...(res.data?.urgency !== undefined || urgency !== undefined ? { urgency: res.data?.urgency ?? urgency } : {}),
+        };
+        setJobRequests(prev => prev.map(request => request.id === requestId ? { ...request, ...updated } : request));
         success('Request Updated', 'Your job request was modified successfully.');
-        return;
+        // A confirmed save must not wait for or fail because of a public-board read.
+        void syncRequests().catch(() => {});
+        return updated;
       }
+      toastError('Update Failed', res.error || 'Unable to update the request.');
     } catch (err: unknown) {
-      toastError('Update Failed', getApiErrorMessage(err, 'Unable to update the request.'));
+      const message = getApiErrorMessage(err, 'Unable to update the request.');
+      toastError(getApiErrorStatus(err) === 422 && /revise|cannot be published|selected category/i.test(message) ? 'Please revise your request' : 'Update Failed', message);
     }
+    return null;
   };
 
-  const deleteJobRequest = async (requestId: string) => {
+  const deleteJobRequest = async (requestId: string): Promise<boolean> => {
     try {
       const res = await apiDeleteRequest(requestId);
       if (res.success) {
-        await syncRequests();
-        await syncBids();
+        // Change local data only after the server commits. Never touch bookings.
+        setJobRequests(current => current.filter(request => request.id !== requestId));
+        setBids(current => current.map(bid => bid.requestId === requestId
+          ? { ...bid, requestStatus: 'CANCELED', ...(bid.status.toUpperCase() === 'PENDING' ? { status: 'declined' as const } : {}) }
+          : bid));
         success('Request Deleted', 'Your job request has been removed.');
-        return;
+        void Promise.allSettled([syncRequests(), syncBids()]);
+        return true;
       }
+      toastError('Request not deleted', res.error || 'Your request was not deleted. Please try again.');
     } catch (err: unknown) {
-      toastError('Deletion Failed', getApiErrorMessage(err, 'Unable to delete the request.'));
+      const message = getApiErrorMessage(err, 'Your request was not deleted. Please try again.');
+      toastError('Request not deleted', /unmatched|selected, paid, or matched/i.test(message)
+        ? 'This request can’t be deleted right now because it is already involved in an active service. Review its booking in Activity.'
+        : message);
     }
+    return false;
   };
 
   const toggleJobRequestStatus = async (requestId: string, currentStatus?: string): Promise<boolean> => {
@@ -157,28 +158,24 @@ export function useSeekerActions({
     const isCurrentlyOpen = effectiveStatus === 'OPEN' || effectiveStatus === 'open';
     const nextStatus = isCurrentlyOpen ? 'CLOSED' : 'OPEN';
 
-    // 1. Instant optimistic state update
-    setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: nextStatus } : r));
-
     try {
-      // 2. Perform API update
       const res = await apiUpdateRequest(requestId, { status: nextStatus });
       if (res.success) {
-        // 3. Notification fires in sync with the actual confirmed update
+        const confirmedStatus = res.data?.status ?? nextStatus;
+        setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: confirmedStatus } : r));
         if (nextStatus === 'OPEN') {
-          success('Request Activated 🟢', 'Your task request is now active and visible to providers.');
+          success('Request active', 'Providers can see your request again.');
         } else {
-          info('Request Paused ⏸️', 'Your task request is paused. Providers cannot submit offers.');
+          info('Request paused', 'New offers are paused. Existing bookings are unchanged.');
         }
-        await syncRequests();
+        // Public requests exclude paused items. Refresh them independently;
+        // a delayed/failed read must not reverse a confirmed owner-list update.
+        void syncRequests().catch(() => {});
         return true;
       }
       return false;
     } catch (err: unknown) {
-      // Revert optimistic update on failure
-      setJobRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: effectiveStatus as JobRequest['status'] } : r));
       toastError('Status Update Failed', getApiErrorMessage(err, 'Unable to update the request status.'));
-      await syncRequests();
       return false;
     }
   };
@@ -188,33 +185,37 @@ export function useSeekerActions({
     serviceId: string,
     price: number,
     description: string,
-    paymentMethod: 'GCash' | 'On-site Cash'
+    paymentMethod: 'GCash' | 'On-site Cash',
+    quantity = 1
   ) => {
     try {
       if (paymentMethod === 'On-site Cash') {
         const res = await apiBookDirect({
           serviceId,
+          quantity,
           schedule: 'Immediate',
           message: description,
         });
         if (res.success) {
           await syncEngagements();
           await syncNotifications();
-          success('Direct Booking Sent', 'Direct Cash arrangement requested from provider.');
+          success('Booking request sent', 'Wait for the provider to accept your request.');
           return;
         }
       } else {
         const payRes = await apiInitiatePayment({
           serviceId,
+          quantity,
           paymentMethodType: 'gcash',
         });
         if (payRes.success) {
           if (payRes.data.redirectUrl) {
-            localStorage.setItem('pending_service_id', serviceId);
-            localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
-            localStorage.removeItem('pending_offer_id');
-            info('Redirecting to PayMongo Test Mode', `Please complete the ${paymentMethod} test transaction.`);
-            window.location.href = payRes.data.redirectUrl;
+            rememberGcashCheckout({
+              seekerId, serviceId, paymentIntentId: payRes.data.paymentIntentId,
+              redirectUrl: payRes.data.redirectUrl,
+            });
+            info('GCash checkout ready', 'Open the payment page to finish your test payment.');
+            window.location.href = paymentReturnPath(payRes.data.paymentIntentId);
             return;
           }
           const confirmRes = await apiConfirmOnlineBooking({
@@ -224,7 +225,7 @@ export function useSeekerActions({
           if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
             await syncEngagements();
             await syncNotifications();
-            success('Test Payment Recorded', 'The internal payment ledger was updated and your booking entered the provider queue.');
+            success('Test payment confirmed', 'Your booking is now in the provider’s queue.');
             return;
           }
         }
@@ -239,52 +240,48 @@ export function useSeekerActions({
     if (!targetBid) return;
 
     const targetRequest = jobRequests.find(r => r.id === targetBid.requestId);
-    if (!targetRequest) return;
+    const seekerId = targetRequest?.seekerId || targetBid.seekerId;
+    if (paymentMethod === 'GCash' && !seekerId) {
+      toastError('Request details unavailable', 'Refresh your offers and try again.');
+      return;
+    }
 
     try {
       if (paymentMethod === 'On-site Cash') {
         const res = await apiBookDirectFromOffer(bidId);
         if (res.success) {
-          await syncEngagements();
-          await syncBids();
-          await syncRequests();
-          success('Bid Accepted', 'Direct Cash arrangement initiated for this offer.');
+          await Promise.allSettled([syncEngagements(), syncBids(), syncRequests()]);
+          success('Offer accepted', 'You can now message the provider to arrange the work.');
           return;
         }
       } else {
         const serviceId = targetBid.serviceId;
 
-        if (!serviceId) {
-          toastError('Error accepting bid', 'This provider does not have an active listing in this category to hold online queue.');
-          return;
-        }
-
         const payRes = await apiInitiatePayment({
-          serviceId,
+          ...(serviceId ? { serviceId } : {}),
           offerId: bidId,
           paymentMethodType: 'gcash',
         });
 
         if (payRes.success) {
           if (payRes.data.redirectUrl) {
-            localStorage.setItem('pending_service_id', serviceId);
-            localStorage.setItem('pending_payment_intent_id', payRes.data.paymentIntentId);
-            localStorage.setItem('pending_offer_id', bidId);
-            info('Redirecting to PayMongo Test Mode', `Please complete the ${paymentMethod} test transaction.`);
-            window.location.href = payRes.data.redirectUrl;
+            rememberGcashCheckout({
+              seekerId: seekerId!, serviceId, offerId: bidId,
+              paymentIntentId: payRes.data.paymentIntentId, redirectUrl: payRes.data.redirectUrl,
+            });
+            info('GCash checkout ready', 'Open the payment page to finish your test payment.');
+            window.location.href = paymentReturnPath(payRes.data.paymentIntentId);
             return;
           }
           const confirmRes = await apiConfirmOnlineBooking({
-            serviceId,
+            ...(serviceId ? { serviceId } : {}),
             paymentIntentId: payRes.data.paymentIntentId,
             offerId: bidId
           });
 
           if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
-            await syncEngagements();
-            await syncBids();
-            await syncRequests();
-            success('Bid Accepted', 'The Test Mode payment was recorded and the queue booking was created.');
+            await Promise.allSettled([syncEngagements(), syncBids(), syncRequests()]);
+            success('Offer accepted', 'Your test payment is confirmed. You’re now in the provider’s queue.');
             return;
           }
         }
@@ -299,8 +296,10 @@ export function useSeekerActions({
     try {
       const res = await apiRejectOffer(bidId);
       if (res.success) {
-        await syncBids();
-        success('Bid Declined', 'Offer rejected successfully.');
+        const status = normalizeOfferStatus(res.data?.status || 'REJECTED');
+        setBids(current => current.map(bid => bid.id === bidId ? { ...bid, status, decisionReason: status === 'declined' ? 'DECLINED' : null } : bid));
+        success(status === 'withdrawn' ? 'Offer withdrawn' : 'Offer declined', status === 'withdrawn' ? 'Your offer is no longer available to the seeker.' : 'The provider has been notified.');
+        void syncBids().catch(() => { /* The decision is already committed. */ });
         return;
       }
     } catch (err: unknown) {
@@ -316,7 +315,7 @@ export function useSeekerActions({
         await syncEngagements();
         await syncNotifications();
         await syncTransactions();
-        success('Service Completed', 'The internal payment ledger was marked RELEASED. No provider payout is performed by this capstone.');
+        success('Booking completed', 'You can now leave a review of the service.');
         return;
       }
     } catch (err: unknown) {

@@ -2,38 +2,26 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-  Compass,
-  ShieldCheck,
-  Award,
-  Briefcase,
-  CalendarCheck,
-  Inbox,
-  Hourglass,
-  MessageSquare,
-  DollarSign,
-  Star,
-  Bell,
-  TrendingUp,
-  AlertTriangle,
-  HelpCircle,
-  ArrowRight,
-} from 'lucide-react';
+  ArrowRight, Bell, Briefcase, CalendarCheck, ChatCenteredText, Compass,
+  CurrencyDollar, Hourglass, Medal, Question, ShieldCheck, Star, Tray,
+  TrendUp, Warning,
+} from '@phosphor-icons/react';
 import { HelpCategory } from '../types/help.types';
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string; size?: number; weight?: 'regular' | 'bold' }>> = {
   Compass,
   ShieldCheck,
-  Award,
+  Award: Medal,
   Briefcase,
   CalendarCheck,
-  Inbox,
+  Inbox: Tray,
   Hourglass,
-  MessageSquare,
-  DollarSign,
+  MessageSquare: ChatCenteredText,
+  DollarSign: CurrencyDollar,
   Star,
   Bell,
-  TrendingUp,
-  AlertTriangle,
+  TrendingUp: TrendUp,
+  AlertTriangle: Warning,
 };
 
 interface HelpCategoryCardProps {
@@ -42,37 +30,28 @@ interface HelpCategoryCardProps {
 }
 
 export default function HelpCategoryCard({ category, articleCount }: HelpCategoryCardProps) {
-  const IconComponent = ICON_MAP[category.iconName] || HelpCircle;
+  const IconComponent = ICON_MAP[category.iconName] || Question;
 
   return (
     <Link
       href={`/help/${category.slug}`}
-      className="group p-6 rounded-2xl border transition-all duration-200 flex flex-col justify-between hover:border-orange-500/60 hover:-translate-y-0.5 bg-white dark:bg-[#1a1916] border-slate-200 dark:border-neutral-800/80 hover:bg-slate-50/50 dark:hover:bg-[#201f1c] text-slate-800 dark:text-neutral-200 shadow-xs hover:shadow-md"
+      className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-black/8 py-4 text-ink transition-colors last:border-b-0 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/10 dark:text-white"
     >
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-100 dark:bg-neutral-800 text-slate-700 dark:text-neutral-300 group-hover:bg-orange-500/10 group-hover:text-orange-500 transition-colors">
-            <IconComponent className="w-5 h-5" />
-          </div>
-          {articleCount !== undefined && (
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400">
-              {articleCount} {articleCount === 1 ? 'guide' : 'guides'}
-            </span>
-          )}
-        </div>
-
-        <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+      <span className="grid size-10 place-items-center rounded-xl bg-[#f5f4f2] text-[#c86544] transition-colors group-hover:bg-[#f5ebe6] dark:bg-white/[0.06] dark:text-[#e18463]">
+        <IconComponent size={19} weight="regular" aria-hidden="true" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold leading-5 tracking-[-0.015em]">
           {category.title}
-        </h3>
-        <p className="text-xs sm:text-sm leading-relaxed text-slate-500 dark:text-neutral-400 mt-2 line-clamp-3">
+        </span>
+        <span className="mt-1 block text-xs leading-5 text-ink-muted dark:text-white/58">
           {category.description}
-        </p>
-      </div>
-
-      <div className="mt-6 pt-4 border-t border-slate-100 dark:border-neutral-800/60 flex items-center justify-between text-xs font-bold text-orange-600 dark:text-orange-400">
-        <span>Explore collection</span>
-        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-      </div>
+        </span>
+      </span>
+      <span className="flex items-center gap-2 pl-2 text-[11px] font-medium text-ink-subtle dark:text-white/48">
+        {articleCount !== undefined && <span className="hidden sm:inline">{articleCount} {articleCount === 1 ? 'guide' : 'guides'}</span>}
+        <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+      </span>
     </Link>
   );
 }

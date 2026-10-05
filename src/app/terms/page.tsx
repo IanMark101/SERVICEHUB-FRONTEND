@@ -15,10 +15,10 @@ export default function TermsPage() {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight mb-2">
+        <h1 className="text-2xl font-extrabold text-ink dark:text-white tracking-tight mb-2">
           Terms of Service
         </h1>
-        <p className="text-slate-500 dark:text-[#b4b0a9] text-sm mb-6 leading-relaxed">
+        <p className="text-ink-muted dark:text-ink-muted text-sm mb-6 leading-relaxed">
           The ServiceHub Cordova Terms of Service are currently being finalized to align with hyperlocal resident rules. Please check back soon.
         </p>
 

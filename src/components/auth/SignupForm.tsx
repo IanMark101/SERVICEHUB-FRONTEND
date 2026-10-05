@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import SignupSteps from './signup/SignupSteps';
@@ -102,7 +102,7 @@ export default function SignupForm({
       {/* Top Eyebrow & Stepper */}
       <div className="w-full space-y-3">
         <div className="w-full flex items-center justify-between">
-          <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+          <span className="text-xs font-semibold text-ink-muted dark:text-ink-secondary">
             Resident registration
           </span>
           <span className="text-xs font-semibold text-[#c86544] dark:text-orange-400">
@@ -128,17 +128,17 @@ export default function SignupForm({
                     ? 'text-[#c86544] dark:text-orange-300'
                     : isCompleted
                     ? 'text-emerald-700 dark:text-emerald-400'
-                    : 'text-neutral-400 dark:text-neutral-500'
+                    : 'text-ink-subtle dark:text-ink-subtle'
                 }`}
               >
                 {isActive && <span className="absolute inset-x-3 -bottom-px h-0.5 bg-[#c86544] first:left-0 dark:bg-orange-400" />}
                 <span className="text-[10px] font-semibold tracking-[0.14em]">
                   {isCompleted ? 'DONE' : `0${item.s}`}
                 </span>
-                <p className="mt-1 text-xs font-semibold leading-tight text-[#0a0a0a] dark:text-white">
+                <p className="mt-1 text-xs font-semibold leading-tight text-ink dark:text-white">
                   {item.title}
                 </p>
-                <p className="mt-0.5 hidden text-[10px] leading-tight text-neutral-500 dark:text-neutral-400 sm:block">
+                <p className="mt-0.5 hidden text-[10px] leading-tight text-ink-muted dark:text-ink-muted sm:block">
                   {item.desc}
                 </p>
               </li>
@@ -149,12 +149,12 @@ export default function SignupForm({
 
       {/* Header Info */}
       <div>
-        <h2 className="font-sans text-3xl font-semibold leading-tight tracking-tight text-[#0a0a0a] dark:text-white">
+        <h2 className="font-sans text-3xl font-semibold leading-tight tracking-tight text-ink dark:text-white">
           {step === 1 && 'Create an Account'}
           {step === 2 && 'Contact & Barangay'}
           {step === 3 && 'Profile Setup'}
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <p className="mt-2 text-sm leading-relaxed text-ink-muted dark:text-ink-muted">
           {step === 1 && 'Enter your personal information to get started with ServiceHub.'}
           {step === 2 && 'Provide your mobile number and select your Cordova neighborhood.'}
           {step === 3 && 'Choose your avatar and introduce yourself to the community.'}
@@ -191,7 +191,7 @@ export default function SignupForm({
             <button
               type="button"
               onClick={handlePrevStep}
-              className="flex w-1/3 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-black/[0.08] bg-white py-3 text-xs font-bold text-slate-700 shadow-xs transition-all hover:bg-slate-50 active:scale-[0.98] dark:border-white/10 dark:bg-zinc-800/80 dark:text-zinc-200"
+              className="flex w-1/3 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-black/[0.08] bg-white py-3 text-xs font-bold text-ink-secondary shadow-xs transition-all hover:bg-slate-50 active:scale-[0.98] dark:border-white/10 dark:bg-zinc-800/80 dark:text-ink"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -204,24 +204,22 @@ export default function SignupForm({
             disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-disabled={isLoading || (step < 3 && isNextDisabled)}
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
-            className={`flex flex-grow items-center justify-center space-x-2 rounded-xl py-3 text-sm font-bold shadow-md transition-all ${
+            className={`flex flex-grow items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
               isLoading
-                ? 'bg-slate-300 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
+                ? 'servicehub-dark-cta cursor-wait bg-[#171716] text-white dark:bg-[#e18463] dark:text-charcoal'
                 : (step < 3 && isNextDisabled)
-                  ? 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 cursor-not-allowed shadow-none'
-                  : 'bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white shadow-orange-950/15 cursor-pointer'
+                  ? 'bg-slate-200 dark:bg-zinc-800 text-ink-subtle dark:text-ink-subtle cursor-not-allowed shadow-none'
+                  : 'servicehub-dark-cta cursor-pointer bg-[#171716] text-white hover:bg-[#292826] active:translate-y-px dark:bg-[#e18463] dark:text-charcoal dark:hover:bg-[#eb9577]'
             }`}
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>Creating Account...</span>
-              </>
+              <span className="relative z-10">Creating account...</span>
             ) : (
-              <span>{step === 3 ? 'Complete Registration' : 'Next Step'}</span>
+              <span className="relative z-10">{step === 3 ? 'Complete Registration' : 'Next Step'}</span>
             )}
           </button>
         </div>
+        {isLoading && <div className="brand-loading__track mt-2" role="status" aria-label="Creating account"><span /></div>}
       </form>
 
       {/* Google Login Component for Easy Registration */}
@@ -232,7 +230,7 @@ export default function SignupForm({
               <div className="w-full border-t border-black/[0.08] dark:border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-[10px]">
-              <span className="bg-white dark:bg-[#181716] px-3 text-slate-400 dark:text-zinc-500 font-bold tracking-widest uppercase">
+              <span className="bg-[#fffdfa] px-3 font-bold uppercase tracking-widest text-ink-muted dark:bg-[#181716] dark:text-ink-muted">
                 OR
               </span>
             </div>
@@ -243,9 +241,10 @@ export default function SignupForm({
             onError={setError}
             isDark={isDark}
             mode="signup"
+            disabled={isLoading}
             step={step}
           />
-          <p className="text-[10px] text-slate-400 dark:text-zinc-500 text-center leading-relaxed px-1">
+          <p className="text-[10px] text-ink-subtle dark:text-ink-subtle text-center leading-relaxed px-1">
             Google Sign-In creates your account using your Google email. Resident identity verification unlocks marketplace actions.
           </p>
         </div>
@@ -253,7 +252,7 @@ export default function SignupForm({
 
       {/* Footer Switcher */}
       <div className="text-center text-xs pt-3.5 border-t border-black/[0.06] dark:border-white/10">
-        <span className="text-slate-500 dark:text-zinc-400">
+        <span className="text-ink-muted dark:text-ink-muted">
           Already have an account?
         </span>
         <button

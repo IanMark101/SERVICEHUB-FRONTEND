@@ -45,7 +45,7 @@ export default function HelpSidebar({ currentCategorySlug }: HelpSidebarProps) {
     <aside className="w-full lg:w-64 shrink-0 space-y-6">
       {/* Category List Navigation */}
       <div className="rounded-2xl p-4 border shadow-xs bg-white dark:bg-[#22211e] border-slate-200 dark:border-neutral-800/80">
-        <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-neutral-500 mb-3 px-2">
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-subtle dark:text-ink-subtle mb-3 px-2">
           Help Categories
         </h4>
 
@@ -61,7 +61,7 @@ export default function HelpSidebar({ currentCategorySlug }: HelpSidebarProps) {
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                   isActive
                     ? 'bg-orange-500 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-[#b4b0a9] hover:text-slate-900 dark:hover:text-[#f2efe9] hover:bg-slate-100/70 dark:hover:bg-neutral-800/50'
+                    : 'text-ink-muted dark:text-ink-muted hover:text-ink dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-neutral-800/50'
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />
@@ -73,12 +73,12 @@ export default function HelpSidebar({ currentCategorySlug }: HelpSidebarProps) {
       </div>
 
       {/* Municipal Support Card */}
-      <div className="rounded-2xl p-4 border space-y-2.5 text-xs bg-orange-50/70 dark:bg-orange-950/20 border-orange-200/80 dark:border-orange-900/30 text-slate-800 dark:text-[#f2efe9]">
+      <div className="rounded-2xl p-4 border space-y-2.5 text-xs bg-orange-50/70 dark:bg-orange-950/20 border-orange-200/80 dark:border-orange-900/30 text-ink dark:text-white">
         <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400 font-extrabold text-xs">
           <Mail className="w-4 h-4" />
           <span>Still need assistance?</span>
         </div>
-        <p className="text-[11px] leading-relaxed text-slate-500 dark:text-neutral-400">
+        <p className="text-[11px] leading-relaxed text-ink-muted dark:text-ink-muted">
           Have questions about your verification or a pending arbitration case? Contact the Cordova Municipal Administrators.
         </p>
         <a

@@ -1,21 +1,23 @@
 "use client";
 import React, { useCallback, useEffect, useState } from 'react';
+import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { useApp } from '../../../context/AppContext';
 import { useRouter } from 'next/navigation';
 import { apiGetAdminOverview } from '../../../api/admin.api';
-import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, Loader2, RefreshCw, Activity, Database, Radio } from 'lucide-react';
+import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, RefreshCw, Activity, Database, Radio } from 'lucide-react';
 import { getSocket } from '../../../lib/socket';
 import AdminOverviewCharts, {
   type AdminActivityPoint,
   type AdminChartMetric,
 } from '../../../components/admin/AdminOverviewCharts';
+import WorkspacePageSkeleton from '../../../components/ui/WorkspacePageSkeleton';
 
 interface StatsData {
   totalUsers: number;
   activeServices: number;
   pendingVerifications: number;
   openReports: number;
-  pendingListings: number;
   categorySuggestions: number;
   moderationWorkload: AdminChartMetric[];
   bookingLifecycle: AdminChartMetric[];
@@ -55,28 +57,23 @@ export default function AdminOverview() {
       .finally(() => { setLoading(false); setRefreshing(false); });
   }, []);
 
+  useApiCacheRefresh(['admin'], () => fetchStats(true));
   useEffect(() => {
     const initialFetch = setTimeout(fetchStats, 0);
     const socket = getSocket();
     if (!socket) return () => clearTimeout(initialFetch);
     const refresh = () => fetchStats(true);
-    socket.on('SERVICE_LISTING_SUBMITTED', refresh);
     socket.on('SERVICE_LISTINGS_CHANGED', refresh);
     socket.on('ADMIN_MODERATION_CHANGED', refresh);
     return () => {
       clearTimeout(initialFetch);
-      socket.off('SERVICE_LISTING_SUBMITTED', refresh);
       socket.off('SERVICE_LISTINGS_CHANGED', refresh);
       socket.off('ADMIN_MODERATION_CHANGED', refresh);
     };
   }, [fetchStats]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-7 h-7 animate-spin text-slate-900 dark:text-neutral-100" />
-      </div>
-    );
+    return <WorkspacePageSkeleton label="Loading dashboard overview" role="admin" variant="overview" />;
   }
 
   if (error) {
@@ -87,7 +84,7 @@ export default function AdminOverview() {
     );
   }
 
-  const neutralIconColor = "bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700";
+  const neutralIconColor = "bg-[var(--admin-soft)] text-[var(--admin-accent)] border-[var(--admin-border)]";
 
   const statItems = [
     {
@@ -102,9 +99,9 @@ export default function AdminOverview() {
       title: "Live Marketplace Listings",
       value: stats?.activeServices ?? 0,
       icon: Briefcase,
-      color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-      desc: "Approved, available listings owned by eligible providers.",
-      href: '/admin/services?status=LIVE',
+      color: neutralIconColor,
+      desc: "Published, available listings owned by eligible providers.",
+      href: '/admin/content-cases?view=content&type=SERVICE_LISTING',
     },
     {
       title: "Verification Queue",
@@ -134,26 +131,16 @@ export default function AdminOverview() {
       desc: "New category requests from seekers.",
       href: '/admin/categories',
     },
-    {
-      title: "Pending Listings Review",
-      value: stats?.pendingListings || 0,
-      icon: Briefcase,
-      color: (stats?.pendingListings ?? 0) > 0
-        ? "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400"
-        : neutralIconColor,
-      desc: "Services awaiting admin verification.",
-      href: '/admin/services?status=PENDING_REVIEW',
-    }
   ];
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <span className={`text-xs font-semibold ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Live metrics from the database</span>
+        <span className={`text-xs font-semibold ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>Live metrics from the database</span>
         <button
-          onClick={() => fetchStats(true)}
+          onClick={() => { invalidateApiCache(['admin']); fetchStats(true); }}
           disabled={refreshing}
-          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-60 dark:border-neutral-700 dark:bg-[#202020] dark:text-neutral-200 dark:hover:bg-neutral-800"
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary transition-colors hover:border-[var(--admin-border)] hover:text-[var(--admin-accent)] disabled:opacity-60 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
           <span>{refreshing ? 'Refreshing...' : 'Refresh Stats'}</span>
@@ -167,11 +154,11 @@ export default function AdminOverview() {
               key={index}
               onClick={() => router.push(item.href)}
               className={`flex w-full cursor-pointer flex-col justify-between space-y-4 rounded-2xl border p-5 text-left shadow-sm transition-colors ${
-                isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700' : 'bg-white border-slate-200 hover:border-slate-300'
+                isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-[var(--admin-border)]' : 'bg-white border-slate-200 hover:border-[var(--admin-border)]'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-[var(--admin-muted)]">
                   {item.title}
                 </span>
                 <span className={`rounded-lg border p-2 ${item.color}`}>
@@ -179,10 +166,10 @@ export default function AdminOverview() {
                 </span>
               </div>
               <div>
-                <h3 className={`text-2xl font-bold tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'}`}>
+                <h3 className={`text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
                   {item.value}
                 </h3>
-                <p className={`text-[11px] font-medium mt-1.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+                <p className={`text-[11px] font-medium mt-1.5 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                   {item.desc}
                 </p>
               </div>
@@ -199,23 +186,23 @@ export default function AdminOverview() {
       />
 
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
+        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
           <h4 className="font-extrabold text-sm mb-4">Operational Status</h4>
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-800 dark:bg-[#1b1b1b]"><span className="flex items-center gap-2 font-bold"><Radio className="h-4 w-4 text-emerald-500" /> Admin API</span><span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Online</span></div>
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-800 dark:bg-[#1b1b1b]"><span className="flex items-center gap-2 font-bold"><Database className="h-4 w-4 text-emerald-500" /> PostgreSQL</span><span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Connected</span></div>
-            <p className="text-[10px] leading-4 text-slate-500">Statuses reflect this successful authenticated overview request and its database queries.</p>
+            <p className="text-[10px] leading-4 text-ink-muted">Statuses reflect this successful authenticated overview request and its database queries.</p>
           </div>
         </section>
 
-        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
-          <div className="mb-4 flex items-center gap-2"><Activity className="h-4 w-4 text-slate-600 dark:text-neutral-400" /><h4 className="font-extrabold text-sm">Recent Administrator Actions</h4></div>
-          {!stats?.recentAuditLogs?.length ? <p className="text-xs text-slate-500">No administrator actions have been recorded yet.</p> : (
+        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+          <div className="mb-4 flex items-center gap-2"><Activity className="h-4 w-4 text-[var(--admin-accent)]" /><h4 className="font-extrabold text-sm">Recent Administrator Actions</h4></div>
+          {!stats?.recentAuditLogs?.length ? <p className="text-xs text-ink-muted">No administrator actions have been recorded yet.</p> : (
             <div className="divide-y divide-slate-100 dark:divide-neutral-800">
               {stats.recentAuditLogs.map((log) => (
                 <div key={log.id} className="py-2.5 first:pt-0 last:pb-0">
-                  <div className="flex items-start justify-between gap-3"><p className="text-[11px] font-bold">{log.action.replace(/_/g, ' ')}</p><time className="shrink-0 text-[9px] text-slate-400">{new Date(log.createdAt).toLocaleString()}</time></div>
-                  <p className="mt-0.5 text-[10px] text-slate-500">{log.actor.name}{log.targetUser ? ` → ${log.targetUser.name}` : ''}: {log.reason}</p>
+                  <div className="flex items-start justify-between gap-3"><p className="text-[11px] font-bold">{log.action.replace(/_/g, ' ')}</p><time className="shrink-0 text-[9px] text-ink-subtle">{new Date(log.createdAt).toLocaleString()}</time></div>
+                  <p className="mt-0.5 text-[10px] text-ink-muted">{log.actor.name}{log.targetUser ? ` → ${log.targetUser.name}` : ''}: {log.reason}</p>
                 </div>
               ))}
             </div>

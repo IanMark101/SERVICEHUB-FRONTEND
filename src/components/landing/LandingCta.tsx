@@ -4,13 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
+import GetStartedLink from './GetStartedLink';
 
 interface LandingCtaProps {
   isDark: boolean;
-  onGetStarted: () => void;
 }
 
-export default function LandingCta({ isDark, onGetStarted }: LandingCtaProps) {
+export default function LandingCta({ isDark }: LandingCtaProps) {
   return (
     <section
       data-theme={isDark ? 'dark' : 'light'}
@@ -20,25 +20,23 @@ export default function LandingCta({ isDark, onGetStarted }: LandingCtaProps) {
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-wide text-orange-100">
             <ShieldCheck size={14} />
-            <span>Cordova Verified Marketplace</span>
+            <span>Built for Cordova, Cebu</span>
           </div>
           <h2 className="mt-4 max-w-3xl font-sans text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl lg:leading-[1.12]">
-            Start with one account. Choose your workspace inside.
+            Create your ServiceHub profile.
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-orange-100/90 sm:text-base">
-            Browse listings freely, complete residency verification when you are ready to book or offer, and manage all your local service activity under one accountable identity.
+            Get started with a new account, or sign in to continue with the profile you already have.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row lg:flex-col sm:items-center lg:items-stretch">
-          <button
-            type="button"
-            onClick={onGetStarted}
+          <GetStartedLink
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-7 text-sm font-bold text-[#aa5032] shadow-md transition-all hover:bg-orange-50 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <span>Get started</span>
             <ArrowRight size={16} />
-          </button>
+          </GetStartedLink>
           <Link
             href="/login"
             className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 bg-white/5 px-7 text-sm font-bold text-white transition-all hover:bg-white/10 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
