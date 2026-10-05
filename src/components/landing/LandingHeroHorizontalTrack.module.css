@@ -1,0 +1,105 @@
+.viewport {
+  position: relative;
+  isolation: isolate;
+  width: calc(100% + 2.5rem);
+  height: clamp(25rem, 48vw, 29rem);
+  margin-inline: -1.25rem;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  height: 100%;
+  animation: journey-flow 42s linear infinite;
+  animation-direction: reverse;
+  animation-play-state: paused;
+}
+
+.viewport[data-running='true'] .track { animation-play-state: running; will-change: transform; }
+.viewport:focus-within .track { animation-play-state: paused; }
+
+.sequence {
+  --track-gap: clamp(0.875rem, 2.5vw, 1.75rem);
+  display: flex;
+  flex: none;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: var(--track-gap);
+  padding-left: 1vw;
+  padding-right: var(--track-gap);
+}
+
+.card {
+  flex: none;
+  overflow: hidden;
+  border: 1px solid rgb(81 70 60 / 0.09);
+  border-radius: 1.5rem;
+  color: #171716;
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 22px 48px -28px rgb(40 35 29 / 0.22), 0 5px 14px rgb(40 35 29 / 0.055);
+}
+
+.card[data-card-kind='accepted-booking'] {
+  width: min(33rem, 90vw);
+  border-radius: 1.75rem;
+  border-color: rgb(255 253 250 / 0.12);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-orange-600, #c86544) 20%, var(--color-orange-700, #aa5032)),
+    var(--color-orange-700, #aa5032)
+  );
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 34px 74px -34px rgb(40 35 29 / 0.3), 0 10px 26px -14px rgb(40 35 29 / 0.14);
+}
+
+.card[data-card-kind='messages'] {
+  width: min(29rem, 85vw);
+  border-radius: 1.15rem;
+  border-color: rgb(242 239 233 / 0.1);
+  background: #141414;
+  color: #f2efe9;
+  --workspace-surface-muted: #252422;
+  --workspace-border: rgb(242 239 233 / 0.12);
+  --workspace-ink: #f2efe9;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 36px 78px -34px rgb(24 22 20 / 0.42), 0 11px 28px -14px rgb(24 22 20 / 0.18);
+}
+
+.card[data-card-kind='service-progress'] {
+  width: min(35.5rem, 94vw);
+  background: linear-gradient(145deg, #fffdfa, #fbfaf7);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 27px 56px -29px rgb(40 35 29 / 0.28), 0 7px 16px rgb(40 35 29 / 0.07);
+}
+
+@keyframes journey-flow {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (min-width: 640px) {
+  .viewport { width: calc(100% + 4rem); margin-inline: -2rem; }
+  .track { animation-duration: 58s; }
+}
+
+@media (min-width: 1024px) {
+  .viewport { width: calc(100% + 5rem); margin-inline: -2.5rem; }
+}
+
+@media (min-width: 1280px) {
+  .viewport { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewport {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    touch-action: auto;
+  }
+  .track { animation: none; }
+  .sequence { flex-direction: row; }
+  .sequence[data-track-sequence='copy'] { display: none; }
+  .card { scroll-snap-align: center; }
+}

@@ -43,7 +43,7 @@ export default function PhonePasswordConfirmModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className={`relative w-full max-w-md rounded-2xl shadow-2xl border p-6 overflow-hidden ${
-          isDark ? 'bg-[#1e1d1a] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'
+          isDark ? 'bg-[#1e1d1a] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
         }`}
       >
         {/* Close button */}
@@ -52,7 +52,7 @@ export default function PhonePasswordConfirmModal({
           onClick={handleClose}
           disabled={isLoading}
           className={`absolute top-4 right-4 p-1.5 rounded-lg transition-colors ${
-            isDark ? 'text-neutral-400 hover:text-white hover:bg-neutral-800' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+            isDark ? 'text-ink-subtle hover:text-white hover:bg-neutral-800' : 'text-ink-subtle hover:text-ink-secondary hover:bg-slate-100'
           }`}
         >
           <X className="w-5 h-5" />
@@ -65,7 +65,7 @@ export default function PhonePasswordConfirmModal({
           </div>
           <div>
             <h3 className="text-lg font-bold">Security Verification</h3>
-            <p className={`text-xs mt-0.5 ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+            <p className={`text-xs mt-0.5 ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
               Verify your identity before changing the mobile number associated with your account.
             </p>
           </div>
@@ -77,7 +77,7 @@ export default function PhonePasswordConfirmModal({
             isDark ? 'bg-[#191815] border-neutral-800' : 'bg-slate-50 border-slate-200'
           }`}
         >
-          <div className="flex items-center justify-between text-neutral-400 mb-1">
+          <div className="flex items-center justify-between text-ink-subtle mb-1">
             <span>Current Number:</span>
             <span className="font-semibold text-neutral-300 line-through">
               {oldPhone || 'None'}
@@ -100,11 +100,11 @@ export default function PhonePasswordConfirmModal({
         {/* Password Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className={`block text-xs font-semibold ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>
+            <label className={`block text-xs font-semibold ${isDark ? 'text-neutral-300' : 'text-ink-secondary'}`}>
               Account Password
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle">
                 <Lock className="w-4 h-4" />
               </div>
               <input
@@ -115,19 +115,19 @@ export default function PhonePasswordConfirmModal({
                 placeholder="Enter current password"
                 className={`w-full pl-9 pr-10 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   isDark
-                    ? 'bg-[#191815] border-neutral-800 text-[#f2efe9] focus:border-emerald-500 focus:outline-none'
-                    : 'bg-white border-slate-200 text-slate-900 focus:border-emerald-500 focus:outline-none'
+                    ? 'bg-[#191815] border-neutral-800 text-white focus:border-emerald-500 focus:outline-none'
+                    : 'bg-white border-slate-200 text-ink focus:border-emerald-500 focus:outline-none'
                 }`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-neutral-200"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <p className={`text-[11px] ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
               Required to prevent unauthorized redirection of your payments.
             </p>
           </div>
@@ -139,7 +139,7 @@ export default function PhonePasswordConfirmModal({
               onClick={handleClose}
               disabled={isLoading}
               className={`px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                isDark ? 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                isDark ? 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300' : 'bg-slate-100 hover:bg-slate-200 text-ink-secondary'
               }`}
             >
               Cancel

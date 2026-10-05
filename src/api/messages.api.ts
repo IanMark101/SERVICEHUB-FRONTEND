@@ -14,3 +14,13 @@ export async function apiGetConversations(page = 1, limit = 20) {
   const response = await api.get('/messages/conversations', { params: { page, limit } });
   return response.data;
 }
+
+export async function apiGetConversationGroups(page = 1, limit = 20) {
+  const response = await api.get('/messages/contacts', { params: { page, limit } });
+  return response.data;
+}
+
+export async function apiGetConversationGroupForBooking(bookingId: string) {
+  const response = await api.get(`/messages/contacts/booking/${encodeURIComponent(bookingId)}`);
+  return response.data;
+}

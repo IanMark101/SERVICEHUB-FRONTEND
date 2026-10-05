@@ -15,7 +15,7 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
       heading: 'Two Ways to Complete a Booking',
       paragraphs: ['ServiceHub supports eligible GCash checkout through PayMongo Test Mode for fixed-price online bookings, plus a separate direct on-site cash arrangement.'],
       bullets: [
-        'Online Test Mode: PayMongo confirms the simulated GCash payment by a signed server webhook. Only then is an accepted booking added to the listing queue.',
+        'Online Test Mode: ServiceHub verifies the simulated GCash payment through a signed PayMongo webhook or a server-side intent check. Only verified success adds an accepted booking to the listing queue.',
         'On-site Cash: The seeker pays the provider outside ServiceHub. Cash bookings never enter the online-payment queue or online transaction ledger.',
       ],
       callout: { type: 'important', title: 'Capstone payment scope', text: 'ServiceHub currently demonstrates PayMongo Test Mode. No real-money provider payout or regulated escrow service is implemented.' },
@@ -36,7 +36,7 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
       paragraphs: ['After PayMongo Test Mode confirms a payment, ServiceHub records PAID_HELD while the service is unfinished. This is a platform bookkeeping state, not a licensed escrow account or a guarantee of real-money custody.'],
       bullets: [
         'The browser redirect does not confirm payment or create a booking.',
-        'A signed, deduplicated PayMongo webhook is the authoritative confirmation.',
+        'A signed PayMongo webhook or an independent server-to-server intent check provides authoritative confirmation; a browser redirect alone never does.',
         'If a capture cannot be converted into a queue booking, it is marked for refund reconciliation instead of overfilling the queue.',
       ],
     }],
@@ -73,7 +73,7 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
     sections: [
       {
         heading: 'Payment Confirmation',
-        paragraphs: ['ServiceHub creates a durable local attempt, sends the seeker to PayMongo Test Mode, and waits for a signed webhook. It validates the amount, currency, user, listing, offer, and provider intent before creating the booking.'],
+        paragraphs: ['ServiceHub creates a durable local attempt, sends the seeker to PayMongo Test Mode, and verifies payment through a signed webhook or a server-side intent check after checkout return. It validates the amount, currency, user, listing, offer, and provider intent before creating the booking.'],
       },
       {
         heading: 'Provider Earnings in This Capstone',

@@ -23,7 +23,7 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
           'Choose an available payment method shown by the listing: On-site Cash or GCash.',
           'Add a short description of the problem or task details.',
           'For On-site Cash, optionally propose a preferred schedule and submit the request. The schedule is not reserved until the provider accepts.',
-          'For GCash, complete PayMongo Test Mode checkout. A signed backend webhook creates the accepted queue booking; the provider does not accept it a second time.',
+          'For GCash, complete PayMongo Test Mode checkout. Verified provider confirmation creates the accepted queue booking; the provider does not accept it a second time.',
         ],
         example: {
           title: 'Realistic Example',
@@ -47,8 +47,8 @@ export const BOOKING_ARTICLES: HelpArticle[] = [
         heading: 'From Request to Completion',
         bullets: [
           '1. PENDING APPROVAL (On-site Cash): The seeker submits a proposed schedule and scope. The provider must accept or decline it.',
-          '2. ACCEPTED / WAITING: An accepted cash request becomes ACCEPTED. A successful GCash Test Mode webhook creates an accepted booking in the listing-specific queue without another provider-acceptance step. Accepting a provider offer is also the provider’s commitment.',
-          '3. ONGOING: The provider starts the first eligible booking for the chosen listing. Chat is already available for the accepted transaction.',
+          '2. ACCEPTED / WAITING: An accepted cash request becomes ACCEPTED. Verified GCash Test Mode success creates an accepted booking in the provider’s paid work queue without another provider-acceptance step. Accepting a provider offer is also the provider’s commitment.',
+          '3. ONGOING: The provider starts the first eligible paid booking in their workload, or an accepted cash booking when no paid job is waiting. Chat is already available for the accepted transaction.',
           '4. AWAITING CONFIRMATION: The provider marks the work as finished. The seeker receives an action-required prompt to inspect the result.',
           '5. COMPLETED: The seeker confirms satisfactory completion. Online payment becomes RELEASED in ServiceHub’s internal ledger; cash becomes CASH_CONFIRMED, and review options unlock.',
         ],

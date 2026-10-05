@@ -9,5 +9,5 @@ export default function AdminPage() {
     router.replace('/admin/overview');
   }, [router]);
 
-  return <WorkspacePageSkeleton label="Opening Admin overview" role="admin" variant="table" />;
+  return <WorkspacePageSkeleton label="Opening Admin overview" role="admin" variant="overview" />;
 }

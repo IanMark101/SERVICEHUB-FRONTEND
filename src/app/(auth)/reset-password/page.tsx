@@ -1,214 +1,42 @@
-"use client";
+'use client';
 
-import { apiResetPassword } from "@/api/auth.api";
-import { getApiErrorMessage } from "@/lib/api/errors";
-import { CheckCircle2, CircleAlert, KeyRound, LoaderCircle } from "lucide-react";
+import { Suspense, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Check, CheckCircle2, Circle, KeyRound, Loader2 } from 'lucide-react';
+import { apiResetPassword } from '@/api/auth.api';
+import { getApiErrorMessage } from '@/lib/api/errors';
 import BrandLoading from '@/components/ui/BrandLoading';
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import PasswordField from '@/components/profile/account-settings/PasswordField';
+import { passwordFormSchema, passwordRequirements, strongPasswordSchema } from '@/schema/auth/passwordValidation';
+import '@/components/profile/account-settings/password-security.css';
 
 function ResetPasswordContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const token = searchParams.get("token") || "";
-
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
-
-  const validate = () => {
-    if (!token) return "Reset token is missing. Please use the link from your email.";
-    if (password.length < 8) return "Password must be at least 8 characters.";
-    if (!/\d/.test(password)) return "Password must contain at least one number.";
-    if (password !== confirm) return "Passwords do not match.";
-    return null;
+  const token = useSearchParams().get('token') || '';
+  const [password, setPassword] = useState(''); const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false); const [success, setSuccess] = useState(false); const [error, setError] = useState('');
+  const lock = useRef(false);
+  const validation = strongPasswordSchema.safeParse(password);
+  const valid = passwordFormSchema.safeParse({ newPassword: password, confirmPassword: confirm }).success;
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault(); if (lock.current || !token || !valid) return;
+    lock.current = true; setBusy(true); setError('');
+    try { await apiResetPassword({ token, password, confirmPassword: confirm }); setPassword(''); setConfirm(''); setSuccess(true); }
+    catch (cause) { setError(getApiErrorMessage(cause, 'Could not reset your password. Request a new link if this one expired.')); }
+    finally { lock.current = false; setBusy(false); }
   };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const err = validate();
-    if (err) { setStatus("error"); setMessage(err); return; }
-
-    setStatus("loading");
-    setMessage("");
-
-    try {
-      const res = await apiResetPassword({ token, password });
-      setStatus("success");
-      setMessage(res.message || "Password reset successfully. You can now log in.");
-      setTimeout(() => router.push("/login"), 3000);
-    } catch (error: unknown) {
-      setStatus("error");
-      setMessage(getApiErrorMessage(error, "Reset link is invalid or has expired. Please request a new one."));
-    }
-  };
-
-  const isSuccess = status === "success";
-  const isError = status === "error";
-
-  return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f4f2] dark:bg-[#121211] px-4 py-8 text-slate-800 dark:text-zinc-100 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -left-20 top-0 h-72 w-72 rounded-full bg-[#c86544]/15 blur-[120px]" />
-        <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-emerald-500/15 blur-[120px]" />
-      </div>
-
-      <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] border border-black/[0.06] dark:border-white/10 bg-white/80 dark:bg-[#181716] shadow-[0_30px_90px_-25px_rgba(15,23,42,0.15)] backdrop-blur-xl">
-        <div className="grid min-h-[640px] lg:grid-cols-[1.05fr_0.95fr]">
-          {/* Left panel */}
-          <section className="relative flex flex-col justify-between bg-gradient-to-br from-[#161514] via-[#1c1b1a] to-[#121211] p-8 text-white sm:p-10 lg:p-12">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium text-orange-200">
-                <KeyRound size={16} />
-                Password reset
-              </div>
-
-              <h1 className="mt-6 text-3xl font-semibold leading-tight sm:text-4xl">
-                Create your new password.
-              </h1>
-              <p className="mt-4 max-w-md text-sm leading-7 text-slate-300 sm:text-base">
-                Choose a strong password for your ServiceHub Cordova account. Your new password will invalidate all existing sessions.
-              </p>
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm">
-              <p className="text-sm text-slate-300">Password requirements</p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                <li className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-orange-400" />
-                  At least 8 characters long.
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                  Contains at least one number.
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-sky-400" />
-                  Both fields must match exactly.
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          {/* Right panel: form */}
-          <section className="flex items-center justify-center bg-[#f5f4f2] dark:bg-[#121211] p-6 sm:p-8 lg:p-10">
-            <div className="w-full max-w-md rounded-[28px] border border-black/[0.06] dark:border-white/10 bg-white dark:bg-[#181716] p-7 shadow-[0_18px_45px_-20px_rgba(15,23,42,0.1)] sm:p-8">
-              {isSuccess ? (
-                <>
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
-                    <CheckCircle2 size={30} />
-                  </div>
-                  <div className="mt-6 text-center">
-                    <h2 className="text-2xl font-semibold text-slate-900">Password reset!</h2>
-                    <p className="mt-3 text-sm leading-7 text-slate-600">{message}</p>
-                    <p className="mt-2 text-xs text-slate-400">Redirecting you to login...</p>
-                  </div>
-                  <button
-                    onClick={() => router.push("/login")}
-                    className="mt-8 flex w-full items-center justify-center rounded-2xl bg-[#f97316] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#ea580c]"
-                  >
-                    Go to Login
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${isError ? "bg-rose-50 text-rose-600" : "bg-orange-50 text-orange-600"}`}>
-                    {isError ? <CircleAlert size={30} /> : <KeyRound size={30} />}
-                  </div>
-
-                  <div className="mt-6 text-center">
-                    <h2 className="text-2xl font-semibold text-slate-900">
-                      {isError && !token ? "Invalid link" : "Set new password"}
-                    </h2>
-                    <p className="mt-2 text-sm text-slate-500">
-                      Enter and confirm your new password below.
-                    </p>
-                  </div>
-
-                  {isError && (
-                    <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-                      {message}
-                    </div>
-                  )}
-
-                  {!token ? (
-                    <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                      This reset link is invalid or missing a token. Please use the link from your email or{" "}
-                      <button onClick={() => router.push("/login")} className="font-semibold text-orange-600 underline">
-                        request a new one
-                      </button>.
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                      <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                          New Password
-                        </label>
-                        <input
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Min. 8 characters, 1 number"
-                          required
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                          Confirm New Password
-                        </label>
-                        <input
-                          type="password"
-                          value={confirm}
-                          onChange={(e) => setConfirm(e.target.value)}
-                          placeholder="Repeat your new password"
-                          required
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={status === "loading"}
-                        className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#f97316] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#ea580c] disabled:opacity-60"
-                      >
-                        {status === "loading" ? (
-                          <>
-                            <LoaderCircle size={16} className="animate-spin" />
-                            Resetting password...
-                          </>
-                        ) : (
-                          "Reset Password"
-                        )}
-                      </button>
-                    </form>
-                  )}
-
-                  <button
-                    onClick={() => router.push("/login")}
-                    className="mt-4 block w-full text-center text-xs text-slate-400 hover:text-slate-600"
-                  >
-                    Back to login
-                  </button>
-                </>
-              )}
-            </div>
-          </section>
-        </div>
-      </div>
-    </main>
-  );
+  return <main className="workspace-shell min-h-dvh px-4 py-12 sm:py-20">
+    <section className="security-password mx-auto max-w-xl" aria-busy={busy}>
+      <header><KeyRound size={22} /><div><h2>Reset your password</h2><p>Choose a new ServiceHub password. Every device will be signed out for security.</p></div></header>
+      {!token ? <div className="security-password__error" role="alert">This reset link is missing its verification token. Use the complete link from your email.<p><Link href="/login?mode=forgot">Get a new reset link</Link></p></div> : success ? <><div className="security-password__success mt-6" role="status"><CheckCircle2 size={20} /><p>Password reset successfully. Sign in with your new password or your connected Google account.</p></div><Link href="/login" className="workspace-primary-button security-password__button">Back to sign in</Link></> : <form className="mt-6 space-y-5" onSubmit={submit} noValidate>
+        <PasswordField label="New Password" value={password} onChange={value => { setPassword(value); setError(''); }} error={password && !validation.success ? validation.error.issues[0].message : ''} valid={Boolean(password) && validation.success} disabled={busy} describedBy="reset-password-requirements" />
+        <div id="reset-password-requirements" className="security-password__requirements"><p>Your new password needs:</p><ul>{passwordRequirements.map(rule => <li key={rule.label} className={rule.test(password) ? 'is-met' : ''}>{rule.test(password) ? <Check size={15} /> : <Circle size={13} />}{rule.label}</li>)}</ul></div>
+        <PasswordField label="Confirm New Password" value={confirm} onChange={setConfirm} error={confirm && password !== confirm ? 'Passwords do not match.' : ''} valid={Boolean(confirm) && password === confirm} disabled={busy} />
+        {error && <div className="security-password__error" role="alert">{error}<p><Link href="/login?mode=forgot">Get a new reset link</Link></p></div>}
+        <button type="submit" className="workspace-primary-button security-password__button w-full" disabled={busy || !valid}>{busy && <Loader2 size={16} className="security-password__spinner" />}{busy ? 'Resetting password…' : 'Reset Password'}</button>
+      </form>}
+      {!success && <Link href="/login" className="security-password__cancel">Back to sign in</Link>}
+    </section>
+  </main>;
 }
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense
-      fallback={<BrandLoading label="Preparing password reset" />}
-    >
-      <ResetPasswordContent />
-    </Suspense>
-  );
-}
+export default function ResetPasswordPage() { return <Suspense fallback={<BrandLoading label="Preparing password reset" />}><ResetPasswordContent /></Suspense>; }

@@ -7,7 +7,7 @@ import { countProviderActivityTab, filterProviderActivityItems } from '../provid
 const booking: JobEngagement = {
   id: 'booking-1', title: 'House Cleaning', seekerId: 'johncarlo', seekerName: 'John Carlo', seekerAvatar: '',
   providerId: 'ian', providerName: 'Ian', providerAvatar: '', serviceId: 'service-1',
-  price: 250, status: 'queued', paymentMethod: 'GCash', queuePosition: 1,
+  price: 250, status: 'queued', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD', queuePaymentStatus: 'PAID_HELD', queuePosition: 1, queueStatus: 'WAITING',
   createdAt: '2026-09-27T09:00:00.000Z', started: false,
 };
 
@@ -16,7 +16,7 @@ describe('Activity situation and filter semantics', () => {
     const seeker = getActivitySituation(booking, 'seeker', 'johncarlo');
     const provider = getActivitySituation(booking, 'provider', 'ian');
     expect(seeker.label).toBe('Waiting on provider');
-    expect(seeker.title).toBe('First in this service queue');
+    expect(seeker.title).toBe("First in this provider's paid queue");
     expect(seeker.next).toContain('provider can start');
     expect(provider.label).toBe('Ready to start');
     expect(provider.next).toContain('only one job');
@@ -28,6 +28,13 @@ describe('Activity situation and filter semantics', () => {
     expect(getActivitySituation(accepted, 'seeker').title).toBe('Booking accepted, work not started');
     expect(getActivitySituation(accepted, 'provider').label).toBe('Ready to start');
     expect(getActivitySituation({ ...accepted, started: true }, 'seeker').title).toBe('Your service is in progress');
+  });
+
+  it('does not invite a provider to start cash work ahead of paid bookings', () => {
+    const cash = { ...booking, status: 'in_progress' as const, paymentMethod: 'On-site Cash' as const, queuePosition: undefined };
+    const provider = getActivitySituation(cash, 'provider', 'ian', undefined, true);
+    expect(provider.label).toBe('Paid jobs ahead');
+    expect(provider.next).toContain('Start the paid jobs first');
   });
 
   it('makes the seeker completion decision and provider waiting state explicit', () => {
@@ -53,7 +60,7 @@ describe('Activity situation and filter semantics', () => {
   it('surfaces disputes and closed history without promising an automatic release', () => {
     expect(getActivitySituation({ ...booking, status: 'disputed' }, 'seeker').label).toBe('Admin review');
     expect(getActivitySituation({ ...booking, status: 'completed' }, 'provider').title).toBe('This booking is complete');
-    expect(getActivitySituation({ ...booking, status: 'canceled' }, 'seeker').title).toBe('This booking is closed');
+    expect(getActivitySituation({ ...booking, status: 'canceled' }, 'seeker').title).toBe('This booking was canceled');
   });
 
   it('filters accepted-but-not-started work into Before Work, not Work Underway', () => {

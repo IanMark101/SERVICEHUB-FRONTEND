@@ -1,4 +1,5 @@
 "use client";
+import FormSelect from '../ui/FormSelect';
 import React, { useRef, useState } from 'react';
 import { AlertTriangle, Edit3, X, Save, Camera, Upload, Trash2, Lock } from 'lucide-react';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
@@ -82,7 +83,7 @@ export default function ProfileEditForm({
         <h3 className={`flex items-center gap-2 text-base font-bold ${headingText}`}>
           <Edit3 size={16} className={accentColor} /> Edit Profile Information
         </h3>
-        <button type="button" onClick={() => setShowEdit(false)} aria-label="Close profile editor" className="grid size-9 place-items-center rounded-xl text-slate-400 transition-colors hover:bg-[color:var(--workspace-surface-muted)] hover:text-slate-700 dark:hover:text-neutral-200">
+        <button type="button" onClick={() => setShowEdit(false)} aria-label="Close profile editor" className="grid size-9 place-items-center rounded-xl text-ink-subtle transition-colors hover:bg-[color:var(--workspace-surface-muted)] hover:text-ink-secondary dark:hover:text-ink">
           <X size={18} />
         </button>
       </div>
@@ -116,7 +117,7 @@ export default function ProfileEditForm({
               placeholder="+63 9XX XXX XXXX"
             />
             {hasActiveEngagements && (
-              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400">
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-subtle">
                 <Lock className="w-3.5 h-3.5" />
               </div>
             )}
@@ -133,7 +134,8 @@ export default function ProfileEditForm({
 
         <div>
           <label className={`block text-xs font-bold mb-1 ${labelText}`}>Barangay (Cordova, Cebu)</label>
-          <select
+          <FormSelect
+            aria-label="Barangay (Cordova, Cebu)"
             className={inputClass}
             value={editForm.location}
             onChange={e => setEditForm((form) => ({ ...form, location: e.target.value }))}
@@ -142,7 +144,7 @@ export default function ProfileEditForm({
             {CORDOVA_BARANGAYS.map(b => (
               <option key={b} value={b}>{b}</option>
             ))}
-          </select>
+          </FormSelect>
         </div>
 
         <div className="sm:col-span-2">

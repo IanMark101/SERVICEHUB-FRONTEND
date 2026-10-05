@@ -38,9 +38,9 @@ export default function AdminPagination({
 
   return (
     <nav aria-label={`${itemLabel} pagination`} className="admin-pagination">
-      <p className="text-[11px] font-medium text-slate-500 dark:text-neutral-400">
-        Showing <span className="font-bold text-slate-900 dark:text-neutral-100">{firstItem}–{lastItem}</span> of{' '}
-        <span className="font-bold text-slate-900 dark:text-neutral-100">{totalItems}</span> {itemLabel}
+      <p className="text-[11px] font-medium text-ink-muted dark:text-ink-muted">
+        Showing <span className="font-bold text-ink dark:text-ink">{firstItem}–{lastItem}</span> of{' '}
+        <span className="font-bold text-ink dark:text-ink">{totalItems}</span> {itemLabel}
       </p>
 
       <div className="flex items-center gap-1" aria-label={`Page ${safePage} of ${safeTotalPages}`}>
@@ -49,7 +49,7 @@ export default function AdminPagination({
         </button>
 
         {pageOptions(safePage, safeTotalPages).map((option, index) => option === 'ellipsis' ? (
-          <span key={`ellipsis-${index}`} className="flex h-8 w-7 items-center justify-center text-xs text-slate-400">…</span>
+          <span key={`ellipsis-${index}`} className="flex h-8 w-7 items-center justify-center text-xs text-ink-subtle">…</span>
         ) : (
           <button type="button" key={option} onClick={() => onPageChange(option)} aria-current={option === safePage ? 'page' : undefined} className={`admin-page-button ${option === safePage ? 'admin-page-button-active' : ''}`}>
             {option}

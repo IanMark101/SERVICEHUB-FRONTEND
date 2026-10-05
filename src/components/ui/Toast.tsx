@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
 import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import './feedback.css';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -30,80 +31,42 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 // ── Configuration & Themes ───────────────────────────────────────────────────
 
-const TOAST_CONFIG: Record<
-  ToastType,
-  {
-    icon: React.ReactNode;
-    cardClasses: string;
-    iconColor: string;
-    titleColor: string;
-    messageColor: string;
-    progressBar: string;
-  }
-> = {
-  success: {
-    icon: <CheckCircle2 size={19} />,
-    cardClasses: 'bg-white/95 border-emerald-500/30 dark:bg-[#15231c]/95 dark:border-emerald-500/30 shadow-xl shadow-emerald-950/10 dark:shadow-black/60',
-    iconColor: 'text-emerald-600 dark:text-emerald-400',
-    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
-    messageColor: 'text-slate-600 dark:text-emerald-200/80',
-    progressBar: 'bg-emerald-500',
-  },
-  error: {
-    icon: <XCircle size={19} />,
-    cardClasses: 'bg-white/95 border-red-500/30 dark:bg-[#261616]/95 dark:border-red-500/30 shadow-xl shadow-red-950/10 dark:shadow-black/60',
-    iconColor: 'text-red-600 dark:text-red-400',
-    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
-    messageColor: 'text-slate-600 dark:text-red-200/80',
-    progressBar: 'bg-red-500',
-  },
-  warning: {
-    icon: <AlertTriangle size={19} />,
-    cardClasses: 'bg-white/95 border-amber-500/30 dark:bg-[#261f14]/95 dark:border-amber-500/30 shadow-xl shadow-amber-950/10 dark:shadow-black/60',
-    iconColor: 'text-amber-600 dark:text-amber-400',
-    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
-    messageColor: 'text-slate-600 dark:text-amber-200/80',
-    progressBar: 'bg-amber-500',
-  },
-  info: {
-    icon: <Info size={19} />,
-    cardClasses: 'bg-white/95 border-orange-500/30 dark:bg-[#241a14]/95 dark:border-orange-500/30 shadow-xl shadow-orange-950/10 dark:shadow-black/60',
-    iconColor: 'text-orange-600 dark:text-orange-400',
-    titleColor: 'text-slate-900 dark:text-[#f2efe9] font-extrabold',
-    messageColor: 'text-slate-600 dark:text-orange-200/80',
-    progressBar: 'bg-orange-500',
-  },
+const TOAST_ICONS: Record<ToastType, React.ReactNode> = {
+  success: <CheckCircle2 size={19} />,
+  error: <XCircle size={19} />,
+  warning: <AlertTriangle size={19} />,
+  info: <Info size={19} />,
 };
 
 // ── Toast Item Component ──────────────────────────────────────────────────────
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
-  const cfg = TOAST_CONFIG[toast.type];
   const duration = toast.duration || 4500;
 
   return (
     <div
       role="alert"
+      data-feedback-kind={toast.type}
       aria-live="polite"
-      className={`flex items-start gap-3 p-4 rounded-2xl border backdrop-blur-xl min-w-[300px] max-w-[400px] relative overflow-hidden transition-all duration-200 select-none shadow-lg ${cfg.cardClasses}`}
+      className="servicehub-toast flex w-full min-w-0 items-start gap-3 p-4 rounded-2xl border backdrop-blur-xl relative overflow-hidden transition-all duration-200 select-none shadow-lg"
       style={{
         animation: 'toast-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1)',
       }}
     >
-      <span className={`flex-shrink-0 mt-0.5 ${cfg.iconColor}`}>{cfg.icon}</span>
+      <span className="servicehub-toast__icon flex-shrink-0 mt-0.5">{TOAST_ICONS[toast.type]}</span>
       <div className="flex-1 min-w-0 pr-2">
-        <p className={`m-0 text-xs tracking-tight leading-snug ${cfg.titleColor}`}>
+        <p className="m-0 text-xs tracking-tight leading-snug text-ink dark:text-white font-extrabold">
           {toast.title}
         </p>
         {toast.message && (
-          <p className={`mt-1 text-[11px] leading-relaxed font-medium ${cfg.messageColor}`}>
+          <p className="mt-1 text-[11px] leading-relaxed font-medium text-ink-muted">
             {toast.message}
           </p>
         )}
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="bg-transparent border-0 cursor-pointer p-1 text-slate-400 hover:text-slate-700 dark:text-neutral-500 dark:hover:text-neutral-200 flex-shrink-0 flex items-center justify-center rounded-lg transition-colors duration-150 active:scale-90"
+        className="bg-transparent border-0 cursor-pointer p-1 text-ink-subtle hover:text-ink-secondary dark:text-ink-subtle dark:hover:text-ink flex-shrink-0 flex items-center justify-center rounded-lg transition-colors duration-150 active:scale-90"
         aria-label="Dismiss toast"
       >
         <X size={14} />
@@ -111,7 +74,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
 
       {/* Auto-Dismiss Progress Bar */}
       <div
-        className={`absolute bottom-0 left-0 h-[2.5px] ${cfg.progressBar} opacity-75`}
+        className="servicehub-toast__progress absolute bottom-0 left-0 h-[2.5px] opacity-75"
         style={{
           width: '100%',
           animation: `toast-progress ${duration}ms linear forwards`,
@@ -142,7 +105,8 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
         style={{
           position: 'fixed',
           top: '20px',
-          right: '20px',
+          right: '16px',
+          width: 'min(400px, calc(100vw - 32px))',
           zIndex: 99999,
           display: 'flex',
           flexDirection: 'column',
@@ -151,7 +115,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
         }}
       >
         {toasts.map((t) => (
-          <div key={t.id} style={{ pointerEvents: 'all' }}>
+          <div key={t.id} style={{ pointerEvents: 'all', width: '100%' }}>
             <ToastItem toast={t} onDismiss={onDismiss} />
           </div>
         ))}

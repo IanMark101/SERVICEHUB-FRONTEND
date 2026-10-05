@@ -22,10 +22,10 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'Trust Score Tiers',
         bullets: [
-          '90-100 (Highly Trusted / Green): Top-tier standing with consistent positive reviews, approved Cordova residency, and a flawless transaction record.',
-          '70-89 (Trusted / Blue): High standing with reliable completed services, verified residency, and strong client feedback.',
-          '50-69 (Average / Amber): Standard baseline standing. Default starting score for all new accounts is 50.',
-          'Below 50 (Needs Attention / Red): Accounts impacted by at-fault cancellations, validated reports, or repeated listing rejections.',
+          '90-100 (Highly Trusted): The highest trust-score band.',
+          '70-89 (Trusted): A strong trust-score standing.',
+          '50-69 (Average): The standard starting band. New accounts start at 50.',
+          'Below 50 (Needs Attention): Review your trust history to see what lowered your score.',
         ],
         callout: {
           type: 'info',
@@ -49,22 +49,23 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'Ways to Gain Trust Points (+)',
         bullets: [
-          '+5 Points (One-time): Completing and getting approved for Cordova Residency Verification.',
-          '+3 Points: Successfully completing a service transaction upon seeker confirmation (applies to both Cash and Online bookings).',
-          '+2 Points: Receiving a 5-star customer review from a confirmed seeker (+1 point for a 4-star review).',
-          'Smooth Transactions: Undisputed payments, on-time service delivery, and prompt completion confirmations build long-term reputation.',
+          'Your first approved Cordova residency verification increases your score once.',
+          'As a provider, completing work that the seeker confirms increases your score. An admin can also confirm completion after reviewing a case.',
+          'Receiving a positive review for completed work can increase your score, whether you were the seeker or provider.',
+          'Payments, accepting bookings, and starting work do not award extra trust points by themselves.',
         ],
       },
       {
         heading: 'Actions that Deduct Trust Points (-)',
         bullets: [
-          '-5 Points: At-fault cancellation after an active service has already been started by the provider.',
-          '-5 Points: Second repeated service listing rejection due to non-compliant or misleading descriptions.',
-          '-10 Points: Valid report or dispute upheld against your account by an administrator.',
+          'An admin finding that you were at fault for cancelling started work can lower your score. Mutual cancellations and cancellations before work starts do not.',
+          'Receiving a low review rating for completed work can lower your score.',
+          'An admin can deduct trust after confirming a report against you. Filing a report does not penalize either participant by itself.',
+          'A listing that needs revision does not lower your trust score.',
         ],
         example: {
           title: 'Example: Positive Reputation Growth',
-          description: 'Juan registers with 50 points. He verifies his Cordova residency (+5 -> 55). He completes 3 plumbing jobs with 5-star ratings (+15 -> 70). He now reaches the "Trusted" tier (70+) in local search results.',
+          description: 'Juan starts with a score of 50. His first residency approval, confirmed completed jobs, and positive client reviews increase his score. His Trust History shows each recorded change.',
         },
       },
     ],

@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { prepareCachedRequest } from './cachedAdapter';
+import { apiPath, mutationResources } from './cachePolicy';
+import { clearApiCache, invalidateApiCache, responseCache } from './responseCache';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -14,24 +17,55 @@ export const api = axios.create({
 // an HttpOnly cookie, so injected browser scripts cannot copy either credential
 // from localStorage and reuse it outside this browser session.
 let accessToken: string | null = null;
+let sessionGeneration = 0;
+const requestGenerations = new WeakMap<object, number>();
+const requestCacheGenerations = new WeakMap<object, number>();
+
+function tokenSubject(token: string): string | null {
+  try {
+    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const subject = JSON.parse(atob(payload)).sub;
+    return typeof subject === 'string' ? subject : null;
+  } catch { return null; }
+}
 
 export function getAccessToken(): string | null {
   return accessToken;
 }
 
+/** Identifies explicit login/logout changes while an earlier request is pending. */
+export function getSessionGeneration(): number {
+  return sessionGeneration;
+}
+
 export function setAccessToken(token: string): void {
+  const subject = tokenSubject(token);
+  if (subject && responseCache.accountId && subject !== responseCache.accountId) {
+    // A refresh cookie can change accounts in another tab. Decoding only
+    // rejects an identity mismatch; it never establishes cache authorization.
+    sessionGeneration++;
+    responseCache.clear();
+    accessToken = null;
+    delete api.defaults.headers.common.Authorization;
+    if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
+    throw new axios.CanceledError('The browser account changed. Sign in again.');
+  }
   accessToken = token;
   api.defaults.headers.common.Authorization = `Bearer ${token}`;
 }
 
 export function clearAccessToken(): void {
+  sessionGeneration++;
   accessToken = null;
   delete api.defaults.headers.common.Authorization;
+  clearApiCache();
 }
 
 // Attach access token to every outgoing request
 api.interceptors.request.use(
   (config) => {
+    requestGenerations.set(config, sessionGeneration);
+    requestCacheGenerations.set(config, responseCache.generation);
     const token = getAccessToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -40,38 +74,92 @@ api.interceptors.request.use(
       // allow a token removed during logout to remain on later requests.
       delete config.headers.Authorization;
     }
-    return config;
+    return prepareCachedRequest(config, !!token);
   },
   (error) => {
     return Promise.reject(error);
   }
 );
 
-let isRefreshing = false;
-type PendingRequest = {
-  resolve: (token: string | null) => void;
-  reject: (error: unknown) => void;
-};
+let refreshPromise: Promise<string> | null = null;
+const REFRESH_LOCK = 'servicehub-refresh';
+const REFRESH_GENERATION = 'servicehub-refresh-generation';
 
-let failedQueue: PendingRequest[] = [];
-
-const processQueue = (error: unknown, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
+/** Shared by HTTP retries and Socket.IO; the generation coordinates browser
+ * tabs without storing credentials outside memory or the HttpOnly cookie. */
+export function refreshAccessTokenOnce(): Promise<string> {
+  if (refreshPromise) return refreshPromise;
+  const generation = sessionGeneration;
+  const observedGeneration = typeof localStorage !== 'undefined' ? localStorage.getItem(REFRESH_GENERATION) : null;
+  const rotate = async () => {
+    const anotherTabRotated = typeof localStorage !== 'undefined'
+      && localStorage.getItem(REFRESH_GENERATION) !== observedGeneration;
+    const endpoint = anotherTabRotated ? '/auth/session' : '/auth/refresh';
+    const response = await axios.post(`${API_BASE_URL}${endpoint}`, {}, { withCredentials: true });
+    if (generation !== sessionGeneration) throw new axios.CanceledError('Session changed during token refresh');
+    if (anotherTabRotated && response.data?.data?.authenticated === false) {
+      clearAccessToken();
+      if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
+      throw new Error('Browser session is no longer active');
     }
-  });
-
-  failedQueue = [];
-};
+    const token = response.data?.data?.accessToken || response.data?.accessToken;
+    if (!token) throw new Error('No access token returned from session recovery');
+    if (!anotherTabRotated && typeof localStorage !== 'undefined') {
+      localStorage.setItem(REFRESH_GENERATION, crypto.randomUUID());
+    }
+    setAccessToken(token);
+    return token as string;
+  };
+  const coordinated: Promise<string> = typeof navigator !== 'undefined' && navigator.locks
+    ? navigator.locks.request(REFRESH_LOCK, rotate) as unknown as Promise<string>
+    : rotate();
+  const pending = coordinated.catch((error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      clearAccessToken();
+      if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
+    }
+    throw error;
+  }).finally(() => { if (refreshPromise === pending) refreshPromise = null; });
+  refreshPromise = pending;
+  return pending;
+}
 
 // Handle 401 Unauthorized response by calling /auth/refresh
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const generation = requestGenerations.get(response.config);
+    if (generation !== undefined && generation !== sessionGeneration) throw new axios.CanceledError('Session changed while loading data');
+    const cacheGeneration = requestCacheGenerations.get(response.config);
+    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) throw new axios.CanceledError('Account changed while loading data');
+    const path = apiPath(response.config.url);
+    const successful = response.status >= 200 && response.status < 300 && response.data?.success !== false;
+    if (successful && typeof window !== 'undefined') {
+      // Identity comes only from a server-verified login or /me, never from a
+      // cached profile hint. Token rotation for the same account keeps its cache.
+      if (['/auth/me', '/auth/session', '/auth/login', '/auth/google-login'].includes(path)) {
+        if (['/auth/login', '/auth/google-login'].includes(path)) sessionGeneration++;
+        const user = response.data?.data?.user;
+        if (user?.moderationStatus === 'BANNED') clearApiCache();
+        else if (user?.id) responseCache.setIdentity(JSON.stringify([user.id, user.role, user.emailVerified, user.verificationStatus, user.moderationStatus, user.postingStatus]));
+      }
+      if (['/auth/logout', '/auth/change-password', '/users/me/account-deletion'].includes(path)) {
+        clearApiCache();
+      } else if ((response.config.method || 'get').toLowerCase() !== 'get' && !['/auth/session', '/auth/refresh'].includes(path)) {
+        invalidateApiCache(mutationResources(path), 'mutation');
+      } else if (/^\/messages\/[^/]+$/.test(path) && !['/messages/conversations', '/messages/contacts'].includes(path)) {
+        // Reading a conversation also marks its messages/notifications read.
+        invalidateApiCache(['messages', 'notifications'], 'read');
+      }
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
+    if (!originalRequest) return Promise.reject(error);
+    const generation = requestGenerations.get(originalRequest);
+    if (generation !== undefined && generation !== sessionGeneration) return Promise.reject(new axios.CanceledError('Session changed while loading data'));
+    const cacheGeneration = requestCacheGenerations.get(originalRequest);
+    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) return Promise.reject(new axios.CanceledError('Account changed while loading data'));
 
     // Avoid infinite loop if auth/refresh or login fails
     if (
@@ -84,7 +172,12 @@ api.interceptors.response.use(
 
     if (error.response?.status === 403) {
       const errData = error.response.data;
-      if (errData?.error === "Account suspended" || errData?.code === "EMAIL_NOT_VERIFIED") {
+      if (errData?.code === 'ACCOUNT_BANNED') {
+        clearApiCache();
+        if (typeof window !== 'undefined') window.dispatchEvent(new Event('account_banned'));
+        return Promise.reject(error);
+      }
+      if (errData?.error === "Account suspended") {
         clearAccessToken();
         if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(error);
@@ -100,47 +193,12 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      if (isRefreshing) {
-        return new Promise<string | null>((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return api(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
-
       try {
-        const refreshResponse = await axios.post(
-          `${API_BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-
-        // Refresh endpoint returns { success: true, data: { accessToken } }
-        const accessToken = refreshResponse.data?.data?.accessToken || refreshResponse.data?.accessToken;
-        if (!accessToken) {
-          throw new Error('No access token returned from refresh');
-        }
-        setAccessToken(accessToken);
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
-        processQueue(null, accessToken);
-        isRefreshing = false;
-
+        const token = await refreshAccessTokenOnce();
+        originalRequest.headers.Authorization = `Bearer ${token}`;
         return api(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError, null);
-        isRefreshing = false;
-        // Clean up token and trigger redirect or logout event
-        clearAccessToken();
-        if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
         return Promise.reject(refreshError);
       }
     }

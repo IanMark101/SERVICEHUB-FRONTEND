@@ -1,14 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Menu, Moon, Sun, X } from 'lucide-react';
+import { Menu, Moon, Sun, X } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
+import { getWorkspaceEntryPath } from '@/lib/workspaceEntry';
+import LandingActionLink from './LandingActionLink';
 
 interface LandingHeaderProps {
   isDark: boolean;
   toggleTheme: () => void;
-  onGetStarted: () => void;
 }
 
 const NAV_LINKS = [
@@ -18,17 +21,69 @@ const NAV_LINKS = [
   { label: 'Queue', href: '#queue' },
   { label: 'Trust', href: '#trust' },
   { label: 'Community', href: '#community' },
+  { label: 'Reviews', href: '#reviews' },
   { label: 'FAQ', href: '#faq' },
 ];
 
-export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: LandingHeaderProps) {
+export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProps) {
+  const { authLoading, isAuthenticated, user } = useApp();
+  // The server and first client render use the normal public actions. Only a
+  // confirmed session changes them to workspace navigation.
+  const hasSession = !authLoading && isAuthenticated && Boolean(user);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrollHidden, setScrollHidden] = useState(false);
+  const [focusWithin, setFocusWithin] = useState(false);
+  const scrollAnchor = useRef(0);
+  const { scrollY } = useScroll();
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1280px)');
+    const closeMobileMenu = (event: MediaQueryListEvent) => {
+      if (event.matches) setMobileOpen(false);
+    };
+    desktop.addEventListener('change', closeMobileMenu);
+    return () => desktop.removeEventListener('change', closeMobileMenu);
+  }, []);
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    // Ignore rubber-band scrolling and accumulate small movements to prevent flicker.
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const position = Math.min(maxScroll, Math.max(0, latest));
+    const distance = position - scrollAnchor.current;
+    if (position <= 96) {
+      scrollAnchor.current = position;
+      setScrollHidden(false);
+      return;
+    }
+    if (Math.abs(distance) < 10) return;
+    scrollAnchor.current = position;
+    setScrollHidden(distance > 0);
+  });
+
+  const headerHidden = scrollHidden && !mobileOpen && !focusWithin;
 
   return (
     <>
       {/* Floating Header Container */}
-      <header className="fixed inset-x-0 top-4 z-[100] px-4 sm:px-6 lg:px-8 pointer-events-none">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+      <motion.header
+        className="fixed inset-x-0 top-4 z-[100] px-4 sm:px-6 lg:px-8 pointer-events-none"
+        data-scroll-hidden={headerHidden ? 'true' : 'false'}
+        initial={false}
+        animate={{ y: headerHidden ? 'calc(-100% - 2rem)' : 0, opacity: headerHidden ? 0 : 1 }}
+        transition={{
+          y: { duration: shouldReduceMotion ? 0 : 0.38, ease: [0.4, 0, 0.2, 1] },
+          opacity: { duration: shouldReduceMotion ? 0 : 0.28, ease: 'easeInOut' },
+        }}
+        onFocusCapture={(event) => {
+          setScrollHidden(false);
+          setFocusWithin(event.target.matches(':focus-visible'));
+        }}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setFocusWithin(false);
+        }}
+      >
+        <div data-landing-header-bar className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           {/* Left Floating Brand Card */}
           <a
             href="#top"
@@ -56,7 +111,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
           {/* Right Floating Liquid Glass Pill Navbar */}
           <div className="pointer-events-auto flex shrink-0 items-center gap-1.5 rounded-full border border-neutral-200/80 bg-white/80 p-1.5 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 dark:border-white/10 dark:bg-zinc-900/80">
             {/* Desktop Navigation Links */}
-            <nav className="hidden items-center gap-0.5 px-1 xl:flex" aria-label="Landing page">
+            <nav className="hidden items-center gap-0.5 px-1 xl:flex" aria-label="Main navigation">
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.href}
@@ -78,34 +133,18 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
               {isDark ? <Sun size={15} /> : <Moon size={15} />}
             </button>
 
-            {/* Login Link */}
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex rounded-full px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-black/[0.04] dark:text-zinc-300 dark:hover:bg-white/[0.06]"
-            >
-              Log in
-            </Link>
+                {/* Login Link */}
+                {!hasSession && (
+                  <Link
+                    href="/login"
+                    className="hidden sm:inline-flex rounded-full px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-black/[0.04] dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                  >
+                    Log in
+                  </Link>
+                )}
 
-            {/* Unique High-Contrast Action Pill Button with Specular Light Shade on Black */}
-            <button
-              type="button"
-              onClick={onGetStarted}
-              className="group/btn relative inline-flex items-center gap-1.5 overflow-hidden rounded-full bg-[#0a0a0a] px-4 py-1.5 text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_6px_14px_-3px_rgba(0,0,0,0.4)] ring-1 ring-black/20 transition-all hover:bg-[#161616] hover:scale-[1.02] active:scale-[0.97] dark:bg-white dark:text-[#0a0a0a] dark:hover:bg-neutral-100"
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-full dark:hidden"
-                style={{
-                  background: 'radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.16), transparent 60%)',
-                }}
-              />
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 ease-out group-hover/btn:translate-x-full"
-              />
-              <span className="relative z-10">Get started</span>
-              <ArrowRight size={13} className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
-            </button>
+                {/* Unique High-Contrast Action Pill Button with Specular Light Shade on Black */}
+                <LandingActionLink>{hasSession ? 'Open workspace' : 'Get started'}</LandingActionLink>
 
             {/* Mobile Menu Toggle Button */}
             <button
@@ -127,7 +166,7 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
             id="mobile-navigation"
             className="pointer-events-auto mx-auto mt-3 max-w-6xl rounded-2xl border border-black/[0.08] bg-white/95 p-4 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/95 xl:hidden"
           >
-            <nav className="grid gap-1" aria-label="Mobile landing page">
+            <nav className="grid gap-1" aria-label="Mobile navigation">
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.href}
@@ -140,11 +179,11 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
               ))}
               <div className="mt-2 border-t border-slate-100 pt-2 dark:border-zinc-800">
                 <Link
-                  href="/login"
+                  href={hasSession && user ? getWorkspaceEntryPath(user) : '/login'}
                   onClick={() => setMobileOpen(false)}
                   className="block rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-900"
                 >
-                  Log in
+                  {hasSession ? 'Open workspace' : 'Log in'}
                 </Link>
                 <Link
                   href="/help"
@@ -157,10 +196,8 @@ export default function LandingHeader({ isDark, toggleTheme, onGetStarted }: Lan
             </nav>
           </div>
         )}
-      </header>
+      </motion.header>
 
-      {/* Spacer to prevent content from hiding behind the floating header */}
-      <div className="h-20 shrink-0" aria-hidden="true" />
     </>
   );
 }

@@ -2,15 +2,13 @@ import React, { useEffect } from 'react';
 
 interface GoogleCredentialResponse { credential?: string }
 interface GoogleIdentityApi {
-  initialize: (options: { client_id: string; auto_select: boolean; cancel_on_tap_outside: boolean; use_fedcm_for_button: boolean; callback: (response: GoogleCredentialResponse) => void }) => void;
+  initialize: (options: { client_id: string; nonce?: string; auto_select: boolean; cancel_on_tap_outside: boolean; use_fedcm_for_button: boolean; callback: (response: GoogleCredentialResponse) => void }) => void;
   renderButton: (container: HTMLElement, options: { theme: string; size: string; shape: string; width: number }) => void;
 }
 
 declare global {
   interface Window {
     google?: { accounts?: { id?: GoogleIdentityApi } };
-    __google_gsi_initialized?: boolean;
-    __google_gsi_credential_handler?: (credential: string) => void;
   }
 }
 
@@ -20,6 +18,7 @@ interface GoogleSignInButtonProps {
   isDark: boolean;
   mode: string;
   step?: number;
+  disabled?: boolean;
 }
 
 export default function GoogleSignInButton({
@@ -27,93 +26,107 @@ export default function GoogleSignInButton({
   onError,
   isDark,
   mode,
+  disabled = false,
 }: GoogleSignInButtonProps) {
-  const onSuccessRef = React.useRef(onSuccess);
+  const container = React.useRef<HTMLDivElement>(null);
+  const handlers = React.useRef({ onSuccess, onError, disabled });
+  const [status, setStatus] = React.useState<'loading' | 'ready' | 'error'>('loading');
+  const [attempt, setAttempt] = React.useState(0);
 
   useEffect(() => {
-    onSuccessRef.current = onSuccess;
-  }, [onSuccess]);
+    handlers.current = { onSuccess, onError, disabled };
+  }, [onSuccess, onError, disabled]);
 
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) return;
 
-    const credentialHandler = (credential: string) => {
-      onSuccessRef.current(credential);
+    let active = true;
+    let initialized = false;
+    const failed = () => {
+      if (!active) return;
+      window.clearTimeout(timeout);
+      setStatus('error');
+      handlers.current.onError('Google sign-in could not load. Check your connection and retry, or sign in with email and password.');
+      if (!window.google?.accounts?.id && script) script.dataset.servicehubFailed = 'true';
     };
-    window.__google_gsi_credential_handler = credentialHandler;
 
     const initializeGoogle = () => {
+      if (!active || initialized) return;
+      const google = window.google?.accounts?.id;
+      if (!google || !container.current) { failed(); return; }
       try {
-        if (
-          clientId &&
-          window.google?.accounts?.id &&
-          !window.__google_gsi_initialized
-        ) {
-          window.__google_gsi_initialized = true;
-          window.google.accounts.id.initialize({
-            client_id: clientId,
-            auto_select: false,
-            cancel_on_tap_outside: true,
-            // Keep the familiar Google account-selection popup. FedCM reports
-            // user cancellation as a token-retrieval error in development.
-            use_fedcm_for_button: false,
-            callback: (response: GoogleCredentialResponse) => {
-              if (response?.credential) {
-                window.__google_gsi_credential_handler?.(response.credential);
-              }
-            },
-          });
-        }
-        renderButton();
-      } catch (err) {
-        if (process.env.NODE_ENV === 'development') console.warn('[GoogleSignIn] GSI init warning:', err);
-      }
-    };
-
-    const renderButton = () => {
-      try {
-        const btnContainer = document.getElementById('google-signin-btn-hidden');
-        if (btnContainer && window.google?.accounts?.id) {
-          btnContainer.innerHTML = '';
-          window.google.accounts.id.renderButton(btnContainer, {
-            theme: isDark ? 'filled_black' : 'outline',
-            size: 'large',
-            shape: 'rectangular',
-            width: 380,
-          });
-        }
-      } catch (err) {
-        if (process.env.NODE_ENV === 'development') console.warn('[GoogleSignIn] GSI render warning:', err);
-      }
+        // GSI remembers the last initialize() configuration, including its
+        // callback and verification nonce. Bind it to this live auth screen.
+        google.initialize({
+          client_id: clientId,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+          // Keep the familiar Google account-selection popup.
+          use_fedcm_for_button: false,
+          callback: (response: GoogleCredentialResponse) => {
+            if (active && !handlers.current.disabled && response?.credential) {
+              handlers.current.onSuccess(response.credential);
+            }
+          },
+        });
+        initialized = true;
+        window.clearTimeout(timeout);
+        setStatus('ready');
+      } catch { failed(); }
     };
 
     let script = document.querySelector(
       'script[src="https://accounts.google.com/gsi/client"]'
     ) as HTMLScriptElement | null;
 
+    if (script?.dataset.servicehubFailed === 'true') {
+      script.remove();
+      script = null;
+    }
+
     if (!script) {
       script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
-      document.body.appendChild(script);
-      script.addEventListener('load', initializeGoogle);
-    } else if (window.google?.accounts?.id) {
-      initializeGoogle();
-    } else {
-      script.addEventListener('load', initializeGoogle);
     }
+    script.addEventListener('load', initializeGoogle);
+    script.addEventListener('error', failed);
+    const timeout = window.setTimeout(() => { if (!initialized) failed(); }, 10_000);
+    if (!script.isConnected) document.body.appendChild(script);
+    if (window.google?.accounts?.id) queueMicrotask(initializeGoogle);
 
     return () => {
-      if (script) {
-        script.removeEventListener('load', initializeGoogle);
-      }
-      if (window.__google_gsi_credential_handler === credentialHandler) {
-        delete window.__google_gsi_credential_handler;
-      }
+      active = false;
+      window.clearTimeout(timeout);
+      script.removeEventListener('load', initializeGoogle);
+      script.removeEventListener('error', failed);
     };
-  }, [isDark, mode]);
+  }, [attempt]);
+
+  // Theme and label changes do not change the shared GSI configuration.
+  useEffect(() => {
+    const google = window.google?.accounts?.id;
+    if (status !== 'ready' || !google || !container.current) return;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active || !container.current) return;
+      try {
+        container.current.replaceChildren();
+        google.renderButton(container.current, {
+          theme: isDark ? 'filled_black' : 'outline',
+          size: 'large',
+          shape: 'rectangular',
+          width: 380,
+        });
+      } catch {
+        setStatus('error');
+        handlers.current.onError('Google sign-in could not load. Check your connection and retry, or sign in with email and password.');
+      }
+    });
+    return () => { active = false; };
+  }, [isDark, status, attempt]);
 
   const hasClientId = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
@@ -121,7 +134,7 @@ export default function GoogleSignInButton({
     <div className="w-full mb-3">
       <div className="relative w-full group overflow-hidden rounded-xl">
         {/* Visual Custom Button */}
-        <div className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 dark:bg-[#141417] hover:dark:bg-[#1c1c21] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-white rounded-xl py-3 px-4 font-semibold text-sm transition-all duration-150 shadow-sm cursor-pointer select-none">
+        <div className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 dark:bg-[#141417] hover:dark:bg-[#1c1c21] border border-slate-200 dark:border-slate-800 text-ink-secondary dark:text-white rounded-xl py-3 px-4 font-semibold text-sm transition-all duration-150 shadow-sm cursor-pointer select-none">
           <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
             <path
               fill="#EA4335"
@@ -141,24 +154,30 @@ export default function GoogleSignInButton({
             />
           </svg>
           <span className="tracking-wide">
-            {mode === 'signup' ? 'Continue with Google' : 'Sign in with Google'}
+            {disabled ? 'Signing in...' : hasClientId && status === 'loading' ? 'Loading Google...' : status === 'error' ? 'Retry Google sign-in' : mode === 'signup' ? 'Continue with Google' : 'Sign in with Google'}
           </span>
         </div>
 
         {/* Invisible Google Official GSI Target */}
-        {hasClientId ? (
+        {hasClientId && (
           <div
+            ref={container}
             id="google-signin-btn-hidden"
+            inert={disabled || status !== 'ready'}
             className="absolute inset-0 w-full h-full opacity-[0.0001] cursor-pointer overflow-hidden z-10 flex items-center justify-center [&_iframe]:!w-full [&_iframe]:!h-full [&>div]:!w-full [&>div]:!h-full"
           />
-        ) : (
+        )}
+        {(!hasClientId || status !== 'ready') && (
           <button
             type="button"
-            onClick={() =>
-              onError(
-                'Google Sign-In is not configured yet. Please define NEXT_PUBLIC_GOOGLE_CLIENT_ID in your environment variables.'
-              )
-            }
+            disabled={disabled || (hasClientId && status === 'loading')}
+            aria-label={hasClientId ? status === 'error' ? 'Retry Google sign-in' : 'Loading Google sign-in' : 'Sign in with Google'}
+            onClick={() => {
+              if (!hasClientId) { onError('Google sign-in is unavailable. Please sign in with email and password.'); return; }
+              onError('');
+              setStatus('loading');
+              setAttempt(previous => previous + 1);
+            }}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
         )}

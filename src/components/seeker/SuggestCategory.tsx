@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
 import { useApp } from '../../context/AppContext';
 import { Lightbulb, Send, Tags, CheckCircle2, XCircle, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
@@ -31,6 +32,7 @@ export default function SuggestCategory() {
   useEffect(() => {
     fetchMySuggestions();
   }, []);
+  useApiCacheRefresh(['categories'], () => fetchMySuggestions());
 
   // Combine context and DB suggestions for instant optimistic update + DB persistence
   const mySuggestions = dbSuggestions.length > 0
@@ -66,7 +68,7 @@ export default function SuggestCategory() {
   };
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       {/* Top Banner (Matches Seeker Orange branding) */}
       <div className={`rounded-3xl p-6 border flex items-start space-x-4 transition-colors duration-200 ${isDark
@@ -78,8 +80,8 @@ export default function SuggestCategory() {
           <Lightbulb className={`w-6 h-6 ${isDark ? 'text-orange-400 fill-orange-400/5' : 'text-orange-600 fill-orange-500/10'}`} />
         </div>
         <div className="space-y-1">
-          <h2 className={`text-sm font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Can&apos;t find what you need?</h2>
-          <p className={`text-[10px] leading-relaxed max-w-md ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+          <h2 className={`text-sm font-extrabold ${isDark ? 'text-white' : 'text-ink'}`}>Can&apos;t find what you need?</h2>
+          <p className={`text-[10px] leading-relaxed max-w-md ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
             Help us grow our marketplace! Suggest new categories of work you need done, and we will source local providers matching those specialties.
           </p>
         </div>
@@ -95,7 +97,7 @@ export default function SuggestCategory() {
 
             <div className={`flex items-center space-x-2 border-b pb-4 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
               <Tags className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-500'}`} />
-              <h3 className={`font-extrabold text-xs uppercase tracking-wider ${isDark ? 'text-[#f2efe9]' : 'text-slate-950'}`}>
+              <h3 className={`font-extrabold text-xs uppercase tracking-wider ${isDark ? 'text-white' : 'text-ink'}`}>
                 Submit a Category Suggestion
               </h3>
             </div>
@@ -103,7 +105,7 @@ export default function SuggestCategory() {
             {/* Verification Required Banner */}
             {!canTransact && (
               <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in duration-200 ${
-                isDark ? 'bg-amber-955/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-250 text-amber-800'
+                isDark ? 'bg-amber-950/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-200 text-amber-800'
               }`}>
                 <div>
                   <span className="font-bold">Verification Required:</span>
@@ -121,7 +123,7 @@ export default function SuggestCategory() {
 
             {/* Success alert banner */}
             {success && (
-              <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-450' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              <div className={`border rounded-2xl p-4 text-xs font-semibold flex items-center space-x-2.5 animate-in fade-in duration-205 ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 }`}>
                 <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span>
                 <span>Your suggestion has been logged. Admins will review and update the marketplace catalog soon!</span>
@@ -132,7 +134,7 @@ export default function SuggestCategory() {
 
               {/* Suggestion Name */}
               <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
                   Suggested Category Name
                 </label>
                 <input
@@ -143,15 +145,15 @@ export default function SuggestCategory() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
-                      : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
+                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     }`}
                 />
               </div>
 
               {/* Suggestion Description */}
               <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-[#b4b0a9]' : 'text-slate-655'}`}>
+                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
                   Why should we add this?
                 </label>
                 <textarea
@@ -162,8 +164,8 @@ export default function SuggestCategory() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-[#f2efe9] focus:border-orange-500/80'
-                      : 'bg-white border-slate-300 text-slate-700 focus:border-orange-500'
+                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     }`}
                 />
               </div>
@@ -174,8 +176,8 @@ export default function SuggestCategory() {
                   type="button"
                   onClick={handleClear}
                   className={`px-4 py-2 border font-bold text-xs rounded-xl transition-all cursor-pointer ${isDark
-                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9]'
-                      : 'border-slate-300 hover:bg-slate-50 text-slate-500'
+                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted'
+                      : 'border-slate-300 hover:bg-slate-50 text-ink-muted'
                     }`}
                 >
                   Clear
@@ -203,13 +205,13 @@ export default function SuggestCategory() {
         <div className="lg:col-span-2">
           <div className={`rounded-[24px] p-6 border shadow-sm space-y-4 transition-colors duration-200 h-full ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
             }`}>
-            <h3 className={`font-extrabold text-xs uppercase tracking-wider border-b pb-3 ${isDark ? 'text-[#f2efe9] border-neutral-850' : 'text-slate-900 border-slate-100'
+            <h3 className={`font-extrabold text-xs uppercase tracking-wider border-b pb-3 ${isDark ? 'text-white border-neutral-850' : 'text-ink border-slate-100'
               }`}>
               Your Past Suggestions
             </h3>
 
             {mySuggestions.length === 0 ? (
-              <p className="text-[10px] text-slate-400 py-2">No past suggestions submitted yet.</p>
+              <p className="text-[10px] text-ink-subtle py-2">No past suggestions submitted yet.</p>
             ) : (
               <div className="space-y-3.5 max-h-[460px] overflow-y-auto pr-1">
                 {mySuggestions.map((suggestion) => {
@@ -252,10 +254,10 @@ export default function SuggestCategory() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1 flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className={`font-extrabold text-xs tracking-tight ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                            <h4 className={`font-extrabold text-xs tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
                               {suggestion.name}
                             </h4>
-                            <span className="text-[9px] text-slate-400 font-medium">
+                            <span className="text-[9px] text-ink-subtle font-medium">
                               • {formattedDate}
                             </span>
                           </div>
@@ -264,9 +266,9 @@ export default function SuggestCategory() {
                             className={`text-[10px] leading-relaxed transition-all ${
                               isExpanded
                                 ? isDark
-                                  ? 'text-[#e2ded6]'
-                                  : 'text-slate-700'
-                                : `line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-550'}`
+                                  ? 'text-ink-secondary'
+                                  : 'text-ink-secondary'
+                                : `line-clamp-2 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`
                             }`}
                           >
                             {suggestion.description}
@@ -290,7 +292,7 @@ export default function SuggestCategory() {
                           )}
                           {isApproved && (
                             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
-                              isDark ? 'text-emerald-450 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-600 bg-emerald-50 border-emerald-200'
+                              isDark ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/30' : 'text-emerald-600 bg-emerald-50 border-emerald-200'
                             }`}>
                               <CheckCircle2 className="w-2.5 h-2.5" />
                               Approved
@@ -298,7 +300,7 @@ export default function SuggestCategory() {
                           )}
                           {isRejected && (
                             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider flex items-center gap-1 ${
-                              isDark ? 'text-red-400 bg-red-950/20 border-red-900/30' : 'text-red-650 bg-red-50 border-red-200'
+                              isDark ? 'text-red-400 bg-red-950/20 border-red-900/30' : 'text-red-700 bg-red-50 border-red-200'
                             }`}>
                               <XCircle className="w-2.5 h-2.5" />
                               Declined
@@ -306,7 +308,7 @@ export default function SuggestCategory() {
                           )}
 
                           <ChevronDown
-                            className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                            className={`w-3.5 h-3.5 text-ink-subtle transition-transform duration-200 ${
                               isExpanded ? 'rotate-180 text-orange-500' : 'group-hover:text-slate-300'
                             }`}
                           />
@@ -334,7 +336,7 @@ export default function SuggestCategory() {
 
                       {isPending && (
                         <div className={`p-2.5 rounded-xl border text-[10px] flex items-center gap-2 ${
-                          isDark ? 'bg-amber-955/15 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-100 text-amber-800'
+                          isDark ? 'bg-amber-950/15 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-100 text-amber-800'
                         }`}>
                           <Clock className="w-3.5 h-3.5 flex-shrink-0 text-amber-500" />
                           <span><strong>In Review:</strong> Our administrative team will review this category suggestion soon.</span>

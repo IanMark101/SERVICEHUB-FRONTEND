@@ -12,6 +12,7 @@ vi.mock('next/navigation', () => ({
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('./activity/ProviderActivityList', () => ({ default: ({ model }: { model: { openItemId: string | null } }) => <div data-testid="activity-view">{model.openItemId ?? 'overview'}</div> }));
+vi.mock('./activity/ProviderWorkloadPanel', () => ({ default: () => null }));
 vi.mock('./activity/ProviderCancellationDeclineModal', () => ({ default: () => null }));
 vi.mock('../activity/SafetyReportModal', () => ({ default: () => null }));
 vi.mock('../ui/ReasonModal', () => ({ default: () => null }));

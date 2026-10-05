@@ -16,15 +16,17 @@ export const activityGroupLabels: Record<ActivityGroup, string> = {
   history: 'History',
 };
 
+
 export function getBookingActivityGroup(
   booking: JobEngagement,
   role: ActivityRole,
   currentUserId?: string,
   activeJobId?: string,
+  paidWaiting?: boolean,
 ): ActivityGroup {
   if (booking.status === 'completed' || booking.status === 'canceled') return 'history';
   if (booking.status === 'disputed' || booking.cancellationRequests?.[0]?.status === 'ESCALATED' || booking.cancellationRequests?.[0]?.status === 'UNDER_REVIEW') return 'under_review';
-  const situation = getActivitySituation(booking, role, currentUserId, activeJobId);
+  const situation = getActivitySituation(booking, role, currentUserId, activeJobId, paidWaiting);
   if (situation.tone === 'action') return 'your_turn';
   if (booking.status === 'in_progress' && booking.started) return 'work_underway';
   return 'waiting';
@@ -50,19 +52,19 @@ export function getActivityPaymentCopy(booking: JobEngagement): ActivityPaymentC
 }
 
 export function getActivityQueueCopy(booking: JobEngagement): ActivityPaymentCopy {
-  if (booking.paymentMethod === 'On-site Cash') return { label: 'No service queue', detail: 'On-site cash bookings do not join a queue.' };
+  if (booking.paymentMethod === 'On-site Cash') return { label: 'Direct cash arrangement', detail: 'On-site cash bookings do not receive a numbered paid queue position.' };
   if (booking.status === 'disputed') return {
     label: booking.queuePosition ? `Position #${booking.queuePosition} paused` : 'Queue paused',
-    detail: 'This booking is under review. Its service queue progress is paused while the case is resolved.',
+    detail: 'This booking is under review. Its place in the provider’s paid workload is preserved while the case is resolved.',
   };
-  if (booking.status === 'completed' || booking.status === 'awaiting_seeker_approval') return { label: 'Queue finished', detail: 'The booking is no longer waiting in this service queue.' };
+  if (booking.status === 'completed' || booking.status === 'awaiting_seeker_approval') return { label: 'Queue finished', detail: 'The booking is no longer waiting in the provider’s paid work queue.' };
   if (booking.status === 'canceled') return { label: 'Left the queue', detail: 'This booking no longer has an active queue position.' };
   if (booking.queueStatus === 'SERVING' || (booking.status === 'in_progress' && booking.started)) return { label: 'Service underway', detail: 'This booking is being served, not waiting in line.' };
   if (booking.queueStatus === 'WAITING' || booking.status === 'queued') return {
     label: booking.queuePosition ? `Position #${booking.queuePosition}` : 'Waiting for position',
-    detail: 'First-come, first-served within this service listing. The provider may perform only one active job at a time.',
+    detail: 'First-come, first-served across this provider’s paid jobs. The provider may perform only one active job at a time.',
   };
-  if (booking.queueStatus === 'DONE') return { label: 'Queue finished', detail: 'The booking is no longer waiting in this service queue.' };
+  if (booking.queueStatus === 'DONE') return { label: 'Queue finished', detail: 'The booking is no longer waiting in the provider’s paid work queue.' };
   if (booking.queueStatus === 'CANCELLED' || booking.queueStatus === 'REMOVED') return { label: 'Left the queue', detail: 'This booking no longer has an active queue position.' };
   return { label: 'Queue status updating', detail: 'The current position is not available here yet.' };
 }

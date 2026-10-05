@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../ui/Toast';
+import { apiRespondCancellationRequest } from '../../api/bookings.api';
 import SeekerActivity from './SeekerActivity';
 
 vi.mock('next/navigation', () => ({
@@ -11,11 +12,22 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
-vi.mock('./activity/SeekerActivityList', () => ({ default: ({ model }: { model: { openBookingId: string | null } }) => <div data-testid="activity-view">{model.openBookingId ?? 'overview'}</div> }));
+vi.mock('../../api/bookings.api', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../../api/bookings.api')>(),
+  apiRespondCancellationRequest: vi.fn(),
+}));
+vi.mock('./activity/SeekerActivityList', () => ({ default: ({ model }: { model: {
+  openBookingId: string | null;
+  loadingItemId: string | null;
+  handleRespondCancellation: (requestId: string, approve: boolean) => void;
+} }) => <div data-testid="activity-view">
+  {model.openBookingId ?? 'overview'}
+  <button type="button" disabled={!!model.loadingItemId} onClick={() => model.handleRespondCancellation('cancel-1', true)}>Approve cancellation</button>
+  <button type="button" disabled={!!model.loadingItemId} onClick={() => model.handleRespondCancellation('cancel-1', false)}>Decline cancellation</button>
+</div> }));
 vi.mock('./activity/SeekerCancellationRequestModal', () => ({ default: () => null }));
 vi.mock('./activity/SeekerDisputeModal', () => ({ default: () => null }));
 vi.mock('../activity/SafetyReportModal', () => ({ default: () => null }));
-vi.mock('../ui/ReasonModal', () => ({ default: () => null }));
 vi.mock('./RequestServiceModal', () => ({ default: () => null }));
 vi.mock('./ReviewModal', () => ({ default: () => null }));
 vi.mock('../ui/ConfirmModal', () => ({ default: () => null }));
@@ -70,5 +82,29 @@ describe('Seeker Activity booking links', () => {
     await waitFor(() => expect(screen.getByTestId('activity-view')).toHaveTextContent('second-booking'));
     expect(screen.queryByRole('tab', { name: /In Queue/ })).not.toBeInTheDocument();
     expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('requires a reason before submitting a cancellation decline', async () => {
+    vi.mocked(apiRespondCancellationRequest).mockResolvedValue({ success: true });
+    render(<SeekerActivity currentUserId="johncarlo" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Decline cancellation' }));
+    expect(apiRespondCancellationRequest).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: 'Decline cancellation request' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Decline request' })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Reason'), { target: { value: 'Work can continue' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Decline request' }));
+    await waitFor(() => expect(apiRespondCancellationRequest).toHaveBeenCalledWith('cancel-1', false, 'Work can continue'));
+  });
+
+  it('keeps cancellation approval busy until the API resolves', async () => {
+    let resolveApproval!: (value: { success: boolean }) => void;
+    vi.mocked(apiRespondCancellationRequest).mockImplementation(() => new Promise((resolve) => { resolveApproval = resolve; }));
+    render(<SeekerActivity currentUserId="johncarlo" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Approve cancellation' }));
+    expect(screen.getByRole('button', { name: 'Approve cancellation' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Decline cancellation' })).toBeDisabled();
+    expect(apiRespondCancellationRequest).toHaveBeenCalledTimes(1);
+    await act(async () => { resolveApproval({ success: true }); });
+    await waitFor(() => expect(refreshEngagements).toHaveBeenCalled());
   });
 });

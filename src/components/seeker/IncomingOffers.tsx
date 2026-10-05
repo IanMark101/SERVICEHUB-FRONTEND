@@ -1,15 +1,16 @@
+import FormSelect from '../ui/FormSelect';
+import TrustScoreBadge from '../ui/TrustScoreBadge';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import { 
-  ShieldCheck, 
-  Star, 
+import {
+  ShieldCheck,
   LockKeyhole,
-  Check, 
-  Search, 
-  X, 
-  CreditCard, 
-  Loader2, 
+  Check,
+  Search,
+  X,
+  CreditCard,
+  Loader2,
   Clock,
   MapPin,
   Inbox
@@ -19,14 +20,15 @@ import PaginationBar from '../ui/PaginationBar';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import EmptyState from '../ui/EmptyState';
-import { getServicePaymentMethods } from '../../lib/paymentUtils';
 import UserAvatar from '../ui/UserAvatar';
+import { getRequestPaymentMethods } from '../../lib/paymentUtils';
+import { isOfferAwaitingDecision, normalizeOfferStatus } from '../../lib/offerStatus';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const router = useRouter();
-  const { bids, jobRequests, acceptBid, declineBid, users, isDark, services } = useApp();
+  const { bids, jobRequests, acceptBid, declineBid, users, isDark, services, offersStatus, refreshAll } = useApp();
   const { canTransact } = useTransactionPermission();
-  
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price_asc' | 'price_desc' | 'rating' | 'trust'>('rating');
   const [selectingPaymentBidId, setSelectingPaymentBidId] = useState<string | null>(null);
@@ -39,8 +41,6 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
     const timer = window.setTimeout(() => setReferenceTime(Date.now()), 0);
     return () => window.clearTimeout(timer);
   }, []);
-  const selectedOffer = bids.find((bid) => bid.id === selectingPaymentBidId);
-  const acceptedMethods = getServicePaymentMethods(services.find((service) => service.id === selectedOffer?.serviceId));
 
   // Compute relative time from a full ISO timestamp
   const formatTimeAgo = (isoStr: string): string => {
@@ -59,10 +59,10 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   // Find current seeker's requests
   const myRequests = jobRequests.filter(r => r.seekerId === currentUserId);
   const myRequestIds = myRequests.map(r => r.id);
-  
+
   // Get all pending bids on seeker's requests
   const pendingBids = bids.filter(
-    b => myRequestIds.includes(b.requestId) && b.status === 'pending'
+    b => (b.seekerId === currentUserId || myRequestIds.includes(b.requestId)) && isOfferAwaitingDecision(b)
   );
 
   const handleAcceptBid = (bidId: string) => {
@@ -106,6 +106,14 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   const getRequestDetails = (requestId: string) => {
     return jobRequests.find(r => r.id === requestId);
   };
+  const paymentSelectionRequest = selectingPaymentBidId
+    ? getRequestDetails(bids.find((bid) => bid.id === selectingPaymentBidId)?.requestId || '')
+    : undefined;
+  const paymentSelectionBid = bids.find((bid) => bid.id === selectingPaymentBidId);
+  const acceptedMethods = getRequestPaymentMethods(paymentSelectionRequest || (paymentSelectionBid ? {
+    paymentMethods: paymentSelectionBid.requestPaymentMethods,
+    preferredPaymentMethod: paymentSelectionBid.requestPreferredPaymentMethod,
+  } : null));
 
   // Helper to fetch matching provider user details (like verification flags)
   const getProviderDetails = (providerId: string) => {
@@ -115,7 +123,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   // Filter bids by search query
   const filteredBids = pendingBids.filter(bid => {
     const req = getRequestDetails(bid.requestId);
-    const matchesSearch = 
+    const matchesSearch =
       bid.providerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (bid.message || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (req?.title || '').toLowerCase().includes(searchQuery.toLowerCase());
@@ -154,47 +162,63 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   } = usePagination(sortedBids, 5);
 
   return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
-      
+    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
+
       {/* Search & Sort Controls */}
       {pendingBids.length > 0 && (
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           <div className="relative flex-1 max-w-md">
-            <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`} />
+            <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by provider name, task, or quote..."
               className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-orange-500 ${
-                isDark 
-                  ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9] placeholder-neutral-500' 
-                  : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400'
+                isDark
+                  ? 'bg-[#1c1b18] border-neutral-800 text-white placeholder-ink-muted'
+                  : 'bg-white border-slate-300 text-ink placeholder-ink-subtle'
               }`}
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-400 dark:text-neutral-500">Sort by:</span>
-            <select
+            <span className="text-xs font-bold text-ink-subtle dark:text-ink-subtle">Sort by:</span>
+            <FormSelect
+              compact
+              aria-label="Sort incoming offers"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               className={`px-3 py-2 rounded-xl border text-xs font-bold transition-colors focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer ${
-                isDark 
-                  ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]' 
-                  : 'bg-white border-slate-300 text-slate-700'
+                isDark
+                  ? 'bg-[#1c1b18] border-neutral-800 text-white'
+                  : 'bg-white border-slate-300 text-ink-secondary'
               }`}
             >
               <option value="rating">Provider Rating</option>
               <option value="trust">Trust Score</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
-            </select>
+            </FormSelect>
           </div>
         </div>
       )}
 
-      {pendingBids.length === 0 ? (
+      {pendingBids.length === 0 && offersStatus === 'loading' ? (
+        <div role="status" className={`rounded-[24px] border p-12 text-center ${isDark ? 'border-neutral-850 bg-[#22211e] text-ink-muted' : 'border-slate-200 bg-white text-ink-muted'}`}>
+          <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin" aria-hidden="true" />
+          Loading offers received...
+        </div>
+      ) : pendingBids.length === 0 && offersStatus === 'error' ? (
+        <EmptyState
+          icon={Inbox}
+          title="Offers Could Not Be Loaded"
+          description="Please try again to load your received offers."
+          actionLabel="Try Again"
+          onAction={refreshAll}
+          accentColor="orange"
+        />
+      ) : pendingBids.length === 0 ? (
         <EmptyState
           icon={Inbox}
           title="No Incoming Proposals Yet"
@@ -221,11 +245,11 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
             const trustScore = provider?.trustScore ?? 50;
 
             return (
-              <div 
-                key={bid.id} 
+              <div
+                key={bid.id}
                 className={`rounded-[20px] p-4 sm:p-5 border shadow-sm transition-all duration-200 relative overflow-hidden ${
-                  isDark 
-                    ? 'bg-[#22211e] border-neutral-850 hover:border-neutral-800' 
+                  isDark
+                    ? 'bg-[#22211e] border-neutral-850 hover:border-neutral-800'
                     : 'bg-white border-slate-200 hover:shadow-md'
                 }`}
               >
@@ -245,15 +269,15 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 {/* Row 1: Header with Provider Profile (Left) & Offered Bid (Right) */}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   {/* Left: Avatar + Provider Name + Badges + Task Title */}
-                  <div 
-                    onClick={() => bid.providerId && router.push(`/seeker/user-profile?id=${bid.providerId}`)}
+                  <div
+                    onClick={() => bid.providerId && router.push(`/profile/${encodeURIComponent(bid.providerId)}`)}
                     className="flex items-center gap-3 min-w-0 cursor-pointer group"
                     title={`View ${bid.providerName}'s profile`}
                   >
                     <UserAvatar src={bid.providerAvatar} name={bid.providerName || 'Provider'} alt={bid.providerName} size={40} role="provider" className="transition-transform group-hover:scale-[1.03]" />
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className={`font-extrabold text-sm truncate group-hover:text-orange-500 transition-colors ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                        <span className={`font-extrabold text-sm truncate group-hover:text-orange-500 transition-colors ${isDark ? 'text-white' : 'text-ink'}`}>
                           {bid.providerName}
                         </span>
                         {isVerified && (
@@ -261,21 +285,18 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                             <ShieldCheck className="w-3 h-3" /> Verified
                           </span>
                         )}
-                        <span className="text-slate-300 dark:text-neutral-700">•</span>
+                        <span className="text-slate-300 dark:text-ink-secondary">•</span>
                         <span className={`font-bold text-xs ${isDark ? 'text-amber-400/90' : 'text-amber-600'}`}>
-                          {req?.title || 'Custom Task'}
+                          {req?.title || bid.requestTitle || 'Custom Task'}
                         </span>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-slate-500 dark:text-neutral-400 font-medium">
+                      <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-ink-muted dark:text-ink-muted font-medium">
                         <span className="inline-flex items-center gap-1">
                           <MapPin className="w-3 h-3 text-red-400" />
                           {provider?.location || 'Cordova, Cebu'}
                         </span>
                         <span>•</span>
-                        <span className="inline-flex items-center gap-0.5 font-semibold text-amber-500">
-                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                          Trust: {trustScore}
-                        </span>
+                        <TrustScoreBadge score={trustScore} />
                         {bid.providerRating && bid.providerRating > 0 && (
                           <>
                             <span>•</span>
@@ -296,8 +317,8 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   {/* Right: Offered Price */}
                   <div className="flex items-center gap-2.5 sm:text-right shrink-0">
                     <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-neutral-500 block">
-                        Offered Bid
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-ink-subtle dark:text-ink-subtle block">
+                        Exact offer
                       </span>
                       <span className="text-lg sm:text-xl font-black text-orange-600 dark:text-orange-400">
                         ₱{Number(bid.price).toLocaleString()}
@@ -307,33 +328,41 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 </div>
 
                 {/* Row 2: Proposal Message Body */}
+                <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium text-ink-muted dark:text-ink-muted">
+                  <span>Expected duration: {bid.estimatedDuration ? `${bid.estimatedDuration} minutes` : 'Ask the provider'}</span>
+                  {bid.availability?.trim() && <span className="min-w-0 max-w-full whitespace-pre-wrap break-words">Available: {bid.availability}</span>}
+                  {req?.preferredPaymentMethod && <span>Selected payment: {req.preferredPaymentMethod}</span>}
+                  {bid.serviceId && services.find((service) => service.id === bid.serviceId) && (
+                    <span>Related service: {services.find((service) => service.id === bid.serviceId)?.title}</span>
+                  )}
+                </div>
                 <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed mt-3 ${
-                  isDark 
-                    ? 'bg-[#1c1b18] border-neutral-800 text-[#b4b0a9]' 
-                    : 'bg-slate-50 border-slate-200 text-slate-700'
+                  isDark
+                    ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted'
+                    : 'bg-slate-50 border-slate-200 text-ink-secondary'
                 }`}>
                   <p className="whitespace-pre-wrap">{bid.message}</p>
                 </div>
 
                 {/* Row 3: Action Buttons */}
-                <div className={`flex items-center justify-between pt-3 mt-3 border-t ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
+                <div className={`flex flex-wrap items-center justify-between gap-3 pt-3 mt-3 border-t ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
                   <span
                     className={`text-[11px] font-bold flex items-center gap-1.5 ${
-                      isDark ? 'text-[#b4b0a9]' : 'text-slate-500'
+                      isDark ? 'text-ink-muted' : 'text-ink-muted'
                     }`}
                   >
                     <LockKeyhole className="w-3.5 h-3.5" aria-hidden="true" />
                     <span>Messaging unlocks after acceptance</span>
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
-                      disabled={!!loadingBidId}
+                      disabled={!!loadingBidId || normalizeOfferStatus(bid.status) !== 'pending' || (!!bid.requestStatus && bid.requestStatus !== 'OPEN')}
                       onClick={() => handleDeclineBid(bid.id)}
                       className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
                         loadingBidId === bid.id && loadingAction === 'declining'
-                          ? 'bg-neutral-800 border-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                          ? 'bg-neutral-800 border-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
                           : isDark
                             ? 'border-neutral-800 hover:bg-neutral-800 text-red-400'
                             : 'border-slate-200 hover:bg-red-50 text-red-600'
@@ -354,11 +383,11 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
 
                     <button
                       type="button"
-                      disabled={!!loadingBidId}
+                      disabled={!!loadingBidId || normalizeOfferStatus(bid.status) !== 'pending' || (!!bid.requestStatus && bid.requestStatus !== 'OPEN')}
                       onClick={() => handleAcceptBid(bid.id)}
                       className={`px-4 sm:px-5 py-1.5 font-extrabold text-xs rounded-xl shadow-xs transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
                         loadingBidId === bid.id && loadingAction === 'accepting'
-                          ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed opacity-60'
+                          ? 'bg-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
                           : 'bg-orange-600 hover:bg-orange-700 text-white'
                       }`}
                     >
@@ -370,7 +399,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                       ) : (
                         <>
                           <Check className="w-3.5 h-3.5" />
-                          <span>Accept Offer</span>
+                          <span>{normalizeOfferStatus(bid.status) === 'pending_payment' ? 'Payment in progress' : bid.requestStatus === 'PAYMENT_PENDING' ? 'Another checkout in progress' : bid.requestStatus === 'CLOSED' ? 'Request paused' : 'Accept Offer'}</span>
                         </>
                       )}
                     </button>
@@ -399,19 +428,19 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
       {selectingPaymentBidId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+            isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <div className={`p-5 border-b flex justify-between items-center ${
               isDark ? 'border-neutral-850 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
             }`}>
-              <h3 className={`font-extrabold text-sm flex items-center space-x-2 ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+              <h3 className={`font-extrabold text-sm flex items-center space-x-2 ${isDark ? 'text-white' : 'text-ink'}`}>
                 <CreditCard className="w-4 h-4 text-emerald-500" />
                 <span>Select Payment Method</span>
               </h3>
-              <button 
+              <button
                 onClick={() => setSelectingPaymentBidId(null)}
                 className={`p-1.5 rounded-lg border transition-colors ${
-                  isDark ? 'border-neutral-800 hover:bg-slate-800 text-neutral-450' : 'border-slate-200 hover:bg-slate-100 text-slate-400'
+                  isDark ? 'border-neutral-800 hover:bg-slate-800 text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'
                 }`}
               >
                 <X className="w-4 h-4" />
@@ -419,30 +448,31 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
             </div>
 
             <div className="p-6 space-y-4">
-              <p className={`text-xs leading-relaxed ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
-                Choose how you want to coordinate payment for this booking:
+              <p className={`text-xs leading-relaxed ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
+                {paymentSelectionRequest?.preferredPaymentMethod
+                  ? `You selected ${paymentSelectionRequest.preferredPaymentMethod} when requesting this service. Confirm the provider’s final price to continue.`
+                  : 'Choose from the payment methods selected on your request:'}
               </p>
 
               {([['On-site Cash', acceptedMethods.cash], ['GCash', acceptedMethods.gcash]] as const)
-                .filter(([, accepted]) => accepted)
+                .filter(([method, accepted]) => accepted && (!paymentSelectionRequest?.preferredPaymentMethod || method === paymentSelectionRequest.preferredPaymentMethod))
                 .map(([method]) => (
                   <button key={method} onClick={() => handleSelectPaymentMethod(method)}
                     className="w-full p-4 border rounded-2xl text-left text-sm hover:border-emerald-500">
-                    {method}
+                    {paymentSelectionRequest?.preferredPaymentMethod ? `Confirm ${method}` : method}
                   </button>
                 ))}
-              {!Object.values(acceptedMethods).some(Boolean) && <p className="text-xs text-red-500">This listing has no available payment method. Refresh the page or choose another offer.</p>}
               {acceptedMethods.gcash && (
-                <p className={`text-[10px] leading-relaxed ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
+                <p className={`text-[10px] leading-relaxed ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
                   Online checkout uses PayMongo Test Mode. Payment statuses are internal workflow records, not regulated escrow or a real provider payout.
                 </p>
               )}
 
               {/* Spec Part 5 Cancellation Policy Disclaimer */}
               <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${
-                isDark 
-                  ? 'bg-neutral-900 border-neutral-800 text-neutral-450' 
-                  : 'bg-slate-50 border-slate-200 text-slate-500'
+                isDark
+                  ? 'bg-neutral-900 border-neutral-800 text-ink-subtle'
+                  : 'bg-slate-50 border-slate-200 text-ink-muted'
               }`}>
                 ⚠️ You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.
               </p>

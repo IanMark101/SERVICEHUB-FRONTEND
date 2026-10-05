@@ -9,6 +9,7 @@ import { HELP_CATEGORIES } from '../data/categories';
 import { getArticlesByCategory, getPopularArticles } from '../data';
 import { HelpCategorySlug } from '../types/help.types';
 import { useApp } from '../../../context/AppContext';
+import styles from './HelpHomePage.module.css';
 
 const quickTopics = [
   { label: 'Residency verification', detail: 'Why local eligibility matters', href: '/help/verification/why-verification-is-required' },
@@ -50,33 +51,31 @@ export default function HelpHomePage() {
 
   return (
     <div className="space-y-24 pb-4 sm:space-y-28">
-      <section className="relative isolate grid items-stretch gap-5 pt-3 lg:grid-cols-[1.08fr_0.92fr] lg:gap-7 lg:pt-8">
+      <section className={`${styles.hero} relative isolate grid items-stretch gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:gap-7`}>
         <div aria-hidden="true" className="pointer-events-none absolute -left-8 top-20 -z-10 h-80 w-[42rem] max-w-[82vw] rounded-full bg-[#d97757]/10 blur-[110px] dark:bg-[#c86544]/8" />
         <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-6 -z-10 h-64 w-[34rem] max-w-[70vw] rounded-full bg-[#e18463]/8 blur-[120px] dark:bg-[#e18463]/6" />
 
         <div className="flex min-h-[30rem] flex-col justify-center rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_44px_rgba(200,101,68,0.075)] dark:border-white/10 dark:bg-[#171716]/96 dark:shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:p-10">
-          <h1 className="max-w-[15ch] text-[clamp(2.6rem,4.7vw,4.5rem)] font-medium leading-[0.99] tracking-[-0.04em] text-[#171716] dark:text-[#f5f4f2]">
+          <h1 className="max-w-[15ch] text-[clamp(2.6rem,4.7vw,4.5rem)] font-medium leading-[0.99] tracking-[-0.04em] text-ink dark:text-white">
             Help for every step of local work.
           </h1>
-          <p className="mt-6 max-w-[37rem] text-sm leading-6 text-[#625d57] dark:text-white/64 sm:text-base sm:leading-7">
+          <p className="mt-6 max-w-[37rem] text-sm leading-6 text-ink-muted dark:text-white/64 sm:text-base sm:leading-7">
             Find clear guidance for verification, Trust Scores, bookings, queues, messages, and payment records across ServiceHub Cordova.
           </p>
           <div className="mt-8 max-w-[39rem]">
             <HelpSearch size="lg" autoFocus={false} placeholder="What do you need help with?" />
           </div>
-          {user && user.role !== 'admin' && (
-            <Link
-              href={quickTourHref}
-              className="mt-6 inline-flex w-fit items-center gap-2 text-xs font-semibold text-[#c86544] transition-colors hover:text-[#aa5032] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-[#e18463]"
-            >
-              <PlayCircle size={17} aria-hidden="true" />
-              Open your quick start
-              <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-          )}
+          <Link
+            href={quickTourHref}
+            className="mt-6 inline-flex w-fit items-center gap-2 text-xs font-semibold text-[#c86544] transition-colors hover:text-[#aa5032] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-[#e18463]"
+          >
+            <PlayCircle size={17} aria-hidden="true" />
+            Open your quick start
+            <ArrowRight size={14} aria-hidden="true" />
+          </Link>
         </div>
 
-        <div className="flex flex-col rounded-2xl bg-[#171716] p-7 text-[#f5f4f2] shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9">
+        <div className="flex flex-col rounded-2xl bg-[#171716] p-7 text-white shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9">
           <div className="flex items-start justify-between gap-6 border-b border-white/12 pb-5">
             <div>
               <h2 className="text-xl font-semibold tracking-[-0.025em]">Start with a common question</h2>
@@ -106,9 +105,9 @@ export default function HelpHomePage() {
         <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
             <h2 id="help-collections-heading" className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Browse by what you need</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#6f6a64] dark:text-white/58">Thirteen help collections, organized around the way marketplace work actually moves.</p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-ink-muted dark:text-white/58">Thirteen help collections, organized around the way marketplace work actually moves.</p>
           </div>
-          <span className="text-xs font-medium text-[#827c75] dark:text-white/48">{HELP_CATEGORIES.length} collections</span>
+          <span className="text-xs font-medium text-ink-subtle dark:text-white/48">{HELP_CATEGORIES.length} collections</span>
         </div>
 
         <div className="grid items-start gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:gap-7">
@@ -123,7 +122,7 @@ export default function HelpHomePage() {
       <section aria-labelledby="frequent-guides-heading">
         <div className="mb-7 border-b border-black/10 pb-5 dark:border-white/10">
           <h2 id="frequent-guides-heading" className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Frequently read guides</h2>
-          <p className="mt-3 text-sm leading-6 text-[#6f6a64] dark:text-white/58">Good starting points for new residents and providers.</p>
+          <p className="mt-3 text-sm leading-6 text-ink-muted dark:text-white/58">Good starting points for new residents and providers.</p>
         </div>
         <div className="grid gap-x-10 md:grid-cols-2">
           {popularArticles.map((article) => {
@@ -135,18 +134,18 @@ export default function HelpHomePage() {
                 className="group grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-b border-black/8 py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/10"
               >
                 <span>
-                  <span className="block text-sm font-semibold tracking-[-0.015em] text-[#171716] transition-colors group-hover:text-[#c86544] dark:text-[#f5f4f2] dark:group-hover:text-[#e18463]">{article.title}</span>
-                  <span className="mt-1.5 line-clamp-2 block text-xs leading-5 text-[#6f6a64] dark:text-white/58">{article.description}</span>
-                  <span className="mt-3 block text-[11px] font-medium text-[#8a847d] dark:text-white/44">{category?.shortTitle || category?.title} / {article.readTimeMinutes} min read</span>
+                  <span className="block text-sm font-semibold tracking-[-0.015em] text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{article.title}</span>
+                  <span className="mt-1.5 line-clamp-2 block text-xs leading-5 text-ink-muted dark:text-white/58">{article.description}</span>
+                  <span className="mt-3 block text-[11px] font-medium text-ink-subtle dark:text-white/44">{category?.shortTitle || category?.title} / {article.readTimeMinutes} min read</span>
                 </span>
-                <ArrowRight size={16} className="mt-1 text-[#827c75] transition-transform group-hover:translate-x-0.5 group-hover:text-[#c86544]" aria-hidden="true" />
+                <ArrowRight size={16} className="mt-1 text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-[#c86544]" aria-hidden="true" />
               </Link>
             );
           })}
         </div>
       </section>
 
-      <section className="flex flex-col items-start justify-between gap-7 rounded-2xl bg-[#171716] p-8 text-[#f5f4f2] shadow-[0_18px_45px_rgba(23,23,22,0.13)] sm:p-10 md:flex-row md:items-center">
+      <section className="flex flex-col items-start justify-between gap-7 rounded-2xl bg-[#171716] p-8 text-white shadow-[0_18px_45px_rgba(23,23,22,0.13)] sm:p-10 md:flex-row md:items-center">
         <div>
           <h2 className="max-w-[24ch] text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">Need help with an account or dispute?</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">Cordova Municipal Moderation can assist with residency verification reviews and dispute arbitration.</p>
@@ -171,7 +170,7 @@ function CategoryGroup({ title, description, slugs }: (typeof categoryGroups)[nu
   return (
     <section className="rounded-2xl border border-black/8 bg-[#fffdfa] p-6 shadow-[0_12px_32px_rgba(23,23,22,0.045)] dark:border-white/10 dark:bg-[#171716] sm:p-7">
       <h3 className="text-lg font-semibold tracking-[-0.025em]">{title}</h3>
-      <p className="mt-2 max-w-xl text-xs leading-5 text-[#6f6a64] dark:text-white/58">{description}</p>
+      <p className="mt-2 max-w-xl text-xs leading-5 text-ink-muted dark:text-white/58">{description}</p>
       <div className="mt-4">
         {categories.map((category) => (
           <HelpCategoryCard

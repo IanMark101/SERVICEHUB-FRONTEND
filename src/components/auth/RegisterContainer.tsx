@@ -78,7 +78,7 @@ export default function RegisterContainer({
         <div className="mb-8 flex w-full items-center justify-between lg:hidden">
           <button
             onClick={onBackToHome}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-ink-muted dark:text-ink-secondary hover:text-ink dark:hover:text-white transition-colors"
           >
             <ArrowLeft size={16} />
             <span>Back to Home</span>
@@ -91,13 +91,13 @@ export default function RegisterContainer({
               height={26}
               className="size-6.5 rounded-lg"
             />
-            <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] dark:text-white">
+            <span className="text-xs font-semibold tracking-tight text-ink dark:text-white">
               ServiceHub
             </span>
             <button
               type="button"
               onClick={toggleTheme}
-              className="ml-1 grid size-9 place-items-center rounded-xl border border-black/[0.08] bg-white text-slate-600 transition-colors hover:text-slate-950 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+              className="ml-1 grid size-9 place-items-center rounded-xl border border-black/[0.08] bg-white text-ink-muted transition-colors hover:text-ink dark:border-white/10 dark:bg-zinc-900 dark:text-ink-secondary dark:hover:text-white"
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}

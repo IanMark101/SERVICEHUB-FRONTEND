@@ -36,7 +36,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
     <>
       {/* Middle: Global User Search Bar (Responsive from sm up) */}
       <div ref={userSearchRef} className="workspace-header-search relative hidden lg:block">
-        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#6f6a64] dark:text-[#aaa59d] pointer-events-none">
+        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-ink-muted dark:text-ink-muted pointer-events-none">
           <Search className="w-3.5 h-3.5" />
         </span>
         <input
@@ -59,8 +59,8 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
           }}
           placeholder="Search people..."
           className={`workspace-header-control h-9 w-full rounded-full py-1.5 pl-9 pr-8 text-xs transition-colors ${isDark
-              ? 'text-[#f5f4f2] placeholder:text-[#aaa59d] focus:outline-none'
-              : 'text-[#171716] placeholder:text-[#6f6a64] focus:outline-none'
+              ? 'text-white placeholder:text-ink-muted focus:outline-none'
+              : 'text-ink placeholder:text-ink-muted focus:outline-none'
             }`}
         />
         {userSearch && (
@@ -70,7 +70,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
               setUserSearch('');
               setShowUserSearchResults(false);
             }}
-            className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-ink-subtle hover:text-ink-muted dark:hover:text-ink"
             title="Clear search"
           >
             <X className="w-3.5 h-3.5" />
@@ -78,16 +78,16 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
         )}
 
         {showUserSearchResults && (
-          <div id="workspace-people-search-results" role="listbox" aria-label="People search results" className={`absolute left-0 right-0 mt-2 z-50 rounded-2xl border shadow-2xl overflow-hidden max-h-72 overflow-y-auto ${isDark ? 'bg-[#191919] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'}`}>
+          <div id="workspace-people-search-results" role="listbox" aria-label="People search results" className={`absolute left-0 right-0 mt-2 z-50 rounded-2xl border shadow-2xl overflow-hidden max-h-72 overflow-y-auto ${isDark ? 'bg-[#191919] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
             {userSearchLoading ? (
-              <div className="px-4 py-3 text-xs text-slate-500 dark:text-neutral-400 flex items-center gap-2">
+              <div className="px-4 py-3 text-xs text-ink-muted dark:text-ink-muted flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
                 <span>Searching users...</span>
               </div>
             ) : userSearchResults.length > 0 ? (
               <div>
                 <div className={`px-3 py-1.5 text-[9.5px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between ${
-                  isDark ? 'bg-[#22211e] border-neutral-800 text-[#b4b0a9]' : 'bg-slate-50 border-slate-100 text-slate-400'
+                  isDark ? 'bg-[#22211e] border-neutral-800 text-ink-muted' : 'bg-slate-50 border-slate-100 text-ink-subtle'
                 }`}>
                   <span>Results</span>
                   <span>{userSearchResults.length} found</span>
@@ -109,7 +109,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
                         <UserAvatar src={result.avatarUrl} name={getDisplayName(result)} alt={`${getDisplayName(result)} avatar`} size={36} role={result.role === 'provider' ? 'provider' : 'seeker'} shape="soft" />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
-                            <div className="font-bold text-xs truncate text-slate-900 dark:text-[#f2efe9]">{getDisplayName(result)}</div>
+                            <div className="font-bold text-xs truncate text-ink dark:text-white">{getDisplayName(result)}</div>
                             <span className={`text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                               result.role === 'provider'
                                 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
@@ -119,15 +119,15 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
                             </span>
                           </div>
                           {emailToShow ? (
-                            <div className="text-[10px] text-slate-500 dark:text-neutral-400 truncate">{emailToShow}</div>
+                            <div className="text-[10px] text-ink-muted dark:text-ink-muted truncate">{emailToShow}</div>
                           ) : result.location ? (
-                            <div className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-neutral-500 truncate">
+                            <div className="flex items-center gap-1 text-[10px] text-ink-subtle dark:text-ink-subtle truncate">
                               <MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
                               <span>{result.location}, Cordova</span>
                             </div>
                           ) : null}
                           {result.bio && result.bio !== 'N/A' && (
-                            <div className="mt-0.5 text-[10px] text-slate-400 dark:text-neutral-400 line-clamp-1">{result.bio}</div>
+                            <div className="mt-0.5 text-[10px] text-ink-subtle dark:text-ink-muted line-clamp-1">{result.bio}</div>
                           )}
                         </div>
                       </div>
@@ -136,7 +136,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
                 })}
               </div>
             ) : (
-              <div className="px-4 py-3 text-xs text-slate-500 dark:text-neutral-400">No users found.</div>
+              <div className="px-4 py-3 text-xs text-ink-muted dark:text-ink-muted">No users found.</div>
             )}
           </div>
         )}

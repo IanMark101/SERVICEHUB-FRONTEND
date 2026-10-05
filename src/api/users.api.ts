@@ -1,26 +1,30 @@
 import { api } from '../lib/api/axios';
 import { isAxiosError } from 'axios';
 
-export interface AccountDeletionRequest {
-  id: string;
-  status: 'PENDING' | 'BLOCKED' | 'CANCELLED' | 'COMPLETED';
-  blockers?: Array<{ type: string; count: number }>;
-  requestedAt: string;
+export interface AccountDeletionEligibility {
+  passwordAvailable?: boolean;
+  eligible: boolean;
+  counts: Record<string, number>;
+  blockers: Array<{ type: string; count: number }>;
+  googleAvailable: boolean;
 }
+export type AccountDeletionVerification =
+  | { method: 'password'; password: string }
+  | { method: 'google'; credential: string; challenge: string };
 
-export async function apiRequestAccountDeletion() {
-  const response = await api.post('/users/me/account-deletion', { confirmation: 'DELETE' });
-  return response.data as { success: true; data: AccountDeletionRequest };
-}
-
-export async function apiGetAccountDeletionRequest() {
+export async function apiGetAccountDeletionEligibility() {
   const response = await api.get('/users/me/account-deletion');
-  return response.data as { success: true; data: AccountDeletionRequest | null };
+  return response.data as { success: true; data: AccountDeletionEligibility };
 }
 
-export async function apiCancelAccountDeletionRequest() {
-  const response = await api.delete('/users/me/account-deletion');
-  return response.data as { success: true; data: AccountDeletionRequest };
+export async function apiDeleteOwnAccount(verification: AccountDeletionVerification) {
+  const response = await api.post('/users/me/account-deletion', { confirmation: 'DELETE', ...verification });
+  return response.data as { success: true; data: { deleted: true } };
+}
+
+export async function apiStartDeletionGoogleVerification() {
+  const response = await api.post('/users/me/account-deletion/google-challenge');
+  return response.data as { success: true; data: { nonce: string; challenge: string; expiresInSeconds: number } };
 }
 
 const CANDIDATE_PATHS = ['/users', '/user', '/users/search', '/user/search'];

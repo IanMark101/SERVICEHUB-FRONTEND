@@ -8,6 +8,7 @@ import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModa
 import { apiLogout } from '../../api/auth.api';
 
 import { useRouteGuard } from '../../hooks/useRouteGuard';
+import AccountSuspensionBanner from '../../components/layout/AccountSuspensionBanner';
 import { clearAccessToken } from '../../lib/api/axios';
 import OnboardingGate from '../../features/onboarding/components/OnboardingGate';
 import { usePersistentSidebarState } from '../../hooks/usePersistentSidebarState';
@@ -64,10 +65,13 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
   const activeTab = pathname.split('/').pop() || 'browse-services';
 
   const currentRole = 'provider';
+  const navigateWorkspaceTab = (tabId: string) => {
+    router.push(tabId === 'community-hub' ? '/community' : `/provider/${tabId}`);
+  };
 
   return (
-    <div className={`workspace-shell workspace-shell--provider h-screen overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#141312] text-[#f2efe9]' : 'bg-[#f7f6f3] text-slate-800'
+    <div className={`workspace-shell workspace-shell--provider h-dvh overflow-hidden flex transition-colors duration-200 ${
+      isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'
     }`}>
       
       {/* Sidebar Component */}
@@ -75,7 +79,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         currentRole={currentRole} 
         setCurrentRole={(role: string) => router.push(`/${role}`)} 
         activeTab={activeTab} 
-        setActiveTab={(tabId: string) => router.push(`/provider/${tabId}`)} 
+        setActiveTab={navigateWorkspaceTab}
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
         isMobileOpen={isMobileSidebarOpen}
@@ -85,7 +89,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
       />
  
       {/* Main Content Pane */}
-      <div className={`workspace-stage flex-1 flex flex-col min-w-0 h-screen overflow-y-auto transition-all duration-300 ${
+      <div className={`workspace-stage flex-1 flex flex-col min-w-0 h-dvh overflow-y-auto transition-all duration-300 ${
         isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         
@@ -93,15 +97,16 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
         <Header 
           currentRole={currentRole}
           activeTab={activeTab}
-          setActiveTab={(tabId: string) => router.push(`/provider/${tabId}`)}
+          setActiveTab={navigateWorkspaceTab}
           setIsMobileOpen={setIsMobileSidebarOpen}
           user={user}
           onSignOut={handleSignOut}
-          onViewProfile={(selectedUser) => router.push(`/provider/user-profile?id=${selectedUser.id}`)}
+          onViewProfile={(selectedUser) => router.push(`/profile/${encodeURIComponent(selectedUser.id)}`)}
         />
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="workspace-content flex-1 w-full max-w-[1440px] mx-auto px-4 pb-5 pt-3 sm:px-6 sm:pb-6 md:px-8 md:pb-6">
+        <AccountSuspensionBanner />
+        <main className="workspace-content min-w-0 flex-1 w-full max-w-[1440px] mx-auto px-4 pb-5 pt-3 sm:px-6 sm:pb-6 md:px-8 md:pb-6">
           
           {/* The sticky header already identifies the current page. Only show
               actionable status here when a queue needs the user's attention. */}

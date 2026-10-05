@@ -84,8 +84,8 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
         <div className="flex items-start gap-3.5">
           <Icon size={20} weight="regular" className={`mt-0.5 shrink-0 ${config.iconColor}`} aria-hidden="true" />
           <div>
-            <p className="text-sm font-semibold text-[#171716] dark:text-[#f5f4f2]">{callout.title || config.defaultTitle}</p>
-            <p className="mt-2 text-sm leading-6 text-[#514d48] dark:text-white/68">{callout.text}</p>
+            <p className="text-sm font-semibold text-ink dark:text-white">{callout.title || config.defaultTitle}</p>
+            <p className="mt-2 text-sm leading-6 text-ink-secondary dark:text-white/68">{callout.text}</p>
           </div>
         </div>
       </aside>
@@ -94,8 +94,8 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
 
   const renderExample = (example: ArticleExample) => (
     <aside className="my-8 rounded-2xl border border-black/8 bg-[#fffdfa] p-5 shadow-[0_10px_26px_rgba(23,23,22,0.045)] dark:border-white/10 dark:bg-white/[0.04] sm:p-6">
-      <p className="text-sm font-semibold text-[#171716] dark:text-[#f5f4f2]">{example.title}</p>
-      <p className="mt-2 text-sm leading-6 text-[#625d57] dark:text-white/64">{example.description}</p>
+      <p className="text-sm font-semibold text-ink dark:text-white">{example.title}</p>
+      <p className="mt-2 text-sm leading-6 text-ink-muted dark:text-white/64">{example.description}</p>
     </aside>
   );
 
@@ -112,23 +112,23 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
 
       <header className="relative max-w-5xl border-b border-black/10 pb-9 dark:border-white/10 sm:pb-11">
         <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-20 -z-10 h-72 w-[42rem] max-w-[90vw] rounded-full bg-[#d97757]/8 blur-[120px] dark:bg-[#c86544]/6" />
-        <div className="flex items-center gap-2 text-xs font-medium text-[#827c75] dark:text-white/48">
+        <div className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">
           <BookOpen size={16} className="text-[#c86544] dark:text-[#e18463]" aria-hidden="true" />
           <span>{category?.title || 'Help guide'}</span>
         </div>
-        <h1 className="mt-6 max-w-[20ch] text-[clamp(2.5rem,4.8vw,5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-[#171716] dark:text-[#f5f4f2]">
+        <h1 className="mt-6 max-w-[20ch] text-[clamp(2.5rem,4.8vw,5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-ink dark:text-white">
           {article.title}
         </h1>
-        <p className="mt-6 max-w-3xl text-base leading-7 text-[#625d57] dark:text-white/64 sm:text-lg sm:leading-8">
+        <p className="mt-6 max-w-3xl text-base leading-7 text-ink-muted dark:text-white/64 sm:text-lg sm:leading-8">
           {article.description}
         </p>
-        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 text-xs text-[#827c75] dark:text-white/48">
+        <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 text-xs text-ink-subtle dark:text-white/48">
           <span>{article.readTimeMinutes} min read</span>
           <span>Updated {article.lastUpdated}</span>
           <button
             type="button"
             onClick={handleCopyLink}
-            className="inline-flex items-center gap-2 font-semibold text-[#625d57] transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-white/64 dark:hover:text-[#e18463]"
+            className="inline-flex items-center gap-2 font-semibold text-ink-muted transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-white/64 dark:hover:text-[#e18463]"
           >
             {copyState === 'copied' ? <Check size={16} aria-hidden="true" /> : <ShareNetwork size={16} aria-hidden="true" />}
             {shareLabel}
@@ -140,10 +140,10 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
         <aside className="hidden lg:sticky lg:top-24 lg:block">
           {guideHeadings.length > 0 && (
             <nav aria-label="In this guide" className="border-l border-black/10 pl-4 dark:border-white/10">
-              <p className="text-sm font-semibold text-[#171716] dark:text-[#f5f4f2]">In this guide</p>
+              <p className="text-sm font-semibold text-ink dark:text-white">In this guide</p>
               <div className="mt-4 space-y-3">
                 {guideHeadings.map((heading) => (
-                  <a key={heading.id} href={`#${heading.id}`} className="block text-xs leading-5 text-[#6f6a64] transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c86544] dark:text-white/56 dark:hover:text-[#e18463]">
+                  <a key={heading.id} href={`#${heading.id}`} className="block text-xs leading-5 text-ink-muted transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c86544] dark:text-white/56 dark:hover:text-[#e18463]">
                     {heading.label}
                   </a>
                 ))}
@@ -153,11 +153,11 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
         </aside>
 
         <article className="max-w-3xl">
-        <div className="space-y-10 text-[#514d48] dark:text-white/72">
+        <div className="space-y-10 text-ink-secondary dark:text-white/72">
           {article.sections.map((section, index) => (
             <section id={`article-section-${index}`} key={`${section.heading || 'section'}-${index}`} className="scroll-mt-24 space-y-4">
               {section.heading && (
-                <h2 className="pt-2 text-2xl font-semibold tracking-[-0.03em] text-[#171716] dark:text-[#f5f4f2] sm:text-3xl">
+                <h2 className="pt-2 text-2xl font-semibold tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">
                   {section.heading}
                 </h2>
               )}
@@ -181,7 +181,7 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
         </div>
 
         <section className="mt-14 border-t border-black/8 pt-8 dark:border-white/10" aria-labelledby="article-feedback-heading">
-          <h2 id="article-feedback-heading" className="text-xl font-semibold tracking-[-0.025em] text-[#171716] dark:text-[#f5f4f2]">Was this guide useful?</h2>
+          <h2 id="article-feedback-heading" className="text-xl font-semibold tracking-[-0.025em] text-ink dark:text-white">Was this guide useful?</h2>
           {feedbackGiven ? (
             <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-300">Thank you. Your feedback helps improve this documentation.</p>
           ) : (
@@ -199,14 +199,14 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
         <nav className="grid gap-4 border-y border-black/8 py-6 dark:border-white/10 sm:grid-cols-2" aria-label="Guide navigation">
           {prevArticle ? (
             <Link href={`/help/${prevArticle.category}/${prevArticle.slug}`} className="group rounded-xl p-4 transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-white/[0.04]">
-              <span className="flex items-center gap-2 text-xs font-medium text-[#827c75] dark:text-white/48"><ArrowLeft size={14} aria-hidden="true" />Previous guide</span>
-              <span className="mt-2 block text-sm font-semibold text-[#171716] transition-colors group-hover:text-[#c86544] dark:text-[#f5f4f2] dark:group-hover:text-[#e18463]">{prevArticle.title}</span>
+              <span className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48"><ArrowLeft size={14} aria-hidden="true" />Previous guide</span>
+              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{prevArticle.title}</span>
             </Link>
           ) : <div aria-hidden="true" />}
           {nextArticle ? (
             <Link href={`/help/${nextArticle.category}/${nextArticle.slug}`} className="group rounded-xl p-4 text-right transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-white/[0.04]">
-              <span className="flex items-center justify-end gap-2 text-xs font-medium text-[#827c75] dark:text-white/48">Next guide<ArrowRight size={14} aria-hidden="true" /></span>
-              <span className="mt-2 block text-sm font-semibold text-[#171716] transition-colors group-hover:text-[#c86544] dark:text-[#f5f4f2] dark:group-hover:text-[#e18463]">{nextArticle.title}</span>
+              <span className="flex items-center justify-end gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">Next guide<ArrowRight size={14} aria-hidden="true" /></span>
+              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{nextArticle.title}</span>
             </Link>
           ) : <div aria-hidden="true" />}
         </nav>
@@ -215,7 +215,7 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
       {relatedArticles.length > 0 && (
         <section aria-labelledby="related-guides-heading">
           <div className="mb-6 border-b border-black/8 pb-5 dark:border-white/10">
-            <h2 id="related-guides-heading" className="text-2xl font-semibold tracking-[-0.03em] text-[#171716] dark:text-[#f5f4f2]">Related guides</h2>
+            <h2 id="related-guides-heading" className="text-2xl font-semibold tracking-[-0.03em] text-ink dark:text-white">Related guides</h2>
           </div>
           <div className="grid gap-x-10 md:grid-cols-2">
             {relatedArticles.map((relatedArticle) => (
@@ -225,10 +225,10 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
                 className="group grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-black/8 py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/10"
               >
                 <span>
-                  <span className="block text-sm font-semibold text-[#171716] transition-colors group-hover:text-[#c86544] dark:text-[#f5f4f2] dark:group-hover:text-[#e18463]">{relatedArticle.title}</span>
-                  <span className="mt-1.5 block text-xs leading-5 text-[#6f6a64] dark:text-white/58">{relatedArticle.description}</span>
+                  <span className="block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{relatedArticle.title}</span>
+                  <span className="mt-1.5 block text-xs leading-5 text-ink-muted dark:text-white/58">{relatedArticle.description}</span>
                 </span>
-                <ArrowRight size={16} className="mt-1 text-[#827c75] transition-transform group-hover:translate-x-0.5 group-hover:text-[#c86544] dark:text-white/44 dark:group-hover:text-[#e18463]" aria-hidden="true" />
+                <ArrowRight size={16} className="mt-1 text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-[#c86544] dark:text-white/44 dark:group-hover:text-[#e18463]" aria-hidden="true" />
               </Link>
             ))}
           </div>
@@ -243,7 +243,7 @@ function FeedbackButton({ children, label, onClick }: { children: React.ReactNod
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-[#fffdfa] px-4 py-2.5 text-xs font-medium text-[#514d48] transition-colors hover:border-[#c86544]/40 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]"
+      className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-[#fffdfa] px-4 py-2.5 text-xs font-medium text-ink-secondary transition-colors hover:border-[#c86544]/40 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]"
     >
       <span aria-hidden="true">{children}</span>
       {label}

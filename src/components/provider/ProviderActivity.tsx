@@ -10,14 +10,16 @@ import ReviewModal from '../seeker/ReviewModal';
 import { apiSubmitReview, apiUpdateReview } from '../../api/reviews.api';
 import ProviderActivityTabs from './activity/ProviderActivityTabs';
 import ProviderCancellationDeclineModal from './activity/ProviderCancellationDeclineModal';
+import ProviderBookingCancellationModal from './activity/ProviderBookingCancellationModal';
 import {
   countProviderActivityTab,
   filterProviderActivityItems,
 } from './activity/providerActivity.utils';
 import type { ProviderActivitySort, ProviderActivityTab } from './activity/types';
 import ProviderActivityList from './activity/ProviderActivityList';
-import ReasonModal from '../ui/ReasonModal';
+import ProviderWorkloadPanel from './activity/ProviderWorkloadPanel';
 import { getApiErrorMessage } from '../../lib/api/errors';
+import { normalizeOfferStatus } from '../../lib/offerStatus';
 import SafetyReportModal from '../activity/SafetyReportModal';
 import { activityGroupOrder, getBookingActivityGroup } from '../activity/activityPresentation';
 
@@ -77,11 +79,11 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     ? jobEngagements.filter(je => je.providerId === resolvedProviderId)
     : jobEngagements, [jobEngagements, resolvedProviderId]);
   const activeJobId = resolvedProviderId
-    ? myEngagements.find((engagement) => engagement.status === 'in_progress' && engagement.started)?.id
+    ? myEngagements.find((engagement) => engagement.started && ['in_progress', 'disputed'].includes(engagement.status))?.id
     : undefined;
-  const myPendingBids = useMemo(() => resolvedProviderId
-    ? bids.filter(b => b.providerId === resolvedProviderId && b.status === 'pending')
-    : bids.filter(b => b.status === 'pending'), [bids, resolvedProviderId]);
+  const paidWaiting = myEngagements.some((engagement) => engagement.status === 'queued' && engagement.paymentMethod === 'GCash');
+  const myOffers = useMemo(() => bids.filter(b => (!resolvedProviderId || b.providerId === resolvedProviderId)
+    && normalizeOfferStatus(b.status) !== 'accepted'), [bids, resolvedProviderId]);
 
   // Filter state
   const [activeTab, setActiveTab] = useState<ProviderActivityTab>('all');
@@ -103,6 +105,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
   const [cancelingBookingId, setCancelingBookingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+  const cancelingBooking = myEngagements.find((booking) => booking.id === cancelingBookingId) || null;
   const [reportingEngagement, setReportingEngagement] = useState<JobEngagement | null>(null);
 
   // Confirm Modal state
@@ -197,12 +200,12 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     jobRequests.find((request) => request.id === requestId);
 
   const countTabItems = (tab: ProviderActivityTab) =>
-    countProviderActivityTab(tab, myEngagements, myPendingBids);
+    countProviderActivityTab(tab, myEngagements, myOffers);
 
   const filteredItems = filterProviderActivityItems({
     activeTab,
     engagements: myEngagements,
-    pendingBids: myPendingBids,
+    pendingBids: myOffers,
     jobRequests,
     services,
     searchQuery,
@@ -212,7 +215,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const prioritizedItems = [...filteredItems].sort((left, right) => {
     const groupFor = (item: typeof left) => item.type === 'bid'
       ? 'waiting' as const
-      : getBookingActivityGroup(item.data, 'provider', resolvedProviderId, activeJobId);
+      : getBookingActivityGroup(item.data, 'provider', resolvedProviderId, activeJobId, paidWaiting);
     return activityGroupOrder.indexOf(groupFor(left)) - activityGroupOrder.indexOf(groupFor(right));
   });
 
@@ -254,6 +257,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
 
   const handleProviderStartJob = async (id: string) => {
+    if (loadingItemId) return;
     setLoadingItemId(id);
     setLoadingActionType('start');
     try {
@@ -351,11 +355,15 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
 
   const handleApproveCancellation = async (requestId: string) => {
+    const booking = myEngagements.find((item) => item.cancellationRequests?.some((request) => request.id === requestId));
+    const onlinePayment = booking?.paymentMethod === 'GCash';
     setConfirmModal({
       isOpen: true,
       title: 'Approve Cancellation',
-      message: 'Approve this cancellation request? The booking will be cancelled and the seeker refunded.',
-      confirmText: 'Approve & Refund',
+      message: onlinePayment
+        ? 'Approve this cancellation request? The booking will be cancelled and any eligible GCash Test Mode refund will be processed.'
+        : 'Approve this cancellation request? The booking will be cancelled. Cash payments are arranged directly, so ServiceHub does not issue a cash refund.',
+      confirmText: onlinePayment ? 'Approve & Refund' : 'Approve Cancellation',
       cancelText: 'Keep Booking',
       variant: 'warning',
       onConfirm: async () => {
@@ -365,7 +373,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         try {
           const res = await apiRespondCancellationRequest(requestId, true);
           if (res.success) {
-            success('Cancellation Approved', 'Booking cancelled and seeker will be refunded.');
+            success('Cancellation Approved', onlinePayment ? 'Booking cancelled and any eligible GCash Test Mode refund was submitted.' : 'Booking cancelled. ServiceHub has not collected a cash payment.');
             refreshEngagements();
           } else {
             toastError('Action Failed', res.message || 'Failed to approve cancellation.');
@@ -414,7 +422,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
   const handleDeclineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!respondingReqId) return;
+    if (!respondingReqId || declineNote.trim().length < 3 || loadingItemId) return;
     setLoadingItemId(respondingReqId);
     setLoadingActionType('decline_cancellation');
     try {
@@ -437,9 +445,17 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
 
   return (
-    <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
 
+
+      {!openItemId && <ProviderWorkloadPanel
+        refreshKey={`${notifications.length}:${loadingItemId ?? ''}:${myEngagements.map((booking) => `${booking.id}:${booking.status}:${booking.queuePosition ?? ''}:${booking.queueEstimatedWait ?? ''}`).join('|')}`}
+        onOpen={(id) => openItem(id, 'booking')}
+        onStart={(id) => { void handleProviderStartJob(id); }}
+        startingBookingId={loadingActionType === 'start' ? loadingItemId : null}
+        isDark={isDark}
+      />}
 
       {!openItemId && <ProviderActivityTabs
         activeTab={activeTab}
@@ -450,7 +466,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
       <ProviderActivityList
         model={{
-          myPendingBids, myEngagements, isDark, searchQuery, setSearchQuery,
+          myOffers, myEngagements, isDark, searchQuery, setSearchQuery,
           sortBy, setSortBy, isLoading, filteredItems, activeTab, router,
           paginatedItems, getRequestForBid, getCategoryForEngagement,
           loadingItemId, loadingActionType, highlightedBookingId,
@@ -490,16 +506,12 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         }}
       />
 
-      <ReasonModal
-        isOpen={!!cancelingBookingId}
-        title="Request booking cancellation"
-        description="Explain why this booking should be cancelled. If work has started, the seeker must review the request."
+      <ProviderBookingCancellationModal
+        booking={cancelingBooking}
         value={cancelReason}
         onChange={setCancelReason}
         onClose={() => { if (!loadingItemId) { setCancelingBookingId(null); setCancelReason(''); } }}
         onSubmit={submitProviderCancellation}
-        confirmText="Submit request"
-        variant="danger"
         isSubmitting={loadingItemId === cancelingBookingId && loadingActionType === 'remove'}
       />
 

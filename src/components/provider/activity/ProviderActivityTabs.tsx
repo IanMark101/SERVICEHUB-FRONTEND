@@ -21,7 +21,7 @@ export default function ProviderActivityTabs({
     { value: 'awaiting_approval', label: 'Awaiting Seeker', count: countTabItems('awaiting_approval') },
     { value: 'disputed', label: 'Disputes', count: countTabItems('disputed') },
     { value: 'completed', label: 'Completed', count: countTabItems('completed') },
-    { value: 'canceled', label: 'Canceled', count: countTabItems('canceled') },
+    { value: 'canceled', label: 'Canceled & closed', count: countTabItems('canceled') },
   ];
 
   return (

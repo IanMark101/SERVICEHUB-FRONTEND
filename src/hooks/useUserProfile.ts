@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useApiCacheRefresh } from './useApiCacheRefresh';
 import { usePathname } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { UserSession } from '../components/auth/LoginContainer';
 import {
   apiGetPublicProfile,
   apiUpdateProfile,
-  apiChangePassword,
   apiGetTrustHistory,
 } from '../api/auth.api';
 import { apiGetProviderSummary } from '../api/ai.api';
@@ -70,6 +70,7 @@ export function useUserProfile({
 
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoadError, setProfileLoadError] = useState(false);
 
   // AI Summary state
   const [aiSummary, setAiSummary] = useState<string | null>(null);
@@ -102,6 +103,8 @@ export function useUserProfile({
   const [showEdit, setShowEdit] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [cacheRevision, setCacheRevision] = useState(0);
+  useApiCacheRefresh(['profiles', 'reviews', 'summaries'], () => setCacheRevision(value => value + 1), !showEdit && !phonePasswordModalOpen);
 
   // Forms
   const [editForm, setEditForm] = useState({
@@ -119,14 +122,13 @@ export function useUserProfile({
   });
   const [saving, setSaving] = useState(false);
 
-  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
-  const [pwSaving, setPwSaving] = useState(false);
 
   // Fetch Public Profile
   useEffect(() => {
     if (!targetUser?.id) return;
     const timer = window.setTimeout(() => {
       setLoading(true);
+      setProfileLoadError(false);
       apiGetPublicProfile(targetUser.id)
       .then((res: { success: boolean; data: PublicProfile }) => {
         if (res.success) {
@@ -162,11 +164,11 @@ export function useUserProfile({
           }
         }
       })
-      .catch(() => {})
+      .catch(() => setProfileLoadError(true))
       .finally(() => setLoading(false));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [targetUser?.id, isOwnProfile, setUser]);
+  }, [targetUser?.id, isOwnProfile, setUser, cacheRevision]);
 
   // Fetch AI Summary for Provider
   useEffect(() => {
@@ -182,7 +184,7 @@ export function useUserProfile({
       .finally(() => { setAiLoading(false); setAiLoaded(true); });
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [targetUser?.id, targetUser?.role]);
+  }, [targetUser?.id, targetUser?.role, cacheRevision]);
 
   // Fetch trust score history & milestones for the viewed profile
   useEffect(() => {
@@ -204,14 +206,14 @@ export function useUserProfile({
       .finally(() => setTrustHistoryLoading(false));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [targetUser?.id, user?.id, user?.role]);
+  }, [targetUser?.id, user?.id, user?.role, cacheRevision]);
 
   // Derived Properties
   const displayName = profile?.name || `${targetUser?.firstName || ''} ${targetUser?.lastName || ''}`.trim() || 'ServiceHub User';
-  const trustScore = profile?.trustScore || targetUser?.trustScore || 50;
+  const trustScore = profile?.trustScore ?? targetUser?.trustScore ?? 50;
   const verStatus = profile?.verificationStatus || targetUser?.verificationStatus || 'UNVERIFIED';
   const avatarUrl = profile?.avatarUrl || targetUser?.avatarUrl || '';
-  const bio = profile?.bio || targetUser?.bio || 'Active member on ServiceHub Cordova. Looking for reliable local service providers.';
+  const bio = profile?.bio ?? targetUser?.bio ?? '';
   const facebookUrl = profile?.facebookUrl || '';
   const instagramUrl = profile?.instagramUrl || '';
   const websiteUrl = profile?.websiteUrl || '';
@@ -223,16 +225,17 @@ export function useUserProfile({
   const isProviderWorkspace = pathname?.startsWith('/provider');
   const isAdminWorkspace = pathname?.startsWith('/admin');
   const isSeekerWorkspace = pathname?.startsWith('/seeker');
+  const rawAccountRole = String(profile?.role || targetUser?.role || 'seeker').toLowerCase();
+  const accountRole = rawAccountRole === 'admin' ? 'admin' : rawAccountRole === 'provider' ? 'provider' : 'seeker';
   const workspaceRole: 'seeker' | 'provider' | 'admin' = isProviderWorkspace
     ? 'provider'
     : isAdminWorkspace
     ? 'admin'
     : isSeekerWorkspace
     ? 'seeker'
-    : targetUser?.role || 'seeker';
+    : accountRole;
 
   const role = workspaceRole;
-  const accountRole = targetUser?.role || profile?.role || 'seeker';
 
   const createdAt = profile?.createdAt;
   const completedJobs = profile?.completedServiceCount || 0;
@@ -278,7 +281,7 @@ export function useUserProfile({
   // Handlers
   const handleShareProfile = () => {
     const targetId = targetUser?.id || '';
-    const profileUrl = `${window.location.origin}/${role}/user-profile?id=${targetId}`;
+    const profileUrl = `${window.location.origin}/profile/${encodeURIComponent(targetId)}`;
     navigator.clipboard.writeText(profileUrl);
     toastSuccess('Profile link copied to clipboard!');
   };
@@ -353,29 +356,6 @@ export function useUserProfile({
     }
   };
 
-  const handleChangePassword = async () => {
-    if (pwForm.newPassword !== pwForm.confirmPassword) {
-      toastError('New passwords do not match');
-      return;
-    }
-    if (pwForm.newPassword.length < 8 || !/\d/.test(pwForm.newPassword)) {
-      toastError('Password must be at least 8 characters and contain a number');
-      return;
-    }
-    setPwSaving(true);
-    try {
-      const res = await apiChangePassword({ currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword });
-      if (res.success) {
-        setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
-        toastSuccess('Password changed successfully');
-      }
-    } catch (err: unknown) {
-      toastError(getApiErrorMessage(err, 'Failed to change password'));
-    } finally {
-      setPwSaving(false);
-    }
-  };
-
   // Styling helper classes
   const cardBg = 'bg-[color:var(--workspace-surface)] border-[color:var(--workspace-border)] shadow-sm';
   const innerBg = 'bg-[color:var(--workspace-surface-muted)] border-[color:var(--workspace-border)]';
@@ -398,6 +378,7 @@ export function useUserProfile({
     isDark,
     toggleTheme,
     loading,
+    profileLoadError,
     profile,
     displayName,
     usernameHandle,
@@ -448,10 +429,6 @@ export function useUserProfile({
     setPhonePasswordModalOpen,
     phonePasswordError,
     setPhonePasswordError,
-    pwForm,
-    setPwForm,
-    pwSaving,
-    handleChangePassword,
     handleShareProfile,
     aiSummary,
     aiReason,

@@ -34,6 +34,24 @@ interface ProfileHeaderProps {
   innerBg: string;
   labelText: string;
   headingText: string;
+  variant?: 'workspace' | 'marketplace';
+}
+
+function formatDisplayName(name: string): string {
+  if (!name) return '';
+  const trimmed = name.trim();
+  const isAllUpper = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
+  if (!isAllUpper) return trimmed;
+  return trimmed
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => {
+      if (word.length <= 2 && (word.endsWith('.') || word.length === 1)) {
+        return word.toUpperCase();
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
 }
 
 export default function ProfileHeader({
@@ -56,6 +74,7 @@ export default function ProfileHeader({
   setShowEdit,
   labelText,
   headingText,
+  variant = 'workspace',
 }: ProfileHeaderProps) {
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
@@ -64,86 +83,260 @@ export default function ProfileHeader({
   const accentText = isProvider
     ? 'text-emerald-700 dark:text-emerald-300'
     : isAdmin
-      ? 'text-slate-700 dark:text-neutral-200'
+      ? 'text-[var(--admin-accent)]'
       : 'text-orange-700 dark:text-orange-300';
 
+  const formattedName = formatDisplayName(displayName);
+
+  if (variant === 'marketplace') {
+    return (
+      <section className={`marketplace-profile-hero workspace-profile-hero--${roleTone} relative p-5 sm:p-6 sm:pb-5`} aria-labelledby="profile-name">
+        {/* Sleek Pill Edit Profile Button */}
+        {isOwnProfile && (
+          <div className="absolute top-4 right-4 sm:top-5 sm:right-6 z-10">
+            <button
+              type="button"
+              onClick={() => setShowEdit((value) => !value)}
+              aria-expanded={showEdit}
+              className="servicehub-dark-cta workspace-primary-button inline-flex min-h-8 sm:min-h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
+            >
+              <Edit3 size={13} />
+              <span>{showEdit ? 'Close editor' : 'Edit profile'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Centered Profile Hero Content */}
+        <div className="flex flex-col items-center text-center">
+          {/* Framed Circular Avatar & Verification Badge */}
+          <div className="relative shrink-0 mb-3 sm:mb-3.5">
+            <div className="rounded-full p-1.5 ring-4 ring-[color:var(--workspace-border)] border-2 border-[color:var(--workspace-border-strong)] bg-[color:var(--workspace-surface)] shadow-md transition-transform duration-300 hover:scale-[1.02]">
+              <UserAvatar
+                src={avatarUrl}
+                name={displayName}
+                alt={`${formattedName} profile picture`}
+                size={160}
+                role={roleTone}
+                shape="circle"
+              />
+            </div>
+            <span
+              className={`absolute bottom-1 right-1 grid size-8 sm:size-9 place-items-center rounded-full border-[3px] border-[color:var(--workspace-surface)] text-white shadow-md ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
+              title={verStatus === 'APPROVED' ? 'Verified Cordova resident' : 'Residency not verified'}
+            >
+              {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
+            </span>
+          </div>
+
+          {/* Member Name & Verification Badge */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <h1 id="profile-name" className={`break-words text-xl sm:text-2xl font-extrabold tracking-tight ${headingText}`}>
+              {formattedName}
+            </h1>
+            {verStatus === 'APPROVED' && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                <CheckCircle size={12} className="text-emerald-600 dark:text-emerald-400" /> Verified Resident
+              </span>
+            )}
+          </div>
+
+          {/* Unified Location, Handle & Member Since Row */}
+          <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm ${labelText}`}>
+            <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
+              <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
+              {location ? `${location}, Cordova` : 'Cordova, Cebu'}
+            </span>
+            <span className="text-[color:var(--workspace-border-strong)]" aria-hidden="true">•</span>
+            <span className="font-semibold text-[color:var(--workspace-ink)]">@{usernameHandle.replace(/^@/, '')}</span>
+            {createdAt && (
+              <>
+                <span className="text-[color:var(--workspace-border-strong)] hidden sm:inline" aria-hidden="true">•</span>
+                <span className="text-[color:var(--workspace-muted)] hidden sm:inline">
+                  Member since {new Date(createdAt).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Bio */}
+          {bio && (
+            <p className="mt-2 max-w-[56ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-ink)] font-normal">
+              {bio}
+            </p>
+          )}
+
+          {/* Social Links */}
+          {(facebookUrl || instagramUrl || websiteUrl) && (
+            <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+              {facebookUrl && <SocialLink href={facebookUrl} icon={<ExternalLink size={11} />} label="Facebook" />}
+              {instagramUrl && <SocialLink href={instagramUrl} icon={<ExternalLink size={11} />} label="Instagram" />}
+              {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={11} />} label="Website" />}
+            </div>
+          )}
+        </div>
+
+        {/* 3-Column Minimal Stat Counters Row - Perfectly Centered via 3-Column Grid */}
+        <div className="mt-5 border-t border-[color:var(--workspace-border)] pt-4" aria-label="Marketplace reputation">
+          <div className="mx-auto grid max-w-xl grid-cols-3 divide-x divide-[color:var(--workspace-border)] text-center">
+            {/* Stat 1: Completed Bookings */}
+            <div className="flex flex-col items-center justify-center px-2">
+              <span className={`text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+                {completedJobs.toLocaleString()}
+              </span>
+              <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">
+                {completedJobs === 1 ? 'booking' : 'bookings'}
+              </span>
+            </div>
+
+            {/* Stat 2: Marketplace Rating */}
+            <div className="flex flex-col items-center justify-center px-2">
+              <span className={`flex items-center justify-center gap-1 text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+                {averageRating > 0 ? (
+                  <>
+                    {averageRating.toFixed(1)}
+                    <Star size={16} className="fill-amber-400 text-amber-500" />
+                  </>
+                ) : (
+                  <span className="text-xs sm:text-sm font-semibold text-[color:var(--workspace-muted)]">No ratings yet</span>
+                )}
+              </span>
+              <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">
+                marketplace rating
+              </span>
+            </div>
+
+            {/* Stat 3: Trust Standing */}
+            <div className="flex flex-col items-center justify-center px-2">
+              <span className={`flex items-center justify-center gap-1.5 text-xl sm:text-2xl font-extrabold tabular-nums ${accentText}`}>
+                <Award size={18} className="shrink-0" />
+                {trustScore}
+              </span>
+              <span className="mt-0.5 flex flex-wrap items-center justify-center gap-1 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">
+                <span>trust standing</span>
+                <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full border ${trustBand.bg} ${trustBand.color}`}>
+                  {trustBand.label}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className={`workspace-profile-hero workspace-profile-hero--${roleTone} p-5 sm:p-6`} aria-labelledby="profile-name">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-        <div className="relative mx-auto shrink-0 sm:mx-0">
-          <div className="rounded-[18px] border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-1.5">
-            <UserAvatar src={avatarUrl} name={displayName} alt={`${displayName} profile picture`} size={104} role={roleTone} shape="soft" />
+    <section className={`workspace-profile-hero workspace-profile-hero--${roleTone} relative p-5 sm:p-6 sm:pb-5`} aria-labelledby="profile-name">
+      {isOwnProfile && (
+        <div className="absolute top-4 right-4 sm:top-5 sm:right-6 z-10">
+          <button
+            type="button"
+            onClick={() => setShowEdit((value) => !value)}
+            aria-expanded={showEdit}
+            className="servicehub-dark-cta workspace-primary-button inline-flex min-h-8 sm:min-h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
+          >
+            <Edit3 size={13} />
+            <span>{showEdit ? 'Close form' : 'Edit profile'}</span>
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-col items-center text-center">
+        <div className="relative shrink-0 mb-3 sm:mb-3.5">
+          <div className="rounded-full p-1.5 ring-4 ring-[color:var(--workspace-border)] border-2 border-[color:var(--workspace-border-strong)] bg-[color:var(--workspace-surface)] shadow-md transition-transform duration-300 hover:scale-[1.02]">
+            <UserAvatar src={avatarUrl} name={displayName} alt={`${formattedName} profile picture`} size={160} role={roleTone} shape="circle" />
           </div>
           <span
-            className={`absolute -bottom-1 -right-1 grid size-8 place-items-center rounded-full border-2 border-[color:var(--workspace-surface)] text-white shadow-sm ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
+            className={`absolute bottom-1 right-1 grid size-8 sm:size-9 place-items-center rounded-full border-[3px] border-[color:var(--workspace-surface)] text-white shadow-md ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
             title={verStatus === 'APPROVED' ? 'Verified Cordova Resident' : 'Residency Unverified'}
           >
             {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
           </span>
         </div>
 
-        <div className="min-w-0 flex-1 text-center sm:text-left">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <h1 id="profile-name" className={`min-w-0 break-words text-2xl font-extrabold tracking-[-0.035em] sm:text-[1.75rem] ${headingText}`}>{displayName}</h1>
-                {verStatus === 'APPROVED' && <CheckCircle size={19} className="shrink-0 text-emerald-600" aria-label="Verified resident" />}
-              </div>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <h1 id="profile-name" className={`break-words text-xl sm:text-2xl font-extrabold tracking-tight ${headingText}`}>
+            {formattedName}
+          </h1>
+          {verStatus === 'APPROVED' && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+              <CheckCircle size={12} className="text-emerald-600 dark:text-emerald-400" /> Verified Resident
+            </span>
+          )}
+        </div>
 
-              <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm sm:justify-start ${labelText}`}>
-                <span className="min-w-0 break-all font-medium">{usernameHandle}</span>
-                <span className="h-3 w-px bg-[color:var(--workspace-border-strong)]" aria-hidden="true" />
-                <span className="inline-flex items-center gap-1.5"><MapPin size={14} className={accentText} />{location ? `${location}, Cordova` : 'Cordova, Cebu'}</span>
-              </div>
-            </div>
+        <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm ${labelText}`}>
+          <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
+            <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
+            <span>{location ? `${location}, Cordova` : 'Cordova, Cebu'}</span>
+          </span>
+          <span className="h-3 w-px bg-[color:var(--workspace-border-strong)]" aria-hidden="true" />
+          <span className="font-semibold text-[color:var(--workspace-ink)]">@{usernameHandle.replace(/^@/, '')}</span>
+          {createdAt && (
+            <>
+              <span className="h-3 w-px bg-[color:var(--workspace-border-strong)] hidden sm:block" aria-hidden="true" />
+              <span className="text-[color:var(--workspace-muted)] hidden sm:inline">
+                Member since {new Date(createdAt).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}
+              </span>
+            </>
+          )}
+        </div>
 
-            {isOwnProfile && (
-              <button type="button" onClick={() => setShowEdit((value) => !value)} aria-expanded={showEdit} className="servicehub-dark-cta workspace-primary-button mx-auto inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold sm:w-auto lg:mx-0">
-                <Edit3 size={15} />
-                {showEdit ? 'Close form' : 'Edit profile'}
-              </button>
-            )}
-          </div>
-
-          <p className="mt-4 max-w-[62ch] text-sm leading-6 text-[color:var(--workspace-muted)]">
-            {bio || (isProvider ? 'Professional service specialist based in Cordova, Cebu. Ready to help with home maintenance, repairs, and installations.' : 'Active member on ServiceHub Cordova. Looking for reliable local service providers.')}
+        {bio && (
+          <p className="mt-2 max-w-[58ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-muted)]">
+            {bio}
           </p>
+        )}
 
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-            {facebookUrl && <SocialLink href={facebookUrl} icon={<ExternalLink size={14} />} label="Facebook" />}
-            {instagramUrl && <SocialLink href={instagramUrl} icon={<ExternalLink size={14} />} label="Instagram" />}
-            {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={14} />} label="Website" />}
-            {createdAt && <span className={`px-1 text-xs ${labelText}`}>Member since {new Date(createdAt).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}</span>}
-          </div>
+        <div className="mt-2.5 flex flex-wrap items-center justify-center gap-2">
+          {facebookUrl && <SocialLink href={facebookUrl} icon={<ExternalLink size={12} />} label="Facebook" />}
+          {instagramUrl && <SocialLink href={instagramUrl} icon={<ExternalLink size={12} />} label="Instagram" />}
+          {websiteUrl && <SocialLink href={websiteUrl} icon={<Globe size={12} />} label="Website" />}
         </div>
       </div>
 
-      <dl className="mt-5 grid grid-cols-1 border-t border-[color:var(--workspace-border)] pt-4 sm:grid-cols-3" aria-label="Profile reputation summary">
-        <ProfileStat value={completedJobs} label="Completed bookings" headingText={headingText} labelText={labelText} />
-        <ProfileStat value={<>{averageRating.toFixed(1)} <Star size={14} className="fill-amber-400 text-amber-500" /></>} label="Average rating" headingText={headingText} labelText={labelText} divided />
-        <ProfileStat value={<><Award size={15} /> {trustScore}</>} label="Trust score" detail={trustBand.label} headingText={accentText} labelText={labelText} divided />
-      </dl>
+      <div className="mt-5 border-t border-[color:var(--workspace-border)] pt-4" aria-label="Profile reputation summary">
+        <div className="mx-auto grid max-w-xl grid-cols-3 divide-x divide-[color:var(--workspace-border)] text-center">
+          <div className="flex flex-col items-center justify-center px-2">
+            <span className={`text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+              {completedJobs}
+            </span>
+            <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">bookings</span>
+          </div>
+          <div className="flex flex-col items-center justify-center px-2">
+            <span className={`flex items-center justify-center gap-1 text-xl sm:text-2xl font-extrabold tabular-nums ${headingText}`}>
+              {averageRating > 0 ? (
+                <>
+                  {averageRating.toFixed(1)} <Star size={15} className="fill-amber-400 text-amber-500" />
+                </>
+              ) : (
+                <span className="text-xs sm:text-sm font-semibold text-[color:var(--workspace-muted)]">No ratings yet</span>
+              )}
+            </span>
+            <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">rating</span>
+          </div>
+          <div className="flex flex-col items-center justify-center px-2">
+            <span className={`flex items-center justify-center gap-1.5 text-xl sm:text-2xl font-extrabold tabular-nums ${accentText}`}>
+              <Award size={17} /> {trustScore}
+            </span>
+            <span className="mt-0.5 text-[10px] font-semibold text-[color:var(--workspace-muted)]">({trustBand.label})</span>
+          </div>
+        </div>
+      </div>
     </section>
-  );
-}
-
-function ProfileStat({ value, label, detail, headingText, labelText, divided = false }: { value: ReactNode; label: string; detail?: string; headingText: string; labelText: string; divided?: boolean }) {
-  return (
-    <div className={`${divided ? 'border-t sm:border-l sm:border-t-0' : ''} border-[color:var(--workspace-border)] px-0 py-3 text-center sm:px-5 sm:py-1 sm:text-left`}>
-      <dt className={`text-[11px] font-medium ${labelText}`}>{label}</dt>
-      <dd className={`mt-1 flex items-center justify-center gap-1.5 text-lg font-extrabold tabular-nums sm:justify-start ${headingText}`}>
-        {value}
-        {detail && <span className="text-[10px] font-semibold">{detail}</span>}
-      </dd>
-    </div>
   );
 }
 
 function SocialLink({ href, icon, label }: { href: string; icon: ReactNode; label: string }) {
   const safeHref = href.startsWith('http') ? href : `https://${href}`;
   return (
-    <a href={safeHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-3 text-xs font-semibold text-[color:var(--workspace-muted)] transition-colors hover:border-[color:var(--workspace-focus)] hover:text-[color:var(--workspace-ink)]">
-      {icon}{label}
+    <a
+      href={safeHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] px-2.5 py-0.5 text-[11px] font-medium text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
+    >
+      {icon}
+      <span>{label}</span>
     </a>
   );
 }

@@ -1,5 +1,5 @@
-import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
+import WorkspaceRouteSkeleton from '@/components/ui/WorkspaceRouteSkeleton';
 
 export default function Loading() {
-  return <WorkspacePageSkeleton label="Loading an Admin page" role="admin" variant="table" />;
+  return <WorkspaceRouteSkeleton role="admin" />;
 }

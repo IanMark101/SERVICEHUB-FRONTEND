@@ -19,7 +19,7 @@ describe('LifecycleStepper', () => {
   it('shows the terminal canceled state without active lifecycle steps', () => {
     render(<LifecycleStepper status="canceled" />);
     expect(screen.getByText('Booking Canceled')).toBeInTheDocument();
-    expect(screen.getByText('Inactive')).toBeInTheDocument();
+    expect(screen.getByText('Ended without completion')).toBeInTheDocument();
     expect(screen.queryByText('In Progress')).not.toBeInTheDocument();
   });
 
@@ -27,6 +27,13 @@ describe('LifecycleStepper', () => {
     render(<LifecycleStepper status="disputed" />);
     expect(screen.getByText('Engagement Paused in Dispute')).toBeInTheDocument();
     expect(screen.getByText('Under Review')).toBeInTheDocument();
+  });
+
+  it.each(['seeker', 'provider'] as const)('shows a gray canceled compact journey for %s without a completed milestone', (role) => {
+    render(<LifecycleStepper status="canceled" role={role} compact isDark={false} />);
+    expect(screen.getByText('Booking Canceled').parentElement).toHaveClass('border-stone-300');
+    expect(screen.queryByText('Completed')).not.toBeInTheDocument();
+    expect(screen.queryByRole('list', { name: 'Booking journey' })).not.toBeInTheDocument();
   });
 
   it('does not show accepted onsite work as underway before Start Job', () => {

@@ -8,7 +8,7 @@ export async function apiSubmitReview(data: {
   tags?: string[];
 }) {
   const response = await api.post('/reviews', data);
-  invalidateProviderSummaryCache(response.data?.data?.targetId);
+  invalidateProviderSummaryCache();
   return response.data;
 }
 
@@ -26,6 +26,6 @@ export async function apiUpdateReview(
   }
 ) {
   const response = await api.patch(`/reviews/${id}`, data);
-  invalidateProviderSummaryCache(response.data?.data?.targetId);
+  invalidateProviderSummaryCache();
   return response.data;
 }

@@ -1,295 +1,60 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { ArrowRight, Clock, MapPin, UserCheck, Zap } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import type { Variants } from 'motion/react';
+import Image from 'next/image';
+import { ArrowRight, BatteryFull, MapPin, Menu, Signal, Wifi } from 'lucide-react';
+import ParticlesComponent from '@/components/ui/particles-bg';
+import styles from './LandingPresenterHero.module.css';
+import LandingActionLink from './LandingActionLink';
+import LandingServicePreview from './LandingServicePreview';
+import useHeroEntrance from './useHeroEntrance';
 
-interface LandingHeroProps {
-  isDark: boolean;
-  onGetStarted: () => void;
-}
+interface LandingHeroProps { isDark: boolean; }
 
-const heroSequence: Variants = {
-  hidden: {},
-  show: {
-    transition: {
-      delayChildren: 0.08,
-      staggerChildren: 0.09,
-    },
-  },
-};
-
-const heroItem: Variants = {
-  hidden: { opacity: 0, y: 22 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
-
-export default function LandingHero({ onGetStarted }: LandingHeroProps) {
-  const shouldReduceMotion = useReducedMotion();
-  const [activeTab, setActiveTab] = useState<'seeker' | 'provider'>('seeker');
-  const [simulatedAdvance, setSimulatedAdvance] = useState(false);
-
+export default function LandingHero({ isDark }: LandingHeroProps) {
+  const entranceScope = useHeroEntrance();
   return (
-    <section id="top" className="relative min-h-[calc(100svh-80px)] overflow-hidden border-b border-black/[0.06] bg-transparent dark:border-white/10">
-
-      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-80px)] max-w-7xl items-center gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10 lg:py-12 lg:-translate-y-12">
-        {/* Left Column: Calm High-Craft Typography */}
-        <motion.div
-          variants={heroSequence}
-          initial={shouldReduceMotion ? false : 'hidden'}
-          animate="show"
-          className="relative z-10 max-w-2xl"
-        >
-          {/* Cordova scope label */}
-          <motion.div variants={heroItem} className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.08] px-3.5 py-1 text-[12px] font-medium tracking-tight text-[#aa5032] transition-colors hover:bg-[#c86544]/[0.12] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
-            <MapPin size={13} aria-hidden="true" />
-            <span>Built for Cordova, Cebu</span>
-          </motion.div>
-
-          {/* Display Title */}
-          <motion.h1 variants={heroItem} className="font-sans text-[clamp(2.75rem,5.5vw,4.5rem)] font-semibold leading-[1.02] tracking-tight text-[#0a0a0a] dark:text-white">
+    <section ref={entranceScope} id="top" className={styles.hero} data-theme={isDark ? 'dark' : 'light'} aria-labelledby="landing-hero-title">
+      <ParticlesComponent isDark={isDark} variant="brand" />
+      <div className={styles.layout}>
+        <div className={styles.copy}>
+          <span data-hero-entrance="badge" className={`${styles.badge} inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.04] px-3.5 py-2 text-xs font-medium text-[#0a0a0a] dark:border-[#e4a18a]/40 dark:bg-[#e4a18a]/[0.06] dark:text-white`}><MapPin size={13} className="text-[#c86544] dark:text-[#e4a18a]" aria-hidden="true" />Built for Cordova, Cebu</span>
+          <h1 data-hero-entrance="heading" id="landing-hero-title" className={`${styles.title} text-[#0a0a0a] dark:text-white`}>
             ServiceHub Cordova
-          </motion.h1>
-
-          {/* Sub-headline */}
-          <motion.p variants={heroItem} className="mt-4 max-w-xl text-xl font-normal leading-snug tracking-tight text-neutral-800 dark:text-neutral-200 sm:text-2xl lg:text-3xl">
-            Local service work, with a clearer way to trust.
-          </motion.p>
-
-          {/* Concise Subtext */}
-          <motion.p variants={heroItem} className="mt-4 max-w-lg text-[14px] leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base">
-            Browse openly. Verified Cordova residents can request or offer services through clear bookings, fair queues, and supported payment paths.
-          </motion.p>
-
-          {/* CTAs with ambient top light shade on the black button (matching reference) */}
-          <motion.div variants={heroItem} className="mt-8 flex flex-col gap-3.5 sm:flex-row">
-            <button
-              type="button"
-              onClick={onGetStarted}
-              className="group/cta relative inline-flex min-h-12 items-center justify-center gap-2.5 overflow-hidden rounded-2xl bg-[#0a0a0a] px-7 py-3.5 text-[15px] font-semibold text-white shadow-[0_14px_32px_-8px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.18)] ring-1 ring-black/30 transition-all duration-300 hover:bg-[#141414] hover:shadow-[0_22px_44px_-10px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.25)] active:scale-[0.98] dark:bg-white dark:text-[#0a0a0a] dark:hover:bg-neutral-100"
-            >
-              {/* Light shade on black button */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-2xl dark:hidden"
-                style={{
-                  background: 'radial-gradient(140% 90% at 50% 0%, rgba(255,255,255,0.18), transparent 60%)',
-                }}
-              />
-              {/* Moving sheen sweep on hover */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover/cta:translate-x-full"
-              />
-              <span className="relative z-10 transition-transform duration-300 group-hover/cta:-translate-x-0.5">
-                Get started
-              </span>
-              <ArrowRight size={16} className="relative z-10 transition-transform duration-300 group-hover/cta:translate-x-1" />
-            </button>
-
-            <a
-              href="#how-it-works"
-              className="group/docs inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-neutral-300 bg-white px-7 py-3.5 text-[15px] font-medium text-neutral-900 shadow-[0_3px_10px_-2px_rgba(0,0,0,0.06)] transition-all duration-300 hover:border-neutral-400 hover:bg-neutral-50 hover:shadow-[0_10px_22px_-6px_rgba(0,0,0,0.12)] active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-200 dark:hover:bg-zinc-900 dark:hover:border-zinc-700"
-            >
-              <span>See how it works</span>
-              <ArrowRight size={15} className="text-neutral-500 transition-transform duration-300 group-hover/docs:translate-x-1 group-hover/docs:text-neutral-900 dark:text-zinc-400 dark:group-hover/docs:text-white" />
-            </a>
-          </motion.div>
-
-        </motion.div>
-
-        {/* Right Column: High-Craft Clean Interactive Marketplace Terminal */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="relative"
-        >
-          <motion.div
-            animate={shouldReduceMotion ? undefined : { y: [0, -6, 0], rotate: [0, 0.22, 0] }}
-            transition={{ duration: 7.5, repeat: Infinity, ease: 'easeInOut' }}
-          >
-          {/* Outer Framed Terminal Card - Clean White Floating Aesthetic */}
-          <div className="relative rounded-2xl border border-neutral-200/90 bg-white/95 p-6 shadow-[0_18px_40px_-14px_rgba(15,15,15,0.12),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/95 sm:p-7">
-            {/* Top Toolbar */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 dark:border-zinc-800/80">
-              <div className="flex items-center gap-2.5">
-                <span className="text-xs font-bold text-slate-800 dark:text-zinc-200">Marketplace flow preview</span>
-                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-zinc-800 dark:text-zinc-400">
-                  Illustrative
-                </span>
-              </div>
-
-              {/* Perspective Selector */}
-              <div className="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-bold dark:border-zinc-800 dark:bg-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('seeker')}
-                  aria-pressed={activeTab === 'seeker'}
-                  className={`rounded-md px-2.5 py-1 transition-all ${activeTab === 'seeker'
-                      ? 'bg-[#c86544] text-white shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
-                    }`}
-                >
-                  Seeker view
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('provider')}
-                  aria-pressed={activeTab === 'provider'}
-                  className={`rounded-md px-2.5 py-1 transition-all ${activeTab === 'provider'
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200'
-                    }`}
-                >
-                  Provider view
-                </button>
-              </div>
-            </div>
-
-            {/* Active Service Showcase */}
-            <motion.div
-              key={activeTab}
-              initial={shouldReduceMotion ? false : { opacity: 0, x: activeTab === 'seeker' ? -10 : 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className={`mt-5 rounded-2xl border bg-slate-50/70 p-4.5 transition-colors dark:bg-zinc-950/50 ${
-              activeTab === 'seeker'
-                ? 'border-orange-200/80 dark:border-orange-900/40'
-                : 'border-emerald-200/80 dark:border-emerald-900/40'
-            }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-900 dark:bg-orange-950/50 dark:text-orange-300">
-                      Electrical & Repairs
-                    </span>
-                    <span className="text-xs text-slate-500 dark:text-zinc-400">Poblacion, Cordova</span>
-                  </div>
-                  <h2 className="mt-1.5 text-base font-bold text-slate-900 dark:text-white">
-                    Emergency Circuit Breaker & Wiring Diagnostic
-                  </h2>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm font-extrabold text-slate-900 dark:text-white">PHP 650</span>
-                  <span className="block text-[10px] text-slate-500 dark:text-zinc-400">est. 2 hrs</span>
-                </div>
-              </div>
-
-              {/* Provider Info Pill */}
-              <div className="mt-3.5 flex items-center justify-between border-t border-slate-200/60 pt-3 text-xs dark:border-zinc-800">
-                <div className="flex items-center gap-2">
-                  <div className="grid size-7 place-items-center rounded-full bg-emerald-100 font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                    MR
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-800 dark:text-zinc-200">Mateo Rosal</span>
-                    <span className="ml-1 text-[11px] text-slate-500 dark:text-zinc-400">Master Electrician</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                  <UserCheck size={13} />
-                  <span>Cordova Resident Verified</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Simulated Live Queue Stream */}
-            <div className="mt-5 space-y-2.5">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-zinc-300">
-                <span>Active Queue Progression</span>
-                <span className="text-[11px] font-normal text-slate-500 dark:text-zinc-400">Capacity: 2 of 5</span>
-              </div>
-
-              {/* Queue Item 1: Serving */}
-              <div className="flex items-center justify-between rounded-xl border border-emerald-200/80 bg-emerald-50/50 p-3 text-xs dark:border-emerald-900/40 dark:bg-emerald-950/20">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-6 place-items-center rounded-lg bg-emerald-600 text-[10px] font-bold text-white">
-                    #1
-                  </span>
-                  <div>
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.p
-                        key={simulatedAdvance ? 'complete' : 'serving'}
-                        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
-                        transition={{ duration: 0.2 }}
-                        className="font-bold text-emerald-950 dark:text-emerald-200"
-                      >
-                        {simulatedAdvance ? 'Service Complete' : 'Service In Progress'}
-                      </motion.p>
-                    </AnimatePresence>
-                    <p className="text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
-                      Barangay Ibabao site inspection
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-400">
-                  <Clock size={13} />
-                  <span>{simulatedAdvance ? 'Done' : 'Serving'}</span>
-                </div>
-              </div>
-
-              {/* Queue Item 2: Up Next */}
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3 text-xs dark:border-zinc-800 dark:bg-zinc-800/60">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-6 place-items-center rounded-lg bg-orange-500 text-[10px] font-bold text-white">
-                    #2
-                  </span>
-                  <div>
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.p
-                        key={`${activeTab}-${simulatedAdvance}`}
-                        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={shouldReduceMotion ? undefined : { opacity: 0, y: -4 }}
-                        transition={{ duration: 0.2 }}
-                        className="font-bold text-slate-900 dark:text-white"
-                      >
-                        {activeTab === 'seeker'
-                          ? simulatedAdvance ? 'Your Service Is In Progress' : 'Your Booking Is Next'
-                          : simulatedAdvance ? 'Current Booking In Progress' : 'Next Eligible Booking'}
-                      </motion.p>
-                    </AnimatePresence>
-                    <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-                      Confirmed via GCash Test Mode
-                    </p>
-                  </div>
-                </div>
-                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-zinc-700 dark:text-zinc-300">
-                  {simulatedAdvance ? 'In progress' : activeTab === 'seeker' ? 'Position 2' : 'Ready next'}
-                </span>
-              </div>
-            </div>
-
-            {/* Interactive Demo Footer */}
-            <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-zinc-800">
-              <button
-                type="button"
-                onClick={() => setSimulatedAdvance((prev) => !prev)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#c86544] transition-colors hover:text-[#aa5032] active:scale-[0.98]"
-              >
-                <Zap size={14} />
-                <span>{simulatedAdvance ? 'Reset preview simulation' : 'Advance simulated queue'}</span>
-              </button>
-              <Link
-                href="/help"
-                className="text-xs font-semibold text-slate-500 underline decoration-slate-300 underline-offset-4 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200"
-              >
-                Learn queue rules
-              </Link>
-            </div>
+          </h1>
+          <p data-hero-entrance="heading" className={`${styles.tagline} text-[#0a0a0a] dark:text-white`}>Find local help.<br />Offer your skills.</p>
+          <p data-hero-entrance="description" className={styles.description}>
+            Find and offer services in Cordova, Cebu, with residency verification and reviews from completed work.
+          </p>
+          <p data-hero-entrance="description" className={styles.supporting}>Browse services, compare offers, and keep booking progress together.</p>
+          <div data-hero-entrance="actions" className={styles.actions}>
+            <LandingActionLink size="hero">Get started</LandingActionLink>
+            <a href="#workspaces" className={styles.secondary}>Explore the workspaces <ArrowRight size={16} aria-hidden="true" /></a>
           </div>
-          </motion.div>
-        </motion.div>
+        </div>
+        <div data-hero-entrance="scene" className={styles.scene}>
+          <Image src="/images/hero-presenter-updated.png" alt="" width={1122} height={1402} sizes="(max-width: 767px) 86vw, (max-width: 1023px) 540px, (max-width: 1199px) 42vw, 560px" preload className={styles.presenter} />
+          <figure className={styles.preview} aria-label="Illustrative service details preview">
+            <div className={styles.phone} aria-hidden="true">
+              <span className={styles.volumeButtons} />
+              <span className={styles.powerButton} />
+              <div className={styles.screen}>
+                <div className={styles.statusBar}>
+                  <span>9:41</span>
+                  <span className={styles.cameraIsland}><span /></span>
+                  <span className={styles.statusIcons}><Signal /><Wifi /><BatteryFull /></span>
+                </div>
+                <div className={styles.phoneWorkspace}>
+                  <div className={styles.workspaceBar}><span>ServiceHub</span><Menu /></div>
+                  <div className={styles.modalStage}>
+                    <LandingServicePreview isDark={isDark} />
+                  </div>
+                </div>
+                <div className={styles.homeBar}><span /></div>
+              </div>
+            </div>
+          </figure>
+          <Image src="/images/hero-presenter-updated.png" alt="" aria-hidden="true" width={1122} height={1402} sizes="(max-width: 767px) 86vw, (max-width: 1023px) 540px, (max-width: 1199px) 42vw, 560px" loading="eager" className={`${styles.presenter} ${styles.presenterHand}`} />
+        </div>
       </div>
     </section>
   );

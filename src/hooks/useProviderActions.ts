@@ -12,14 +12,16 @@ import {
   apiToggleServiceAvailability,
   apiDeleteService
 } from '../api/services.api';
-import { apiSubmitOffer } from '../api/offers.api';
+import { apiGetMyOffers, apiSubmitOffer } from '../api/offers.api';
+import { mapOfferToBid } from '../context/mappers';
+import { invalidateApiCache } from '../lib/api/responseCache';
 import {
   apiRespondDirectRequest,
   apiCompleteJob,
   apiStartJob
 } from '../api/bookings.api';
 import { useToast } from '../components/ui/Toast';
-import { getApiErrorBody, getApiErrorMessage } from '../lib/api/errors';
+import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
 
 interface ProviderActionsDeps {
   users: User[];
@@ -38,8 +40,6 @@ interface ProviderActionsDeps {
 }
 
 export function useProviderActions({
-  services,
-  jobRequests,
   dbCategories,
   setServices,
   setBids,
@@ -47,37 +47,7 @@ export function useProviderActions({
   syncNotifications,
 }: ProviderActionsDeps) {
   const { success, error: toastError, info } = useToast();
-
-  const resolveCategoryId = (catName: string): string | undefined => {
-    if (!dbCategories || dbCategories.length === 0) return undefined;
-
-    // 0. Direct ID match
-    const directMatch = dbCategories.find(c => c.id === catName);
-    if (directMatch) return directMatch.id;
-
-    const target = catName.trim().toLowerCase();
-
-    // 1. Exact match
-    const exact = dbCategories.find(c => c.name.trim().toLowerCase() === target);
-    if (exact) return exact.id;
-
-    // 2. Keyword match
-    const match = dbCategories.find(c => {
-      const name = c.name.trim().toLowerCase();
-      return name.includes(target) || target.includes(name) ||
-        (target.includes('electric') && name.includes('electric')) ||
-        (target.includes('plumb') && name.includes('plumb')) ||
-        (target.includes('clean') && name.includes('clean')) ||
-        (target.includes('lawn') && (name.includes('lawn') || name.includes('garden'))) ||
-        (target.includes('tutor') && (name.includes('tutor') || name.includes('academic'))) ||
-        (target.includes('aircon') && name.includes('aircon')) ||
-        (target.includes('appliance') && name.includes('appliance')) ||
-        (target.includes('carpent') && name.includes('carpent'));
-    });
-    if (match) return match.id;
-
-    return dbCategories[0]?.id;
-  };
+  const submissions = React.useRef(new Set<string>());
 
   const createServiceListing = async (
     providerId: string,
@@ -94,18 +64,17 @@ export function useProviderActions({
     }
   ) => {
     try {
-      const catId = resolveCategoryId(category);
+      const catId = dbCategories.find(c => c.id === category)?.id;
       if (catId) {
         const res = await apiCreateService({
           categoryId: catId,
           title,
           description,
-          ...(options?.priceType === 'CUSTOM' ? {} : { price }),
+          price,
           serviceType: options?.serviceType || 'ONE_TIME',
           priceType: options?.priceType || 'FIXED',
           estimatedDurationMins: options?.estimatedDurationMins || 60,
           paymentMethods,
-          queueLimit: options?.queueLimit || 5,
         });
 
         if (res.success) {
@@ -124,17 +93,18 @@ export function useProviderActions({
             estimatedDurationMins: item.estimatedDurationMins || options?.estimatedDurationMins || 60,
             queueSize: 0,
             queueLimit: item.queueLimit || options?.queueLimit || 5,
-            isPaused: false,
+            isPaused: !item.isAvailable,
             proofOfSkillUrl: '',
             rating: 5.0,
-            status: 'PENDING_REVIEW',
+            status: item.status,
             paymentMethods: {
               cash: paymentMethods.cash,
               gcash: paymentMethods.gcash
             }
           };
           setServices(prev => [newListing, ...prev]);
-          success('Listing Submitted', 'Your service listing has been sent to admins for approval.');
+          if (item.status === 'ACTIVE') success('Listing Published', 'Your service is now visible to customers.');
+          else info('Listing needs attention', 'Open Service Manager to check the details and publish your listing.');
           return { success: true, data: item };
         }
       } else {
@@ -144,8 +114,8 @@ export function useProviderActions({
     } catch (err: unknown) {
       const body = getApiErrorBody(err);
       const errorMsg = body?.errors?.[0]?.message || getApiErrorMessage(err, 'Failed to create listing');
-      toastError('Failed to create listing', errorMsg);
-      return { success: false, error: errorMsg };
+      toastError(body?.code === 'CONTENT_REVISION_REQUIRED' ? 'Check your service details' : 'Failed to create listing', errorMsg);
+      return { success: false, error: errorMsg, field: body?.code === 'CONTENT_REVISION_REQUIRED' ? body.field : undefined };
     }
   };
 
@@ -164,7 +134,7 @@ export function useProviderActions({
     try {
       const res = await apiUpdateService(serviceId, {
         title,
-        ...(options?.priceType === 'CUSTOM' ? { price: null } : { price }),
+        price,
         description,
         ...(options?.priceType ? { priceType: options.priceType } : {}),
         ...(options?.serviceType ? { serviceType: options.serviceType } : {}),
@@ -190,12 +160,14 @@ export function useProviderActions({
               : s
           )
         );
-        success('Listing Updated', 'Service details modified successfully.');
-        return;
+        success('Listing Updated', res.data.status === 'ACTIVE' ? 'Your updated service is now visible to customers.' : 'Your changes have been saved.');
+        return true;
       }
     } catch (err: unknown) {
-      toastError('Update Failed', getApiErrorMessage(err, 'Unable to update the listing.'));
+      const message = getApiErrorMessage(err, 'Unable to update the listing.');
+      toastError(getApiErrorStatus(err) === 422 && /revise|cannot be published/i.test(message) ? 'Please revise your listing' : 'Update Failed', message);
     }
+    return false;
   };
 
   const toggleServiceListingStatus = async (serviceId: string) => {
@@ -205,9 +177,9 @@ export function useProviderActions({
         const isNowAvailable = res.data?.isAvailable;
         setServices(prev => prev.map(s => s.id === serviceId ? { ...s, status: res.data.status, isPaused: !isNowAvailable } : s));
         if (isNowAvailable) {
-          success('Service Activated 🟢', 'Your service listing is now active and visible on the marketplace.');
+          success('Service active', 'Seekers can now find and book your service.');
         } else {
-          info('Service Paused ⏸️', 'Your service is paused. Seekers cannot send new bookings.');
+          info('Service paused', 'New bookings are paused. Existing bookings are unchanged.');
         }
         return { success: true };
       }
@@ -219,47 +191,48 @@ export function useProviderActions({
     }
   };
 
-  const submitBid = async (requestId: string, providerId: string, price: number, message: string) => {
+  const submitBid = async (requestId: string, providerId: string, serviceId: string | undefined, price: number, estimatedDuration: number, message: string, availability?: string): Promise<boolean> => {
+    const key = `${providerId}:${requestId}`;
+    if (submissions.current.has(key)) return false;
+    submissions.current.add(key);
+    const recordConfirmedOffer = (offer: Parameters<typeof mapOfferToBid>[0]) => {
+      const bid = mapOfferToBid({ ...offer, requestId, providerId, serviceId: offer.serviceId || serviceId, offeredPrice: offer.offeredPrice ?? price, estimatedDuration: offer.estimatedDuration ?? estimatedDuration, message: offer.message ?? message, availability: offer.availability ?? availability, status: offer.status || 'PENDING' });
+      setBids(prev => [bid, ...prev.filter(item => item.id !== bid.id)]);
+      success('Offer sent', 'Your offer was sent to the seeker.');
+    };
     try {
-      const request = jobRequests.find(item => item.id === requestId);
-      const listing = services.find(item =>
-        item.providerId === providerId &&
-        item.category.trim().toLowerCase() === request?.category.trim().toLowerCase() &&
-        !item.isPaused && item.status === 'ACTIVE'
-      );
-      if (!listing) {
-        toastError('Cannot submit offer', 'Create or activate a listing in this request category first.');
-        return;
-      }
       const res = await apiSubmitOffer({
         requestId,
-        serviceId: listing.id,
+        ...(serviceId ? { serviceId } : {}),
         offeredPrice: price,
-        estimatedDuration: 60,
+        estimatedDuration,
         message,
+        ...(availability ? { availability } : {}),
       });
       if (res.success) {
-        const p = res.data;
-        const newBid: Bid = {
-          id: p.id,
-          requestId,
-          providerId,
-          serviceId: listing.id,
-          providerName: 'Me',
-          providerAvatar: '',
-          providerRating: 5.0,
-          price,
-          message,
-          status: 'pending',
-          createdAt: p.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
-        };
-        setBids(prev => [newBid, ...prev]);
-        success('Bid Submitted', 'Your proposal was sent to the seeker.');
-        return;
+        recordConfirmedOffer(res.data);
+        return true;
       }
+      toastError('Cannot send offer', res.error || 'Please try again.');
     } catch (err: unknown) {
-      toastError('Failed to submit bid', getApiErrorMessage(err, 'Unable to submit the offer.'));
+      // Recover a committed offer after a lost response or a duplicate retry.
+      // Do not claim success unless the server returns the same proposal.
+      const status = getApiErrorStatus(err);
+      if (status === undefined || status >= 500 || getApiErrorBody(err)?.code === 'DUPLICATE_OFFER') {
+        try {
+          invalidateApiCache(['offers']);
+          const response = await apiGetMyOffers();
+          const offer = response?.success && Array.isArray(response.data) ? response.data.find((item: Parameters<typeof mapOfferToBid>[0]) => item.requestId === requestId && item.providerId === providerId && item.status === 'PENDING'
+            && (item.serviceId || null) === (serviceId || null) && Number(item.offeredPrice) === price && item.estimatedDuration === estimatedDuration
+            && (item.message || '') === message.trim() && (item.availability || '') === (availability || '').trim()) : undefined;
+          if (offer) { recordConfirmedOffer(offer); return true; }
+        } catch { /* Retain the draft if confirmation is unavailable. */ }
+      }
+      toastError('Cannot send offer', getApiErrorMessage(err, 'Unable to submit the offer.'));
+    } finally {
+      submissions.current.delete(key);
     }
+    return false;
   };
 
   const respondToDirectBooking = async (jobId: string, accept: boolean) => {
@@ -283,7 +256,7 @@ export function useProviderActions({
       if (res.success) {
         await syncEngagements();
         await syncNotifications();
-        success('Completion submitted', 'Awaiting seeker confirmation before the Test Mode payment record is updated.');
+        success('Work marked finished', 'Waiting for the seeker to confirm that the work is complete.');
         return;
       }
     } catch (err: unknown) {
@@ -297,7 +270,7 @@ export function useProviderActions({
       const res = await apiStartJob(id);
       if (res.success) {
         await syncEngagements();
-        success('Job Started', 'You began the service booking.');
+        success('Job started', 'This booking is now in progress.');
       }
     } catch (err: unknown) {
       toastError('Failed to start job', getApiErrorMessage(err, 'Unable to start the job.'));

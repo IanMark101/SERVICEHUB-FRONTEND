@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import BrandLoading from '@/components/ui/BrandLoading';
+import { getWorkspaceEntryPath } from '@/lib/workspaceEntry';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!authLoading) {
       if (isAuthenticated && user) {
-        router.replace(`/${user.role}`);
+        router.replace(getWorkspaceEntryPath(user));
       } else {
         router.replace('/login');
       }

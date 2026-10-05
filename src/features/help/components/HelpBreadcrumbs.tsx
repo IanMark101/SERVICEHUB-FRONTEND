@@ -14,7 +14,7 @@ interface HelpBreadcrumbsProps {
 
 export default function HelpBreadcrumbs({ items }: HelpBreadcrumbsProps) {
   return (
-    <nav aria-label="Breadcrumbs" className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-[#827c75] dark:text-white/48">
+    <nav aria-label="Breadcrumbs" className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-ink-subtle dark:text-white/48">
       <Link
         href="/help"
         className="font-medium transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:text-[#e18463]"
@@ -26,9 +26,9 @@ export default function HelpBreadcrumbs({ items }: HelpBreadcrumbsProps) {
         const isLast = index === items.length - 1;
         return (
           <React.Fragment key={index}>
-            <CaretRight size={13} className="shrink-0 text-[#aaa39b] dark:text-white/28" aria-hidden="true" />
+            <CaretRight size={13} className="shrink-0 text-ink-subtle dark:text-white/28" aria-hidden="true" />
             {isLast || !item.href ? (
-              <span className="max-w-[280px] truncate font-medium text-[#514d48] dark:text-white/72 sm:max-w-md">
+              <span className="max-w-[280px] truncate font-medium text-ink-secondary dark:text-white/72 sm:max-w-md">
                 {item.label}
               </span>
             ) : (

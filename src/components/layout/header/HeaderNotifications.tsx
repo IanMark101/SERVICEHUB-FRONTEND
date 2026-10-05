@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import {
+  ArrowRight,
   Bell,
   CheckCircle as CheckCircle2,
   CaretLeft as ChevronLeft,
   CaretRight as ChevronRight,
   CurrencyDollar as DollarSign,
   ShieldWarning as ShieldAlert,
+  X,
 } from '@phosphor-icons/react';
 import type { Notification } from '../../../types';
 
@@ -26,15 +28,15 @@ interface HeaderNotificationsProps {
 function getNotificationIcon(title: string) {
   const text = title.toLowerCase();
   if (text.includes('accept') || text.includes('approve') || text.includes('verified')) {
-    return { icon: CheckCircle2, color: 'text-emerald-500 bg-emerald-50' };
+    return CheckCircle2;
   }
   if (text.includes('dispute') || text.includes('decline') || text.includes('report')) {
-    return { icon: ShieldAlert, color: 'text-red-500 bg-red-50' };
+    return ShieldAlert;
   }
   if (text.includes('payout') || text.includes('paid') || text.includes('transaction')) {
-    return { icon: DollarSign, color: 'text-slate-700 bg-slate-100' };
+    return DollarSign;
   }
-  return { icon: Bell, color: 'text-slate-500 bg-slate-100' };
+  return Bell;
 }
 
 function getNotificationCta(link?: string | null) {
@@ -67,18 +69,38 @@ export default function HeaderNotifications({
   hasMore,
   onLoadMore
 }: HeaderNotificationsProps) {
-  const pageSize = 5;
+  const pageSize = 3;
+  const panelId = useId();
   const [page, setPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil(notifications.length / pageSize));
+  const [filter, setFilter] = useState('All');
+  const filtered = useMemo(
+    () => notifications.filter((notification) => (
+      filter === 'All'
+      || (filter === 'Unread' ? !notification.read : notification.link?.toLowerCase().includes(filter.toLowerCase()))
+    )),
+    [filter, notifications],
+  );
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const visiblePage = Math.min(page, totalPages);
   const visibleNotifications = useMemo(
-    () => notifications.slice((visiblePage - 1) * pageSize, visiblePage * pageSize),
-    [notifications, visiblePage],
+    () => filtered.slice((visiblePage - 1) * pageSize, visiblePage * pageSize),
+    [filtered, visiblePage],
   );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
 
   return (
     <div className="relative">
-      <button type="button" aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`workspace-header-control relative grid size-9 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${isOpen ? (isDark ? 'bg-white/10' : 'bg-[#f5ebe6]') : ''}`}>
+      <button type="button" aria-controls={panelId} aria-label={isOpen ? 'Close notifications' : `Open notifications${unreadCount ? `, ${unreadCount} unread` : ''}`} aria-expanded={isOpen} onClick={() => { if (!isOpen) setPage(1); onToggle(); }} className={`workspace-header-control relative grid size-9 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${isOpen ? 'bg-[var(--feedback-soft)] text-[var(--feedback-accent)]' : ''}`}>
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${badgeClass} border border-white`} />}
       </button>
@@ -86,39 +108,69 @@ export default function HeaderNotifications({
       {isOpen && (
         <>
           <div onClick={onClose} className="fixed inset-0 z-30" />
-          <div className={`absolute right-0 mt-3 w-85 sm:w-96 rounded-2xl border shadow-xl overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-155 ${isDark ? 'bg-[#202020] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'}`}>
-            <div className={`px-4 py-3.5 border-b flex justify-between items-center ${isDark ? 'border-neutral-800' : 'border-slate-100'}`}>
+          <div id={panelId} role="dialog" aria-label="Notifications" className={`notification-panel fixed left-3 right-3 top-[4.75rem] z-40 flex max-h-[min(70dvh,28rem)] flex-col overflow-hidden rounded-2xl border shadow-[0_22px_54px_-28px_rgba(23,23,22,0.55)] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-3 sm:max-h-[min(28rem,calc(100dvh-6rem))] sm:w-[23rem] ${isDark ? 'bg-[#202020] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+            <div className={`flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3.5 ${isDark ? 'border-neutral-800' : 'border-slate-100'}`}>
               <div>
                 <span className="block font-bold text-xs">Notifications</span>
-                <span className="mt-0.5 block text-[9px] text-slate-400">Account and marketplace updates</span>
+                <span className="mt-0.5 block text-[9px] text-ink-subtle">Updates about your account and bookings</span>
               </div>
-              <span className="text-[10px] text-slate-400 font-semibold">{notifications.length}{hasMore ? '+' : ''} alerts</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-ink-subtle font-semibold">
+                  {unreadCount > 0 ? `${unreadCount} unread` : `${notifications.length}${hasMore ? '+' : ''} alerts`}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Close notifications"
+                  onClick={onClose}
+                  className={`grid size-8 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${isDark ? 'hover:bg-white/8' : 'hover:bg-slate-100'}`}
+                >
+                  <X className="size-4" aria-hidden="true" />
+                </button>
+              </div>
             </div>
-            <div className={`min-h-[292px] max-h-[340px] overflow-y-auto divide-y ${isDark ? 'divide-neutral-800/80' : 'divide-slate-100'}`}>
-              {notifications.length === 0 ? (
-                <div className="p-8 text-center text-xs text-slate-400">No notifications to display</div>
+            <div className={`notification-filters flex shrink-0 flex-nowrap gap-1.5 overflow-x-auto border-b px-3 py-2.5 ${isDark ? 'border-neutral-800' : 'border-slate-100'}`} aria-label="Filter notifications">
+              {['All', 'Unread', 'Seeker', 'Provider', 'Community'].map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  aria-pressed={filter === item}
+                  onClick={() => { setFilter(item); setPage(1); }}
+                  className={`min-h-7 shrink-0 whitespace-nowrap rounded-[10px] border px-2.5 text-[10px] font-semibold leading-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${
+                    filter === item
+                      ? 'border-[var(--feedback-border)] bg-[var(--feedback-soft)] text-[var(--feedback-accent)]'
+                      : isDark
+                        ? 'border-neutral-700 bg-neutral-800/70 text-ink-subtle hover:border-neutral-600 hover:text-neutral-100'
+                        : 'border-slate-200 bg-white text-ink-muted hover:border-slate-300 hover:text-ink'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+            <div className={`min-h-24 flex-1 overflow-y-auto overscroll-contain divide-y ${isDark ? 'divide-neutral-800/80' : 'divide-slate-100'}`}>
+              {filtered.length === 0 ? (
+                <div className="p-8 text-center text-xs text-[color:var(--workspace-muted)]">{filter === 'All' ? 'No notifications yet.' : `No ${filter.toLowerCase()} notifications.`}</div>
               ) : visibleNotifications.map((notification) => {
-                const iconDetails = getNotificationIcon(notification.title);
-                const Icon = iconDetails.icon;
-                const iconBg = isDark ? 'bg-neutral-800/80' : iconDetails.color;
+                const Icon = getNotificationIcon(notification.title);
                 return (
-                  <button type="button" key={notification.id} onClick={() => onNotificationClick(notification.link)} className={`w-full px-4 py-3.5 cursor-pointer flex space-x-3 text-left transition-colors ${isDark ? 'hover:bg-neutral-800/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-neutral-800/35' : 'bg-slate-50') : ''}`}>
-                    <div className={`rounded-lg ${iconBg} h-8 w-8 flex-shrink-0 flex items-center justify-center`}>
-                      <Icon className={`w-4 h-4 ${isDark ? 'text-slate-300' : ''}`} />
+                  <button type="button" key={notification.id} onClick={() => onNotificationClick(notification.link)} className={`w-full px-4 py-3 cursor-pointer flex space-x-3 text-left transition-colors ${isDark ? 'hover:bg-neutral-800/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-neutral-800/35' : 'bg-slate-50') : ''}`}>
+                    <div className="rounded-lg bg-[var(--feedback-soft)] text-[var(--feedback-accent)] h-8 w-8 flex-shrink-0 flex items-center justify-center">
+                      <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <h5 className="flex items-start justify-between gap-2 text-xs font-bold">
                         <span className="min-w-0 leading-4">{notification.title}</span>
                         <div className="flex shrink-0 items-center space-x-1.5">
-                          <span className="text-[9px] text-slate-400 font-normal">{notification.time}</span>
+                          <span className="text-[9px] text-ink-subtle font-normal">{notification.time}</span>
                           {!notification.read && <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${badgeClass}`} />}
                         </div>
                       </h5>
-                      <p className={`mt-1 line-clamp-2 text-[10.5px] leading-4 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>{notification.desc}</p>
+                      <p className={`mt-1 line-clamp-2 text-[10.5px] leading-4 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>{notification.desc}</p>
                       {notification.link && (
-                        <div className="mt-2 flex justify-start">
-                          <span className={`text-[9px] font-bold transition-colors ${isDark ? 'text-neutral-300 hover:text-white' : 'text-slate-700 hover:text-slate-950'}`}>
-                            {getNotificationCta(notification.link)} →
+                        <div className="mt-1.5 flex justify-start">
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold transition-colors text-[var(--feedback-accent)]">
+                            {getNotificationCta(notification.link)}
+                            <ArrowRight className="size-3" weight="bold" aria-hidden="true" />
                           </span>
                         </div>
                       )}
@@ -127,23 +179,26 @@ export default function HeaderNotifications({
                 );
               })}
             </div>
-            <div className={`border-t px-3 py-2.5 ${isDark ? 'border-neutral-800' : 'border-slate-100'}`}>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-[9px] font-medium text-slate-400">Page {visiblePage} of {totalPages}{hasMore ? '+' : ''}</span>
-                <div className="flex items-center gap-1">
-                  <button type="button" onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={visiblePage === 1} aria-label="Previous notification page" className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-500 disabled:opacity-30 dark:border-neutral-700 dark:text-neutral-300">
+            <div className={`shrink-0 border-t px-3 py-2.5 ${isDark ? 'border-neutral-800 bg-[#1b1b1b]' : 'border-slate-100 bg-slate-50/60'}`}>
+              <div className="flex min-h-8 items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <span className="block text-[9px] font-medium text-ink-subtle">Page {visiblePage} of {totalPages}{hasMore ? '+' : ''}</span>
+                  {unreadCount > 0 && (
+                    <button type="button" onClick={onMarkAllRead} className={`mt-0.5 text-[10px] font-bold transition-colors ${isDark ? 'text-neutral-300 hover:text-white' : 'text-ink-secondary hover:text-ink'}`}>
+                      Mark all as read
+                    </button>
+                  )}
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <button type="button" onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={visiblePage === 1} aria-label="Previous notification page" className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-ink-muted disabled:opacity-30 dark:border-neutral-700 dark:text-ink-secondary">
                     <ChevronLeft className="h-3.5 w-3.5" />
                   </button>
-                  <button type="button" onClick={() => setPage((value) => Math.min(totalPages, value + 1))} disabled={visiblePage >= totalPages} aria-label="Next notification page" className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-500 disabled:opacity-30 dark:border-neutral-700 dark:text-neutral-300">
+                  <button type="button" onClick={() => setPage((value) => Math.min(totalPages, value + 1))} disabled={visiblePage >= totalPages} aria-label="Next notification page" className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-ink-muted disabled:opacity-30 dark:border-neutral-700 dark:text-ink-secondary">
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
-                  {hasMore && visiblePage === totalPages && <button type="button" onClick={onLoadMore} className="ml-1 text-[9px] font-bold text-slate-700 hover:text-slate-950 dark:text-neutral-300 dark:hover:text-white">Load older</button>}
+                  {hasMore && visiblePage === totalPages && <button type="button" onClick={onLoadMore} className="ml-1 text-[9px] font-bold text-ink-secondary hover:text-ink dark:text-ink-secondary dark:hover:text-white">Load older</button>}
                 </div>
               </div>
-            </div>
-            <div className={`px-3.5 py-2.5 border-t flex items-center justify-between ${isDark ? 'border-neutral-800 bg-[#1b1b1b]' : 'border-slate-100 bg-slate-50/60'}`}>
-              {unreadCount > 0 ? <button onClick={onMarkAllRead} className={`text-[10px] font-bold transition-colors ${isDark ? 'text-neutral-300 hover:text-white' : 'text-slate-700 hover:text-slate-950'}`}>Mark all read</button> : <span />}
-              <button onClick={onClose} className="text-[10px] font-bold text-slate-400 hover:text-slate-800 transition-colors dark:hover:text-white">Close</button>
             </div>
           </div>
         </>

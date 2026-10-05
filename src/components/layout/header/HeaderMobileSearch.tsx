@@ -23,7 +23,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
   return (
     <div className={`absolute left-0 right-0 top-full z-50 border-b p-3 shadow-xl lg:hidden ${isDark ? 'border-white/10 bg-[#201f1c]' : 'border-black/10 bg-[#fffdfa]'}`}>
       <div className="relative flex items-center">
-        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#b4b0a9] pointer-events-none"><Search className="w-3.5 h-3.5" /></span>
+        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-ink-muted pointer-events-none"><Search className="w-3.5 h-3.5" /></span>
         <input
           aria-label="Search people"
           type="text"
@@ -34,15 +34,15 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
             onShowResultsChange(Boolean(event.target.value.trim()));
           }}
           placeholder="Search people..."
-          className={`w-full rounded-xl border py-2 pl-9 pr-9 text-xs transition-colors ${isDark ? `border-white/10 bg-[#171716] text-[#f5f4f2] placeholder:text-[#8f8a82] focus:outline-none focus:ring-2 ${ringClass}` : `border-black/10 bg-[#fffdfa] text-[#171716] placeholder:text-[#8b857e] focus:outline-none focus:ring-2 ${ringClass}`}`}
+          className={`w-full rounded-xl border py-2 pl-9 pr-9 text-xs transition-colors ${isDark ? `border-white/10 bg-[#171716] text-white placeholder:text-ink-subtle focus:outline-none focus:ring-2 ${ringClass}` : `border-black/10 bg-[#fffdfa] text-ink placeholder:text-ink-subtle focus:outline-none focus:ring-2 ${ringClass}`}`}
         />
-        <button type="button" aria-label="Close user search" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+        <button type="button" aria-label="Close user search" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-ink-subtle hover:text-ink-muted"><X className="w-4 h-4" /></button>
       </div>
 
       {showResults && (
-        <div className={`mt-2 rounded-xl border shadow-xl overflow-hidden max-h-60 overflow-y-auto ${isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-900'}`}>
+        <div className={`mt-2 rounded-xl border shadow-xl overflow-hidden max-h-60 overflow-y-auto ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
           {loading ? (
-            <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">Searching users...</div>
+            <div className="px-3 py-3 text-xs text-ink-muted dark:text-ink-muted">Searching users...</div>
           ) : results.length > 0 ? results.map((result) => {
             const email = result.email && result.email !== 'N/A' ? result.email : '';
             return (
@@ -61,12 +61,12 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
                       <div className="font-bold text-xs truncate">{getDisplayName(result)}</div>
                       <span className={`text-[9px] font-extrabold uppercase ${result.role === 'provider' ? 'text-emerald-500' : 'text-orange-500'}`}>{result.role}</span>
                     </div>
-                    {email ? <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">{email}</div> : result.location ? <div className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-neutral-500 truncate"><MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" /><span>{result.location}</span></div> : null}
+                    {email ? <div className="text-[10px] text-ink-subtle dark:text-ink-subtle truncate">{email}</div> : result.location ? <div className="flex items-center gap-1 text-[10px] text-ink-subtle dark:text-ink-subtle truncate"><MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" /><span>{result.location}</span></div> : null}
                   </div>
                 </div>
               </button>
             );
-          }) : <div className="px-3 py-3 text-xs text-slate-500 dark:text-neutral-400">No users found.</div>}
+          }) : <div className="px-3 py-3 text-xs text-ink-muted dark:text-ink-muted">No users found.</div>}
         </div>
       )}
     </div>

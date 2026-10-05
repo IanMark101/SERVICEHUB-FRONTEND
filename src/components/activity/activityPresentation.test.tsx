@@ -8,7 +8,7 @@ import { getActivityPaymentCopy, getActivityQueueCopy, getBookingActivityGroup }
 const booking: JobEngagement = {
   id: 'one', title: 'House Cleaning', seekerId: 'johncarlo', seekerName: 'John Carlo', seekerAvatar: '',
   providerId: 'ian', providerName: 'Ian', providerAvatar: '', serviceId: 'service-1',
-  price: 250, status: 'queued', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD',
+  price: 250, status: 'queued', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD', queuePaymentStatus: 'PAID_HELD',
   queueStatus: 'WAITING', queuePosition: 2, createdAt: '2026-09-27T09:00:00.000Z', started: false,
 };
 
@@ -55,7 +55,7 @@ describe('Activity presentation from authoritative booking state', () => {
     render(<ActivityFeed entries={entries} tone="provider" onOpen={onOpen} />);
     const headings = screen.getAllByRole('heading').map((node) => node.textContent);
     expect(headings).toEqual(['Your Turn1', 'Waiting1', 'Under Review1']);
-    expect(screen.getByText('Payment confirmed')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Waiting 1' })).toHaveTextContent('Payment confirmed');
     expect(screen.getByText('None right now')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Open booking Faucet Repair/ }));
     expect(onOpen).toHaveBeenCalledWith(entries[1]);

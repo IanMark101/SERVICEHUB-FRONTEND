@@ -11,18 +11,18 @@ interface LandingCommunityProps {
 
 const items = [
   {
-    title: 'Verified Civic Announcements',
-    copy: 'Official administrator advisories and genuine database-backed milestones for Cordova residents.',
+    title: 'Official Community Updates',
+    copy: 'Read announcements and service updates shared by ServiceHub administrators.',
     icon: Megaphone,
   },
   {
-    title: 'Newly Approved Listings',
-    copy: 'Freshly moderated local service offerings across electrical, plumbing, carpentry, and cleaning.',
+    title: 'Recently Added Services',
+    copy: 'Discover published services that were recently added to the marketplace.',
     icon: BadgeCheck,
   },
   {
     title: 'Local Provider Directory',
-    copy: 'Public provider directory filtered by approved residency and active marketplace credibility.',
+    copy: 'Browse public provider profiles and see their active services, ratings, and trust information.',
     icon: UsersRound,
   },
 ];
@@ -36,11 +36,11 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
     >
       <div className="mx-auto max-w-7xl">
         <ScrollReveal className="max-w-3xl">
-          <h2 className="max-w-[17ch] font-sans text-3xl font-extrabold tracking-tight text-zinc-50 sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+          <h2 className="max-w-[17ch] font-sans text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
             See what is happening across ServiceHub Cordova.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-300">
-            The authenticated Community Hub shows database-backed statistics, recent approved listings, official updates, and publicly visible local providers.
+            Follow local service activity in the Community Hub after signing in.
           </p>
         </ScrollReveal>
 
@@ -58,7 +58,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
                 <div className="grid size-11 place-items-center rounded-xl bg-[#c86544]/15 text-orange-300">
                   <Icon size={22} />
                 </div>
-                <h3 className="mt-6 text-lg font-bold text-zinc-50">
+                <h3 className="mt-6 text-lg font-bold text-white">
                   {item.title}
                 </h3>
                 <p className="mt-2.5 text-sm leading-relaxed text-zinc-400">
@@ -71,7 +71,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
 
         <ScrollReveal className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-zinc-400">
-            Access verified community bulletins and neighborhood service updates.
+            Sign in to explore ServiceHub updates and local service activity.
           </p>
           <Link
             href="/login"

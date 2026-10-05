@@ -55,21 +55,21 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
   };
 
   return (
-    <div className="space-y-6 text-slate-800 dark:text-[#f2efe9] animate-in fade-in slide-in-from-right-4 duration-300">
+    <div className="space-y-6 text-ink dark:text-white animate-in fade-in slide-in-from-right-4 duration-300">
       
       {/* Header Section */}
       <div className="text-center">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4 animate-in fade-in zoom-in-95 duration-300">
           <Mail className="w-7 h-7" />
         </div>
-        <h2 className="font-sans text-2xl font-semibold text-[#0a0a0a] dark:text-white tracking-tight mb-2">
+        <h2 className="font-sans text-2xl font-semibold text-ink dark:text-white tracking-tight mb-2">
           Registration Successful!
         </h2>
-        <p className="text-neutral-600 dark:text-neutral-400 text-xs sm:text-sm leading-relaxed max-w-sm mx-auto">
+        <p className="text-ink-muted dark:text-ink-muted text-xs sm:text-sm leading-relaxed max-w-sm mx-auto">
           {emailSent ? (
-            <>We&apos;ve sent a verification email to <span className="font-semibold text-[#0a0a0a] dark:text-white">{email}</span>. Please verify your email before using marketplace actions.</>
+            <>We&apos;ve sent a verification email to <span className="font-semibold text-ink dark:text-white">{email}</span>. Verify your email before entering your workspace.</>
           ) : (
-            <>Your account was created, but we could not deliver the verification email to <span className="font-semibold text-[#0a0a0a] dark:text-white">{email}</span>. Sign in, then request a new link.</>
+            <>Your account was created, but we could not deliver the verification email to <span className="font-semibold text-ink dark:text-white">{email}</span>. Sign in, then request a new link.</>
           )}
         </p>
       </div>
@@ -84,7 +84,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
 
       {/* Onboarding Checklist Box */}
       <div className="p-4 bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.06] dark:border-white/10 rounded-2xl shadow-xs">
-        <h4 className="text-xs font-bold text-slate-400 dark:text-zinc-500 tracking-wider uppercase mb-3">
+        <h4 className="text-xs font-bold text-ink-subtle dark:text-ink-subtle tracking-wider uppercase mb-3">
           Onboarding Checklist
         </h4>
         <div className="space-y-3">
@@ -93,7 +93,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
             <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Check className="w-3.5 h-3.5" />
             </div>
-            <span className="font-medium text-slate-500 dark:text-slate-400 line-through">Account created</span>
+            <span className="font-medium text-ink-muted dark:text-ink-muted line-through">Account created</span>
           </div>
 
           {/* Item 2: Verification Email Sent */}
@@ -101,25 +101,25 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
             <div className={`flex items-center justify-center w-5 h-5 rounded-full ${emailSent ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'}`}>
               {emailSent ? <Check className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
             </div>
-            <span className={`font-medium ${emailSent ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-amber-700 dark:text-amber-300'}`}>{emailSent ? 'Verification email sent' : 'Verification email delivery needs retry'}</span>
+            <span className={`font-medium ${emailSent ? 'text-ink-muted dark:text-ink-muted line-through' : 'text-amber-700 dark:text-amber-300'}`}>{emailSent ? 'Verification email sent' : 'Verification email delivery needs retry'}</span>
           </div>
 
           {/* Item 3: Verify Your Email */}
           <div className="flex items-center space-x-3 text-sm">
-            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-slate-400 dark:text-zinc-500 bg-white dark:bg-zinc-800 font-semibold text-xs">
+            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-ink-subtle dark:text-ink-subtle bg-white dark:bg-zinc-800 font-semibold text-xs">
               3
             </div>
-            <span className="font-bold text-slate-900 dark:text-white">Verify your email</span>
+            <span className="font-bold text-ink dark:text-white">Verify your email</span>
           </div>
 
           {/* Item 4: Identity Verification */}
           <div className="flex items-center space-x-3 text-sm">
-            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-slate-400 dark:text-zinc-500 bg-white dark:bg-zinc-800 font-semibold text-xs">
+            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-ink-subtle dark:text-ink-subtle bg-white dark:bg-zinc-800 font-semibold text-xs">
               4
             </div>
-            <span className="font-medium text-slate-600 dark:text-zinc-400 flex items-center space-x-1.5">
-              <span>Complete Identity Verification after logging in</span>
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+            <span className="font-medium text-ink-muted dark:text-ink-muted flex items-center space-x-1.5">
+              <span>Complete Cordova residency verification after opening your workspace</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-ink-subtle" />
             </span>
           </div>
         </div>
@@ -153,8 +153,8 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
           disabled={cooldown > 0}
           className={`w-full py-2.5 border rounded-xl font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer ${
             cooldown > 0
-              ? 'bg-slate-50 dark:bg-zinc-900/50 border-black/[0.08] dark:border-white/10 text-slate-400 dark:text-zinc-500'
-              : 'border-black/[0.08] dark:border-white/10 bg-white dark:bg-zinc-800/80 hover:bg-slate-50 text-slate-700 dark:text-zinc-200'
+              ? 'bg-slate-50 dark:bg-zinc-900/50 border-black/[0.08] dark:border-white/10 text-ink-subtle dark:text-ink-subtle'
+              : 'border-black/[0.08] dark:border-white/10 bg-white dark:bg-zinc-800/80 hover:bg-slate-50 text-ink-secondary dark:text-ink'
           }`}
         >
           <RefreshCw className={`w-3.5 h-3.5 ${cooldown > 0 ? 'animate-spin' : ''}`} />

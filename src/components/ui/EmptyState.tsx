@@ -46,7 +46,7 @@ export default function EmptyState({
       glow: 'from-purple-500/5 via-transparent to-transparent',
     },
     slate: {
-      iconBg: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20 shadow-slate-500/10',
+      iconBg: 'bg-slate-500/10 text-ink-muted dark:text-ink-muted border-slate-500/20 shadow-slate-500/10',
       btn: 'bg-slate-800 hover:bg-slate-700 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white shadow-slate-500/20',
       glow: 'from-slate-500/5 via-transparent to-transparent',
     },
@@ -66,10 +66,10 @@ export default function EmptyState({
 
       {/* Text block */}
       <div className="relative z-10 max-w-md space-y-1.5">
-        <h3 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-[#f2efe9]">
+        <h3 className="text-base sm:text-lg font-extrabold tracking-tight text-ink dark:text-white">
           {title}
         </h3>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-[#b4b0a9] leading-relaxed">
+        <p className="text-xs sm:text-sm text-ink-muted dark:text-ink-muted leading-relaxed">
           {description}
         </p>
       </div>
@@ -81,7 +81,7 @@ export default function EmptyState({
             <button
               type="button"
               onClick={onSecondaryAction}
-              className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-neutral-700 bg-slate-50 hover:bg-slate-100 dark:bg-neutral-800/60 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200 transition-all duration-150 active:scale-95 shadow-sm"
+              className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-neutral-700 bg-slate-50 hover:bg-slate-100 dark:bg-neutral-800/60 dark:hover:bg-neutral-800 text-ink-secondary dark:text-ink transition-all duration-150 active:scale-95 shadow-sm"
             >
               {secondaryActionLabel}
             </button>

@@ -2,6 +2,8 @@ import { ArrowRight, Clock, CheckCircle, Warning, HandPalm, XCircle } from '@pho
 import type { ReactNode } from 'react';
 import type { ActivityGroup } from './activityPresentation';
 import { activityGroupLabels, activityGroupOrder } from './activityPresentation';
+import QueueActivityCard from './QueueActivityCard';
+import type { BookingOutcome } from '../../lib/bookingOutcome';
 
 export interface ActivityFeedEntry {
   id: string;
@@ -13,11 +15,20 @@ export interface ActivityFeedEntry {
   next: string;
   price: number;
   kind?: 'booking' | 'offer';
-  outcome?: 'completed' | 'canceled';
+  outcome?: BookingOutcome | 'withdrawn' | 'not_selected';
   date?: string;
   payment?: string;
   queue?: string;
   action?: string;
+  situationLabel?: string;
+  openLabel?: string;
+  queueOverview?: boolean;
+  queuePosition?: number;
+  queueEstimatedWait?: number;
+  canStart?: boolean;
+  startUnavailableReason?: string;
+  startPending?: boolean;
+  startBusy?: boolean;
 }
 
 const groupIcon = {
@@ -28,10 +39,11 @@ const groupIcon = {
   history: CheckCircle,
 };
 
-export default function ActivityFeed({ entries, tone, onOpen, empty }: {
+export default function ActivityFeed({ entries, tone, onOpen, onStart, empty }: {
   entries: ActivityFeedEntry[];
   tone: 'seeker' | 'provider';
   onOpen: (entry: ActivityFeedEntry) => void;
+  onStart?: (entry: ActivityFeedEntry) => void;
   empty?: ReactNode;
 }) {
   if (entries.length === 0) return <>{empty}</>;
@@ -45,27 +57,28 @@ export default function ActivityFeed({ entries, tone, onOpen, empty }: {
         const underReview = group === 'under_review';
         return (
           <section key={group} aria-labelledby={`activity-${tone}-${group}`}>
-            <h2 id={`activity-${tone}-${group}`} className="mb-3 flex items-center gap-2 text-sm font-bold text-stone-900 dark:text-stone-100">
-              <Icon size={17} weight="regular" aria-hidden="true" className={group === 'your_turn' ? tone === 'seeker' ? 'text-orange-600' : 'text-emerald-600' : underReview ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500'} />
+            <h2 id={`activity-${tone}-${group}`} className="mb-3 flex items-center gap-2 text-sm font-bold text-ink dark:text-ink">
+              <Icon size={17} weight="regular" aria-hidden="true" className={group === 'your_turn' ? tone === 'seeker' ? 'text-orange-600' : 'text-emerald-600' : underReview ? 'text-amber-700 dark:text-amber-400' : 'text-ink-muted'} />
               {activityGroupLabels[group]}
-              <span className="text-xs font-medium text-stone-500 dark:text-stone-400">{items.length}</span>
+              <span className="text-xs font-medium text-ink-muted dark:text-ink-muted">{items.length}</span>
             </h2>
             {history || underReview ? (
               <div className="space-y-2.5">
                 {items.map((entry) => {
-                  const canceled = entry.outcome === 'canceled';
-                  const OutcomeIcon = underReview ? Warning : canceled ? XCircle : CheckCircle;
-                  const outcomeLabel = underReview ? 'Under review' : canceled ? 'Canceled' : 'Completed';
+                  const closed = entry.outcome !== 'completed';
+                  const OutcomeIcon = underReview ? Warning : closed ? XCircle : CheckCircle;
+                  const outcomeLabels = { completed: 'Completed', canceled: 'Canceled', declined: entry.kind === 'offer' ? 'Offer declined' : 'Declined', removed: 'Removed', withdrawn: 'Withdrawn', not_selected: 'Not selected' };
+                  const outcomeLabel = underReview ? 'Under review' : entry.outcome ? outcomeLabels[entry.outcome] : entry.situationLabel || 'Closed';
                   const outcomeTone = underReview
                     ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'
-                    : canceled
-                      ? 'border-stone-300 bg-stone-100 text-stone-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-stone-200'
+                    : closed
+                      ? 'border-stone-300 bg-stone-100 text-ink-secondary dark:border-neutral-600 dark:bg-neutral-800 dark:text-ink'
                       : tone === 'seeker'
                         ? 'border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-300'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300';
                   const outcomeEdge = underReview
                     ? 'border-l-[3px] border-l-amber-500 dark:border-l-amber-500'
-                    : canceled
+                    : closed
                       ? 'border-l-[3px] border-l-stone-400 dark:border-l-neutral-500'
                       : tone === 'seeker'
                         ? 'border-l-[3px] border-l-orange-500 dark:border-l-orange-500'
@@ -83,17 +96,17 @@ export default function ActivityFeed({ entries, tone, onOpen, empty }: {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          <span className="truncate text-sm font-bold text-stone-950 dark:text-stone-50 sm:text-base">{entry.title}</span>
+                          <span className="truncate text-sm font-bold text-ink dark:text-ink sm:text-base">{entry.title}</span>
                           <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${outcomeTone}`}>{outcomeLabel}</span>
                         </span>
-                        <span className="mt-1 block text-xs text-stone-600 dark:text-stone-300">
-                          {entry.participant}{entry.date && <span className="before:mx-2 before:text-stone-400 before:content-['·']">{entry.date}</span>}
+                        <span className="mt-1 block text-xs text-ink-muted dark:text-ink-secondary">
+                          {entry.participant}{entry.date && <span className="before:mx-2 before:text-ink-subtle before:content-['·']">{entry.date}</span>}
                         </span>
-                        {underReview && <span className="mt-1.5 block text-xs leading-relaxed text-stone-700 dark:text-stone-200">{entry.status}. {entry.next}</span>}
+                        {underReview && <span className="mt-1.5 block text-xs leading-relaxed text-ink-secondary dark:text-ink">{entry.status}. {entry.next}</span>}
                       </span>
                       <span className="ml-auto flex shrink-0 flex-col items-end gap-1.5 self-center pl-1 sm:min-w-28 sm:self-stretch sm:justify-center sm:gap-2 sm:border-l sm:border-stone-200 sm:pl-5 dark:sm:border-neutral-700">
-                        <span className="text-sm font-bold tabular-nums text-stone-900 dark:text-stone-100">₱{entry.price}</span>
-                        <span className={`inline-flex items-center gap-1 text-xs font-bold ${tone === 'seeker' ? 'text-orange-700 dark:text-orange-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                        <span className="text-sm font-bold tabular-nums text-ink dark:text-ink">₱{entry.price}</span>
+                        <span className={`inline-flex items-center gap-1 text-xs font-bold ${closed && !underReview ? 'text-ink-secondary dark:text-ink' : tone === 'seeker' ? 'text-orange-700 dark:text-orange-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                           Details <ArrowRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
                         </span>
                       </span>
@@ -102,33 +115,52 @@ export default function ActivityFeed({ entries, tone, onOpen, empty }: {
                 })}
               </div>
             ) : (
-              <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-neutral-700 dark:bg-[#22211e]">
-                {items.map((entry, index) => (
+              <div className="space-y-3">
+                {items.map((entry) => entry.queueOverview ? (
+                  <QueueActivityCard
+                    key={`${entry.kind || 'booking'}-${entry.id}`}
+                    entry={entry}
+                    tone={tone}
+                    onOpen={() => onOpen(entry)}
+                    onStart={onStart ? () => onStart(entry) : undefined}
+                  />
+                ) : (
                   <button
                     key={`${entry.kind || 'booking'}-${entry.id}`}
                     type="button"
                     onClick={() => onOpen(entry)}
-                    className={`group flex w-full flex-col gap-2 px-4 py-4 text-left transition-colors hover:bg-stone-50 focus-visible:outline-2 focus-visible:outline-offset-[-2px] sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:px-5 dark:hover:bg-neutral-800/60 ${index > 0 ? 'border-t border-stone-100 dark:border-neutral-700/70' : ''} ${group === 'your_turn' ? tone === 'seeker' ? 'bg-orange-50/45 dark:bg-orange-950/10' : 'bg-emerald-50/45 dark:bg-emerald-950/10' : ''}`}
+                    className={`group w-full rounded-2xl border p-5 text-left transition-colors duration-200 hover:border-stone-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 sm:p-6 dark:hover:border-neutral-500 dark:hover:bg-neutral-800/70 ${group === 'your_turn' ? tone === 'seeker' ? 'border-orange-200 bg-orange-50/50 focus-visible:outline-orange-600 dark:border-orange-900/50 dark:bg-orange-950/15' : 'border-emerald-200 bg-emerald-50/50 focus-visible:outline-emerald-600 dark:border-emerald-900/50 dark:bg-emerald-950/15' : 'border-stone-200 bg-white focus-visible:outline-stone-700 dark:border-neutral-700 dark:bg-[#22211e]'}`}
                     aria-label={`Open ${entry.kind === 'offer' ? 'offer' : 'booking'} ${entry.title}: ${entry.status}`}
                   >
-                    <span className="min-w-0 flex-1">
-                      <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span className="text-sm font-bold text-stone-950 dark:text-stone-50">{entry.title}</span>
-                        <span className="text-xs text-stone-600 dark:text-stone-300">{entry.participant}</span>
-                        <span className="text-xs font-semibold text-stone-700 dark:text-stone-200">₱{entry.price}</span>
-                      </span>
-                      <span className="mt-1 block text-sm font-semibold text-stone-800 dark:text-stone-100">{entry.status}</span>
-                      <span className="mt-0.5 block text-xs leading-relaxed text-stone-600 dark:text-stone-300">{entry.explanation} <span className="font-medium">Next: {entry.next}</span></span>
-                      {(entry.payment || entry.queue || entry.action) && (
-                        <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] leading-relaxed text-stone-600 dark:text-stone-300">
-                          {entry.payment && <span><strong className="font-semibold text-stone-800 dark:text-stone-100">Payment:</strong> {entry.payment}</span>}
-                          {entry.queue && <span><strong className="font-semibold text-stone-800 dark:text-stone-100">Queue:</strong> {entry.queue}</span>}
-                          {entry.action && <span><strong className="font-semibold text-stone-800 dark:text-stone-100">Your action:</strong> {entry.action}</span>}
+                    <span className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                          <span className="text-base font-bold text-ink dark:text-ink">{entry.title}</span>
+                          <span className="text-base font-bold tabular-nums text-ink dark:text-ink">₱{entry.price}</span>
                         </span>
-                      )}
-                    </span>
-                    <span className={`inline-flex shrink-0 items-center gap-1 text-xs font-bold ${tone === 'seeker' ? 'text-orange-700 dark:text-orange-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
-                      Open <ArrowRight size={15} aria-hidden="true" />
+                        <span className="mt-0.5 block text-xs text-ink-muted dark:text-ink-secondary">{entry.participant}</span>
+
+                        <span className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+                          {entry.situationLabel && <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${group === 'your_turn' ? tone === 'seeker' ? 'bg-orange-100 text-orange-900 dark:bg-orange-900/40 dark:text-orange-200' : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200' : 'bg-stone-100 text-ink-secondary dark:bg-neutral-700 dark:text-ink'}`}>{entry.situationLabel}</span>}
+                          <span className="text-lg font-bold leading-snug text-ink dark:text-ink">{entry.status}</span>
+                        </span>
+                        <span className="mt-1.5 block text-sm leading-relaxed text-ink-secondary dark:text-ink">{entry.explanation}</span>
+
+                        <span className="mt-5 grid gap-3 border-t border-stone-200/80 pt-4 text-sm sm:grid-cols-2 dark:border-neutral-700">
+                          <span className="block min-w-0"><strong className="block text-xs font-bold text-ink dark:text-ink">Your action</strong><span className="mt-1 block leading-relaxed text-ink-secondary dark:text-ink">{entry.action || 'No action needed now'}</span></span>
+                          <span className="block min-w-0"><strong className="block text-xs font-bold text-ink dark:text-ink">What happens next</strong><span className="mt-1 block leading-relaxed text-ink-secondary dark:text-ink">{entry.next}</span></span>
+                        </span>
+
+                        {(entry.payment || entry.queue) && (
+                          <span className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-xs leading-relaxed text-ink-muted dark:text-ink-secondary">
+                            {entry.payment && <span><strong className="font-semibold text-ink dark:text-ink">Payment</strong> · {entry.payment}</span>}
+                            {entry.queue && <span><strong className="font-semibold text-ink dark:text-ink">Queue</strong> · {entry.queue}</span>}
+                          </span>
+                        )}
+                      </span>
+                      <span className={`inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors lg:w-auto ${group === 'your_turn' ? tone === 'seeker' ? 'bg-orange-600 text-white group-hover:bg-orange-700' : 'bg-emerald-600 text-white group-hover:bg-emerald-700' : 'border border-stone-300 text-ink group-hover:border-stone-500 dark:border-neutral-600 dark:text-ink'}`}>
+                        {entry.openLabel || 'View booking'} <ArrowRight size={17} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
+                      </span>
                     </span>
                   </button>
                 ))}

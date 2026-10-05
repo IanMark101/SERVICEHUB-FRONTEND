@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Briefcase, MagnifyingGlass as Search, List as Menu, ChatCircle as MessageSquare, Sun, Moon } from '@phosphor-icons/react';
+import { ArrowLeft, Briefcase, Gear, MagnifyingGlass as Search, List as Menu, ChatCircle as MessageSquare, Sun, Moon, User as UserIcon, UsersThree } from '@phosphor-icons/react';
 import { UserSession } from '../auth/LoginContainer';
 import { resolveNotificationLink } from '../../lib/notificationRoutes';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { apiSearchUsers } from '../../api/users.api';
+import { normalizeUserSearchName } from '../../lib/userSearchName';
 import type { User as AppUser } from '../../types';
 import HeaderNotifications from './header/HeaderNotifications';
 import HeaderProfileMenu from './header/HeaderProfileMenu';
@@ -13,11 +14,14 @@ import HeaderMobileSearch from './header/HeaderMobileSearch';
 import HeaderDesktopSearch from './header/HeaderDesktopSearch';
 
 const pageNames: Record<string, string> = {
+  users: 'User Management',
+  'ban-appeals': 'Ban Appeals',
   'seek-services': 'Seek Services',
   'post-request': 'Post Request',
   'incoming-offers': 'Offers Received',
   'request-manager': 'Request Manager',
   'seeker-activity': 'Activity',
+  'payment-return': 'GCash Payment',
   'browse-services': 'Browse Jobs',
   'offer-services': 'Offer Services',
   'incoming-requests': 'Incoming Requests',
@@ -26,6 +30,8 @@ const pageNames: Record<string, string> = {
   'transaction-history': 'Payment Records',
   messages: 'Messages',
   'community-hub': 'Community Hub',
+  'user-profile': 'User Profile',
+  'account-settings': 'Account Settings',
 };
 
 interface HeaderProps {
@@ -36,8 +42,9 @@ interface HeaderProps {
   user: UserSession | null;
   onSignOut: () => void;
   onViewProfile?: (user: UserSession) => void;
+  accountPage?: boolean;
+  communityPage?: boolean;
 }
-
 function getResponseStatus(error: unknown): number | undefined {
   if (typeof error !== 'object' || error === null || !('response' in error)) return undefined;
   const response = (error as { response?: { status?: unknown } }).response;
@@ -51,7 +58,9 @@ export default function Header({
   setIsMobileOpen,
   user,
   onSignOut,
-  onViewProfile
+  onViewProfile,
+  accountPage = false,
+  communityPage = false,
 }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
@@ -72,6 +81,11 @@ export default function Header({
   const userNotifications = notifications.filter(n => n.userId === userId);
   const unreadCount = userNotifications.filter(n => !n.read).length;
   const pageName = pageNames[activeTab] || activeTab.replaceAll('-', ' ');
+  const PageContextIcon = communityPage
+    ? UsersThree
+    : activeTab === 'account-settings'
+      ? Gear
+      : UserIcon;
 
 
   // Theme styling helpers based on active role
@@ -91,11 +105,11 @@ export default function Header({
       badgeBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     },
     admin: {
-      accent: 'text-slate-900 dark:text-neutral-100',
-      ring: 'focus:ring-slate-500 focus:border-slate-500',
-      borderHover: 'hover:border-slate-500/50',
-      badge: 'bg-slate-950 text-white dark:bg-neutral-100 dark:text-neutral-950',
-      badgeBg: 'bg-slate-950 text-white border-slate-950',
+      accent: 'text-[var(--admin-accent)]',
+      ring: 'focus:ring-[var(--admin-accent)] focus:border-[var(--admin-accent)]',
+      borderHover: 'hover:border-[var(--admin-border)]',
+      badge: 'bg-[var(--admin-solid)] text-white',
+      badgeBg: 'bg-[var(--admin-soft)] text-[var(--admin-accent)] border-[var(--admin-border)]',
     },
   };
 
@@ -124,8 +138,9 @@ export default function Header({
         try {
           const res = await apiSearchUsers({ search: query, page: 1, limit: 6 });
           if (res && res.success && Array.isArray(res.data)) {
-            setUserSearchResults(res.data as AppUser[]);
-            setShowUserSearchResults((res.data as AppUser[]).length > 0);
+            const results = (res.data as AppUser[]).map(normalizeUserSearchName);
+            setUserSearchResults(results);
+            setShowUserSearchResults(results.length > 0);
             setUserSearchLoading(false);
             return;
           }
@@ -228,7 +243,7 @@ export default function Header({
 
     const targetUrl = currentRole === 'admin'
       ? `/admin/users?search=${encodeURIComponent(selectedUser.email || `${selectedUser.firstName} ${selectedUser.lastName}`)}`
-      : `/${currentRole}/user-profile?id=${selectedUser.id}`;
+      : `/profile/${encodeURIComponent(selectedUser.id)}`;
 
     if (onViewProfile) {
       onViewProfile({
@@ -269,22 +284,200 @@ export default function Header({
     }
   };
 
+  if (accountPage || communityPage) {
+    return (
+      <header className={`profile-account-header sticky right-0 top-0 z-30 h-16 w-full font-sans transition-colors duration-200 backdrop-blur-md bg-[color:var(--workspace-header-bg)] border-b border-[color:var(--workspace-border)] ${isDark ? 'text-white' : 'text-ink'}`}>
+        <div className="mx-auto flex h-full w-full max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          {/* Left identity context */}
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              aria-label="Return to workspace"
+              title="Return to workspace"
+              onClick={() => {
+                const storedRole = window.localStorage.getItem('workspaceRole');
+                const workspaceRole = storedRole === 'provider' || storedRole === 'seeker' ? storedRole : currentRole;
+                router.push(`/${workspaceRole}`);
+              }}
+              className="group grid size-9 shrink-0 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)]"
+            >
+              <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" weight="bold" aria-hidden="true" />
+            </button>
+            <span className="h-5 w-px shrink-0 bg-[color:var(--workspace-border)]" aria-hidden="true" />
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-sm" aria-hidden="true">
+                <PageContextIcon size={18} weight="bold" />
+              </span>
+              <div className="min-w-0 leading-tight">
+                <span className="block truncate text-[10px] font-bold uppercase tracking-[0.1em] text-orange-700 dark:text-orange-400">
+                  {communityPage ? 'ServiceHub community' : 'ServiceHub account'}
+                </span>
+                <span className={`block truncate text-[15px] font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
+                  {pageName}
+                </span>
+              </div>
+            </div>
+
+            {user && user.role !== 'admin' && user.verificationStatus !== 'APPROVED' && (
+              <button
+                type="button"
+                onClick={navigateToVerification}
+                title="Click to go to verification profile"
+                className={`cursor-pointer px-2.5 py-1 text-[10px] font-bold rounded-full border hidden items-center gap-1.5 transition-all select-none hover:scale-[1.02] active:scale-[0.98] 2xl:flex ${
+                  user.verificationStatus === 'PENDING_REVIEW'
+                    ? isDark
+                      ? 'bg-amber-950/30 border-amber-800/40 text-amber-300'
+                      : 'bg-amber-50 border-amber-200 text-amber-700'
+                    : isDark
+                      ? 'bg-rose-950/30 border-rose-800/40 text-rose-300'
+                      : 'bg-rose-50 border-rose-200 text-rose-700'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${user.verificationStatus === 'PENDING_REVIEW' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500'}`} />
+                <span>{user.verificationStatus === 'PENDING_REVIEW' ? 'Verification Under Review' : 'Limited Mode'}</span>
+              </button>
+            )}
+          </div>
+
+          {/* Right utility toolbar */}
+          <div className="workspace-header-actions flex min-w-0 shrink-0 items-center gap-2">
+            <HeaderDesktopSearch
+              model={{
+                userSearchRef,
+                userSearch,
+                setUserSearch: handleSearchChange,
+                setShowUserSearchResults,
+                showUserSearchResults,
+                userSearchLoading,
+                userSearchResults,
+                isDark,
+                getDisplayName,
+                handleOpenUserProfile
+              }}
+            />
+
+            <span className="hidden h-5 w-px bg-[color:var(--workspace-border)] lg:block" aria-hidden="true" />
+
+            {/* Mobile Search Toggle Icon */}
+            <button
+              type="button"
+              aria-label="Search people"
+              onClick={() => {
+                setIsMobileSearchOpen(!isMobileSearchOpen);
+                setShowNotifications(false);
+                setShowProfileMenu(false);
+              }}
+              className={`grid size-9 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98] lg:hidden ${
+                isMobileSearchOpen
+                  ? isDark ? 'border-orange-500/30 bg-orange-500/10 text-orange-400' : 'border-orange-200 bg-orange-50 text-orange-600'
+                  : ''
+              }`}
+              title="Search people"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            {/* Global Messages Quick Access */}
+            {currentRole !== 'admin' && (
+              <button
+                type="button"
+                onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
+                aria-label="Open messages"
+                className="relative grid size-9 cursor-pointer place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
+                title="Direct Messages"
+              >
+                <MessageSquare className="w-4 h-4" />
+                {unreadMessagesCount > 0 && (
+                  <span className={`absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full ${theme.badge} text-[9px] font-bold flex items-center justify-center border border-white dark:border-neutral-900 shadow-sm`}>
+                    {unreadMessagesCount}
+                  </span>
+                )}
+              </button>
+            )}
+
+            {/* Global Theme Toggle Button */}
+            <button
+              type="button"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={toggleTheme}
+              className="grid size-9 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            <HeaderNotifications
+              isDark={isDark}
+              isOpen={showNotifications}
+              notifications={userNotifications}
+              unreadCount={unreadCount}
+              badgeClass={theme.badge}
+              onToggle={handleToggleNotifications}
+              onClose={() => setShowNotifications(false)}
+              onNotificationClick={handleNotificationClick}
+              onMarkAllRead={() => markNotificationsRead(userId)}
+              hasMore={hasMoreNotifications}
+              onLoadMore={loadMoreNotifications}
+            />
+
+            <HeaderProfileMenu
+              currentRole={currentRole}
+              user={user}
+              isDark={isDark}
+              isOpen={showProfileMenu}
+              borderHoverClass={theme.borderHover}
+              showHelpCenter
+              onToggle={() => {
+                setShowProfileMenu(!showProfileMenu);
+                setShowNotifications(false);
+              }}
+              onClose={() => setShowProfileMenu(false)}
+              onViewProfile={onViewProfile}
+              onOpenSettings={() => router.push(currentRole === 'admin' ? '/admin/account-settings' : '/account/settings')}
+              onSignOut={onSignOut}
+            />
+          </div>
+        </div>
+
+        <HeaderMobileSearch
+          isOpen={isMobileSearchOpen}
+          isDark={isDark}
+          query={userSearch}
+          showResults={showUserSearchResults}
+          loading={userSearchLoading}
+          results={userSearchResults}
+          ringClass={theme.ring}
+          getDisplayName={getDisplayName}
+          onQueryChange={handleSearchChange}
+          onShowResultsChange={setShowUserSearchResults}
+          onClose={() => {
+            setUserSearch('');
+            setShowUserSearchResults(false);
+            setIsMobileSearchOpen(false);
+          }}
+          onOpenUser={handleOpenUserProfile}
+        />
+      </header>
+    );
+  }
+
   return (
-    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 h-[68px] w-full gap-3 px-4 py-3 font-sans sm:px-6 md:px-8 ${isDark ? 'text-[#f2efe9]' : 'text-[#171716]'}`}>
+    <header className={`workspace-dashboard-header sticky right-0 top-0 z-30 h-[68px] w-full shrink-0 gap-3 px-4 py-3 font-sans sm:px-6 md:px-8 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       {/* Left identity card: dashboard counterpart to the landing brand card. */}
-      <div className="workspace-header-card workspace-header-context flex min-w-0 items-center gap-2.5">
+      <div className={`workspace-header-card workspace-header-context flex min-w-0 items-center gap-2.5 ${currentRole === 'admin' ? 'workspace-header-context--admin' : ''}`}>
         <button
           type="button"
           aria-label="Open workspace navigation"
           onClick={() => setIsMobileOpen(true)}
-          className={`workspace-header-control grid size-8 shrink-0 place-items-center rounded-full transition-colors md:hidden`}
+          className="workspace-header-control grid size-9 shrink-0 place-items-center rounded-full transition-colors md:hidden"
         >
           <Menu className="w-5 h-5" />
         </button>
+
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
           {currentRole === 'admin' ? (
-            <span className={`text-xs font-semibold ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>Administrator</span>
+            <span className="text-xs font-semibold text-[var(--admin-accent)]">Administrator</span>
           ) : (
             <>
               <span className="workspace-header-role-mark hidden size-8 shrink-0 place-items-center rounded-[10px] sm:grid" aria-hidden="true">
@@ -296,7 +489,7 @@ export default function Header({
                 <span className="workspace-header-role-label block truncate text-[9.5px] font-bold uppercase tracking-[0.12em]">
                   {currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}
                 </span>
-                <span className={`mt-0.5 block truncate text-[14px] font-bold capitalize leading-none tracking-[-0.025em] ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>
+                <span className={`workspace-header-page-name mt-0.5 block truncate text-[14px] font-bold capitalize leading-none tracking-[-0.025em] ${isDark ? 'text-white' : 'text-ink'}`}>
                   {pageName}
                 </span>
               </div>
@@ -328,66 +521,44 @@ export default function Header({
       {/* One coherent utility bar, following the landing header's nav pill. */}
       <div className="workspace-header-toolbar workspace-header-actions flex min-w-0 shrink-0 items-center gap-1.5">
 
-        <HeaderDesktopSearch
-          model={{
-            userSearchRef,
-            userSearch,
-            setUserSearch: handleSearchChange,
-            setShowUserSearchResults,
-            showUserSearchResults,
-            userSearchLoading,
-            userSearchResults,
-            isDark,
-            getDisplayName,
-            handleOpenUserProfile
-          }}
-        />
-
-        <span className="workspace-header-divider hidden h-5 w-px lg:block" aria-hidden="true" />
-
-        {/* Mobile Search Toggle Icon */}
-        <button
-          type="button"
-          aria-label="Search people"
-          onClick={() => {
-            setIsMobileSearchOpen(!isMobileSearchOpen);
-            setShowNotifications(false);
-            setShowProfileMenu(false);
-          }}
-          className={`workspace-header-control grid size-9 place-items-center rounded-full transition-colors lg:hidden ${
-            isMobileSearchOpen
-              ? isDark ? 'bg-[#c86544]/15 text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#aa5032]'
-              : ''
-          }`}
-          title="Search people"
-        >
-          <Search className="w-4 h-4" />
-        </button>
-
-        {/* Global Hub Indicator */}
         {currentRole !== 'admin' && (
-          <button
-            type="button"
-            aria-label="Open Community Hub"
-            title="Community Hub"
-            aria-current={activeTab === 'community-hub' ? 'page' : undefined}
-            onClick={() => setActiveTab('community-hub')}
-            className="workspace-landing-cta group/btn relative ml-6 inline-flex shrink-0 items-center gap-1.5 overflow-hidden rounded-full bg-[#0a0a0a] px-4 py-1.5 text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_6px_14px_-3px_rgba(0,0,0,0.4)] ring-1 ring-black/20 transition-all hover:scale-[1.02] hover:bg-[#161616] active:scale-[0.97] dark:bg-white dark:text-[#0a0a0a] dark:hover:bg-neutral-100"
-          >
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-full dark:hidden"
-              style={{
-                background: 'radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.16), transparent 60%)',
+          <>
+            <HeaderDesktopSearch
+              model={{
+                userSearchRef,
+                userSearch,
+                setUserSearch: handleSearchChange,
+                setShowUserSearchResults,
+                showUserSearchResults,
+                userSearchLoading,
+                userSearchResults,
+                isDark,
+                getDisplayName,
+                handleOpenUserProfile
               }}
             />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 ease-out group-hover/btn:translate-x-full"
-            />
-            <span className="relative z-10">Community Hub</span>
-            <ArrowRight size={13} className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
-          </button>
+
+            <span className="workspace-header-divider hidden h-5 w-px lg:block" aria-hidden="true" />
+
+            {/* Mobile Search Toggle Icon */}
+            <button
+              type="button"
+              aria-label="Search people"
+              onClick={() => {
+                setIsMobileSearchOpen(!isMobileSearchOpen);
+                setShowNotifications(false);
+                setShowProfileMenu(false);
+              }}
+              className={`workspace-header-control grid size-9 place-items-center rounded-full transition-colors lg:hidden ${
+                isMobileSearchOpen
+                  ? isDark ? 'bg-[#c86544]/15 text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#aa5032]'
+                  : ''
+              }`}
+              title="Search people"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </>
         )}
 
         {/* Global Messages Quick Access */}
@@ -395,7 +566,7 @@ export default function Header({
           <button
             type="button"
             onClick={() => router.push(currentRole === 'seeker' ? '/seeker/messages' : '/provider/messages')}
-            className={`workspace-header-control relative hidden size-9 cursor-pointer place-items-center rounded-full transition-colors sm:grid ${isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-950'}`}
+            className={`workspace-header-control relative hidden size-9 cursor-pointer place-items-center rounded-full transition-colors sm:grid ${isDark ? 'text-ink-subtle hover:text-white' : 'text-ink-muted hover:text-ink'}`}
             title="Direct Messages"
           >
             <MessageSquare className="w-4 h-4" />
@@ -412,7 +583,7 @@ export default function Header({
           type="button"
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={toggleTheme}
-          className={`workspace-header-control grid size-9 place-items-center rounded-full transition-colors ${isDark ? 'text-zinc-400 hover:text-white' : 'text-slate-600 hover:text-slate-950'}`}
+          className={`workspace-header-control hidden size-9 place-items-center rounded-full transition-colors sm:grid ${isDark ? 'text-ink-subtle hover:text-white' : 'text-ink-muted hover:text-ink'}`}
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -450,24 +621,26 @@ export default function Header({
 
       </div>
 
-      <HeaderMobileSearch
-        isOpen={isMobileSearchOpen}
-        isDark={isDark}
-        query={userSearch}
-        showResults={showUserSearchResults}
-        loading={userSearchLoading}
-        results={userSearchResults}
-        ringClass={theme.ring}
-        getDisplayName={getDisplayName}
-        onQueryChange={handleSearchChange}
-        onShowResultsChange={setShowUserSearchResults}
-        onClose={() => {
-          setUserSearch('');
-          setShowUserSearchResults(false);
-          setIsMobileSearchOpen(false);
-        }}
-        onOpenUser={handleOpenUserProfile}
-      />
+      {currentRole !== 'admin' && (
+        <HeaderMobileSearch
+          isOpen={isMobileSearchOpen}
+          isDark={isDark}
+          query={userSearch}
+          showResults={showUserSearchResults}
+          loading={userSearchLoading}
+          results={userSearchResults}
+          ringClass={theme.ring}
+          getDisplayName={getDisplayName}
+          onQueryChange={handleSearchChange}
+          onShowResultsChange={setShowUserSearchResults}
+          onClose={() => {
+            setUserSearch('');
+            setShowUserSearchResults(false);
+            setIsMobileSearchOpen(false);
+          }}
+          onOpenUser={handleOpenUserProfile}
+        />
+      )}
     </header>
   );
 }

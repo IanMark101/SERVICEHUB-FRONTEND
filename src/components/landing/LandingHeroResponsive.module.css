@@ -1,0 +1,63 @@
+.heroSurface {
+  isolation: isolate;
+  background-color: #f5f4f2;
+}
+
+.heroSurface::before,
+.heroSurface::after {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  content: '';
+}
+
+.heroSurface::before {
+  inset: 0;
+  background: url('/images/hero-paper.png') center / cover no-repeat;
+}
+
+.heroSurface::after {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: clamp(5rem, 14vh, 10rem);
+  background: linear-gradient(to bottom, transparent, #f5f4f2);
+}
+
+:global(.dark) .heroSurface { background-color: #121211; }
+:global(.dark) .heroSurface::before { opacity: 0.055; }
+:global(.dark) .heroSurface::after {
+  background: linear-gradient(to bottom, transparent, #121211);
+}
+
+.heroBadge {
+  border-color: rgb(217 119 87 / 0.5);
+  background: var(--color-orange-50, #faf5f2);
+  color: #b3542e;
+}
+
+.heroBadge:hover { background: #f9f3ef; }
+
+:global(.dark) .heroBadge {
+  border-color: rgb(217 119 87 / 0.3);
+  background: rgb(61 22 11 / 0.4);
+  color: var(--color-orange-300, #dec0b3);
+}
+
+:global(.dark) .heroBadge:hover { background: rgb(61 22 11 / 0.4); }
+
+.desktopPreview { display: none; }
+.horizontalShowcase { min-width: 0; }
+/* Keep the divider above the viewport when the copy is aligned below the header. */
+.heroSurface .heroGrid { padding-top: var(--landing-anchor-clearance, 8rem); }
+
+/* The orbit needs the full two-column stage; narrower layouts get the lateral track. */
+@media (min-width: 1280px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    column-gap: 3.5rem;
+  }
+
+  .desktopPreview { display: block; position: relative; }
+  .horizontalShowcase { display: none; }
+}

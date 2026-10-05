@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from 'react';
+import FormSelect from '../ui/FormSelect';
+import React, { useRef, useState } from 'react';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
 import {
@@ -18,11 +19,10 @@ import {
 import { UserSession } from '../auth/LoginContainer';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import TrustScoreGuide from './account-settings/TrustScoreGuide';
-import AccountDangerZone from './account-settings/AccountDangerZone';
-import { apiGetAccountDeletionRequest, apiRequestAccountDeletion, type AccountDeletionRequest } from '../../api/users.api';
-import { useToast } from '../ui/Toast';
-import { getApiErrorMessage } from '../../lib/api/errors';
+import AccountDeletionPanel from './account-settings/AccountDeletionPanel';
+import PasswordSecurityPanel from './account-settings/PasswordSecurityPanel';
 import UserAvatar from '../ui/UserAvatar';
+import VerificationUpload from './VerificationUpload';
 
 const CORDOVA_BARANGAYS = [
   "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
@@ -35,16 +35,11 @@ interface AccountSettingsViewProps {
 }
 
 export default function AccountSettingsView({ user }: AccountSettingsViewProps) {
-  const { success: toastSuccess, error: toastError } = useToast();
   const {
     isDark,
     toggleTheme,
     email,
     role,
-    pwForm,
-    setPwForm,
-    pwSaving,
-    handleChangePassword,
     editForm,
     setEditForm,
     saving,
@@ -56,22 +51,12 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     phone,
   } = useUserProfile({ targetUser: user, isOwnProfile: true });
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
-  const [deleting, setDeleting] = useState(false);
-  const [deletionRequest, setDeletionRequest] = useState<AccountDeletionRequest | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [processingImage, setProcessingImage] = useState(false);
   const [showTrustGuide, setShowTrustGuide] = useState(true);
 
-  useEffect(() => {
-    if (user.role === 'admin') return;
-    apiGetAccountDeletionRequest()
-      .then((response) => setDeletionRequest(response.data))
-      .catch(() => setDeletionRequest(null));
-  }, [user.role]);
 
   const handleAvatarFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,32 +74,14 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
     }
   };
 
-  const handleDeleteAccount = async () => {
-    setDeleting(true);
-    try {
-      const response = await apiRequestAccountDeletion();
-      setDeletionRequest(response.data);
-      setShowDeleteModal(false);
-      setDeleteConfirmText('');
-      if (response.data.status === 'BLOCKED') {
-        toastError('Deletion request blocked', 'Resolve the listed active marketplace or moderation obligations, then submit again.');
-      } else {
-        toastSuccess('Deletion request submitted', 'Your request is pending guarded administrator processing.');
-      }
-    } catch (cause: unknown) {
-      toastError('Request failed', getApiErrorMessage(cause, 'Unable to submit account deletion request.'));
-    } finally {
-      setDeleting(false);
-    }
-  };
 
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
-  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-slate-600 dark:text-neutral-300' : 'text-orange-500';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-[var(--admin-accent)]' : 'text-orange-500';
   const verifiedBadge = isProvider
     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     : isAdmin
-      ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-700'
+      ? 'bg-[var(--admin-soft)] text-[var(--admin-accent)] border-[var(--admin-border)]'
       : 'bg-orange-500/10 text-orange-600 border-orange-500/20';
 
   const cardBg = 'bg-[color:var(--workspace-surface)] border-[color:var(--workspace-border)]';
@@ -124,18 +91,18 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
   const inputClass = 'workspace-form-control w-full px-3.5 py-2.5 text-sm font-medium';
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-5 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`max-w-5xl mx-auto space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
       
       {/* Header Banner */}
-      <div className="workspace-profile-hero p-5 sm:p-6">
-        <p className={`mb-2 text-xs font-semibold ${accentColor}`}>Your ServiceHub account</p>
+      <div className="px-1 py-4">
         <h2 className={`text-2xl font-extrabold tracking-[-0.035em] ${headingText}`}>Account & Security Settings</h2>
-        <p className={`mt-2 max-w-2xl text-sm leading-6 ${labelText}`}>Manage your login credentials, notification preferences, privacy controls, and security.</p>
+        <p className={`mt-2 max-w-2xl text-sm leading-6 ${labelText}`}>Manage your profile, residency verification, password, and appearance.</p>
       </div>
 
       <nav className="workspace-section-nav" aria-label="Account settings sections">
         <a href="#account-identity">Account</a>
         <a href="#contact-information">Profile</a>
+        {!isAdmin && <a href="#verification">Verification</a>}
         <a href="#password-security">Security</a>
         <a href="#appearance">Appearance</a>
         {!isAdmin && <a href="#trust-safety">Trust & safety</a>}
@@ -167,7 +134,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <label className={`block font-semibold ${labelText}`}>Account Role</label>
             <input
               type="text"
-              value={role.toUpperCase()}
+              value={isAdmin ? 'Administrator' : 'Member · Seeker and Provider'}
               disabled
               className={`${inputClass} opacity-80 cursor-not-allowed uppercase font-bold`}
             />
@@ -217,7 +184,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-9' : ''}`}
               />
               {hasActiveEngagements && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle">
                   <Lock className="w-4 h-4" />
                 </div>
               )}
@@ -235,7 +202,8 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
 
           <div className="space-y-1.5">
             <label className={`block font-semibold ${labelText}`}>Barangay (Cordova, Cebu)</label>
-            <select
+            <FormSelect
+              aria-label="Barangay (Cordova, Cebu)"
               value={editForm.location}
               onChange={e => setEditForm((form) => ({ ...form, location: e.target.value }))}
               className={inputClass}
@@ -244,7 +212,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
               {CORDOVA_BARANGAYS.map(b => (
                 <option key={b} value={b}>{b}</option>
               ))}
-            </select>
+            </FormSelect>
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">
@@ -370,60 +338,15 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         </div>
       </section>
 
-      {/* Password Security Card */}
-      <section id="password-security" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
-        <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
-          <Lock size={17} className={accentColor} /> Password & Security
-        </h3>
+      {!isAdmin && <section id="verification" className={`${cardBg} scroll-mt-24 rounded-2xl border p-5 sm:p-6`}>
+        <h2 className={`text-base font-bold ${headingText}`}>Residency verification</h2>
+        <p className={`mt-2 mb-5 text-sm ${labelText}`}>Manage your private verification submission. Only your verification status appears on your profile.</p>
+        {user.verificationStatus === 'APPROVED' ? <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Your Cordova residency is verified.</p>
+          : user.verificationStatus === 'PENDING_REVIEW' ? <p className={`text-sm ${labelText}`}>Your submission is awaiting review.</p>
+          : <VerificationUpload isDark={isDark} />}
+      </section>}
 
-        <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="space-y-3 text-xs">
-          <div className="space-y-1.5">
-            <label className={`block font-semibold ${labelText}`}>Current Password</label>
-            <input
-              type="password"
-              value={pwForm.currentPassword}
-              onChange={(e) => setPwForm(p => ({ ...p, currentPassword: e.target.value }))}
-              placeholder="Enter current password"
-              className={inputClass}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className={`block font-semibold ${labelText}`}>New Password</label>
-              <input
-                type="password"
-                value={pwForm.newPassword}
-                onChange={(e) => setPwForm(p => ({ ...p, newPassword: e.target.value }))}
-                placeholder="At least 8 characters"
-                className={inputClass}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className={`block font-semibold ${labelText}`}>Confirm New Password</label>
-              <input
-                type="password"
-                value={pwForm.confirmPassword}
-                onChange={(e) => setPwForm(p => ({ ...p, confirmPassword: e.target.value }))}
-                placeholder="Re-enter new password"
-                className={inputClass}
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={pwSaving}
-            className="workspace-primary-button min-h-11 rounded-xl px-4 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
-          >
-            {pwSaving ? 'Updating Password...' : 'Update Password'}
-          </button>
-        </form>
-      </section>
+      <PasswordSecurityPanel isDark={isDark} />
 
       {/* Appearance Card */}
       <section id="appearance" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
@@ -442,7 +365,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
               onClick={toggleTheme}
               className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${innerBg} ${headingText}`}
             >
-              {isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-slate-600" />}
+              {isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-ink-muted" />}
               <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
             </button>
           </div>
@@ -461,24 +384,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             onToggle={() => setShowTrustGuide(!showTrustGuide)}
           />
 
-          <AccountDangerZone
-            isOpen={showDeleteModal}
-            confirmation={deleteConfirmText}
-            deleting={deleting}
-            request={deletionRequest}
-            cardBg={cardBg}
-            innerBg={innerBg}
-            headingText={headingText}
-            labelText={labelText}
-            inputClass={inputClass}
-            onOpen={() => setShowDeleteModal(true)}
-            onClose={() => {
-              setShowDeleteModal(false);
-              setDeleteConfirmText('');
-            }}
-            onConfirmationChange={setDeleteConfirmText}
-            onDelete={handleDeleteAccount}
-          />
+          <AccountDeletionPanel email={email || user.email} isDark={isDark} />
         </section>
       )}
 

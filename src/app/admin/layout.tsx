@@ -58,11 +58,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!shouldRender) return <BrandLoading label="Checking workspace access" />;
 
-  const activeTab = pathname.split('/').pop() || 'overview';
+  const activeTab = pathname.split('/')[2] || 'overview';
 
   return (
     <div className={`admin-workspace h-screen overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#141312] text-[#f2efe9]' : 'bg-[#f7f6f3] text-slate-800'
+      isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'
     }`}>
       
       {/* Sidebar Component */}
@@ -96,9 +96,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
 
         {/* Warning strip */}
-        <div className="flex items-center justify-center gap-2 border-b border-slate-200 bg-white px-4 py-2 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:border-neutral-800 dark:bg-[#1d1d1d] dark:text-neutral-400">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          <span>Restricted administrator workspace · Actions are recorded in the audit log</span>
+        <div>
+          <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
+            <div className="my-1 flex items-center justify-center gap-2 rounded-xl bg-[var(--admin-soft)] py-2 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--admin-accent)] ring-1 ring-inset ring-[var(--admin-border)]">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>Restricted administrator workspace · Actions are recorded in the audit log</span>
+            </div>
+          </div>
         </div>
  
         {/* Scrollable Layout Content Canvas */}

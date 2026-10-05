@@ -1,5 +1,6 @@
 import type { Bid, JobEngagement, JobRequest, ServiceListing } from "../../../types";
 import type { ProviderActivitySort, ProviderActivityTab } from "./types";
+import { isOfferAwaitingDecision, isOfferClosed } from '../../../lib/offerStatus';
 
 export type ProviderActivityItemData =
   | { type: "bid"; data: Bid }
@@ -28,7 +29,7 @@ export function countProviderActivityTab(
         (item) => item.status === "queued" || item.status === "pending_provider" || (item.status === "in_progress" && !item.started),
       ).length;
     case "pending_offers":
-      return pendingBids.length;
+      return pendingBids.filter(isOfferAwaitingDecision).length;
     case "awaiting_approval":
       return engagements.filter((item) => item.status === "awaiting_seeker_approval").length;
     case "disputed":
@@ -36,7 +37,7 @@ export function countProviderActivityTab(
     case "completed":
       return engagements.filter((item) => item.status === "completed").length;
     case "canceled":
-      return engagements.filter((item) => item.status === "canceled").length;
+      return engagements.filter((item) => item.status === "canceled").length + pendingBids.filter(isOfferClosed).length;
     default:
       return engagements.length + pendingBids.length;
   }
@@ -73,8 +74,10 @@ export function filterProviderActivityItems({
     );
   };
 
-  if (activeTab === "all" || activeTab === "pending_offers") {
+  if (activeTab === "all" || activeTab === "pending_offers" || activeTab === 'canceled') {
     pendingBids.forEach((bid) => {
+      if (activeTab === 'pending_offers' && !isOfferAwaitingDecision(bid)) return;
+      if (activeTab === 'canceled' && !isOfferClosed(bid)) return;
       const request = requestForBid(bid.requestId);
       const searchable = [
         request?.title || bid.requestTitle || "",

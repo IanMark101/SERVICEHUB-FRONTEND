@@ -20,20 +20,20 @@ export default function CommunityEmptyState({
 }: CommunityEmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center space-y-2.5 rounded-xl border border-dashed p-6 text-center transition-colors ${
+      className={`flex flex-col items-start gap-2 rounded-xl border border-dashed p-4 text-left transition-colors ${
         isDark
-          ? 'border-white/10 bg-white/[0.03] text-[#aaa59d]'
-          : 'border-black/10 bg-[#f9f7f4] text-[#6f6a64]'
+          ? 'border-white/10 bg-white/[0.03] text-ink-muted'
+          : 'border-black/10 bg-[#f9f7f4] text-ink-muted'
       }`}
     >
       <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+        className={`flex size-9 items-center justify-center rounded-lg ${
           isDark ? 'bg-white/[0.06] text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#c86544]'
         }`}
       >
-        <Icon className="w-5 h-5 opacity-80" />
+        <Icon className="size-[18px] opacity-80" />
       </div>
-      <p className={`text-sm font-semibold ${isDark ? 'text-[#f5f4f2]' : 'text-[#171716]'}`}>
+      <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-ink'}`}>
         {title}
       </p>
       {description && (

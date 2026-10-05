@@ -6,7 +6,6 @@ import {
   Trash as Trash2,
   Plus,
   Warning as AlertTriangle,
-  Clock,
   CheckCircle as CheckCircle2,
   WarningCircle as AlertCircle,
   CircleNotch as Loader2,
@@ -24,8 +23,9 @@ import { mapServiceToListing } from '../../context/mappers';
 import type { ServiceListing } from '../../types';
 import EditServiceModal, { EditServiceState } from './service-manager/EditServiceModal';
 import WorkspaceTabs from '../ui/WorkspaceTabs';
+import ContentCaseAction from '../moderation/ContentCaseAction';
 
-type ServiceFilterTab = 'all' | 'active' | 'pending' | 'rejected';
+type ServiceFilterTab = 'all' | 'active' | 'rejected';
 
 export default function ServiceManager({
   currentProviderId,
@@ -46,7 +46,7 @@ export default function ServiceManager({
 
   const [activeTab, setActiveTab] = useState<ServiceFilterTab>(() => {
     if (initialStatus === 'rejected') return 'rejected';
-    if (initialStatus === 'pending') return 'pending';
+    if (initialStatus === 'pending') return 'rejected';
     return 'all';
   });
 
@@ -60,7 +60,7 @@ export default function ServiceManager({
     }
   };
 
-  // Sync provider's own services (active, pending, rejected) from DB on mount
+  // Sync provider's own services (active, paused, removed, and revision-required) from DB on mount
   useEffect(() => {
     apiGetMyServices()
       .then(res => {
@@ -107,20 +107,17 @@ export default function ServiceManager({
   // Counts for each tab
   const counts = useMemo(() => {
     let active = 0;
-    let pending = 0;
     let rejected = 0;
 
     myServices.forEach(s => {
       const status = s.status || (s.isPaused ? 'INACTIVE' : 'ACTIVE');
       if (status === 'ACTIVE') active++;
-      else if (status === 'PENDING_REVIEW') pending++;
-      else if (status === 'REJECTED') rejected++;
+      else if (['REJECTED', 'PENDING_REVIEW'].includes(status)) rejected++;
     });
 
     return {
       all: myServices.length,
       active,
-      pending,
       rejected
     };
   }, [myServices]);
@@ -130,11 +127,8 @@ export default function ServiceManager({
     if (activeTab === 'active') {
       return myServices.filter(s => (s.status || 'ACTIVE') === 'ACTIVE');
     }
-    if (activeTab === 'pending') {
-      return myServices.filter(s => s.status === 'PENDING_REVIEW');
-    }
     if (activeTab === 'rejected') {
-      return myServices.filter(s => s.status === 'REJECTED');
+      return myServices.filter(s => ['REJECTED', 'PENDING_REVIEW'].includes(s.status || ''));
     }
     return myServices;
   }, [myServices, activeTab]);
@@ -159,8 +153,7 @@ export default function ServiceManager({
       const match = services.find(s => s.id === targetServiceId);
       if (match) {
         const timer = window.setTimeout(() => {
-          if (match.status === 'REJECTED') setActiveTab('rejected');
-          else if (match.status === 'PENDING_REVIEW') setActiveTab('pending');
+          if (['REJECTED', 'PENDING_REVIEW'].includes(match.status || '')) setActiveTab('rejected');
           else if (match.status === 'ACTIVE') setActiveTab('active');
         }, 0);
         return () => window.clearTimeout(timer);
@@ -169,11 +162,12 @@ export default function ServiceManager({
   }, [targetServiceId, services]);
 
   const handleOpenEdit = (s: ServiceListing) => {
+    const needsExactPrice = s.priceType === 'STARTS_AT' || s.priceType === 'CUSTOM';
     setEditingService({
       serviceId: s.id,
       title: s.title,
-      price: s.price,
-      priceType: s.priceType === 'PER_SESSION' ? 'FIXED' : s.priceType || 'FIXED',
+      price: needsExactPrice ? 0 : s.price,
+      priceType: needsExactPrice || s.priceType === 'PER_SESSION' ? 'FIXED' : s.priceType || 'FIXED',
       serviceType: 'ONE_TIME',
       estimatedDurationMins: Number(s.estimatedDurationMins || 60),
       description: s.description,
@@ -181,11 +175,11 @@ export default function ServiceManager({
     });
   };
 
-  const handleSaveEdit = (e: React.FormEvent) => {
+  const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingService) return;
 
-    editServiceListing(
+    const saved = await editServiceListing(
       editingService.serviceId,
       editingService.title,
       editingService.price,
@@ -197,11 +191,11 @@ export default function ServiceManager({
         paymentMethods: editingService.paymentMethods,
       }
     );
-    setEditingService(null);
+    if (saved) setEditingService(null);
   };
 
   return (
-    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       {/* Header Action Strip & Status Filter Tabs */}
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
@@ -214,7 +208,6 @@ export default function ServiceManager({
           items={[
             { value: 'all', label: 'All Listings', count: counts.all, icon: <FolderSimple size={15} /> },
             { value: 'active', label: 'Active', count: counts.active, icon: <CheckCircle2 size={15} /> },
-            { value: 'pending', label: 'Under Review', count: counts.pending, icon: <Clock size={15} /> },
             { value: 'rejected', label: 'Needs Revision', count: counts.rejected, icon: <AlertTriangle size={15} /> },
           ]}
         />
@@ -231,12 +224,11 @@ export default function ServiceManager({
 
       {/* Services List */}
       {filteredServices.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
+        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
           }`}>
           {activeTab === 'rejected'
-            ? 'No listings requiring revision.'
-            : activeTab === 'pending'
-            ? 'No listings currently under review.'
+            ? 'No services need changes.'
+
             : activeTab === 'active'
             ? 'No active listings found.'
             : 'You don\'t have any service listings yet. Click "New Listing" to offer a service.'}
@@ -246,9 +238,10 @@ export default function ServiceManager({
           <div className="space-y-4">
             {paginatedServices.map((service) => {
               const isPaused = service.isPaused;
-              const isRejected = service.status === 'REJECTED';
-              const isPending = service.status === 'PENDING_REVIEW';
+              const isRejected = ['REJECTED', 'PENDING_REVIEW'].includes(service.status || '');
+              const isRemoved = service.status === 'SUSPENDED';
               const isHighlighted = targetServiceId === service.id;
+              const needsExactPrice = service.priceType === 'STARTS_AT' || service.priceType === 'CUSTOM' || Number(service.price) < 50;
 
               return (
                 <div
@@ -278,33 +271,28 @@ export default function ServiceManager({
                       {isRejected && (
                         <span className="px-2.5 py-1 rounded-xl text-xs font-extrabold uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/30 flex items-center gap-1">
                           <AlertCircle className="w-3.5 h-3.5" />
-                          Revision Required
+                          Needs changes
                         </span>
                       )}
 
-                      {isPending && (
-                        <span className="px-2.5 py-1 rounded-xl text-xs font-extrabold uppercase tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          Under Review
-                        </span>
-                      )}
+                      {isRemoved && <span className="inline-flex items-center gap-1 rounded-xl border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs font-bold text-red-500"><AlertCircle className="size-3.5" /> Removed by Admin</span>}
                     </div>
 
                     {/* Right: Actions (Edit, Delete, Status Toggle) */}
                     <div className="flex items-center space-x-2">
-                      <button
+                      {!isRemoved && <button
                         onClick={() => handleOpenEdit(service)}
                         className={`px-3.5 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1.5 cursor-pointer ${
                           isRejected
                             ? 'bg-red-600 text-white hover:bg-red-700 border-red-600 shadow-sm'
                             : isDark
-                            ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-[#f2efe9]'
-                            : 'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900'
+                            ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted hover:text-white'
+                            : 'border-slate-200 hover:bg-slate-50 text-ink-muted hover:text-ink'
                         }`}
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>{isRejected ? 'Revise Listing' : 'Edit'}</span>
-                      </button>
+                      </button>}
 
                       <button
                         onClick={() => handleDeleteServiceClick(service)}
@@ -319,23 +307,23 @@ export default function ServiceManager({
                       </button>
 
                       {/* Toggle Status switch (only for active services) */}
-                      {!isRejected && !isPending && (() => {
+                      {!isRejected && !isRemoved && (() => {
                         const isToggling = togglingServiceId === service.id;
                         return (
                           <div className={`flex items-center space-x-2 border-l pl-3 ml-1 ${isDark ? 'border-neutral-850' : 'border-slate-200'}`}>
                             <button
                               type="button"
-                              disabled={isToggling}
+                              disabled={isToggling || needsExactPrice}
                               onClick={() => handleToggleStatus(service.id)}
                               className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none ${
                                 isToggling ? 'opacity-80 cursor-wait' : 'cursor-pointer'
                               } ${
-                                !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
+                                !needsExactPrice && !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
                               }`}
                             >
                               <span
                                 className={`pointer-events-none flex items-center justify-center h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                                  !isPaused ? 'translate-x-4' : 'translate-x-0'
+                                  !needsExactPrice && !isPaused ? 'translate-x-4' : 'translate-x-0'
                                 }`}
                               >
                                 {isToggling && (
@@ -345,14 +333,14 @@ export default function ServiceManager({
                             </button>
                             <span className={`text-xs font-bold transition-colors ${
                               isToggling
-                                ? 'text-amber-500 dark:text-amber-400'
+                                ? 'text-emerald-700 dark:text-emerald-400'
                                 : !isPaused
                                 ? 'text-emerald-600 dark:text-emerald-400'
                                 : isDark
-                                ? 'text-neutral-500'
-                                : 'text-slate-400'
+                                ? 'text-ink-muted'
+                                : 'text-ink-subtle'
                             }`}>
-                              {isToggling ? 'Updating...' : !isPaused ? 'Active' : 'Paused'}
+                              {isToggling ? 'Updating...' : needsExactPrice ? 'Price needed' : !isPaused ? 'Active' : 'Paused'}
                             </span>
                           </div>
                         );
@@ -360,13 +348,19 @@ export default function ServiceManager({
                     </div>
                   </div>
 
+                  {needsExactPrice && (
+                    <div className={`rounded-xl border px-4 py-3 text-xs ${isDark ? 'border-emerald-900/50 bg-emerald-950/20 text-emerald-200' : 'border-emerald-200 bg-emerald-50 text-emerald-900'}`}>
+                      Enter a final price in Edit Listing. This older listing is hidden from seekers until it has an exact bookable price.
+                    </div>
+                  )}
+
                   {/* Tier 2: Title & Description */}
                   <div className="space-y-1.5">
-                    <h3 className={`font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    <h3 className={`uppercase break-words [overflow-wrap:anywhere] font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-white' : 'text-ink'}`}>
                       {service.title}
                     </h3>
                     {service.description && (
-                      <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
+                      <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                         {service.description}
                       </p>
                     )}
@@ -378,11 +372,11 @@ export default function ServiceManager({
                   }`}>
                     {/* Price & Unit */}
                     <div className="flex items-center space-x-2">
-                      <span className="text-[11px] font-semibold text-slate-500">Rate</span>
+                      <span className="text-[11px] font-semibold text-ink-muted">Rate</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                        ₱{service.price}
-                        <span className="text-xs font-semibold ml-0.5 text-slate-400">
-                          {service.priceType === 'PER_HOUR' ? ' / hr' : service.priceType === 'PER_DAY' ? ' / day' : service.priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}
+                        {needsExactPrice ? 'Price needed' : `₱${service.price}`}
+                        <span className="text-xs font-semibold ml-0.5 text-ink-subtle">
+                          {needsExactPrice ? '' : service.priceType === 'PER_HOUR' ? ' / hr' : service.priceType === 'PER_DAY' ? ' / day' : service.priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}
                         </span>
                       </span>
                     </div>
@@ -390,17 +384,17 @@ export default function ServiceManager({
                     {/* Metadata Pills */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
+                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
                         <Timer className="h-3.5 w-3.5" weight="duotone" /> {service.estimatedDurationMins ? `${service.estimatedDurationMins}m Duration` : '60m Duration'}
                       </span>
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
+                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
-                        <UsersThree className="h-3.5 w-3.5" weight="duotone" /> {service.queueSize || 0} in Queue
+                        <UsersThree className="h-3.5 w-3.5" weight="duotone" /> {service.providerWaitingCount ?? service.queueSize ?? 0} paid waiting across your work
                       </span>
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
+                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
                         <Money className="h-3.5 w-3.5" weight="duotone" /> Cash
                       </span>
@@ -419,16 +413,16 @@ export default function ServiceManager({
                     <div className={`p-4 rounded-2xl border ${isDark ? 'bg-red-950/20 border-red-900/40 text-red-300' : 'bg-red-50 border-red-200 text-red-800'} space-y-2.5 animate-in fade-in`}>
                       <div className="flex items-center gap-2">
                         <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                        <span className="font-extrabold text-xs uppercase tracking-wider">Admin Review Feedback:</span>
+                        <span className="font-extrabold text-xs uppercase tracking-wider">What to fix:</span>
                       </div>
                       <p className={`text-xs sm:text-sm p-3 rounded-xl border leading-relaxed font-semibold italic ${
-                        isDark ? 'bg-[#1c1b18] border-red-900/30 text-[#f2efe9]' : 'bg-white border-red-100 text-slate-800'
+                        isDark ? 'bg-[#1c1b18] border-red-900/30 text-white' : 'bg-white border-red-100 text-ink'
                       }`}>
-                        &quot;{service.adminNotes || 'Please review your service title, category, or pricing and resubmit for approval.'}&quot;
+                        &quot;{service.adminNotes || 'Check your service details, then save to publish.'}&quot;
                       </p>
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
-                        <span className={`text-xs font-medium ${isDark ? 'text-neutral-400' : 'text-slate-500'}`}>
-                          This listing is hidden from seekers until revised and re-approved by admin.
+                        <span className={`text-xs font-medium ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+                          Customers cannot see this service yet. Open Edit Listing, check the details, and save to publish. No admin approval is needed.
                         </span>
                         <button
                           type="button"
@@ -436,23 +430,14 @@ export default function ServiceManager({
                           className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1.5 cursor-pointer self-start sm:self-auto"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
-                          <span>Edit & Resubmit Listing</span>
+                          <span>Edit Listing</span>
                         </button>
+                        <ContentCaseAction caseType="APPEAL" contentType="SERVICE_LISTING" resourceId={service.id} isDark={isDark} />
                       </div>
                     </div>
                   )}
+                  {isRemoved && <div className={`rounded-2xl border p-4 text-xs leading-5 ${isDark ? 'border-red-900/40 bg-red-950/20 text-red-200' : 'border-red-200 bg-red-50 text-red-900'}`}><strong>This listing was removed from public view.</strong> Existing bookings are still managed in Activity. <ContentCaseAction caseType="APPEAL" contentType="SERVICE_LISTING" resourceId={service.id} isDark={isDark} label="Appeal this removal" /></div>}
 
-                  {/* Tier 4: Pending Review Callout Box */}
-                  {isPending && (
-                    <div className={`p-3.5 rounded-2xl border flex items-center space-x-2.5 text-xs ${
-                      isDark ? 'bg-amber-955/15 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-200 text-amber-800'
-                    }`}>
-                      <Clock className="w-4 h-4 flex-shrink-0 text-amber-500" />
-                      <span className="font-medium">
-                        <strong>Pending Moderation:</strong> This service listing is currently under review by our admin team. It will appear on the public marketplace once approved.
-                      </span>
-                    </div>
-                  )}
                 </div>
               );
             })}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
 import { useApp } from '../../context/AppContext';
 import {
   ClipboardText as ClipboardList,
@@ -24,6 +25,9 @@ import { JobRequest } from '../../types';
 import { formatUrgencyDisplay } from '../provider/browse-jobs/browseJobs.utils';
 import EmptyState from '../ui/EmptyState';
 import EditRequestModal, { EditRequestState } from './request-manager/EditRequestModal';
+import RequestPaymentMethods from '../ui/RequestPaymentMethods';
+import { isRequestUrgency } from '../../lib/requestUrgency';
+import { requestDeleteBlockedReason } from '../../lib/requestDeletion';
 
 export default function RequestManager({ 
   currentUserId = 'u1',
@@ -41,22 +45,34 @@ export default function RequestManager({
   // Fetch the seeker's own requests directly so all statuses show up
   const [myOwnRequests, setMyOwnRequests] = useState<JobRequest[] | null>(null);
   const [togglingRequestId, setTogglingRequestId] = useState<string | null>(null);
+  const [localRequestStatuses, setLocalRequestStatuses] = useState<Record<string, JobRequest['status']>>({});
+  const [localRequestEdits, setLocalRequestEdits] = useState<Record<string, Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }>>({});
+  const [deletedRequestIds, setDeletedRequestIds] = useState<Set<string>>(() => new Set());
 
-  const fetchMyRequests = () => {
+  const refreshOwnRequests = useCallback(async () => {
+    const res = await apiGetMyRequests();
+    if (res.success && Array.isArray(res.data)) {
+      setMyOwnRequests(res.data.map(mapRequestToJobRequest));
+      // Confirmed server refresh replaces temporary edit/status overlays.
+      setLocalRequestEdits({});
+      setLocalRequestStatuses({});
+    }
+  }, []);
+  useApiCacheRefresh(['requests'], refreshOwnRequests);
+
+  useEffect(() => {
+    let active = true;
     apiGetMyRequests()
       .then((res) => {
-        if (res.success && Array.isArray(res.data)) {
+        if (active && res.success && Array.isArray(res.data)) {
           setMyOwnRequests(res.data.map(mapRequestToJobRequest));
         }
       })
       .catch(() => {
         // fallback to public board filter
       });
-  };
-
-  useEffect(() => {
-    fetchMyRequests();
-  }, []);
+    return () => { active = false; };
+  }, [currentUserId]);
 
   const [activeAiRequestId, setActiveAiRequestId] = useState<string | null>(null);
   const [aiSuggestions, setAiSuggestions] = useState<Record<string, Array<{ name: string; rationale: string }>>>({});
@@ -92,7 +108,11 @@ export default function RequestManager({
   
   // Find current seeker's requests — prefer direct fetch, fallback to context filter (filter out canceled)
   const myRequests = (myOwnRequests ?? jobRequests.filter(r => r.seekerId === currentUserId))
-    .filter(r => r.status !== 'CANCELED' && (r.status as string) !== 'canceled');
+    .map(r => localRequestEdits[r.id] ? { ...r, ...localRequestEdits[r.id] } : r)
+    .map(r => localRequestStatuses[r.id] ? { ...r, status: localRequestStatuses[r.id] } : r)
+    .filter(r => !deletedRequestIds.has(r.id) && r.status !== 'CANCELED' && (r.status as string) !== 'canceled');
+  const latestDeleteData = useRef({ requests: myRequests, bids });
+  useEffect(() => { latestDeleteData.current = { requests: myRequests, bids }; }, [myRequests, bids]);
 
   // Pagination
   const {
@@ -108,26 +128,53 @@ export default function RequestManager({
 
   // Edit State
   const [editingRequest, setEditingRequest] = useState<EditRequestState | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const savingEditRef = useRef(false);
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+  const [deleteRequestId, setDeleteRequestId] = useState<string | null>(null);
+  const deletingRef = useRef(false);
 
-  const handleDeleteRequest = async (requestId: string) => {
-    await deleteJobRequest(requestId);
-    setMyOwnRequests(prev => prev ? prev.filter(r => r.id !== requestId) : null);
-  };
+  const protectedDeleteModal = (reason: string): ConfirmModalState => ({
+    isOpen: true,
+    title: 'Request can’t be deleted',
+    message: reason,
+    variant: 'info',
+    confirmText: onNavigateToActivity && !reason.startsWith('Reopen') ? 'View Booking' : 'Got it',
+    cancelText: 'Close',
+    onConfirm: () => { setConfirmModal(null); setDeleteRequestId(null); if (!reason.startsWith('Reopen')) onNavigateToActivity?.(); },
+  });
 
   const handleDeleteRequestClick = (req: JobRequest) => {
+    setDeleteRequestId(req.id);
+    const reason = requestDeleteBlockedReason(req, bids);
+    if (reason) {
+      setConfirmModal(protectedDeleteModal(reason));
+      return;
+    }
     setConfirmModal({
       isOpen: true,
       title: 'Delete Job Request',
-      message: `Are you sure you want to delete "${req.title}"? This will remove your request and any associated bids.`,
+      message: `Delete "${req.title}"? Providers will no longer see this request, and its pending offers will be declined.`,
       confirmText: 'Yes, Delete Request',
       cancelText: 'Cancel',
       variant: 'danger',
       onConfirm: async () => {
+        if (deletingRef.current) return;
+        const latest = latestDeleteData.current.requests.find(request => request.id === req.id);
+        if (!latest) { setConfirmModal(null); return; }
+        const blocked = requestDeleteBlockedReason(latest, latestDeleteData.current.bids);
+        if (blocked) { setConfirmModal(protectedDeleteModal(blocked)); return; }
+        deletingRef.current = true;
         setConfirmModal(prev => prev ? { ...prev, isLoading: true } : null);
         try {
-          await handleDeleteRequest(req.id);
+          const deleted = await deleteJobRequest(req.id);
+          if (deleted === true) {
+            setDeletedRequestIds(prev => new Set(prev).add(req.id));
+            setMyOwnRequests(prev => prev ? prev.filter(r => r.id !== req.id) : null);
+          }
         } finally {
+          deletingRef.current = false;
+          setDeleteRequestId(null);
           setConfirmModal(null);
         }
       }
@@ -140,16 +187,18 @@ export default function RequestManager({
     const isCurrentlyPaused = req.status === 'CLOSED' || (req.status as string) === 'closed' || (req.status as string) === 'paused';
     const nextStatus: 'OPEN' | 'CLOSED' = isCurrentlyPaused ? 'OPEN' : 'CLOSED';
 
-    // 1. Instant optimistic local update (0ms switch flip in advance, NO flicker!)
-    setMyOwnRequests(prev => prev ? prev.map(r => r.id === req.id ? { ...r, status: nextStatus } : r) : null);
+    // Keep the owner's list independent of public-board refreshes and late initial reads.
+    const updateLocalStatus = (status: JobRequest['status']) => {
+      setLocalRequestStatuses(prev => ({ ...prev, [req.id]: status }));
+      setMyOwnRequests(prev => (prev ?? jobRequests.filter(r => r.seekerId === currentUserId)).map(r => r.id === req.id ? { ...r, status } : r));
+    };
+    updateLocalStatus(nextStatus);
 
     try {
-      // 2. Dispatch background API update (toast notification fires when update is confirmed)
       const ok = await toggleJobRequestStatus(req.id, req.status);
-      if (!ok) {
-        // Rollback on network failure
-        setMyOwnRequests(prev => prev ? prev.map(r => r.id === req.id ? { ...r, status: req.status } : r) : null);
-      }
+      updateLocalStatus(ok ? nextStatus : req.status);
+    } catch {
+      updateLocalStatus(req.status);
     } finally {
       setTogglingRequestId(null);
     }
@@ -160,26 +209,42 @@ export default function RequestManager({
       requestId: req.id,
       title: req.title,
       budget: req.budget,
-      description: req.description
+      description: req.description,
+      originalUrgency: req.urgency,
+      urgency: isRequestUrgency(req.urgency) ? req.urgency : undefined,
     });
   };
 
-  const handleSaveEdit = (e: React.FormEvent) => {
+  const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingRequest) return;
-    
-    editJobRequest(
-      editingRequest.requestId,
-      editingRequest.title,
-      editingRequest.budget,
-      editingRequest.description
-    );
-    
-    setEditingRequest(null);
+    if (!editingRequest || savingEditRef.current) return;
+    savingEditRef.current = true;
+    setIsSavingEdit(true);
+
+    try {
+      const updated = await editJobRequest(
+        editingRequest.requestId,
+        editingRequest.title,
+        editingRequest.budget,
+        editingRequest.description,
+        editingRequest.urgency,
+      );
+      if (!updated) return;
+
+      // Keep confirmed edits visible even if the initial owner-list read arrives late.
+      const requestId = editingRequest.requestId;
+      setLocalRequestEdits(prev => ({ ...prev, [requestId]: updated }));
+      setMyOwnRequests(prev => (prev ?? jobRequests.filter(r => r.seekerId === currentUserId))
+        .map(request => request.id === requestId ? { ...request, ...updated } : request));
+      setEditingRequest(null);
+    } finally {
+      savingEditRef.current = false;
+      setIsSavingEdit(false);
+    }
   };
 
   return (
-    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
       
       {/* Header Action Strip & Status Filter Tabs */}
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
@@ -189,10 +254,10 @@ export default function RequestManager({
             <ClipboardList className="w-4 h-4" />
           </div>
           <div>
-            <h2 className={`text-sm font-bold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
-              Broadcasted Requests
+            <h2 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-ink'}`}>
+              Your Requests
             </h2>
-            <p className={`text-[11px] ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+            <p className={`text-[11px] ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
               {myRequests.length} {myRequests.length === 1 ? 'task request' : 'task requests'} posted to local Cordova providers
             </p>
           </div>
@@ -211,7 +276,7 @@ export default function RequestManager({
         <EmptyState
           icon={ClipboardList}
           title="No Active Service Requests"
-          description="You haven't broadcasted any custom service requests yet. Post a task with your budget and timeframe, and local Cordova providers will submit proposals directly to you!"
+          description="You have no broadcasted requests yet. Post a task to receive offers from local providers."
           actionLabel="+ Broadcast a Request"
           onAction={() => {
             if (onNavigateToPost) onNavigateToPost();
@@ -224,7 +289,9 @@ export default function RequestManager({
             {paginatedRequests.map((req) => {
               const offerCount = bids.filter(b => b.requestId === req.id && b.status === 'pending').length;
               const isPaused = req.status === 'CLOSED' || (req.status as string) === 'closed' || (req.status as string) === 'paused';
-              const isBooked = req.status === 'IN_PROGRESS' || (req.status as string) === 'in_progress';
+              const isBooked = req.status === 'IN_PROGRESS' || (req.status as string) === 'in_progress' || req.hasActiveBooking || req.hasAcceptedOffer || bids.some(bid => bid.requestId === req.id && bid.status.toUpperCase() === 'ACCEPTED');
+              const isCompleted = isPaused && req.hasCompletedBooking;
+              const deleteBlockedReason = requestDeleteBlockedReason(req, bids);
               
               return (
                 <div 
@@ -256,15 +323,15 @@ export default function RequestManager({
                               ? 'bg-orange-950/40 text-orange-400 border-orange-800/60 hover:bg-orange-900/50' 
                               : 'bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200'
                             : isDark
-                              ? 'bg-[#1c1b18] text-[#b4b0a9] border-neutral-800 hover:bg-[#2c2b27]'
-                              : 'bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100'
+                              ? 'bg-[#1c1b18] text-ink-muted border-neutral-800 hover:bg-[#2c2b27]'
+                              : 'bg-slate-50 text-ink-muted border-slate-200 hover:bg-slate-100'
                         }`}
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>Offers ({offerCount})</span>
                       </button>
 
-                      <button
+                      {!req.targetServiceId && <button
                         type="button"
                         onClick={() => handleToggleAiSuggestions(req.id)}
                         aria-expanded={activeAiRequestId === req.id}
@@ -275,59 +342,63 @@ export default function RequestManager({
                               ? 'bg-orange-500/20 text-orange-400 border-orange-500/40'
                               : 'bg-orange-100 text-orange-700 border-orange-300'
                             : isDark
-                              ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-[#f2efe9]'
-                              : 'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900'
+                              ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted hover:text-white'
+                              : 'border-slate-200 hover:bg-slate-50 text-ink-muted hover:text-ink'
                         }`}
                       >
                         <UsersRound className="w-3.5 h-3.5 text-orange-500" />
                         <span>AI Matches</span>
-                      </button>
+                      </button>}
 
-                      <button
+                      {!isCompleted && !req.targetServiceId && <button
                         type="button"
                         onClick={() => handleOpenEdit(req)}
                         aria-label={`Edit ${req.title}`}
                         className={`flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
                           isDark 
-                            ? 'border-neutral-800 hover:bg-[#2c2b27] text-[#b4b0a9] hover:text-[#f2efe9]' 
-                            : 'border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900'
+                            ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted hover:text-white'
+                            : 'border-slate-200 hover:bg-slate-50 text-ink-muted hover:text-ink'
                         }`}
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         <span>Edit</span>
-                      </button>
+                      </button>}
 
-                      <button
+                      {!isCompleted && <button
                         type="button"
                         onClick={() => handleDeleteRequestClick(req)}
                         aria-label={`Delete ${req.title}`}
+                        aria-haspopup="dialog"
+                        title={deleteBlockedReason || undefined}
                         className={`flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
-                          isDark 
+                          deleteBlockedReason
+                            ? isDark ? 'border-neutral-800 text-ink-muted hover:bg-[#2c2b27]' : 'border-slate-200 text-ink-muted hover:bg-slate-50'
+                            : isDark
                             ? 'border-red-950/45 hover:bg-red-950/20 text-red-400' 
                             : 'border-red-200 hover:bg-red-50 text-red-500'
                         }`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Delete</span>
-                      </button>
+                      </button>}
 
                       <div className={`ml-1 flex min-h-8 items-center gap-2 border-l pl-3 ${isDark ? 'border-neutral-800' : 'border-slate-200'}`}>
-                        {isBooked ? (
+                        {isBooked || isCompleted ? (
                           <div className="flex items-center gap-2">
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold border ${
                               isDark
-                                ? 'bg-blue-950/40 text-blue-400 border-blue-900/50'
-                                : 'bg-blue-50 text-blue-700 border-blue-200'
+                                ? 'bg-orange-950/40 text-orange-400 border-orange-900/50'
+                                : 'bg-orange-50 text-orange-700 border-orange-200'
                             }`}>
-                              <Lightning className="h-3.5 w-3.5" weight="fill" /> Booked
+                              <Lightning className="h-3.5 w-3.5" weight="fill" /> {isCompleted ? 'Completed' : 'Booked'}
                             </span>
                             {onNavigateToActivity && (
                               <button
                                 onClick={onNavigateToActivity}
                                 className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
                                   isDark
-                                    ? 'bg-emerald-950/30 text-emerald-400 border-emerald-900/50 hover:bg-emerald-900/40'
-                                    : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                    ? 'bg-orange-950/30 text-orange-400 border-orange-900/50 hover:bg-orange-900/40'
+                                    : 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100'
                                 }`}
                               >
                                 View Booking
@@ -335,13 +406,15 @@ export default function RequestManager({
                               </button>
                             )}
                           </div>
+                        ) : req.targetServiceId ? (
+                          <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">{offerCount > 0 ? 'Quote received · review offer' : 'Awaiting provider quote'}</span>
                         ) : (() => {
                           const isToggling = togglingRequestId === req.id;
                           return (
                             <>
                               <button
                                 type="button"
-                                disabled={isToggling}
+                                disabled={!!togglingRequestId}
                                 onClick={() => handleToggleAccepting(req)}
                                 role="switch"
                                 aria-checked={!isPaused}
@@ -349,7 +422,7 @@ export default function RequestManager({
                                 className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none ${
                                   isToggling ? 'opacity-80 cursor-wait' : 'cursor-pointer'
                                 } ${
-                                  !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
+                                  !isPaused ? 'bg-orange-600' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
                                 }`}
                               >
                                 <span
@@ -358,19 +431,19 @@ export default function RequestManager({
                                   }`}
                                 >
                                   {isToggling && (
-                                    <Loader2 className="w-2.5 h-2.5 text-emerald-600 animate-spin" />
+                                    <Loader2 className="w-2.5 h-2.5 text-orange-600 animate-spin" />
                                   )}
                                 </span>
                               </button>
                               
                               <span className={`text-xs font-bold transition-colors ${
                                 isToggling
-                                  ? 'text-amber-500 dark:text-amber-400'
+                                  ? 'text-orange-700 dark:text-orange-400'
                                   : !isPaused
-                                  ? 'text-emerald-600 dark:text-emerald-400'
+                                  ? 'text-orange-700 dark:text-orange-400'
                                   : isDark
-                                  ? 'text-neutral-500'
-                                  : 'text-slate-400'
+                                  ? 'text-ink-muted'
+                                  : 'text-ink-subtle'
                               }`}>
                                 {isToggling ? 'Updating...' : !isPaused ? 'Active' : 'Paused'}
                               </span>
@@ -383,35 +456,36 @@ export default function RequestManager({
 
                   {/* Tier 2: Request content */}
                   <div className="min-w-0 space-y-1.5">
-                    <h3 className={`font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>
+                    <h3 className={`uppercase break-words [overflow-wrap:anywhere] font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-white' : 'text-ink'}`}>
                       {req.title}
                     </h3>
                     {req.description && (
-                      <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>
+                      <p className={`text-xs sm:text-sm leading-relaxed line-clamp-2 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                         {req.description}
                       </p>
                     )}
                   </div>
 
                   {/* Tier 3: Budget and request metadata */}
+                  <RequestPaymentMethods request={req} isDark={isDark} />
                   <div className={`pt-3.5 border-t flex flex-wrap items-center justify-between gap-3 text-xs ${
                     isDark ? 'border-neutral-800/80' : 'border-slate-100'
                   }`}>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[11px] font-semibold text-slate-500">Estimated budget</span>
+                      <span className="text-[11px] font-semibold text-ink-muted">{req.targetServiceId ? 'Displayed listing rate · final quote pending' : 'Estimated budget'}</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>
-                        ₱{req.budget}
+                        {req.targetServiceId && !req.budget ? 'Quote required' : `₱${req.budget}`}
                       </span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
+                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
                         <Alarm className="h-3.5 w-3.5" weight="duotone" /> Needed {formatUrgencyDisplay(req.urgency)}
                       </span>
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-slate-600'
+                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
                         <MapPin className="h-3.5 w-3.5" weight="duotone" /> Central Cordova
                       </span>
@@ -428,7 +502,7 @@ export default function RequestManager({
                     >
                       <div className="flex items-center space-x-2 mb-3">
                         <UsersRound className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
-                        <h4 className="text-xs font-bold text-slate-800 dark:text-[#f2efe9]">
+                        <h4 className="text-xs font-bold text-ink dark:text-white">
                           Suggested providers
                         </h4>
                       </div>
@@ -436,19 +510,19 @@ export default function RequestManager({
                       {loadingAiMap[req.id] ? (
                         <div className="flex items-center space-x-2 py-2">
                           <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
-                          <span className="text-xs text-slate-400 dark:text-neutral-400 font-semibold pl-1">Analyzing provider capabilities and trust scores...</span>
+                          <span className="text-xs text-ink-subtle dark:text-ink-muted font-semibold pl-1">Analyzing provider capabilities and trust scores...</span>
                         </div>
                       ) : !aiSuggestions[req.id] ? (
-                        <p className="text-xs text-slate-400 dark:text-neutral-500 italic">Click the button above to generate AI-powered provider matches.</p>
+                        <p className="text-xs text-ink-subtle dark:text-ink-subtle italic">Click the button above to generate AI-powered provider matches.</p>
                       ) : aiSuggestions[req.id].length === 0 ? (
-                        <div className="flex items-start space-x-2 text-xs text-slate-500 dark:text-[#b4b0a9]">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-amber-500" />
+                        <div className="flex items-start space-x-2 text-xs text-ink-muted dark:text-ink-muted">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-orange-600" />
                           <span>No providers found in this category yet. Try again after more providers join.</span>
                         </div>
                       ) : aiSuggestions[req.id][0]?.name === "No Suggestion" || aiSuggestions[req.id][0]?.name === "Error" ? (
                         <div className="flex items-start space-x-2 text-xs">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-amber-500" />
-                          <span className="text-slate-500 dark:text-[#b4b0a9] italic">{aiSuggestions[req.id][0]?.rationale}</span>
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-orange-600" />
+                          <span className="text-ink-muted dark:text-ink-muted italic">{aiSuggestions[req.id][0]?.rationale}</span>
                         </div>
                       ) : (
                         <div className="space-y-2.5">
@@ -456,15 +530,15 @@ export default function RequestManager({
                             <div 
                               key={idx}
                               className={`p-3 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs transition-colors ${
-                                isDark ? 'bg-[#22211e] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+                                isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
                               }`}
                             >
                               <div className="space-y-1">
                                 <div className="flex items-center space-x-2">
                                   <span className="font-extrabold text-orange-600 dark:text-orange-400">Rank #{idx + 1}</span>
-                                  <span className="font-extrabold text-slate-900 dark:text-white">{sug.name}</span>
+                                  <span className="font-extrabold text-ink dark:text-white">{sug.name}</span>
                                 </div>
-                                <p className="text-slate-600 dark:text-[#b4b0a9] italic leading-normal">
+                                <p className="text-ink-muted dark:text-ink-muted italic leading-normal">
                                   {sug.rationale}
                                 </p>
                               </div>
@@ -497,13 +571,22 @@ export default function RequestManager({
       <EditRequestModal
         value={editingRequest}
         isDark={isDark}
+        isSaving={isSavingEdit}
         onChange={setEditingRequest}
-        onClose={() => setEditingRequest(null)}
+        onClose={() => { if (!savingEditRef.current) setEditingRequest(null); }}
         onSubmit={handleSaveEdit}
       />
 
       {/* Delete Confirmation Modal */}
-      <ConfirmModal state={confirmModal} onClose={() => setConfirmModal(null)} />
+      <ConfirmModal
+        state={(() => {
+          const request = myRequests.find(item => item.id === deleteRequestId);
+          const reason = request && requestDeleteBlockedReason(request, bids);
+          // An offer accepted while the confirmation is open removes its destructive action immediately.
+          return confirmModal && !confirmModal.isLoading && reason ? protectedDeleteModal(reason) : confirmModal;
+        })()}
+        onClose={() => { setConfirmModal(null); setDeleteRequestId(null); }}
+      />
 
     </div>
   );

@@ -30,7 +30,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
-  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | 'hide' | 'respond_cancellation' | null>(null);
+  const [loadingActionType, setLoadingActionType] = useState<'complete' | 'cancel' | 'escalate' | 'dispute' | 'cancel_submit' | 'hide' | 'approve_cancellation' | 'decline_cancellation' | null>(null);
 
   const searchParams = useSearchParams();
   const bookingIdParam = searchParams.get('booking');
@@ -82,10 +82,14 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<SeekerActivityTab>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const tabLoadingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 450);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      if (tabLoadingTimer.current) clearTimeout(tabLoadingTimer.current);
+    };
   }, []);
 
   const handleTabChange = (tab: typeof activeTab) => {
@@ -93,7 +97,11 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     manuallyOverriddenLink.current = deepLinkKey;
     setIsLoading(true);
     setActiveTab(tab);
-    setTimeout(() => setIsLoading(false), 250);
+    if (tabLoadingTimer.current) clearTimeout(tabLoadingTimer.current);
+    tabLoadingTimer.current = setTimeout(() => {
+      setIsLoading(false);
+      tabLoadingTimer.current = null;
+    }, 250);
   };
 
   // Debounced auto-refresh effect
@@ -282,11 +290,11 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   const handleCancelSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cancelingJob) return;
+    if (!cancelingJob || loadingItemId || cancelReason.trim().length < 3) return;
     setLoadingItemId(cancelingJob.id);
     setLoadingActionType('cancel_submit');
     try {
-      const res = await apiCancelBooking(cancelingJob.id, cancelReason);
+      const res = await apiCancelBooking(cancelingJob.id, cancelReason.trim());
       if (res.success) {
         if (cancelingJob.started) {
           info('Cancellation Request Sent', 'The provider will review your request.');
@@ -340,7 +348,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   };
 
   const handleRespondCancellation = async (requestId: string, approve: boolean, suppliedNote?: string) => {
-    if (!approve && !suppliedNote) {
+    if (loadingItemId) return;
+    if (!approve && suppliedNote === undefined) {
       setDecliningCancellationId(requestId);
       setDeclineCancellationReason('');
       return;
@@ -348,15 +357,16 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     const note = approve ? undefined : suppliedNote?.trim();
     if (!approve && (!note || note.length < 3)) return;
     setLoadingItemId(requestId);
-    setLoadingActionType('respond_cancellation');
+    setLoadingActionType(approve ? 'approve_cancellation' : 'decline_cancellation');
     try {
       await apiRespondCancellationRequest(requestId, approve, note);
       success(approve ? 'Cancellation Approved' : 'Cancellation Declined', approve ? 'The booking was cancelled and any eligible refund was submitted.' : 'The provider may escalate the decision to Admin.');
-      refreshEngagements();
+      await refreshEngagements();
       setDecliningCancellationId(null);
       setDeclineCancellationReason('');
     } catch (err: unknown) {
       toastError('Response failed', getApiErrorMessage(err, 'Unable to respond to the cancellation.'));
+      try { await refreshEngagements(); } catch { /* Keep the original response error visible. */ }
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -395,7 +405,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   };
 
   return (
-    <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-[#f2efe9]' : 'text-slate-800'}`}>
+    <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
 
 
@@ -467,7 +477,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         onSubmit={() => decliningCancellationId ? handleRespondCancellation(decliningCancellationId, false, declineCancellationReason) : undefined}
         confirmText="Decline request"
         variant="danger"
-        isSubmitting={loadingItemId === decliningCancellationId && loadingActionType === 'respond_cancellation'}
+        isSubmitting={loadingItemId === decliningCancellationId && loadingActionType === 'decline_cancellation'}
       />
       {reviewingEngagement && (() => {
         const existingReview = reviewingEngagement.reviews?.find((review) => review.authorId === currentUserId);

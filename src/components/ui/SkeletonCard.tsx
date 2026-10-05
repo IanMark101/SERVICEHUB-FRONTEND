@@ -1,142 +1,55 @@
-import React from 'react';
 import Skeleton from './Skeleton';
 
-export function ServiceListingSkeleton({ count = 6 }: { count?: number }) {
+function ListingSkeleton({ request = false }: { request?: boolean }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="workspace-card rounded-2xl p-5 border flex flex-col justify-between space-y-4"
-        >
-          <div className="space-y-3.5">
-            {/* Header: Provider Avatar + Info */}
-            <div className="flex items-center space-x-3">
-              <Skeleton variant="circular" className="w-10 h-10 flex-shrink-0" />
-              <div className="space-y-1.5 flex-1">
-                <Skeleton className="h-3.5 w-28" />
-                <Skeleton className="h-2.5 w-16" />
-              </div>
-              <Skeleton className="h-5 w-14 rounded-full" />
-            </div>
-
-            {/* Category tag */}
-            <Skeleton className="h-4 w-20 rounded-md" />
-
-            {/* Title & Description */}
-            <div className="space-y-2 pt-1">
-              <Skeleton className="h-4 w-5/6" />
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-4/6" />
-            </div>
+    <article className="workspace-card flex h-full min-w-0 flex-col justify-between rounded-2xl border p-4 sm:p-5">
+      <div className="min-w-0 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <Skeleton variant="circular" className="size-9 shrink-0" />
+            <div className="min-w-0 space-y-1"><Skeleton className="h-3.5 w-28 max-w-full" /><Skeleton className="h-6 w-24 max-w-full" /></div>
           </div>
-
-          {/* Bottom section: Price & Action */}
-          <div className="pt-3 border-t border-slate-100 dark:border-neutral-800/80 space-y-3">
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-6 w-24" />
-              <Skeleton className="h-4 w-16" />
-            </div>
-            <Skeleton className="h-10 w-full rounded-xl" />
-          </div>
+          <Skeleton className="h-3 w-12 shrink-0" />
         </div>
-      ))}
-    </div>
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5"><Skeleton className="h-5 w-32 max-w-full" /><Skeleton className="h-4 w-16" /></div>
+        <div className="space-y-1">
+          <div className={request ? 'min-h-10 space-y-1' : ''}><Skeleton className="h-5 w-5/6" />{request && <Skeleton className="h-4 w-1/2" />}</div>
+          <div className="min-h-10 space-y-1.5"><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>
+        </div>
+        {request && <Skeleton className="h-4 w-44 max-w-full" />}
+        <div className="flex items-baseline justify-between border-t border-[color:var(--workspace-border)] pt-2"><Skeleton className="h-6 w-24" /><Skeleton className="h-4 w-16" /></div>
+        <div className="space-y-1.5 pb-1"><Skeleton className="h-3 w-28" /><div className="flex flex-wrap gap-1.5"><Skeleton className="h-5 w-20" /><Skeleton className="h-5 w-24" /></div></div>
+      </div>
+      <div className="mt-3.5 flex gap-2 border-t border-[color:var(--workspace-border)] pt-3"><Skeleton className="h-11 w-24" /><Skeleton className="h-11 flex-1" /></div>
+    </article>
   );
+}
+
+export function ServiceListingSkeleton({ count = 6 }: { count?: number }) {
+  return <div className="marketplace-results-grid" role="status" aria-label="Loading services" aria-busy="true">{Array.from({ length: count }, (_, index) => <ListingSkeleton key={index} />)}</div>;
 }
 
 export function JobRequestSkeleton({ count = 6 }: { count?: number }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="workspace-card rounded-2xl p-5 border flex flex-col justify-between"
-        >
-          <div>
-            {/* Top Seeker info */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <Skeleton variant="circular" className="w-10 h-10 flex-shrink-0" />
-                <div className="space-y-1.5">
-                  <Skeleton className="h-3.5 w-28" />
-                  <Skeleton className="h-2.5 w-14 rounded-md" />
-                </div>
-              </div>
-              <div className="flex flex-col items-end space-y-1">
-                <Skeleton className="h-2.5 w-16" />
-                <Skeleton className="h-2.5 w-20" />
-              </div>
-            </div>
-
-            {/* Category & Urgency Badges */}
-            <div className="mt-4 flex items-center gap-2">
-              <Skeleton className="h-5 w-20 rounded-lg" />
-              <Skeleton className="h-5 w-28 rounded-lg" />
-            </div>
-
-            {/* Title & Description */}
-            <div className="mt-3 space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-2/3" />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            {/* Divider */}
-            <div className="border-t border-slate-100 dark:border-neutral-800/80 my-3.5" />
-
-            {/* Budget and payment status */}
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Skeleton className="h-2.5 w-16" />
-                <Skeleton className="h-6 w-20" />
-              </div>
-              <Skeleton className="h-5 w-24 rounded-md" />
-            </div>
-
-            {/* Payment Badges */}
-            <div className="mt-3 flex items-center gap-2">
-              <Skeleton className="h-5 w-20 rounded-lg" />
-              <Skeleton className="h-5 w-24 rounded-lg" />
-            </div>
-
-            {/* Action Button */}
-            <div className="mt-3.5">
-              <Skeleton className="h-10 w-full rounded-xl" />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  return <div className="marketplace-results-grid" role="status" aria-label="Loading job requests" aria-busy="true">{Array.from({ length: count }, (_, index) => <ListingSkeleton key={index} request />)}</div>;
 }
 
-export function ActivityItemSkeleton({ count = 3 }: { count?: number }) {
+/** ActivityFeed groups bookings; waiting uses the QueueActivityCard split panel. */
+export function ActivityItemSkeleton({ count = 3, variant = 'active' }: { count?: number; variant?: 'active' | 'waiting' | 'history' }) {
   return (
-    <div className="space-y-4">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="workspace-card rounded-2xl p-5 border space-y-4"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Skeleton variant="circular" className="w-10 h-10" />
-              <div className="space-y-1.5">
-                <Skeleton className="h-3.5 w-32" />
-                <Skeleton className="h-2.5 w-20" />
-              </div>
+    <div className="space-y-3" role="status" aria-label="Loading booking activity" aria-busy="true">
+      <Skeleton className="h-5 w-44" />
+      {Array.from({ length: count }, (_, index) => (
+        <article key={index} className="workspace-card overflow-hidden rounded-2xl border">
+          <div className={variant === 'waiting' ? 'grid lg:grid-cols-[minmax(0,1fr)_minmax(230px,290px)]' : ''}>
+            <div className={variant === 'history' ? 'space-y-2 p-4 sm:p-5' : 'space-y-4 p-5 sm:p-6'}>
+              <div className="flex justify-between gap-4"><Skeleton className="h-5 w-52 max-w-full" /><Skeleton className="h-5 w-16 shrink-0" /></div>
+              <Skeleton className="h-4 w-36 max-w-full" />
+              <div className="flex flex-wrap gap-2"><Skeleton className="h-5 w-32" /><Skeleton className="h-5 w-28" /></div>
+              {variant !== 'history' && <><Skeleton className="h-5 w-3/4" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /><div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"><Skeleton className="h-12 w-full lg:w-2/3" />{variant !== 'waiting' && <Skeleton className="h-11 w-full lg:w-36" />}</div></>}
             </div>
-            <Skeleton className="h-6 w-24 rounded-full" />
+            {variant === 'waiting' && <div className="flex flex-col gap-5 border-t border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] p-5 sm:p-6 lg:border-l lg:border-t-0"><Skeleton className="h-4 w-28" /><Skeleton className="h-8 w-12" /><Skeleton className="h-4 w-full" /><Skeleton className="h-5 w-36" /><Skeleton className="mt-auto h-11 w-full" /></div>}
           </div>
-          <Skeleton className="h-1.5 w-full rounded-full" />
-          <div className="flex items-center justify-between pt-2">
-            <Skeleton className="h-3 w-36" />
-            <Skeleton className="h-8 w-24 rounded-xl" />
-          </div>
-        </div>
+        </article>
       ))}
     </div>
   );

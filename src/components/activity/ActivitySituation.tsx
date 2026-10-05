@@ -1,4 +1,6 @@
 import type { JobEngagement } from '../../types';
+import { getPaidStartBlockReason } from './paidStartReadiness';
+import { bookingOutcomeLabels, getBookingOutcome } from '../../lib/bookingOutcome';
 
 type Role = 'seeker' | 'provider';
 type Tone = 'action' | 'waiting' | 'active' | 'review' | 'finished';
@@ -16,6 +18,7 @@ export function getActivitySituation(
   role: Role,
   currentUserId?: string,
   activeJobId?: string,
+  paidWaiting?: boolean,
 ): ActivitySituationContent {
   const cancellation = booking.status === 'completed' || booking.status === 'canceled' ? undefined : booking.cancellationRequests?.[0];
   if (cancellation?.status === 'PENDING') {
@@ -30,7 +33,7 @@ export function getActivitySituation(
   if (cancellation?.status === 'ESCALATED') {
     return { tone: 'review', label: 'Admin review', title: 'Cancellation is under review', detail: 'An administrator is reviewing the declined cancellation request.', next: 'The booking will update after the administrator decides.' };
   }
-  if (cancellation?.status === 'DECLINED' && cancellation.requestedBy === currentUserId) {
+  if (cancellation?.status === 'DECLINED' && cancellation.requestedBy === currentUserId && booking.status !== 'awaiting_seeker_approval') {
     return { tone: 'action', label: 'Decision available', title: 'Cancellation was declined', detail: `The ${role === 'seeker' ? 'provider' : 'seeker'} declined your request.`, next: 'You can escalate the decision to Admin using the action below.' };
   }
 
@@ -42,18 +45,23 @@ export function getActivitySituation(
   if (booking.status === 'queued') {
     const first = booking.queuePosition === 1;
     const position = booking.queuePosition ? `#${booking.queuePosition}` : 'pending';
+    const startBlockedReason = role === 'provider' && first ? getPaidStartBlockReason(booking, activeJobId) : null;
     return role === 'provider'
       ? first
         ? activeJobId && activeJobId !== booking.id
-          ? { tone: 'waiting', label: 'Another job active', title: 'First in this service queue', detail: 'GCash Test Mode payment is recorded, but you are already working on another booking.', next: 'Finish the current job before using Start for this one.' }
-          : { tone: 'action', label: 'Ready to start', title: 'First in this service queue', detail: 'GCash Test Mode payment is recorded. This booking is eligible to start when you are available.', next: 'Use Start below; only one job may be active across your services.' }
-        : { tone: 'waiting', label: 'Waiting in queue', title: `Position ${position} in this service queue`, detail: 'Earlier bookings for this listing are ahead of this seeker.', next: 'When this booking reaches first position, you may start it if no other job is active.' }
-      : { tone: 'waiting', label: 'Waiting on provider', title: first ? 'First in this service queue' : `Position ${position} in this service queue`, detail: 'Your GCash Test Mode payment is recorded. The provider has not started your work.', next: first ? 'The provider can start this booking when available.' : 'Your position advances as earlier bookings in this listing leave the queue.' };
+          ? { tone: 'waiting', label: 'Another job active', title: "First in this provider's paid queue", detail: 'You are already working on another booking.', next: 'Finish the current job before starting this paid booking.' }
+          : startBlockedReason
+          ? { tone: 'waiting', label: 'Start unavailable', title: "First in this provider's paid queue", detail: startBlockedReason, next: 'Open the booking details to review its current payment and queue state.' }
+          : { tone: 'action', label: 'Ready to start', title: "First in this provider's paid queue", detail: 'GCash Test Mode payment is confirmed. This booking is next to start.', next: 'Use Start Job when available; you can perform only one job at a time.' }
+        : { tone: 'waiting', label: 'Waiting in queue', title: `Position ${position} in your paid work queue`, detail: 'Earlier paid bookings across your services are ahead of this seeker.', next: 'When this booking becomes first, you can start it after the current job ends.' }
+      : { tone: 'waiting', label: 'Waiting on provider', title: first ? "First in this provider's paid queue" : `Position ${position} in this provider's paid queue`, detail: 'Your GCash Test Mode payment is confirmed. The provider has not started your work.', next: first ? 'The provider can start this booking when available.' : 'Your position advances as earlier paid bookings with this provider finish or leave the queue.' };
   }
   if (booking.status === 'in_progress') {
     if (!booking.started) {
       return role === 'provider'
-        ? activeJobId && activeJobId !== booking.id
+        ? paidWaiting && booking.paymentMethod === 'On-site Cash'
+          ? { tone: 'waiting', label: 'Paid jobs ahead', title: 'Cash booking accepted, work not started', detail: 'This cash arrangement is confirmed, but paid bookings are waiting in your work queue.', next: 'Start the paid jobs first. You can start this cash booking when no paid job is waiting.' }
+        : activeJobId && activeJobId !== booking.id
           ? { tone: 'waiting', label: 'Another job active', title: 'Booking accepted, work not started', detail: 'The booking is confirmed, but you are already working on another booking.', next: 'Finish the current job before starting this one.' }
           : { tone: 'action', label: 'Ready to start', title: 'Booking accepted, work not started', detail: 'The booking is confirmed, but Start Job has not been pressed.', next: 'Start the job when you are ready; only one job can be active at a time.' }
         : { tone: 'waiting', label: 'Waiting on provider', title: 'Booking accepted, work not started', detail: 'Your provider has accepted the booking.', next: 'The provider will start the job when ready. You can coordinate in Messages.' };
@@ -73,19 +81,21 @@ export function getActivitySituation(
   if (booking.status === 'completed') {
     return { tone: 'finished', label: 'Completed', title: 'This booking is complete', detail: 'The service has been confirmed and closed.', next: role === 'seeker' ? 'You can leave a review or request this service again.' : 'You can review the client and view your payment records.' };
   }
-  return { tone: 'finished', label: 'Canceled', title: 'This booking is closed', detail: 'The booking will not move forward.', next: 'You can review its history or find another service.' };
+  const outcome = getBookingOutcome(booking);
+  const label = outcome ? bookingOutcomeLabels[outcome] : 'Closed';
+  return { tone: 'finished', label, title: `This booking was ${label.toLowerCase()}`, detail: 'This engagement ended without completion.', next: 'You can review its history or find another service.' };
 }
 
-export default function ActivitySituation({ booking, role, currentUserId, activeJobId }: { booking: JobEngagement; role: Role; currentUserId?: string; activeJobId?: string }) {
-  const content = getActivitySituation(booking, role, currentUserId, activeJobId);
+export default function ActivitySituation({ booking, role, currentUserId, activeJobId, paidWaiting }: { booking: JobEngagement; role: Role; currentUserId?: string; activeJobId?: string; paidWaiting?: boolean }) {
+  const content = getActivitySituation(booking, role, currentUserId, activeJobId, paidWaiting);
   const toneClasses: Record<Tone, string> = {
     action: role === 'provider'
       ? 'border-emerald-200 bg-emerald-50/80 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/25 dark:text-emerald-100'
       : 'border-orange-200 bg-orange-50/80 text-orange-950 dark:border-orange-900/50 dark:bg-orange-950/25 dark:text-orange-100',
-    waiting: 'border-stone-200 bg-stone-50 text-stone-900 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100',
+    waiting: 'border-stone-200 bg-stone-50 text-ink dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-ink',
     active: 'border-emerald-200 bg-emerald-50/70 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/25 dark:text-emerald-100',
     review: 'border-amber-200 bg-amber-50/75 text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-100',
-    finished: 'border-stone-200 bg-stone-50 text-stone-900 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100',
+    finished: 'border-stone-200 bg-stone-50 text-ink dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-ink',
   };
 
   return (

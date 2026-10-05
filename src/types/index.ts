@@ -46,6 +46,7 @@ export interface ServiceListing {
   price: number;
   queueSize: number;
   queueLimit?: number;
+  providerWaitingCount?: number;
   isPaused: boolean;
   proofOfSkillUrl: string; // Proof uploaded for verification
   rating: number;
@@ -68,32 +69,58 @@ export interface ServiceListing {
 }
 
 
+export interface PaymentMethods {
+  cash: boolean;
+  gcash: boolean;
+}
+
 export interface JobRequest {
   id: string;
+  targetProviderId?: string | null;
+  targetServiceId?: string | null;
+  preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null;
+  paymentMethods?: PaymentMethods | null;
   seekerId: string;
   seekerName: string;
   seekerAvatar: string;
+  seekerTrustScore?: number;
+  seekerVerificationStatus?: string;
+  seekerRating?: number;
+  seekerReviewCount?: number;
   title: string;
   category: string;
   urgency: string;
   budget: number;
   description: string;
-  status: 'open' | 'paused' | 'filled' | 'canceled' | 'OPEN' | 'IN_PROGRESS' | 'CANCELED' | 'CLOSED' | 'closed';
+  status: 'open' | 'paused' | 'filled' | 'canceled' | 'OPEN' | 'PAYMENT_PENDING' | 'IN_PROGRESS' | 'CANCELED' | 'CLOSED' | 'closed';
   createdAt: string;
   offersCount?: number;
+  hasCompletedBooking?: boolean;
+  hasActiveBooking?: boolean;
+  hasAcceptedOffer?: boolean;
+  hasPendingPaymentOffer?: boolean;
+  canDelete?: boolean;
+  deleteBlockedReason?: string | null;
 }
 
 export interface Bid {
   id: string;
   requestId: string;
+  seekerId?: string;
   providerId: string;
   serviceId?: string;
+  requestPaymentMethods?: PaymentMethods | null;
+  requestPreferredPaymentMethod?: 'GCash' | 'On-site Cash' | null;
+  estimatedDuration?: number;
+  availability?: string;
+  requestStatus?: string;
+  decisionReason?: 'DECLINED' | 'NOT_SELECTED' | null;
   providerName: string;
   providerAvatar: string;
   providerRating: number;
   price: number;
   message: string;
-  status: 'pending' | 'accepted' | 'declined' | 'canceled' | 'PENDING' | 'PENDING_PAYMENT' | 'ACCEPTED' | 'REJECTED' | 'CANCELED';
+  status: 'pending' | 'pending_payment' | 'accepted' | 'declined' | 'withdrawn' | 'canceled' | 'PENDING' | 'PENDING_PAYMENT' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN' | 'CANCELED';
   createdAt: string;
   requestTitle?: string;
   seekerName?: string;
@@ -117,7 +144,11 @@ export interface JobEngagement {
   providerLocation?: string;
   serviceId: string | null; // null if matched from public bid
   price: number;
+  quantity?: number;
+  priceType?: ServiceListing['priceType'];
   status: 'pending_provider' | 'queued' | 'in_progress' | 'awaiting_seeker_approval' | 'completed' | 'disputed' | 'canceled';
+  bookingStatus?: string; // Authoritative API state; preserves DECLINED / REMOVED within closed history.
+  providerAvailability?: string;
   paymentMethod: 'GCash' | 'On-site Cash';
   paymentStatus?: string;
   createdAt: string;
@@ -149,7 +180,9 @@ export interface JobEngagement {
     resolutionOutcome?: string | null;
   }>;
   queuePosition?: number;
+  queueEstimatedWait?: number;
   queueStatus?: string;
+  queuePaymentStatus?: string;
 }
 
 export interface Transaction {

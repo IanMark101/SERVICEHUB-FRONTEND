@@ -2,6 +2,7 @@ import { api } from '../lib/api/axios';
 
 export async function apiBookDirect(data: {
   serviceId: string;
+  quantity?: number;
   schedule?: string;
   message?: string;
 }) {
@@ -9,13 +10,13 @@ export async function apiBookDirect(data: {
   return response.data;
 }
 
-export async function apiInitiatePayment(data: { serviceId: string; offerId?: string; paymentMethodType?: 'gcash' }) {
+export async function apiInitiatePayment(data: { serviceId?: string; offerId?: string; quantity?: number; paymentMethodType?: 'gcash' }) {
   const response = await api.post('/bookings/initiate-payment', data);
   return response.data;
 }
 
 export async function apiConfirmOnlineBooking(data: {
-  serviceId: string;
+  serviceId?: string;
   paymentIntentId: string;
   offerId?: string;
 }) {
@@ -50,6 +51,22 @@ export async function apiEscalateCompletion(bookingId: string, reason: string) {
 
 export async function apiGetMyEngagements() {
   const response = await api.get('/bookings/my-engagements');
+  return response.data;
+}
+
+export interface ProviderWorkload {
+  onlineQueueLimit: number;
+  paidJobs: Array<{ id: string; bookingId: string | null; position: number; status: 'WAITING' | 'SERVING'; paymentStatus: string; estimatedWait: number; canStart: boolean; startBlockedReason: string | null; booking: { status: string; started: boolean; paymentStatus: string; estimatedDurationMins?: number | null; seeker: { name: string }; service?: { title: string } | null; offer?: { request: { title: string } } | null } | null }>;
+  cashJobs: Array<{ id: string; status: string; started: boolean; seeker: { name: string }; service?: { title: string } | null; offer?: { request: { title: string } } | null }>;
+}
+
+export async function apiGetProviderWorkload(): Promise<{ success: boolean; data: ProviderWorkload }> {
+  const response = await api.get('/bookings/provider-workload');
+  return response.data;
+}
+
+export async function apiSetProviderWorkloadCapacity(onlineQueueLimit: number) {
+  const response = await api.patch('/bookings/provider-workload', { onlineQueueLimit });
   return response.data;
 }
 

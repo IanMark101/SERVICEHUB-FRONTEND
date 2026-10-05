@@ -103,7 +103,7 @@ export default function ProfileReviewsSection({
                 <span>{showAddForm ? 'Close Form' : 'Write a Review'}</span>
               </button>
             ) : (
-              <span className="text-[11px] text-slate-400 dark:text-neutral-500 font-semibold italic flex items-center gap-1">
+              <span className="text-[11px] text-ink-subtle dark:text-ink-subtle font-semibold italic flex items-center gap-1">
                 <Lock size={11} /> Reviews posted upon booking completion
               </span>
             )}
@@ -118,7 +118,7 @@ export default function ProfileReviewsSection({
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map(star => (
               <button type="button" key={star} onClick={() => setNewRating(star)} className="p-1 transition-transform hover:scale-110">
-                <Star size={20} className={star <= newRating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-neutral-700'} />
+                <Star size={20} className={star <= newRating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-ink-secondary'} />
               </button>
             ))}
             <span className="text-xs font-bold ml-2 text-amber-500">{newRating} / 5 Stars</span>
@@ -131,7 +131,7 @@ export default function ProfileReviewsSection({
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
             className={`w-full p-3 rounded-xl border text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
-              isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9]' : 'bg-white border-slate-200 text-slate-800'
+              isDark ? 'bg-[#1c1b18] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
             }`}
           />
 
@@ -189,17 +189,17 @@ export default function ProfileReviewsSection({
                   </div>
                   <div>
                     <div className={`font-bold ${headingText}`}>{r.authorName}</div>
-                    <div className="text-[10px] text-slate-400">{r.createdAt}</div>
+                    <div className="text-[10px] text-ink-subtle">{r.createdAt}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map(s => (
-                    <Star key={s} size={12} className={s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-neutral-700'} />
+                    <Star key={s} size={12} className={s <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-ink-secondary'} />
                   ))}
                 </div>
               </div>
 
-              <p className={`leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>{r.comment}</p>
+              <p className={`leading-relaxed ${isDark ? 'text-neutral-300' : 'text-ink-secondary'}`}>{r.comment}</p>
 
               <div className="pt-1 border-t border-slate-200/80 dark:border-neutral-800">
                 <span className="text-[10px] text-emerald-500 font-semibold">Verified Booking Completed</span>

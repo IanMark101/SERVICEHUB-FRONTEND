@@ -1,74 +1,12 @@
 "use client";
 import React, { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useApp } from '../../../context/AppContext';
-import UserProfile from '../../../components/profile/UserProfile';
-import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
-
-type ProfileTab = 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
-const PROFILE_TABS: ProfileTab[] = ['overview', 'reviews', 'trust', 'verification', 'settings'];
-
-function ProfileContent() {
-  const searchParams = useSearchParams();
-  const targetId = searchParams.get('id');
-  const rawTab = searchParams.get('tab');
-  const tabParam = PROFILE_TABS.includes(rawTab as ProfileTab) ? rawTab as ProfileTab : undefined;
-  const { user, users } = useApp();
-
-  let targetUser = user;
-
-  if (targetId && targetId !== user?.id) {
-    const dbUser = users.find(u => u.id === targetId);
-    if (dbUser) {
-      targetUser = {
-        id: dbUser.id,
-        email: dbUser.email,
-        firstName: dbUser.firstName,
-        lastName: dbUser.lastName,
-        role: dbUser.role,
-        avatarUrl: dbUser.avatarUrl,
-        bio: dbUser.bio,
-        phone: dbUser.phone,
-        trustScore: dbUser.trustScore,
-        verificationStatus: dbUser.verificationStatus,
-        emailVerified: dbUser.emailVerified
-      };
-    } else {
-      targetUser = {
-        id: targetId,
-        email: '',
-        firstName: '',
-        lastName: '',
-        role: 'seeker',
-        avatarUrl: '',
-        bio: '',
-        phone: '',
-      };
-    }
-  }
-
-  if (!targetUser) return <WorkspacePageSkeleton label="Loading profile" role="seeker" variant="profile" />;
-
-  const isOwnProfile = !targetId || targetId === user?.id;
-
-  return (
-    <div>
-      <UserProfile
-        key={targetId || user?.id || 'profile'}
-        targetUser={targetUser}
-        isOwnProfile={isOwnProfile}
-        initialTab={tabParam || undefined}
-      />
-    </div>
-  );
-}
+import LegacyProfileRedirect from '../../../components/profile/LegacyProfileRedirect';
+import BrandLoading from '../../../components/ui/BrandLoading';
 
 export default function SeekerUserProfilePage() {
   return (
-    <Suspense fallback={
-      <WorkspacePageSkeleton label="Loading profile" role="seeker" variant="profile" />
-    }>
-      <ProfileContent />
+    <Suspense fallback={<BrandLoading label="Opening marketplace profile" role="seeker" />}>
+      <LegacyProfileRedirect role="seeker" />
     </Suspense>
   );
 }

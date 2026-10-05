@@ -15,10 +15,10 @@ export default function PrivacyPage() {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-[#f2efe9] tracking-tight mb-2">
+        <h1 className="text-2xl font-extrabold text-ink dark:text-white tracking-tight mb-2">
           Privacy Policy
         </h1>
-        <p className="text-slate-500 dark:text-[#b4b0a9] text-sm mb-6 leading-relaxed">
+        <p className="text-ink-muted dark:text-ink-muted text-sm mb-6 leading-relaxed">
           The ServiceHub Cordova Privacy Policy is currently being finalized to protect your hyperlocal data. Please check back soon.
         </p>
 

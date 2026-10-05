@@ -1,5 +1,6 @@
 "use client";
 
+import FormSelect from '../../ui/FormSelect';
 import { Warning as AlertTriangle, CheckCircle as CheckCircle2, Clock, Play, MagnifyingGlass as Search, ArrowLeft } from '@phosphor-icons/react';
 import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
@@ -10,6 +11,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { SeekerActivityItemModel } from './SeekerActivityItem';
 import type { SeekerActivitySort, SeekerActivityTab } from './types';
 import ActivityFeed, { type ActivityFeedEntry } from '../../activity/ActivityFeed';
+import { getBookingOutcome } from '../../../lib/bookingOutcome';
 import { getActivityPaymentCopy, getActivityQueueCopy, getBookingActivityGroup } from '../../activity/activityPresentation';
 import { getActivitySituation } from '../../activity/ActivitySituation';
 
@@ -58,6 +60,13 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
   };
   const entries: ActivityFeedEntry[] = paginatedEngagements.map((booking) => {
     const situation = getActivitySituation(booking, 'seeker', currentUserId);
+    const cancellation = booking.cancellationRequests?.[0];
+    const queueOverview = booking.status === 'queued' && !(
+      cancellation && (
+        ['PENDING', 'UNDER_REVIEW', 'ESCALATED'].includes(cancellation.status)
+        || (cancellation.status === 'DECLINED' && cancellation.requestedBy === currentUserId)
+      )
+    );
     return {
       id: booking.id,
       group: getBookingActivityGroup(booking, 'seeker', currentUserId),
@@ -67,17 +76,24 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
       explanation: situation.detail,
       next: situation.next,
       price: booking.price,
-      outcome: booking.status === 'completed' || booking.status === 'canceled' ? booking.status : undefined,
+      outcome: getBookingOutcome(booking),
       date: new Date(booking.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }),
       payment: getActivityPaymentCopy(booking).label,
       queue: getActivityQueueCopy(booking).label,
-      action: situation.tone === 'action' ? 'Response needed' : 'None right now',
+      action: situation.tone === 'action'
+        ? situation.label === 'Your confirmation needed' ? 'Confirm the work or report an issue' : 'Review and respond in booking details'
+        : 'No action needed now',
+      situationLabel: situation.label,
+      openLabel: situation.tone === 'action' ? 'Review decision' : booking.status === 'queued' ? 'View queue' : 'View booking',
+      queueOverview,
+      queuePosition: booking.queuePosition,
+      queueEstimatedWait: booking.queueEstimatedWait,
     };
   });
 
   if (openBookingId) return (
     <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-[#171715] sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
-      <button type="button" onClick={closeBooking} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-orange-500 dark:text-stone-200 dark:hover:bg-neutral-800">
+      <button type="button" onClick={closeBooking} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-orange-500 dark:text-ink dark:hover:bg-neutral-800">
         <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
       </button>
       {selectedBooking ? <SeekerActivityItem engagement={selectedBooking} model={itemModel} /> : <p role="status" className="rounded-2xl border border-stone-200 p-6 text-sm dark:border-neutral-700">This booking is not available in your Activity.</p>}
@@ -103,14 +119,15 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
                 placeholder="Search by job title or provider name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="service-search-input w-full border-0 bg-transparent text-xs outline-none placeholder:text-[#8a857e]"
+                className="service-search-input w-full border-0 bg-transparent text-xs outline-none placeholder:text-ink-subtle"
               />
             </div>
 
             {/* Sort Dropdown */}
             <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
               <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort each section:</span>
-              <select
+              <FormSelect
+                compact
                 aria-label="Sort seeker activity"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SeekerActivitySort)}
@@ -120,7 +137,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
                 <option value="oldest">Oldest First</option>
                 <option value="price_desc">Budget: High to Low</option>
                 <option value="price_asc">Budget: Low to High</option>
-              </select>
+              </FormSelect>
             </div>
           </div>
         )}
@@ -128,7 +145,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
         <div>
           {isLoading ? (
             <div>
-              <ActivityItemSkeleton count={3} />
+              <ActivityItemSkeleton count={3} variant={activeTab === 'waiting' ? 'waiting' : ['completed', 'canceled', 'disputed'].includes(activeTab) ? 'history' : 'active'} />
             </div>
           ) : filteredEngagements.length === 0 ? (
             <div>
@@ -206,7 +223,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
           )}
         </div>
 
-        <PaginationBar
+        {totalPages > 1 && <PaginationBar
           currentPage={currentPage}
           totalPages={totalPages}
           goToPage={goToPage}
@@ -216,7 +233,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
           endIndex={endIndex}
           totalItems={filteredEngagements.length}
           variant="seeker"
-        />
+        />}
       </div>
     </>
   );

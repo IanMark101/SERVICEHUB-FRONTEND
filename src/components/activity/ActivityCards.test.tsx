@@ -7,7 +7,7 @@ import ProviderActivityItem, { type ProviderActivityItemModel } from '../provide
 const booking: JobEngagement = {
   id: 'booking-1', title: 'House Cleaning', seekerId: 'johncarlo', seekerName: 'John Carlo', seekerAvatar: '',
   providerId: 'ian', providerName: 'Ian', providerAvatar: '', serviceId: 'service-1',
-  price: 250, status: 'queued', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD', queuePosition: 1,
+  price: 250, status: 'queued', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD', queuePaymentStatus: 'PAID_HELD', queuePosition: 1, queueStatus: 'WAITING',
   createdAt: '2026-09-27T09:00:00.000Z', started: false,
 };
 
@@ -36,9 +36,70 @@ function providerModel(overrides: Partial<ProviderActivityItemModel> = {}): Prov
 }
 
 describe('Activity card actions with the new hierarchy', () => {
+  it.each(['seeker', 'provider'] as const)('renders canceled %s workroom state and details in gray without completion copy', (role) => {
+    const canceled = { ...booking, status: 'canceled' as const, bookingStatus: 'CANCELED', providerAvailability: 'Monday', completedServiceId: undefined, cancellationRequests: [{ id: 'old-cancel', status: 'DECLINED' as const, requestedBy: 'johncarlo' }] };
+    if (role === 'seeker') render(<SeekerActivityItem engagement={canceled} model={seekerModel()} />);
+    else render(<ProviderActivityItem item={{ type: 'engagement', data: canceled }} model={providerModel()} />);
+    expect(screen.getAllByText('Canceled').length).toBeGreaterThan(0);
+    expect(screen.getByText('This booking was canceled')).toBeInTheDocument();
+    expect(screen.getByText('This engagement ended without completion.')).toBeInTheDocument();
+    expect(screen.getByLabelText('What is happening now').parentElement).toHaveClass('border-stone-300');
+    expect(screen.getByText('Provider availability')).toBeInTheDocument();
+    expect(screen.getByText('Monday')).toBeInTheDocument();
+    expect(screen.queryByText('Completed')).not.toBeInTheDocument();
+    expect(screen.queryByText('This booking is complete')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Complete Transaction' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Escalate to Admin' })).not.toBeInTheDocument();
+  });
+  it('offers cancellation approval without promising a platform refund for cash', () => {
+    const model = providerModel();
+    render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'in_progress', paymentMethod: 'On-site Cash', cancellationRequests: [{ id: 'cancel-1', status: 'PENDING', requestedBy: 'johncarlo', reason: 'My plans have changed.' }] } }} model={model} />);
+    expect(screen.queryByRole('button', { name: 'Approve & Refund' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Approve Cancellation' }));
+    expect(model.handleApproveCancellation).toHaveBeenCalledWith('cancel-1');
+    fireEvent.click(screen.getByRole('button', { name: 'Decline Request' }));
+    expect(model.setRespondingReqId).toHaveBeenCalledWith('cancel-1');
+    expect(model.setDeclineNote).toHaveBeenCalledWith('');
+  });
+
+  it('opens the seeker decline flow without immediately submitting a decision', () => {
+    const model = seekerModel();
+    render(<SeekerActivityItem engagement={{ ...booking, cancellationRequests: [{ id: 'cancel-1', status: 'PENDING', requestedBy: 'ian', reason: 'Unable to attend.' }] }} model={model} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Decline' }));
+    expect(model.handleRespondCancellation).toHaveBeenCalledWith('cancel-1', false);
+  });
+
+  it('prioritizes completion over an old declined cancellation while keeping escalation available', () => {
+    const model = seekerModel();
+    render(<SeekerActivityItem engagement={{ ...booking, status: 'awaiting_seeker_approval', paymentMethod: 'On-site Cash', cancellationRequests: [{ id: 'cancel-1', status: 'DECLINED', requestedBy: 'johncarlo', responderNote: 'Work has already started.' }] }} model={model} />);
+    expect(screen.getByText('Provider marked the work finished')).toBeInTheDocument();
+    expect(screen.queryByText('Cancellation was declined')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Escalate to Admin' }));
+    expect(model.handleEscalateClick).toHaveBeenCalledWith('cancel-1');
+    fireEvent.click(screen.getByRole('button', { name: 'Complete Transaction' }));
+    expect(model.setConfirmModal).toHaveBeenCalledWith(expect.objectContaining({ title: 'Complete Transaction' }));
+  });
+
+  it('keeps a provider admin-review action in dark mode and shows submission progress', () => {
+    const model = providerModel({ isDark: true });
+    const view = render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'awaiting_seeker_approval' } }} model={model} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Request Admin Review' }));
+    expect(model.handleCompletionEscalation).toHaveBeenCalledWith('booking-1');
+    view.rerender(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'awaiting_seeker_approval' } }} model={providerModel({ isDark: true, loadingItemId: booking.id, loadingActionType: 'completion_escalation' })} />);
+    expect(screen.getByRole('button', { name: 'Submitting...' })).toBeDisabled();
+  });
+
+  it('offers settlement retry only to the cancellation recipient', () => {
+    const engagement = { ...booking, cancellationRequests: [{ id: 'cancel-1', status: 'UNDER_REVIEW', requestedBy: 'ian' }] };
+    const view = render(<SeekerActivityItem engagement={engagement} model={seekerModel()} />);
+    expect(screen.getByRole('button', { name: 'Retry approval' })).toBeInTheDocument();
+    view.rerender(<ProviderActivityItem item={{ type: 'engagement', data: engagement }} model={providerModel()} />);
+    expect(screen.queryByRole('button', { name: 'Retry approval' })).not.toBeInTheDocument();
+  });
+
   it('keeps the seeker queue state and journey visible without a completion action', () => {
     render(<SeekerActivityItem engagement={booking} model={seekerModel()} />);
-    expect(screen.getByText('First in this service queue')).toBeInTheDocument();
+    expect(screen.getByText("First in this provider's paid queue")).toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'Booking journey' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Confirm Completion' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel Booking' })).toBeInTheDocument();
@@ -62,6 +123,26 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(model.handleRespondCancellation).toHaveBeenCalledWith('cancel-1', true);
   });
 
+  it('shows approval progress and prevents a second cancellation decision', () => {
+    const model = seekerModel({ loadingItemId: 'cancel-1', loadingActionType: 'approve_cancellation' });
+    render(<SeekerActivityItem engagement={{ ...booking, cancellationRequests: [{ id: 'cancel-1', status: 'PENDING', requestedBy: 'ian' }] }} model={model} />);
+    expect(screen.getByRole('button', { name: 'Approving…' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Decline' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent(/eligible refund/);
+  });
+
+  it('blocks starting frozen paid work from the booking detail', () => {
+    const model = providerModel();
+    render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, paymentStatus: 'FROZEN_HELD' } }} model={model} />);
+    expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
+    expect(screen.getByText(/GCash payment is not ready for work/)).toBeInTheDocument();
+  });
+
+  it('also blocks a frozen queue payment when the booking record still says held', () => {
+    render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, queuePaymentStatus: 'FROZEN_HELD' } }} model={providerModel()} />);
+    expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
+  });
+
   it('only enables provider Start for first position and preserves Remove', () => {
     const model = providerModel();
     const { rerender } = render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, queuePosition: 2 } }} model={model} />);
@@ -69,16 +150,23 @@ describe('Activity card actions with the new hierarchy', () => {
     rerender(<ProviderActivityItem item={{ type: 'engagement', data: booking }} model={model} />);
     fireEvent.click(screen.getByRole('button', { name: 'Start' }));
     expect(model.handleProviderStartJob).toHaveBeenCalledWith('booking-1');
-    expect(screen.getByRole('button', { name: 'Remove' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel Booking' }));
+    expect(model.handleProviderRemoveFromQueue).toHaveBeenCalledWith('booking-1');
   });
 
   it('disables another Start Job while the provider already has work underway', () => {
     const model = providerModel({ activeJobId: 'another-booking' });
     const { rerender } = render(<ProviderActivityItem item={{ type: 'engagement', data: booking }} model={model} />);
     expect(screen.getByRole('button', { name: 'Start' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Start' })).toHaveAttribute('title', 'Finish your current job before starting another');
+    expect(screen.getByRole('button', { name: 'Start' })).toHaveAttribute('title', 'Finish your current job before starting another one.');
     rerender(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'in_progress', paymentMethod: 'On-site Cash', started: false } }} model={model} />);
     expect(screen.getByRole('button', { name: 'Start Job' })).toBeDisabled();
+  });
+
+  it('disables a cash Start Job while paid bookings are waiting', () => {
+    render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'in_progress', paymentMethod: 'On-site Cash', queuePosition: undefined } }} model={providerModel({ paidWaiting: true })} />);
+    expect(screen.getByRole('button', { name: 'Start Job' })).toBeDisabled();
+    expect(screen.getByText(/paid bookings are waiting/i)).toBeInTheDocument();
   });
 
   it('keeps provider completion and cash-approval navigation available', () => {
@@ -100,8 +188,8 @@ describe('Activity card actions with the new hierarchy', () => {
     };
     render(<ProviderActivityItem item={{ type: 'bid', data: offer }} model={model} />);
     expect(screen.getByText('Offer sent to seeker')).toBeInTheDocument();
-    expect(screen.getByText(/there is no booking yet/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel Offer' }));
+    expect(screen.getByText(/no booking exists yet/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Withdraw Offer' }));
     expect(model.handleCancelOffer).toHaveBeenCalledWith('offer-1');
   });
 

@@ -1,5 +1,5 @@
-import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
+import WorkspaceRouteSkeleton from '@/components/ui/WorkspaceRouteSkeleton';
 
 export default function Loading() {
-  return <WorkspacePageSkeleton label="Loading your Provider page" role="provider" />;
+  return <WorkspaceRouteSkeleton role="provider" />;
 }

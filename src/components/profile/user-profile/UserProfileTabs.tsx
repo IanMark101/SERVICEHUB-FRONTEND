@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import { formatRequestUrgency } from '../../../lib/requestUrgency';
 import {
   User,
   Star,
@@ -95,7 +96,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
 
               <div className="py-2 space-y-1">
                 <span className={`block font-semibold ${labelText}`}>Bio & Description</span>
-                <p className={`leading-relaxed ${isDark ? 'text-neutral-300' : 'text-slate-700'}`}>
+                <p className={`leading-relaxed ${isDark ? 'text-neutral-300' : 'text-ink-secondary'}`}>
                   {bio || 'No bio specified.'}
                 </p>
               </div>
@@ -234,7 +235,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                           </span>
                           <span className={`text-xs font-black ${headingText}`}>₱{srv.price}</span>
                         </div>
-                        <h4 className={`font-bold text-xs ${headingText} line-clamp-1`}>{srv.title}</h4>
+                        <h4 className={`uppercase font-bold text-xs ${headingText} line-clamp-1`}>{srv.title}</h4>
                         <p className={`text-[11px] ${labelText} line-clamp-2`}>{srv.description}</p>
                       </div>
                     ))}
@@ -259,10 +260,10 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                           </span>
                           <span className={`text-xs font-black ${headingText}`}>₱{req.budget}</span>
                         </div>
-                        <h4 className={`font-bold text-xs ${headingText} line-clamp-1`}>{req.title}</h4>
+                        <h4 className={`uppercase font-bold text-xs ${headingText} line-clamp-1`}>{req.title}</h4>
                         <p className={`text-[11px] ${labelText} line-clamp-2`}>{req.description}</p>
                         <div className="flex items-center justify-between text-[10px] pt-1 border-t border-slate-200/40 dark:border-neutral-800">
-                          <span className={labelText}>Urgency: {req.urgency || 'Normal'}</span>
+                          <span className={labelText}>Urgency: {formatRequestUrgency(req.urgency)}</span>
                           <span className="font-extrabold text-emerald-500 uppercase">{req.status || 'OPEN'}</span>
                         </div>
                       </div>
@@ -359,7 +360,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
             )}
           </div>
 
-          <div className={`p-4 rounded-2xl border ${innerBg} text-xs text-slate-500 dark:text-neutral-400 space-y-1.5`}>
+          <div className={`p-4 rounded-2xl border ${innerBg} text-xs text-ink-muted dark:text-ink-muted space-y-1.5`}>
             <div className="flex items-center justify-between">
               <p className="font-bold flex items-center gap-1 text-emerald-500">
                 <TrendingUp size={14} /> How to increase your Trust Score:

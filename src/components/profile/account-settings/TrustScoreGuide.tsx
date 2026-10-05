@@ -62,9 +62,8 @@ export default function TrustScoreGuide({
               labelText={labelText}
               items={[
                 'Admin verification of residency and identity credentials',
-                'Successfully completing and confirming service bookings',
-                'Receiving positive 4-star and 5-star client reviews',
-                'Smooth, undisputed booking completion and confirmation',
+                'Completing provider work confirmed by the seeker or admin',
+                'Receiving positive reviews as a seeker or provider',
               ]}
             />
             <TrustFactors
@@ -74,15 +73,14 @@ export default function TrustScoreGuide({
               isDark={isDark}
               labelText={labelText}
               items={[
-                'Cancelling bookings at fault after work has already started',
-                'Valid disputes or complaints confirmed by admin moderators',
+                'Being found at fault by admin for cancelling started work',
+                'An admin trust deduction after a confirmed report',
                 'Receiving low-rating reviews from 1 to 2 stars',
-                'Repeated service listing rejections for policy violations',
               ]}
             />
           </div>
 
-          <div className={`flex items-center gap-2 rounded-xl border p-3 text-[11px] ${isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-400' : 'bg-amber-50/60 border-amber-200/60 text-amber-900'}`}>
+          <div className={`flex items-center gap-2 rounded-xl border p-3 text-[11px] ${isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-subtle' : 'bg-amber-50/60 border-amber-200/60 text-amber-900'}`}>
             <HelpCircle size={15} className="shrink-0 text-amber-500" />
             <span>To prevent gaming and ensure authentic interactions, exact mathematical formulas are not published. Earning trust is based on genuine reliability.</span>
           </div>

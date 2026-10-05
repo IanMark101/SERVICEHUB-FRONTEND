@@ -1,6 +1,8 @@
 "use client";
 
 import React, { FormEvent, useCallback, useEffect, useState } from 'react';
+import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { Archive, CheckCircle2, Loader2, Megaphone, RefreshCw, Send } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import {
@@ -53,6 +55,7 @@ export default function AdminAnnouncementsPage() {
     }
   }, [page]);
 
+  useApiCacheRefresh(['admin'], () => loadAnnouncements());
   useEffect(() => {
     const timer = window.setTimeout(() => void loadAnnouncements(), 0);
     return () => window.clearTimeout(timer);
@@ -100,22 +103,22 @@ export default function AdminAnnouncementsPage() {
   };
 
   const card = isDark
-    ? 'bg-[#22211e] border-neutral-800/80 text-[#f2efe9]'
-    : 'bg-white border-slate-200 text-slate-900';
+    ? 'bg-[#22211e] border-neutral-800/80 text-white'
+    : 'bg-white border-slate-200 text-ink';
   const input = isDark
-    ? 'bg-[#191919] border-neutral-700 text-[#f2efe9] placeholder:text-neutral-600'
-    : 'bg-white border-slate-300 text-slate-900 placeholder:text-slate-400';
+    ? 'bg-[#191919] border-neutral-700 text-white placeholder:text-ink-muted'
+    : 'bg-white border-slate-300 text-ink placeholder:text-ink-subtle';
 
   return (
     <div className="space-y-6">
       <div className={`rounded-2xl border p-6 shadow-sm ${card}`}>
         <div className="flex items-start gap-3 mb-5">
-          <div className={`p-2.5 rounded-xl ${isDark ? 'bg-neutral-800 text-neutral-300' : 'bg-slate-100 text-slate-700'}`}>
+          <div className="rounded-xl bg-[var(--admin-soft)] p-2.5 text-[var(--admin-accent)]">
             <Megaphone className="w-5 h-5" />
           </div>
           <div>
             <h3 className="text-base font-extrabold">Publish an official announcement</h3>
-            <p className={`text-xs mt-1 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>
+            <p className={`text-xs mt-1 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
               Keep notices concise and relevant to ServiceHub Cordova operations. Published items appear immediately in both user workspaces.
             </p>
           </div>
@@ -129,13 +132,13 @@ export default function AdminAnnouncementsPage() {
               onChange={(event) => setTitle(event.target.value)}
               maxLength={120}
               placeholder="Example: Scheduled maintenance notice"
-              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 ${input}`}
+              className={`w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none focus:border-[var(--admin-accent)] focus:ring-2 focus:ring-[var(--admin-border)] ${input}`}
             />
           </div>
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-[11px] font-bold uppercase tracking-wide">Announcement</label>
-              <span className={`text-[10px] ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>{body.length}/1500</span>
+              <span className={`text-[10px] ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>{body.length}/1500</span>
             </div>
             <textarea
               value={body}
@@ -143,7 +146,7 @@ export default function AdminAnnouncementsPage() {
               maxLength={1500}
               rows={4}
               placeholder="State what residents need to know, when it applies, and any action they should take."
-              className={`w-full resize-y rounded-xl border px-3.5 py-3 text-sm leading-relaxed outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 ${input}`}
+              className={`w-full resize-y rounded-xl border px-3.5 py-3 text-sm leading-relaxed outline-none focus:border-[var(--admin-accent)] focus:ring-2 focus:ring-[var(--admin-border)] ${input}`}
             />
           </div>
 
@@ -151,7 +154,7 @@ export default function AdminAnnouncementsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-slate-800 disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-950 dark:hover:bg-white"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--admin-solid)] px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-[var(--admin-solid-hover)] disabled:opacity-60"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               <span>{saving ? 'Publishing…' : 'Publish announcement'}</span>
@@ -173,11 +176,11 @@ export default function AdminAnnouncementsPage() {
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className={`text-sm font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>Announcement history</h3>
-            <p className={`text-[11px] mt-0.5 ${isDark ? 'text-[#b4b0a9]' : 'text-slate-500'}`}>Published and archived administration notices.</p>
+            <h3 className={`text-sm font-extrabold ${isDark ? 'text-white' : 'text-ink'}`}>Announcement history</h3>
+            <p className={`text-[11px] mt-0.5 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>Published and archived administration notices.</p>
           </div>
           <button
-            onClick={loadAnnouncements}
+            onClick={() => { invalidateApiCache(['admin']); void loadAnnouncements(); }}
             disabled={loading}
             className={`p-2 rounded-lg border cursor-pointer ${isDark ? 'border-neutral-800 hover:bg-neutral-800' : 'border-slate-200 hover:bg-slate-50'}`}
             title="Refresh announcements"
@@ -187,10 +190,10 @@ export default function AdminAnnouncementsPage() {
         </div>
 
         {loading ? (
-          <WorkspacePageSkeleton label="Loading announcements" role="admin" variant="table" />
+          <WorkspacePageSkeleton label="Loading announcements" role="admin" variant="announcements" />
         ) : announcements.length === 0 ? (
           <div className={`rounded-2xl border p-8 text-center ${card}`}>
-            <Megaphone className="w-8 h-8 mx-auto text-slate-400 mb-3" />
+            <Megaphone className="w-8 h-8 mx-auto text-ink-subtle mb-3" />
             <p className="text-sm font-bold">No announcements have been created.</p>
           </div>
         ) : (
@@ -203,17 +206,17 @@ export default function AdminAnnouncementsPage() {
                       <span className={`text-[9px] uppercase tracking-wide font-extrabold px-2 py-0.5 rounded-full border ${
                         item.isPublished
                           ? (isDark ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700')
-                          : (isDark ? 'bg-neutral-800 border-neutral-700 text-neutral-400' : 'bg-slate-100 border-slate-200 text-slate-600')
+                          : (isDark ? 'bg-neutral-800 border-neutral-700 text-ink-subtle' : 'bg-slate-100 border-slate-200 text-ink-muted')
                       }`}>
                         {item.isPublished ? 'Published' : 'Archived'}
                       </span>
-                      <span className={`text-[10px] ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>
+                      <span className={`text-[10px] ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
                         {new Date(item.publishedAt || item.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                     </div>
                     <h4 className="text-sm font-extrabold">{item.title}</h4>
-                    <p className={`text-xs leading-relaxed mt-1.5 whitespace-pre-wrap ${isDark ? 'text-[#b4b0a9]' : 'text-slate-600'}`}>{item.body}</p>
-                    <p className={`text-[10px] mt-3 ${isDark ? 'text-neutral-500' : 'text-slate-400'}`}>Authored by {item.author?.name || 'Administrator'}</p>
+                    <p className={`text-xs leading-relaxed mt-1.5 whitespace-pre-wrap ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>{item.body}</p>
+                    <p className={`text-[10px] mt-3 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>Authored by {item.author?.name || 'Administrator'}</p>
                   </div>
                   <button
                     onClick={() => togglePublished(item)}

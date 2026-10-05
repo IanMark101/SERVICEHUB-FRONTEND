@@ -53,50 +53,65 @@ export default function CommunityStats({
       label: 'Verified Residents',
       value: stats.verifiedUsers.toLocaleString(),
       icon: ShieldCheck,
+      iconTone: isDark ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-50 text-orange-600',
     },
     {
       label: 'Active Providers',
       value: stats.activeProviders.toLocaleString(),
       icon: UsersThree,
+      iconTone: isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-50 text-emerald-600',
     },
     {
       label: 'Services Completed',
       value: stats.totalCompleted.toLocaleString(),
       icon: SealCheck,
+      iconTone: isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-50 text-amber-600',
     },
     {
       label: 'Active Service Listings',
       value: stats.activeListings.toLocaleString(),
       icon: Tag,
+      iconTone: isDark ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-50 text-blue-600',
     },
   ];
 
   return (
-    <div className={`grid overflow-hidden rounded-2xl border sm:grid-cols-2 lg:grid-cols-4 ${isDark ? 'border-white/10 bg-[#201f1c]' : 'border-black/8 bg-[#fffdfa]'}`} aria-label="Community statistics">
-      {statItems.map((item) => (
-        <div
-          key={item.label}
-          className={`flex min-h-24 items-center gap-3 border-b p-5 last:border-b-0 sm:border-r sm:[&:nth-child(2n)]:border-r-0 lg:border-b-0 lg:[&:nth-child(2n)]:border-r lg:last:border-r-0 ${isDark ? 'border-white/10 text-[#f5f4f2]' : 'border-black/8 text-[#171716]'}`}
-        >
-          <div
-            className={`grid size-9 shrink-0 place-items-center rounded-xl ${isDark ? 'bg-white/[0.06] text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#c86544]'}`}
-          >
-            <item.icon className="size-4.5" aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xl font-semibold tabular-nums tracking-[-0.03em]">
-              {item.value}
-            </p>
-            <p
-              className={`mt-0.5 text-xs leading-4 ${
-                isDark ? 'text-[#aaa59d]' : 'text-[#6f6a64]'
+    <div
+      className={`overflow-hidden rounded-3xl border transition-all ${
+        isDark
+          ? 'bg-[#1c1b18] border-neutral-800/90 shadow-xl shadow-black/40'
+          : 'bg-white border-slate-200/90 shadow-sm shadow-slate-900/5'
+      }`}
+      aria-label="Community statistics"
+    >
+      <div className="grid grid-cols-2 divide-y divide-slate-100 dark:divide-neutral-800/80 sm:grid-cols-4 sm:divide-y-0">
+        {statItems.map((item, index) => {
+          const isRightColOnMobile = index % 2 === 1;
+          const isLastColOnDesktop = index === 3;
+          return (
+            <div
+              key={item.label}
+              className={`flex min-w-0 flex-col justify-between p-3.5 sm:p-5 lg:p-6 transition-colors hover:bg-slate-50/50 dark:hover:bg-neutral-800/20 ${
+                isRightColOnMobile ? '' : 'border-r border-slate-100 dark:border-neutral-800/80'
+              } ${
+                isLastColOnDesktop ? '' : 'sm:border-r border-slate-100 dark:border-neutral-800/80'
               }`}
             >
-              {item.label}
-            </p>
-          </div>
-        </div>
-      ))}
+              <div className="flex items-start justify-between gap-1.5 sm:items-center">
+                <span className={`text-[11px] sm:text-xs lg:text-[13px] font-bold leading-tight line-clamp-2 min-h-[1.75rem] sm:min-h-0 ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
+                  {item.label}
+                </span>
+                <span className={`grid size-7 sm:size-8 shrink-0 place-items-center rounded-xl ${item.iconTone}`}>
+                  <item.icon size={15} weight="duotone" aria-hidden="true" />
+                </span>
+              </div>
+              <p className={`mt-2 sm:mt-3 text-lg sm:text-2xl lg:text-3xl font-black leading-none tabular-nums tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
+                {item.value}
+              </p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

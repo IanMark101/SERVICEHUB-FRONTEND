@@ -16,6 +16,7 @@ type WorkspaceTabsProps<T extends string> = {
   ariaLabel: string;
   tone?: 'seeker' | 'provider' | 'neutral';
   className?: string;
+  idPrefix?: string;
 };
 
 export default function WorkspaceTabs<T extends string>({
@@ -25,6 +26,7 @@ export default function WorkspaceTabs<T extends string>({
   ariaLabel,
   tone = 'neutral',
   className = '',
+  idPrefix,
 }: WorkspaceTabsProps<T>) {
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -58,6 +60,8 @@ export default function WorkspaceTabs<T extends string>({
             key={item.value}
             type="button"
             role="tab"
+            id={idPrefix ? `${idPrefix}-tab-${item.value}` : undefined}
+            aria-controls={idPrefix ? `${idPrefix}-panel-${item.value}` : undefined}
             aria-selected={isActive}
             tabIndex={isActive ? 0 : -1}
             className="workspace-tabs__item"

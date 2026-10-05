@@ -67,25 +67,25 @@ export default function PaginationBar({
 
   return (
     <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-[24px] border transition-colors duration-200 select-none ${
-      isDark ? 'bg-[#22211e]/60 border-neutral-800/80 text-[#b4b0a9]' : 'bg-white border-slate-200 text-slate-500'
+      isDark ? 'bg-[#22211e]/60 border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
     }`}>
       {/* Items Counter Info */}
       <div className="text-xs font-semibold">
-        Showing <span className={`font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{actualStartIndex}</span> to{' '}
-        <span className={`font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{actualEndIndex}</span> of{' '}
-        <span className={`font-extrabold ${isDark ? 'text-[#f2efe9]' : 'text-slate-900'}`}>{totalItems}</span> results
+        Showing <span className={`font-extrabold ${isDark ? 'text-white' : 'text-ink'}`}>{actualStartIndex}</span> to{' '}
+        <span className={`font-extrabold ${isDark ? 'text-white' : 'text-ink'}`}>{actualEndIndex}</span> of{' '}
+        <span className={`font-extrabold ${isDark ? 'text-white' : 'text-ink'}`}>{totalItems}</span> results
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center space-x-1.5">
+      <div className="flex max-w-full items-center space-x-1.5 overflow-x-auto pb-1">
         {/* Previous Button */}
         <button
           onClick={prevPage}
           disabled={currentPage === 1}
           className={`p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
             isDark 
-              ? 'border-neutral-800 bg-[#1c1b18] text-[#b4b0a9] hover:bg-[#2c2b27]' 
-              : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+              ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27]'
+              : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-50'
           }`}
           title="Previous Page"
         >
@@ -116,8 +116,8 @@ export default function PaginationBar({
                 isActive
                   ? activeBgClass
                   : isDark
-                    ? `border-neutral-800 bg-[#1c1b18] text-[#b4b0a9] hover:bg-[#2c2b27] ${hoverBorderClass}`
-                    : `border-slate-200 bg-white text-slate-500 hover:bg-slate-50 ${hoverBorderClass}`
+                    ? `border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27] ${hoverBorderClass}`
+                    : `border-slate-200 bg-white text-ink-muted hover:bg-slate-50 ${hoverBorderClass}`
               }`}
             >
               {pageNum}
@@ -131,8 +131,8 @@ export default function PaginationBar({
           disabled={currentPage === totalPages}
           className={`p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
             isDark 
-              ? 'border-neutral-800 bg-[#1c1b18] text-[#b4b0a9] hover:bg-[#2c2b27]' 
-              : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+              ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27]'
+              : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-50'
           }`}
           title="Next Page"
         >

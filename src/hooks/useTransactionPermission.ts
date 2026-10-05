@@ -1,4 +1,4 @@
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { VerificationStatus } from '../types';
 
@@ -16,7 +16,6 @@ export interface UserPermissions {
 export function useTransactionPermission() {
   const { user } = useApp();
   const router = useRouter();
-  const pathname = usePathname();
 
   const isVerified = user?.verificationStatus === VerificationStatus.APPROVED;
   const isActive = user?.isActive !== false;
@@ -26,8 +25,7 @@ export function useTransactionPermission() {
 
   const navigateToVerification = () => {
     if (!user) return;
-    const prefix = pathname.startsWith('/provider') ? 'provider' : 'seeker';
-    router.push(`/${prefix}/user-profile?verify=true`);
+    router.push(`/profile/${encodeURIComponent(user.id)}?tab=verification`);
   };
 
   return {

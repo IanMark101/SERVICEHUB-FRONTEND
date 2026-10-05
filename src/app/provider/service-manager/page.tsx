@@ -19,7 +19,7 @@ function ServiceManagerContent() {
 
 export default function ServiceManagerPage() {
   return (
-    <Suspense fallback={<WorkspacePageSkeleton label="Loading service manager" role="provider" variant="table" />}>
+    <Suspense fallback={<WorkspacePageSkeleton label="Loading service manager" role="provider" variant="manager" />}>
       <ServiceManagerContent />
     </Suspense>
   );

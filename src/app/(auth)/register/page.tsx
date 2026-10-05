@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import RegisterContainer from '@/components/auth/RegisterContainer';
 import { UserSession } from '@/components/auth/LoginContainer';
-import BrandLoading from '@/components/ui/BrandLoading';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,25 +11,29 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (!authLoading && isAuthenticated && user) {
+      if (user.role !== 'admin' && user.emailVerified !== true) {
+        router.replace('/email-verification-required');
+        return;
+      }
       const finalRole = user.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
-      router.push(`/${finalRole}`);
+      router.replace(`/${finalRole}`);
     }
   }, [isAuthenticated, user, authLoading, router]);
 
   const handleLoginSuccess = (userData: UserSession) => {
     setUser(userData);
     setIsAuthenticated(true);
+    if (userData.role !== 'admin' && userData.emailVerified !== true) {
+      router.replace('/email-verification-required');
+      return;
+    }
     const finalRole = userData.role === 'admin' ? 'admin' : (localStorage.getItem('workspaceRole') || 'seeker');
-    router.push(`/${finalRole}`);
+    router.replace(`/${finalRole}`);
   };
 
   const handleBackToHome = () => {
     router.push('/');
   };
-
-  if (authLoading) {
-    return <BrandLoading label="Preparing registration" />;
-  }
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f4f2] dark:bg-[#121211]">

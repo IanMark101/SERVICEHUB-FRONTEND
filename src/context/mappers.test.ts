@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mapBookingToEngagement, mapServiceToListing } from './mappers';
+import { mapBookingToEngagement, mapRequestToJobRequest, mapServiceToListing } from './mappers';
 
 const service = (queueEntries: unknown[], bookings: unknown[]) => ({
   id: 'service-1',
@@ -12,6 +12,25 @@ const service = (queueEntries: unknown[], bookings: unknown[]) => ({
 });
 
 describe('workspace API mappers', () => {
+  it('preserves client reputation without borrowing provider reviews', () => {
+    const request = mapRequestToJobRequest({
+      id: 'request-1', title: 'Door repair', description: 'Repair a door.', status: 'OPEN',
+      seeker: { id: 'resident-1', trustScore: 79, verificationStatus: 'APPROVED', clientRating: 3.5, clientReviewCount: 2, reviewsReceived: [{ rating: 5 }] },
+    });
+    expect(request).toMatchObject({ seekerTrustScore: 79, seekerVerificationStatus: 'APPROVED', seekerRating: 3.5, seekerReviewCount: 2 });
+    const unknown = mapRequestToJobRequest({ id: 'request-2', title: 'Repair', description: '', status: 'OPEN', seeker: { reviewsReceived: [{ rating: 5 }] } });
+    expect(unknown.seekerTrustScore).toBeUndefined();
+    expect(unknown.seekerRating).toBeUndefined();
+    expect(unknown.seekerReviewCount).toBeUndefined();
+  });
+  it('identifies a completed request from its linked booking, not the ambiguous CLOSED status', () => {
+    const request = mapRequestToJobRequest({
+      id: 'old-request', title: 'Pipe repair', description: 'Fix the leaking pipe', status: 'CLOSED',
+      offers: [{ booking: { status: 'COMPLETED' } }],
+    });
+    expect(request.hasCompletedBooking).toBe(true);
+    expect(request.status).toBe('CLOSED');
+  });
   it('maps an Admin-reserved UNDER_REVIEW booking to the paused disputed UI state', () => {
     const engagement = mapBookingToEngagement({
       id: 'booking-review',
