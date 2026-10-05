@@ -36,7 +36,9 @@ export function connectSocket(token: string): Socket | null {
   socket = io(endpoint.url, {
     path: endpoint.path,
     auth: { token },
-    transports: ['websocket', 'polling'],
+    // Establish live updates over HTTP before attempting a WebSocket upgrade.
+    // A proxy that rejects upgrades can still keep the polling connection alive.
+    transports: ['polling', 'websocket'],
     tryAllTransports: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 2000,

@@ -38,7 +38,7 @@ describe('live update connection recovery', () => {
     expect(connectSocket('')).toBeNull(); expect(mocks.io).not.toHaveBeenCalled();
     connectSocket('first-token'); connectSocket('new-token');
     expect(mocks.io).toHaveBeenCalledTimes(1); expect(current.auth).toEqual({ token: 'new-token' });
-    expect(mocks.io).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ transports: ['websocket', 'polling'], tryAllTransports: true }));
+    expect(mocks.io).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ transports: ['polling', 'websocket'], tryAllTransports: true }));
   });
   it('refreshes the token on Manager retries and stops when the session no longer exists', () => {
     connectSocket('old-token'); current.managerFire('reconnect_attempt', 1);
