@@ -17,6 +17,6 @@ export interface ModerationCase {
   history?: { id: string; action: string; reason?: string | null; createdAt: string; actor?: { name: string } | null }[];
 }
 export interface CaseSummary { active: number; underReview: number; history: number; concerns: Record<string, number> }
-export interface CaseMessage { id: string; senderId: string; content: string; isSystem: boolean; createdAt: string; sender?: { name: string } }
+export interface CaseMessage { id: string; senderId: string; content: string; imageUrl?: string | null; isSystem: boolean; createdAt: string; sender?: { name: string } }
 export type Penalty = 'none' | 'warn' | 'trust_deduct' | 'suspend' | 'ban';
 export type CancellationFault = 'none' | 'seeker' | 'provider';

@@ -7,6 +7,7 @@ import { useApp } from '../context/AppContext';
 import { apiGetMessages, apiSendMessage, apiGetConversationGroups, apiGetConversationGroupForBooking } from '../api/messages.api';
 import { apiHideBooking } from '../api/bookings.api';
 import { joinBookingRoom, getSocket } from '../lib/socket';
+import { processMessageImage } from '../lib/imageUtils';
 import type { ConfirmModalState } from '../components/ui/ConfirmModal';
 import { getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
 
@@ -15,6 +16,7 @@ export interface DbMessage {
   bookingId: string;
   senderId: string;
   content: string;
+  imageUrl?: string;
   createdAt: string;
   isRead: boolean;
   isSystem: boolean;
@@ -60,6 +62,7 @@ export function useMessagesPage() {
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
   const [input, setInput] = useState('');
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -68,6 +71,7 @@ export function useMessagesPage() {
   const messageScrollRef = useRef<HTMLDivElement>(null);
   const shouldStickToBottomRef = useRef(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedConvRef = useRef<Conversation | null>(null);
   const messageLoadIdRef = useRef(0);
 
@@ -246,15 +250,29 @@ export function useMessagesPage() {
     if (pane && shouldStickToBottomRef.current) pane.scrollTop = pane.scrollHeight;
   }, [messages]);
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await processMessageImage(file);
+      setAttachedImage(dataUrl);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to attach image.');
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || !selectedConv || sending) return;
+    if ((!input.trim() && !attachedImage) || !selectedConv || sending) return;
     shouldStickToBottomRef.current = true;
-    const content = input.trim();
+    const content = input.trim() || 'Sent an attachment';
+    const img = attachedImage;
     setInput('');
-    setError('');
+    setAttachedImage(null);
     setSending(true);
     try {
-      const res = await apiSendMessage(selectedConv.bookingId, content);
+      const res = await apiSendMessage(selectedConv.bookingId, content, img || undefined);
       if (res.success) {
         setMessages(prev => {
           const exists = prev.some(m => m.id === res.data.id);
@@ -264,6 +282,7 @@ export function useMessagesPage() {
       }
     } catch (e: unknown) {
       setInput(content);
+      setAttachedImage(img);
       setError(getApiErrorMessage(e, 'Failed to send message.'));
     } finally {
       setSending(false);
@@ -342,6 +361,8 @@ export function useMessagesPage() {
     messages,
     input,
     setInput,
+    attachedImage,
+    setAttachedImage,
     sending,
     loading,
     error,
@@ -351,9 +372,11 @@ export function useMessagesPage() {
     messageScrollRef,
     handleMessageScroll,
     textareaRef,
+    fileInputRef,
     filteredConversationGroups,
     selectConversation,
     selectGroup,
+    handleImageSelect,
     handleSend,
     handleKeyDown,
     handleHideConversation,

@@ -5,7 +5,6 @@ import { useApp } from '../../context/AppContext';
 import { useToast } from '../ui/Toast';
 import { apiRespondCancellationRequest } from '../../api/bookings.api';
 import SeekerActivity from './SeekerActivity';
-import type { JobEngagement } from '../../types';
 
 vi.mock('next/navigation', () => ({
   useSearchParams: vi.fn(),
@@ -21,16 +20,14 @@ vi.mock('./activity/SeekerActivityList', () => ({ default: ({ model }: { model: 
   openBookingId: string | null;
   loadingItemId: string | null;
   handleRespondCancellation: (requestId: string, approve: boolean) => void;
-  myEngagements: JobEngagement[];
-  openSafetyReport: (engagement: JobEngagement) => void;
 } }) => <div data-testid="activity-view">
   {model.openBookingId ?? 'overview'}
-  <button type="button" onClick={() => model.openSafetyReport(model.myEngagements[0])}>Safety report</button>
   <button type="button" disabled={!!model.loadingItemId} onClick={() => model.handleRespondCancellation('cancel-1', true)}>Approve cancellation</button>
   <button type="button" disabled={!!model.loadingItemId} onClick={() => model.handleRespondCancellation('cancel-1', false)}>Decline cancellation</button>
 </div> }));
 vi.mock('./activity/SeekerCancellationRequestModal', () => ({ default: () => null }));
 vi.mock('./activity/SeekerDisputeModal', () => ({ default: () => null }));
+vi.mock('../activity/SafetyReportModal', () => ({ default: () => null }));
 vi.mock('./RequestServiceModal', () => ({ default: () => null }));
 vi.mock('./ReviewModal', () => ({ default: () => null }));
 vi.mock('../ui/ConfirmModal', () => ({ default: () => null }));
@@ -109,17 +106,5 @@ describe('Seeker Activity booking links', () => {
     expect(apiRespondCancellationRequest).toHaveBeenCalledTimes(1);
     await act(async () => { resolveApproval({ success: true }); });
     await waitFor(() => expect(refreshEngagements).toHaveBeenCalled());
-  });
-
-  it('updates an open report dialog when the current booking becomes ineligible', () => {
-    setEngagements([{ ...booking, bookingStatus: 'ACCEPTED' }]);
-    const view = render(<SeekerActivity currentUserId="johncarlo" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Safety report' }));
-    fireEvent.change(screen.getByRole('textbox', { name: /What happened/ }), { target: { value: 'A detailed safety concern.' } });
-    expect(screen.getByRole('button', { name: 'Submit private report' })).toBeEnabled();
-    setEngagements([{ ...booking, status: 'canceled', bookingStatus: 'REMOVED' }]);
-    view.rerender(<SeekerActivity currentUserId="johncarlo" />);
-    expect(screen.getByRole('button', { name: 'Submit private report' })).toBeDisabled();
-    expect(screen.getByRole('alert')).toHaveTextContent(/removed bookings/);
   });
 });

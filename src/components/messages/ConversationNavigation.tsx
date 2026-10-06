@@ -170,9 +170,14 @@ export function PeopleInbox({ state, accent }: { state: MessagesState; accent: A
       {/* Top Header */}
       <div className="shrink-0 border-b border-slate-200/90 p-4 dark:border-neutral-800/80 bg-white/60 dark:bg-transparent">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-black tracking-tight text-ink dark:text-white">
-            Messages
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-black tracking-tight text-ink dark:text-white">
+              Messages
+            </h2>
+            <span className="rounded-full bg-slate-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-bold text-ink-muted dark:text-ink-muted">
+              {filteredConversationGroups.length}
+            </span>
+          </div>
           <span className="text-[10px] font-semibold text-ink-muted dark:text-ink-muted">
             {filteredConversationGroups.length === 1 ? '1 contact' : `${filteredConversationGroups.length} contacts`}
           </span>

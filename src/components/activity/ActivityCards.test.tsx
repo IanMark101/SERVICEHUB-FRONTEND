@@ -7,7 +7,7 @@ import ProviderActivityItem, { type ProviderActivityItemModel } from '../provide
 const booking: JobEngagement = {
   id: 'booking-1', title: 'House Cleaning', seekerId: 'johncarlo', seekerName: 'John Carlo', seekerAvatar: '',
   providerId: 'ian', providerName: 'Ian', providerAvatar: '', serviceId: 'service-1',
-  price: 250, status: 'queued', bookingStatus: 'ACCEPTED', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD', queuePaymentStatus: 'PAID_HELD', queuePosition: 1, queueStatus: 'WAITING',
+  price: 250, status: 'queued', paymentMethod: 'GCash', paymentStatus: 'PAID_HELD', queuePaymentStatus: 'PAID_HELD', queuePosition: 1, queueStatus: 'WAITING',
   createdAt: '2026-09-27T09:00:00.000Z', started: false,
 };
 
@@ -195,7 +195,7 @@ describe('Activity card actions with the new hierarchy', () => {
 
   it('keeps completion history actions and safety reporting accessible', () => {
     const model = seekerModel();
-    render(<SeekerActivityItem engagement={{ ...booking, status: 'completed', bookingStatus: 'COMPLETED' }} model={model} />);
+    render(<SeekerActivityItem engagement={{ ...booking, status: 'completed' }} model={model} />);
     fireEvent.click(screen.getByRole('button', { name: 'Leave Review' }));
     expect(model.setReviewingEngagement).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Request Again' }));

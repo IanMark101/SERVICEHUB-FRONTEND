@@ -4,7 +4,6 @@ import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../ui/Toast';
 import ProviderActivity from './ProviderActivity';
-import type { JobEngagement } from '../../types';
 
 vi.mock('next/navigation', () => ({
   useSearchParams: vi.fn(),
@@ -12,9 +11,10 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
-vi.mock('./activity/ProviderActivityList', () => ({ default: ({ model }: { model: { openItemId: string | null; myEngagements: JobEngagement[]; openSafetyReport: (engagement: JobEngagement) => void } }) => <div data-testid="activity-view">{model.openItemId ?? 'overview'}<button type="button" onClick={() => model.openSafetyReport(model.myEngagements[0])}>Safety report</button></div> }));
+vi.mock('./activity/ProviderActivityList', () => ({ default: ({ model }: { model: { openItemId: string | null } }) => <div data-testid="activity-view">{model.openItemId ?? 'overview'}</div> }));
 vi.mock('./activity/ProviderWorkloadPanel', () => ({ default: () => null }));
 vi.mock('./activity/ProviderCancellationDeclineModal', () => ({ default: () => null }));
+vi.mock('../activity/SafetyReportModal', () => ({ default: () => null }));
 vi.mock('../ui/ReasonModal', () => ({ default: () => null }));
 vi.mock('../seeker/ReviewModal', () => ({ default: () => null }));
 vi.mock('../ui/ConfirmModal', () => ({ default: () => null }));
@@ -97,17 +97,5 @@ describe('Provider Activity deep-link tab selection', () => {
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 350)); });
 
     expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
-  });
-
-  it('updates an open report dialog when the current booking becomes ineligible', () => {
-    setEngagements([{ ...queuedBooking, bookingStatus: 'ACCEPTED' }]);
-    const view = render(<ProviderActivity currentProviderId="ian" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Safety report' }));
-    fireEvent.change(screen.getByRole('textbox', { name: /What happened/ }), { target: { value: 'A detailed safety concern.' } });
-    expect(screen.getByRole('button', { name: 'Submit private report' })).toBeEnabled();
-    setEngagements([{ ...queuedBooking, status: 'canceled', bookingStatus: 'REMOVED' }]);
-    view.rerender(<ProviderActivity currentProviderId="ian" />);
-    expect(screen.getByRole('button', { name: 'Submit private report' })).toBeDisabled();
-    expect(screen.getByRole('alert')).toHaveTextContent(/removed bookings/);
   });
 });

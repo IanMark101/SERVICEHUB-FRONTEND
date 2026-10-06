@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mapBookingToEngagement, mapCompletedServiceToEngagement, mapRequestToJobRequest, mapServiceToListing } from './mappers';
+import { mapBookingToEngagement, mapRequestToJobRequest, mapServiceToListing } from './mappers';
 
 const service = (queueEntries: unknown[], bookings: unknown[]) => ({
   id: 'service-1',
@@ -12,18 +12,6 @@ const service = (queueEntries: unknown[], bookings: unknown[]) => ({
 });
 
 describe('workspace API mappers', () => {
-  it('keeps a completion without a booking separate from booking API targets', () => {
-    const engagement = mapCompletedServiceToEngagement({ id: 'completion-only', bookingId: null, seekerId: 'seeker', providerId: 'provider', finalPrice: 500 });
-    expect(engagement).toMatchObject({ id: 'completion-only', bookingId: null, completedServiceId: 'completion-only', status: 'completed' });
-  });
-
-  it('recovers the linked booking ID from the included booking', () => {
-    const engagement = mapCompletedServiceToEngagement({
-      id: 'completion', seekerId: 'seeker', providerId: 'provider', finalPrice: 500,
-      booking: { id: 'booking', status: 'COMPLETED', seekerId: 'seeker', providerId: 'provider' },
-    });
-    expect(engagement).toMatchObject({ id: 'booking', bookingId: 'booking', completedServiceId: 'completion' });
-  });
   it('preserves client reputation without borrowing provider reviews', () => {
     const request = mapRequestToJobRequest({
       id: 'request-1', title: 'Door repair', description: 'Repair a door.', status: 'OPEN',

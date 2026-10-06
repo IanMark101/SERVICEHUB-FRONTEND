@@ -17,7 +17,6 @@ import type { UserSession } from '../../auth/LoginContainer';
 import type { ProviderActivityItemData } from './providerActivity.utils';
 import ActivityWorkroomSituation from '../../activity/ActivityWorkroomSituation';
 import { bookingOutcomeLabels, getBookingOutcome } from '../../../lib/bookingOutcome';
-import { canOpenBookingConversation, canReportBookingSafety, getEngagementBookingId } from '../../../lib/bookingActions';
 import ActivityBookingFacts from '../../activity/ActivityBookingFacts';
 import ActivityCancellationPanel from '../../activity/ActivityCancellationPanel';
 import { getPaidStartBlockReason } from '../../activity/paidStartReadiness';
@@ -310,9 +309,10 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                           </div>
                         )}
 
-                        {canOpenBookingConversation(je) && (
+                        {/* Open Conversation — accessible on all non-pending booking statuses */}
+                        {je.status !== 'pending_provider' && (
                           <button
-                            onClick={() => router.push(`/provider/messages?booking=${getEngagementBookingId(je)}`)}
+                            onClick={() => router.push(`/provider/messages?booking=${je.id}`)}
                             className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-white' : 'border-slate-300 hover:bg-slate-50 text-ink-secondary'
                             }`}
                             aria-label="Open Conversation"
@@ -322,7 +322,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                           </button>
                         )}
 
-                        {canReportBookingSafety(je) && (
+                        {['queued', 'in_progress', 'awaiting_seeker_approval', 'disputed', 'completed', 'canceled'].includes(je.status) && (
                           <button
                             type="button"
                             onClick={() => openSafetyReport(je)}

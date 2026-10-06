@@ -5,8 +5,6 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { FileImage, Loader2, ShieldAlert, X } from "lucide-react";
 import { apiSubmitSafetyReport, apiUploadBookingEvidence } from "../../api/bookings.api";
 import { getApiErrorMessage } from "../../lib/api/errors";
-import { getEngagementBookingId, getSafetyReportBlockReason } from "../../lib/bookingActions";
-import type { JobEngagement } from "../../types";
 
 type ReportReason = "POOR_SERVICE_QUALITY" | "INCOMPLETE_SERVICE" | "SCAM_OR_FRAUD" | "INAPPROPRIATE_BEHAVIOR" | "OVERPRICING" | "NO_SHOW";
 
@@ -20,7 +18,7 @@ const REASONS: Array<{ value: ReportReason; label: string }> = [
 ];
 
 interface SafetyReportModalProps {
-  engagement: Pick<JobEngagement, 'id' | 'bookingId' | 'bookingStatus' | 'title' | 'providerName' | 'seekerName'> | null;
+  engagement: { id: string; title: string; providerName: string; seekerName: string } | null;
   targetRole: "provider" | "seeker";
   isDark: boolean;
   onClose: () => void;
@@ -99,24 +97,22 @@ function SafetyReportDialog({ engagement, targetRole, isDark, onClose, onSubmitt
   }, [closeDialog, submitting]);
   const targetName = targetRole === "provider" ? engagement.providerName : engagement.seekerName;
   const valid = description.trim().length >= 10;
-  const bookingId = getEngagementBookingId(engagement);
-  const blockedReason = getSafetyReportBlockReason(engagement);
   const accent = targetRole === "provider" ? "orange" : "emerald";
   const fieldFocus = accent === "orange" ? "focus:border-orange-500 focus:ring-orange-500/15" : "focus:border-emerald-500 focus:ring-emerald-500/15";
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!valid || submitting || blockedReason || !bookingId) return;
+    if (!valid || submitting) return;
     setSubmitting(true);
     setError("");
     try {
       let evidenceStorageKey: string | undefined;
       if (evidence) {
         if (evidence.size > 5 * 1024 * 1024) throw new Error("Choose an evidence image smaller than 5 MB.");
-        const uploaded = await apiUploadBookingEvidence(bookingId, await readImage(evidence));
+        const uploaded = await apiUploadBookingEvidence(engagement.id, await readImage(evidence));
         evidenceStorageKey = uploaded.data?.storageKey;
       }
-      const response = await apiSubmitSafetyReport(bookingId, { reason, description: description.trim(), evidenceStorageKey });
+      const response = await apiSubmitSafetyReport(engagement.id, { reason, description: description.trim(), evidenceStorageKey });
       await onSubmitted(response.data?.created !== false);
       closeDialog();
     } catch (cause: unknown) {
@@ -164,12 +160,12 @@ function SafetyReportDialog({ engagement, targetRole, isDark, onClose, onSubmitt
             <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={submitting} onChange={(event) => { setError(""); setEvidence(event.target.files?.[0] || null); }} />
           </label>
 
-          {(blockedReason || error) && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs leading-5 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">{blockedReason || error}</div>}
+          {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs leading-5 text-red-800 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300">{error}</div>}
         </div>
 
         <div className="flex shrink-0 gap-3 border-t border-slate-200 p-5 dark:border-neutral-800">
           <button type="button" onClick={closeDialog} disabled={submitting} className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-bold hover:bg-slate-50 disabled:opacity-50 dark:border-neutral-700 dark:hover:bg-neutral-800">Cancel</button>
-          <button type="submit" disabled={!valid || submitting || Boolean(blockedReason)} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 ${accent === "orange" ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"}`}>
+          <button type="submit" disabled={!valid || submitting} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50 ${accent === "orange" ? "bg-orange-600 hover:bg-orange-700" : "bg-emerald-600 hover:bg-emerald-700"}`}>
             {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}{submitting ? "Submitting report…" : "Submit private report"}
           </button>
         </div>

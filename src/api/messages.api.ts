@@ -5,8 +5,8 @@ export async function apiGetMessages(completedServiceId: string) {
   return response.data;
 }
 
-export async function apiSendMessage(bookingId: string, content: string) {
-  const response = await api.post(`/messages/${bookingId}`, { content });
+export async function apiSendMessage(completedServiceId: string, content: string, imageUrl?: string) {
+  const response = await api.post(`/messages/${completedServiceId}`, { content, imageUrl });
   return response.data;
 }
 

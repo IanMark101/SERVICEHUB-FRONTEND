@@ -3,11 +3,6 @@ node_modules
 out
 dist
 coverage
-.audit-results
-.codex-motion-check
-tools/*.png
-tools/*.jpg
-tools/*results.json
 .git
 .gitignore
 .env
