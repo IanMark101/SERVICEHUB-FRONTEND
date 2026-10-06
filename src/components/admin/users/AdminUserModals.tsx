@@ -76,7 +76,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
       {/* Set Trust Score Overlay */}
       {editingTrustUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
+          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={handleUpdateTrust} className="p-5 space-y-4">
@@ -158,7 +158,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
       {/* Suspend Overlay */}
       {suspendingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
+          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={handleSuspend} className="p-5 space-y-4">
@@ -209,7 +209,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
       {/* Ban Overlay */}
       {banningUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
+          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={handleBan} className="p-5 space-y-4">
@@ -253,7 +253,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
       {/* Reusable custom confirmation overlay to remove browser confirms */}
       {confirmRestoreUserId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
+          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={(event) => { event.preventDefault(); handleRestore(confirmRestoreUserId); }} className="p-5 space-y-4">

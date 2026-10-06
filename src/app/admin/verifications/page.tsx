@@ -288,7 +288,7 @@ export default function AdminVerifications() {
       {/* Review Dialog Overlay */}
       {reviewingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
             }`}>
             <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
               <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-emerald-500' : 'text-red-500'}`}>

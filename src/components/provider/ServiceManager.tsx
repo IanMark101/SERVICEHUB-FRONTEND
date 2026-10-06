@@ -279,7 +279,7 @@ export default function ServiceManager({
                     </div>
 
                     {/* Right: Actions (Edit, Delete, Status Toggle) */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
                       {!isRemoved && <button
                         onClick={() => handleOpenEdit(service)}
                         className={`px-3.5 py-1.5 border font-semibold text-xs rounded-lg transition-all flex items-center space-x-1.5 cursor-pointer ${

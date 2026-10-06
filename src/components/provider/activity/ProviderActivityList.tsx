@@ -168,9 +168,9 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
             </div>
 
             {/* Sort Dropdown */}
-            <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+            <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
               <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort each section:</span>
-              <div className="w-48 sm:w-56">
+              <div className="min-w-0 max-w-full w-48 sm:w-56">
                 <FormalSelect
                   name="sortBy"
                   value={sortBy}

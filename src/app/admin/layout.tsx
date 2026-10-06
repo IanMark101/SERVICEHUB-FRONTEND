@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const activeTab = pathname.split('/')[2] || 'overview';
 
   return (
-    <div className={`admin-workspace h-screen overflow-hidden flex transition-colors duration-200 ${
+    <div className={`admin-workspace h-dvh overflow-hidden flex transition-colors duration-200 ${
       isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'
     }`}>
       
@@ -80,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       />
  
       {/* Main Content Pane */}
-      <div className={`flex-1 flex flex-col min-w-0 h-screen overflow-hidden transition-all duration-300 ${
+      <div className={`flex-1 flex flex-col min-w-0 h-dvh overflow-hidden transition-all duration-300 ${
         isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
       }`}>
         
@@ -96,17 +96,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
 
         {/* Warning strip */}
-        <div>
+        <div className="shrink-0">
           <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
             <div className="my-1 flex items-center justify-center gap-2 rounded-xl bg-[var(--admin-soft)] py-2 text-center text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--admin-accent)] ring-1 ring-inset ring-[var(--admin-border)]">
-              <ShieldCheck className="h-3.5 w-3.5" />
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
               <span>Restricted administrator workspace · Actions are recorded in the audit log</span>
             </div>
           </div>
         </div>
  
         {/* Scrollable Layout Content Canvas */}
-        <main className="admin-content flex-1 w-full max-w-[1440px] mx-auto overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-5">
+        <main className="admin-content min-h-0 min-w-0 flex-1 w-full max-w-[1440px] mx-auto overflow-y-auto px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-5">
           {/* Dynamic Tab Render Area */}
           <div className="admin-page-body">{children}</div>
  

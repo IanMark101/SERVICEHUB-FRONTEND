@@ -99,7 +99,7 @@ export default function SuggestCategoryModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className={`w-full max-w-xl rounded-3xl border shadow-2xl overflow-hidden transition-all duration-200 ${
+        className={`w-full max-w-xl max-h-[calc(100dvh-2rem)] min-w-0 flex flex-col rounded-3xl border shadow-2xl overflow-hidden transition-all duration-200 ${
           isDark
             ? 'bg-[#1c1b18] border-neutral-800 text-white'
             : 'bg-white border-slate-200 text-ink'
@@ -107,13 +107,13 @@ export default function SuggestCategoryModal({
       >
         {/* Header */}
         <div
-          className={`px-6 py-5 border-b flex items-center justify-between ${
+          className={`px-5 sm:px-6 py-5 shrink-0 border-b flex items-center justify-between gap-3 ${
             isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-100 bg-slate-50'
           }`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <div
-              className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
+              className={`w-10 h-10 shrink-0 rounded-2xl flex items-center justify-center ${
                 isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-600'
               }`}
             >
@@ -129,7 +129,7 @@ export default function SuggestCategoryModal({
 
           <button
             onClick={onClose}
-            className={`p-2 rounded-xl border transition-all cursor-pointer ${
+            className={`p-2 shrink-0 rounded-xl border transition-all cursor-pointer ${
               isDark
                 ? 'border-neutral-800 hover:bg-neutral-800 text-ink-subtle'
                 : 'border-slate-200 hover:bg-slate-100 text-ink-muted'
@@ -139,7 +139,7 @@ export default function SuggestCategoryModal({
           </button>
         </div>
 
-        <div className="px-6 pt-4">
+        <div className="shrink-0 px-5 sm:px-6 pt-4">
           <WorkspaceTabs
             activeValue={activeTab}
             onChange={setActiveTab}
@@ -154,7 +154,7 @@ export default function SuggestCategoryModal({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto">
+        <div className="min-h-0 flex-1 p-5 sm:p-6 overflow-y-auto overscroll-contain">
           {activeTab === 'submit' ? (
             <div className="space-y-4">
               {/* Verification Gate */}

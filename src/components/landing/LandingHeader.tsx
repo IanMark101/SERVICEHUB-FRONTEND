@@ -8,6 +8,7 @@ import { Menu, Moon, Sun, X } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { getWorkspaceEntryPath } from '@/lib/workspaceEntry';
 import LandingActionLink from './LandingActionLink';
+import styles from './LandingHeader.module.css';
 
 interface LandingHeaderProps {
   isDark: boolean;
@@ -67,7 +68,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
     <>
       {/* Floating Header Container */}
       <motion.header
-        className="fixed inset-x-0 top-4 z-[100] px-4 sm:px-6 lg:px-8 pointer-events-none"
+        className={`${styles.header} fixed inset-x-0 top-4 z-[100] px-4 sm:px-6 lg:px-8 pointer-events-none`}
         data-scroll-hidden={headerHidden ? 'true' : 'false'}
         initial={false}
         animate={{ y: headerHidden ? 'calc(-100% - 2rem)' : 0, opacity: headerHidden ? 0 : 1 }}
@@ -83,11 +84,11 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           if (!event.currentTarget.contains(event.relatedTarget)) setFocusWithin(false);
         }}
       >
-        <div data-landing-header-bar className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+        <div data-landing-header-bar className={`${styles.bar} mx-auto flex max-w-6xl items-center justify-between gap-3`}>
           {/* Left Floating Brand Card */}
           <a
             href="#top"
-            className="pointer-events-auto group flex shrink-0 items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-2 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white hover:shadow-[0_12px_24px_-8px_rgba(15,15,15,0.22)] active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/85"
+            className={`${styles.brand} pointer-events-auto group flex shrink-0 items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-2 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white hover:shadow-[0_12px_24px_-8px_rgba(15,15,15,0.22)] active:scale-[0.98] dark:border-white/10 dark:bg-zinc-900/85`}
             aria-label="ServiceHub Cordova home"
           >
             <Image
@@ -98,7 +99,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
               className="size-7 shrink-0 rounded-lg transition-transform group-hover:rotate-3"
               priority
             />
-            <div className="hidden pr-1 leading-none min-[380px]:block">
+            <div className={`${styles.wordmark} hidden pr-1 leading-none min-[380px]:block`}>
               <span className="block text-xs font-extrabold tracking-tight text-slate-900 dark:text-white">
                 ServiceHub
               </span>
@@ -109,7 +110,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           </a>
 
           {/* Right Floating Liquid Glass Pill Navbar */}
-          <div className="pointer-events-auto flex shrink-0 items-center gap-1.5 rounded-full border border-neutral-200/80 bg-white/80 p-1.5 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 dark:border-white/10 dark:bg-zinc-900/80">
+          <div className={`${styles.controls} pointer-events-auto flex shrink-0 items-center gap-1.5 rounded-full border border-neutral-200/80 bg-white/80 p-1.5 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 dark:border-white/10 dark:bg-zinc-900/80`}>
             {/* Desktop Navigation Links */}
             <nav className="hidden items-center gap-0.5 px-1 xl:flex" aria-label="Main navigation">
               {NAV_LINKS.map((link) => (
@@ -137,14 +138,14 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
                 {!hasSession && (
                   <Link
                     href="/login"
-                    className="hidden sm:inline-flex rounded-full px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-black/[0.04] dark:text-zinc-300 dark:hover:bg-white/[0.06]"
+                    className={`${styles.login} hidden sm:inline-flex rounded-full px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-black/[0.04] dark:text-zinc-300 dark:hover:bg-white/[0.06]`}
                   >
                     Log in
                   </Link>
                 )}
 
                 {/* Unique High-Contrast Action Pill Button with Specular Light Shade on Black */}
-                <LandingActionLink>{hasSession ? 'Open workspace' : 'Get started'}</LandingActionLink>
+                <div className={styles.headerAction}><LandingActionLink>{hasSession ? 'Open workspace' : 'Get started'}</LandingActionLink></div>
 
             {/* Mobile Menu Toggle Button */}
             <button
@@ -164,7 +165,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
         {mobileOpen && (
           <div
             id="mobile-navigation"
-            className="pointer-events-auto mx-auto mt-3 max-w-6xl rounded-2xl border border-black/[0.08] bg-white/95 p-4 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/95 xl:hidden"
+            className={`${styles.drawer} pointer-events-auto mx-auto mt-3 max-w-6xl rounded-2xl border border-black/[0.08] bg-white/95 p-4 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/95 xl:hidden`}
           >
             <nav className="grid gap-1" aria-label="Mobile navigation">
               {NAV_LINKS.map((link) => (

@@ -1,0 +1,15 @@
+/* Only dialogs without their own scrollable body use this fallback. */
+.viewport-dialog-scroll {
+  min-width: 0;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: break-word;
+}
+
+/* Keep feedback reachable when several long messages fill a short screen. */
+.viewport-toast-stack {
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

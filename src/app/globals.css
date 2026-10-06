@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "../components/ui/responsive.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -195,11 +196,11 @@
   }
 
   .admin-pagination {
-    @apply flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:flex-row dark:border-neutral-800 dark:bg-[#202020];
+    @apply flex flex-col items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:flex-wrap dark:border-neutral-800 dark:bg-[#202020];
   }
 
   .admin-page-button {
-    @apply flex h-8 min-w-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-[11px] font-bold text-ink-muted transition-colors hover:border-slate-400 hover:text-ink disabled:cursor-not-allowed disabled:opacity-35 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink-secondary dark:hover:border-neutral-500 dark:hover:text-white;
+    @apply flex h-8 min-w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-[11px] font-bold text-ink-muted transition-colors hover:border-slate-400 hover:text-ink disabled:cursor-not-allowed disabled:opacity-35 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink-secondary dark:hover:border-neutral-500 dark:hover:text-white;
   }
 
   .admin-page-button-active {
@@ -2154,8 +2155,9 @@ h6 {
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     background: color-mix(in srgb, var(--workspace-canvas) 94%, transparent);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    /* Fixed mobile panels must be positioned against the viewport. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .workspace-header-context {
@@ -2189,6 +2191,13 @@ h6 {
     min-width: 0;
     gap: 0;
     padding: 0.125rem;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .profile-account-header {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .profile-page-shell .marketplace-profile-tabs {

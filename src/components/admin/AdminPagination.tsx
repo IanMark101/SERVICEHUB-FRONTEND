@@ -43,13 +43,13 @@ export default function AdminPagination({
         <span className="font-bold text-ink dark:text-ink">{totalItems}</span> {itemLabel}
       </p>
 
-      <div className="flex items-center gap-1" aria-label={`Page ${safePage} of ${safeTotalPages}`}>
+      <div className="min-w-0 max-w-full flex items-center gap-1 overflow-x-auto pb-1" aria-label={`Page ${safePage} of ${safeTotalPages}`}>
         <button type="button" onClick={() => onPageChange(safePage - 1)} disabled={safePage === 1} className="admin-page-button" aria-label="Previous page">
           <ChevronLeft className="h-3.5 w-3.5" />
         </button>
 
         {pageOptions(safePage, safeTotalPages).map((option, index) => option === 'ellipsis' ? (
-          <span key={`ellipsis-${index}`} className="flex h-8 w-7 items-center justify-center text-xs text-ink-subtle">…</span>
+          <span key={`ellipsis-${index}`} className="shrink-0 flex h-8 w-7 items-center justify-center text-xs text-ink-subtle">…</span>
         ) : (
           <button type="button" key={option} onClick={() => onPageChange(option)} aria-current={option === safePage ? 'page' : undefined} className={`admin-page-button ${option === safePage ? 'admin-page-button-active' : ''}`}>
             {option}

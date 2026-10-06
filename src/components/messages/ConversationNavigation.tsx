@@ -164,11 +164,11 @@ export function PeopleInbox({ state, accent }: { state: MessagesState; accent: A
 
   return (
     <aside
-      className={`${selectedConv ? 'hidden md:flex' : 'flex'} w-full shrink-0 flex-col border-r border-slate-200/90 dark:border-neutral-800/80 md:w-80 bg-slate-50/40 dark:bg-[#1a1917]/50`}
+      className={`${selectedConv ? 'hidden xl:flex' : 'flex'} w-full shrink-0 flex-col border-r border-slate-200/90 dark:border-neutral-800/80 xl:w-80 bg-slate-50/40 dark:bg-[#1a1917]/50`}
       aria-label="People in your inbox"
     >
       {/* Top Header */}
-      <div className="border-b border-slate-200/90 p-4 dark:border-neutral-800/80 bg-white/60 dark:bg-transparent">
+      <div className="shrink-0 border-b border-slate-200/90 p-4 dark:border-neutral-800/80 bg-white/60 dark:bg-transparent">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-black tracking-tight text-ink dark:text-white">
@@ -244,7 +244,7 @@ export function PeopleInbox({ state, accent }: { state: MessagesState; accent: A
 
       {/* Pagination if applicable */}
       {conversationTotalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-slate-200/90 px-3.5 py-2 text-[11px] font-semibold text-ink-secondary dark:border-neutral-800 dark:text-ink-secondary">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-slate-200/90 px-3.5 py-2 text-[11px] font-semibold text-ink-secondary dark:border-neutral-800 dark:text-ink-secondary">
           <button
             type="button"
             disabled={conversationPage <= 1}
@@ -331,18 +331,18 @@ export function BookingThreads({ state, accent }: { state: MessagesState; accent
 
   return (
     <nav
-      className="border-b border-slate-200/80 px-4 py-2.5 dark:border-neutral-800/80 bg-slate-50/50 dark:bg-[#191816]/60 transition-colors"
+      className="shrink-0 border-b border-slate-200/80 px-4 py-2.5 dark:border-neutral-800/80 bg-slate-50/50 dark:bg-[#191816]/60 transition-colors"
       aria-label={`Jobs with ${selectedGroup.otherPartyName}`}
     >
       {/* Thread Ribbon Header */}
       <div className="mb-2 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5">
+        <div className="flex min-w-0 items-center gap-1.5">
           <Briefcase size={13} className="text-ink-subtle dark:text-ink-subtle shrink-0" aria-hidden="true" />
-          <span className="text-[11px] font-bold text-ink dark:text-ink">
+          <span className="min-w-0 [overflow-wrap:anywhere] text-[11px] font-bold text-ink dark:text-ink">
             Jobs with {selectedGroup.otherPartyName}
           </span>
         </div>
-        <span className="rounded-full bg-slate-200/70 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-ink-muted dark:text-ink-muted">
+        <span className="shrink-0 rounded-full bg-slate-200/70 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-ink-muted dark:text-ink-muted">
           {selectedGroup.bookings.length} {selectedGroup.bookings.length === 1 ? 'total' : 'total'}
         </span>
       </div>

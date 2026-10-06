@@ -28,7 +28,7 @@ export default function HeaderProfileMenu({ currentRole, user, isDark, isOpen, b
       {isOpen && (
         <>
           <div onClick={onClose} className="fixed inset-0 z-30" />
-          <div className={`absolute right-0 mt-3 w-52 rounded-[20px] border shadow-xl overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-155 ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200'}`}>
+          <div className={`absolute right-0 mt-3 w-52 max-w-[calc(100vw-2rem)] max-h-[calc(100dvh-6rem)] rounded-[20px] border shadow-xl overflow-y-auto overscroll-contain z-40 animate-in fade-in slide-in-from-top-2 duration-155 ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200'}`}>
             <div className={`p-4 border-b ${isDark ? 'border-neutral-800 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/45'}`}>
               <p className="text-[10px] text-ink-subtle font-semibold">Signed in as</p>
               <p className="text-xs font-bold truncate mt-0.5">{user.firstName} {user.lastName}</p>

@@ -23,7 +23,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm select-none animate-in fade-in duration-200">
       
       {/* Modal Card container */}
-      <div className={`rounded-[24px] max-w-md w-full border shadow-2xl overflow-hidden p-6 relative transition-colors duration-200 ${
+      <div className={`viewport-dialog-scroll rounded-[24px] max-w-md w-full border shadow-2xl overflow-hidden p-6 relative transition-colors duration-200 ${
         isDark ? 'bg-[#1c1b18] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
       }`}>
         
