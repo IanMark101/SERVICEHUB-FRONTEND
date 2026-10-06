@@ -52,10 +52,10 @@ export default function AuthLeftPanel({
   return (
     <aside
       aria-label="ServiceHub Cordova overview"
-      className="relative hidden min-h-[100dvh] flex-shrink-0 overflow-hidden bg-[#f5f4f2] p-5 text-ink lg:flex lg:w-1/2 dark:bg-[#121211] dark:text-white xl:p-7"
+      className="relative hidden min-h-[100dvh] flex-shrink-0 bg-[#f5f4f2] p-5 text-ink lg:flex lg:w-1/2 dark:bg-[#121211] dark:text-white xl:p-7"
     >
       <div className="relative flex min-h-0 w-full flex-1 flex-col rounded-2xl border border-black/8 bg-[#fffdfa] shadow-[0_18px_48px_rgba(23,23,22,0.07)] dark:border-white/10 dark:bg-[#171716] dark:shadow-none">
-        <header className="flex min-h-20 items-center justify-between border-b border-black/8 px-5 dark:border-white/10 xl:px-7">
+        <header className="flex min-h-20 shrink-0 items-center justify-between border-b border-black/8 px-5 dark:border-white/10 xl:px-7">
           <div className="flex items-center gap-4">
             <button
               type="button"
@@ -98,7 +98,7 @@ export default function AuthLeftPanel({
           </button>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col justify-center px-7 py-8 xl:px-11 xl:py-10">
+        <div className="flex flex-1 flex-col justify-center px-7 py-8 xl:px-11 xl:py-10">
           <h1 className="mx-auto max-w-[15ch] text-center text-[clamp(2.35rem,3.05vw,3.25rem)] font-medium leading-[1.02] tracking-[-0.04em] text-ink dark:text-white">
             {isSignup
               ? 'One account for local help and local work.'
@@ -144,7 +144,7 @@ export default function AuthLeftPanel({
           </section>
         </div>
 
-        <footer className="grid grid-cols-2 gap-5 border-t border-black/8 px-5 py-4 text-[10px] leading-4 text-ink-subtle dark:border-white/10 dark:text-white/48 xl:px-7">
+        <footer className="grid shrink-0 grid-cols-2 gap-5 border-t border-black/8 px-5 py-4 text-[10px] leading-4 text-ink-subtle dark:border-white/10 dark:text-white/48 xl:px-7">
           <span>Cordova, Cebu, Philippines</span>
           <span className="text-right">Online payments use PayMongo Test Mode</span>
         </footer>

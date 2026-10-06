@@ -58,6 +58,27 @@
   .supporting { font-size: 16px; }
   .secondary { padding-inline: 18px; font-size: 14px; }
 }
+/* Short laptop windows need their own composition, even at desktop widths. */
+@media (min-width: 1024px) and (max-height: 820px) {
+  .layout { min-height: 0; gap: 32px; padding-top: 88px; padding-inline: clamp(32px, 5vw, 72px); }
+  .copy { padding-block: 16px 24px; }
+  .badge { margin-bottom: 14px; }
+  .title { font-size: clamp(44px, 4vw, 58px); }
+  .tagline { margin-top: 12px; font-size: 26px; }
+  .description { margin-top: 16px; font-size: 17px; }
+  .supporting { margin-top: 10px; font-size: 15px; }
+  .actions { margin-top: 20px; gap: 12px; }
+  .scene { height: clamp(420px, calc(100svh - 180px), 600px); }
+  .presenter { left: -2%; width: auto; height: 96%; max-width: none; }
+  .preview { top: 16px; width: 260px; max-width: none; transform: scale(.86); transform-origin: top right; }
+}
+@media (min-width: 1024px) and (max-width: 1199px) and (max-height: 820px) {
+  .layout { gap: 24px; }
+  .preview { transform: scale(.72); }
+  .title { font-size: 44px; }
+  .tagline { font-size: 24px; }
+  .description { font-size: 16px; }
+}
 @media (max-width: 1023px) {
   .layout { grid-template-areas: "copy" "scene"; grid-template-columns: minmax(0, 1fr); gap: 40px; min-height: 0; padding: 112px 32px 0; }
   .copy { max-width: 560px; justify-self: center; padding: 0; text-align: center; }
