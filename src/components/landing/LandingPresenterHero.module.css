@@ -58,8 +58,8 @@
   .supporting { font-size: 16px; }
   .secondary { padding-inline: 18px; font-size: 14px; }
 }
-/* Short laptop windows need their own composition, even at desktop widths. */
-@media (min-width: 1024px) and (max-height: 820px) {
+/* Keep the original wide desktop hero; compact only narrow, short windows. */
+@media (min-width: 1024px) and (max-width: 1399px) and (max-height: 820px) {
   .layout { min-height: 0; gap: 32px; padding-top: 88px; padding-inline: clamp(32px, 5vw, 72px); }
   .copy { padding-block: 16px 24px; }
   .badge { margin-bottom: 14px; }
