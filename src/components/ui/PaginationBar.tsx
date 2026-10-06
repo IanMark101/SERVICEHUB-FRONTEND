@@ -66,7 +66,7 @@ export default function PaginationBar({
     : 'hover:border-emerald-500/50 hover:text-emerald-500';
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-[24px] border transition-colors duration-200 select-none ${
+    <div className={`min-w-0 flex flex-col sm:flex-row sm:flex-wrap items-center justify-between gap-4 p-4 rounded-[24px] border transition-colors duration-200 select-none ${
       isDark ? 'bg-[#22211e]/60 border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
     }`}>
       {/* Items Counter Info */}
@@ -77,12 +77,12 @@ export default function PaginationBar({
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex max-w-full items-center space-x-1.5 overflow-x-auto pb-1">
+      <div className="min-w-0 flex max-w-full items-center space-x-1.5 overflow-x-auto pb-1">
         {/* Previous Button */}
         <button
           onClick={prevPage}
           disabled={currentPage === 1}
-          className={`p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
+          className={`shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
             isDark 
               ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27]'
               : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-50'
@@ -98,7 +98,7 @@ export default function PaginationBar({
             return (
               <span
                 key={`ellipsis-${index}`}
-                className="w-8 h-8 flex items-center justify-center text-xs font-extrabold"
+                className="shrink-0 w-8 h-8 flex items-center justify-center text-xs font-extrabold"
               >
                 ...
               </span>
@@ -112,7 +112,7 @@ export default function PaginationBar({
             <button
               key={`page-${pageNum}`}
               onClick={() => goToPage(pageNum)}
-              className={`w-8 h-8 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center cursor-pointer ${
+              className={`shrink-0 w-8 h-8 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center cursor-pointer ${
                 isActive
                   ? activeBgClass
                   : isDark
@@ -129,7 +129,7 @@ export default function PaginationBar({
         <button
           onClick={nextPage}
           disabled={currentPage === totalPages}
-          className={`p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
+          className={`shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
             isDark 
               ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27]'
               : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-50'

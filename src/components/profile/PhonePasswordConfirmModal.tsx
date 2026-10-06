@@ -42,7 +42,7 @@ export default function PhonePasswordConfirmModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className={`relative w-full max-w-md rounded-2xl shadow-2xl border p-6 overflow-hidden ${
+        className={`viewport-dialog-scroll relative w-full max-w-md rounded-2xl shadow-2xl border p-6 overflow-hidden ${
           isDark ? 'bg-[#1e1d1a] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
         }`}
       >
@@ -133,12 +133,12 @@ export default function PhonePasswordConfirmModal({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-2">
+          <div className="flex flex-col items-stretch justify-end gap-2.5 pt-2 sm:flex-row sm:items-center">
             <button
               type="button"
               onClick={handleClose}
               disabled={isLoading}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
+              className={`min-h-11 shrink-0 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
                 isDark ? 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300' : 'bg-slate-100 hover:bg-slate-200 text-ink-secondary'
               }`}
             >
@@ -147,7 +147,7 @@ export default function PhonePasswordConfirmModal({
             <button
               type="submit"
               disabled={!password.trim() || isLoading}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="flex min-h-11 items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               {isLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>Verify & Update Number</span>

@@ -427,7 +427,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
       {/* Payment Selection Modal */}
       {selectingPaymentBidId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`rounded-[24px] max-w-sm w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${
+          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-xl border animate-in zoom-in-95 duration-200 ${
             isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <div className={`p-5 border-b flex justify-between items-center ${

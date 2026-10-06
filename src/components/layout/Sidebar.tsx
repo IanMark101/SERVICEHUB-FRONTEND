@@ -270,7 +270,7 @@ export default function Sidebar({
           <Link href={currentRole === 'admin' ? '/admin/user-profile' : `/profile/${encodeURIComponent(user.id)}`} aria-label="View your marketplace profile" className={`group/profile mt-2 flex items-center gap-2.5 border-t border-black/10 pt-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] dark:border-white/10 ${showLabels ? 'px-1' : 'justify-center'}`}>
             <UserAvatar src={user.avatarUrl} name={`${user.firstName || ''} ${user.lastName || ''}`} alt="" size={32} role={currentRole} />
             {showLabels && (
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-[11px] font-semibold text-ink transition-colors group-hover/profile:text-[var(--workspace-focus)] dark:text-white">{user.firstName} {user.lastName}</p>
                 <p className="mt-0.5 text-[10px] capitalize text-ink-muted dark:text-ink-muted">{currentRole}</p>
               </div>

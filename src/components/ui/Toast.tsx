@@ -54,7 +54,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
       }}
     >
       <span className="servicehub-toast__icon flex-shrink-0 mt-0.5">{TOAST_ICONS[toast.type]}</span>
-      <div className="flex-1 min-w-0 pr-2">
+      <div className="flex-1 min-w-0 pr-2 [overflow-wrap:anywhere]">
         <p className="m-0 text-xs tracking-tight leading-snug text-ink dark:text-white font-extrabold">
           {toast.title}
         </p>
@@ -113,6 +113,7 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
           gap: '12px',
           pointerEvents: 'none',
         }}
+        className="viewport-toast-stack"
       >
         {toasts.map((t) => (
           <div key={t.id} style={{ pointerEvents: 'all', width: '100%' }}>

@@ -55,14 +55,14 @@ export default function ProviderMessagesPage() {
 
   return (
     <div
-      className={`rounded-3xl border shadow-sm overflow-hidden flex h-[calc(100dvh-7.5rem)] min-h-[580px] max-h-[820px] transition-all duration-200 ${cardBg}`}
+      className={`rounded-3xl border shadow-sm overflow-hidden flex h-[calc(100dvh-7.5rem)] min-h-0 max-h-[820px] transition-all duration-200 ${cardBg}`}
     >
       <PeopleInbox state={state} accent="emerald" />
 
       {/* Chat Area */}
       <main
         className={`${
-          selectedConv ? 'flex' : 'hidden md:flex'
+          selectedConv ? 'flex' : 'hidden xl:flex'
         } flex-1 flex-col min-w-0 bg-white dark:bg-[#161513]`}
       >
         {!selectedConv ? (
@@ -83,15 +83,15 @@ export default function ProviderMessagesPage() {
           <>
             {/* Conversation Top Header */}
             <div
-              className={`flex items-center gap-3 px-4 py-3 border-b justify-between transition-colors ${
+              className={`flex shrink-0 flex-wrap items-center gap-3 px-4 py-3 border-b justify-between transition-colors ${
                 isDark ? 'border-neutral-800/80 bg-[#1a1917]/70' : 'border-slate-200/90 bg-white'
               }`}
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex flex-1 items-center gap-3 min-w-0">
                 <button
                   type="button"
                   onClick={() => setSelectedConv(null)}
-                  className={`md:hidden rounded-lg p-1.5 ${textMuted} hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-neutral-800`}
+                  className={`xl:hidden shrink-0 rounded-lg p-1.5 ${textMuted} hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-neutral-800`}
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -111,9 +111,9 @@ export default function ProviderMessagesPage() {
                   </div>
                 )}
 
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className={`text-sm font-black tracking-tight truncate leading-tight ${textPrimary}`}>
+                <div className="min-w-0 flex-1">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <p className={`min-w-0 text-sm font-black tracking-tight truncate leading-tight ${textPrimary}`}>
                       {selectedConv.otherPartyName}
                     </p>
                     <span
@@ -179,7 +179,7 @@ export default function ProviderMessagesPage() {
             <div
               ref={messageScrollRef}
               onScroll={handleMessageScroll}
-              className="flex-1 overflow-y-auto p-4 sm:p-5 flex flex-col gap-3 bg-slate-50/40 dark:bg-[#141311]/40"
+              className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 flex flex-col gap-3 bg-slate-50/40 dark:bg-[#141311]/40"
             >
               {loading && (
                 <div className={`flex justify-center py-10 ${textMuted}`}>
@@ -266,7 +266,7 @@ export default function ProviderMessagesPage() {
                     )}
 
                     <div
-                      className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-xs sm:text-[13px] leading-relaxed shadow-xs ${
+                      className={`min-w-0 max-w-[75%] rounded-2xl px-4 py-2.5 text-xs sm:text-[13px] leading-relaxed shadow-xs ${
                         isMe
                           ? 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-br-xs'
                           : isDark
@@ -284,7 +284,7 @@ export default function ProviderMessagesPage() {
                           className="rounded-xl mb-2 max-w-full h-auto ring-1 ring-black/10"
                         />
                       )}
-                      <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{msg.content}</p>
                       <span className={`block text-[9.5px] mt-1.5 font-medium ${isMe ? 'opacity-75 text-right' : 'text-ink-subtle dark:text-ink-subtle'}`}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
@@ -296,7 +296,7 @@ export default function ProviderMessagesPage() {
             </div>
 
             {/* Input / Read-Only Panel */}
-            <div className={`p-3.5 border-t ${isDark ? 'border-neutral-800/80 bg-[#161513]' : 'border-slate-200 bg-white'}`}>
+            <div className={`shrink-0 p-3.5 border-t ${isDark ? 'border-neutral-800/80 bg-[#161513]' : 'border-slate-200 bg-white'}`}>
               {isReadOnly ? (
                 <div
                   className={`px-4 py-3 rounded-2xl border flex items-center justify-center gap-2 text-center text-xs font-semibold ${
@@ -353,7 +353,7 @@ export default function ProviderMessagesPage() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Type a message… (Enter to send)"
-                      className={`flex-1 resize-none rounded-2xl border px-4 py-2.5 text-xs sm:text-[13px] outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-all ${inputBg}`}
+                      className={`min-w-0 flex-1 resize-none rounded-2xl border px-4 py-2.5 text-xs sm:text-[13px] outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-all ${inputBg}`}
                       style={{ maxHeight: '110px' }}
                     />
                     <button

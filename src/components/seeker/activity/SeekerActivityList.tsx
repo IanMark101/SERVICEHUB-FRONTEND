@@ -124,7 +124,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
             </div>
 
             {/* Sort Dropdown */}
-            <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+            <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto">
               <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort each section:</span>
               <FormSelect
                 compact
