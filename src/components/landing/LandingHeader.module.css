@@ -1,0 +1,33 @@
+@media (max-width: 767px) {
+  .header {
+    top: 0;
+    padding: 0 16px;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: var(--landing-surface, #fcfbfa);
+    border-bottom: 1px solid rgb(23 23 22 / .07);
+    pointer-events: auto;
+  }
+
+  .bar { min-height: 68px; gap: 8px; }
+
+  .brand, .controls {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .brand { min-height: 44px; }
+  .brand:hover, .controls:hover { background: transparent; box-shadow: none; }
+  .wordmark { display: block; }
+  .controls { gap: 4px; }
+  .controls > button { width: 44px; height: 44px; }
+  .controls > button:last-child svg { width: 23px; height: 23px; }
+  .headerAction, .login { display: none; }
+  .drawer { max-height: calc(100dvh - 92px); overflow-y: auto; margin-block: 0 12px; }
+
+  :global(.dark) .header { background: #121211; border-color: rgb(242 239 233 / .1); }
+  :global(.dark) .brand, :global(.dark) .controls { background: transparent; }
+}

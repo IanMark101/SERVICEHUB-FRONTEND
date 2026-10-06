@@ -59,31 +59,32 @@
   .secondary { padding-inline: 18px; font-size: 14px; }
 }
 @media (max-width: 1023px) {
-  .layout { grid-template-areas: "copy" "scene"; grid-template-columns: minmax(0, 1fr); gap: 32px; min-height: 0; padding: 108px 32px 0; }
-  .copy { max-width: 600px; justify-self: center; padding: 0; }
-  .scene { max-width: 540px; height: auto; min-height: 476px; justify-self: center; }
-  .presenter { left: -4%; bottom: 0; width: auto; height: 100%; max-width: 94%; }
-  .preview { position: relative; top: auto; right: auto; width: 46%; max-width: 240px; margin: 16px 0 0 auto; }
+  .layout { grid-template-areas: "copy" "scene"; grid-template-columns: minmax(0, 1fr); gap: 40px; min-height: 0; padding: 112px 32px 0; }
+  .copy { max-width: 560px; justify-self: center; padding: 0; text-align: center; }
+  .title, .description, .supporting { margin-inline: auto; }
+  .actions { justify-content: center; }
+  .scene { width: 100%; max-width: 440px; height: 420px; min-height: 0; justify-self: center; }
+  .presenter { left: 0; bottom: 0; width: 76%; height: auto; max-width: none; }
+  /* Scale the whole device so its contents keep the desktop proportions. */
+  .preview { top: 12px; right: 0; width: 260px; max-width: none; margin: 0; transform: scale(.8); transform-origin: top right; }
 }
 @media (max-width: 767px) {
-  .layout { gap: 32px; padding: 108px 24px 0; }
-  .badge { margin-bottom: 16px; font-size: 13px; }
-  .title { font-size: clamp(41px, 11.1vw, 52px); }
-  .tagline { margin-top: 12px; font-size: 26px; }
-  .description { margin-top: 16px; font-size: 15px; line-height: 1.65; }
-  .supporting { margin-top: 12px; font-size: 14px; }
-  .actions { margin-top: 20px; gap: 12px; }
-  .secondary { min-height: 52px; padding: 12px 18px; font-size: 14px; }
-  .scene { width: 100%; max-width: 420px; min-height: 0; }
-  .presenter { left: -8%; width: 88%; height: auto; }
-  .preview { width: 60%; max-width: 230px; }
-  .phone { padding: 5px; border-radius: 32px; }
-  .screen { border-radius: 25px; }
-  .statusBar { height: 30px; padding-inline: 6cqw; }
-  .cameraIsland { top: 7px; height: 17px; }
+  .layout { gap: 36px; padding: 104px 20px 0; }
+  .badge { margin-bottom: 20px; font-size: 12px; }
+  .title { max-width: 11ch; font-size: clamp(36px, 10vw, 44px); line-height: 1.1; }
+  .tagline { margin-top: 14px; font-size: 25px; line-height: 1.25; }
+  .description { max-width: 34ch; margin-top: 18px; font-size: 16px; line-height: 1.6; }
+  .supporting { max-width: 34ch; margin-top: 12px; font-size: 14px; line-height: 1.6; }
+  .actions { flex-direction: column; margin-top: 24px; gap: 12px; }
+  .actions > a { min-height: 48px; }
+  .secondary { min-height: 48px; padding: 12px 18px; font-size: 14px; }
+  .scene { max-width: 340px; height: 320px; }
+  .presenter { width: 76%; }
+  .preview { top: 8px; transform: scale(.56); }
 }
 @media (max-width: 359px) {
-  .preview { width: 62%; }
+  .layout { padding-inline: 16px; }
+  .preview { transform: scale(.52); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero [data-hero-entrance] { opacity: 1 !important; transform: none !important; animation: none; }
