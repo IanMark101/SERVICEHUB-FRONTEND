@@ -6,11 +6,9 @@ import {
   MessageSquare,
   Send,
   ChevronLeft,
-  ImagePlus,
   Loader2,
   Lock,
   ShieldCheck,
-  X,
   Trash2,
   CheckCircle2,
   XCircle,
@@ -30,8 +28,6 @@ export default function SeekerMessagesPage() {
     messages,
     input,
     setInput,
-    attachedImage,
-    setAttachedImage,
     sending,
     loading,
     error,
@@ -41,8 +37,6 @@ export default function SeekerMessagesPage() {
     messageScrollRef,
     handleMessageScroll,
     textareaRef,
-    fileInputRef,
-    handleImageSelect,
     handleSend,
     handleKeyDown,
     handleHideConversation,
@@ -274,16 +268,6 @@ export default function SeekerMessagesPage() {
                           : 'bg-white text-ink rounded-bl-xs border border-slate-200/90'
                       }`}
                     >
-                      {msg.imageUrl && (
-                        <Image
-                          unoptimized
-                          width={480}
-                          height={320}
-                          src={msg.imageUrl}
-                          alt="attachment"
-                          className="rounded-xl mb-2 max-w-full h-auto ring-1 ring-black/10"
-                        />
-                      )}
                       <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{msg.content}</p>
                       <span className={`block text-[9.5px] mt-1.5 font-medium ${isMe ? 'opacity-75 text-right' : 'text-ink-subtle dark:text-ink-subtle'}`}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -310,42 +294,7 @@ export default function SeekerMessagesPage() {
                 </div>
               ) : (
                 <div>
-                  {attachedImage && (
-                    <div className="relative inline-block mb-2 p-1.5 border rounded-2xl bg-slate-100 dark:bg-neutral-800/80 dark:border-neutral-700">
-                      <Image
-                        unoptimized
-                        width={64}
-                        height={64}
-                        src={attachedImage}
-                        alt="Attachment preview"
-                        className="size-16 object-cover rounded-xl"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setAttachedImage(null)}
-                        className="absolute -top-1.5 -right-1.5 p-1 bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow transition-all cursor-pointer"
-                        title="Remove image"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  )}
                   <div className="flex items-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className={`size-10 grid place-items-center rounded-xl transition-colors ${textMuted} hover:bg-slate-100 dark:hover:bg-neutral-800 hover:text-orange-500 cursor-pointer shrink-0`}
-                      title="Attach image from device"
-                    >
-                      <ImagePlus size={18} />
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      className="hidden"
-                    />
                     <textarea
                       ref={textareaRef}
                       rows={1}
@@ -353,13 +302,16 @@ export default function SeekerMessagesPage() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Type a message… (Enter to send)"
+                      aria-label="Message"
+                      maxLength={2000}
                       className={`min-w-0 flex-1 resize-none rounded-2xl border px-4 py-2.5 text-xs sm:text-[13px] outline-none focus:ring-2 focus:ring-orange-500/25 focus:border-orange-500 transition-all ${inputBg}`}
                       style={{ maxHeight: '110px' }}
                     />
                     <button
                       type="button"
                       onClick={handleSend}
-                      disabled={(!input.trim() && !attachedImage) || sending}
+                      disabled={!input.trim() || sending}
+                      aria-label="Send message"
                       className="size-10 grid place-items-center rounded-2xl bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0 cursor-pointer shadow-xs"
                     >
                       {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
