@@ -2155,8 +2155,9 @@ h6 {
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     background: color-mix(in srgb, var(--workspace-canvas) 94%, transparent);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    /* Fixed mobile panels must be positioned against the viewport. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .workspace-header-context {
@@ -2190,6 +2191,13 @@ h6 {
     min-width: 0;
     gap: 0;
     padding: 0.125rem;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .profile-account-header {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .profile-page-shell .marketplace-profile-tabs {
