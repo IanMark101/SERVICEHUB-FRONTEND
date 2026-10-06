@@ -11,6 +11,7 @@ import {
   CalendarBlank,
 } from '@phosphor-icons/react';
 import LifecycleStepper from '../../ui/LifecycleStepper';
+import BookingProgressHistory from '../../activity/BookingProgressHistory';
 import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement } from '../../../types';
 import type { ConfirmModalState } from '../../ui/ConfirmModal';
@@ -352,6 +353,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                   <details className="group min-w-0 self-start rounded-2xl border border-stone-200 px-4 py-3 dark:border-neutral-700 xl:col-start-1 xl:row-start-2" open={je.status !== 'completed' && je.status !== 'canceled'}>
                     <summary className="cursor-pointer text-xs font-bold text-ink-secondary focus-visible:outline-2 focus-visible:outline-orange-500 dark:text-ink">Booking journey</summary>
                     <LifecycleStepper status={je.status} closedLabel={bookingOutcomeLabels[getBookingOutcome(je) || 'canceled']} role="seeker" queuePosition={je.queuePosition} isDark={isDark} isOnline={je.paymentMethod === 'GCash'} started={je.started} compact />
+                    <BookingProgressHistory booking={je} />
                   </details>
                   </div>
 

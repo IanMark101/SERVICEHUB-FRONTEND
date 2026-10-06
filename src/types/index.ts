@@ -127,6 +127,14 @@ export interface Bid {
   category?: string;
 }
 
+export interface BookingProgressEvent {
+  id: string;
+  kind: string;
+  eventKey?: string;
+  actorRole: 'SEEKER' | 'PROVIDER' | 'ADMIN' | 'SYSTEM';
+  occurredAt: string;
+}
+
 export interface JobEngagement {
   id: string;
   title: string;
@@ -153,6 +161,10 @@ export interface JobEngagement {
   paymentStatus?: string;
   createdAt: string;
   completedServiceId?: string;
+  bookingCreatedAt?: string;
+  completionRecordedAt?: string;
+  progressEvents?: BookingProgressEvent[];
+  progressCancellationRequests?: JobEngagement['cancellationRequests'];
   reviews?: Array<{
     id: string;
     authorId: string;
@@ -172,6 +184,9 @@ export interface JobEngagement {
     id: string;
     status: string;
     requestedBy: string;
+    responderId?: string | null;
+    createdAt?: string;
+    resolvedAt?: string | null;
     reason?: string | null;
     responderNote?: string | null;
     providerNote?: string | null;

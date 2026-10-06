@@ -217,12 +217,11 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                               {service.providerName}
                             </span>
                             {isVerified && (
-                              <span title="Verified Provider" className="inline-flex items-center">
+                              <span title="Verified Provider" aria-label="Verified resident" className="inline-flex shrink-0 text-emerald-700 dark:text-emerald-400">
                                 <ShieldCheck
-                                  className={`w-3.5 h-3.5 shrink-0 ${
-                                    isDark ? 'text-emerald-400 fill-emerald-950/20' : 'text-emerald-600 fill-emerald-50'
-                                  }`}
+                                  size={14}
                                   weight="fill"
+                                  aria-hidden="true"
                                 />
                               </span>
                             )}
