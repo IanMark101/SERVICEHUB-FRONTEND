@@ -495,7 +495,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       />
 
       <SafetyReportModal
-        engagement={reportingEngagement}
+        engagement={myEngagements.find(booking => booking.id === reportingEngagement?.id) || null}
         targetRole="seeker"
         isDark={isDark}
         onClose={() => setReportingEngagement(null)}

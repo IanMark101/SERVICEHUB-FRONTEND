@@ -435,7 +435,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
       {repeatListing && <RequestServiceModal listing={repeatListing} onClose={() => setRepeatListing(null)} />}
 
       <SafetyReportModal
-        engagement={reportingEngagement}
+        engagement={myEngagements.find(booking => booking.id === reportingEngagement?.id) || null}
         targetRole="provider"
         isDark={isDark}
         onClose={() => setReportingEngagement(null)}

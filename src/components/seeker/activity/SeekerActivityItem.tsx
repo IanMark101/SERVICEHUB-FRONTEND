@@ -17,6 +17,7 @@ import type { ConfirmModalState } from '../../ui/ConfirmModal';
 import UserAvatar from '../../ui/UserAvatar';
 import ActivityWorkroomSituation from '../../activity/ActivityWorkroomSituation';
 import { bookingOutcomeLabels, getBookingOutcome } from '../../../lib/bookingOutcome';
+import { canOpenBookingConversation, canReportBookingSafety, getEngagementBookingId } from '../../../lib/bookingActions';
 import ActivityBookingFacts from '../../activity/ActivityBookingFacts';
 import ActivityCancellationPanel from '../../activity/ActivityCancellationPanel';
 
@@ -220,10 +221,9 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                         </div>
                       )}
 
-                      {/* Open Conversation — accessible on all non-pending booking statuses */}
-                      {je.status !== 'pending_provider' && (
+                      {canOpenBookingConversation(je) && (
                         <button
-                          onClick={() => router.push(`/seeker/messages?booking=${je.id}`)}
+                          onClick={() => router.push(`/seeker/messages?booking=${getEngagementBookingId(je)}`)}
                           className={`p-2 border rounded-xl flex items-center justify-center cursor-pointer transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-white' : 'border-slate-300 hover:bg-slate-50 text-ink-secondary'
                           }`}
                           aria-label="Open Conversation"
@@ -233,7 +233,7 @@ export default function SeekerActivityItem({ engagement: je, model }: { engageme
                         </button>
                       )}
 
-                      {['queued', 'in_progress', 'awaiting_seeker_approval', 'disputed', 'completed', 'canceled'].includes(je.status) && (
+                      {canReportBookingSafety(je) && (
                         <button
                           type="button"
                           onClick={() => openSafetyReport(je)}

@@ -129,6 +129,7 @@ export interface Bid {
 
 export interface JobEngagement {
   id: string;
+  bookingId?: string | null; // null for historical completed services without a linked booking.
   title: string;
   seekerId: string;
   seekerName: string;
