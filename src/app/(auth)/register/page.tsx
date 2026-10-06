@@ -36,7 +36,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#f5f4f2] dark:bg-[#121211]">
+    <div className="min-h-screen w-full overflow-x-clip bg-[#f5f4f2] dark:bg-[#121211]">
       <RegisterContainer
         onLoginSuccess={handleLoginSuccess}
         onBackToHome={handleBackToHome}

@@ -116,8 +116,8 @@ export default function LoginContainer({
       />
 
       {/* Right Panel: the panel itself is the form surface */}
-      <main className="relative z-10 min-h-[100dvh] w-full overflow-y-auto border-black/[0.06] bg-[#fffdfa] transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-1/2 lg:border-l">
-        <div className="mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-14 xl:px-20">
+      <main className="auth-form-panel relative z-10 min-h-[100dvh] w-full border-black/[0.06] bg-[#fffdfa] transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-1/2 lg:border-l">
+        <div className="auth-form-panel__inner mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-14 xl:px-20">
         {/* Mobile-Only Header Bar */}
         <div className="mb-8 flex w-full items-center justify-between lg:hidden">
           <button
@@ -149,7 +149,7 @@ export default function LoginContainer({
           </div>
         </div>
 
-        <div className="flex flex-1 items-center py-6 lg:py-10">
+        <div className="auth-form-panel__content flex flex-1 items-center py-6 lg:py-10">
         <div className="mx-auto w-full max-w-[27rem]">
 
           {deletionNotice && mode === 'login' && <div role="status" className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-ink dark:border-neutral-700 dark:bg-neutral-900 dark:text-ink"><p className="font-semibold">Your account has been deleted</p><p className="mt-1 text-sm leading-relaxed">Your account and its associated database records were permanently deleted. Every device was signed out.</p></div>}

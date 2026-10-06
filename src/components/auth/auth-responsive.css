@@ -1,0 +1,40 @@
+/* The long form owns document scrolling; the overview has its own viewport.
+   At unusually short heights its content can scroll instead of being clipped. */
+@media (min-width: 1024px) {
+  /* Global horizontal hiding also makes body a scroll ancestor. Override it
+     only on auth routes, so sticky follows the document's vertical scrolling. */
+  html:has(.auth-shell),
+  body:has(.auth-shell) { overflow-x: clip; }
+
+  .auth-shell .auth-overview {
+    --auth-panel-padding: clamp(1rem, 3dvh, 1.75rem);
+    --auth-content-padding: clamp(1rem, calc(7dvh - 2.25rem), 2.5rem);
+    --auth-content-gap: clamp(0.75rem, calc(4dvh - 1rem), 1.5rem);
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    align-self: flex-start;
+    padding: var(--auth-panel-padding);
+    overflow-y: auto;
+  }
+
+  .auth-shell .auth-overview__card { min-height: min-content; }
+  .auth-shell .auth-overview__header { min-height: clamp(4rem, 9dvh, 5rem); }
+  .auth-shell .auth-overview__content {
+    flex-shrink: 0;
+    padding-block: var(--auth-content-padding);
+  }
+  .auth-shell .auth-overview__heading {
+    font-size: clamp(2.25rem, min(3.05vw, 5.2dvh), 3.25rem);
+  }
+  .auth-shell .auth-overview__description,
+  .auth-shell .auth-overview__badge,
+  .auth-shell .auth-overview__access { margin-top: var(--auth-content-gap); }
+  .auth-shell .auth-overview__access-header { padding-block: clamp(0.5rem, calc(3dvh - 0.75rem), 1rem); }
+  .auth-shell .auth-overview__access-row { padding-block: clamp(0.5rem, calc(3dvh - 0.75rem), 0.875rem); }
+  .auth-shell .auth-overview__footer { padding-block: clamp(0.5rem, calc(3dvh - 0.75rem), 1rem); }
+
+  .auth-shell .auth-form-panel { min-width: 0; }
+  .auth-shell .auth-form-panel__inner { padding-block: clamp(1rem, 3dvh, 1.75rem); }
+  .auth-shell .auth-form-panel__content { padding-block: clamp(1rem, 4dvh, 2.5rem); }
+}
