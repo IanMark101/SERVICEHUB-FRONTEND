@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local browser evidence and the unchanged third-party particles.js bundle.
+    ".audit-results/**",
+    ".codex-motion-check/**",
+    "public/vendor/particles.js/**",
   ]),
 ]);
 

@@ -6,6 +6,12 @@
 
 # testing
 /coverage
+/.audit-results/
+/.codex-motion-check/
+/tools/*.log
+/tools/*.png
+/tools/*.jpg
+/tools/*results.json
 
 # next.js
 /.next/
