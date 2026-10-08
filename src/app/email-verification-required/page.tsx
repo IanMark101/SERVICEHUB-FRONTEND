@@ -80,9 +80,9 @@ export default function EmailVerificationRequiredPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f6f3] px-4 py-10 text-ink dark:bg-[#141312] dark:text-ink sm:px-6 sm:py-16">
-      <div className="mx-auto max-w-2xl overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-[0_24px_70px_-36px_rgba(42,30,17,0.35)] dark:border-neutral-700 dark:bg-[#22211e]">
-        <div className="border-b border-stone-200 bg-[#fcf8f4] px-6 py-8 dark:border-neutral-700 dark:bg-[#282520] sm:px-9">
+    <main className="min-h-screen bg-[#f7f6f3] px-4 py-10 text-ink dark:bg-charcoal-canvas dark:text-ink sm:px-6 sm:py-16">
+      <div className="mx-auto max-w-2xl overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-[0_24px_70px_-36px_rgba(42,30,17,0.35)] dark:border-neutral-700 dark:bg-charcoal-surface">
+        <div className="border-b border-stone-200 bg-[#fcf8f4] px-6 py-8 dark:border-neutral-700 dark:bg-charcoal sm:px-9">
           <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/30 dark:text-orange-300"><Mail aria-hidden="true" size={23} /></div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange-700 dark:text-orange-300">ServiceHub account</p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">Verify your email to continue</h1>
@@ -97,7 +97,7 @@ export default function EmailVerificationRequiredPage() {
           {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950/30 dark:text-red-200">{error}</p>}
           <div className="flex flex-col gap-3 sm:flex-row">
             <button type="button" onClick={() => void checkStatus()} disabled={busy !== null} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#c86646] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#ad5032] disabled:opacity-50"><RefreshCw aria-hidden="true" size={16} />{busy === 'check' ? 'Checking…' : 'I verified my email'}<ArrowRight aria-hidden="true" size={16} /></button>
-            <button type="button" onClick={() => void resend()} disabled={busy !== null} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-300 px-5 py-2.5 text-sm font-semibold hover:bg-stone-50 disabled:opacity-50 dark:border-neutral-600 dark:hover:bg-neutral-800">{busy === 'resend' ? 'Sending…' : 'Resend verification link'}</button>
+            <button type="button" onClick={() => void resend()} disabled={busy !== null} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-300 px-5 py-2.5 text-sm font-semibold hover:bg-stone-50 disabled:opacity-50 dark:border-neutral-600 dark:hover:bg-charcoal">{busy === 'resend' ? 'Sending…' : 'Resend verification link'}</button>
           </div>
           <button type="button" onClick={() => void logout()} disabled={busy !== null} className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-ink-muted hover:text-ink disabled:opacity-50 dark:text-ink-secondary dark:hover:text-white"><LogOut aria-hidden="true" size={16} />Sign out</button>
         </div>

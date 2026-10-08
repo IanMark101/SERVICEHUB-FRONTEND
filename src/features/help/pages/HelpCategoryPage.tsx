@@ -27,7 +27,7 @@ export default function HelpCategoryPage({ categorySlug }: HelpCategoryPageProps
         </p>
         <Link
           href="/help"
-          className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#171716] px-5 py-3 text-xs font-semibold text-white shadow-[0_8px_20px_rgba(23,23,22,0.16)] transition-colors hover:bg-[#2b2a27] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:bg-[#f5f4f2] dark:text-charcoal dark:hover:bg-white"
+          className="mt-7 inline-flex items-center gap-2 rounded-xl bg-charcoal px-5 py-3 text-xs font-semibold text-white shadow-[0_8px_20px_rgba(23,23,22,0.16)] transition-colors hover:bg-charcoal active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:bg-[#f5f4f2] dark:text-charcoal dark:hover:bg-white"
         >
           <ArrowLeft size={15} aria-hidden="true" />
           Browse Help Center
@@ -46,7 +46,7 @@ export default function HelpCategoryPage({ categorySlug }: HelpCategoryPageProps
       <section className="relative isolate grid gap-5 lg:grid-cols-[minmax(0,1.18fr)_minmax(18rem,0.82fr)] lg:gap-7">
         <div aria-hidden="true" className="pointer-events-none absolute -left-12 top-8 -z-10 h-72 w-[39rem] max-w-[86vw] rounded-full bg-[#d97757]/8 blur-[120px] dark:bg-[#c86544]/6" />
 
-        <header className="rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_42px_rgba(200,101,68,0.065)] dark:border-white/10 dark:bg-[#171716]/96 sm:p-10">
+        <header className="rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_42px_rgba(200,101,68,0.065)] dark:border-white/10 dark:bg-charcoal/96 sm:p-10">
           <div className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">
             <BookOpen size={16} className="text-[#c86544] dark:text-[#e18463]" aria-hidden="true" />
             <span>{articles.length} {articles.length === 1 ? 'guide' : 'guides'}</span>
@@ -61,7 +61,7 @@ export default function HelpCategoryPage({ categorySlug }: HelpCategoryPageProps
           </p>
         </header>
 
-        <aside className="flex flex-col justify-between rounded-2xl bg-[#171716] p-7 text-white shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9">
+        <aside className="flex flex-col justify-between rounded-2xl bg-charcoal p-7 text-white shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9">
           <div>
             <h2 className="text-xl font-semibold tracking-[-0.025em]">Start with this collection</h2>
             <p className="mt-2 text-xs leading-5 text-white/58">Read the guides in any order, or begin with the route below.</p>
@@ -121,7 +121,7 @@ export default function HelpCategoryPage({ categorySlug }: HelpCategoryPageProps
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-black/12 bg-[#fffdfa]/72 px-6 py-12 text-center dark:border-white/12 dark:bg-white/[0.03]">
+          <div className="rounded-2xl border border-dashed border-black/12 bg-[#fffdfa]/72 px-6 py-12 text-center dark:border-white/12 dark:bg-charcoal">
             <p className="text-sm font-semibold text-ink dark:text-white">No guides are available in this collection yet.</p>
             <Link href="/help" className="mt-3 inline-flex text-xs font-semibold text-[#c86544] hover:text-[#aa5032] dark:text-[#e18463]">Browse another collection</Link>
           </div>

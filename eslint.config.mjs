@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Unmodified third-party distribution; keep application rules on maintained code.
+    "public/vendor/particles.js/particles.js",
   ]),
 ]);
 

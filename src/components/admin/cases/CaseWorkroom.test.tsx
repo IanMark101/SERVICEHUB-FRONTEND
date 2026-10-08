@@ -61,6 +61,9 @@ describe('Admin case decisions', () => {
   it('closed cases show the rationale without mutation controls', () => {
     mount(closedCase);
     expect(screen.getByRole('heading', { name: 'Recorded decision' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Recorded decision' }));
+    expect(screen.getByRole('heading', { name: 'Recorded decision' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'What was reported' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Review decision' })).not.toBeInTheDocument();
     expect(screen.getByText(closedCase.decisionExplanation!)).toBeInTheDocument();
   });
@@ -80,10 +83,12 @@ describe('Admin case decisions', () => {
     expect(screen.queryByLabelText(/Account consequence/)).not.toBeInTheDocument();
     expect(screen.getByText(/72-hour cooldown/)).toBeInTheDocument();
   });
-  it('explains that a completion escalation is a request for help, not an allegation', () => {
+  it('shows the provider’s escalation explanation without presenting it as a reported violation', () => {
     mount(escalationCase);
     expect(screen.getByRole('heading', { name: 'Why Admin help is needed' })).toBeInTheDocument();
-    expect(screen.getByText(/This request is not a report of wrongdoing/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Completion escalation' })).toBeInTheDocument();
+    expect(screen.getByText(escalationCase.explanation)).toBeInTheDocument();
+    expect(screen.queryByText(/Reported issue:/)).not.toBeInTheDocument();
   });
   it('focuses the impact summary and blocks an explanation longer than the API limit', () => {
     mount();
@@ -94,5 +99,16 @@ describe('Admin case decisions', () => {
     fireEvent.change(explanation, { target: { value: 'The conversation supports this safety finding.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Review decision' }));
     expect(screen.getByRole('heading', { name: 'Confirm the impact' })).toHaveFocus();
+  });
+  it('separates booking facts from the complaint and preserves the draft across sections', () => {
+    mount();
+    expect(screen.queryByText('Current payment state')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: /Record a supported safety finding/ }));
+    fireEvent.change(screen.getByLabelText(/Decision explanation/), { target: { value: 'The evidence supports a warning.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Booking & people' }));
+    expect(screen.getByText('Current payment state')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Record a supported safety finding/ })).toBeChecked();
+    expect(screen.getByLabelText(/Decision explanation/)).toHaveValue('The evidence supports a warning.');
+    expect(resolve).not.toHaveBeenCalled();
   });
 });

@@ -40,10 +40,10 @@ export default function PhonePasswordConfirmModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className={`viewport-dialog-scroll relative w-full max-w-md rounded-2xl shadow-2xl border p-6 overflow-hidden ${
-          isDark ? 'bg-[#1e1d1a] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
+          isDark ? 'bg-charcoal border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
         }`}
       >
         {/* Close button */}
@@ -52,7 +52,7 @@ export default function PhonePasswordConfirmModal({
           onClick={handleClose}
           disabled={isLoading}
           className={`absolute top-4 right-4 p-1.5 rounded-lg transition-colors ${
-            isDark ? 'text-ink-subtle hover:text-white hover:bg-neutral-800' : 'text-ink-subtle hover:text-ink-secondary hover:bg-slate-100'
+            isDark ? 'text-ink-subtle hover:text-white hover:bg-charcoal' : 'text-ink-subtle hover:text-ink-secondary hover:bg-slate-100'
           }`}
         >
           <X className="w-5 h-5" />
@@ -74,7 +74,7 @@ export default function PhonePasswordConfirmModal({
         {/* Number Comparison Badge */}
         <div
           className={`p-3.5 rounded-xl border mb-4 text-xs ${
-            isDark ? 'bg-[#191815] border-neutral-800' : 'bg-slate-50 border-slate-200'
+            isDark ? 'bg-charcoal border-neutral-800' : 'bg-slate-50 border-slate-200'
           }`}
         >
           <div className="flex items-center justify-between text-ink-subtle mb-1">
@@ -115,7 +115,7 @@ export default function PhonePasswordConfirmModal({
                 placeholder="Enter current password"
                 className={`w-full pl-9 pr-10 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   isDark
-                    ? 'bg-[#191815] border-neutral-800 text-white focus:border-emerald-500 focus:outline-none'
+                    ? 'bg-charcoal border-neutral-800 text-white focus:border-emerald-500 focus:outline-none'
                     : 'bg-white border-slate-200 text-ink focus:border-emerald-500 focus:outline-none'
                 }`}
               />
@@ -139,7 +139,7 @@ export default function PhonePasswordConfirmModal({
               onClick={handleClose}
               disabled={isLoading}
               className={`min-h-11 shrink-0 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                isDark ? 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300' : 'bg-slate-100 hover:bg-slate-200 text-ink-secondary'
+                isDark ? 'bg-charcoal hover:bg-charcoal text-neutral-300' : 'bg-slate-100 hover:bg-slate-200 text-ink-secondary'
               }`}
             >
               Cancel

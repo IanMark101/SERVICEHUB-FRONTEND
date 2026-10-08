@@ -23,7 +23,7 @@ export default function LandingBenefits({ isDark }: { isDark: boolean }) {
           </dl>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
             <a href="#how-it-works" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#aa5032] underline decoration-[#aa5032]/30 underline-offset-4 dark:text-orange-300">See how it works <ArrowRight size={16} aria-hidden="true" /></a>
-            <button type="button" disabled={!!reducedMotion} onClick={() => setPaused(value => !value)} aria-pressed={paused || !!reducedMotion} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-xs font-medium text-neutral-600 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default dark:text-zinc-300 dark:hover:bg-white/5">
+            <button type="button" disabled={!!reducedMotion} onClick={() => setPaused(value => !value)} aria-pressed={paused || !!reducedMotion} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-xs font-medium text-neutral-600 hover:bg-charcoal/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#aa5032] disabled:cursor-default dark:text-zinc-300 dark:hover:bg-charcoal">
               {paused || reducedMotion ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
               {reducedMotion ? 'Motion off' : paused ? 'Resume cards' : 'Pause cards'}
             </button>

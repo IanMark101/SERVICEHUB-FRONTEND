@@ -62,9 +62,9 @@
   translate: 50px 26px;
   border-color: rgb(242 239 233 / 0.1);
   /* The CTA's #141414 hover charcoal, lifted from its #0a0a0a default. */
-  background: #141414;
+  background: var(--color-charcoal);
   color: #f2efe9;
-  --workspace-surface-muted: #252422;
+  --workspace-surface-muted: var(--color-charcoal);
   --workspace-border: rgb(242 239 233 / 0.12);
   --workspace-ink: #f2efe9;
   box-shadow: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 36px 78px -34px rgb(24 22 20 / 0.42), 0 11px 28px -14px rgb(24 22 20 / 0.18);
@@ -322,7 +322,7 @@
   place-items: center;
   border: 1px solid rgb(52 211 153 / 0.3);
   border-radius: 50%;
-  background: var(--workspace-surface-muted, #252422);
+  background: var(--workspace-surface-muted, var(--color-charcoal));
 }
 
 .editorialTrustNodeTop { top: 1px; right: 18px; }

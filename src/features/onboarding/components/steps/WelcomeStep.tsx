@@ -2,7 +2,7 @@ import { BriefcaseBusiness, Search, SwitchCamera } from 'lucide-react';
 import type { OnboardingStepProps } from '../../types/onboarding.types';
 
 export default function WelcomeStep({ isDark }: OnboardingStepProps) {
-  const card = isDark ? 'border-neutral-800 bg-[#1c1b18]' : 'border-slate-200 bg-slate-50/70';
+  const card = isDark ? 'border-neutral-800 bg-charcoal-inset' : 'border-slate-200 bg-slate-50/70';
 
   return (
     <div className="space-y-5">

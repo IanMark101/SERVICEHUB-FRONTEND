@@ -70,6 +70,18 @@ describe('bounded initial session recovery', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it('does not automatically retry a known database quota failure or clear the session hint', async () => {
+    const error = { isAxiosError: true, response: { status: 503, data: { code: 'DATABASE_QUOTA_EXCEEDED' } } };
+    vi.mocked(api.post).mockRejectedValueOnce(error).mockResolvedValueOnce(guest);
+    await expect(apiRecoverSession()).rejects.toBe(error);
+    expect(api.post).toHaveBeenCalledTimes(1);
+    expect(clearSessionHint).not.toHaveBeenCalled();
+    expect(api.get).not.toHaveBeenCalled();
+    expect(setAccessToken).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+    expect(await apiRecoverSession()).toEqual({ success: false, data: { user: null } });
+  });
+
   it('aborts a stalled session request after 15 seconds and ignores a response arriving after the deadline', async () => {
     const session = deferred<typeof signedIn>();
     vi.mocked(api.post).mockReturnValueOnce(session.promise).mockResolvedValueOnce(guest);

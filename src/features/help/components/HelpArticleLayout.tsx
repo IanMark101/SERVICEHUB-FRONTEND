@@ -57,7 +57,7 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
         defaultTitle: 'Tip',
       },
       info: {
-        background: 'border-[#d9d3cc] bg-[#f5f4f2] dark:border-white/12 dark:bg-white/[0.05]',
+        background: 'border-[#d9d3cc] bg-[#f5f4f2] dark:border-white/12 dark:bg-charcoal',
         icon: Info,
         iconColor: 'text-[#c86544] dark:text-[#e18463]',
         defaultTitle: 'Note',
@@ -93,7 +93,7 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
   };
 
   const renderExample = (example: ArticleExample) => (
-    <aside className="my-8 rounded-2xl border border-black/8 bg-[#fffdfa] p-5 shadow-[0_10px_26px_rgba(23,23,22,0.045)] dark:border-white/10 dark:bg-white/[0.04] sm:p-6">
+    <aside className="my-8 rounded-2xl border border-black/8 bg-[#fffdfa] p-5 shadow-[0_10px_26px_rgba(23,23,22,0.045)] dark:border-white/10 dark:bg-charcoal sm:p-6">
       <p className="text-sm font-semibold text-ink dark:text-white">{example.title}</p>
       <p className="mt-2 text-sm leading-6 text-ink-muted dark:text-white/64">{example.description}</p>
     </aside>
@@ -198,13 +198,13 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
       {(prevArticle || nextArticle) && (
         <nav className="grid gap-4 border-y border-black/8 py-6 dark:border-white/10 sm:grid-cols-2" aria-label="Guide navigation">
           {prevArticle ? (
-            <Link href={`/help/${prevArticle.category}/${prevArticle.slug}`} className="group rounded-xl p-4 transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-white/[0.04]">
+            <Link href={`/help/${prevArticle.category}/${prevArticle.slug}`} className="group rounded-xl p-4 transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-charcoal">
               <span className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48"><ArrowLeft size={14} aria-hidden="true" />Previous guide</span>
               <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{prevArticle.title}</span>
             </Link>
           ) : <div aria-hidden="true" />}
           {nextArticle ? (
-            <Link href={`/help/${nextArticle.category}/${nextArticle.slug}`} className="group rounded-xl p-4 text-right transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-white/[0.04]">
+            <Link href={`/help/${nextArticle.category}/${nextArticle.slug}`} className="group rounded-xl p-4 text-right transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-charcoal">
               <span className="flex items-center justify-end gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">Next guide<ArrowRight size={14} aria-hidden="true" /></span>
               <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{nextArticle.title}</span>
             </Link>
@@ -243,7 +243,7 @@ function FeedbackButton({ children, label, onClick }: { children: React.ReactNod
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-[#fffdfa] px-4 py-2.5 text-xs font-medium text-ink-secondary transition-colors hover:border-[#c86544]/40 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]"
+      className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-[#fffdfa] px-4 py-2.5 text-xs font-medium text-ink-secondary transition-colors hover:border-[#c86544]/40 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-charcoal dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]"
     >
       <span aria-hidden="true">{children}</span>
       {label}

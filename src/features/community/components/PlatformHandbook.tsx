@@ -25,7 +25,7 @@ export default function PlatformHandbook({ isDark = false }: PlatformHandbookPro
 
       <div className={`rounded-3xl border p-4 sm:p-7 transition-all ${
         isDark
-          ? 'bg-[#1c1b18] border-neutral-800/90 shadow-xl shadow-black/40'
+          ? 'bg-charcoal-inset border-neutral-800/90 shadow-xl shadow-black/40'
           : 'bg-white border-slate-200/90 shadow-sm shadow-slate-900/5'
       }`}>
         <PlatformGuides isDark={isDark} />

@@ -80,7 +80,7 @@ export default function TrustScoreGuide({
             />
           </div>
 
-          <div className={`flex items-center gap-2 rounded-xl border p-3 text-[11px] ${isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-subtle' : 'bg-amber-50/60 border-amber-200/60 text-amber-900'}`}>
+          <div className={`flex items-center gap-2 rounded-xl border p-3 text-[11px] ${isDark ? 'bg-charcoal-inset border-neutral-800 text-ink-subtle' : 'bg-amber-50/60 border-amber-200/60 text-amber-900'}`}>
             <HelpCircle size={15} className="shrink-0 text-amber-500" />
             <span>To prevent gaming and ensure authentic interactions, exact mathematical formulas are not published. Earning trust is based on genuine reliability.</span>
           </div>
@@ -109,7 +109,7 @@ function TrustFactors({
   const bulletClass = color === 'emerald' ? 'text-emerald-500' : 'text-rose-500';
 
   return (
-    <div className={`space-y-2 rounded-2xl border p-4 ${isDark ? 'bg-[#191919] border-neutral-800/80' : 'bg-slate-50/80 border-slate-200/80'}`}>
+    <div className={`space-y-2 rounded-2xl border p-4 ${isDark ? 'bg-charcoal border-neutral-800/80' : 'bg-slate-50/80 border-slate-200/80'}`}>
       <div className={`flex items-center gap-1.5 font-bold ${titleClass}`}>{icon}<span>{title}</span></div>
       <ul className={`space-y-1 text-[11px] ${labelText}`}>
         {items.map((item) => (

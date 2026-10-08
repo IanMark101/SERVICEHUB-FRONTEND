@@ -2,8 +2,12 @@ import React, { FormEvent } from 'react';
 import AuthInput from './shared/AuthInput';
 import type { UseFormRegister } from 'react-hook-form';
 import type { AuthFormValues } from '../../schema/auth/useAuthForm';
+import AuthCaptcha from './shared/AuthCaptcha';
+import type { AuthCaptchaModel } from './shared/useAuthCaptcha';
 
 interface ForgotPasswordFormProps {
+  captcha: AuthCaptchaModel;
+  isDark: boolean;
   formData: AuthFormValues;
   fieldErrors: Record<string, string>;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
@@ -15,6 +19,8 @@ interface ForgotPasswordFormProps {
 }
 
 export default function ForgotPasswordForm({
+  captcha,
+  isDark,
   fieldErrors,
   handleSubmit,
   setMode,
@@ -46,11 +52,12 @@ export default function ForgotPasswordForm({
           {...register('email')}
         />
 
+        <AuthCaptcha model={captcha} isDark={isDark} />
         <div className="pt-2">
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full py-2.5 bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-all cursor-pointer"
+            disabled={isLoading || captcha.blocked}
+            className="w-full py-2.5 bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? 'Sending…' : 'Send Reset Link'}
           </button>

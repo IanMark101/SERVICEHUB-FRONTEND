@@ -3,6 +3,7 @@ export type ProviderActivityTab =
   | "in_progress"
   | "waiting"
   | "pending_offers"
+  | "closed_offers"
   | "awaiting_approval"
   | "disputed"
   | "completed"

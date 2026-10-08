@@ -62,7 +62,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className={`admin-workspace h-dvh overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'
+      isDark ? 'bg-charcoal-canvas text-white' : 'bg-[#f7f6f3] text-ink'
     }`}>
       
       {/* Sidebar Component */}

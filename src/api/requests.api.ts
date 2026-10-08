@@ -17,6 +17,20 @@ export async function apiGetMyRequests() {
   return response.data;
 }
 
+export interface RequestRepostTemplate {
+  title: string;
+  description: string;
+  categoryId: string;
+  categoryName: string;
+  budget: number;
+  paymentMethods?: PaymentMethods | null;
+}
+
+export async function apiGetRequestRepostTemplate(id: string): Promise<{ success: boolean; data: RequestRepostTemplate }> {
+  const response = await api.get(`/requests/${encodeURIComponent(id)}/repost-template`);
+  return response.data;
+}
+
 type RequestUpdate = Partial<{
   title: string;
   description: string;

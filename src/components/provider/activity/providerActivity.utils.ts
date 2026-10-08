@@ -1,6 +1,7 @@
 import type { Bid, JobEngagement, JobRequest, ServiceListing } from "../../../types";
 import type { ProviderActivitySort, ProviderActivityTab } from "./types";
 import { isOfferAwaitingDecision, isOfferClosed } from '../../../lib/offerStatus';
+import { getActivityCategory } from '../../activity/activityPresentation';
 
 export type ProviderActivityItemData =
   | { type: "bid"; data: Bid }
@@ -30,6 +31,8 @@ export function countProviderActivityTab(
       ).length;
     case "pending_offers":
       return pendingBids.filter(isOfferAwaitingDecision).length;
+    case "closed_offers":
+      return pendingBids.filter(isOfferClosed).length;
     case "awaiting_approval":
       return engagements.filter((item) => item.status === "awaiting_seeker_approval").length;
     case "disputed":
@@ -37,7 +40,7 @@ export function countProviderActivityTab(
     case "completed":
       return engagements.filter((item) => item.status === "completed").length;
     case "canceled":
-      return engagements.filter((item) => item.status === "canceled").length + pendingBids.filter(isOfferClosed).length;
+      return engagements.filter((item) => item.status === "canceled").length;
     default:
       return engagements.length + pendingBids.length;
   }
@@ -59,25 +62,12 @@ export function filterProviderActivityItems({
   const requestForBid = (requestId: string) =>
     jobRequests.find((request) => request.id === requestId);
 
-  const categoryForEngagement = (engagement: JobEngagement) => {
-    if (engagement.serviceId) {
-      const service = services.find((item) => item.id === engagement.serviceId);
-      if (service) return service.category;
-    }
+  const categoryForEngagement = (engagement: JobEngagement) => getActivityCategory(engagement, services, jobRequests);
 
-    return (
-      jobRequests.find(
-        (request) =>
-          request.seekerId === engagement.seekerId &&
-          request.title === engagement.title,
-      )?.category || "General"
-    );
-  };
-
-  if (activeTab === "all" || activeTab === "pending_offers" || activeTab === 'canceled') {
+  if (activeTab === "all" || activeTab === "pending_offers" || activeTab === 'closed_offers') {
     pendingBids.forEach((bid) => {
       if (activeTab === 'pending_offers' && !isOfferAwaitingDecision(bid)) return;
-      if (activeTab === 'canceled' && !isOfferClosed(bid)) return;
+      if (activeTab === 'closed_offers' && !isOfferClosed(bid)) return;
       const request = requestForBid(bid.requestId);
       const searchable = [
         request?.title || bid.requestTitle || "",

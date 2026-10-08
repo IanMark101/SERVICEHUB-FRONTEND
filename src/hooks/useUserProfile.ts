@@ -11,8 +11,9 @@ import {
 } from '../api/auth.api';
 import { apiGetProviderSummary } from '../api/ai.api';
 import { useToast } from '../components/ui/Toast';
-import { getApiErrorMessage } from '../lib/api/errors';
+import { getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
 import type { JobEngagement } from '../types';
+import type { ProfileReviewContext, ProfileReviewStatsByContext } from '../types/reviews';
 
 interface ProfileReview {
   id: string;
@@ -23,6 +24,7 @@ interface ProfileReview {
   authorName?: string;
   authorAvatar?: string;
   author?: { name?: string; avatarUrl?: string };
+  reviewContext?: ProfileReviewContext;
 }
 interface PublicProfile extends Partial<UserSession> {
   name?: string;
@@ -36,6 +38,7 @@ interface PublicProfile extends Partial<UserSession> {
   availability?: string;
   languages?: string;
   reviews?: ProfileReview[];
+  reviewStats?: ProfileReviewStatsByContext;
 }
 
 export interface UseUserProfileProps {
@@ -68,9 +71,14 @@ export function useUserProfile({
   const [phonePasswordModalOpen, setPhonePasswordModalOpen] = useState(false);
   const [phonePasswordError, setPhonePasswordError] = useState<string | null>(null);
 
-  const [profile, setProfile] = useState<PublicProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [profileLoadError, setProfileLoadError] = useState(false);
+  const [profileState, setProfileState] = useState<{
+    userId: string; data: PublicProfile | null; error: boolean;
+  }>({ userId: targetUser?.id, data: null, error: false });
+  const profile = profileState.userId === targetUser?.id ? profileState.data : null;
+  const profileLoadError = profileState.userId === targetUser?.id && profileState.error && !profile;
+  const profileRefreshError = profileState.userId === targetUser?.id && profileState.error && !!profile;
+  // A background refresh must not unmount the already loaded profile or tabs.
+  const loading = !profile && !profileLoadError;
 
   // AI Summary state
   const [aiSummary, setAiSummary] = useState<string | null>(null);
@@ -79,15 +87,16 @@ export function useUserProfile({
   const [aiLoaded, setAiLoaded] = useState(false);
 
   // Trust History — loaded from DB, never fabricated
-  const [trustHistory, setTrustHistory] = useState<{
-    id: string;
-    delta: number;
-    reason: string;
-    scoreBefore: number;
-    scoreAfter: number;
-    createdAt: string;
-  }[]>([]);
-  const [trustHistoryLoading, setTrustHistoryLoading] = useState(false);
+  const trustScope = JSON.stringify([targetUser?.id, user?.id, user?.role]);
+  const [trustState, setTrustState] = useState<{
+    scope: string;
+    events: { id: string; delta: number; reason: string; scoreBefore: number; scoreAfter: number; createdAt: string }[];
+    loaded: boolean; error: boolean;
+  }>({ scope: trustScope, events: [], loaded: false, error: false });
+  const currentTrust = trustState.scope === trustScope ? trustState : null;
+  const trustHistory = currentTrust?.events ?? [];
+  const trustHistoryError = currentTrust?.error ?? false;
+  const trustHistoryLoading = !currentTrust?.loaded && !trustHistoryError;
 
   // UI state
   const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'trust' | 'verification' | 'settings'>(() => {
@@ -105,6 +114,13 @@ export function useUserProfile({
   const [showPassword, setShowPassword] = useState(false);
   const [cacheRevision, setCacheRevision] = useState(0);
   useApiCacheRefresh(['profiles', 'reviews', 'summaries'], () => setCacheRevision(value => value + 1), !showEdit && !phonePasswordModalOpen);
+
+  // Query-string tab changes select a section without remounting its profile.
+  useEffect(() => {
+    if (!initialTab) return;
+    const timer = window.setTimeout(() => setActiveTab(initialTab), 0);
+    return () => window.clearTimeout(timer);
+  }, [initialTab]);
 
   // Forms
   const [editForm, setEditForm] = useState({
@@ -126,13 +142,17 @@ export function useUserProfile({
   // Fetch Public Profile
   useEffect(() => {
     if (!targetUser?.id) return;
+    const userId = targetUser.id;
+    let active = true;
     const timer = window.setTimeout(() => {
-      setLoading(true);
-      setProfileLoadError(false);
-      apiGetPublicProfile(targetUser.id)
+      setProfileState(previous => previous.userId === userId
+        ? { ...previous, error: false }
+        : { userId, data: null, error: false });
+      apiGetPublicProfile(userId)
       .then((res: { success: boolean; data: PublicProfile }) => {
-        if (res.success) {
-          setProfile(res.data);
+        if (!active) return;
+        if (!res.success || !res.data) throw new Error('Profile could not load.');
+          setProfileState({ userId, data: res.data, error: false });
           setEditForm(prev => ({
             ...prev,
             name: res.data.name || '',
@@ -162,12 +182,18 @@ export function useUserProfile({
               };
             });
           }
-        }
       })
-      .catch(() => setProfileLoadError(true))
-      .finally(() => setLoading(false));
+      .catch(error => {
+        if (!active) return;
+        const status = getApiErrorStatus(error);
+        const unavailable = status === 401 || status === 403 || status === 404 || status === 410;
+        setProfileState(previous => ({ userId,
+          data: !unavailable && previous.userId === userId ? previous.data : null,
+          error: true,
+        }));
+      });
     }, 0);
-    return () => window.clearTimeout(timer);
+    return () => { active = false; window.clearTimeout(timer); };
   }, [targetUser?.id, isOwnProfile, setUser, cacheRevision]);
 
   // Fetch AI Summary for Provider
@@ -189,24 +215,29 @@ export function useUserProfile({
   // Fetch trust score history & milestones for the viewed profile
   useEffect(() => {
     if (!targetUser?.id) return;
+    let active = true;
     const timer = window.setTimeout(() => {
-      if (user?.id !== targetUser.id && user?.role !== 'admin') {
-        setTrustHistory([]);
-        setTrustHistoryLoading(false);
-        return;
-      }
-      setTrustHistoryLoading(true);
+      setTrustState(previous => previous.scope === trustScope
+        ? { ...previous, error: false }
+        : { scope: trustScope, events: [], loaded: false, error: false });
       apiGetTrustHistory(targetUser.id)
       .then(res => {
+        if (!active) return;
         if (res.success && Array.isArray(res.data)) {
-          setTrustHistory(res.data);
-        }
+          setTrustState({ scope: trustScope, events: res.data, loaded: true, error: false });
+        } else throw new Error('Trust history could not load.');
       })
-      .catch(() => {})
-      .finally(() => setTrustHistoryLoading(false));
+      .catch(error => {
+        if (!active) return;
+        const status = getApiErrorStatus(error);
+        const unavailable = status === 401 || status === 403 || status === 404 || status === 410;
+        setTrustState(previous => previous.scope === trustScope && !unavailable
+          ? { ...previous, error: true }
+          : { scope: trustScope, events: [], loaded: false, error: true });
+      });
     }, 0);
-    return () => window.clearTimeout(timer);
-  }, [targetUser?.id, user?.id, user?.role, cacheRevision]);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [targetUser?.id, trustScope, cacheRevision]);
 
   // Derived Properties
   const displayName = profile?.name || `${targetUser?.firstName || ''} ${targetUser?.lastName || ''}`.trim() || 'ServiceHub User';
@@ -242,6 +273,8 @@ export function useUserProfile({
 
   const rawRating = profile?.averageRating;
   const reviews: ProfileReview[] = Array.isArray(profile?.reviews) ? profile.reviews : [];
+  const reviewStats = profile?.reviewStats;
+  const reviewCount = reviewStats ? reviewStats.PROVIDER.reviewCount + reviewStats.SEEKER.reviewCount : reviews.length;
   const averageRating: number = typeof rawRating === 'number' && Number.isFinite(rawRating) && rawRating >= 0
     ? rawRating
     : 0;
@@ -266,8 +299,10 @@ export function useUserProfile({
 
   // Rating Distribution breakdown (5★ to 1★)
   const ratingDistribution = [5, 4, 3, 2, 1].map(star => {
-    const count = reviews.filter(r => Math.round(r.rating) === star).length;
-    const percentage = reviews.length > 0 ? Math.round((count / reviews.length) * 100) : 0;
+    const serviceReviews = reviews.filter(review => review.reviewContext === 'PROVIDER');
+    const count = reviewStats?.PROVIDER.ratingDistribution.find(bucket => bucket.star === star)?.count ?? serviceReviews.filter(r => r.rating === star).length;
+    const total = reviewStats?.PROVIDER.reviewCount ?? serviceReviews.length;
+    const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
     return { star, count, percentage };
   });
 
@@ -317,7 +352,7 @@ export function useUserProfile({
         ...(confirmedPassword ? { currentPassword: confirmedPassword } : {}),
       });
       if (res.success) {
-        setProfile((current) => ({ ...current, ...res.data }));
+        setProfileState(current => ({ userId: targetUser.id, data: { ...(current.userId === targetUser.id ? current.data : null), ...res.data }, error: false }));
         setPhonePasswordModalOpen(false);
         setPhonePasswordError(null);
         if (onProfileUpdated) {
@@ -368,7 +403,7 @@ export function useUserProfile({
     : (isDark ? 'focus:border-orange-600' : 'focus:border-orange-500');
 
   const inputClass = `w-full px-3.5 py-2.5 rounded-xl border text-sm transition-colors ${
-    isDark ? 'bg-[#1c1b18] border-neutral-800 text-[#f2efe9] placeholder-neutral-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
+    isDark ? 'bg-charcoal-inset border-neutral-800 text-[#f2efe9] placeholder-neutral-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
   } ${focusBorder} focus:outline-none focus:ring-1`;
 
   const usernameHandle = `@${displayName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'cordova_user'}`;
@@ -379,6 +414,8 @@ export function useUserProfile({
     toggleTheme,
     loading,
     profileLoadError,
+    profileRefreshError,
+    retryProfile: () => setCacheRevision(value => value + 1),
     profile,
     displayName,
     usernameHandle,
@@ -404,6 +441,8 @@ export function useUserProfile({
     averageRating,
     ratingDistribution,
     reviews,
+    reviewStats,
+    reviewCount,
     providerServices,
     userServices,
     userRequests,
@@ -435,6 +474,8 @@ export function useUserProfile({
     aiLoading,
     aiLoaded,
     trustHistoryLoading,
+    trustHistoryError,
+    retryTrustHistory: () => setCacheRevision(value => value + 1),
     isViewerVerified: user?.verificationStatus === 'APPROVED',
     cardBg,
     innerBg,

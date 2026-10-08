@@ -133,11 +133,11 @@ export default function AdminVerifications() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h4 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
-          Pending Provider Verifications
+          Pending Residency Verifications
         </h4>
         <button
           onClick={() => { invalidateApiCache(['admin']); fetchVerifications(); }}
-          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-charcoal dark:text-ink"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh Queue</span>
@@ -155,7 +155,7 @@ export default function AdminVerifications() {
         {loading ? (
           <WorkspacePageSkeleton label="Loading verification queue" role="admin" variant="verification" />
         ) : verifications.length === 0 ? (
-          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
+          <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${isDark ? 'bg-charcoal-surface border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
             }`}>
             There are no verifications currently pending review.
           </div>
@@ -168,7 +168,7 @@ export default function AdminVerifications() {
             return (
               <div
                 key={item.id}
-                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200'
+                className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${isDark ? 'bg-charcoal-surface border-neutral-800' : 'bg-white border-slate-200'
                   }`}
               >
                 {/* Header info */}
@@ -197,7 +197,7 @@ export default function AdminVerifications() {
                       return (
                         <div
                           key={proof.id}
-                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'
+                          className={`rounded-2xl p-3 border flex flex-col justify-between space-y-2 text-[11px] font-bold ${isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'
                             }`}
                         >
                           <div className="flex items-center justify-between">
@@ -219,7 +219,7 @@ export default function AdminVerifications() {
                           {isImage ? (
                             <div
                               onClick={() => proof.fileUrl && setZoomImage(proof.fileUrl)}
-                              className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-700/50 cursor-pointer group bg-black/40"
+                              className="relative h-28 w-full rounded-xl overflow-hidden border border-neutral-700/50 cursor-pointer group bg-charcoal/40"
                             >
                               <Image
                                 src={proof.fileUrl || ''}
@@ -229,7 +229,7 @@ export default function AdminVerifications() {
                                 sizes="(max-width: 768px) 100vw, 320px"
                                 className="object-cover group-hover:scale-105 transition-transform duration-200"
                               />
-                              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                              <div className="absolute inset-0 bg-charcoal/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
                                 <span>🔍 Inspect Photo</span>
                               </div>
                             </div>
@@ -287,8 +287,8 @@ export default function AdminVerifications() {
 
       {/* Review Dialog Overlay */}
       {reviewingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
             }`}>
             <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
               <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${isApproveMode ? 'text-emerald-500' : 'text-red-500'}`}>
@@ -296,25 +296,34 @@ export default function AdminVerifications() {
                 <span>{isApproveMode ? "Approve Verification" : "Reject Verification"}</span>
               </h4>
               <p className="text-[10px] text-ink-subtle">
-                Confirm action for provider {reviewingItem.user?.name}. Send remarks.
+                Confirm the residency verification decision for {reviewingItem.user?.name}.
               </p>
               <div>
+                <label htmlFor="verification-resident-message" className="mb-2 block text-sm font-semibold">
+                  {isApproveMode ? 'Message to resident (optional)' : 'Reason for rejection (required)'}
+                </label>
                 <textarea
-                  placeholder="Explain rejection reason or add approval remarks here..."
+                  id="verification-resident-message"
+                  aria-describedby="verification-message-help"
+                  placeholder={isApproveMode ? 'Add a message if the resident needs any additional information.' : 'Explain what needs to be corrected before resubmitting.'}
+                  maxLength={2000}
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
+                  className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                     }`}
                   rows={4}
                   required={!isApproveMode}
                   minLength={isApproveMode ? undefined : 3}
                 />
+                <p id="verification-message-help" className="mt-2 text-xs leading-5 text-ink-muted">
+                  This message is visible to the resident in their private verification details.
+                </p>
               </div>
               <div className="flex items-center justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setReviewingItem(null)}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
+                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
@@ -322,7 +331,7 @@ export default function AdminVerifications() {
                   type="submit"
                   disabled={submittingReview || (!isApproveMode && adminNotes.trim().length < 3)}
                   className={`px-4 py-2 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer ${submittingReview
-                      ? 'bg-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
+                      ? 'bg-charcoal text-ink-muted cursor-not-allowed opacity-60'
                       : isApproveMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'
                     }`}
                 >
@@ -332,7 +341,7 @@ export default function AdminVerifications() {
                       <span>{isApproveMode ? 'Approving...' : 'Rejecting...'}</span>
                     </>
                   ) : (
-                    <span>Submit Review</span>
+                    <span>{isApproveMode ? 'Approve verification' : 'Reject verification'}</span>
                   )}
                 </button>
               </div>
@@ -345,7 +354,7 @@ export default function AdminVerifications() {
       {zoomImage && (
         <div
           onClick={() => setZoomImage(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/85 backdrop-blur-md animate-in fade-in duration-200"
         >
           <div className="relative max-w-4xl max-h-[90vh]">
             <Image

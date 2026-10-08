@@ -84,10 +84,10 @@ export default function LandingTicker({
       className={`relative w-full overflow-hidden ${tilted ? 'py-[calc(1.75vw+0.5rem)]' : ''} ${className}`}
       aria-label="ServiceHub highlights"
     >
-      <div className={`relative flex min-h-14 items-center overflow-hidden border-y border-black/[0.08] bg-white/80 py-4.5 backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/70 sm:min-h-16 sm:py-5 ${tilted ? 'left-1/2 w-[calc(100%+4rem)] -translate-x-1/2 -rotate-2 shadow-[0_12px_22px_-16px_rgba(0,0,0,0.22)]' : 'w-full'}`}>
+      <div className={`relative flex min-h-14 items-center overflow-hidden border-y border-black/[0.08] bg-white/80 py-4.5 backdrop-blur-md dark:border-white/10 dark:bg-charcoal/70 sm:min-h-16 sm:py-5 ${tilted ? 'left-1/2 w-[calc(100%+4rem)] -translate-x-1/2 -rotate-2 shadow-[0_12px_22px_-16px_rgba(0,0,0,0.22)]' : 'w-full'}`}>
         {/* Edge gradient masks for smooth fade-in and fade-out */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[var(--landing-surface)] to-transparent dark:from-[#121211] sm:w-28" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[var(--landing-surface)] to-transparent dark:from-[#121211] sm:w-28" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[var(--landing-surface)] to-transparent dark:from-charcoal sm:w-28" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[var(--landing-surface)] to-transparent dark:from-charcoal sm:w-28" />
 
         {/* Infinite scrolling track */}
         <div className={`flex w-max items-center will-change-transform ${animationClass} hover:[animation-play-state:paused]`}>

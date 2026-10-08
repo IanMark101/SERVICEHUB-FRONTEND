@@ -1,8 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { JobEngagement } from '../../types';
 import SeekerActivityItem, { type SeekerActivityItemModel } from '../seeker/activity/SeekerActivityItem';
 import ProviderActivityItem, { type ProviderActivityItemModel } from '../provider/activity/ProviderActivityItem';
+import { mapBookingToEngagement, mapOfferToBid } from '../../context/mappers';
+import { countProviderActivityTab, filterProviderActivityItems } from '../provider/activity/providerActivity.utils';
 
 const booking: JobEngagement = {
   id: 'booking-1', title: 'House Cleaning', seekerId: 'johncarlo', seekerName: 'John Carlo', seekerAvatar: '',
@@ -36,6 +38,124 @@ function providerModel(overrides: Partial<ProviderActivityItemModel> = {}): Prov
 }
 
 describe('Activity card actions with the new hierarchy', () => {
+  it('keeps declined offers out of Canceled bookings and opens the actual canceled booking', () => {
+    const canceled = { ...booking, status: 'canceled' as const };
+    const offer = mapOfferToBid({ id: 'offer', requestId: 'request', status: 'REJECTED' });
+    const args = { engagements: [canceled], pendingBids: [offer], services: [], jobRequests: [], searchQuery: '', sortBy: 'newest' as const };
+    expect(countProviderActivityTab('canceled', [canceled], [offer])).toBe(1);
+    const items = filterProviderActivityItems({ ...args, activeTab: 'canceled' });
+    expect(items).toEqual([{ type: 'engagement', data: canceled }]);
+    render(<ProviderActivityItem item={items[0]} model={providerModel()} />);
+    expect(screen.getByText('Booking details')).toBeInTheDocument();
+    expect(screen.getByText('Booking journey').closest('details')).toHaveAttribute('open');
+    expect(screen.queryByText('Offer details')).not.toBeInTheDocument();
+    expect(filterProviderActivityItems({ ...args, activeTab: 'closed_offers' })).toEqual([{ type: 'bid', data: offer }]);
+  });
+
+  it('renders a real mapped offer photo, category, duration, and times even when its request is absent', () => {
+    const bid = mapOfferToBid({ id: 'offer', requestId: 'closed-request', providerId: 'provider',
+      provider: { name: 'John' }, status: 'REJECTED', decisionReason: 'DECLINED', offeredPrice: 250,
+      estimatedDuration: 90, availability: 'Saturday morning', createdAt: '2026-10-02T02:30:00.000Z',
+      decisionAt: '2026-10-03T05:15:00.000Z', request: { title: 'Outlet repair', seekerId: 'ian',
+        seeker: { name: 'Ian', avatarUrl: '/ian-avatar.png', trustScore: 82 }, category: { name: 'Electrical repair' } } });
+    render(<ProviderActivityItem item={{ type: 'bid', data: bid }} model={providerModel()} />);
+    const profileImage = screen.getByRole('button', { name: "View Ian's profile" }).querySelector('img');
+    expect(new URL(profileImage!.getAttribute('src')!, 'http://localhost:3000').pathname).toBe('/ian-avatar.png');
+    expect(screen.getByText('Trust 82/100')).toBeInTheDocument();
+    expect(screen.getByText('Electrical repair')).toHaveClass('text-emerald-600');
+    expect(screen.getByText('1 hr 30 min')).toBeInTheDocument();
+    expect(screen.getByText('Saturday morning')).toBeInTheDocument();
+    expect(screen.getByText('10:30 AM').closest('time')).toHaveAttribute('datetime', bid.createdAt);
+    expect(screen.getByText('1:15 PM').closest('time')).toHaveAttribute('datetime', bid.decisionAt!);
+    expect(screen.getByText('Offer journey').closest('details')).toHaveAttribute('open');
+  });
+
+  it.each(['provider', 'seeker'] as const)('shows the historical category, duration, and actual booking times for %s', role => {
+    const mapped = mapBookingToEngagement({ id: 'historical', status: 'CANCELED', seekerId: 'ian', providerId: 'john',
+      seeker: { name: 'Ian', avatarUrl: '/ian-avatar.png' }, provider: { name: 'John' },
+      estimatedDurationMins: 45, createdAt: '2026-10-02T02:30:00.000Z',
+      offer: { id: 'offer', requestId: 'archived-request', request: { title: 'Outlet repair', category: { name: 'Electrical repair' } } },
+      progressEvents: [{ id: 'cancel', kind: 'CANCELED', actorRole: 'SEEKER', occurredAt: '2026-10-03T05:15:00.000Z' }] });
+    if (role === 'provider') render(<ProviderActivityItem item={{ type: 'engagement', data: mapped }} model={providerModel({ getCategoryForEngagement: () => 'General' })} />);
+    else render(<SeekerActivityItem engagement={mapped} model={seekerModel({ getCategoryForEngagement: () => 'General' })} />);
+    expect(screen.getByText('Electrical repair')).toHaveClass(role === 'provider' ? 'text-emerald-600' : 'text-orange-600');
+    expect(screen.queryByText('General')).not.toBeInTheDocument();
+    expect(screen.getByText('45 min')).toBeInTheDocument();
+    expect(screen.getByText('Booking details')).toBeInTheDocument();
+    expect(screen.getByText('1:15 PM')).toBeInTheDocument();
+    expect(screen.getByText('Booking journey').closest('details')).toHaveAttribute('open');
+  });
+
+  it.each(['seeker', 'provider'] as const)('uses the shared canceled booking layout and correct counterpart for %s', (role) => {
+    const canceled = { ...booking, status: 'canceled' as const, paymentMethod: 'On-site Cash' as const };
+    const model = role === 'provider' ? providerModel() : seekerModel();
+    const view = role === 'provider'
+      ? render(<ProviderActivityItem item={{ type: 'engagement', data: canceled }} model={model as ProviderActivityItemModel} />)
+      : render(<SeekerActivityItem engagement={canceled} model={model as SeekerActivityItemModel} />);
+    const name = role === 'provider' ? 'John Carlo' : 'Ian';
+    const profile = screen.getByRole('button', { name: `View ${name}'s profile` });
+    expect(within(profile).getByText(role === 'provider' ? 'Seeker:' : 'Provider:')).toBeInTheDocument();
+    expect(within(profile).getByRole('img', { name: `${name} avatar` })).toBeInTheDocument();
+    expect(screen.queryByText('Client:')).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'What is happening now' }).parentElement).toHaveClass('border-stone-300');
+    const facts = screen.getByRole('region', { name: 'Booking facts' });
+    expect(facts.closest('aside')).toHaveClass('xl:col-start-2');
+    expect(view.container.querySelector('details')).toHaveAttribute('open');
+    expect(view.container.querySelector('.workspace-card')).toHaveClass('rounded-2xl');
+    fireEvent.click(profile);
+    expect(model.router.push).toHaveBeenCalledWith(role === 'provider' ? '/profile/johncarlo' : '/profile/ian');
+  });
+
+  it('uses the same detail structure for a declined offer without inventing a booking', () => {
+    const model = providerModel();
+    const view = render(<ProviderActivityItem item={{ type: 'bid', data: {
+      id: 'declined-offer', requestId: 'archived-request', seekerId: 'johncarlo', providerId: 'ian',
+      providerName: 'Ian', providerAvatar: '', providerRating: 0, price: 250, message: 'Available tomorrow',
+      status: 'declined', decisionReason: 'DECLINED', createdAt: booking.createdAt,
+      requestTitle: booking.title, seekerName: booking.seekerName, category: 'House Cleaning',
+    } }} model={model} />);
+    expect(screen.getByRole('heading', { name: 'Offer declined by seeker' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Your action' })).toHaveTextContent('No action needed for this offer.');
+    expect(screen.getByRole('region', { name: 'What happens next' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Offer facts' }).closest('aside')).toHaveClass('xl:col-start-2');
+    expect(screen.getByText('No booking created')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Withdraw Offer' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Booking journey')).not.toBeInTheDocument();
+    expect(screen.getByText('Offer journey').closest('details')).toHaveAttribute('open');
+    expect(screen.queryByText('Client:')).not.toBeInTheDocument();
+    expect(view.container.querySelector('.workspace-card')).toHaveClass('rounded-2xl');
+    expect(view.container.querySelector('.text-orange-500')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: `View ${booking.seekerName}'s profile` }));
+    expect(model.router.push).toHaveBeenCalledWith('/profile/johncarlo');
+  });
+
+  it('uses provider green for an open offer and prevents a second withdrawal while busy', () => {
+    render(<ProviderActivityItem item={{ type: 'bid', data: {
+      id: 'pending-offer', requestId: 'request-1', seekerId: 'johncarlo', providerId: 'ian',
+      providerName: 'Ian', providerAvatar: '', providerRating: 0, price: 250, message: '',
+      status: 'pending', createdAt: booking.createdAt, requestTitle: booking.title, seekerName: booking.seekerName,
+    } }} model={providerModel({ loadingItemId: 'pending-offer', loadingActionType: 'cancel_offer' })} />);
+    expect(screen.getByRole('region', { name: 'What is happening now' }).parentElement).toHaveClass('border-emerald-200');
+    expect(screen.getByText('₱250')).toHaveClass('text-emerald-700');
+    expect(screen.getByRole('button', { name: 'Cancelling...' })).toBeDisabled();
+  });
+
+  it('can copy a completed public request into a fresh draft from Activity', () => {
+    const model = seekerModel();
+    render(<SeekerActivityItem engagement={{ ...booking, status: 'completed', bookingStatus: 'COMPLETED', serviceId: null, repostRequestId: 'archived-request' }} model={model} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Repost request' }));
+    expect(model.router.push).toHaveBeenCalledWith('/seeker/post-request?repost=archived-request');
+    expect(model.handleRequestAgain).not.toHaveBeenCalled();
+  });
+
+  it('keeps the existing Request Again action for completed service-listing bookings', () => {
+    const model = seekerModel();
+    const completed = { ...booking, status: 'completed' as const, bookingStatus: 'COMPLETED' };
+    render(<SeekerActivityItem engagement={completed} model={model} />);
+    expect(screen.queryByRole('button', { name: 'Repost request' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Request Again' }));
+    expect(model.handleRequestAgain).toHaveBeenCalledWith(completed);
+  });
   it.each(['seeker', 'provider'] as const)('renders canceled %s workroom state and details in gray without completion copy', (role) => {
     const canceled = { ...booking, status: 'canceled' as const, bookingStatus: 'CANCELED', providerAvailability: 'Monday', completedServiceId: undefined, cancellationRequests: [{ id: 'old-cancel', status: 'DECLINED' as const, requestedBy: 'johncarlo' }] };
     if (role === 'seeker') render(<SeekerActivityItem engagement={canceled} model={seekerModel()} />);

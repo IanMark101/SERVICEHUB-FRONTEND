@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 import { clearSessionHint, markSessionPresent } from '../browserStorage';
 import { prepareCachedRequest } from './cachedAdapter';
 import { apiPath, mutationResources } from './cachePolicy';
@@ -21,6 +21,27 @@ let accessToken: string | null = null;
 let sessionGeneration = 0;
 const requestGenerations = new WeakMap<object, number>();
 const requestCacheGenerations = new WeakMap<object, number>();
+const requestAccountIds = new WeakMap<object, string | null>();
+
+declare module 'axios' {
+  interface AxiosRequestConfig { _accountStateRetried?: boolean }
+}
+
+const SETTINGS_READS = new Set([
+  '/verifications/status', '/verifications/privacy-notice', '/auth/security', '/users/me/account-deletion',
+]);
+
+// A server-verified profile update invalidates permission-scoped cache entries.
+// Re-read settings once for the SAME account instead of surfacing an internal
+// cancellation. Logout, account switches, mutations, and audited reads never retry.
+function retrySettingsAfterProfileChange(config: InternalAxiosRequestConfig) {
+  const accountId = requestAccountIds.get(config);
+  if ((config.method || 'get').toLowerCase() !== 'get' || config._accountStateRetried
+    || !SETTINGS_READS.has(apiPath(config.url)) || !accountId || accountId !== responseCache.accountId
+    || requestGenerations.get(config) !== sessionGeneration || config.signal?.aborted || config.cancelToken?.reason) return null;
+  config._accountStateRetried = true;
+  return api.request(config);
+}
 
 function tokenSubject(token: string): string | null {
   try {
@@ -69,6 +90,7 @@ api.interceptors.request.use(
     requestGenerations.set(config, sessionGeneration);
     requestCacheGenerations.set(config, responseCache.generation);
     const token = getAccessToken();
+    requestAccountIds.set(config, responseCache.accountId || (token ? tokenSubject(token) : null));
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     } else if (config.headers) {
@@ -135,8 +157,13 @@ api.interceptors.response.use(
     const generation = requestGenerations.get(response.config);
     if (generation !== undefined && generation !== sessionGeneration) throw new axios.CanceledError('Session changed while loading data');
     const cacheGeneration = requestCacheGenerations.get(response.config);
-    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) throw new axios.CanceledError('Account changed while loading data');
+    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) {
+      const retry = retrySettingsAfterProfileChange(response.config);
+      if (retry) return retry;
+      throw new axios.CanceledError('Account changed while loading data');
+    }
     const path = apiPath(response.config.url);
+    const method = (response.config.method || 'get').toLowerCase();
     const successful = response.status >= 200 && response.status < 300 && response.data?.success !== false;
     if (successful && typeof window !== 'undefined') {
       // Identity comes only from a server-verified login or /me, never from a
@@ -147,9 +174,12 @@ api.interceptors.response.use(
         if (user?.moderationStatus === 'BANNED') clearApiCache();
         else if (user?.id) responseCache.setIdentity(JSON.stringify([user.id, user.role, user.emailVerified, user.verificationStatus, user.moderationStatus, user.postingStatus]));
       }
-      if (['/auth/logout', '/auth/change-password', '/users/me/account-deletion'].includes(path)) {
+      // GET /users/me/account-deletion only checks eligibility. It shares its
+      // URL with the destructive POST and must preserve the signed-in scope
+      // while the other settings sections load concurrently.
+      if (method !== 'get' && ['/auth/logout', '/auth/change-password', '/users/me/account-deletion'].includes(path)) {
         clearApiCache();
-      } else if ((response.config.method || 'get').toLowerCase() !== 'get' && !['/auth/session', '/auth/refresh'].includes(path)) {
+      } else if (method !== 'get' && !['/auth/session', '/auth/refresh'].includes(path)) {
         invalidateApiCache(mutationResources(path), 'mutation');
       } else if (/^\/messages\/[^/]+$/.test(path) && !['/messages/conversations', '/messages/contacts'].includes(path)) {
         // Reading a conversation also marks its messages/notifications read.
@@ -164,7 +194,11 @@ api.interceptors.response.use(
     const generation = requestGenerations.get(originalRequest);
     if (generation !== undefined && generation !== sessionGeneration) return Promise.reject(new axios.CanceledError('Session changed while loading data'));
     const cacheGeneration = requestCacheGenerations.get(originalRequest);
-    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) return Promise.reject(new axios.CanceledError('Account changed while loading data'));
+    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) {
+      const retry = retrySettingsAfterProfileChange(originalRequest);
+      if (retry) return retry;
+      return Promise.reject(new axios.CanceledError('Account changed while loading data'));
+    }
 
     // Avoid infinite loop if auth/refresh or login fails
     if (

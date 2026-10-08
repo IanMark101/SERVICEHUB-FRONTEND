@@ -140,7 +140,7 @@ export default function AdminOverview() {
         <button
           onClick={() => { invalidateApiCache(['admin']); fetchStats(true); }}
           disabled={refreshing}
-          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary transition-colors hover:border-[var(--admin-border)] hover:text-[var(--admin-accent)] disabled:opacity-60 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary transition-colors hover:border-[var(--admin-border)] hover:text-[var(--admin-accent)] disabled:opacity-60 dark:border-neutral-700 dark:bg-charcoal dark:text-ink"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
           <span>{refreshing ? 'Refreshing...' : 'Refresh Stats'}</span>
@@ -154,7 +154,7 @@ export default function AdminOverview() {
               key={index}
               onClick={() => router.push(item.href)}
               className={`flex w-full cursor-pointer flex-col justify-between space-y-4 rounded-2xl border p-5 text-left shadow-sm transition-colors ${
-                isDark ? 'bg-[#22211e] border-neutral-800/80 hover:border-[var(--admin-border)]' : 'bg-white border-slate-200 hover:border-[var(--admin-border)]'
+                isDark ? 'bg-charcoal-surface border-neutral-800/80 hover:border-[var(--admin-border)]' : 'bg-white border-slate-200 hover:border-[var(--admin-border)]'
               }`}
             >
               <div className="flex items-center justify-between gap-3">
@@ -186,16 +186,16 @@ export default function AdminOverview() {
       />
 
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
-        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-charcoal-surface border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
           <h4 className="font-extrabold text-sm mb-4">Operational Status</h4>
           <div className="space-y-3 text-xs">
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-800 dark:bg-[#1b1b1b]"><span className="flex items-center gap-2 font-bold"><Radio className="h-4 w-4 text-emerald-500" /> Admin API</span><span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Online</span></div>
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-800 dark:bg-[#1b1b1b]"><span className="flex items-center gap-2 font-bold"><Database className="h-4 w-4 text-emerald-500" /> PostgreSQL</span><span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Connected</span></div>
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-800 dark:bg-charcoal"><span className="flex items-center gap-2 font-bold"><Radio className="h-4 w-4 text-emerald-500" /> Admin API</span><span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Online</span></div>
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-800 dark:bg-charcoal"><span className="flex items-center gap-2 font-bold"><Database className="h-4 w-4 text-emerald-500" /> PostgreSQL</span><span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Connected</span></div>
             <p className="text-[10px] leading-4 text-ink-muted">Statuses reflect this successful authenticated overview request and its database queries.</p>
           </div>
         </section>
 
-        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+        <section className={`rounded-2xl p-5 border shadow-sm ${isDark ? 'bg-charcoal-surface border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
           <div className="mb-4 flex items-center gap-2"><Activity className="h-4 w-4 text-[var(--admin-accent)]" /><h4 className="font-extrabold text-sm">Recent Administrator Actions</h4></div>
           {!stats?.recentAuditLogs?.length ? <p className="text-xs text-ink-muted">No administrator actions have been recorded yet.</p> : (
             <div className="divide-y divide-slate-100 dark:divide-neutral-800">

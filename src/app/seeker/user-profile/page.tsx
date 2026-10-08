@@ -1,12 +1,12 @@
 "use client";
 import React, { Suspense } from 'react';
 import LegacyProfileRedirect from '../../../components/profile/LegacyProfileRedirect';
-import BrandLoading from '../../../components/ui/BrandLoading';
+import ProfilePageSkeleton from '../../../components/profile/ProfilePageSkeleton';
 
 export default function SeekerUserProfilePage() {
   return (
-    <Suspense fallback={<BrandLoading label="Opening marketplace profile" role="seeker" />}>
-      <LegacyProfileRedirect role="seeker" />
+    <Suspense fallback={<ProfilePageSkeleton />}>
+      <LegacyProfileRedirect />
     </Suspense>
   );
 }

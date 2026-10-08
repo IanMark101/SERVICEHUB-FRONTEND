@@ -92,7 +92,7 @@ export default function SuggestCategory() {
 
         {/* Left Column (3/5): Suggestion Form */}
         <div className="lg:col-span-3">
-          <div className={`rounded-[24px] p-8 border shadow-sm space-y-6 transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+          <div className={`rounded-[24px] p-8 border shadow-sm space-y-6 transition-colors duration-200 ${isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-300'
             }`}>
 
             <div className={`flex items-center space-x-2 border-b pb-4 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
@@ -145,7 +145,7 @@ export default function SuggestCategory() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-orange-500/80'
                       : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     }`}
                 />
@@ -164,7 +164,7 @@ export default function SuggestCategory() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-orange-500/80'
                       : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     }`}
                 />
@@ -176,7 +176,7 @@ export default function SuggestCategory() {
                   type="button"
                   onClick={handleClear}
                   className={`px-4 py-2 border font-bold text-xs rounded-xl transition-all cursor-pointer ${isDark
-                      ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted'
+                      ? 'border-neutral-800 hover:bg-charcoal-hover text-ink-muted'
                       : 'border-slate-300 hover:bg-slate-50 text-ink-muted'
                     }`}
                 >
@@ -187,7 +187,7 @@ export default function SuggestCategory() {
                   disabled={loading || !canTransact}
                   className={`px-5 py-2 font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer ${
                     !canTransact
-                      ? 'bg-neutral-500 opacity-50 cursor-not-allowed text-white'
+                      ? 'bg-neutral-500 dark:bg-charcoal opacity-50 cursor-not-allowed text-white'
                       : 'bg-orange-600 hover:bg-orange-700 text-white'
                   }`}
                 >
@@ -203,7 +203,7 @@ export default function SuggestCategory() {
 
         {/* Right Column (2/5): Past Suggestions Panel */}
         <div className="lg:col-span-2">
-          <div className={`rounded-[24px] p-6 border shadow-sm space-y-4 transition-colors duration-200 h-full ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+          <div className={`rounded-[24px] p-6 border shadow-sm space-y-4 transition-colors duration-200 h-full ${isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-300'
             }`}>
             <h3 className={`font-extrabold text-xs uppercase tracking-wider border-b pb-3 ${isDark ? 'text-white border-neutral-850' : 'text-ink border-slate-100'
               }`}>
@@ -236,14 +236,14 @@ export default function SuggestCategory() {
                       className={`border rounded-2xl p-4 space-y-3 transition-all duration-200 cursor-pointer select-none group ${
                         isExpanded
                           ? isDark
-                            ? 'bg-[#282723] border-orange-500/60 shadow-lg ring-1 ring-orange-500/20'
+                            ? 'bg-charcoal border-orange-500/60 shadow-lg ring-1 ring-orange-500/20'
                             : 'bg-white border-orange-500/60 shadow-md ring-1 ring-orange-500/20'
                           : isDark
                           ? isRejected
-                            ? 'bg-[#1c1b18] border-red-900/40 hover:border-red-700/60'
+                            ? 'bg-charcoal-inset border-red-900/40 hover:border-red-700/60'
                             : isApproved
-                            ? 'bg-[#1c1b18] border-emerald-900/40 hover:border-emerald-700/60'
-                            : 'bg-[#1c1b18] border-neutral-850 hover:border-neutral-700'
+                            ? 'bg-charcoal-inset border-emerald-900/40 hover:border-emerald-700/60'
+                            : 'bg-charcoal-inset border-neutral-850 hover:border-neutral-700'
                           : isRejected
                           ? 'bg-red-50/20 border-red-200 hover:border-red-300'
                           : isApproved

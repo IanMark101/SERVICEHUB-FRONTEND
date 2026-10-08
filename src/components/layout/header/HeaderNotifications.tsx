@@ -19,7 +19,7 @@ interface HeaderNotificationsProps {
   badgeClass: string;
   onToggle: () => void;
   onClose: () => void;
-  onNotificationClick: (link?: string | null) => void;
+  onNotificationClick: (link?: string | null, title?: string) => void;
   onMarkAllRead: () => void;
   hasMore: boolean;
   onLoadMore: () => void;
@@ -39,7 +39,8 @@ function getNotificationIcon(title: string) {
   return Bell;
 }
 
-function getNotificationCta(link?: string | null) {
+function getNotificationCta(link?: string | null, title?: string) {
+  if (/^verification (approved|rejected)$/i.test(title?.trim() || '') || link === '/account/settings#verification') return 'View verification decision';
   if (!link) return 'View Details';
   const path = link.toLowerCase();
   if (path.includes('messages')) return 'Open Conversation';
@@ -108,7 +109,7 @@ export default function HeaderNotifications({
       {isOpen && (
         <>
           <div onClick={onClose} className="fixed inset-0 z-30" />
-          <div id={panelId} role="dialog" aria-label="Notifications" className={`notification-panel fixed left-3 right-3 top-[4.75rem] z-40 flex max-h-[min(70dvh,28rem)] flex-col overflow-hidden rounded-2xl border shadow-[0_22px_54px_-28px_rgba(23,23,22,0.55)] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-3 sm:max-h-[min(28rem,calc(100dvh-6rem))] sm:w-[23rem] ${isDark ? 'bg-[#202020] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+          <div id={panelId} role="dialog" aria-label="Notifications" className={`notification-panel fixed left-3 right-3 top-[4.75rem] z-40 flex max-h-[min(70dvh,28rem)] flex-col overflow-hidden rounded-2xl border shadow-[0_22px_54px_-28px_rgba(23,23,22,0.55)] sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-3 sm:max-h-[min(28rem,calc(100dvh-6rem))] sm:w-[23rem] ${isDark ? 'bg-charcoal border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
             <div className={`flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3.5 ${isDark ? 'border-neutral-800' : 'border-slate-100'}`}>
               <div>
                 <span className="block font-bold text-xs">Notifications</span>
@@ -122,7 +123,7 @@ export default function HeaderNotifications({
                   type="button"
                   aria-label="Close notifications"
                   onClick={onClose}
-                  className={`grid size-8 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${isDark ? 'hover:bg-white/8' : 'hover:bg-slate-100'}`}
+                  className={`grid size-8 place-items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${isDark ? 'hover:bg-charcoal' : 'hover:bg-slate-100'}`}
                 >
                   <X className="size-4" aria-hidden="true" />
                 </button>
@@ -139,7 +140,7 @@ export default function HeaderNotifications({
                     filter === item
                       ? 'border-[var(--feedback-border)] bg-[var(--feedback-soft)] text-[var(--feedback-accent)]'
                       : isDark
-                        ? 'border-neutral-700 bg-neutral-800/70 text-ink-subtle hover:border-neutral-600 hover:text-neutral-100'
+                        ? 'border-neutral-700 bg-charcoal/70 text-ink-subtle hover:border-neutral-600 hover:text-neutral-100'
                         : 'border-slate-200 bg-white text-ink-muted hover:border-slate-300 hover:text-ink'
                   }`}
                 >
@@ -153,7 +154,7 @@ export default function HeaderNotifications({
               ) : visibleNotifications.map((notification) => {
                 const Icon = getNotificationIcon(notification.title);
                 return (
-                  <button type="button" key={notification.id} onClick={() => onNotificationClick(notification.link)} className={`w-full px-4 py-3 cursor-pointer flex space-x-3 text-left transition-colors ${isDark ? 'hover:bg-neutral-800/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-neutral-800/35' : 'bg-slate-50') : ''}`}>
+                  <button type="button" key={notification.id} onClick={() => onNotificationClick(notification.link, notification.title)} className={`w-full px-4 py-3 cursor-pointer flex space-x-3 text-left transition-colors ${isDark ? 'hover:bg-charcoal/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-charcoal/35' : 'bg-slate-50') : ''}`}>
                     <div className="rounded-lg bg-[var(--feedback-soft)] text-[var(--feedback-accent)] h-8 w-8 flex-shrink-0 flex items-center justify-center">
                       <Icon className="w-4 h-4" />
                     </div>
@@ -169,7 +170,7 @@ export default function HeaderNotifications({
                       {notification.link && (
                         <div className="mt-1.5 flex justify-start">
                           <span className="inline-flex items-center gap-1 text-[9px] font-bold transition-colors text-[var(--feedback-accent)]">
-                            {getNotificationCta(notification.link)}
+                            {getNotificationCta(notification.link, notification.title)}
                             <ArrowRight className="size-3" weight="bold" aria-hidden="true" />
                           </span>
                         </div>
@@ -179,7 +180,7 @@ export default function HeaderNotifications({
                 );
               })}
             </div>
-            <div className={`shrink-0 border-t px-3 py-2.5 ${isDark ? 'border-neutral-800 bg-[#1b1b1b]' : 'border-slate-100 bg-slate-50/60'}`}>
+            <div className={`shrink-0 border-t px-3 py-2.5 ${isDark ? 'border-neutral-800 bg-charcoal' : 'border-slate-100 bg-slate-50/60'}`}>
               <div className="flex min-h-8 items-center justify-between gap-3">
                 <div className="min-w-0">
                   <span className="block text-[9px] font-medium text-ink-subtle">Page {visiblePage} of {totalPages}{hasMore ? '+' : ''}</span>

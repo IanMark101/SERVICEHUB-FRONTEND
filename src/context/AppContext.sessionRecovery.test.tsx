@@ -122,6 +122,24 @@ describe('session recovery with an interactive public landing page', () => {
     expect(screen.queryByText(/Could not restore your session/)).not.toBeInTheDocument();
   });
 
+  it.each(['seeker', 'provider'])('gates the %s workspace during a database outage without discarding the login session', async role => {
+    mocks.pathname = `/${role}`;
+    vi.mocked(apiRecoverSession).mockRejectedValueOnce({ isAxiosError: true,
+      response: { status: 503, data: { code: 'DATABASE_QUOTA_EXCEEDED', error: 'Invalid prisma.refreshToken.findUnique()' } } });
+    render(<AppProvider><ProtectedProbe /></AppProvider>);
+    expect(await screen.findByText('Service temporarily unavailable')).toBeVisible();
+    expect(screen.getByText('ServiceHub is temporarily unavailable. Please try again later.')).toBeVisible();
+    expect(screen.queryByText('Verified workspace')).not.toBeInTheDocument();
+    expect(screen.queryByText('Connection interrupted')).not.toBeInTheDocument();
+    expect(screen.queryByText(/prisma/)).not.toBeInTheDocument();
+    expect(clearAccessToken).not.toHaveBeenCalled();
+    expect(localStorage.getItem('servicehub:session-present')).toBe('true');
+    expect(mocks.router.replace).not.toHaveBeenCalled();
+    vi.mocked(apiRecoverSession).mockResolvedValueOnce({ success: true, data: { user: { id: 'restored', name: 'Test Account', emailVerified: true } } });
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Verified workspace')).toBeVisible();
+  });
+
   it('checks again before workspace entry after a saved public session was confirmed absent', async () => {
     vi.mocked(apiRecoverSession).mockResolvedValueOnce({ success: false, data: { user: null } });
     const view = render(<AppProvider><SessionProbe /></AppProvider>);

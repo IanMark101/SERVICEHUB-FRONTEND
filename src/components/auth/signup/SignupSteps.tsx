@@ -156,7 +156,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                   aria-invalid={Boolean(fieldErrors.agreeTerms)}
                   aria-describedby="agreeTerms-help"
                   {...register('agreeTerms')}
-                  className={`h-4 w-4 rounded-md text-[#c86544] focus:ring-[#c86544]/20 bg-slate-50 dark:bg-zinc-900 cursor-pointer flex-shrink-0 ${
+                  className={`h-4 w-4 rounded-md text-[#c86544] focus:ring-[#c86544]/20 bg-slate-50 dark:bg-charcoal cursor-pointer flex-shrink-0 ${
                     fieldErrors.agreeTerms
                       ? 'border-rose-500 ring-1 ring-rose-500/30'
                       : 'border-black/[0.12] dark:border-white/20'
@@ -195,13 +195,13 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
               <label htmlFor="registration-phone" className="block text-xs font-semibold text-ink-secondary dark:text-ink-secondary mb-1.5">
                 Contact Number
               </label>
-              <div className={`flex items-center rounded-xl border bg-slate-50/70 dark:bg-zinc-900/60 overflow-hidden transition-all focus-within:bg-white dark:focus-within:bg-zinc-900 focus-within:ring-2 focus-within:ring-[#c86544]/15 ${
+              <div className={`flex items-center rounded-xl border bg-slate-50/70 dark:bg-charcoal/60 overflow-hidden transition-all focus-within:bg-white dark:focus-within:bg-charcoal focus-within:ring-2 focus-within:ring-[#c86544]/15 ${
                 fieldErrors.phone
                   ? 'border-rose-500 ring-1 ring-rose-500/30'
                   : 'border-black/[0.08] dark:border-white/10 focus-within:border-[#c86544] dark:focus-within:border-orange-500'
               }`}>
                 {/* Philippine Flag Badge with +63 */}
-                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-100/80 dark:bg-zinc-800/80 border-r border-black/[0.06] dark:border-white/10 text-ink-secondary dark:text-ink text-xs font-bold select-none flex-shrink-0">
+                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-100/80 dark:bg-charcoal/80 border-r border-black/[0.06] dark:border-white/10 text-ink-secondary dark:text-ink text-xs font-bold select-none flex-shrink-0">
                   <PhilippineFlag className="w-5 h-3.5 rounded-[2px] shadow-xs" />
                   <span className="font-mono text-xs font-extrabold text-ink dark:text-white tracking-tight">+63</span>
                 </div>
@@ -255,7 +255,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 id="registration-location"
                 autoComplete="address-level3"
                 {...register('location')}
-                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 transition-all cursor-pointer"
+                className="w-full bg-slate-50/70 dark:bg-charcoal/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink dark:text-white focus:bg-white dark:focus:bg-charcoal focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 transition-all cursor-pointer"
               >
                 <option value="Alegria, Cordova">Alegria</option>
                 <option value="Bangbang, Cordova">Bangbang</option>
@@ -296,14 +296,14 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
               </label>
 
               {/* Avatar Preview & Upload Action */}
-              <div className="flex items-center gap-3.5 p-3.5 rounded-2xl border border-black/[0.06] dark:border-white/10 bg-slate-50/70 dark:bg-zinc-900/50 transition-all">
+              <div className="flex items-center gap-3.5 p-3.5 rounded-2xl border border-black/[0.06] dark:border-white/10 bg-slate-50/70 dark:bg-charcoal/50 transition-all">
                 <div className="relative group/avatar flex-shrink-0 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                   <Image unoptimized width={56} height={56}
                     src={formData.avatarUrl || avatars[0]}
                     alt="Selected Profile"
                     className="size-14 rounded-2xl object-cover border-2 border-[#c86544] shadow-sm transition-transform duration-200 group-hover/avatar:scale-105"
                   />
-                  <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity text-white">
+                  <div className="absolute inset-0 rounded-2xl bg-charcoal/40 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity text-white">
                     <Camera size={18} />
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 border border-black/[0.08] dark:border-white/10 text-ink dark:text-ink hover:border-[#c86544] hover:text-[#c86544] dark:hover:text-orange-400 transition-all shadow-xs active:scale-95 cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-charcoal border border-black/[0.08] dark:border-white/10 text-ink dark:text-ink hover:border-[#c86544] hover:text-[#c86544] dark:hover:text-orange-400 transition-all shadow-xs active:scale-95 cursor-pointer"
                     >
                       {uploading ? (
                         <>
@@ -367,7 +367,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                       className={`relative aspect-square rounded-xl p-1 border-2 transition-all duration-200 hover:scale-105 cursor-pointer flex items-center justify-center ${
                         isSelected
                           ? 'border-[#c86544] bg-orange-50/50 dark:bg-orange-950/20 shadow-sm ring-2 ring-[#c86544]/30 scale-105'
-                          : 'border-black/[0.06] dark:border-white/10 bg-slate-50/50 dark:bg-zinc-900 opacity-80 hover:opacity-100 hover:border-black/[0.14]'
+                          : 'border-black/[0.06] dark:border-white/10 bg-slate-50/50 dark:bg-charcoal opacity-80 hover:opacity-100 hover:border-black/[0.14]'
                       }`}
                       title={`Animated Avatar #${idx + 1}`}
                     >
@@ -395,7 +395,7 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
                 rows={3}
                 placeholder="Tell the community a little about yourself, your services, or what you are looking for..."
                 {...register('bio')}
-                className="w-full bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink dark:text-white placeholder-ink-subtle dark:placeholder-ink-subtle focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 resize-none transition-all"
+                className="w-full bg-slate-50/70 dark:bg-charcoal/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink dark:text-white placeholder-ink-subtle dark:placeholder-ink-subtle focus:bg-white dark:focus:bg-charcoal focus:outline-none focus:border-[#c86544] focus:ring-2 focus:ring-[#c86544]/15 resize-none transition-all"
               />
             </div>
           </div>

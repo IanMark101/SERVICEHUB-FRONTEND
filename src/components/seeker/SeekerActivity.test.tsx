@@ -42,7 +42,7 @@ const booking = {
 function setEngagements(jobEngagements: unknown[]) {
   vi.mocked(useApp).mockReturnValue({
     jobEngagements, services: [], jobRequests: [], notifications: [],
-    user: { id: 'johncarlo' }, isDark: false, refreshEngagements, refreshAll,
+    user: { id: 'johncarlo' }, isDark: false, refreshEngagements, refreshAll, applyBookingAction: vi.fn(),
   } as unknown as ReturnType<typeof useApp>);
 }
 
@@ -97,6 +97,7 @@ describe('Seeker Activity booking links', () => {
   });
 
   it('keeps cancellation approval busy until the API resolves', async () => {
+    refreshEngagements.mockImplementation(() => new Promise<void>(() => {}));
     let resolveApproval!: (value: { success: boolean }) => void;
     vi.mocked(apiRespondCancellationRequest).mockImplementation(() => new Promise((resolve) => { resolveApproval = resolve; }));
     render(<SeekerActivity currentUserId="johncarlo" />);
@@ -105,6 +106,7 @@ describe('Seeker Activity booking links', () => {
     expect(screen.getByRole('button', { name: 'Decline cancellation' })).toBeDisabled();
     expect(apiRespondCancellationRequest).toHaveBeenCalledTimes(1);
     await act(async () => { resolveApproval({ success: true }); });
-    await waitFor(() => expect(refreshEngagements).toHaveBeenCalled());
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Approve cancellation' })).toBeEnabled());
+    expect(refreshEngagements).not.toHaveBeenCalled();
   });
 });

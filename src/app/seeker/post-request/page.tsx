@@ -2,10 +2,12 @@
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PostRequest from '../../../components/seeker/PostRequest';
+import RepostRequestForm from '../../../components/seeker/RepostRequestForm';
 
 function PostRequestContent() {
   const searchParams = useSearchParams();
-  return <PostRequest appealRequestId={searchParams.get('appealRequestId') ?? ''} />;
+  const repostId = searchParams.get('repost');
+  return repostId ? <RepostRequestForm key={repostId} requestId={repostId} /> : <PostRequest appealRequestId={searchParams.get('appealRequestId') ?? ''} />;
 }
 
 export default function PostRequestPage() {

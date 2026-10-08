@@ -8,6 +8,7 @@ import { markSessionPresent } from '@/lib/browserStorage';
 import { getApiErrorBody, getApiErrorMessage } from '@/lib/api/errors';
 import type { FieldPath } from 'react-hook-form';
 import type { ZodIssue } from 'zod';
+import useAuthCaptcha from '@/components/auth/shared/useAuthCaptcha';
 
 export interface AuthFormValues {
   firstName: string;
@@ -54,6 +55,7 @@ export default function useAuthForm({
   const [registrationEmailSent, setRegistrationEmailSent] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const recoveryBusy = useRef(false);
+  const captcha = useAuthCaptcha(mode);
 
   const {
     register,
@@ -189,8 +191,9 @@ export default function useAuthForm({
         applyValidationIssues(result.error.issues);
         return;
       }
+      if (captcha.blocked) { setError('Complete the security check before requesting a reset link.'); return; }
       recoveryBusy.current = true; setIsLoading(true);
-      apiForgotPassword(formData.email)
+      apiForgotPassword(formData.email, captcha.required ? captcha.token : undefined)
         .then((res) => {
           if (res.success) {
             setSuccessMsg(res.message || 'If an account exists, a reset link has been sent.');
@@ -200,8 +203,9 @@ export default function useAuthForm({
           }
         })
         .catch((err: unknown) => {
+          captcha.handleFailure(err);
           setError(getApiErrorMessage(err, 'Something went wrong.'));
-        }).finally(() => { recoveryBusy.current = false; setIsLoading(false); });
+        }).finally(() => { captcha.reset(); recoveryBusy.current = false; setIsLoading(false); });
       return;
     }
 
@@ -240,9 +244,10 @@ export default function useAuthForm({
         return;
       }
 
+      if (captcha.blocked) { setError('Complete the security check before signing in.'); return; }
       recoveryBusy.current = true;
       setIsLoading(true);
-      apiLogin({ email: formData.email, password: formData.password })
+      apiLogin({ email: formData.email, password: formData.password, captchaToken: captcha.required ? captcha.token : undefined })
         .then((res) => {
           if (res.success) {
             const user = res.data.user;
@@ -272,9 +277,11 @@ export default function useAuthForm({
           }
         })
         .catch((err: unknown) => {
+          captcha.handleFailure(err);
           setError(getApiErrorMessage(err, 'Invalid email or password'));
         })
         .finally(() => {
+          captcha.reset();
           recoveryBusy.current = false;
           setIsLoading(false);
         });
@@ -283,6 +290,7 @@ export default function useAuthForm({
         handleNextStep();
         return;
       }
+      if (captcha.blocked) { setError('Complete the security check before creating your account.'); return; }
 
       let phoneFormatted = formData.phone.trim();
       if (phoneFormatted && !phoneFormatted.startsWith('+63')) {
@@ -293,6 +301,7 @@ export default function useAuthForm({
         }
       }
 
+      recoveryBusy.current = true;
       setIsLoading(true);
       apiRegister({
         name: `${formData.firstName} ${formData.lastName}`,
@@ -305,6 +314,7 @@ export default function useAuthForm({
         // data URL to the API during registration; the user can upload it after
         // signing in and verifying their email.
         avatarUrl: formData.avatarUrl?.startsWith('data:') ? undefined : formData.avatarUrl,
+        captchaToken: captcha.required ? captcha.token : undefined,
       })
         .then((res) => {
           if (res.success) {
@@ -316,6 +326,7 @@ export default function useAuthForm({
           }
         })
         .catch((err: unknown) => {
+          captcha.handleFailure(err);
           const body = getApiErrorBody(err);
           const validationErrors = body?.errors;
           if (validationErrors && Array.isArray(validationErrors)) {
@@ -325,6 +336,8 @@ export default function useAuthForm({
           }
         })
         .finally(() => {
+          captcha.reset();
+          recoveryBusy.current = false;
           setIsLoading(false);
         });
     }
@@ -340,6 +353,7 @@ export default function useAuthForm({
   });
 
   return {
+    captcha,
     formData,
     step,
     setStep,

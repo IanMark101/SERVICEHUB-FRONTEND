@@ -2,12 +2,14 @@ import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { X } from 'lucide-react';
+import { CheckCircle2, Clock, Loader2, TriangleAlert, X } from 'lucide-react';
 import ReviewSummaryPanel from '../ui/ReviewSummaryPanel';
 import { apiBookDirect } from '../../api/bookings.api';
 import { getServicePaymentMethods } from '../../lib/paymentUtils';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import GCashLogo from '../ui/GCashLogo';
+import useDialogFocus from '../../hooks/useDialogFocus';
+import styles from '../ui/TransactionForm.module.css';
 
 interface RequestServiceModalProps {
   listing: ServiceListing;
@@ -41,6 +43,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
+  const dialogRef = useDialogFocus(true, loading, onClose, 'dialog');
 
   const handleFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -104,10 +107,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         });
       } else {
         // GCash/online path — use the existing hook
-        await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity);
-        // Initiating checkout is not a successful booking. The return page
-        // shows the authoritative payment result after PayMongo verification.
+        const checkout = await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity);
+        // The workspace payment dialog takes over without leaving the listing.
+        // Initiating checkout alone must never claim a successful booking.
         setLoading(false);
+        if (checkout) onClose();
         return;
       }
       setLoading(false);
@@ -122,220 +126,115 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
+    <div className={styles.overlay}>
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="request-dialog-title" className={styles.panel} data-theme={isDark ? 'dark' : 'light'} data-workspace="seeker">
+        <header className={styles.header}>
+          <h3 id="request-dialog-title">Send a request</h3>
+          <button type="button" onClick={onClose} disabled={loading} aria-label="Close request form" className={styles.close}><X size={18} aria-hidden="true" /></button>
+        </header>
 
-      {/* Modal Container */}
-      <div className={`rounded-[24px] max-w-lg w-full max-h-[90dvh] flex flex-col overflow-hidden shadow-xl border transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
-        }`}>
-
-        {/* Header */}
-        <div className={`flex-shrink-0 p-5 border-b flex justify-between items-center ${isDark ? 'bg-[#1c1b18]/45 border-neutral-850' : 'bg-slate-50/50 border-slate-100'
-          }`}>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider border ${isDark
-                  ? 'text-orange-400 bg-orange-950/20 border-orange-900/30'
-                  : 'text-orange-700 bg-orange-50 border-orange-100'
-                }`}>
-                Direct Booking
-              </span>
-            </div>
-            <h3 className={`font-extrabold text-sm mt-1.5 leading-snug ${isDark ? 'text-white' : 'text-ink'}`}>
-              Request {listing.title}
-            </h3>
-            {listing.priceType && listing.priceType !== 'FIXED' && (
-              <p className={`text-[10px] font-semibold mt-0.5 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-                {priceUnavailable
-                  ? 'Price unavailable'
-                  : `₱${listing.price}${listing.priceType === 'PER_HOUR' ? ' / hour' : listing.priceType === 'PER_DAY' ? ' / day' : listing.priceType === 'PER_PROJECT' ? ' / project' : ''}`}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle hover:text-ink-secondary'
-              }`}
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Success State */}
         {success ? (
-          <div className="p-8 text-center space-y-3">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold border ${isDark ? 'bg-orange-950/20 text-orange-400 border-orange-900/30' : 'bg-orange-50 text-orange-600 border-orange-100'
-              }`}>
-              ✓
-            </div>
-            <h4 className={`font-bold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
-              {paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}
-            </h4>
-            <p className={`text-xs ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
-              {paymentMethod === 'On-site Cash'
-                ? `The request was sent to ${listing.providerName} for acceptance. Your preferred schedule is a proposal until the provider accepts it.`
-                : 'Your verified online booking has entered this service listing\'s queue.'}
-            </p>
+          <div role="status" className={styles.success}>
+            <CheckCircle2 size={40} aria-hidden="true" />
+            <h4>{paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}</h4>
+            <p>{paymentMethod === 'On-site Cash'
+              ? 'The request was sent to ' + listing.providerName + ' for acceptance. Your preferred schedule is a proposal until the provider accepts it.'
+              : "Your verified online booking has entered this service listing's queue."}</p>
           </div>
         ) : (
-          <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
+          <form onSubmit={handleFormSubmit} aria-busy={loading} className={styles.form}>
+            <div className={styles.body}>
+              <fieldset disabled={loading} className={styles.fields}>
+                <section className={styles.summary} aria-label="Service summary">
+                  <div className={styles.summaryHeading}>
+                    <h4>{listing.title}</h4>
+                    <div className={styles.amount}>
+                      <span>{priceUnavailable ? 'Price unavailable' : '₱' + Number(listing.price).toLocaleString()}</span>
+                      <span>{priceUnavailable ? 'Final price required' : listing.priceType === 'PER_HOUR' ? 'Per hour' : listing.priceType === 'PER_DAY' ? 'Per day' : listing.priceType === 'PER_PROJECT' ? 'Per project' : 'Fixed price'}</span>
+                    </div>
+                  </div>
+                  <div className={styles.metadata}>
+                    <span>Provider: <strong>{listing.providerName}</strong></span>
+                    <span>{listing.category}</span>
+                    {listing.estimatedDurationMins && <span><Clock size={14} aria-hidden="true" />Estimated duration: {listing.estimatedDurationMins} minutes</span>}
+                  </div>
+                  <p className={styles.hint}>
+                    <strong>{isMetered ? 'Displayed listing rate' : 'Agreed listing price'}</strong>
+                    {' · '}{priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'The server records this exact amount.'}
+                  </p>
+                </section>
 
-            {/* Self-transaction policy warning banner */}
-            {isOwned && (
-              <div className={`p-4 rounded-2xl border transition-all duration-200 ${
-                isDark 
-                  ? 'bg-red-950/20 border-red-900/30 text-red-400' 
-                  : 'bg-red-50 border-red-100 text-red-800'
-              }`}>
-                <p className="text-xs font-semibold">
-                  This is your own service listing. Marketplace transactions with your own account are not allowed.
-                </p>
-              </div>
-            )}
+                {isOwned && <p role="alert" className={styles.error}>This is your own service listing. Marketplace transactions with your own account are not allowed.</p>}
+                <div className={styles.review}><ReviewSummaryPanel subjectId={listing.providerId} context="provider" serviceId={listing.id} isDark={isDark} /></div>
 
-            <ReviewSummaryPanel subjectId={listing.providerId} context="provider" serviceId={listing.id} isDark={isDark} />
+                <div>
+                  <label htmlFor="request-work-description" className={styles.label}>Describe the work needed</label>
+                  <textarea id="request-work-description" rows={4} required disabled={isOwned}
+                    placeholder="Describe exactly what needs to be done, location details, preferred schedules..."
+                    value={description} onChange={(event) => setDescription(event.target.value)} className={styles.field} />
+                </div>
 
-            {/* Description */}
-            <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                Describe the work needed
-              </label>
-              <textarea
-                rows={4}
-                required
-                disabled={isOwned}
-                placeholder="Describe exactly what needs to be done, location details, preferred schedules..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none transition-all ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-850 text-white focus:border-orange-500/80 focus:ring-1 focus:ring-orange-500/30'
-                    : 'bg-slate-50 border-slate-200 text-ink-secondary focus:border-orange-500'
-                  } ${isOwned ? 'opacity-65' : ''}`}
-              />
+                {paymentMethod === 'On-site Cash' && (
+                  <div>
+                    <label htmlFor="request-preferred-schedule" className={styles.label}>Preferred schedule <span className={styles.optional}>(optional)</span></label>
+                    <input id="request-preferred-schedule" type="text" maxLength={500} disabled={isOwned}
+                      value={preferredSchedule} onChange={(event) => setPreferredSchedule(event.target.value)}
+                      placeholder="e.g. Saturday afternoon; please confirm availability" className={styles.field} aria-describedby="request-schedule-hint" />
+                    <p id="request-schedule-hint" className={styles.hint}>This is a proposal, not a reserved appointment. The provider must confirm availability.</p>
+                  </div>
+                )}
+
+                {isMetered && (
+                  <div>
+                    <label htmlFor="booking-quantity" className={styles.label}>Number of {unitName}</label>
+                    <input id="booking-quantity" type="number" min={1} max={listing.priceType === 'PER_DAY' ? 7 : 40} step={1} required value={quantity}
+                      onChange={(event) => setQuantity(Number(event.target.value))} className={styles.field} />
+                    <p className={styles.total}>Total: ₱{(Number(listing.price) * quantity).toLocaleString()}</p>
+                  </div>
+                )}
+
+                <section className={styles.payment} aria-labelledby="request-payment-title">
+                  <h4 id="request-payment-title" className={styles.label}>Payment Method</h4>
+                  <div className={styles.paymentChoices} data-single={!(cash && gcash)}>
+                    {([['On-site Cash', cash], ['GCash', gcash]] as const)
+                      .filter(([, accepted]) => accepted)
+                      .map(([method]) => (
+                        <button key={method} type="button" disabled={isOwned}
+                          aria-label={method === 'GCash' ? 'GCash · Test Mode' : method}
+                          aria-pressed={paymentMethod === method}
+                          onClick={() => setPaymentMethod(method)} className={styles.paymentChoice}>
+                          {method === 'GCash' ? <><GCashLogo /><span>· Test Mode</span></> : method}
+                        </button>
+                      ))}
+                  </div>
+                  {!cash && !gcash && <p className={styles.error}>No supported payment method is available.</p>}
+                  {gcash && <p className={styles.hint}>GCash checkout uses PayMongo Test Mode. ServiceHub confirms the payment before adding your booking to the provider’s shared work queue; test payments are not real provider payouts.</p>}
+                </section>
+
+                <div className={styles.notice}>
+                  <TriangleAlert size={16} aria-hidden="true" />
+                  <p>You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.</p>
+                </div>
+              </fieldset>
             </div>
 
-            {paymentMethod === 'On-site Cash' && (
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                  Preferred schedule (optional)
-                </label>
-                <input
-                  type="text"
-                  maxLength={500}
-                  disabled={isOwned}
-                  value={preferredSchedule}
-                  onChange={(event) => setPreferredSchedule(event.target.value)}
-                  placeholder="e.g. Saturday afternoon; please confirm availability"
-                  className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'}`}
-                />
-                <p className={`mt-1 text-[10px] ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-                  This is a proposal, not a reserved appointment. The provider must confirm availability.
-                </p>
+            <footer className={styles.footer}>
+              {formError && <p role="alert" className={styles.error}>{formError}</p>}
+              <div className={styles.actions}>
+                <button type="button" onClick={onClose} disabled={loading} className={styles.button}>{isOwned ? 'Return to Marketplace' : 'Cancel'}</button>
+                {isOwned ? (
+                  <button type="button" onClick={() => router.push('/provider/service-manager?id=' + listing.id)} className={[styles.button, styles.primary].join(' ')}>Edit Listing Details</button>
+                ) : (
+                  <button type="submit" disabled={loading || priceUnavailable} className={[styles.button, styles.primary].join(' ')}>
+                    {loading && <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />}
+                    {priceUnavailable ? 'Price Needed Before Booking' : loading ? paymentMethod === 'GCash' ? 'Preparing checkout…' : 'Sending request…' : paymentMethod === 'GCash' ? 'Continue to GCash' : 'Send Request'}
+                  </button>
+                )}
               </div>
-            )}
-
-            {/* Listing rate and server-calculated total for metered services. */}
-            <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                {isMetered ? 'Displayed listing rate' : 'Agreed listing price'}
-              </label>
-              <div className={`w-full px-4 py-3 rounded-xl border font-semibold text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-white' : 'bg-slate-50 border-slate-200 text-ink'}`}>
-                {priceUnavailable
-                  ? 'Price unavailable'
-                  : `₱${Number(listing.price).toLocaleString()}${listing.priceType === 'PER_HOUR' ? ' / hour' : listing.priceType === 'PER_DAY' ? ' / day' : listing.priceType === 'PER_PROJECT' ? ' / project' : ''}`}
-              </div>
-              <span className={`block text-[10px] mt-1 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
-                {priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'The server records this exact amount.'}
-              </span>
-            </div>
-
-            {isMetered && <div>
-              <label htmlFor="booking-quantity" className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>Number of {unitName}</label>
-              <input id="booking-quantity" type="number" min={1} max={listing.priceType === 'PER_DAY' ? 7 : 40} step={1} required value={quantity}
-                onChange={(event) => setQuantity(Number(event.target.value))}
-                className={`w-full px-4 py-3 rounded-xl border text-sm ${isDark ? 'bg-[#1c1b18] border-neutral-850 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'}`} />
-              <p className="mt-1 text-xs font-semibold">Total: ₱{(Number(listing.price) * quantity).toLocaleString()}</p>
-            </div>}
-
-            <div>
-              <label className="text-xs font-semibold mb-2 block">Payment Method</label>
-              <div className={`grid gap-3 ${cash && gcash ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                {([['On-site Cash', cash], ['GCash', gcash]] as const)
-                  .filter(([, accepted]) => accepted)
-                  .map(([method]) => (
-                    <button key={method} type="button" disabled={isOwned}
-                      aria-label={method === 'GCash' ? 'GCash · Test Mode' : method}
-                      aria-pressed={paymentMethod === method}
-                      onClick={() => setPaymentMethod(method)}
-                      className={`min-h-12 flex flex-wrap items-center justify-center gap-2 p-3 rounded-xl border text-xs disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 ${paymentMethod === method ? (isDark ? 'border-orange-400 text-orange-300 font-bold' : 'border-orange-600 text-orange-700 font-bold') : (isDark ? 'border-neutral-700 text-ink-secondary' : 'border-slate-300 text-ink-secondary')}`}>
-                      {method === 'GCash' ? <><GCashLogo /><span>· Test Mode</span></> : method}
-                    </button>
-                  ))}
-              </div>
-              {!cash && !gcash && <p className="text-xs text-red-500">No supported payment method is available.</p>}
-              {gcash && (
-                <p className={`mt-2 text-[10px] leading-relaxed ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
-                  GCash checkout uses PayMongo Test Mode. ServiceHub confirms the payment before adding your booking to the provider’s shared work queue; test payments are not real provider payouts.
-                </p>
-              )}
-            </div>
-
-            {/* Spec Part 5 Cancellation Policy Disclaimer */}
-            <p className={`text-[10px] leading-relaxed p-3 rounded-xl border mt-3 ${
-              isDark 
-                ? 'bg-neutral-900 border-neutral-800 text-ink-subtle'
-                : 'bg-slate-50 border-slate-200 text-ink-muted'
-            }`}>
-              ⚠️ You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.
-            </p>
-
-            {/* Error Message */}
-            {formError && (
-              <div className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center space-x-2 ${
-                isDark
-                  ? 'bg-red-950/30 border-red-900/40 text-red-400'
-                  : 'bg-red-50 border-red-200 text-red-600'
-              }`}>
-                <span>⚠️</span>
-                <span>{formError}</span>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className={`pt-3 border-t mt-3 flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-              <button
-                type="button"
-                onClick={onClose}
-                className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all ${isDark
-                    ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted'
-                    : 'border-slate-200 hover:bg-slate-50 text-ink-muted'
-                  }`}
-              >
-                {isOwned ? 'Return to Marketplace' : 'Cancel'}
-              </button>
-              {isOwned ? (
-                <button
-                  type="button"
-                  onClick={() => router.push(`/provider/service-manager?id=${listing.id}`)}
-                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5 cursor-pointer"
-                >
-                  Edit Listing Details
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={loading || priceUnavailable}
-                  className="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center space-x-1.5"
-                >
-                  {priceUnavailable ? 'Price Needed Before Booking' : loading ? 'Sending Request...' : 'Send Booking Request'}
-                </button>
-              )}
-            </div>
-
+            </footer>
           </form>
         )}
-
       </div>
-
     </div>
   );
 }

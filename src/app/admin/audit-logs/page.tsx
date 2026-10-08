@@ -49,7 +49,7 @@ export default function AdminAuditLogsPage() {
 
   return (
     <div className="space-y-5">
-      <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
+      <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
         <div className="flex items-center justify-between">
           <div>
             <h2 className="flex items-center gap-2 text-base font-extrabold"><History className="h-5 w-5 text-[var(--admin-accent)]" /> Administrator Audit Log</h2>
@@ -58,7 +58,7 @@ export default function AdminAuditLogsPage() {
           <button type="button" onClick={() => { invalidateApiCache(['admin']); void load(); }} className="rounded-xl border px-3 py-2 text-xs font-bold"><RefreshCw className="mr-1 inline h-3.5 w-3.5" />Refresh</button>
         </div>
       </section>
-      <section className={`overflow-hidden rounded-2xl border ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
+      <section className={`overflow-hidden rounded-2xl border ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
         {loading ? <p className="p-8 text-center text-xs text-ink-muted">Loading audit records...</p> : items.length === 0 ? <p className="p-8 text-center text-xs text-ink-muted">No audit records found.</p> : (
           <div className="divide-y divide-slate-200 dark:divide-neutral-800">
             {items.map((item) => (

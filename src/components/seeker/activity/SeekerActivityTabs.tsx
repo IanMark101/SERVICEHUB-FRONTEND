@@ -34,6 +34,7 @@ export default function SeekerActivityTabs({
       onChange={onTabChange}
       ariaLabel="Filter seeker activity"
       tone="seeker"
+      scrollControls
     />
   );
 }

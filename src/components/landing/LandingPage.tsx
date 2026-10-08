@@ -27,7 +27,7 @@ export default function LandingPage() {
     <div
       ref={shellRef}
       onClick={handleSectionClick}
-      className="landing-shell relative min-h-[100dvh] overflow-x-clip font-sans flex flex-col bg-[var(--landing-surface)] dark:bg-[#121211] text-slate-900 dark:text-zinc-100 selection:bg-orange-500/20 selection:text-orange-900 dark:selection:bg-orange-500/30 dark:selection:text-orange-200"
+      className="landing-shell relative min-h-[100dvh] overflow-x-clip font-sans flex flex-col bg-[var(--landing-surface)] dark:bg-charcoal text-slate-900 dark:text-zinc-100 selection:bg-orange-500/20 selection:text-orange-900 dark:selection:bg-orange-500/30 dark:selection:text-orange-200"
       style={{
         backgroundImage: isDark
           ? 'radial-gradient(ellipse 78% 42% at 50% -8%, rgba(200, 101, 68, 0.04), transparent 72%)'
@@ -43,7 +43,7 @@ export default function LandingPage() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[min(100svh,58rem)] overflow-hidden">
         <div className="absolute -left-28 -top-24 h-[30rem] w-[42rem] rounded-full bg-[#d97757]/[0.03] blur-[140px] dark:bg-[#c86544]/[0.02]" />
         <div className="absolute right-[2%] -top-16 h-[34rem] w-[46rem] rounded-full bg-[#e18463]/[0.025] blur-[150px] dark:bg-[#e18463]/[0.018]" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--landing-surface)] via-[var(--landing-surface)]/75 to-transparent dark:from-[#121211] dark:via-[#121211]/75" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--landing-surface)] via-[var(--landing-surface)]/75 to-transparent dark:from-charcoal dark:via-charcoal/75" />
       </div>
       <LandingHeader isDark={isDark} toggleTheme={toggleTheme} />
       <main className="overflow-x-clip">

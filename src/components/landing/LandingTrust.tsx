@@ -35,7 +35,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
     >
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2 lg:items-center lg:gap-20">
         {/* Left Column: illustrative trust profile without invented scores */}
-        <ScrollReveal direction="left" className="relative rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-lg shadow-black/[0.03] dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-9">
+        <ScrollReveal direction="left" className="relative rounded-3xl border border-neutral-200/80 bg-white p-7 shadow-lg shadow-black/[0.03] dark:border-zinc-800 dark:bg-charcoal/90 sm:p-9">
           {/* Header of the illustrative card */}
           <div className="flex items-center justify-between border-b border-slate-200/70 pb-5 dark:border-zinc-800">
             <div className="flex items-center gap-2.5">
@@ -47,13 +47,13 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
                 <p className="text-[11px] text-neutral-500 dark:text-zinc-400">How ServiceHub records trust</p>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600 dark:bg-zinc-800 dark:text-zinc-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600 dark:bg-charcoal dark:text-zinc-300">
               Illustrative
             </span>
           </div>
 
           {/* Trust status summary */}
-          <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-950/60">
+          <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-charcoal/60">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 dark:text-zinc-500">
@@ -96,7 +96,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
           </div>
 
           {/* Privacy & Security Note */}
-          <div className="mt-5 flex items-center gap-2 rounded-xl bg-slate-100/70 px-4 py-3 text-xs text-neutral-600 dark:bg-zinc-800/50 dark:text-zinc-400">
+          <div className="mt-5 flex items-center gap-2 rounded-xl bg-slate-100/70 px-4 py-3 text-xs text-neutral-600 dark:bg-charcoal/50 dark:text-zinc-400">
             <Lock size={14} className="shrink-0 text-neutral-500" />
             <span>Verification documents are private and available only to authorized reviewers.</span>
           </div>
@@ -118,7 +118,7 @@ export default function LandingTrust({ isDark }: LandingTrustProps) {
               const Icon = item.icon;
               return (
                 <ScrollReveal key={item.title} direction="right" delay={0.08 * index} className="flex gap-4 py-6">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-emerald-600 dark:bg-zinc-900 dark:text-emerald-400">
+                  <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-emerald-600 dark:bg-charcoal dark:text-emerald-400">
                     <Icon size={20} />
                   </div>
                   <div>

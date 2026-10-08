@@ -5,8 +5,11 @@ import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import SignupSteps from './signup/SignupSteps';
 import type { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import type { AuthFormValues } from '../../schema/auth/useAuthForm';
+import AuthCaptcha from './shared/AuthCaptcha';
+import type { AuthCaptchaModel } from './shared/useAuthCaptcha';
 
 interface SignupFormProps {
+  captcha: AuthCaptchaModel;
   step: number;
   formData: AuthFormValues;
   fieldErrors: Record<string, string>;
@@ -28,6 +31,7 @@ interface SignupFormProps {
 }
 
 export default function SignupForm({
+  captcha,
   step,
   formData,
   fieldErrors,
@@ -186,12 +190,13 @@ export default function SignupForm({
         />
 
         {/* Form controls */}
+        {step === 3 && <AuthCaptcha model={captcha} isDark={isDark} />}
         <div className="flex items-center gap-3 pt-3">
           {step > 1 && (
             <button
               type="button"
               onClick={handlePrevStep}
-              className="flex w-1/3 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-black/[0.08] bg-white py-3 text-xs font-bold text-ink-secondary shadow-xs transition-all hover:bg-slate-50 active:scale-[0.98] dark:border-white/10 dark:bg-zinc-800/80 dark:text-ink"
+              className="flex w-1/3 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-black/[0.08] bg-white py-3 text-xs font-bold text-ink-secondary shadow-xs transition-all hover:bg-slate-50 active:scale-[0.98] dark:border-white/10 dark:bg-charcoal/80 dark:text-ink"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -201,15 +206,15 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            disabled={isLoading || (step < 3 && isNextDisabled)}
-            aria-disabled={isLoading || (step < 3 && isNextDisabled)}
+            disabled={isLoading || (step < 3 ? isNextDisabled : captcha.blocked)}
+            aria-disabled={isLoading || (step < 3 ? isNextDisabled : captcha.blocked)}
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
             className={`flex flex-grow items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
               isLoading
-                ? 'servicehub-dark-cta cursor-wait bg-[#171716] text-white dark:bg-[#e18463] dark:text-charcoal'
-                : (step < 3 && isNextDisabled)
-                  ? 'bg-slate-200 dark:bg-zinc-800 text-ink-subtle dark:text-ink-subtle cursor-not-allowed shadow-none'
-                  : 'servicehub-dark-cta cursor-pointer bg-[#171716] text-white hover:bg-[#292826] active:translate-y-px dark:bg-[#e18463] dark:text-charcoal dark:hover:bg-[#eb9577]'
+                ? 'servicehub-dark-cta cursor-wait bg-charcoal text-white dark:bg-[#e18463] dark:text-charcoal'
+                : (step < 3 ? isNextDisabled : captcha.blocked)
+                  ? 'bg-slate-200 dark:bg-charcoal text-ink-subtle dark:text-ink-subtle cursor-not-allowed shadow-none'
+                  : 'servicehub-dark-cta cursor-pointer bg-charcoal text-white hover:bg-charcoal active:translate-y-px dark:bg-[#e18463] dark:text-charcoal dark:hover:bg-[#eb9577]'
             }`}
           >
             {isLoading ? (
@@ -230,7 +235,7 @@ export default function SignupForm({
               <div className="w-full border-t border-black/[0.08] dark:border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-[10px]">
-              <span className="bg-[#fffdfa] px-3 font-bold uppercase tracking-widest text-ink-muted dark:bg-[#181716] dark:text-ink-muted">
+              <span className="bg-[#fffdfa] px-3 font-bold uppercase tracking-widest text-ink-muted dark:bg-charcoal dark:text-ink-muted">
                 OR
               </span>
             </div>

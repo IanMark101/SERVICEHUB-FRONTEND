@@ -90,15 +90,15 @@ function VerifyEmailContent() {
   const isError = status === "error";
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#faf8f5] dark:bg-[#121212] px-4 py-8 text-ink dark:text-white sm:px-6 lg:px-8">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#faf8f5] dark:bg-charcoal px-4 py-8 text-ink dark:text-white sm:px-6 lg:px-8">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -left-20 top-0 h-72 w-72 rounded-full bg-orange-500/10 blur-[120px]" />
         <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-orange-600/10 blur-[120px]" />
       </div>
 
-      <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] border border-slate-200/80 dark:border-neutral-800 bg-white/90 dark:bg-[#191919]/90 shadow-[0_30px_90px_-25px_rgba(0,0,0,0.15)] dark:shadow-[0_30px_90px_-25px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+      <div className="relative w-full max-w-5xl overflow-hidden rounded-[32px] border border-slate-200/80 dark:border-neutral-800 bg-white/90 dark:bg-charcoal/90 shadow-[0_30px_90px_-25px_rgba(0,0,0,0.15)] dark:shadow-[0_30px_90px_-25px_rgba(0,0,0,0.7)] backdrop-blur-xl">
         <div className="grid min-h-[600px] lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="relative flex flex-col justify-between bg-gradient-to-br from-[#262522] via-[#22211e] to-[#1c1b18] p-8 text-white sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-neutral-800">
+          <section className="relative flex flex-col justify-between bg-gradient-to-br from-charcoal via-charcoal to-charcoal p-8 text-white sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-neutral-800">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-300">
                 <MailCheck size={15} />
@@ -113,7 +113,7 @@ function VerifyEmailContent() {
               </p>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-neutral-800 bg-[#141412]/60 p-5 backdrop-blur-sm">
+            <div className="mt-8 rounded-2xl border border-neutral-800 bg-charcoal/60 p-5 backdrop-blur-sm">
               <p className="text-xs font-bold text-orange-400 uppercase tracking-wider">What happens next?</p>
               <ul className="mt-3 space-y-2.5 text-sm text-[#d6d3cd]">
                 <li className="flex items-center gap-2.5">
@@ -132,8 +132,8 @@ function VerifyEmailContent() {
             </div>
           </section>
 
-          <section className="flex items-center justify-center bg-[#faf8f5] dark:bg-[#191919] p-6 sm:p-8 lg:p-10">
-            <div className="w-full max-w-md rounded-[28px] border border-slate-200 dark:border-neutral-800 bg-white dark:bg-[#22211e] p-7 shadow-sm sm:p-8">
+          <section className="flex items-center justify-center bg-[#faf8f5] dark:bg-charcoal p-6 sm:p-8 lg:p-10">
+            <div className="w-full max-w-md rounded-[28px] border border-slate-200 dark:border-neutral-800 bg-white dark:bg-charcoal-surface p-7 shadow-sm sm:p-8">
               <div
                 className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${
                   isSuccess
@@ -166,7 +166,7 @@ function VerifyEmailContent() {
                 {status === 'loading' && <div className="brand-loading__track" aria-hidden="true"><span /></div>}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-[#1c1b18] p-4 text-xs text-ink-muted dark:text-ink-muted text-center">
+              <div className="mt-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-slate-50 dark:bg-charcoal-inset p-4 text-xs text-ink-muted dark:text-ink-muted text-center">
                 {status === "loading" ? (
                   <p>Please wait while we complete the verification securely.</p>
                 ) : isSuccess ? (

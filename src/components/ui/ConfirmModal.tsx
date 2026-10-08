@@ -75,11 +75,11 @@ export default function ConfirmModal({ state, onClose }: ConfirmModalProps) {
   const styles = getVariantStyles();
 
   return (
-    <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-message" aria-busy={isLoading} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+    <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-message" aria-busy={isLoading} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
       
       {/* Modal Card */}
       <div data-feedback-workspace={user?.role === 'provider' ? 'provider' : 'seeker'} className={`servicehub-dialog rounded-2xl max-w-lg w-full border shadow-xl p-6 relative animate-in zoom-in-95 duration-200 transition-colors duration-200 ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+        isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
       }`}>
         
         {/* Close Button */}
@@ -89,7 +89,7 @@ export default function ConfirmModal({ state, onClose }: ConfirmModalProps) {
           onClick={onClose}
           disabled={isLoading}
           className={`absolute top-4 right-4 p-1.5 rounded-lg border transition-colors ${
-            isDark ? 'border-neutral-800 hover:bg-slate-800 text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle hover:text-ink-secondary'
+            isDark ? 'border-neutral-800 hover:bg-charcoal text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle hover:text-ink-secondary'
           } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <X className="w-4 h-4" />
@@ -118,7 +118,7 @@ export default function ConfirmModal({ state, onClose }: ConfirmModalProps) {
             onClick={onClose}
             className={`flex-1 py-3 font-bold text-xs rounded-xl border transition-all ${
               isDark
-                ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted'
+                ? 'border-neutral-800 hover:bg-charcoal-hover text-ink-muted'
                 : 'border-slate-200 hover:bg-slate-50 text-ink-muted'
             } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >

@@ -62,7 +62,7 @@ function ProviderAvatar({
         rank === 1
           ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-white'
           : rank === 2
-            ? 'bg-gradient-to-br from-slate-200 to-slate-400 text-ink dark:from-neutral-700 dark:to-neutral-600 dark:text-white'
+            ? 'bg-gradient-to-br from-slate-200 to-slate-400 text-ink dark:from-charcoal dark:to-charcoal dark:text-white'
             : 'bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100'
       }`}
     >
@@ -99,7 +99,7 @@ export default function SteppedPodiumGraph({
       <div
         className={`relative overflow-hidden rounded-3xl border p-2.5 sm:p-6 md:p-8 lg:p-10 transition-all ${
           isDark
-            ? 'bg-gradient-to-b from-[#1f1e1a] via-[#1a1917] to-[#141312] border-neutral-800 shadow-2xl shadow-black/50'
+            ? 'bg-gradient-to-b from-charcoal via-charcoal to-charcoal border-neutral-800 shadow-2xl shadow-black/50'
             : 'bg-gradient-to-b from-amber-50/40 via-white to-slate-50/60 border-slate-200/90 shadow-lg shadow-slate-900/5'
         }`}
       >
@@ -144,7 +144,7 @@ export default function SteppedPodiumGraph({
                       <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 sm:px-2.5 sm:py-0.5 text-[8.5px] sm:text-[11px] font-extrabold uppercase tracking-wider ${
                         rank === 2
                           ? isDark
-                            ? 'bg-neutral-800 text-slate-300 ring-1 ring-neutral-700'
+                            ? 'bg-charcoal text-slate-300 ring-1 ring-neutral-700'
                             : 'bg-slate-100 text-ink-secondary ring-1 ring-slate-200'
                           : isDark
                             ? 'bg-amber-950/40 text-amber-400 ring-1 ring-amber-900/60'
@@ -193,7 +193,7 @@ export default function SteppedPodiumGraph({
                   {/* Responsive Metrics Pill */}
                   <div className={`mt-1 sm:mt-2 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 rounded-lg sm:rounded-xl px-1 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-semibold border max-w-full ${
                     isDark
-                      ? 'bg-neutral-900/80 border-neutral-800 text-neutral-300'
+                      ? 'bg-charcoal/80 border-neutral-800 text-neutral-300'
                       : 'bg-white/90 border-slate-200/80 text-ink-secondary shadow-2xs'
                   }`}>
                     <div className="flex flex-wrap items-center justify-center gap-1">
@@ -217,14 +217,14 @@ export default function SteppedPodiumGraph({
                   className={`w-full rounded-t-xl sm:rounded-t-3xl border-t border-x flex flex-col items-center justify-between p-1.5 sm:p-4 transition-all duration-300 ${heightClass} ${
                     pedestalTier === 'gold'
                       ? isDark
-                        ? 'bg-gradient-to-b from-amber-500/25 via-amber-950/20 to-neutral-900/80 border-amber-500/40 shadow-[0_-8px_24px_rgba(245,158,11,0.15)]'
+                        ? 'bg-gradient-to-b from-amber-500/25 via-amber-950/20 to-charcoal/80 border-amber-500/40 shadow-[0_-8px_24px_rgba(245,158,11,0.15)]'
                         : 'bg-gradient-to-b from-amber-200/70 via-amber-100/40 to-white border-amber-300/80 shadow-[0_-8px_20px_rgba(251,191,36,0.2)]'
                       : pedestalTier === 'silver'
                         ? isDark
-                          ? 'bg-gradient-to-b from-neutral-700/30 via-neutral-800/20 to-neutral-900/80 border-neutral-700/60'
+                          ? 'bg-gradient-to-b from-charcoal/30 via-charcoal/20 to-charcoal/80 border-neutral-700/60'
                           : 'bg-gradient-to-b from-slate-200/80 via-slate-100/40 to-white border-slate-300/80'
                         : isDark
-                          ? 'bg-gradient-to-b from-amber-900/25 via-neutral-800/20 to-neutral-900/80 border-amber-900/40'
+                          ? 'bg-gradient-to-b from-amber-900/25 via-charcoal/20 to-charcoal/80 border-amber-900/40'
                           : 'bg-gradient-to-b from-amber-100/60 via-orange-50/30 to-white border-amber-200/80'
                   }`}
                 >
@@ -264,7 +264,7 @@ export default function SteppedPodiumGraph({
         <div
           className={`rounded-3xl border transition-all ${
             isDark
-              ? 'bg-[#1c1b18] border-neutral-800/90'
+              ? 'bg-charcoal-inset border-neutral-800/90'
               : 'bg-white border-slate-200/90 shadow-xs'
           }`}
         >
@@ -279,7 +279,7 @@ export default function SteppedPodiumGraph({
                 More recognized providers (Ranks 4–{Math.min(10, providers.length)})
               </span>
               <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-bold ${
-                isDark ? 'bg-neutral-800 text-neutral-300' : 'bg-slate-100 text-ink-muted'
+                isDark ? 'bg-charcoal text-neutral-300' : 'bg-slate-100 text-ink-muted'
               }`}>
                 {remainingProviders.length}
               </span>

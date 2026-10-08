@@ -27,12 +27,12 @@ export default function EmptyState({
   const colorSchemes = {
     orange: {
       iconBg: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 shadow-orange-500/10',
-      btn: 'bg-orange-600 hover:bg-orange-500 text-white shadow-orange-500/20',
+      btn: 'bg-orange-700 hover:bg-orange-800 text-white shadow-orange-500/20',
       glow: 'from-orange-500/5 via-transparent to-transparent',
     },
     emerald: {
       iconBg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-emerald-500/10',
-      btn: 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20',
+      btn: 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-emerald-500/20',
       glow: 'from-emerald-500/5 via-transparent to-transparent',
     },
     blue: {
@@ -46,16 +46,16 @@ export default function EmptyState({
       glow: 'from-purple-500/5 via-transparent to-transparent',
     },
     slate: {
-      iconBg: 'bg-slate-500/10 text-ink-muted dark:text-ink-muted border-slate-500/20 shadow-slate-500/10',
-      btn: 'bg-slate-800 hover:bg-slate-700 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-white shadow-slate-500/20',
-      glow: 'from-slate-500/5 via-transparent to-transparent',
+      iconBg: 'bg-slate-500/10 dark:bg-charcoal text-ink-muted dark:text-ink-muted border-slate-500/20 shadow-slate-500/10',
+      btn: 'bg-charcoal hover:bg-charcoal dark:bg-charcoal dark:hover:bg-charcoal text-white shadow-slate-500/20',
+      glow: 'from-slate-500/5 dark:from-charcoal via-transparent to-transparent',
     },
   };
 
   const scheme = colorSchemes[accentColor] || colorSchemes.orange;
 
   return (
-    <div className="workspace-surface relative overflow-hidden rounded-[24px] border border-slate-200/90 dark:border-neutral-800/80 bg-white/70 dark:bg-[#22211e]/70 p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-sm transition-all duration-200">
+    <div className="workspace-surface relative overflow-hidden rounded-[24px] border border-slate-200/90 dark:border-neutral-800/80 bg-white/70 dark:bg-charcoal-surface/70 p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-sm transition-all duration-200">
       {/* Background ambient radial glow */}
       <div className={`absolute inset-0 bg-radial-gradient ${scheme.glow} pointer-events-none opacity-60`} />
 
@@ -81,7 +81,7 @@ export default function EmptyState({
             <button
               type="button"
               onClick={onSecondaryAction}
-              className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-neutral-700 bg-slate-50 hover:bg-slate-100 dark:bg-neutral-800/60 dark:hover:bg-neutral-800 text-ink-secondary dark:text-ink transition-all duration-150 active:scale-95 shadow-sm"
+              className="min-h-11 whitespace-nowrap px-4 py-2 text-xs font-bold rounded-xl border border-slate-200 dark:border-neutral-700 bg-slate-50 hover:bg-slate-100 dark:bg-charcoal/60 dark:hover:bg-charcoal text-ink-secondary dark:text-ink transition-all duration-150 active:scale-95 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--workspace-focus,var(--text-primary))]"
             >
               {secondaryActionLabel}
             </button>
@@ -90,7 +90,7 @@ export default function EmptyState({
             <button
               type="button"
               onClick={onAction}
-              className={`px-5 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 active:scale-95 shadow-md hover:shadow-lg flex items-center gap-1.5 ${scheme.btn}`}
+              className={`min-h-11 whitespace-nowrap px-5 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 active:scale-95 shadow-md hover:shadow-lg flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--workspace-focus,var(--text-primary))] ${scheme.btn}`}
             >
               <span>{actionLabel}</span>
             </button>

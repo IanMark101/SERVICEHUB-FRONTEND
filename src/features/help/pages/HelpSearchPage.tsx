@@ -110,8 +110,8 @@ function FilterButton({ active, children, onClick }: { active: boolean; children
       onClick={onClick}
       className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c86544] ${
         active
-          ? 'border-[#171716] bg-[#171716] text-white dark:border-[#f5f4f2] dark:bg-[#f5f4f2] dark:text-charcoal'
-          : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:border-[#c86544]/40 hover:text-[#c86544] dark:border-white/12 dark:bg-white/[0.04] dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]'
+          ? 'border-[#171716] bg-charcoal text-white dark:border-[#f5f4f2] dark:bg-[#f5f4f2] dark:text-charcoal'
+          : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:border-[#c86544]/40 hover:text-[#c86544] dark:border-white/12 dark:bg-charcoal dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]'
       }`}
     >
       {children}

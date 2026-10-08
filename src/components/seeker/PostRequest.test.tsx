@@ -57,6 +57,34 @@ describe('Post Request submission', () => {
     expect(toastError).toHaveBeenCalledWith('Urgency required', expect.any(String));
   });
 
+  it('prefills a repost without copying urgency and submits through normal new-request creation', async () => {
+    postJobRequest.mockResolvedValue(false);
+    render(<PostRequest initialTemplate={{ title: 'FIX KITCHEN FAUCET', description, categoryId: 'category-cuid', categoryName: 'Plumbing', budget: 650, paymentMethods: { cash: true, gcash: false } }} />);
+    expect(screen.getByRole('heading', { name: 'Repost a Request' })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('e.g. Need help fixing kitchen faucet leak')).toHaveValue('FIX KITCHEN FAUCET');
+    expect(screen.getByPlaceholderText(/Describe the scope of work/)).toHaveValue(description);
+    expect(screen.getAllByRole('combobox')[0]).toHaveValue('category-cuid');
+    expect(screen.getByRole('combobox', { name: 'Urgency' })).toHaveValue('');
+    expect(screen.getByRole('checkbox', { name: /GCash/ })).not.toBeChecked();
+    expect(postJobRequest).not.toHaveBeenCalled();
+    submitRequest();
+    expect(toastError).toHaveBeenCalledWith('Urgency required', expect.any(String));
+    expect(postJobRequest).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Urgency' }), { target: { value: 'This Week' } });
+    submitRequest();
+    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id', 'FIX KITCHEN FAUCET', 'category-cuid', 'This Week', 650, description, { cash: true, gcash: false }));
+  });
+
+  it('requires fresh category and payment choices for a legacy repost with retired/missing settings', () => {
+    render(<PostRequest initialTemplate={{ title: 'FIX KITCHEN FAUCET', description, categoryId: '', categoryName: 'Retired plumbing', budget: 650, paymentMethods: null }} />);
+    expect(screen.getByText(/Retired plumbing is no longer available/)).toBeInTheDocument();
+    expect(screen.getAllByRole('combobox')[0]).toHaveValue('');
+    expect(screen.getByRole('checkbox', { name: 'On-site Cash' })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /GCash/ })).not.toBeChecked();
+    expect(screen.getByRole('button', { name: 'Post Request Publicly' })).toBeDisabled();
+    expect(postJobRequest).not.toHaveBeenCalled();
+  });
+
   it('sends the selected urgency and retains entered values when the API rejects the request', async () => {
     postJobRequest.mockResolvedValue(false);
     render(<PostRequest />);

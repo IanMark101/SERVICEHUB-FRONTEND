@@ -57,7 +57,7 @@ export default function SeekerMessagesPage() {
       <main
         className={`${
           selectedConv ? 'flex' : 'hidden xl:flex'
-        } flex-1 flex-col min-w-0 bg-white dark:bg-[#161513]`}
+        } flex-1 flex-col min-w-0 bg-white dark:bg-charcoal`}
       >
         {!selectedConv ? (
           <div className={`flex-1 flex items-center justify-center text-center p-8 ${textMuted}`}>
@@ -78,14 +78,14 @@ export default function SeekerMessagesPage() {
             {/* Conversation Top Header */}
             <div
               className={`flex shrink-0 flex-wrap items-center gap-3 px-4 py-3 border-b justify-between transition-colors ${
-                isDark ? 'border-neutral-800/80 bg-[#1a1917]/70' : 'border-slate-200/90 bg-white'
+                isDark ? 'border-neutral-800/80 bg-charcoal/70' : 'border-slate-200/90 bg-white'
               }`}
             >
               <div className="flex flex-1 items-center gap-3 min-w-0">
                 <button
                   type="button"
                   onClick={() => setSelectedConv(null)}
-                  className={`xl:hidden shrink-0 rounded-lg p-1.5 ${textMuted} hover:text-orange-500 hover:bg-slate-100 dark:hover:bg-neutral-800`}
+                  className={`xl:hidden shrink-0 rounded-lg p-1.5 ${textMuted} hover:text-orange-500 hover:bg-slate-100 dark:hover:bg-charcoal`}
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -173,7 +173,7 @@ export default function SeekerMessagesPage() {
             <div
               ref={messageScrollRef}
               onScroll={handleMessageScroll}
-              className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 flex flex-col gap-3 bg-slate-50/40 dark:bg-[#141311]/40"
+              className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-5 flex flex-col gap-3 bg-slate-50/40 dark:bg-charcoal/40"
             >
               {loading && (
                 <div className={`flex justify-center py-10 ${textMuted}`}>
@@ -224,7 +224,7 @@ export default function SeekerMessagesPage() {
                       <div
                         className={`px-4 py-1.5 rounded-full text-[11px] font-semibold border transition-colors flex items-center gap-1.5 shadow-2xs ${
                           isDark
-                            ? 'bg-neutral-800/90 border-neutral-700/60 text-orange-400'
+                            ? 'bg-charcoal/90 border-neutral-700/60 text-orange-400'
                             : 'bg-orange-50 border-orange-100 text-orange-800'
                         }`}
                       >
@@ -264,7 +264,7 @@ export default function SeekerMessagesPage() {
                         isMe
                           ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-br-xs'
                           : isDark
-                          ? 'bg-[#201f1c] text-white rounded-bl-xs border border-neutral-800'
+                          ? 'bg-charcoal text-white rounded-bl-xs border border-neutral-800'
                           : 'bg-white text-ink rounded-bl-xs border border-slate-200/90'
                       }`}
                     >
@@ -280,12 +280,12 @@ export default function SeekerMessagesPage() {
             </div>
 
             {/* Input / Read-Only Panel */}
-            <div className={`shrink-0 p-3.5 border-t ${isDark ? 'border-neutral-800/80 bg-[#161513]' : 'border-slate-200 bg-white'}`}>
+            <div className={`shrink-0 p-3.5 border-t ${isDark ? 'border-neutral-800/80 bg-charcoal' : 'border-slate-200 bg-white'}`}>
               {isReadOnly ? (
                 <div
                   className={`px-4 py-3 rounded-2xl border flex items-center justify-center gap-2 text-center text-xs font-semibold ${
                     isDark
-                      ? 'bg-neutral-900/90 border-neutral-800 text-ink-subtle'
+                      ? 'bg-charcoal/90 border-neutral-800 text-ink-subtle'
                       : 'bg-slate-100/80 border-slate-200 text-ink-muted shadow-2xs'
                   }`}
                 >

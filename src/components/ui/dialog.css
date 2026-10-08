@@ -13,9 +13,9 @@
 .dark .servicehub-dialog {
   --dialog-ink: var(--text-primary);
   --dialog-muted: var(--text-muted);
-  --dialog-surface: #22211e;
-  --dialog-field: #1c1b18;
-  --dialog-border: #666159;
+  --dialog-surface: var(--color-charcoal-surface);
+  --dialog-field: var(--color-charcoal-inset);
+  --dialog-border: #707070;
 }
 .servicehub-dialog h2, .servicehub-dialog h3 { font-size: 20px; line-height: 1.4; overflow-wrap: anywhere; }
 .servicehub-dialog p { font-size: 16px; line-height: 1.6; color: var(--dialog-muted); }
@@ -26,7 +26,7 @@
 .servicehub-dialog button { min-height: 44px; min-width: 44px; font-size: 15px; line-height: 1.4; }
 .servicehub-dialog__actions { display: flex; align-items: stretch; gap: 12px; margin-top: 20px; padding-top: 16px; }
 .servicehub-dialog__actions > button { flex: 1; padding: 12px 16px; overflow-wrap: anywhere; }
-.servicehub-dialog button[data-dialog-action="primary"] { color: #ffffff; background: #171716; }
+.servicehub-dialog button[data-dialog-action="primary"] { color: #ffffff; background: var(--color-charcoal); }
 .dark .servicehub-dialog button[data-dialog-action="primary"] { color: var(--color-charcoal); background: #f2efe9; }
 .servicehub-dialog button[data-dialog-action="danger"] { color: #fff; background: #b42318; }
 .servicehub-dialog button[data-dialog-action]:not(:disabled):hover { filter: brightness(.9); }

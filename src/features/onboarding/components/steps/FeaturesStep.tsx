@@ -19,9 +19,9 @@ export default function FeaturesStep({ isDark }: OnboardingStepProps) {
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         {features.map(({ title, icon: Icon, text }, index) => (
-          <article key={title} className={`rounded-2xl border p-4 ${index === features.length - 1 ? 'sm:col-span-2' : ''} ${isDark ? 'border-neutral-800 bg-[#1c1b18]' : 'border-slate-200 bg-slate-50/70'}`}>
+          <article key={title} className={`rounded-2xl border p-4 ${index === features.length - 1 ? 'sm:col-span-2' : ''} ${isDark ? 'border-neutral-800 bg-charcoal-inset' : 'border-slate-200 bg-slate-50/70'}`}>
             <div className="flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink-secondary dark:border-neutral-700 dark:bg-[#22211e] dark:text-ink-secondary"><Icon className="h-4 w-4" aria-hidden="true" /></span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-ink-secondary dark:border-neutral-700 dark:bg-charcoal-surface dark:text-ink-secondary"><Icon className="h-4 w-4" aria-hidden="true" /></span>
               <div><h3 className="text-sm font-bold text-ink dark:text-white">{title}</h3><p className="mt-1 text-xs leading-5 text-ink-muted dark:text-ink-muted">{text}</p></div>
             </div>
           </article>

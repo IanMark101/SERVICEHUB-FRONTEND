@@ -125,6 +125,116 @@ describe('Request Manager activation', () => {
   });
 });
 
+describe('booked requests belong in Activity', () => {
+  const completed = { ...request, status: 'OPEN', hasCompletedBooking: true, hasActiveBooking: false, canArchive: true,
+    offers: [{ status: 'ACCEPTED', booking: { status: 'COMPLETED' } }] };
+  const context = (rows: unknown[] = [completed]) => ({ jobRequests: rows, bids: [], deleteJobRequest: vi.fn(), editJobRequest: edit, toggleJobRequestStatus: toggle, isDark: false } as unknown as ReturnType<typeof useApp>);
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useApp).mockReturnValue(context());
+    vi.mocked(apiGetMyRequests).mockResolvedValue({ success: true, data: [completed] });
+  });
+
+  it('automatically hides legacy OPEN-but-completed requests and provides access to Activity', async () => {
+    const navigate = vi.fn();
+    render(<RequestManager currentUserId="seeker-1" onNavigateToActivity={navigate} />);
+    await act(async () => {});
+    expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
+    expect(screen.getByText('No requests in Request Manager')).toBeInTheDocument();
+    expect(screen.getByText(/Once a booking is created, manage it in Activity/)).toBeInTheDocument();
+    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Archive|Repost|Delete PIPE REPAIR|Edit PIPE REPAIR/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'View Activity' }));
+    expect(navigate).toHaveBeenCalledOnce();
+  });
+
+  it('filters completed fallback data and late owner reads without an archive action', async () => {
+    const initialRead = deferred<{ success: boolean; data: unknown[] }>();
+    vi.mocked(apiGetMyRequests).mockReturnValue(initialRead.promise);
+    const { unmount } = render(<RequestManager currentUserId="seeker-1" />);
+    expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
+    await act(async () => { initialRead.resolve({ success: true, data: [completed] }); });
+    expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
+    unmount();
+    vi.mocked(apiGetMyRequests).mockResolvedValue({ success: true, data: [] });
+    render(<RequestManager currentUserId="seeker-1" />);
+    await act(async () => {});
+    expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
+    expect(screen.getByText('No requests in Request Manager')).toBeInTheDocument();
+  });
+
+  it('removes a listing when offer acceptance creates a booking and refreshes the mounted manager', async () => {
+    const awaitingAcceptance = { ...request, status: 'OPEN', offers: [{ status: 'PENDING' }] };
+    const booked = { ...request, status: 'IN_PROGRESS', offers: [{ status: 'ACCEPTED', booking: { status: 'ACCEPTED' } }] };
+    vi.mocked(useApp).mockReturnValue(context([awaitingAcceptance]));
+    vi.mocked(apiGetMyRequests).mockResolvedValueOnce({ success: true, data: [awaitingAcceptance] }).mockResolvedValue({ success: true, data: [booked] });
+    render(<RequestManager currentUserId="seeker-1" />);
+    await act(async () => {});
+    expect(screen.getByRole('heading', { name: awaitingAcceptance.title })).toBeInTheDocument();
+    await act(async () => { invalidateApiCache(['requests', 'bookings'], 'socket'); });
+    await waitFor(() => expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument());
+    expect(screen.getByText('0 task requests posted to local Cordova providers')).toBeInTheDocument();
+  });
+
+  it.each(['ACCEPTED', 'WAITING', 'ONGOING', 'AWAITING_CONFIRMATION', 'DISPUTED', 'COMPLETED'])('hides requests with a %s booking even when the listing status is stale', async status => {
+    vi.mocked(apiGetMyRequests).mockResolvedValue({ success: true, data: [{ ...request, status: 'OPEN',
+      offers: [{ status: 'ACCEPTED', booking: { status } }],
+    }] });
+    render(<RequestManager currentUserId="seeker-1" />);
+    await act(async () => {});
+    expect(screen.queryByRole('button', { name: 'Archive PIPE REPAIR' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Repost PIPE REPAIR' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: request.title })).not.toBeInTheDocument();
+  });
+
+  it.each(['PENDING', 'PENDING_PAYMENT'])('keeps requests with a %s offer and no booking', async status => {
+    vi.mocked(apiGetMyRequests).mockResolvedValue({ success: true, data: [{ ...request,
+      status: status === 'PENDING_PAYMENT' ? 'PAYMENT_PENDING' : 'OPEN', offers: [{ status }],
+    }] });
+    render(<RequestManager currentUserId="seeker-1" />);
+    await act(async () => {});
+    expect(screen.getByRole('heading', { name: request.title })).toBeInTheDocument();
+  });
+
+  it('hides booked fallback data before a late initial owner-list response arrives', async () => {
+    const booked = { ...request, status: 'IN_PROGRESS', hasActiveBooking: true,
+      offers: [{ status: 'ACCEPTED', booking: { status: 'ACCEPTED' } }] };
+    vi.mocked(useApp).mockReturnValue(context([booked]));
+    const initialRead = deferred<{ success: boolean; data: unknown[] }>();
+    vi.mocked(apiGetMyRequests).mockReturnValue(initialRead.promise);
+    render(<RequestManager currentUserId="seeker-1" />);
+    expect(screen.queryByRole('heading', { name: request.title })).not.toBeInTheDocument();
+    await act(async () => { initialRead.resolve({ success: true, data: [booked] }); });
+    expect(screen.queryByRole('heading', { name: request.title })).not.toBeInTheDocument();
+  });
+
+  it('ignores an older unbooked response that arrives after booking confirmation', async () => {
+    const unbooked = { ...request, status: 'OPEN', offers: [{ status: 'PENDING' }] };
+    vi.mocked(useApp).mockReturnValue(context([unbooked]));
+    const initialRead = deferred<{ success: boolean; data: unknown[] }>();
+    vi.mocked(apiGetMyRequests).mockReturnValueOnce(initialRead.promise).mockResolvedValue({ success: true, data: [] });
+    render(<RequestManager currentUserId="seeker-1" />);
+    expect(screen.getByRole('heading', { name: request.title })).toBeInTheDocument();
+    await act(async () => { invalidateApiCache(['requests', 'bookings'], 'socket'); });
+    await waitFor(() => expect(screen.queryByRole('heading', { name: request.title })).not.toBeInTheDocument());
+    await act(async () => { initialRead.resolve({ success: true, data: [unbooked] }); });
+    expect(screen.queryByRole('heading', { name: request.title })).not.toBeInTheDocument();
+  });
+
+  it('keeps open and paused listings without completed bookings and removes the Offers control', async () => {
+    const open = { ...request, id: 'open', title: 'OPEN PIPE REPAIR', status: 'OPEN', offers: [] };
+    const paused = { ...request, id: 'paused', title: 'PAUSED PIPE REPAIR', offers: [] };
+    vi.mocked(apiGetMyRequests).mockResolvedValue({ success: true, data: [open, paused, completed] });
+    render(<RequestManager currentUserId="seeker-1" />);
+    await act(async () => {});
+    expect(screen.getByRole('switch', { name: 'Pause OPEN PIPE REPAIR' })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Activate PAUSED PIPE REPAIR' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
+    expect(screen.getByText('2 task requests posted to local Cordova providers')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Offers/ })).not.toBeInTheDocument();
+  });
+});
+
 describe('Request Manager deletion', () => {
   const remove = vi.fn();
   const open = { ...request, status: 'OPEN', canDelete: true };

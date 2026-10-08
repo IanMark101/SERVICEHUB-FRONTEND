@@ -13,7 +13,7 @@ export type AccountDeletionVerification =
   | { method: 'google'; credential: string; challenge: string };
 
 export async function apiGetAccountDeletionEligibility() {
-  const response = await api.get('/users/me/account-deletion');
+  const response = await api.get('/users/me/account-deletion', { timeout: 15_000 });
   return response.data as { success: true; data: AccountDeletionEligibility };
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import TrustScoreBadge from '../../ui/TrustScoreBadge';
+import MarketplaceRating from '../../ui/MarketplaceRating';
 import { useState } from 'react';
 import {
   Bell,
@@ -10,7 +11,6 @@ import {
   MagnifyingGlass as Search,
   ShieldCheck,
   DeviceMobile as Smartphone,
-  Star,
 } from '@phosphor-icons/react';
 import type { ServiceListing } from '../../../types';
 import PaginationBar from '../../ui/PaginationBar';
@@ -132,7 +132,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
           <div
             className={`p-4 rounded-2xl border text-center flex flex-col sm:flex-row items-center justify-between gap-3 transition-colors ${
               isDark
-                ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300'
+                ? 'bg-charcoal-inset border-neutral-800 text-neutral-300'
                 : 'bg-slate-50 border-slate-200 text-ink-secondary'
             }`}
           >
@@ -181,7 +181,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                   onClick={() => setPreviewListing(service)}
                   className={`group relative min-w-0 rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col justify-between h-full cursor-pointer ${
                     isDark
-                      ? 'bg-[#1f1e1b] border-neutral-800 hover:border-neutral-700 hover:bg-[#242320]'
+                      ? 'bg-charcoal-surface border-neutral-800 hover:border-neutral-700 hover:bg-charcoal-hover'
                       : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md shadow-xs'
                   }`}
                 >
@@ -236,24 +236,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/profile/${encodeURIComponent(service.providerId)}?tab=reviews`);
+                            router.push(`/profile/${encodeURIComponent(service.providerId)}?tab=reviews&reviewRole=provider`);
                           }}
                           disabled={!service.providerId}
                           aria-label={`View reviews for ${service.providerName}`}
                           className="shrink-0 transition-opacity hover:opacity-80"
                           title="View provider reviews"
                         >
-                          {service.reviewCount && service.reviewCount > 0 ? (
-                            <div className="flex items-center gap-1 text-xs font-medium text-ink-secondary dark:text-ink-secondary">
-                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" weight="fill" />
-                              <span className="font-semibold text-ink dark:text-ink">{service.rating.toFixed(1)}</span>
-                              <span className="text-[11px] text-ink-subtle dark:text-ink-subtle font-normal">({service.reviewCount})</span>
-                            </div>
-                          ) : (
-                            <span className="text-[10px] font-semibold text-ink-subtle dark:text-ink-subtle tracking-wider">
-                              NEW
-                            </span>
-                          )}
+                          <MarketplaceRating rating={service.rating} reviewCount={service.reviewCount} context="provider" />
                         </button>
                         {!isOwned && (
                           <ContentCaseAction
@@ -274,7 +264,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         <span
                           className={`inline-block truncate max-w-[150px] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded border ${
                             isDark
-                              ? 'text-neutral-300 bg-neutral-800/80 border-neutral-700/80'
+                              ? 'text-neutral-300 bg-charcoal/80 border-neutral-700/80'
                               : 'text-ink-muted bg-slate-100 border-slate-200/80'
                           }`}
                         >
@@ -388,7 +378,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           <span
                             className={`inline-flex items-center gap-1 border text-[10px] font-medium px-2 py-0.5 rounded-md ${
                               isDark
-                                ? 'bg-neutral-850/60 border-neutral-700/80 text-neutral-300'
+                                ? 'bg-charcoal/60 border-neutral-700/80 text-neutral-300'
                                 : 'bg-slate-50 border-slate-200 text-ink-muted'
                             }`}
                           >
@@ -400,7 +390,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           <span
                             className={`inline-flex items-center gap-1 border text-[10px] font-medium px-2 py-0.5 rounded-md ${
                               isDark
-                                ? 'bg-neutral-850/60 border-neutral-700/80 text-neutral-300'
+                                ? 'bg-charcoal/60 border-neutral-700/80 text-neutral-300'
                                 : 'bg-slate-50 border-slate-200 text-ink-muted'
                             }`}
                           >
@@ -425,7 +415,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                             onClick={() => router.push(`/provider/service-manager?id=${service.id}`)}
                             className={`flex-1 font-medium text-xs py-2 rounded-xl border transition-colors cursor-pointer ${
                               isDark
-                                ? 'bg-neutral-800 border-neutral-700 text-neutral-200 hover:bg-neutral-700'
+                                ? 'bg-charcoal border-neutral-700 text-neutral-200 hover:bg-charcoal'
                                 : 'bg-white border-slate-200 text-ink-secondary hover:bg-slate-50'
                             }`}
                           >
@@ -436,7 +426,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                             onClick={() => setPreviewListing(service)}
                             className={`flex-1 font-medium text-xs py-2 rounded-xl border transition-colors flex items-center justify-center gap-1 cursor-pointer ${
                               isDark
-                                ? 'bg-neutral-850 border-neutral-700 text-neutral-300 hover:bg-neutral-800'
+                                ? 'bg-charcoal border-neutral-700 text-neutral-300 hover:bg-charcoal'
                                 : 'bg-slate-50 border-slate-200 text-ink-secondary hover:bg-slate-100'
                             }`}
                           >
@@ -453,7 +443,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         <button
                           type="button"
                           onClick={() => router.push(`/seeker/seeker-activity?tab=all&booking=${activeEngagement.id}`)}
-                          className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-neutral-100 dark:hover:bg-white text-white dark:text-charcoal font-semibold text-xs py-2 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer"
+                          className="w-full bg-charcoal hover:bg-charcoal dark:bg-neutral-100 dark:hover:bg-white text-white dark:text-charcoal font-semibold text-xs py-2 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer"
                         >
                           <Clock className="w-3.5 h-3.5" />
                           <span>
@@ -475,7 +465,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           onClick={() => setPreviewListing(service)}
                           className={`w-full font-medium text-xs py-2.5 rounded-xl border transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
                             isDark
-                              ? 'border-neutral-700 bg-neutral-850 text-neutral-300 hover:bg-neutral-800'
+                              ? 'border-neutral-700 bg-charcoal text-neutral-300 hover:bg-charcoal'
                               : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100'
                           }`}
                         >
@@ -492,7 +482,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                             disabled={joiningWaitlistId === service.id}
                             className={`flex-1 border text-xs font-medium py-2 rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer disabled:opacity-60 ${
                               isDark
-                                ? 'border-neutral-700 bg-neutral-850 text-neutral-300 hover:bg-neutral-800'
+                                ? 'border-neutral-700 bg-charcoal text-neutral-300 hover:bg-charcoal'
                                 : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100'
                             }`}
                           >
@@ -517,7 +507,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           disabled={joiningWaitlistId === service.id}
                           className={`w-full border text-xs font-medium py-2 rounded-xl transition-colors flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-60 ${
                             isDark
-                              ? 'border-neutral-700 bg-neutral-850 text-neutral-300 hover:bg-neutral-800'
+                              ? 'border-neutral-700 bg-charcoal text-neutral-300 hover:bg-charcoal'
                               : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100'
                           }`}
                         >
@@ -533,7 +523,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           aria-label={`Inspect ${service.title} details`}
                           className={`px-3 py-2 rounded-xl border text-xs font-medium transition-colors flex items-center justify-center gap-1 cursor-pointer ${
                             isDark
-                              ? 'border-neutral-700 bg-neutral-800 text-neutral-200 hover:bg-neutral-700'
+                              ? 'border-neutral-700 bg-charcoal text-neutral-200 hover:bg-charcoal'
                               : 'border-slate-200 bg-slate-50 text-ink-secondary hover:bg-slate-100 hover:text-ink'
                           }`}
                           title="View all details"

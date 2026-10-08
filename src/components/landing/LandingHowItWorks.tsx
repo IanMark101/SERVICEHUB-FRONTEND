@@ -77,7 +77,7 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
 
           {/* Interactive Role Switcher with Motion */}
           <div
-            className="inline-flex w-fit rounded-xl border border-slate-200 bg-white p-1 shadow-xs dark:border-zinc-800 dark:bg-zinc-900"
+            className="inline-flex w-fit rounded-xl border border-slate-200 bg-white p-1 shadow-xs dark:border-zinc-800 dark:bg-charcoal"
             role="group"
             aria-label="Choose how you use ServiceHub"
           >
@@ -127,7 +127,7 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
               return (
                 <div
                   key={item.title}
-                  className="relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/70 sm:p-8"
+                  className="relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70 sm:p-8"
                 >
                   <div>
                     <div className="flex items-center justify-between">
@@ -140,7 +140,7 @@ export default function LandingHowItWorks({ isDark }: LandingHowItWorksProps) {
                       >
                         <Icon size={22} />
                       </div>
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600 dark:bg-zinc-800 dark:text-zinc-400">
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600 dark:bg-charcoal dark:text-zinc-400">
                         0{index + 1}
                       </span>
                     </div>

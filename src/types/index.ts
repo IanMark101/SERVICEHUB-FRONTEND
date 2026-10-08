@@ -100,6 +100,8 @@ export interface JobRequest {
   hasAcceptedOffer?: boolean;
   hasPendingPaymentOffer?: boolean;
   canDelete?: boolean;
+  canArchive?: boolean;
+  archivedAt?: string | null;
   deleteBlockedReason?: string | null;
 }
 
@@ -107,6 +109,8 @@ export interface Bid {
   id: string;
   requestId: string;
   seekerId?: string;
+  seekerAvatar?: string;
+  seekerTrustScore?: number;
   providerId: string;
   serviceId?: string;
   requestPaymentMethods?: PaymentMethods | null;
@@ -115,6 +119,7 @@ export interface Bid {
   availability?: string;
   requestStatus?: string;
   decisionReason?: 'DECLINED' | 'NOT_SELECTED' | null;
+  decisionAt?: string | null;
   providerName: string;
   providerAvatar: string;
   providerRating: number;
@@ -138,6 +143,8 @@ export interface BookingProgressEvent {
 export interface JobEngagement {
   id: string;
   title: string;
+  category?: string;
+  estimatedDurationMins?: number;
   seekerId: string;
   seekerName: string;
   seekerAvatar: string;
@@ -151,6 +158,7 @@ export interface JobEngagement {
   providerVerificationStatus?: string;
   providerLocation?: string;
   serviceId: string | null; // null if matched from public bid
+  repostRequestId?: string; // Completed public request, including after Request Manager archive.
   price: number;
   quantity?: number;
   priceType?: ServiceListing['priceType'];

@@ -65,7 +65,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
         ],
         example: {
           title: 'Example: Positive Reputation Growth',
-          description: 'Juan starts with a score of 50. His first residency approval, confirmed completed jobs, and positive client reviews increase his score. His Trust History shows each recorded change.',
+          description: 'Juan starts with a score of 50. His first residency approval, confirmed completed jobs, and positive reviews from service seekers increase his score. His Trust History shows each recorded change.',
         },
       },
     ],

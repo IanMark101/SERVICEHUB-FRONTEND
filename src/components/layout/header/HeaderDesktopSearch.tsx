@@ -78,7 +78,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
         )}
 
         {showUserSearchResults && (
-          <div id="workspace-people-search-results" role="listbox" aria-label="People search results" className={`absolute left-0 right-0 mt-2 z-50 rounded-2xl border shadow-2xl overflow-hidden max-h-72 overflow-y-auto ${isDark ? 'bg-[#191919] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+          <div id="workspace-people-search-results" role="listbox" aria-label="People search results" className={`absolute left-0 right-0 mt-2 z-50 rounded-2xl border shadow-2xl overflow-hidden max-h-72 overflow-y-auto ${isDark ? 'bg-charcoal border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
             {userSearchLoading ? (
               <div className="px-4 py-3 text-xs text-ink-muted dark:text-ink-muted flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
@@ -87,7 +87,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
             ) : userSearchResults.length > 0 ? (
               <div>
                 <div className={`px-3 py-1.5 text-[9.5px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between ${
-                  isDark ? 'bg-[#22211e] border-neutral-800 text-ink-muted' : 'bg-slate-50 border-slate-100 text-ink-subtle'
+                  isDark ? 'bg-charcoal-surface border-neutral-800 text-ink-muted' : 'bg-slate-50 border-slate-100 text-ink-subtle'
                 }`}>
                   <span>Results</span>
                   <span>{userSearchResults.length} found</span>
@@ -103,7 +103,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
                         handleOpenUserProfile(result);
                       }}
                       onClick={() => handleOpenUserProfile(result)}
-                      className={`w-full text-left px-3.5 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-[#242424]' : 'border-slate-100 hover:bg-slate-50'}`}
+                      className={`w-full text-left px-3.5 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-charcoal' : 'border-slate-100 hover:bg-slate-50'}`}
                     >
                       <div className="flex items-start gap-2.5">
                         <UserAvatar src={result.avatarUrl} name={getDisplayName(result)} alt={`${getDisplayName(result)} avatar`} size={36} role={result.role === 'provider' ? 'provider' : 'seeker'} shape="soft" />

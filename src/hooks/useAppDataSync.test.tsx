@@ -12,6 +12,8 @@ import { apiGetConversations } from '../api/messages.api';
 import { apiGetNotifications } from '../api/notifications.api';
 import { connectSocket, disconnectSocket } from '../lib/socket';
 import { useAppDataSync } from './useAppDataSync';
+import { invalidateApiCache } from '../lib/api/responseCache';
+import { socketResources } from '../lib/api/cachePolicy';
 
 const auth = vi.hoisted(() => ({ token: null as string | null }));
 vi.mock('../lib/api/axios', () => ({ getAccessToken: () => auth.token }));
@@ -197,13 +199,57 @@ describe('useAppDataSync initial marketplace loading', () => {
     }));
     await act(async () => { vi.runOnlyPendingTimers(); });
     expect(result.current.dbCategories).toEqual([{ id: 'category-id', name: 'Plumbing' }]);
-    expect(listeners.has('COMMUNITY_CATEGORIES_CHANGED')).toBe(true);
 
     await act(async () => {
-      listeners.get('COMMUNITY_CATEGORIES_CHANGED')?.();
-      vi.advanceTimersByTime(180);
+      invalidateApiCache(socketResources('COMMUNITY_CATEGORIES_CHANGED'), 'socket');
+      vi.advanceTimersByTime(200);
     });
     expect(result.current.dbCategories).toEqual([{ id: 'category-id', name: 'Plumbing Repair' }]);
+  });
+
+  it('coalesces the socket and cache refresh paths into one read per resource', async () => {
+    auth.token = 'test-access-token';
+    const listeners = new Map<string, (data?: unknown) => void>();
+    vi.mocked(connectSocket).mockReturnValue({
+      on: vi.fn((event: string, handler: (data?: unknown) => void) => { listeners.set(event, handler); }),
+      off: vi.fn(),
+    } as unknown as ReturnType<typeof connectSocket>);
+    renderHook(() => useAppDataSync({ authLoading: false, isAuthenticated: true, user, toastSuccess, toastError }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    vi.clearAllMocks();
+    const emit = (event: string, data?: unknown) => {
+      // socket.ts's catch-all runs first, followed by feature listeners.
+      invalidateApiCache(socketResources(event, data), 'socket');
+      listeners.get(event)?.(data);
+    };
+    await act(async () => {
+      emit('ENGAGEMENT_CHANGED', { bookingId: 'booking', type: 'started' });
+      emit('notification');
+      emit('ENGAGEMENT_CHANGED', { bookingId: 'booking', type: 'provider_queue_changed' });
+      emit('queue_update', { serviceId: 'service', delta: 0, currentSize: 1 });
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    for (const load of [apiGetMyEngagements, apiGetNotifications, apiGetConversations, apiBrowseServices]) {
+      expect(load).toHaveBeenCalledTimes(1);
+    }
+    for (const load of [apiGetRequests, apiGetReceivedOffers, apiGetMyOffers, apiGetTransactions]) {
+      expect(load).not.toHaveBeenCalled();
+    }
+  });
+
+  it('does not let an earlier booking read undo a confirmed action', async () => {
+    auth.token = 'test-access-token';
+    const booking = { id: 'booking', seekerId: user.id, providerId: 'provider', status: 'ACCEPTED', started: false };
+    vi.mocked(apiGetMyEngagements).mockResolvedValueOnce({ success: true, data: { bookings: [booking] } });
+    const { result } = renderHook(() => useAppDataSync({ authLoading: false, isAuthenticated: true, user, toastSuccess, toastError }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    let finish!: (value: unknown) => void;
+    vi.mocked(apiGetMyEngagements).mockReturnValueOnce(new Promise(resolve => { finish = resolve; }));
+    let pending!: Promise<void>;
+    act(() => { pending = result.current.syncEngagements(); });
+    act(() => { result.current.applyBookingAction({ ...booking, status: 'ONGOING', started: true }); });
+    await act(async () => { finish({ success: true, data: { bookings: [booking] } }); await pending; });
+    expect(result.current.jobEngagements[0]).toMatchObject({ bookingStatus: 'ONGOING', started: true });
   });
 
   it('shows a received offer on its socket event without waiting for sent offers', async () => {
@@ -228,8 +274,8 @@ describe('useAppDataSync initial marketplace loading', () => {
     expect(result.current.bids).toEqual([]);
 
     await act(async () => {
-      listeners.get('OFFERS_CHANGED')?.();
-      await vi.advanceTimersByTimeAsync(180);
+      invalidateApiCache(socketResources('OFFERS_CHANGED'), 'socket');
+      await vi.advanceTimersByTimeAsync(200);
     });
     expect(result.current.bids).toMatchObject([{
       id: 'offer-1', seekerId: user.id, requestTitle: 'Repair sink', status: 'pending',

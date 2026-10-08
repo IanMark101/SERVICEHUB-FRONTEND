@@ -25,6 +25,7 @@ import { connectSocket, disconnectSocket } from "../lib/socket";
 import { getAccessToken } from "../lib/api/axios";
 import { useApiCacheRefresh } from './useApiCacheRefresh';
 import { invalidateApiCache } from '../lib/api/responseCache';
+import { mergeBookingAction, type BookingActionResult } from '../lib/bookingActionUpdate';
 import {
   mapEngagements,
   mapServiceToListing,
@@ -64,6 +65,13 @@ export function useAppDataSync({
   const [requestsStatus, setRequestsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [offersStatus, setOffersStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engagementsStatus, setEngagementsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const engagementRequestVersion = useRef(0);
+  const applyBookingAction = useCallback((result: BookingActionResult) => {
+    // An older in-flight read must not undo a just-committed action. The cache
+    // invalidation schedules one fresh read for the rest of the booking detail.
+    engagementRequestVersion.current++;
+    setJobEngagements(current => mergeBookingAction(current, result));
+  }, []);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationPage, setNotificationPage] = useState(1);
@@ -79,6 +87,7 @@ export function useAppDataSync({
   const canLoadWorkspace = isAuthenticated && user?.moderationStatus !== 'BANNED' && (isAdmin || user?.emailVerified === true);
 
   const clearPrivateData = useCallback(() => {
+    engagementRequestVersion.current += 1;
     setJobRequests([]);
     setBids([]);
     setJobEngagements([]);
@@ -211,6 +220,7 @@ export function useAppDataSync({
   }, [isAdmin, user?.id]);
 
   const syncEngagements = useCallback(async () => {
+    const version = ++engagementRequestVersion.current;
     const token = getAccessToken();
     if (!token || isAdmin) {
       setJobEngagements([]);
@@ -218,8 +228,11 @@ export function useAppDataSync({
       setEngagementsStatus('loading');
       return;
     }
+    // Keep existing bookings visible while refreshing; only the load status changes.
+    setEngagementsStatus('loading');
     try {
       const res = await apiGetMyEngagements();
+      if (version !== engagementRequestVersion.current) return;
       if (res.success) {
         const dbBookings = (res.data.bookings || []) as ApiBooking[];
         const dbCompleted = (res.data.completedServices || []) as ApiCompletedService[];
@@ -230,7 +243,7 @@ export function useAppDataSync({
         setEngagementsStatus('error');
       }
     } catch {
-      setEngagementsStatus('error');
+      if (version === engagementRequestVersion.current) setEngagementsStatus('error');
     }
   }, [isAdmin]);
 
@@ -430,118 +443,23 @@ export function useAppDataSync({
     const sock = connectSocket(token);
     if (!sock) return;
 
-    // Bursts often contain both `notification` and `ENGAGEMENT_CHANGED` for
-    // the same mutation. Coalesce each resource refresh so one action does not
-    // fan out into repeated identical API calls and visible dashboard lag.
-    const refreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
-    const scheduleRefresh = (key: string, refresh: () => void) => {
-      const pending = refreshTimers.get(key);
-      if (pending) clearTimeout(pending);
-      refreshTimers.set(key, setTimeout(() => {
-        refreshTimers.delete(key);
-        refresh();
-      }, 180));
+    // socket.ts invalidates resources before feature handlers run. The cache
+    // subscriptions above coalesce all data reloads into one path per resource.
+    const accountUpdated = () => window.dispatchEvent(new Event('servicehub_account_updated'));
+    const queueUpdated = (data: { serviceId: string; delta: number; currentSize?: number }) => {
+      setServices(prev => prev.map(service => {
+        if (service.id !== data.serviceId) return service;
+        const size = data.currentSize ?? Math.max(0, (service.queueSize || 0) + data.delta);
+        return { ...service, queueSize: size, providerWaitingCount: size };
+      }));
     };
-    const scheduleEngagementRefresh = () => {
-      scheduleRefresh('engagements', syncEngagements);
-      scheduleRefresh('bids', syncBids);
-      scheduleRefresh('requests', syncRequests);
-      scheduleRefresh('transactions', syncTransactions);
-    };
-
-    // Real-time notification badge and data synchronization
-    sock.on('notification', () => {
-      scheduleRefresh('notifications', syncNotifications);
-    });
-    sock.on('accountStatusChanged', () => {
-      window.dispatchEvent(new Event('servicehub_account_updated'));
-    });
-
-    // Real-time booking / engagement status updates (create, accept, decline, cancel, start, complete, dispute)
-    sock.on('ENGAGEMENT_CHANGED', () => {
-      scheduleEngagementRefresh();
-    });
-
-    // Real-time queue counter update — update the services list in place
-    sock.on('queue_update', (data: { serviceId: string; delta: number; currentSize?: number }) => {
-      setServices(prev =>
-        prev.map(s => {
-          if (s.id !== data.serviceId) return s;
-          const newSize = data.currentSize !== undefined
-            ? data.currentSize
-            : Math.max(0, (s.queueSize || 0) + data.delta);
-          return { ...s, queueSize: newSize, providerWaitingCount: newSize };
-        })
-      );
-      scheduleRefresh('engagements', syncEngagements);
-    });
-
-    // Unread message badge — re-sync unread messages count in real-time
-    sock.on('message_notification', () => {
-      scheduleRefresh('unreadMessages', syncUnreadMessages);
-    });
-
-    // Real-time service request / broadcast updates
-    sock.on('SERVICE_REQUEST_CREATED', () => {
-      scheduleRefresh('requests', syncRequests);
-      scheduleRefresh('bids', syncBids);
-    });
-    sock.on('SERVICE_REQUEST_UPDATED', () => {
-      scheduleRefresh('requests', syncRequests);
-      scheduleRefresh('bids', syncBids);
-    });
-    sock.on('SERVICE_REQUEST_DELETED', () => {
-      scheduleRefresh('requests', syncRequests);
-      scheduleRefresh('bids', syncBids);
-    });
-    sock.on('SERVICE_REQUESTS_CHANGED', () => {
-      scheduleRefresh('requests', syncRequests);
-      scheduleRefresh('bids', syncBids);
-    });
-    sock.on('OFFERS_CHANGED', () => {
-      scheduleRefresh('bids', syncBids);
-    });
-
-    // Real-time service listing updates (active/paused toggles, edits, deletes, and publication)
-    sock.on('SERVICE_LISTING_TOGGLED', (data: { id: string; isAvailable: boolean }) => {
-      setServices(prev =>
-        prev.map(s => (s.id === data.id ? { ...s, isPaused: !data.isAvailable } : s))
-      );
-      scheduleRefresh('publicServices', syncPublicServices);
-    });
-    sock.on('SERVICE_LISTING_UPDATED', () => {
-      scheduleRefresh('publicServices', syncPublicServices);
-    });
-    sock.on('SERVICE_LISTING_DELETED', (data: { id: string }) => {
-      setServices(prev => prev.filter(s => s.id !== data.id));
-      scheduleRefresh('publicServices', syncPublicServices);
-    });
-    sock.on('SERVICE_LISTINGS_CHANGED', () => {
-      scheduleRefresh('publicServices', syncPublicServices);
-    });
-    sock.on('COMMUNITY_CATEGORIES_CHANGED', () => {
-      scheduleRefresh('categories', syncCategories);
-    });
-
+    sock.on('accountStatusChanged', accountUpdated);
+    sock.on('queue_update', queueUpdated);
     return () => {
-      refreshTimers.forEach(clearTimeout);
-      sock.off('notification');
-      sock.off('accountStatusChanged');
-      sock.off('ENGAGEMENT_CHANGED');
-      sock.off('queue_update');
-      sock.off('message_notification');
-      sock.off('SERVICE_REQUEST_CREATED');
-      sock.off('SERVICE_REQUEST_UPDATED');
-      sock.off('SERVICE_REQUEST_DELETED');
-      sock.off('SERVICE_REQUESTS_CHANGED');
-      sock.off('OFFERS_CHANGED');
-      sock.off('SERVICE_LISTING_TOGGLED');
-      sock.off('SERVICE_LISTING_UPDATED');
-      sock.off('SERVICE_LISTING_DELETED');
-      sock.off('SERVICE_LISTINGS_CHANGED');
-      sock.off('COMMUNITY_CATEGORIES_CHANGED');
+      sock.off('accountStatusChanged', accountUpdated);
+      sock.off('queue_update', queueUpdated);
     };
-  }, [authLoading, canLoadWorkspace, user?.id, syncCategories, syncNotifications, syncUnreadMessages, syncRequests, syncBids, syncPublicServices, syncEngagements, syncTransactions]);
+  }, [authLoading, canLoadWorkspace, user?.id]);
 
   // An email-unverified session may authenticate but may not join workspace feeds.
   useEffect(() => {
@@ -572,6 +490,7 @@ export function useAppDataSync({
     setBids,
     jobEngagements,
     setJobEngagements,
+    applyBookingAction,
     requestsStatus,
     offersStatus,
     engagementsStatus,

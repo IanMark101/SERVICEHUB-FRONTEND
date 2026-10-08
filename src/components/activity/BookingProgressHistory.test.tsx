@@ -22,7 +22,8 @@ describe('Booking progress times on Activity cards', () => {
     expect(screen.getByText('1:00 PM').closest('time')).toHaveAttribute('datetime', '2026-10-06T05:00:00.000Z');
     expect(screen.getByText('3:05 PM')).toBeInTheDocument();
     expect(screen.getByText('3:12 PM')).toBeInTheDocument();
-    expect(screen.getAllByText('Oct 6, 2026')).toHaveLength(5);
+    expect(screen.getAllByText('Oct 6, 2026')).toHaveLength(4);
+    expect(screen.queryByText('Booking accepted')).not.toBeInTheDocument();
     expect(within(screen.getByText('Booking created').closest('li')!).queryByText(/Seeker|Provider/)).not.toBeInTheDocument();
     expect(within(screen.getByText('Work marked complete').closest('li')!).getByText('Provider · John')).toBeInTheDocument();
     expect(within(screen.getByText('Completion confirmed').closest('li')!).getByText('Seeker · Ian')).toBeInTheDocument();
@@ -39,7 +40,8 @@ describe('Booking progress times on Activity cards', () => {
     const old = mapEngagements([{ id: 'old', seekerId: 's', providerId: 'p', status: 'ONGOING', started: true,
       createdAt: '2026-10-06', updatedAt: '2026-10-06T10:00:00.000Z' }], []);
     render(<BookingProgressHistory booking={old[0]} />);
-    expect(screen.getAllByText('Time not recorded')).toHaveLength(3);
+    expect(screen.getAllByText('Time not recorded')).toHaveLength(2);
+    expect(screen.queryByText('Booking accepted')).not.toBeInTheDocument();
     expect(screen.queryByText('6:00 PM')).not.toBeInTheDocument();
     expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument();
   });
@@ -50,7 +52,7 @@ describe('Booking progress times on Activity cards', () => {
       seekerId: booking.seekerId, providerId: booking.providerId, completedAt: '2026-10-06T07:12:00.000Z' }])[0];
     expect(mapped.progressEvents).toEqual(booking.progressEvents);
     expect(mapped.bookingCreatedAt).toBe(booking.createdAt);
-    expect(bookingProgressRows(mapped).filter(row => row.state === 'recorded')).toHaveLength(5);
+    expect(bookingProgressRows(mapped).filter(row => row.state === 'recorded')).toHaveLength(4);
   });
 
   it('shows cancellation decisions between work actions in chronological order, preserving repeated completion', () => {
@@ -60,20 +62,29 @@ describe('Booking progress times on Activity cards', () => {
       { id: 'done-again', kind: 'WORK_MARKED_COMPLETE', actorRole: 'PROVIDER' as const, occurredAt: '2026-10-06T07:10:00.000Z' },
     ];
     expect(bookingProgressRows({ ...booking, progressEvents: events }).map(row => row.kind)).toEqual([
-      'CREATED', 'ACCEPTED', 'STARTED', 'CANCELLATION_REQUESTED', 'CANCELLATION_DECLINED',
+      'CREATED', 'STARTED', 'CANCELLATION_REQUESTED', 'CANCELLATION_DECLINED',
       'WORK_MARKED_COMPLETE', 'WORK_MARKED_COMPLETE', 'COMPLETION_CONFIRMED',
     ]);
   });
 
-  it('labels automatic payment acceptance honestly and does not append pending milestones after cancellation', () => {
+  it('omits acceptance timestamps and does not append pending milestones after cancellation', () => {
     const rows = bookingProgressRows({ ...booking, status: 'canceled', bookingStatus: 'CANCELED', started: false,
       progressEvents: [
         { id: 'automatic', kind: 'ACCEPTED', actorRole: 'SYSTEM', occurredAt: '2026-10-06T04:45:00.000Z' },
         { id: 'cancel', kind: 'CANCELED', actorRole: 'SEEKER', occurredAt: '2026-10-06T04:50:00.000Z' },
       ] });
-    expect(rows.find(row => row.kind === 'ACCEPTED')?.label).toBe('Booking confirmed after payment');
+    expect(rows.some(row => row.kind === 'ACCEPTED')).toBe(false);
     expect(rows.some(row => row.state === 'pending')).toBe(false);
     expect(rows.some(row => row.kind === 'WORK_MARKED_COMPLETE')).toBe(false);
+  });
+
+  it('does not add an unknown acceptance time to an older booking with a recorded start', () => {
+    render(<BookingProgressHistory booking={{ ...booking, status: 'in_progress', bookingStatus: 'ONGOING',
+      progressEvents: booking.progressEvents!.filter(event => event.kind === 'STARTED') }} />);
+    expect(screen.queryByText('Booking accepted')).not.toBeInTheDocument();
+    expect(screen.queryByText('Time not recorded')).not.toBeInTheDocument();
+    expect(screen.getByText('1:00 PM')).toBeInTheDocument();
+    expect(screen.getAllByText('Pending')).toHaveLength(2);
   });
 
   it('retains an older request alongside newly recorded cancellations without duplicating the new request', () => {

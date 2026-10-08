@@ -48,7 +48,7 @@ export const isConversationClosed = (status: string) =>
   ['PENDING_APPROVAL', 'DECLINED', 'CANCELED', 'REMOVED', 'COMPLETED'].includes(status);
 
 export function useMessagesPage() {
-  const { isDark, user, syncUnreadMessages } = useApp();
+  const { isDark, user } = useApp();
   const searchParams = useSearchParams();
   const bookingParam = searchParams.get('booking');
 
@@ -125,7 +125,6 @@ export function useMessagesPage() {
       if (loadId !== messageLoadIdRef.current) return;
       if (res.success) {
         setMessages(res.data || []);
-        syncUnreadMessages();
       } else {
         setError(res.error || 'Failed to load messages.');
       }
@@ -134,13 +133,12 @@ export function useMessagesPage() {
     } finally {
       if (loadId === messageLoadIdRef.current) setLoading(false);
     }
-  }, [syncUnreadMessages]);
+  }, []);
 
   useApiCacheRefresh(['messages'], async change => {
-    await syncConversations();
     if (['focus', 'online', 'reconnect'].includes(change.reason) && selectedConvRef.current) {
-      await loadMessages(selectedConvRef.current.bookingId);
-    }
+      await Promise.all([syncConversations(), loadMessages(selectedConvRef.current.bookingId)]);
+    } else await syncConversations();
   });
 
   // Select conversation & join room
@@ -216,23 +214,16 @@ export function useMessagesPage() {
           return exists ? prev : [...prev, msg];
         });
       }
-      syncConversations();
-      syncUnreadMessages();
     };
 
-    const notifHandler = () => {
-      syncConversations();
-      syncUnreadMessages();
-    };
-
+    // Central socket invalidation refreshes inbox and unread counts once.
+    // This listener only inserts the active thread's message immediately.
     sock.on('new_message', handler);
-    sock.on('message_notification', notifHandler);
 
     return () => {
       sock.off('new_message', handler);
-      sock.off('message_notification', notifHandler);
     };
-  }, [syncConversations, syncUnreadMessages]);
+  }, []);
 
   const handleMessageScroll = () => {
     const pane = messageScrollRef.current;
@@ -260,7 +251,6 @@ export function useMessagesPage() {
           const exists = prev.some(m => m.id === res.data.id);
           return exists ? prev : [...prev, res.data];
         });
-        syncConversations();
       }
     } catch (e: unknown) {
       setInput(content);
@@ -321,10 +311,10 @@ export function useMessagesPage() {
 
   const isReadOnly = selectedConv ? isConversationClosed(selectedConv.status) : false;
 
-  const cardBg = isDark ? 'bg-[#1c1b18] border-neutral-800/70' : 'bg-white border-slate-200';
+  const cardBg = isDark ? 'bg-charcoal-inset border-neutral-800/70' : 'bg-white border-slate-200';
   const textPrimary = isDark ? 'text-[#f2efe9]' : 'text-slate-800';
   const textMuted = isDark ? 'text-[#9a9690]' : 'text-slate-550';
-  const inputBg = isDark ? 'bg-[#2a2927] border-neutral-700 text-[#f2efe9] placeholder-neutral-500' : 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400';
+  const inputBg = isDark ? 'bg-charcoal border-neutral-700 text-[#f2efe9] placeholder-neutral-500' : 'bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400';
 
   return {
     isDark,

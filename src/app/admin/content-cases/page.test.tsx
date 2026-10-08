@@ -22,7 +22,7 @@ describe('Unified admin content workspace', () => {
     render(<ContentWorkspace />);
     expect(await screen.findByText('Kitchen faucet repair')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'All content' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'History' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Case history' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Review case/ }));
     expect(navigation.push).toHaveBeenCalledWith('/admin/content-cases?caseId=case-1', { scroll: false });
     fireEvent.change(screen.getByLabelText('Content type'), { target: { value: 'SERVICE_REQUEST' } });
@@ -49,11 +49,10 @@ describe('Unified admin content workspace', () => {
     await waitFor(() => expect(screen.getByText('Legacy explanation only')).toBeInTheDocument());
     expect(api.apiGetContentCases).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'RESOLVED' }));
   });
-  it('explains the public-content scope and provides a separate booking workflow', async () => {
+  it('keeps content reviews separate from booking cases and ban appeals', async () => {
     render(<ContentWorkspace />); await screen.findByText('Kitchen faucet repair');
-    expect(screen.getByRole('navigation', { name: 'Report workflows' })).toHaveTextContent('Listings and public requests');
     expect(screen.getByRole('link', { name: /Content Reports & Appeals/ })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: /Disputes & Reports/ })).toHaveAttribute('href', '/admin/reports');
-    expect(screen.getByText('No booking required. Content decisions do not cancel bookings or settle payments.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ban Appeals' })).toHaveAttribute('href', '/admin/ban-appeals');
   });
 });

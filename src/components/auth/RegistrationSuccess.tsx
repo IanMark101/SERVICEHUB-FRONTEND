@@ -83,7 +83,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
       </div>
 
       {/* Onboarding Checklist Box */}
-      <div className="p-4 bg-slate-50/70 dark:bg-zinc-900/60 border border-black/[0.06] dark:border-white/10 rounded-2xl shadow-xs">
+      <div className="p-4 bg-slate-50/70 dark:bg-charcoal/60 border border-black/[0.06] dark:border-white/10 rounded-2xl shadow-xs">
         <h4 className="text-xs font-bold text-ink-subtle dark:text-ink-subtle tracking-wider uppercase mb-3">
           Onboarding Checklist
         </h4>
@@ -106,7 +106,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
 
           {/* Item 3: Verify Your Email */}
           <div className="flex items-center space-x-3 text-sm">
-            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-ink-subtle dark:text-ink-subtle bg-white dark:bg-zinc-800 font-semibold text-xs">
+            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-ink-subtle dark:text-ink-subtle bg-white dark:bg-charcoal font-semibold text-xs">
               3
             </div>
             <span className="font-bold text-ink dark:text-white">Verify your email</span>
@@ -114,7 +114,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
 
           {/* Item 4: Identity Verification */}
           <div className="flex items-center space-x-3 text-sm">
-            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-ink-subtle dark:text-ink-subtle bg-white dark:bg-zinc-800 font-semibold text-xs">
+            <div className="w-5 h-5 rounded-lg border border-black/[0.08] dark:border-white/10 flex items-center justify-center text-ink-subtle dark:text-ink-subtle bg-white dark:bg-charcoal font-semibold text-xs">
               4
             </div>
             <span className="font-medium text-ink-muted dark:text-ink-muted flex items-center space-x-1.5">
@@ -153,8 +153,8 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
           disabled={cooldown > 0}
           className={`w-full py-2.5 border rounded-xl font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-2 cursor-pointer ${
             cooldown > 0
-              ? 'bg-slate-50 dark:bg-zinc-900/50 border-black/[0.08] dark:border-white/10 text-ink-subtle dark:text-ink-subtle'
-              : 'border-black/[0.08] dark:border-white/10 bg-white dark:bg-zinc-800/80 hover:bg-slate-50 text-ink-secondary dark:text-ink'
+              ? 'bg-slate-50 dark:bg-charcoal/50 border-black/[0.08] dark:border-white/10 text-ink-subtle dark:text-ink-subtle'
+              : 'border-black/[0.08] dark:border-white/10 bg-white dark:bg-charcoal/80 hover:bg-slate-50 text-ink-secondary dark:text-ink'
           }`}
         >
           <RefreshCw className={`w-3.5 h-3.5 ${cooldown > 0 ? 'animate-spin' : ''}`} />

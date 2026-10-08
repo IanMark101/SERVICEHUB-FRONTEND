@@ -28,6 +28,6 @@
   .headerAction, .login { display: none; }
   .drawer { max-height: calc(100dvh - 92px); overflow-y: auto; margin-block: 0 12px; }
 
-  :global(.dark) .header { background: #121211; border-color: rgb(242 239 233 / .1); }
+  :global(.dark) .header { background: var(--color-charcoal); border-color: rgb(242 239 233 / .1); }
   :global(.dark) .brand, :global(.dark) .controls { background: transparent; }
 }

@@ -220,15 +220,15 @@ export default function BrowseJobs({
       <LimitedModeDashboardCard role="provider" />
 
       {/* Search Banner: mirrors the seeker discovery hero with provider color semantics. */}
-      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:from-[#1e1d1a] dark:to-[#171615] dark:shadow-none">
+      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:bg-none dark:bg-charcoal-surface dark:shadow-none">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
 
         <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
           <h2 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">
-            Find client requests for any task.
+            Find seeker requests for any task.
           </h2>
           <p className="workspace-muted mx-auto max-w-md text-xs leading-relaxed sm:text-sm">
-            Browse open requests and send offers to local clients.
+            Browse open requests and send offers to local service seekers.
           </p>
 
           {/* Inputs Row inside Banner */}
@@ -238,7 +238,7 @@ export default function BrowseJobs({
               behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
               block: 'start',
             });
-          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-emerald-500/20 ${isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-white border-black/10'
+          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-emerald-500/20 ${isDark ? 'bg-charcoal-inset border-neutral-800' : 'bg-white border-black/10'
             }`}>
             <span className={`pl-3 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
               <Search className="w-4 h-4" />
@@ -280,7 +280,7 @@ export default function BrowseJobs({
                   ? 'border-[#059669]/40 bg-[#059669]/20 text-[#9be5c2]'
                   : 'border-[#a7f3d0] bg-[#e7f4ec] text-[#056b4f]'
                 : isDark
-                  ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white'
+                  ? 'border-white/10 bg-charcoal-surface text-ink-muted hover:bg-charcoal hover:text-white'
                   : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
               }`}
             >
@@ -303,7 +303,7 @@ export default function BrowseJobs({
                       ? 'border-[#059669]/40 bg-[#059669]/20 text-[#9be5c2]'
                       : 'border-[#a7f3d0] bg-[#e7f4ec] text-[#056b4f]'
                     : isDark
-                      ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white'
+                      ? 'border-white/10 bg-charcoal-surface text-ink-muted hover:bg-charcoal hover:text-white'
                       : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
                   }`}
               >
@@ -362,7 +362,7 @@ export default function BrowseJobs({
                 isOwned={isOwned}
                 offerState={hasSentBid ? (previousOffer?.status === 'accepted' || previousOffer?.status === 'ACCEPTED' ? 'accepted' : 'submitted') : null}
                 isDark={isDark}
-                onProfile={(reviews) => router.push(`/profile/${encodeURIComponent(req.seekerId)}${reviews ? '?tab=reviews' : ''}`)}
+                    onProfile={(reviews) => router.push(`/profile/${encodeURIComponent(req.seekerId)}${reviews ? '?tab=reviews&reviewRole=seeker' : ''}`)}
                 onDetails={() => setPreviewRequest(req)}
                 onSendOffer={() => {
                   if (!canTransact) { setBlockedModalOpen(true); return; }

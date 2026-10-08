@@ -6,7 +6,7 @@ import { useRouteGuard } from '../../../hooks/useRouteGuard';
 import type { UserSession } from '../../../components/auth/LoginContainer';
 import UserProfile from '../../../components/profile/UserProfile';
 import ProfilePageShell from '../../../components/profile/ProfilePageShell';
-import BrandLoading from '../../../components/ui/BrandLoading';
+import ProfilePageSkeleton from '../../../components/profile/ProfilePageSkeleton';
 
 type ProfileTab = 'overview' | 'reviews' | 'trust' | 'verification';
 const PROFILE_TABS: ProfileTab[] = ['overview', 'reviews', 'trust', 'verification'];
@@ -18,10 +18,12 @@ export default function MarketplaceProfilePage() {
   const { shouldRender } = useRouteGuard(['user']);
   const targetId = params.userId || '';
   const rawTab = searchParams.get('tab');
-  const initialTab = PROFILE_TABS.includes(rawTab as ProfileTab) ? rawTab as ProfileTab : undefined;
+  const initialTab = PROFILE_TABS.includes(rawTab as ProfileTab) ? rawTab as ProfileTab : 'overview';
+  const rawReviewRole = searchParams.get('reviewRole');
+  const initialReviewContext = rawReviewRole === 'seeker' ? 'SEEKER' : rawReviewRole === 'provider' ? 'PROVIDER' : undefined;
 
   if (!shouldRender || !user || !targetId) {
-    return <BrandLoading label="Opening marketplace profile" role="seeker" />;
+    return <ProfilePageShell><ProfilePageSkeleton /></ProfilePageShell>;
   }
 
   const knownUser = users.find((candidate) => candidate.id === targetId);
@@ -50,6 +52,7 @@ export default function MarketplaceProfilePage() {
         targetUser={targetUser}
         isOwnProfile={targetId === user.id}
         initialTab={initialTab}
+        initialReviewContext={initialReviewContext}
         variant="marketplace"
       />
     </ProfilePageShell>

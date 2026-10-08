@@ -35,7 +35,7 @@ describe('direct listing booking payment choices', () => {
     expect(screen.getByRole('button', { name: 'On-site Cash' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /GCash/ })).not.toBeInTheDocument();
     fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Send Booking Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({
       serviceId: 'fixed-listing', quantity: 1, message: 'Please clean the kitchen and living room.', schedule: undefined,
     }));
@@ -62,7 +62,7 @@ describe('direct listing booking payment choices', () => {
     fireEvent.change(screen.getByLabelText('Number of hours'), { target: { value: '2' } });
     expect(screen.getByText('Total: ₱1,000')).toBeInTheDocument();
     fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Send Booking Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({
       serviceId: 'fixed-listing', quantity: 2, message: 'Please clean the kitchen and living room.', schedule: undefined,
     }));
@@ -74,13 +74,34 @@ describe('direct listing booking payment choices', () => {
     fireEvent.change(screen.getByLabelText('Number of days'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: /GCash · Test Mode/ }));
     fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Send Booking Request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to GCash' }));
     await waitFor(() => expect(online).toHaveBeenCalledWith('seeker-1', 'fixed-listing', 500, 'Please clean the kitchen and living room.', 'GCash', 3));
+  });
+
+  it('hands checkout to the workspace dialog without claiming a booking or keeping the request dialog open', async () => {
+    const onClose = vi.fn();
+    online.mockResolvedValueOnce({ seekerId: 'seeker-1', paymentIntentId: 'pi_pending' });
+    render(<RequestServiceModal listing={listing} onClose={onClose} initialPaymentMethod="GCash" />);
+    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'Fix the kitchen.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to GCash' }));
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText('Booking Created Successfully!')).not.toBeInTheDocument();
+  });
+
+  it('keeps the request form and description when checkout initiation fails', async () => {
+    const onClose = vi.fn();
+    online.mockRejectedValueOnce(new Error('Checkout unavailable'));
+    render(<RequestServiceModal listing={listing} onClose={onClose} initialPaymentMethod="GCash" />);
+    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'Fix the kitchen.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to GCash' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Checkout unavailable');
+    expect(screen.getByLabelText('Describe the work needed')).toHaveValue('Fix the kitchen.');
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('does not book an older custom-priced listing without a final price', () => {
     render(<RequestServiceModal listing={{ ...listing, priceType: 'CUSTOM', price: 0 }} onClose={vi.fn()} />);
-    expect(screen.getAllByText('Price unavailable')).toHaveLength(2);
+    expect(screen.getByText('Price unavailable')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Price Needed Before Booking' })).toBeDisabled();
     expect(apiBookDirect).not.toHaveBeenCalled();
   });

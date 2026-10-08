@@ -66,7 +66,8 @@ describe('useSeekerActions Post Request payload', () => {
       urgency: 'Flexible Schedule',
       paymentMethods: { cash: true, gcash: true },
     });
-    expect(syncRequests).toHaveBeenCalledTimes(1);
+    // The API cache subscription refreshes the request feed independently.
+    expect(syncRequests).not.toHaveBeenCalled();
   });
 
   it('does not claim success when the API rejects creation', async () => {

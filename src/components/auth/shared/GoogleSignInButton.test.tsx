@@ -24,7 +24,7 @@ describe('Google sign-in initialization and callbacks', () => {
     vi.useRealTimers();
   });
 
-  it('initializes the current login callback even if another Google flow used the SDK earlier', async () => {
+  it('reuses Google initialization after remounting and delivers credentials to the current auth screen', async () => {
     const initialize = vi.fn();
     window.google = { accounts: { id: { initialize, renderButton: vi.fn() } } };
     const first = render(<GoogleSignInButton {...props} />);
@@ -34,12 +34,13 @@ describe('Google sign-in initialization and callbacks', () => {
     act(() => callback({ credential: 'first-credential' }));
     expect(props.onSuccess).toHaveBeenCalledWith('first-credential');
     first.unmount();
+    act(() => callback({ credential: 'unmounted-credential' }));
+    expect(props.onSuccess).toHaveBeenCalledTimes(1);
     const nextSuccess = vi.fn();
     render(<GoogleSignInButton {...props} onSuccess={nextSuccess} />);
-    await waitFor(() => expect(initialize).toHaveBeenCalledTimes(2));
-    act(() => callback({ credential: 'late-credential' }));
-    expect(nextSuccess).not.toHaveBeenCalled();
-    act(() => initialize.mock.calls[1][0].callback({ credential: 'next-credential' }));
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Loading Google sign-in' })).not.toBeInTheDocument());
+    expect(initialize).toHaveBeenCalledTimes(1);
+    act(() => callback({ credential: 'next-credential' }));
     expect(nextSuccess).toHaveBeenCalledWith('next-credential');
   });
 
@@ -114,5 +115,25 @@ describe('Google sign-in initialization and callbacks', () => {
     render(<GoogleSignInButton {...props} />);
     await act(async () => { await vi.advanceTimersByTimeAsync(10_000); });
     expect(props.onError).toHaveBeenCalledWith(expect.stringContaining('Google sign-in could not load'));
+  });
+
+  it('keeps verification nonce callbacks separate from a subsequent login', async () => {
+    const initialize = vi.fn();
+    const verificationSuccess = vi.fn();
+    const loginSuccess = vi.fn();
+    window.google = { accounts: { id: { initialize, renderButton: vi.fn() } } };
+    const view = render(<GoogleDeletionVerification nonce="verification-nonce" isDark={false} disabled={false} onSuccess={verificationSuccess} onError={vi.fn()} />);
+    const verificationCallback = initialize.mock.calls[0][0].callback;
+    view.rerender(<GoogleDeletionVerification nonce="verification-nonce" isDark disabled={false} onSuccess={verificationSuccess} onError={vi.fn()} />);
+    expect(initialize).toHaveBeenCalledTimes(1);
+    view.unmount();
+    render(<GoogleSignInButton {...props} onSuccess={loginSuccess} />);
+    await waitFor(() => expect(initialize).toHaveBeenCalledTimes(2));
+    expect(initialize.mock.calls[1][0].nonce).toBeUndefined();
+    act(() => verificationCallback({ credential: 'obsolete-verification' }));
+    expect(loginSuccess).not.toHaveBeenCalled();
+    expect(verificationSuccess).not.toHaveBeenCalled();
+    act(() => initialize.mock.calls[1][0].callback({ credential: 'login-credential' }));
+    expect(loginSuccess).toHaveBeenCalledWith('login-credential');
   });
 });

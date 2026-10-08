@@ -17,6 +17,7 @@ import { getPaidStartBlockReason } from '../../activity/paidStartReadiness';
 import { getActivitySituation } from '../../activity/ActivitySituation';
 import { isOfferClosed, normalizeOfferStatus, offerSituation } from '../../../lib/offerStatus';
 import { getBookingOutcome } from '../../../lib/bookingOutcome';
+import BookingDetailState, { type ActivityLoadStatus } from '../../activity/BookingDetailState';
 
 interface ProviderActivityListModel extends ProviderActivityItemModel {
   myOffers: Bid[];
@@ -26,6 +27,8 @@ interface ProviderActivityListModel extends ProviderActivityItemModel {
   sortBy: ProviderActivitySort;
   setSortBy: Dispatch<SetStateAction<ProviderActivitySort>>;
   isLoading: boolean;
+  engagementsStatus: ActivityLoadStatus;
+  retryBooking: () => Promise<void>;
   filteredItems: ProviderActivityItemData[];
   activeTab: ProviderActivityTab;
   paginatedItems: ProviderActivityItemData[];
@@ -44,7 +47,7 @@ interface ProviderActivityListModel extends ProviderActivityItemModel {
 export default function ProviderActivityList({ model }: { model: ProviderActivityListModel }) {
   const {
     myOffers, myEngagements, isDark, searchQuery, setSearchQuery,
-    sortBy, setSortBy, isLoading, filteredItems, activeTab, router,
+    sortBy, setSortBy, isLoading, engagementsStatus, retryBooking, filteredItems, activeTab, router,
     paginatedItems, getRequestForBid, getCategoryForEngagement,
     loadingItemId, loadingActionType, highlightedBookingId,
     handleCancelOffer, handleApproveCancellation, handleDeleteClick,
@@ -69,7 +72,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
   };
   const selectedItem: ProviderActivityItemData | undefined = openItemId?.startsWith('offer:')
     ? (() => { const bid = myOffers.find((item) => item.id === openItemId.slice(6)); return bid ? { type: 'bid', data: bid } : undefined; })()
-    : (() => { const booking = myEngagements.find((item) => item.id === openItemId); return booking ? { type: 'engagement', data: booking } : undefined; })();
+    : (() => { const booking = myEngagements.find((item) => item.id === openItemId || item.completedServiceId === openItemId); return booking ? { type: 'engagement', data: booking } : undefined; })();
   const entries: ActivityFeedEntry[] = paginatedItems.map((item) => {
     if (item.type === 'bid') {
       const request = getRequestForBid(item.data.requestId);
@@ -136,11 +139,13 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
   });
 
   if (openItemId) return (
-    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-[#171715] sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
-      <button type="button" onClick={closeItem} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-ink dark:hover:bg-neutral-800">
+    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-charcoal sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
+      {selectedItem && <button type="button" onClick={closeItem} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-ink dark:hover:bg-charcoal">
         <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
-      </button>
-      {selectedItem ? <ProviderActivityItem item={selectedItem} model={itemModel} /> : <p role="status" className="rounded-2xl border border-stone-200 p-6 text-sm dark:border-neutral-700">This booking or offer is not available in your Activity.</p>}
+      </button>}
+      {selectedItem ? <ProviderActivityItem item={selectedItem} model={itemModel} /> : openItemId.startsWith('offer:')
+        ? <EmptyState title="Offer unavailable" description="This offer is no longer in your Activity." accentColor="emerald" actionLabel="Back to Activity" onAction={closeItem} />
+        : <BookingDetailState status={engagementsStatus} role="provider" onRetry={retryBooking} onBack={closeItem} />}
     </div>
   );
 
@@ -160,7 +165,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
               <input
                 aria-label="Search provider activity"
                 type="text"
-                placeholder="Search by job title, client name or category..."
+                placeholder="Search by job title, seeker name or category..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="service-search-input w-full border-0 bg-transparent text-xs outline-none placeholder:text-ink-subtle"
@@ -194,7 +199,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
         <div>
           {isLoading ? (
             <div>
-              <ActivityItemSkeleton count={3} variant={activeTab === 'waiting' ? 'waiting' : ['completed', 'canceled', 'disputed'].includes(activeTab) ? 'history' : 'active'} />
+              <ActivityItemSkeleton count={3} variant={activeTab === 'waiting' ? 'waiting' : ['completed', 'canceled', 'closed_offers', 'disputed'].includes(activeTab) ? 'history' : 'active'} />
             </div>
           ) : filteredItems.length === 0 ? (
             <div>
@@ -224,7 +229,9 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                             : activeTab === 'completed'
                               ? 'No Completed Jobs Yet'
                               : activeTab === 'canceled'
-                                ? 'No Canceled Engagements'
+                                ? 'No Canceled Bookings'
+                                : activeTab === 'closed_offers'
+                                  ? 'No Closed Offers'
                                 : searchQuery
                                   ? 'No Matching Jobs Found'
                                   : 'No Activity History Yet'
@@ -239,20 +246,22 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                         : activeTab === 'pending_offers'
                           ? 'You haven’t submitted any offers to open seeker job requests yet.'
                           : activeTab === 'disputed'
-                            ? 'All client transactions are operating smoothly with zero dispute reports.'
+                            ? 'All seeker transactions are operating smoothly with zero dispute reports.'
                             : activeTab === 'completed'
                               ? 'You have not completed any service bookings yet.'
                               : activeTab === 'canceled'
-                                ? 'You have no canceled engagements in your provider records.'
+                                ? 'You have no canceled bookings in your provider records.'
+                                : activeTab === 'closed_offers'
+                                  ? 'Declined, withdrawn, and unselected offers will appear here.'
                                 : searchQuery
                                   ? `No jobs matched your search "${searchQuery}". Try adjusting your keywords.`
-                                  : 'You have no active jobs or proposals yet. Check the job board to find clients looking for services!'
+                                  : 'You have no active jobs or proposals yet. Check the job board to find seekers looking for services!'
                 }
                 actionLabel={
                   searchQuery
                     ? 'Clear Search'
                     : activeTab === 'pending_offers' || activeTab === 'all'
-                      ? 'Browse Open Client Requests'
+                      ? 'Browse Open Seeker Requests'
                       : undefined
                 }
                 onAction={() => {

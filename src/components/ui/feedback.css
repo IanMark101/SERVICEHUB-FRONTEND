@@ -20,7 +20,7 @@
   --feedback-accent: #f2a07e;
   --feedback-soft: #34221b;
   --feedback-border: #81513d;
-  --feedback-surface: #22211e;
+  --feedback-surface: var(--color-charcoal-surface);
 }
 .dark.workspace-provider,
 .dark .workspace-provider,
@@ -28,7 +28,7 @@
   --feedback-accent: #6ee7b7;
   --feedback-soft: #172e24;
   --feedback-border: #39765d;
-  --feedback-surface: #22211e;
+  --feedback-surface: var(--color-charcoal-surface);
 }
 .servicehub-toast { background: var(--feedback-surface); border-color: var(--feedback-border); }
 .servicehub-toast__icon { color: var(--feedback-accent); }

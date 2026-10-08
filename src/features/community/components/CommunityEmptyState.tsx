@@ -22,13 +22,13 @@ export default function CommunityEmptyState({
     <div
       className={`flex flex-col items-start gap-2 rounded-xl border border-dashed p-4 text-left transition-colors ${
         isDark
-          ? 'border-white/10 bg-white/[0.03] text-ink-muted'
+          ? 'border-white/10 bg-charcoal text-ink-muted'
           : 'border-black/10 bg-[#f9f7f4] text-ink-muted'
       }`}
     >
       <div
         className={`flex size-9 items-center justify-center rounded-lg ${
-          isDark ? 'bg-white/[0.06] text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#c86544]'
+          isDark ? 'bg-charcoal text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#c86544]'
         }`}
       >
         <Icon className="size-[18px] opacity-80" />
@@ -44,7 +44,7 @@ export default function CommunityEmptyState({
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="mt-1 cursor-pointer rounded-xl bg-[#171716] px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#292826] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]"
+          className="mt-1 cursor-pointer rounded-xl bg-charcoal px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]"
         >
           {actionText}
         </button>

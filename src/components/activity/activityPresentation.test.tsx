@@ -86,7 +86,7 @@ describe('Activity presentation from authoritative booking state', () => {
     expect(canceledRow).toHaveClass('border-l-stone-400');
     expect(canceledRow).toHaveClass('dark:border-l-neutral-500');
     expect(screen.getByText('Canceled')).toHaveClass('bg-stone-100');
-    expect(screen.getByText('Canceled')).toHaveClass('dark:bg-neutral-800');
+    expect(screen.getByText('Canceled')).toHaveClass('dark:bg-charcoal');
     fireEvent.click(screen.getByRole('button', { name: /Open booking Cleaning/ }));
     expect(onOpen).toHaveBeenCalledWith(entries[1]);
   });

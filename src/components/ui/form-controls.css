@@ -11,11 +11,11 @@
   --form-overlay-layer: 90; /* Above the existing dialog layers (50–80). */
 }
 .dark {
-  --form-surface: #1c1b18;
-  --form-border: #504c46;
-  --form-border-hover: #77716a;
+  --form-surface: var(--color-charcoal-inset);
+  --form-border: #666666;
+  --form-border-hover: #888888;
   --form-invalid: #fca5a5;
-  --form-menu-hover: #2c2925;
+  --form-menu-hover: var(--color-charcoal-hover);
   --form-menu-shadow: 0 16px 40px -12px rgb(0 0 0 / 60%);
 }
 .workspace-shell, .admin-workspace { --form-accent: var(--workspace-focus); }

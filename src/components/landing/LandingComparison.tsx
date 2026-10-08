@@ -52,9 +52,9 @@ export default function LandingComparison({ isDark }: LandingComparisonProps) {
           </p>
         </ScrollReveal>
 
-        <ScrollReveal className="mt-12 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs dark:border-zinc-800 dark:bg-zinc-900">
+        <ScrollReveal className="mt-12 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs dark:border-zinc-800 dark:bg-charcoal">
           {/* Table Header */}
-          <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_5rem] sm:grid-cols-[1fr_120px_140px] items-center border-b border-slate-200 bg-slate-100/70 px-6 py-4.5 text-xs font-bold text-neutral-700 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300 sm:px-8">
+          <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_5rem] sm:grid-cols-[1fr_120px_140px] items-center border-b border-slate-200 bg-slate-100/70 px-6 py-4.5 text-xs font-bold text-neutral-700 dark:border-zinc-800 dark:bg-charcoal/60 dark:text-zinc-300 sm:px-8">
             <span>Support route</span>
             <span className="text-center">For</span>
             <div className="text-center">
@@ -69,7 +69,7 @@ export default function LandingComparison({ isDark }: LandingComparisonProps) {
             {rows.map((row) => (
               <div
                 key={row.capability}
-                className="grid grid-cols-[minmax(0,1fr)_3.5rem_5rem] sm:grid-cols-[1fr_120px_140px] items-center px-6 py-5 transition-colors hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 sm:px-8"
+                className="grid grid-cols-[minmax(0,1fr)_3.5rem_5rem] sm:grid-cols-[1fr_120px_140px] items-center px-6 py-5 transition-colors hover:bg-slate-50/50 dark:hover:bg-charcoal/30 sm:px-8"
               >
                 <div>
                   <p className="text-sm font-bold text-[#0a0a0a] dark:text-white">

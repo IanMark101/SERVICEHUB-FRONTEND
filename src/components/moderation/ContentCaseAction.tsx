@@ -63,7 +63,7 @@ export default function ContentCaseAction({
           className ||
           `p-1.5 rounded-lg transition-colors flex items-center justify-center cursor-pointer select-none ${
             isDark
-              ? 'text-neutral-500 hover:text-red-400 hover:bg-neutral-800'
+              ? 'text-neutral-500 hover:text-red-400 hover:bg-charcoal'
               : 'text-slate-400 hover:text-red-600 hover:bg-slate-100'
           }`
         }
@@ -84,12 +84,12 @@ export default function ContentCaseAction({
         {actionText}
       </button>
     )}
-    {open && typeof document !== 'undefined' && createPortal(<div ref={dialogRef} tabIndex={-1} className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/70 p-4" role="presentation">
-      <form onSubmit={send} role="dialog" aria-modal="true" aria-labelledby="content-case-title" aria-busy={sending} className={`servicehub-dialog w-full max-w-lg space-y-4 rounded-2xl border p-6 shadow-2xl ${isDark ? 'border-neutral-700 bg-[#22211e] text-white' : 'border-slate-200 bg-white text-ink'}`}>
+    {open && typeof document !== 'undefined' && createPortal(<div ref={dialogRef} tabIndex={-1} className="fixed inset-0 z-[80] flex items-center justify-center bg-charcoal/70 p-4" role="presentation">
+      <form onSubmit={send} role="dialog" aria-modal="true" aria-labelledby="content-case-title" aria-busy={sending} className={`servicehub-dialog w-full max-w-lg space-y-4 rounded-2xl border p-6 shadow-2xl ${isDark ? 'border-neutral-700 bg-charcoal-surface text-white' : 'border-slate-200 bg-white text-ink'}`}>
         <h2 id="content-case-title" className="text-lg font-bold">{title}</h2>
         <p id="content-case-description" className="leading-6">{caseType === 'REPORT' ? 'Explain the content concern. Admin review is separate from booking safety or payment disputes.' : 'Explain why this submission or removal deserves another look. An appeal does not publish it automatically.'}</p>
         <label htmlFor="content-case-reason" className="block text-sm font-semibold">Your explanation</label>
-        <textarea id="content-case-reason" aria-describedby="content-case-hint" required minLength={10} maxLength={1000} disabled={sending} value={reason} onChange={(event) => setReason(event.target.value)} className={`min-h-28 w-full rounded-xl border p-3 text-sm ${isDark ? 'border-neutral-700 bg-[#1c1b18]' : 'border-slate-300 bg-white'}`} />
+        <textarea id="content-case-reason" aria-describedby="content-case-hint" required minLength={10} maxLength={1000} disabled={sending} value={reason} onChange={(event) => setReason(event.target.value)} className={`min-h-28 w-full rounded-xl border p-3 text-sm ${isDark ? 'border-neutral-700 bg-charcoal-inset' : 'border-slate-300 bg-white'}`} />
         <div id="content-case-hint" className="servicehub-dialog__hint">Enter at least 10 characters.</div>
         <div className="servicehub-dialog__actions"><button type="button" onClick={close} disabled={sending} className="rounded-xl border px-4 py-2 text-sm font-semibold">Cancel</button><button type="submit" data-dialog-action={caseType === 'REPORT' ? 'danger' : 'warning'} disabled={sending || reason.trim().length < 10} className={`rounded-xl px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed ${submitTone}`}>{sending ? 'Sending…' : caseType === 'REPORT' ? 'Send report' : 'Send appeal'}</button></div>
       </form>

@@ -66,7 +66,7 @@ export default function OnboardingDialog({ user, workspace, isDark, saving, onSk
   ][step];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/65 p-3 backdrop-blur-sm sm:p-6" role="presentation">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/65 p-3 backdrop-blur-sm sm:p-6" role="presentation">
       <div
         ref={dialogRef}
         role="dialog"
@@ -74,7 +74,7 @@ export default function OnboardingDialog({ user, workspace, isDark, saving, onSk
         aria-labelledby="onboarding-title"
         aria-describedby="onboarding-description"
         onKeyDown={handleKeyDown}
-        className={`flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border shadow-2xl sm:max-h-[calc(100dvh-3rem)] ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}
+        className={`flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border shadow-2xl sm:max-h-[calc(100dvh-3rem)] ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}
       >
         <div ref={titleFocusRef} tabIndex={-1} className="sr-only">ServiceHub first-time orientation</div>
         <header className="border-b border-slate-200 px-5 py-4 dark:border-neutral-800 sm:px-6">
@@ -84,7 +84,7 @@ export default function OnboardingDialog({ user, workspace, isDark, saving, onSk
               <p className="mt-1 text-xs text-ink-muted dark:text-ink-muted">{step + 1} of {TOTAL_STEPS}</p>
             </div>
             <div className="flex items-center gap-1.5" role="progressbar" aria-label="Onboarding progress" aria-valuemin={1} aria-valuemax={TOTAL_STEPS} aria-valuenow={step + 1}>
-              {Array.from({ length: TOTAL_STEPS }, (_, index) => <span key={index} className={`h-1.5 rounded-full transition-all ${index <= step ? 'w-7 bg-slate-900 dark:bg-neutral-100' : 'w-4 bg-slate-200 dark:bg-neutral-700'}`} />)}
+              {Array.from({ length: TOTAL_STEPS }, (_, index) => <span key={index} className={`h-1.5 rounded-full transition-all ${index <= step ? 'w-7 bg-charcoal dark:bg-neutral-100' : 'w-4 bg-slate-200 dark:bg-charcoal'}`} />)}
             </div>
           </div>
         </header>

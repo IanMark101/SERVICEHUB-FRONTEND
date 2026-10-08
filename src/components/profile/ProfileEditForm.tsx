@@ -111,7 +111,7 @@ export default function ProfileEditForm({
           <div className="relative">
             <input
               disabled={hasActiveEngagements}
-              className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-8' : ''}`}
+              className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-charcoal pr-8' : ''}`}
               value={editForm.phone}
               onChange={e => setEditForm((form) => ({ ...form, phone: e.target.value }))}
               placeholder="+63 9XX XXX XXXX"
@@ -154,7 +154,7 @@ export default function ProfileEditForm({
             rows={3}
             value={editForm.bio}
             onChange={e => setEditForm((form) => ({ ...form, bio: e.target.value }))}
-            placeholder="Tell clients or providers about your background, experience, and services..."
+            placeholder="Tell service seekers or providers about your background, experience, and services..."
           />
         </div>
 
@@ -168,7 +168,7 @@ export default function ProfileEditForm({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={processingImage}
-                className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-[24%] bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-[24%] bg-charcoal/40 text-white opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                 title="Change Photo"
               >
                 <Camera size={20} />

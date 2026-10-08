@@ -9,7 +9,7 @@ import UserAvatar from "../ui/UserAvatar";
 export default function AdminProfileView({ user }: { user: UserSession }) {
   const { isDark } = useApp();
   const displayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || "Administrator";
-  const cardClass = isDark ? "border-neutral-800 bg-[#22211e]" : "border-slate-200 bg-white";
+  const cardClass = isDark ? "border-neutral-800 bg-charcoal-surface" : "border-slate-200 bg-white";
   const labelClass = isDark ? "text-ink-subtle" : "text-ink-muted";
 
   return (
@@ -45,8 +45,8 @@ export default function AdminProfileView({ user }: { user: UserSession }) {
         <section className={`rounded-2xl border p-5 shadow-sm ${cardClass}`}>
           <h4 className="flex items-center gap-2 text-sm font-extrabold"><ShieldCheck className="h-4 w-4 text-[var(--admin-accent)]" /> Administrative Status</h4>
           <div className="mt-4 space-y-3 text-xs">
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-700 dark:bg-[#1a1a1a]"><span className={labelClass}>Account</span><span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400"><CheckCircle2 className="h-3.5 w-3.5" /> {user.isActive === false ? "Inactive" : "Active"}</span></div>
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-700 dark:bg-[#1a1a1a]"><span className={labelClass}>Email verification</span><span className="font-bold">{user.emailVerified === false ? "Not verified" : "Verified"}</span></div>
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-700 dark:bg-charcoal"><span className={labelClass}>Account</span><span className="flex items-center gap-1.5 font-bold text-emerald-600 dark:text-emerald-400"><CheckCircle2 className="h-3.5 w-3.5" /> {user.isActive === false ? "Inactive" : "Active"}</span></div>
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-neutral-700 dark:bg-charcoal"><span className={labelClass}>Email verification</span><span className="font-bold">{user.emailVerified === false ? "Not verified" : "Verified"}</span></div>
             <p className={`flex items-start gap-2 text-[10px] leading-4 ${labelClass}`}><FileClock className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Privileged moderation activity is recorded separately in the immutable Admin Audit Log.</p>
             <Link href="/admin/audit-logs" className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[var(--admin-accent)] underline-offset-4 hover:underline">Open Audit Log</Link>
           </div>

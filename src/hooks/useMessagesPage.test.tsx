@@ -5,6 +5,7 @@ import { apiGetConversationGroups, apiGetConversationGroupForBooking, apiGetMess
 import { useApp } from '../context/AppContext';
 import { useMessagesPage } from './useMessagesPage';
 import { BookingThreads, PeopleInbox } from '../components/messages/ConversationNavigation';
+import { invalidateApiCache } from '../lib/api/responseCache';
 
 vi.mock('next/navigation', () => ({ useSearchParams: vi.fn() }));
 vi.mock('../context/AppContext', () => ({ useApp: vi.fn() }));
@@ -57,6 +58,23 @@ describe('message pane scrolling', () => {
 
     expect(screen.getByTestId('message-pane')).toBeInTheDocument();
     expect(HTMLElement.prototype.scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('coalesces a booking system-message burst into one inbox read', async () => {
+    render(<MessagePane />);
+    await waitFor(() => expect(apiGetConversationGroups).toHaveBeenCalledTimes(1));
+    vi.mocked(apiGetConversationGroups).mockClear();
+    const unread = vi.mocked(useApp).mock.results[0].value.syncUnreadMessages;
+    act(() => {
+      // The shared socket catch-all invalidates before feature listeners run.
+      for (const event of ['new_message', 'message_notification']) {
+        invalidateApiCache(['messages', 'notifications'], 'socket');
+        socketHandlers.get(event)?.({ id: 'system', bookingId: 'booking', isSystem: true, content: 'Booking cancelled.' });
+      }
+    });
+    expect(apiGetConversationGroups).not.toHaveBeenCalled();
+    await waitFor(() => expect(apiGetConversationGroups).toHaveBeenCalledTimes(1));
+    expect(unread).not.toHaveBeenCalled();
   });
 
   it('leaves older messages in view when a new message arrives', async () => {

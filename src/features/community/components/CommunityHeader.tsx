@@ -88,7 +88,7 @@ export function CommunitySectionNav({ isDark = false }: CommunityHeaderProps) {
     <nav
       aria-label="Community sections"
       className={`sticky top-14 sm:top-20 z-30 max-w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-2xl p-1 sm:p-1.5 backdrop-blur-md touch-pan-x transition-all ${
-        isDark ? 'bg-[#1c1b18]/90 border border-neutral-800/80 shadow-lg' : 'bg-white/90 border border-slate-200/80 shadow-xs'
+        isDark ? 'bg-charcoal-inset/90 border border-neutral-800/80 shadow-lg' : 'bg-white/90 border border-slate-200/80 shadow-xs'
       }`}
     >
       <div className="flex w-max min-w-full items-center gap-1 sm:justify-start">
@@ -106,7 +106,7 @@ export function CommunitySectionNav({ isDark = false }: CommunityHeaderProps) {
                     ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-xs'
                     : 'bg-orange-50 text-orange-700 border border-orange-200 shadow-xs'
                   : isDark
-                    ? 'text-ink-subtle hover:bg-neutral-800/60 hover:text-white border border-transparent'
+                    ? 'text-ink-subtle hover:bg-charcoal/60 hover:text-white border border-transparent'
                     : 'text-ink-muted hover:bg-slate-100/70 hover:text-ink border border-transparent'
               }`}
             >

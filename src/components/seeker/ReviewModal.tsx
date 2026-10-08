@@ -74,14 +74,14 @@ export default function ReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200 select-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200 select-none">
       <div className={`viewport-dialog-scroll rounded-[24px] max-w-md w-full overflow-hidden shadow-2xl border animate-in zoom-in-95 duration-200 ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+        isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
       }`}>
         
         {/* Header */}
         <div className={`p-5 border-b flex justify-between items-center ${
-          isDark ? 'border-neutral-850 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'
+          isDark ? 'border-neutral-850 bg-charcoal-inset/45' : 'border-slate-100 bg-slate-50/50'
         }`}>
           <div>
             <h3 className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>
@@ -94,7 +94,7 @@ export default function ReviewModal({
           <button
             onClick={onClose}
             className={`p-1.5 rounded-lg border transition-colors ${
-              isDark ? 'border-neutral-800 hover:bg-slate-800 text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'
+              isDark ? 'border-neutral-800 hover:bg-charcoal text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'
             }`}
           >
             <X className="w-4 h-4" />
@@ -161,7 +161,7 @@ export default function ReviewModal({
                             ? 'bg-orange-500/15 border-orange-500/30 text-orange-400'
                             : 'bg-orange-50 border-orange-200 text-orange-600'
                         : isDark
-                          ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted hover:bg-[#2c2b27]'
+                          ? 'bg-charcoal-inset border-neutral-800 text-ink-muted hover:bg-charcoal-hover'
                           : 'bg-slate-50 border-slate-200 text-ink-muted hover:bg-slate-100'
                     }`}
                   >
@@ -188,7 +188,7 @@ export default function ReviewModal({
               }
               className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed transition-all ${
                 isDark
-                  ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-neutral-700'
+                  ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-neutral-700'
                   : 'bg-slate-50 border-slate-300 text-ink focus:border-slate-400 focus:bg-white'
               }`}
             />

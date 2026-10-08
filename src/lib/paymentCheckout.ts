@@ -4,9 +4,15 @@ export interface PendingGcashCheckout {
   offerId?: string;
   paymentIntentId: string;
   redirectUrl?: string;
+  quantity?: number;
+  title?: string;
+  providerName?: string;
+  expectedAmount?: number;
 }
 
 const CHECKOUT_KEY = 'servicehub:pending-gcash-checkout';
+export const GCASH_CHECKOUT_EVENT = 'servicehub:gcash-checkout';
+let memoryCheckout: PendingGcashCheckout | null = null;
 
 export function paymentReturnPath(paymentIntentId: string) {
   return `/seeker/payment-return?payment_intent_id=${encodeURIComponent(paymentIntentId)}`;
@@ -33,28 +39,59 @@ export function isPayMongoCheckoutUrl(value: string | undefined): value is strin
 }
 
 export function rememberGcashCheckout(checkout: PendingGcashCheckout) {
-  localStorage.setItem(CHECKOUT_KEY, JSON.stringify(checkout));
-  // Older in-flight checkouts still use these keys, but a new attempt must
-  // not let Activity later reconcile an unrelated stale intent.
-  localStorage.removeItem('pending_payment_intent_id');
-  localStorage.removeItem('pending_service_id');
-  localStorage.removeItem('pending_offer_id');
+  memoryCheckout = checkout;
+  try {
+    localStorage.setItem(CHECKOUT_KEY, JSON.stringify(checkout));
+    // Older in-flight checkouts still use these keys, but a new attempt must
+    // not let Activity later reconcile an unrelated stale intent.
+    localStorage.removeItem('pending_payment_intent_id');
+    localStorage.removeItem('pending_service_id');
+    localStorage.removeItem('pending_offer_id');
+  } catch { /* The open dialog still works when browser storage is unavailable. */ }
+  window.dispatchEvent(new CustomEvent(GCASH_CHECKOUT_EVENT, { detail: checkout }));
 }
 
-export function readGcashCheckout(seekerId: string, paymentIntentId: string): PendingGcashCheckout | null {
+export function readPendingGcashCheckout(seekerId: string): PendingGcashCheckout | null {
   try {
     const stored = JSON.parse(localStorage.getItem(CHECKOUT_KEY) || 'null') as PendingGcashCheckout | null;
-    return stored?.seekerId === seekerId && stored.paymentIntentId === paymentIntentId ? stored : null;
+    return stored?.seekerId === seekerId && typeof stored.paymentIntentId === 'string' ? stored : null;
   } catch {
-    return null;
+    return memoryCheckout?.seekerId === seekerId ? memoryCheckout : null;
   }
 }
 
+export function readGcashCheckout(seekerId: string, paymentIntentId: string): PendingGcashCheckout | null {
+  const stored = readPendingGcashCheckout(seekerId);
+  return stored?.paymentIntentId === paymentIntentId ? stored : null;
+}
+
 export function clearGcashCheckout(paymentIntentId: string) {
+  if (memoryCheckout?.paymentIntentId === paymentIntentId) memoryCheckout = null;
   try {
     const stored = JSON.parse(localStorage.getItem(CHECKOUT_KEY) || 'null') as PendingGcashCheckout | null;
     if (stored?.paymentIntentId === paymentIntentId) localStorage.removeItem(CHECKOUT_KEY);
   } catch {
-    localStorage.removeItem(CHECKOUT_KEY);
+    // Storage may be blocked; server verification is still authoritative.
   }
+  window.dispatchEvent(new CustomEvent(GCASH_CHECKOUT_EVENT));
+}
+
+// Reserve the tab during the user's click, before awaiting the API. Browsers
+// may block it; the status dialog always provides an ordinary checkout link.
+export function prepareGcashWindow(): Window | null {
+  try {
+    const popup = window.open('about:blank', '_blank');
+    if (popup) {
+      popup.opener = null;
+      popup.document.title = 'Opening GCash checkout';
+      popup.document.body.textContent = 'Preparing your GCash checkout…';
+    }
+    return popup;
+  } catch { return null; }
+}
+
+export function navigateGcashWindow(popup: Window | null, redirectUrl?: string) {
+  if (!popup) return;
+  if (!isPayMongoCheckoutUrl(redirectUrl)) { popup.close(); return; }
+  try { popup.location.replace(redirectUrl); } catch { popup.close(); }
 }

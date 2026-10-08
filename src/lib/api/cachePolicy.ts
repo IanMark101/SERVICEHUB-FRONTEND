@@ -50,11 +50,21 @@ export function getCachePolicy(path: string): CachePolicy | null {
  * a review changes the profile, trust display and generated summary. */
 export function mutationResources(path: string): CacheResource[] {
   if (/^\/admin(?:\/|$)/.test(path)) return ALL_CACHE_RESOURCES;
+  if (/^\/bookings\/queue\/[^/]+\/start$/.test(path)) return bookingTransitionResources('started');
+  if (/^\/bookings\/queue\/[^/]+\/complete$/.test(path)) return bookingTransitionResources('awaiting_confirmation');
+  if (/^\/bookings\/(?:completed\/)?[^/]+\/confirm$/.test(path)) return bookingTransitionResources('completed');
+  if (/^\/bookings\/direct$/.test(path)) return bookingTransitionResources('created');
+  if (/^\/bookings\/direct\/[^/]+\/respond$/.test(path)) return bookingTransitionResources('accepted');
+  if (path === '/bookings/direct-from-offer') return bookingTransitionResources('accepted_offer');
+  if (/^\/bookings\/[^/]+\/hide$/.test(path)) return bookingTransitionResources('hidden');
+  if (/^\/bookings\/[^/]+\/(dispute|reports)$/.test(path)) return bookingTransitionResources('disputed');
+  if (/^\/bookings\/[^/]+\/completion-escalations$/.test(path)) return bookingTransitionResources('completion_escalated');
+  if (/^\/bookings\/cancellation-requests\/[^/]+\/escalate$/.test(path)) return bookingTransitionResources('cancellation_escalated');
   if (/^\/bookings(?:\/|$)/.test(path)) return ['bookings', 'services', 'requests', 'offers', 'transactions', 'notifications', 'messages', 'profiles', 'community', 'admin'];
   if (/^\/offers(?:\/|$)/.test(path)) return ['offers', 'requests', 'bookings', 'notifications', 'admin'];
   if (/^\/requests(?:\/|$)/.test(path)) return ['requests', 'offers', 'community', 'admin'];
   if (/^\/services(?:\/|$)/.test(path)) return ['services', 'community', 'profiles', 'summaries', 'admin'];
-  if (/^\/reviews(?:\/|$)/.test(path)) return ['reviews', 'profiles', 'summaries', 'services', 'community', 'admin'];
+  if (/^\/reviews(?:\/|$)/.test(path)) return bookingTransitionResources('reviewed');
   if (/^\/messages(?:\/|$)/.test(path)) return ['messages', 'notifications'];
   if (/^\/notifications(?:\/|$)/.test(path)) return ['notifications'];
   if (/^\/categories(?:\/|$)/.test(path)) return ['categories', 'community', 'admin'];
@@ -64,11 +74,31 @@ export function mutationResources(path: string): CacheResource[] {
   return [];
 }
 
-export function socketResources(event: string): CacheResource[] {
+function bookingTransitionResources(type?: string): CacheResource[] {
+  if (type === 'created') return ['bookings', 'notifications', 'admin'];
+  // Direct responses include declines and refunds of legacy paid requests.
+  if (type === 'accepted' || type === 'declined') return ['bookings', 'services', 'transactions', 'notifications', 'messages', 'admin'];
+  if (type === 'accepted_offer' || type === 'queue_created') return ['bookings', 'services', 'requests', 'offers', 'transactions', 'notifications', 'messages', 'admin'];
+  if (type === 'offer_not_selected') return ['offers', 'notifications', 'admin'];
+  if (type === 'hidden') return ['bookings', 'messages'];
+  if (type === 'disputed' || type === 'safety_report') return ['bookings', 'notifications', 'admin'];
+  if (['completion_escalated', 'cancellation_requested', 'cancellation_declined', 'cancellation_escalated', 'cancellation_processing'].includes(type || '')) return ['bookings', 'notifications', 'admin'];
+  if (type === 'reviewed') return ['bookings', 'reviews', 'profiles', 'summaries', 'services', 'community', 'notifications', 'admin'];
+  if (type === 'started') return ['bookings', 'services', 'notifications', 'messages', 'admin'];
+  if (type === 'awaiting_confirmation') return ['bookings', 'services', 'notifications', 'admin'];
+  if (type === 'provider_queue_changed') return ['bookings', 'services', 'admin'];
+  if (type === 'completed') return ['bookings', 'requests', 'transactions', 'notifications', 'messages', 'profiles', 'community', 'admin'];
+  return mutationResources('/bookings');
+}
+
+export function socketResources(event: string, payload?: unknown): CacheResource[] {
   if (event.startsWith('SERVICE_REQUEST')) return ['requests', 'offers', 'community', 'admin'];
   if (event.startsWith('SERVICE_LISTING')) return ['services', 'community', 'profiles', 'summaries', 'admin'];
   if (event === 'OFFERS_CHANGED') return ['offers', 'requests', 'notifications'];
-  if (event === 'ENGAGEMENT_CHANGED' || event === 'queue_update') return mutationResources('/bookings');
+  if (event === 'ENGAGEMENT_CHANGED') return bookingTransitionResources(
+    payload && typeof payload === 'object' && 'type' in payload && typeof payload.type === 'string' ? payload.type : undefined,
+  );
+  if (event === 'queue_update') return ['bookings', 'services'];
   if (event === 'notification') return ['notifications', 'profiles', 'reviews', 'summaries', 'admin'];
   if (event === 'new_message' || event === 'message_notification') return ['messages', 'notifications'];
   if (event === 'COMMUNITY_CATEGORIES_CHANGED') return ['categories', 'community', 'admin'];

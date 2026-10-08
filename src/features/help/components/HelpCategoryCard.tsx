@@ -37,7 +37,7 @@ export default function HelpCategoryCard({ category, articleCount }: HelpCategor
       href={`/help/${category.slug}`}
       className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-black/8 py-4 text-ink transition-colors last:border-b-0 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/10 dark:text-white"
     >
-      <span className="grid size-10 place-items-center rounded-xl bg-[#f5f4f2] text-[#c86544] transition-colors group-hover:bg-[#f5ebe6] dark:bg-white/[0.06] dark:text-[#e18463]">
+      <span className="grid size-10 place-items-center rounded-xl bg-[#f5f4f2] text-[#c86544] transition-colors group-hover:bg-[#f5ebe6] dark:bg-charcoal dark:text-[#e18463]">
         <IconComponent size={19} weight="regular" aria-hidden="true" />
       </span>
       <span className="min-w-0">

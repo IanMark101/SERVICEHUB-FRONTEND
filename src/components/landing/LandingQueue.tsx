@@ -53,7 +53,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
             See how a paid booking moves from payment to its place in the provider&apos;s workload.
           </p>
 
-          <div className="mt-8 flex gap-3.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/70">
+          <div className="mt-8 flex gap-3.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70">
             <LockKeyhole className="mt-0.5 size-5 shrink-0 text-[#c86544]" />
             <div>
               <p className="text-xs font-bold text-[#0a0a0a] dark:text-white">
@@ -67,7 +67,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
         </ScrollReveal>
 
         {/* Right Column: Queue Stages Breakdown */}
-        <ScrollReveal direction="right" className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+        <ScrollReveal direction="right" className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-charcoal sm:p-8">
           <div className="space-y-3.5">
             {queueStages.map((item, index) => {
               const Icon = item.icon;
@@ -78,9 +78,9 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
                   whileInView={shouldReduceMotion ? { opacity: 1, x: 0 } : { opacity: [0.8, 1], x: [18, 0] }}
                   viewport={{ once: false, amount: 0.7 }}
                   transition={{ duration: 0.5, delay: 0.14 + index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-zinc-950/40"
+                  className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-charcoal/40"
                 >
-                  <div className="grid size-11 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
+                  <div className="grid size-11 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-charcoal dark:text-orange-400">
                     <Icon size={20} />
                   </div>
                   <div>

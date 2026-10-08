@@ -9,17 +9,18 @@ import FormalSelect from '../ui/FormalSelect';
 import ListingTitleInput from '../ui/ListingTitleInput';
 import PaymentMethodCheckboxes from '../ui/PaymentMethodCheckboxes';
 import { isRequestUrgency, REQUEST_URGENCY_OPTIONS } from '../../lib/requestUrgency';
+import type { RequestRepostTemplate } from '../../api/requests.api';
 
-export default function PostRequest({ appealRequestId = '' }: { appealRequestId?: string }) {
+export default function PostRequest({ appealRequestId = '', initialTemplate }: { appealRequestId?: string; initialTemplate?: RequestRepostTemplate }) {
   const { user, postJobRequest, isDark, dbCategories } = useApp();
   const { canTransact, navigateToVerification } = useTransactionPermission();
   const { error } = useToast();
-  const [title, setTitle] = useState<string>('');
-  const [category, setCategory] = useState<string>('');
+  const [title, setTitle] = useState<string>(initialTemplate?.title ?? '');
+  const [category, setCategory] = useState<string>(initialTemplate?.categoryId ?? '');
   const [urgency, setUrgency] = useState<string>('');
-  const [budget, setBudget] = useState<number>(500);
-  const [description, setDescription] = useState<string>('');
-  const [paymentMethods, setPaymentMethods] = useState({ cash: true, gcash: true });
+  const [budget, setBudget] = useState<number>(initialTemplate?.budget ?? 500);
+  const [description, setDescription] = useState<string>(initialTemplate?.description ?? '');
+  const [paymentMethods, setPaymentMethods] = useState(initialTemplate ? initialTemplate.paymentMethods ?? { cash: false, gcash: false } : { cash: true, gcash: true });
   const hasPaymentMethod = paymentMethods.cash || paymentMethods.gcash;
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -80,7 +81,7 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
     <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       {/* Form Container Card */}
-      <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+      <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-300'
         }`}>
 
         {/* Header */}
@@ -91,13 +92,19 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
           </div>
           <div>
             <h2 className={`text-base font-extrabold leading-none ${isDark ? 'text-white' : 'text-ink'}`}>
-              Post a Request
+              {initialTemplate ? 'Repost a Request' : 'Post a Request'}
             </h2>
             <p className={`text-[10px] mt-1 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
-              Broadcast your task requirements to all local verified providers.
+              {initialTemplate ? 'Review your copied details and choose when you need the service again.' : 'Broadcast your task requirements to all local verified providers.'}
             </p>
           </div>
         </div>
+
+        {initialTemplate && !success && <div className={`mb-6 rounded-xl border p-4 text-sm leading-6 ${isDark ? 'border-orange-800 bg-orange-950/40 text-orange-200' : 'border-orange-200 bg-orange-50 text-orange-900'}`}>
+          <p>Posting creates a new request with fresh offers. Your completed booking stays in Activity.</p>
+          {!initialTemplate.categoryId && <p className="mt-2">{initialTemplate.categoryName} is no longer available. Choose an active category.</p>}
+          {!initialTemplate.paymentMethods && <p className="mt-2">Choose your accepted payment methods before posting.</p>}
+        </div>}
 
         {/* Verification Required Alert Block */}
         {!canTransact && (
@@ -147,7 +154,7 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
                 aria-invalid={moderationError?.field === 'title'}
                 aria-describedby={moderationError?.field === 'title' ? 'request-title-policy-error' : undefined}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                    ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-orange-500/80'
                     : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                   } ${moderationError?.field === 'title' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
@@ -171,7 +178,7 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
                 aria-invalid={moderationError?.field === 'description'}
                 aria-describedby={moderationError?.field === 'description' ? 'request-description-policy-error' : undefined}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500'
+                    ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-orange-500'
                     : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                   } ${moderationError?.field === 'description' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
@@ -222,7 +229,7 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
                   onChange={(e) => setUrgency(e.target.value)}
                   aria-describedby="request-urgency-help"
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-orange-500/80'
                       : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
                 >
@@ -249,7 +256,7 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
                   value={budget}
                   onChange={(e) => setBudget(Number(e.target.value))}
                   className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${isDark
-                      ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-orange-500/80'
+                      ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-orange-500/80'
                       : 'bg-white border-slate-300 text-ink-secondary focus:border-orange-500'
                     } ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
                 />
@@ -264,7 +271,7 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
                 disabled={loading || !canTransact || !hasPaymentMethod}
                 className={`w-full py-3.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 ${
                   !canTransact
-                    ? 'bg-neutral-500 cursor-not-allowed opacity-50'
+                    ? 'bg-neutral-500 dark:bg-charcoal cursor-not-allowed opacity-50'
                     : 'bg-orange-600 hover:bg-orange-700 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed'
                 }`}
               >
@@ -278,7 +285,7 @@ export default function PostRequest({ appealRequestId = '' }: { appealRequestId?
       </div>
 
       {/* Form Note Box */}
-      <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-ink-muted' : 'bg-slate-50 border-slate-300 text-ink-muted'
+      <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-charcoal-inset border-neutral-800/80 text-ink-muted' : 'bg-slate-50 border-slate-300 text-ink-muted'
         }`}>
         <Info className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
         <div><p className="text-[10px] leading-relaxed">

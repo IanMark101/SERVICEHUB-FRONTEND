@@ -6,7 +6,7 @@ import { apiDecideBanAppeal, apiListBanAppeals } from '@/api/admin.api';
 import { invalidateApiCache } from '@/lib/api/responseCache';
 import { getApiErrorMessage } from '@/lib/api/errors';
 import { useToast } from '@/components/ui/Toast';
-import BanAppealsView, { type AdminAppeal } from './BanAppealsView';
+import BanAppealsView, { type AdminAppeal, type AppealSelection } from './BanAppealsView';
 
 export type { AdminAppeal } from './BanAppealsView';
 
@@ -20,7 +20,7 @@ export default function AdminBanAppeals({ onDecision, initialView = 'pending', o
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selected, setSelected] = useState<{ appeal: AdminAppeal; decision: 'APPROVED' | 'REJECTED' } | null>(null);
+  const [selected, setSelected] = useState<AppealSelection | null>(null);
   const [reason, setReason] = useState('');
   const [saving, setSaving] = useState(false);
   const [decisionError, setDecisionError] = useState('');
@@ -40,10 +40,10 @@ export default function AdminBanAppeals({ onDecision, initialView = 'pending', o
   useApiCacheRefresh(['admin'], load, !saving && !selected);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 0); return () => { window.clearTimeout(timer); invalidate(); }; }, [load, invalidate]);
   const close = useCallback(() => { if (saving) return; setSelected(null); setReason(''); setDecisionError(''); }, [saving]);
-  const dialogRef = useDialogFocus(Boolean(selected), saving, close);
+  const dialogRef = useDialogFocus(Boolean(selected), saving, close, 'dialog');
   const decide = async (event: FormEvent) => {
     event.preventDefault();
-    if (!selected || reason.trim().length < 3 || saving) return;
+    if (!selected || !selected.decision || selected.appeal.status !== 'PENDING' || selected.appeal.user.moderationStatus !== 'BANNED' || reason.trim().length < 3 || saving) return;
     setSaving(true); setDecisionError('');
     try {
       await apiDecideBanAppeal(selected.appeal.id, selected.decision, reason.trim());

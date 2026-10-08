@@ -5,12 +5,20 @@
  */
 export function resolveNotificationLink(
   rawLink: string | null | undefined,
-  currentRole: 'seeker' | 'provider' | 'admin'
+  currentRole: 'seeker' | 'provider' | 'admin',
+  currentUserId?: string,
+  notificationTitle?: string,
 ): string | null {
   if (!rawLink) return null;
 
   let link = rawLink.trim();
   if (!link) return null;
+
+  // Existing verification decisions still carry the old public-profile link.
+  // Keep those alerts useful without changing any stored notification records.
+  if (currentRole !== 'admin' && /^verification (approved|rejected)$/i.test(notificationTitle?.trim() || '')) {
+    return '/account/settings#verification';
+  }
 
   // Normalize legacy or un-slashed bare links
   if (!link.startsWith('/')) {
@@ -48,6 +56,24 @@ export function resolveNotificationLink(
     link = `/${currentRole}/user-profile`;
   } else if (link.startsWith('/settings')) {
     link = link.replace('/settings', `/${currentRole}/account-settings`);
+  }
+
+  // Older review notifications use the workspace profile alias. Go directly
+  // to the canonical profile so opening a review does not mount a redirect page.
+  if (/^\/(seeker|provider)\/user-profile(?:\?|#|$)/.test(link)) {
+    const destination = new URL(link, 'https://servicehub.invalid');
+    const targetId = destination.searchParams.get('id') || currentUserId;
+    const tab = destination.searchParams.get('verify') === 'true'
+      ? 'verification'
+      : destination.searchParams.get('tab');
+    if (tab === 'settings') return '/account/settings';
+    if (targetId) {
+      destination.searchParams.delete('id');
+      destination.searchParams.delete('verify');
+      if (tab) destination.searchParams.set('tab', tab);
+      const query = destination.searchParams.toString();
+      return `/profile/${encodeURIComponent(targetId)}${query ? `?${query}` : ''}${destination.hash}`;
+    }
   }
 
   // Explicit absolute links are authoritative. A provider notification may be

@@ -12,6 +12,18 @@ const queued: ActivityFeedEntry = {
 };
 
 describe('Activity overview', () => {
+  it.each(['seeker', 'provider'] as const)('keeps the %s work underway card tinted at rest and on hover', (tone) => {
+    const entry = { ...queued, group: 'work_underway' as const, queueOverview: false, status: 'Work is underway' };
+    const onOpen = vi.fn();
+    render(<ActivityFeed entries={[entry]} tone={tone} onOpen={onOpen} />);
+    const card = screen.getByRole('button', { name: 'Open booking House Cleaning: Work is underway' });
+    const color = tone === 'provider' ? 'emerald' : 'orange';
+    expect(card).toHaveClass(`bg-${color}-100`, `hover:bg-${color}-200/60`, `dark:bg-${color}-950/60`, `dark:hover:bg-${color}-900/40`);
+    expect(card).not.toHaveClass('bg-white');
+    fireEvent.click(card);
+    expect(onOpen).toHaveBeenCalledWith(entry);
+  });
+
   it.each(['seeker', 'provider'] as const)('never infers completed from terminal history for %s', (tone) => {
     render(<ActivityFeed entries={[
       { ...queued, id: 'cancel', group: 'history', outcome: 'canceled', status: 'This booking was canceled' },

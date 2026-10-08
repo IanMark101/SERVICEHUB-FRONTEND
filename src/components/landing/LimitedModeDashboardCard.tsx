@@ -54,7 +54,7 @@ export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardC
         title="Dismiss for this session"
         className={`absolute top-4 right-4 p-1 rounded-lg transition-colors ${
           isDark
-            ? 'hover:bg-neutral-800/40 text-neutral-400'
+            ? 'hover:bg-charcoal/40 text-neutral-400'
             : 'hover:bg-slate-100 text-slate-400 hover:text-slate-700'
         }`}
       >

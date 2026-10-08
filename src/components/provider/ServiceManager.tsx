@@ -224,7 +224,7 @@ export default function ServiceManager({
 
       {/* Services List */}
       {filteredServices.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
+        <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${isDark ? 'bg-charcoal-surface border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
           }`}>
           {activeTab === 'rejected'
             ? 'No services need changes.'
@@ -251,8 +251,8 @@ export default function ServiceManager({
                   } ${
                     isDark
                       ? isRejected
-                        ? 'bg-[#22211e] border-red-900/40'
-                        : 'bg-[#22211e] border-neutral-800/80 hover:border-neutral-700'
+                        ? 'bg-charcoal-surface border-red-900/40'
+                        : 'bg-charcoal-surface border-neutral-800/80 hover:border-neutral-700'
                       : isRejected
                       ? 'bg-red-50/25 border-red-200'
                       : 'bg-white border-slate-200 hover:border-slate-300'
@@ -286,7 +286,7 @@ export default function ServiceManager({
                           isRejected
                             ? 'bg-red-600 text-white hover:bg-red-700 border-red-600 shadow-sm'
                             : isDark
-                            ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted hover:text-white'
+                            ? 'border-neutral-800 hover:bg-charcoal-hover text-ink-muted hover:text-white'
                             : 'border-slate-200 hover:bg-slate-50 text-ink-muted hover:text-ink'
                         }`}
                       >
@@ -318,7 +318,7 @@ export default function ServiceManager({
                               className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none ${
                                 isToggling ? 'opacity-80 cursor-wait' : 'cursor-pointer'
                               } ${
-                                !needsExactPrice && !isPaused ? 'bg-emerald-500' : isDark ? 'bg-neutral-800' : 'bg-slate-300'
+                                !needsExactPrice && !isPaused ? 'bg-emerald-500' : isDark ? 'bg-charcoal' : 'bg-slate-300'
                               }`}
                             >
                               <span
@@ -384,17 +384,17 @@ export default function ServiceManager({
                     {/* Metadata Pills */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
+                        isDark ? 'bg-charcoal-inset border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
                         <Timer className="h-3.5 w-3.5" weight="duotone" /> {service.estimatedDurationMins ? `${service.estimatedDurationMins}m Duration` : '60m Duration'}
                       </span>
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
+                        isDark ? 'bg-charcoal-inset border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
                         <UsersThree className="h-3.5 w-3.5" weight="duotone" /> {service.providerWaitingCount ?? service.queueSize ?? 0} paid waiting across your work
                       </span>
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold border inline-flex items-center gap-1 ${
-                        isDark ? 'bg-[#1c1b18] border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
+                        isDark ? 'bg-charcoal-inset border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
                         <Money className="h-3.5 w-3.5" weight="duotone" /> Cash
                       </span>
@@ -416,7 +416,7 @@ export default function ServiceManager({
                         <span className="font-extrabold text-xs uppercase tracking-wider">What to fix:</span>
                       </div>
                       <p className={`text-xs sm:text-sm p-3 rounded-xl border leading-relaxed font-semibold italic ${
-                        isDark ? 'bg-[#1c1b18] border-red-900/30 text-white' : 'bg-white border-red-100 text-ink'
+                        isDark ? 'bg-charcoal-inset border-red-900/30 text-white' : 'bg-white border-red-100 text-ink'
                       }`}>
                         &quot;{service.adminNotes || 'Check your service details, then save to publish.'}&quot;
                       </p>

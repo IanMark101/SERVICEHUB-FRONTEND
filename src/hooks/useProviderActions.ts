@@ -22,6 +22,7 @@ import {
 } from '../api/bookings.api';
 import { useToast } from '../components/ui/Toast';
 import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
+import type { BookingActionResult } from '../lib/bookingActionUpdate';
 
 interface ProviderActionsDeps {
   users: User[];
@@ -36,6 +37,7 @@ interface ProviderActionsDeps {
   syncEngagements: () => Promise<void>;
   syncNotifications: () => Promise<void>;
   syncBids: () => Promise<void>;
+  applyBookingAction: (result: BookingActionResult) => void;
   helperAddNotification: (userId: string, title: string, desc: string) => void;
 }
 
@@ -43,8 +45,7 @@ export function useProviderActions({
   dbCategories,
   setServices,
   setBids,
-  syncEngagements,
-  syncNotifications,
+  applyBookingAction,
 }: ProviderActionsDeps) {
   const { success, error: toastError, info } = useToast();
   const submissions = React.useRef(new Set<string>());
@@ -239,8 +240,7 @@ export function useProviderActions({
     try {
       const res = await apiRespondDirectRequest(jobId, accept);
       if (res.success) {
-        await syncEngagements();
-        await syncNotifications();
+        if (res.data) applyBookingAction(res.data);
         success(accept ? 'Booking Accepted' : 'Booking Declined', 'Seeker has been notified.');
         return;
       }
@@ -254,8 +254,7 @@ export function useProviderActions({
     try {
       const res = await apiCompleteJob(jobId);
       if (res.success) {
-        await syncEngagements();
-        await syncNotifications();
+        if (res.data) applyBookingAction(res.data);
         success('Work marked finished', 'Waiting for the seeker to confirm that the work is complete.');
         return;
       }
@@ -269,7 +268,7 @@ export function useProviderActions({
     try {
       const res = await apiStartJob(id);
       if (res.success) {
-        await syncEngagements();
+        if (res.data) applyBookingAction(res.data);
         success('Job started', 'This booking is now in progress.');
       }
     } catch (err: unknown) {

@@ -113,7 +113,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
 
         {/* Interactive Workspace Switcher Pills */}
         <div className="mt-7 flex items-center">
-          <div className="relative inline-flex rounded-2xl border border-black/[0.08] bg-black/[0.03] p-1.5 dark:border-white/10 dark:bg-neutral-900/60 shadow-inner">
+          <div className="relative inline-flex rounded-2xl border border-black/[0.08] bg-charcoal/[0.03] p-1.5 dark:border-white/10 dark:bg-charcoal/60 shadow-inner">
             <button
               type="button"
               onClick={() => setActiveTab('seeker')}
@@ -152,8 +152,8 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               className={`absolute inset-y-1.5 rounded-xl shadow-sm ${
                 activeTab === 'seeker'
-                  ? 'left-1.5 w-[calc(50%-0.375rem)] bg-white dark:bg-neutral-800'
-                  : 'right-1.5 w-[calc(50%-0.375rem)] bg-white dark:bg-neutral-800'
+                  ? 'left-1.5 w-[calc(50%-0.375rem)] bg-white dark:bg-charcoal'
+                  : 'right-1.5 w-[calc(50%-0.375rem)] bg-white dark:bg-charcoal'
               }`}
             />
           </div>
@@ -171,7 +171,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 16 }}
                   transition={{ duration: 0.28, ease: 'easeOut' }}
-                  className="flex flex-col justify-between rounded-3xl border border-orange-200/80 bg-gradient-to-br from-orange-50/50 via-white to-white p-7 shadow-xs dark:border-orange-900/30 dark:from-orange-950/20 dark:via-zinc-900 dark:to-zinc-900 sm:p-8"
+                  className="flex flex-col justify-between rounded-3xl border border-orange-200/80 bg-gradient-to-br from-orange-50/50 via-white to-white p-7 shadow-xs dark:border-orange-900/30 dark:from-orange-950/20 dark:via-charcoal dark:to-charcoal sm:p-8"
                 >
                   <div>
                     <div className="flex items-center justify-between">
@@ -192,20 +192,20 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
 
                     {/* Seeker capability pills */}
                     <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold">
-                      <span className="rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-orange-900/40 dark:bg-zinc-800 dark:text-zinc-200">
+                      <span className="rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-orange-900/40 dark:bg-charcoal dark:text-zinc-200">
                         Request a Listed Service
                       </span>
-                      <span className="rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-orange-900/40 dark:bg-zinc-800 dark:text-zinc-200">
+                      <span className="rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-orange-900/40 dark:bg-charcoal dark:text-zinc-200">
                         Post a Service Request
                       </span>
-                      <span className="rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-orange-900/40 dark:bg-zinc-800 dark:text-zinc-200">
+                      <span className="rounded-lg border border-orange-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-orange-900/40 dark:bg-charcoal dark:text-zinc-200">
                         Track Online Queue Position
                       </span>
                     </div>
                   </div>
 
                   {/* Workspace-specific tool */}
-                  <div className="mt-8 rounded-2xl border border-orange-200/60 bg-white/80 p-4 dark:border-orange-900/30 dark:bg-zinc-950/40">
+                  <div className="mt-8 rounded-2xl border border-orange-200/60 bg-white/80 p-4 dark:border-orange-900/30 dark:bg-charcoal/40">
                     <div className="flex items-center gap-2 text-xs font-bold text-[#0a0a0a] dark:text-white">
                       <CheckCircle2 size={16} className="text-[#c86544]" />
                       <span>Compare Incoming Offers</span>
@@ -222,7 +222,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 16 }}
                   transition={{ duration: 0.28, ease: 'easeOut' }}
-                  className="flex flex-col justify-between rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/50 via-white to-white p-7 shadow-xs dark:border-emerald-900/30 dark:from-emerald-950/20 dark:via-zinc-900 dark:to-zinc-900 sm:p-8"
+                  className="flex flex-col justify-between rounded-3xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/50 via-white to-white p-7 shadow-xs dark:border-emerald-900/30 dark:from-emerald-950/20 dark:via-charcoal dark:to-charcoal sm:p-8"
                 >
                   <div>
                     <div className="flex items-center justify-between">
@@ -243,20 +243,20 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
 
                     {/* Provider capability pills */}
                     <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold">
-                      <span className="rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-emerald-900/40 dark:bg-zinc-800 dark:text-zinc-200">
+                      <span className="rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-emerald-900/40 dark:bg-charcoal dark:text-zinc-200">
                         Manage Paid Waiting Capacity
                       </span>
-                      <span className="rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-emerald-900/40 dark:bg-zinc-800 dark:text-zinc-200">
+                      <span className="rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-emerald-900/40 dark:bg-charcoal dark:text-zinc-200">
                         Send Offers to Requests
                       </span>
-                      <span className="rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-emerald-900/40 dark:bg-zinc-800 dark:text-zinc-200">
+                      <span className="rounded-lg border border-emerald-200 bg-white px-3 py-1.5 text-neutral-700 dark:border-emerald-900/40 dark:bg-charcoal dark:text-zinc-200">
                         View Booking Details
                       </span>
                     </div>
                   </div>
 
                   {/* Workspace-specific tool */}
-                  <div className="mt-8 rounded-2xl border border-emerald-200/60 bg-white/80 p-4 dark:border-emerald-900/30 dark:bg-zinc-950/40">
+                  <div className="mt-8 rounded-2xl border border-emerald-200/60 bg-white/80 p-4 dark:border-emerald-900/30 dark:bg-charcoal/40">
                     <div className="flex items-center gap-2 text-xs font-bold text-[#0a0a0a] dark:text-white">
                       <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400" />
                       <span>Update Your Listings</span>
@@ -337,16 +337,16 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
                   translateY,
                   transformStyle: 'preserve-3d',
                 }}
-                className="relative rounded-[28px] sm:rounded-[36px] p-2.5 sm:p-4 bg-gradient-to-b from-[#2a2a2a] via-[#1a1a1a] to-[#0e0e0e] border-2 sm:border-[3px] border-neutral-700/60 dark:border-neutral-700/40 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35),0_30px_90px_-20px_rgba(0,0,0,0.25)] transition-shadow duration-300"
+                className="relative rounded-[28px] sm:rounded-[36px] p-2.5 sm:p-4 bg-gradient-to-b from-charcoal via-charcoal to-charcoal border-2 sm:border-[3px] border-neutral-700/60 dark:border-neutral-700/40 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.35),0_30px_90px_-20px_rgba(0,0,0,0.25)] transition-shadow duration-300"
               >
                 {/* Tablet Hardware Top: Centered Camera & Ambient Sensor */}
                 <div className="flex items-center justify-center gap-2 pb-2">
-                  <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-neutral-900 border border-neutral-700/80 ring-1 ring-white/10" />
-                  <div className="h-1 w-1 rounded-full bg-neutral-800 opacity-60" />
+                  <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-charcoal border border-neutral-700/80 ring-1 ring-white/10" />
+                  <div className="h-1 w-1 rounded-full bg-charcoal opacity-60" />
                 </div>
 
                 {/* Inner Device Screen: Click to Open Full-Resolution Lightbox */}
-                <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-neutral-950 ring-1 ring-white/10 shadow-inner">
+                <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-charcoal ring-1 ring-white/10 shadow-inner">
                   {/* Subtle Screen Sheen Reflection */}
                   <div
                     aria-hidden="true"
@@ -369,11 +369,11 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                     aria-label="Interactive Magnifier: Move cursor to inspect details, click to expand full resolution"
-                    className="relative aspect-[1024/532] w-full cursor-crosshair overflow-hidden bg-neutral-900 focus:outline-none focus:ring-2 focus:ring-orange-500/50 select-none"
+                    className="relative aspect-[1024/532] w-full cursor-crosshair overflow-hidden bg-charcoal focus:outline-none focus:ring-2 focus:ring-orange-500/50 select-none"
                   >
                     {/* Corner Persistent Zoom & Magnifier Hint Badge */}
                     <div className="absolute top-2.5 right-2.5 z-20 pointer-events-none">
-                      <div className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/70 px-2.5 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-md shadow-sm">
+                      <div className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-charcoal/70 px-2.5 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-md shadow-sm">
                         <Search size={12} className={activeTab === 'seeker' ? 'text-orange-400' : 'text-emerald-400'} />
                         <span>Hover to Magnify • Click for HD</span>
                       </div>
@@ -497,8 +497,8 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
         </div>
 
         {/* Full-width preview context */}
-        <ScrollReveal direction="scale" delay={0.12} className="mt-12 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-6 dark:border-zinc-800 dark:bg-zinc-900/50 sm:flex-row sm:items-center">
-          <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-neutral-700 shadow-xs dark:bg-zinc-800 dark:text-zinc-200">
+        <ScrollReveal direction="scale" delay={0.12} className="mt-12 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-6 dark:border-zinc-800 dark:bg-charcoal/50 sm:flex-row sm:items-center">
+          <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-neutral-700 shadow-xs dark:bg-charcoal dark:text-zinc-200">
             <ArrowLeftRight size={19} />
           </div>
           <div className="flex-1">
@@ -525,7 +525,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setIsLightboxOpen(false)}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-3 sm:p-6 lg:p-8 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-charcoal/90 p-3 sm:p-6 lg:p-8 backdrop-blur-md"
             role="dialog"
             aria-modal="true"
             aria-label="Screenshot Fullscreen Preview"
@@ -536,10 +536,10 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
               exit={{ scale: 0.94, opacity: 0, y: 16 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
               onClick={(e) => e.stopPropagation()}
-              className="relative flex max-h-[94vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/20 bg-neutral-950 shadow-2xl"
+              className="relative flex max-h-[94vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/20 bg-charcoal shadow-2xl"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-white/10 bg-neutral-900/90 px-4 sm:px-6 py-3.5 backdrop-blur-md">
+              <div className="flex items-center justify-between border-b border-white/10 bg-charcoal/90 px-4 sm:px-6 py-3.5 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                   <div
                     className={`flex size-8 items-center justify-center rounded-lg border ${
@@ -584,7 +584,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
                   >
                     <X size={15} />
                     <span className="hidden sm:inline">Close</span>
-                    <kbd className="hidden sm:inline-block ml-1 rounded bg-black/40 px-1.5 py-0.5 text-[10px] text-neutral-300">
+                    <kbd className="hidden sm:inline-block ml-1 rounded bg-charcoal/40 px-1.5 py-0.5 text-[10px] text-neutral-300">
                       ESC
                     </kbd>
                   </button>
@@ -592,7 +592,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
               </div>
 
               {/* Modal Body / Image View */}
-              <div className="relative flex flex-1 items-center justify-center overflow-auto bg-neutral-950 p-2 sm:p-4">
+              <div className="relative flex flex-1 items-center justify-center overflow-auto bg-charcoal p-2 sm:p-4">
                 <Image
                   src={
                     activeTab === 'seeker'
@@ -613,7 +613,7 @@ export default function LandingWorkspaces({ isDark }: LandingWorkspacesProps) {
               </div>
 
               {/* Modal Footer Caption */}
-              <div className="flex items-center justify-between border-t border-white/10 bg-neutral-900/80 px-4 sm:px-6 py-2.5 text-xs text-neutral-400">
+              <div className="flex items-center justify-between border-t border-white/10 bg-charcoal/80 px-4 sm:px-6 py-2.5 text-xs text-neutral-400">
                 <span>
                   {activeTab === 'seeker'
                     ? 'Showing resident services directory, budget filters, and live queue status.'
