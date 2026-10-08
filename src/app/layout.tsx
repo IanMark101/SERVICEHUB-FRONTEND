@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Plus_Jakarta_Sans, Geist } from "next/font/google";
+import { Playfair_Display, Geist } from "next/font/google";
 import Script from "next/script";
 import { AppProvider } from "../context/AppContext";
 import { ToastProvider } from "../components/ui/Toast";

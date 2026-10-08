@@ -3,14 +3,14 @@
 Branch: `feature/safe-codebase-cleanup-2026-10-08`  
 Repository: `C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND/`  
 Audit base commit, before tracker creation: `30f380b5ea85865683b9f9d4a3e23d93903cd4b8`  
-Status: **28 first-batch items removed. Automated comparison verified; interactive browser smoke review remains pending.**
+Status: **30 items removed: 28 first-batch entries plus two reviewed local artifacts. Automated validation passes; interactive browser smoke review remains pending.**
 
 [Workspace overview and shared-file review](../SERVICEHUB-BACKEND/docs/CLEANUP_TRACKER_2026-10-08.md) · [Backend checklist](../SERVICEHUB-BACKEND/CLEANUP_CHECKLIST_2026-10-08.md)
 
 | Scope | Entries | Deleted |
 | --- | ---: | ---: |
 | First batch | 28 | 28 |
-| Deferred candidates | 3 | 0 |
+| Deferred candidates | 3 | 2 |
 | Manual review | 12 | 0 |
 
 The first batch contains 18 unused modules, two starter assets, and eight empty QA folders. A folder is one planning entry; its contained files, if any appear later, must be inventoried before cleanup.
@@ -80,13 +80,13 @@ The audit found no reachable consumer for the 18 modules through routes, imports
 
 Preserve shared dependencies used by other live files. In particular, keep the UI footer/particle implementations, ScrollReveal, CommunityHeader, CommunitySkeletons, CommunityEmptyState, PlatformGuides, TopProviders, help data/types, and current help layouts.
 
-## Deferred — excluded from first batch
+## Deferred candidates — subsequent decisions
 
-These entries were identified in the audit but should be handled in a later, separate pass.
+These entries were excluded from the first batch. The resumed pass reviewed each one separately; two are now removed, and original artwork is retained.
 
-- [ ] **FE-D-001** — `C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND/src/assets/hero.png` — Unused original hero artwork; defer until artwork retention is settled.
-- [ ] **FE-D-002** — `C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND/tsconfig.tsbuildinfo` — Regenerable incremental cache; defer and ensure no typecheck/build is writing it.
-- [ ] **FE-D-003** — `C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND/.safety-report-qa/` — Empty QA output folder; defer and recheck contents before removal.
+- [ ] **FE-D-001** — `C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND/src/assets/hero.png` — Needs manual review — retain the original artwork for upcoming polishing until its retention value is decided. No current import was found.
+- [x] **FE-D-002** — `C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND/tsconfig.tsbuildinfo` — Removed after all build/typecheck writers stopped. Ignored, regenerable TypeScript cache; exact bytes backed up.
+- [x] **FE-D-003** — `C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND/.safety-report-qa/` — Removed after rechecking that it contained no files or subfolders. No application/config/script reference was found.
 
 ## Manual review — no deletion scheduled
 
@@ -157,6 +157,8 @@ Append one row per item action. Deletion and comparison results are recorded bel
 | 2026-10-08 14:48:35 | FE-026 | Removed empty folder | C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-safe-cleanup/snapshot.json; original path under files/ | Verified against baseline; see verification results | Cleanup commit containing this row (Git history) | Filesystem only; Git does not track empty folders |
 | 2026-10-08 14:48:35 | FE-027 | Removed empty folder | C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-safe-cleanup/snapshot.json; original path under files/ | Verified against baseline; see verification results | Cleanup commit containing this row (Git history) | Filesystem only; Git does not track empty folders |
 | 2026-10-08 14:48:35 | FE-028 | Removed empty folder | C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-safe-cleanup/snapshot.json; original path under files/ | Verified against baseline; see verification results | Cleanup commit containing this row (Git history) | Filesystem only; Git does not track empty folders |
+| 2026-10-08 15:38:01 | FE-D-002 | Deleted generated cache | C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-deferred-cleanup/snapshot.json; exact originals under files/ | Verified; see resumed results | Cleanup documentation commit containing this row | Local generated cache or empty output folder; not versioned by Git |
+| 2026-10-08 15:38:01 | FE-D-003 | Removed empty folder | C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-deferred-cleanup/snapshot.json; exact originals under files/ | Verified; see resumed results | Cleanup documentation commit containing this row | Local generated cache or empty output folder; not versioned by Git |
 
 ## Recorded baseline
 
@@ -182,3 +184,25 @@ The initial standalone post-cleanup TypeScript command overlapped Next.js regene
 **Pending manual verification:** open the landing page, Help Center, Community Hub, a profile, and provider/seeker navigation in a hydrated browser using the local fixture transport. Browser inventory was empty in this resumed session, so interactive rendering/navigation is not claimed verified. Existing tests and production/HTTP checks cover the automated comparison; they do not substitute for this visual review.
 
 Evidence: C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-safe-cleanup/verification-comparison.json, preservation-check.json, css-reference-verification.json, http-smoke.json, and logs/. No deferred candidates, review entries, tests, dependencies, public assets, or protected skill/master-prompt files were removed.
+
+
+## Resumed validation — 2026-10-08
+
+The earlier baseline remains historical evidence. Its eight failures were stale test expectations for in-progress CAPTCHA and activity styling work: the login adapter did not implement /auth/captcha-config, and canceled-state styling now uses dark:bg-charcoal. Tests now model the current security policy and wait for readiness; two additional cases verify that delayed/failed policy loading blocks credential submission. No production authentication behavior was changed and no tests were removed or skipped.
+
+ESLint now excludes only the retained third-party particles.js distribution, including its unchanged license. RootLayout's unused Plus_Jakarta_Sans import was removed; active fonts are unchanged.
+
+| Check | Resumed result |
+| --- | --- |
+| Full frontend tests | 700 passed, 0 failed across 114 files |
+| Frontend TypeScript | Passed after the production build, using --noEmit --incremental false |
+| Frontend lint | 0 errors, 0 warnings |
+| Frontend production build | Passed with webpack |
+| Landing/auth production prerender assertions | Passed |
+| Interactive browser smoke review | Pending; browser inventory exposes no browser |
+
+The two updated test files remain unstaged alongside the existing feature edits they exercise. Commit them together with the CAPTCHA/ActivityFeed feature changes; committing those expectations alone would make a checkout of the old production implementation inconsistent. The standalone lint/font cleanup and this checklist can be committed independently.
+
+Second batch: FE-D-002 and FE-D-003 remove one ignored cache and one empty directory. These local artifacts are not tracked by Git, so switching branches will not restore them; normal tooling can regenerate the cache, or the guarded restore-second-batch.cjs script can restore exact originals when every target is absent. Recovery: C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-deferred-cleanup/snapshot.json. Validation evidence and pre-fix test/config copies: C:/Users/SERVICEHUB-CORDOVA/fullstack/.cleanup-backups/2026-10-08-validation/.
+
+All twelve original frontend review entries, original hero artwork, current tests, dependencies, public assets, and protected prompt/skills remain retained. Complete the interactive smoke review before merging this cleanup branch.
