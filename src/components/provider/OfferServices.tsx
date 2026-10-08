@@ -83,7 +83,7 @@ export default function OfferServices() {
     <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       {/* Form Container Card */}
-      <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-300'
+      <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-300'
         }`}>
 
         {/* Header */}
@@ -141,7 +141,7 @@ export default function OfferServices() {
                 aria-invalid={moderationError?.field === 'title'}
                 aria-describedby={moderationError?.field === 'title' ? 'listing-title-policy-error' : undefined}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-emerald-500/80'
+                    ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
                     : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
                   } ${moderationError?.field === 'title' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
@@ -165,7 +165,7 @@ export default function OfferServices() {
                 aria-invalid={moderationError?.field === 'description'}
                 aria-describedby={moderationError?.field === 'description' ? 'listing-description-policy-error' : undefined}
                 className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                    ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-emerald-500/80'
+                    ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
                     : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
                   } ${moderationError?.field === 'description' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
               />
@@ -242,7 +242,7 @@ export default function OfferServices() {
                       value={price}
                       onChange={(e) => setPrice(Number(e.target.value))}
                       className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                          ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-emerald-500/80'
+                          ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
                           : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
                         }`}
                     />
@@ -292,7 +292,7 @@ export default function OfferServices() {
                         value={durationMins}
                         onChange={(e) => setDurationMins(Math.max(1, Number(e.target.value)))}
                         className={`w-full px-4 py-3 pr-14 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                            ? 'bg-[#1c1b18] border-neutral-800/80 text-white focus:border-emerald-500/80'
+                            ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
                             : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
                           }`}
                       />
@@ -340,7 +340,7 @@ export default function OfferServices() {
                 disabled={loading || !canTransact}
                 className={`w-full py-3.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 ${
                   !canTransact
-                    ? 'bg-neutral-500 cursor-not-allowed opacity-50'
+                    ? 'bg-neutral-500 dark:bg-charcoal cursor-not-allowed opacity-50'
                     : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'
                 }`}
               >
@@ -354,7 +354,7 @@ export default function OfferServices() {
       </div>
 
       {/* Info Warning */}
-      <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-ink-muted' : 'bg-slate-50 border-slate-300 text-ink-muted'
+      <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-charcoal-inset border-neutral-800/80 text-ink-muted' : 'bg-slate-50 border-slate-300 text-ink-muted'
         }`}>
         <Info className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
         <div><p className="text-[10px] leading-relaxed">

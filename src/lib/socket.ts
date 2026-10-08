@@ -46,7 +46,7 @@ export function connectSocket(token: string): Socket | null {
   const activeSocket = socket;
 
   // Catch-all listeners run before feature listeners issue their GETs.
-  socket.onAny(event => invalidateApiCache(socketResources(event), 'socket'));
+  socket.onAny((event, payload) => invalidateApiCache(socketResources(event, payload), 'socket'));
   let hasConnected = false;
   let warnedAboutOutage = false;
 

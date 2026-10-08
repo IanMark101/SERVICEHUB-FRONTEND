@@ -1,12 +1,10 @@
 "use client";
 
-import Link from 'next/link';
 import { formatRequestUrgency } from '../../../lib/requestUrgency';
 import {
   User,
   Star,
   ShieldCheck,
-  Award,
   MapPin,
   Calendar,
   Briefcase,
@@ -18,10 +16,12 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import ProfileReviewsSection from '../ProfileReviewsSection';
+import TrustHistorySection from '../TrustHistorySection';
 import VerificationUpload from '../VerificationUpload';
 import type { useUserProfile } from '../../../hooks/useUserProfile';
 import type { UserSession } from '../../auth/LoginContainer';
 import type { getTrustBand } from '../ProfileHeader';
+import type { ProfileReviewContext } from '../../../types/reviews';
 
 interface UserProfileTabsModel extends ReturnType<typeof useUserProfile> {
   targetUser: UserSession;
@@ -30,6 +30,7 @@ interface UserProfileTabsModel extends ReturnType<typeof useUserProfile> {
   isProvider: boolean;
   isAdmin: boolean;
   accentColor: string;
+  initialReviewContext?: ProfileReviewContext;
 }
 
 const FacebookIcon = ({ size = 13 }: { size?: number }) => (
@@ -47,11 +48,11 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
   const {
     activeTab, isDark, cardBg, innerBg, labelText, headingText,
     displayName, usernameHandle, trustScore, trustHistory,
-    trustHistoryLoading, isViewerVerified, verStatus, bio, facebookUrl,
+    trustHistoryLoading, trustHistoryError, retryTrustHistory, isViewerVerified, verStatus, bio, facebookUrl,
     instagramUrl, websiteUrl, location, role, availability,
     languages, createdAt, completedJobs, averageRating,
-    reviews, displayCategories, userServices, userRequests,
-    isOwnProfile, trustBand, accentColor
+    reviews, reviewStats, displayCategories, userServices, userRequests,
+    isOwnProfile, trustBand, accentColor, initialReviewContext
   } = model;
 
   return (
@@ -154,10 +155,11 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
               </div>
 
               <div className="flex items-center justify-between gap-4 border-b border-[color:var(--workspace-border)] py-2">
-                <span className={labelText}>Average Client Rating</span>
+                <span className={labelText}>Provider rating</span>
                 <span className="font-extrabold text-amber-500 flex items-center gap-1">
-                  <Star size={14} className="fill-amber-400 text-amber-400" />
-                  {averageRating.toFixed(1)} / 5.0
+                  {averageRating > 0 ? (
+                    <><Star size={14} className="fill-amber-400 text-amber-400" />{averageRating.toFixed(1)} / 5.0</>
+                  ) : <span className={labelText}>No provider ratings yet</span>}
                 </span>
               </div>
 
@@ -279,11 +281,15 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
       {/* TAB 2: REVIEWS (Reviews & Ratings ONLY) */}
       {activeTab === 'reviews' && (
         <ProfileReviewsSection
+          initialReviewContext={initialReviewContext}
+          key={model.targetUser.id}
+          reviewStats={reviewStats}
           initialReviews={reviews.map((r) => ({
             id: r.id,
-            authorName: r.author?.name || r.authorName || 'Verified Client',
+            authorName: r.author?.name || r.authorName || 'Booking participant',
             authorAvatar: r.author?.avatarUrl || r.authorAvatar,
-            rating: r.rating || 5,
+            rating: r.rating,
+            reviewContext: r.reviewContext,
             comment: r.text || r.comment || '',
             createdAt: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently',
           }))}
@@ -295,91 +301,12 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
           isOwnProfile={isOwnProfile}
           isVerified={isViewerVerified}
           canReview={isViewerVerified && !isOwnProfile && completedJobs > 0}
+          reviewActivityHref={role === 'provider' ? '/provider/activity' : '/seeker/activity'}
         />
       )}
 
       {/* TAB 3: TRUST HISTORY (Explains how Trust Score was earned) */}
-      {activeTab === 'trust' && (
-        <div className={`${cardBg} rounded-2xl p-5 sm:p-6 border space-y-6 shadow-sm`}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-neutral-800 pb-4">
-            <div>
-              <h3 className={`font-black text-sm uppercase tracking-wider flex items-center gap-2 ${headingText}`}>
-                <Award size={18} className="text-emerald-500" /> Trust Score Breakdown & History
-              </h3>
-              <p className={`text-xs ${labelText} mt-0.5`}>
-                Chronological audit of how this account earned its trust score in Cordova.
-              </p>
-            </div>
-
-            <div className={`px-4 py-2 rounded-2xl border ${innerBg} flex items-center gap-3 self-start sm:self-auto`}>
-              <span className={`text-2xl font-black ${trustBand.color}`}>{trustScore}</span>
-              <div className="text-left">
-                <span className={`block text-[11px] font-extrabold uppercase tracking-wider ${trustBand.color}`}>
-                  {trustBand.label}
-                </span>
-                <span className={`text-[10px] ${labelText}`}>Maximum: 100 pts</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Trust Timeline Events */}
-          <div className="space-y-4">
-            {trustHistoryLoading ? (
-              <div className={`p-6 text-center text-xs ${labelText}`}>Loading trust history…</div>
-            ) : trustHistory.length === 0 ? (
-              <div className={`p-6 text-center text-xs ${labelText}`}>No trust score events recorded yet.</div>
-            ) : (
-              trustHistory.map((item) => {
-                const isPositive = item.delta > 0;
-                const deltaLabel = isPositive ? `+${item.delta}` : `${item.delta}`;
-                const dateStr = item.createdAt
-                  ? new Date(item.createdAt).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
-                  : '';
-                return (
-                  <div key={item.id} className={`p-4 rounded-2xl border ${innerBg} flex items-start justify-between gap-4 transition-all hover:scale-[1.005]`}>
-                    <div className="flex items-start gap-3">
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs flex-shrink-0 ${
-                        isPositive ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
-                      }`}>
-                        {deltaLabel}
-                      </div>
-                      <div>
-                        <h4 className={`font-bold text-xs ${headingText}`}>{item.reason}</h4>
-                        <p className={`text-[10px] ${labelText} mt-0.5`}>
-                          {dateStr} · Score: {item.scoreBefore} → {item.scoreAfter}
-                        </p>
-                      </div>
-                    </div>
-
-                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold flex-shrink-0 ${isPositive ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                      {isPositive ? 'Score Gain' : 'Penalty'}
-                    </span>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          <div className={`p-4 rounded-2xl border ${innerBg} text-xs text-ink-muted dark:text-ink-muted space-y-1.5`}>
-            <div className="flex items-center justify-between">
-              <p className="font-bold flex items-center gap-1 text-emerald-500">
-                <TrendingUp size={14} /> How to increase your Trust Score:
-              </p>
-              <Link
-                href="/help/trust-reputation/what-is-trust-score"
-                className="text-[11px] font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>Read Help Guide</span>
-                <span>→</span>
-              </Link>
-            </div>
-            <p className="text-[11px] leading-relaxed">
-              Complete official Cordova residency verification, fulfill service bookings reliably, and maintain high client ratings. Cancellations at fault, valid reports, and repeated listing rejections will reduce your score.
-            </p>
-          </div>
-        </div>
-      )}
-
+      {activeTab === 'trust' && <TrustHistorySection events={trustHistory} loading={trustHistoryLoading} error={trustHistoryError} onRetry={retryTrustHistory} score={trustScore} band={trustBand} isDark={isDark} />}
 
       {/* TAB 4: VERIFICATION (Residency Verification) */}
       {activeTab === 'verification' && (

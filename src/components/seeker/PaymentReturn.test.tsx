@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiConfirmOnlineBooking, apiInitiatePayment } from '../../api/bookings.api';
 import { readGcashCheckout, rememberGcashCheckout } from '../../lib/paymentCheckout';
 import PaymentReturn from './PaymentReturn';
+import { invalidateApiCache } from '../../lib/api/responseCache';
 
 const navigation = vi.hoisted(() => ({ replace: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => navigation }));
@@ -20,6 +21,7 @@ describe('GCash payment return and recovery', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    vi.spyOn(window, 'open').mockReturnValue(null);
     rememberGcashCheckout(oldCheckout);
   });
 
@@ -42,7 +44,7 @@ describe('GCash payment return and recovery', () => {
     expect(payLink).toHaveAttribute('target', '_blank');
     expect(payLink).toHaveAttribute('rel', 'noopener noreferrer');
     expect(screen.getByText(/No booking or queue position exists until ServiceHub verifies/)).toBeInTheDocument();
-    expect(screen.getByText(/both ServiceHub tabs check the same attempt/)).toBeInTheDocument();
+    expect(screen.getByText(/Payment status updates automatically/)).toBeInTheDocument();
   });
 
   it('starts a fresh GCash attempt after failure rather than reusing the expired redirect', async () => {
@@ -67,5 +69,19 @@ describe('GCash payment return and recovery', () => {
     expect(screen.getByRole('link', { name: 'View booking in Activity' })).toHaveAttribute('href', '/seeker/seeker-activity');
     expect(screen.queryByRole('button', { name: 'Try GCash Again' })).not.toBeInTheDocument();
     expect(readGcashCheckout('seeker-one', 'pi_old')).toBeNull();
+  });
+
+  it.each(['SUCCEEDED', 'PENDING'])('rechecks promptly after a live booking event and trusts only the server %s result', async status => {
+    vi.mocked(apiConfirmOnlineBooking).mockResolvedValueOnce({ success: true, data: { status: 'PENDING' } });
+    vi.mocked(apiConfirmOnlineBooking).mockResolvedValue({ success: true, data: { status } });
+    render(<PaymentReturn paymentIntentId="pi_old" />);
+    await screen.findByRole('link', { name: /Open PayMongo Test Mode/ });
+    act(() => {
+      invalidateApiCache(['bookings'], 'socket');
+      invalidateApiCache(['bookings'], 'socket');
+    });
+    await waitFor(() => expect(apiConfirmOnlineBooking).toHaveBeenCalledTimes(2));
+    if (status === 'SUCCEEDED') await screen.findByRole('heading', { name: 'GCash payment confirmed' });
+    else expect(screen.queryByRole('heading', { name: 'GCash payment confirmed' })).not.toBeInTheDocument();
   });
 });

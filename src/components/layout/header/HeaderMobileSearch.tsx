@@ -21,7 +21,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
   if (!isOpen) return null;
 
   return (
-    <div className={`absolute left-0 right-0 top-full z-50 border-b p-3 shadow-xl lg:hidden ${isDark ? 'border-white/10 bg-[#201f1c]' : 'border-black/10 bg-[#fffdfa]'}`}>
+    <div className={`absolute left-0 right-0 top-full z-50 border-b p-3 shadow-xl lg:hidden ${isDark ? 'border-white/10 bg-charcoal' : 'border-black/10 bg-[#fffdfa]'}`}>
       <div className="relative flex items-center">
         <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-ink-muted pointer-events-none"><Search className="w-3.5 h-3.5" /></span>
         <input
@@ -34,13 +34,13 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
             onShowResultsChange(Boolean(event.target.value.trim()));
           }}
           placeholder="Search people..."
-          className={`w-full rounded-xl border py-2 pl-9 pr-9 text-xs transition-colors ${isDark ? `border-white/10 bg-[#171716] text-white placeholder:text-ink-subtle focus:outline-none focus:ring-2 ${ringClass}` : `border-black/10 bg-[#fffdfa] text-ink placeholder:text-ink-subtle focus:outline-none focus:ring-2 ${ringClass}`}`}
+          className={`w-full rounded-xl border py-2 pl-9 pr-9 text-xs transition-colors ${isDark ? `border-white/10 bg-charcoal text-white placeholder:text-ink-subtle focus:outline-none focus:ring-2 ${ringClass}` : `border-black/10 bg-[#fffdfa] text-ink placeholder:text-ink-subtle focus:outline-none focus:ring-2 ${ringClass}`}`}
         />
         <button type="button" aria-label="Close user search" onClick={onClose} className="absolute inset-y-0 right-0 pr-3 flex items-center text-ink-subtle hover:text-ink-muted"><X className="w-4 h-4" /></button>
       </div>
 
       {showResults && (
-        <div className={`mt-2 rounded-xl border shadow-xl overflow-hidden max-h-60 overflow-y-auto ${isDark ? 'bg-[#22211e] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+        <div className={`mt-2 rounded-xl border shadow-xl overflow-hidden max-h-60 overflow-y-auto ${isDark ? 'bg-charcoal-surface border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
           {loading ? (
             <div className="px-3 py-3 text-xs text-ink-muted dark:text-ink-muted">Searching users...</div>
           ) : results.length > 0 ? results.map((result) => {
@@ -52,7 +52,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
                 onMouseDown={(event) => { event.preventDefault(); onOpenUser(result); }}
                 onTouchEnd={(event) => { event.preventDefault(); onOpenUser(result); }}
                 onClick={() => onOpenUser(result)}
-                className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-[#2c2b27]' : 'border-slate-100 hover:bg-slate-50'}`}
+                className={`w-full text-left px-3 py-2.5 transition-colors border-b last:border-b-0 cursor-pointer ${isDark ? 'border-neutral-800/60 hover:bg-charcoal-hover' : 'border-slate-100 hover:bg-slate-50'}`}
               >
                 <div className="flex items-center gap-2.5">
                   <UserAvatar src={result.avatarUrl} name={getDisplayName(result)} alt={`${getDisplayName(result)} avatar`} size={32} role={result.role === 'provider' ? 'provider' : 'seeker'} />

@@ -13,11 +13,13 @@ import UserProfileTabs from './user-profile/UserProfileTabs';
 import WorkspaceTabs from '../ui/WorkspaceTabs';
 import MarketplaceProfileOverview from './MarketplaceProfileOverview';
 import ProfilePageSkeleton from './ProfilePageSkeleton';
+import type { ProfileReviewContext } from '../../types/reviews';
 
 interface UserProfileProps {
   targetUser: UserSession;
   isOwnProfile?: boolean;
   initialTab?: 'overview' | 'reviews' | 'trust' | 'verification' | 'settings';
+  initialReviewContext?: ProfileReviewContext;
   onProfileUpdated?: (updated: Partial<UserSession>) => void;
   onTriggerVerification?: () => void;
   variant?: 'workspace' | 'marketplace';
@@ -27,6 +29,7 @@ export default function UserProfile({
   targetUser,
   isOwnProfile = false,
   initialTab,
+  initialReviewContext,
   onProfileUpdated,
   variant = 'workspace',
 }: UserProfileProps) {
@@ -48,7 +51,6 @@ export default function UserProfile({
     createdAt,
     completedJobs,
     averageRating,
-    reviews,
     activeTab,
     setActiveTab,
     showEdit,
@@ -94,6 +96,12 @@ export default function UserProfile({
 
   return (
     <div className={`${variant === 'marketplace' ? 'mx-auto max-w-[1180px] space-y-5' : 'mx-auto max-w-5xl space-y-4'} transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
+      {profile.profileRefreshError && (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-5 py-3 text-sm text-[color:var(--workspace-muted)]">
+          <p>Couldn’t refresh this profile. Showing the last loaded details.</p>
+          <button type="button" onClick={profile.retryProfile} className="min-h-11 px-3 font-semibold text-[color:var(--workspace-focus)]">Try again</button>
+        </div>
+      )}
       
       {/* 🌟 Profile Hero Header */}
       <ProfileHeader
@@ -149,7 +157,7 @@ export default function UserProfile({
         idPrefix="marketplace-profile"
         items={[
           { value: 'overview', label: 'Overview', icon: <User size={16} /> },
-          { value: 'reviews', label: 'Reviews', count: reviews.length, icon: <MessageSquare size={16} /> },
+          { value: 'reviews', label: 'Reviews', count: profile.reviewCount, icon: <MessageSquare size={16} /> },
           { value: 'trust', label: 'Trust History', icon: <Award size={16} /> },
           {
             value: 'verification',
@@ -167,12 +175,6 @@ export default function UserProfile({
       >
         {variant === 'marketplace' && activeTab === 'overview' ? (
           <MarketplaceProfileOverview model={profile} />
-        ) : variant === 'marketplace' && activeTab === 'trust' && !isOwnProfile ? (
-          <section className="profile-section">
-            <h2 className="text-lg font-bold">Marketplace trust</h2>
-            <p className="mt-3 text-sm text-[color:var(--workspace-muted)]">The current trust standing is shown above. Detailed trust history is private to the account owner and administrators.</p>
-            <Link href="/help/trust-reputation/what-is-trust-score" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[color:var(--workspace-focus)]">How trust scores work</Link>
-          </section>
         ) : variant === 'marketplace' && activeTab === 'verification' ? (
           <section className="profile-section">
             <h2 className="text-lg font-bold">Cordova residency</h2>
@@ -189,7 +191,8 @@ export default function UserProfile({
               trustBand,
               isProvider,
               isAdmin,
-              accentColor
+              accentColor,
+              initialReviewContext,
             }}
           />
         )}

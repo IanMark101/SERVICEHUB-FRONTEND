@@ -1,7 +1,7 @@
 import Skeleton from '../../../components/ui/Skeleton';
 
 type ThemeProps = { isDark?: boolean };
-const surface = (isDark: boolean) => isDark ? 'border-neutral-800 bg-[#1c1b18]' : 'border-slate-200/90 bg-white';
+const surface = (isDark: boolean) => isDark ? 'border-neutral-800 bg-charcoal-inset' : 'border-slate-200/90 bg-white';
 
 export function StatsSkeleton({ isDark = false }: ThemeProps) {
   return (

@@ -69,13 +69,13 @@ export default function AdminReviewsPage() {
 
   return (
     <div className="space-y-5">
-      <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
+      <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
         <h2 className="text-base font-extrabold">Review Moderation</h2>
         <p className="mt-1 text-xs text-ink-muted">Hide policy-violating reviews or restore them. Every decision requires a reason and is audit logged.</p>
       </section>
       <div className="space-y-3">
         {items.map((item) => (
-          <article key={item.id} className={`rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
+          <article key={item.id} className={`rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-extrabold">{item.author.name} → {item.target.name}</p>

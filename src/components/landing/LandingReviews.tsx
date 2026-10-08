@@ -56,10 +56,10 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
                 direction="scale"
                 delay={index * 0.09}
                 hoverLift
-                className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/90 sm:p-7"
+                className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-charcoal/90 sm:p-7"
               >
                 <div className="flex items-center justify-between">
-                  <div className="grid size-10 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-zinc-800 dark:text-orange-400">
+                  <div className="grid size-10 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-charcoal dark:text-orange-400">
                     <Icon size={18} />
                   </div>
                   <span className="text-[11px] font-semibold text-neutral-500 dark:text-zinc-400">

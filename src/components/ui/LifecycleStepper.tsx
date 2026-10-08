@@ -132,7 +132,7 @@ export default function LifecycleStepper({
 
   // A terminal cancellation stops the journey; do not show a future Completed step.
   if (isCanceled) {
-    return <div className={`flex w-full items-center gap-2 rounded-2xl border border-stone-300 bg-stone-50 p-3.5 text-sm text-ink-secondary dark:border-neutral-700 dark:bg-neutral-800/40 dark:text-ink ${className}`}>
+    return <div className={`flex w-full items-center gap-2 rounded-2xl border border-stone-300 bg-stone-50 p-3.5 text-sm text-ink-secondary dark:border-neutral-700 dark:bg-charcoal/40 dark:text-ink ${className}`}>
       <XCircle className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden="true" />
       <span className="font-semibold">Booking {closedLabel}</span>
       <span className="ml-auto text-xs text-ink-muted">Ended without completion</span>
@@ -159,7 +159,7 @@ export default function LifecycleStepper({
                 <span aria-hidden="true" className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-bold sm:mx-auto ${
                   reached
                     ? role === 'provider' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-orange-600 bg-orange-600 text-white'
-                    : isDark ? 'border-neutral-700 bg-neutral-800 text-ink-subtle' : 'border-stone-300 bg-white text-ink-muted'
+                    : isDark ? 'border-neutral-700 bg-charcoal text-ink-subtle' : 'border-stone-300 bg-white text-ink-muted'
                 } ${current ? 'ring-2 ring-offset-1 ring-current/20' : ''}`}>
                   {step < journeyStep && !isDisputed ? <Check className="h-3 w-3" /> : step}
                 </span>
@@ -212,7 +212,7 @@ export default function LifecycleStepper({
     <div
       className={`w-full rounded-2xl p-3.5 sm:p-4 border transition-all ${
         isDark
-          ? 'bg-[#1a1916]/80 border-neutral-800/80 shadow-inner'
+          ? 'bg-charcoal/80 border-neutral-800/80 shadow-inner'
           : 'bg-slate-50/80 border-slate-200/80'
       } ${className}`}
     >
@@ -220,7 +220,7 @@ export default function LifecycleStepper({
         {/* Background Connecting Track */}
         <div
           className={`absolute top-3.5 left-3 right-3 h-[2.5px] -translate-y-1/2 z-0 rounded-full transition-colors ${
-            isDark ? 'bg-neutral-800' : 'bg-slate-200'
+            isDark ? 'bg-charcoal' : 'bg-slate-200'
           }`}
         />
 
@@ -263,7 +263,7 @@ export default function LifecycleStepper({
                       : isCurrent
                       ? `${accentBg} ${accentBorder} text-white ring-4 ${accentPulse} scale-110 shadow-md`
                       : isDark
-                      ? 'bg-[#22211e] border-neutral-700 text-ink-muted'
+                      ? 'bg-charcoal-surface border-neutral-700 text-ink-muted'
                       : 'bg-white border-slate-300 text-ink-subtle'
                   }`}
                 >

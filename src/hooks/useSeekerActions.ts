@@ -1,4 +1,5 @@
 import React from 'react';
+import type { BookingActionResult } from '../lib/bookingActionUpdate';
 import {
   User,
   ServiceListing,
@@ -15,7 +16,6 @@ import type { RequestUrgency } from '../lib/requestUrgency';
 import {
   apiBookDirect,
   apiInitiatePayment,
-  apiConfirmOnlineBooking,
   apiBookDirectFromOffer,
   apiConfirmCompletion,
   apiDisputeJob
@@ -24,7 +24,7 @@ import { apiRejectOffer } from '../api/offers.api';
 import { apiSuggestCategory } from '../api/categories.api';
 import { useToast } from '../components/ui/Toast';
 import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
-import { paymentReturnPath, rememberGcashCheckout } from '../lib/paymentCheckout';
+import { isPayMongoCheckoutUrl, navigateGcashWindow, prepareGcashWindow, rememberGcashCheckout, type PendingGcashCheckout } from '../lib/paymentCheckout';
 import { normalizeOfferStatus } from '../lib/offerStatus';
 
 interface SeekerActionsDeps {
@@ -46,10 +46,12 @@ interface SeekerActionsDeps {
   syncBids: () => Promise<void>;
   syncNotifications: () => Promise<void>;
   syncTransactions: () => Promise<void>;
+  applyBookingAction: (result: BookingActionResult) => void;
   helperAddNotification: (userId: string, title: string, desc: string) => void;
 }
 
 export function useSeekerActions({
+  services = [],
   jobRequests,
   bids,
   dbCategories,
@@ -57,12 +59,32 @@ export function useSeekerActions({
   setBids,
   setCategorySuggestions,
   syncRequests,
-  syncEngagements,
   syncBids,
-  syncNotifications,
-  syncTransactions,
+  applyBookingAction,
 }: SeekerActionsDeps) {
   const { success, error: toastError, info } = useToast();
+
+  const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>) => {
+    const popup = prepareGcashWindow();
+    try {
+      const response = await apiInitiatePayment({
+        serviceId: context.serviceId, offerId: context.offerId,
+        quantity: context.quantity, paymentMethodType: 'gcash',
+      });
+      if (!response.success || !response.data?.paymentIntentId) throw new Error(response.error || 'GCash checkout could not be started.');
+      if (response.data.redirectUrl && !isPayMongoCheckoutUrl(response.data.redirectUrl)) throw new Error('The payment checkout link is unavailable. Please try again.');
+      const checkout: PendingGcashCheckout = {
+        ...context, paymentIntentId: response.data.paymentIntentId,
+        redirectUrl: response.data.redirectUrl, expectedAmount: response.data.expectedAmount,
+      };
+      rememberGcashCheckout(checkout);
+      navigateGcashWindow(popup, checkout.redirectUrl);
+      return checkout;
+    } catch (error) {
+      popup?.close();
+      throw error;
+    }
+  };
 
   const postJobRequest = async (
     seekerId: string,
@@ -87,7 +109,6 @@ export function useSeekerActions({
         });
 
         if (res.success) {
-          await syncRequests();
           success('Request posted', 'Providers can now see your request.');
           return true;
         }
@@ -197,41 +218,16 @@ export function useSeekerActions({
           message: description,
         });
         if (res.success) {
-          await syncEngagements();
-          await syncNotifications();
           success('Booking request sent', 'Wait for the provider to accept your request.');
           return;
         }
       } else {
-        const payRes = await apiInitiatePayment({
-          serviceId,
-          quantity,
-          paymentMethodType: 'gcash',
-        });
-        if (payRes.success) {
-          if (payRes.data.redirectUrl) {
-            rememberGcashCheckout({
-              seekerId, serviceId, paymentIntentId: payRes.data.paymentIntentId,
-              redirectUrl: payRes.data.redirectUrl,
-            });
-            info('GCash checkout ready', 'Open the payment page to finish your test payment.');
-            window.location.href = paymentReturnPath(payRes.data.paymentIntentId);
-            return;
-          }
-          const confirmRes = await apiConfirmOnlineBooking({
-            serviceId,
-            paymentIntentId: payRes.data.paymentIntentId,
-          });
-          if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
-            await syncEngagements();
-            await syncNotifications();
-            success('Test payment confirmed', 'Your booking is now in the provider’s queue.');
-            return;
-          }
-        }
+        const service = services.find(entry => entry.id === serviceId);
+        return await startGcashCheckout({ seekerId, serviceId, quantity, title: service?.title, providerName: service?.providerName });
       }
     } catch (err: unknown) {
       toastError('Booking Failed', getApiErrorMessage(err, 'Unable to create the booking.'));
+      throw err;
     }
   };
 
@@ -250,41 +246,13 @@ export function useSeekerActions({
       if (paymentMethod === 'On-site Cash') {
         const res = await apiBookDirectFromOffer(bidId);
         if (res.success) {
-          await Promise.allSettled([syncEngagements(), syncBids(), syncRequests()]);
+          setBids(current => current.map(bid => bid.id === bidId ? { ...bid, status: 'accepted' } : bid));
           success('Offer accepted', 'You can now message the provider to arrange the work.');
           return;
         }
       } else {
         const serviceId = targetBid.serviceId;
-
-        const payRes = await apiInitiatePayment({
-          ...(serviceId ? { serviceId } : {}),
-          offerId: bidId,
-          paymentMethodType: 'gcash',
-        });
-
-        if (payRes.success) {
-          if (payRes.data.redirectUrl) {
-            rememberGcashCheckout({
-              seekerId: seekerId!, serviceId, offerId: bidId,
-              paymentIntentId: payRes.data.paymentIntentId, redirectUrl: payRes.data.redirectUrl,
-            });
-            info('GCash checkout ready', 'Open the payment page to finish your test payment.');
-            window.location.href = paymentReturnPath(payRes.data.paymentIntentId);
-            return;
-          }
-          const confirmRes = await apiConfirmOnlineBooking({
-            ...(serviceId ? { serviceId } : {}),
-            paymentIntentId: payRes.data.paymentIntentId,
-            offerId: bidId
-          });
-
-          if (confirmRes.success && confirmRes.data?.status === 'SUCCEEDED') {
-            await Promise.allSettled([syncEngagements(), syncBids(), syncRequests()]);
-            success('Offer accepted', 'Your test payment is confirmed. You’re now in the provider’s queue.');
-            return;
-          }
-        }
+        return await startGcashCheckout({ seekerId: seekerId!, serviceId, offerId: bidId, title: targetRequest?.title || targetBid.requestTitle, providerName: targetBid.providerName });
       }
     } catch (err: unknown) {
       toastError('Action Failed', getApiErrorMessage(err, 'Unable to accept the offer.'));
@@ -299,7 +267,6 @@ export function useSeekerActions({
         const status = normalizeOfferStatus(res.data?.status || 'REJECTED');
         setBids(current => current.map(bid => bid.id === bidId ? { ...bid, status, decisionReason: status === 'declined' ? 'DECLINED' : null } : bid));
         success(status === 'withdrawn' ? 'Offer withdrawn' : 'Offer declined', status === 'withdrawn' ? 'Your offer is no longer available to the seeker.' : 'The provider has been notified.');
-        void syncBids().catch(() => { /* The decision is already committed. */ });
         return;
       }
     } catch (err: unknown) {
@@ -312,9 +279,7 @@ export function useSeekerActions({
     try {
       const res = await apiConfirmCompletion(jobId);
       if (res.success) {
-        await syncEngagements();
-        await syncNotifications();
-        await syncTransactions();
+        if (res.data) applyBookingAction(res.data);
         success('Booking completed', 'You can now leave a review of the service.');
         return;
       }
@@ -328,7 +293,7 @@ export function useSeekerActions({
     try {
       const res = await apiDisputeJob(jobId, reason, description, evidenceUrl);
       if (res.success) {
-        await syncEngagements();
+        if (res.data?.booking) applyBookingAction(res.data);
         success('Dispute Filed', 'Admin has been notified and payment has been frozen.');
         return;
       }

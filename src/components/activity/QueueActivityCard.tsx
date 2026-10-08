@@ -27,7 +27,7 @@ export default function QueueActivityCard({ entry, tone, onOpen, onStart }: Queu
       : 'Your booking is in the queue. Check the payment status shown here for the latest result.';
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-[#22211e]" aria-label={`${entry.title} queue booking`}>
+    <article className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-charcoal-surface" aria-label={`${entry.title} queue booking`}>
       <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(230px,290px)]">
         <div className="flex min-w-0 flex-col p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
@@ -55,7 +55,7 @@ export default function QueueActivityCard({ entry, tone, onOpen, onStart }: Queu
                 onClick={onStart}
                 disabled={!ready || !onStart || entry.startPending || entry.startBusy}
                 aria-label={`Start Job: ${entry.title}`}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-ink-muted dark:disabled:bg-neutral-700 dark:disabled:text-ink-secondary"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-ink-muted dark:disabled:bg-charcoal dark:disabled:text-ink-secondary"
               >
                 <Play size={17} weight="fill" aria-hidden="true" /> {entry.startPending ? 'Starting...' : 'Start Job'}
               </button>
@@ -73,7 +73,7 @@ export default function QueueActivityCard({ entry, tone, onOpen, onStart }: Queu
           </p>
         </div>
 
-        <div className="flex flex-col border-t border-stone-200 bg-stone-50/70 p-5 sm:p-6 lg:border-l lg:border-t-0 dark:border-neutral-700 dark:bg-neutral-800/50">
+        <div className="flex flex-col border-t border-stone-200 bg-stone-50/70 p-5 sm:p-6 lg:border-l lg:border-t-0 dark:border-neutral-700 dark:bg-charcoal/50">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-5">
             <div>
               <span className="block text-xs font-semibold text-ink-muted dark:text-ink-secondary">Queue position</span>

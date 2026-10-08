@@ -1,16 +1,5 @@
 import React, { useEffect } from 'react';
-
-interface GoogleCredentialResponse { credential?: string }
-interface GoogleIdentityApi {
-  initialize: (options: { client_id: string; nonce?: string; auto_select: boolean; cancel_on_tap_outside: boolean; use_fedcm_for_button: boolean; callback: (response: GoogleCredentialResponse) => void }) => void;
-  renderButton: (container: HTMLElement, options: { theme: string; size: string; shape: string; width: number }) => void;
-}
-
-declare global {
-  interface Window {
-    google?: { accounts?: { id?: GoogleIdentityApi } };
-  }
-}
+import { bindGoogleIdentity, type GoogleCredentialResponse } from '@/lib/googleIdentity';
 
 interface GoogleSignInButtonProps {
   onSuccess: (idToken: string) => void;
@@ -43,6 +32,7 @@ export default function GoogleSignInButton({
 
     let active = true;
     let initialized = false;
+    let releaseIdentity: (() => void) | undefined;
     const failed = () => {
       if (!active) return;
       window.clearTimeout(timeout);
@@ -56,19 +46,16 @@ export default function GoogleSignInButton({
       const google = window.google?.accounts?.id;
       if (!google || !container.current) { failed(); return; }
       try {
-        // GSI remembers the last initialize() configuration, including its
-        // callback and verification nonce. Bind it to this live auth screen.
-        google.initialize({
+        releaseIdentity = bindGoogleIdentity(google, {
           client_id: clientId,
           auto_select: false,
           cancel_on_tap_outside: true,
           // Let supported browsers mediate sign-in without popup postMessage.
           use_fedcm_for_button: true,
-          callback: (response: GoogleCredentialResponse) => {
-            if (active && !handlers.current.disabled && response?.credential) {
-              handlers.current.onSuccess(response.credential);
-            }
-          },
+        }, (response: GoogleCredentialResponse) => {
+          if (active && !handlers.current.disabled && response?.credential) {
+            handlers.current.onSuccess(response.credential);
+          }
         });
         initialized = true;
         window.clearTimeout(timeout);
@@ -99,6 +86,7 @@ export default function GoogleSignInButton({
 
     return () => {
       active = false;
+      releaseIdentity?.();
       window.clearTimeout(timeout);
       script.removeEventListener('load', initializeGoogle);
       script.removeEventListener('error', failed);
@@ -134,7 +122,7 @@ export default function GoogleSignInButton({
     <div className="w-full mb-3">
       <div className="relative w-full group overflow-hidden rounded-xl">
         {/* Visual Custom Button */}
-        <div className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 dark:bg-[#141417] hover:dark:bg-[#1c1c21] border border-slate-200 dark:border-slate-800 text-ink-secondary dark:text-white rounded-xl py-3 px-4 font-semibold text-sm transition-all duration-150 shadow-sm cursor-pointer select-none">
+        <div className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 dark:bg-charcoal hover:dark:bg-charcoal border border-slate-200 dark:border-slate-800 text-ink-secondary dark:text-white rounded-xl py-3 px-4 font-semibold text-sm transition-all duration-150 shadow-sm cursor-pointer select-none">
           <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
             <path
               fill="#EA4335"

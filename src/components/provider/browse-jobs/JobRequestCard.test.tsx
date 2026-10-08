@@ -15,14 +15,21 @@ describe('request card reputation and actions', () => {
     expect(screen.queryByText('Verified resident')).not.toBeInTheDocument();
     expect(screen.queryByText('Client')).not.toBeInTheDocument();
     expect(screen.getByText('4.5')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'View client reviews for Maria Santos' }));
+    expect(screen.getByRole('img', { name: 'Service seeker rating: 4.5 out of 5 from 2 reviews' })).toBeInTheDocument();
+    expect(screen.getByText('(2)')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'View service seeker reviews for Maria Santos' }));
     expect(props.onProfile).toHaveBeenCalledWith(true);
     fireEvent.click(screen.getByRole('button', { name: 'Send Offer' }));
     expect(props.onSendOffer).toHaveBeenCalled();
   });
+  it('distinguishes an unavailable rating from a member with no reviews', () => {
+    render(<JobRequestCard {...props} request={{ ...request, seekerRating: undefined, seekerReviewCount: undefined }} />);
+    expect(screen.getByText('Seeker reviews unavailable')).toBeInTheDocument();
+    expect(screen.queryByText('No seeker reviews yet')).not.toBeInTheDocument();
+  });
   it('does not invent a rating or verification for an unreviewed account', () => {
     render(<JobRequestCard {...props} request={{ ...request, seekerRating: 0, seekerReviewCount: 0, seekerVerificationStatus: 'PENDING' }} />);
-    expect(screen.getByRole('button', { name: 'View client reviews for Maria Santos' })).toHaveAttribute('title', 'No client reviews yet');
+    expect(screen.getByRole('img', { name: 'No reviews yet as a service seeker' })).toHaveTextContent('0.0(0)');
     expect(screen.queryByText('4.5')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Verified resident')).not.toBeInTheDocument();
   });

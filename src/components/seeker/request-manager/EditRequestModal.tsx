@@ -27,13 +27,13 @@ export default function EditRequestModal({ value, isDark, isSaving = false, onCh
   const dialogRef = useDialogFocus(Boolean(value), isSaving, onClose);
   if (!value) return null;
   const labelClass = `text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`;
-  const fieldClass = `w-full px-4 py-3 rounded-xl border outline-none text-sm transition-all ${isDark ? 'bg-[#1c1b18] border-neutral-855 text-white focus:border-orange-500' : 'bg-slate-50 border-slate-200 text-ink-secondary focus:border-orange-500'}`;
+  const fieldClass = `w-full px-4 py-3 rounded-xl border outline-none text-sm transition-all ${isDark ? 'bg-charcoal-inset border-neutral-855 text-white focus:border-orange-500' : 'bg-slate-50 border-slate-200 text-ink-secondary focus:border-orange-500'}`;
   return (
-    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="edit-request-heading" aria-busy={isSaving} tabIndex={-1} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
-      <div className={`rounded-[24px] max-w-lg max-h-[calc(100dvh-2rem)] w-full overflow-y-auto shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'}`}>
-        <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-855 bg-[#1c1b18]/45' : 'border-slate-100 bg-slate-50/50'}`}>
+    <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="edit-request-heading" aria-busy={isSaving} tabIndex={-1} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm select-none animate-in fade-in duration-200">
+      <div className={`rounded-[24px] max-w-lg max-h-[calc(100dvh-2rem)] w-full overflow-y-auto shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'}`}>
+        <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-855 bg-charcoal-inset/45' : 'border-slate-100 bg-slate-50/50'}`}>
           <h3 id="edit-request-heading" className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>Edit Request details</h3>
-          <button type="button" aria-label="Close edit request" disabled={isSaving} onClick={onClose} className={`p-1.5 rounded-lg border transition-colors disabled:cursor-wait disabled:opacity-50 ${isDark ? 'border-neutral-800 hover:bg-slate-800 text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'}`}><X className="w-4 h-4" /></button>
+          <button type="button" aria-label="Close edit request" disabled={isSaving} onClick={onClose} className={`p-1.5 rounded-lg border transition-colors disabled:cursor-wait disabled:opacity-50 ${isDark ? 'border-neutral-800 hover:bg-charcoal text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'}`}><X className="w-4 h-4" /></button>
         </div>
         <form onSubmit={onSubmit} className="p-5 space-y-4">
           <div><label htmlFor="edit-request-title" className={labelClass}>Request Title</label><ListingTitleInput id="edit-request-title" disabled={isSaving} required minLength={3} maxLength={100} value={value.title} onChange={(event) => onChange({ ...value, title: event.target.value })} className={`${fieldClass} font-medium`} /></div>
@@ -48,7 +48,7 @@ export default function EditRequestModal({ value, isDark, isSaving = false, onCh
           </div>
           <div><label htmlFor="edit-request-description" className={labelClass}>Description</label><textarea id="edit-request-description" disabled={isSaving} rows={4} required value={value.description} onChange={(event) => onChange({ ...value, description: event.target.value })} className={`${fieldClass} font-medium resize-none`} /></div>
           <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-            <button type="button" disabled={isSaving} onClick={onClose} className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all disabled:cursor-wait disabled:opacity-50 ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27] text-ink-muted' : 'border-slate-200 hover:bg-slate-50 text-ink-muted'}`}>Cancel</button>
+            <button type="button" disabled={isSaving} onClick={onClose} className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all disabled:cursor-wait disabled:opacity-50 ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover text-ink-muted' : 'border-slate-200 hover:bg-slate-50 text-ink-muted'}`}>Cancel</button>
             <button type="submit" disabled={isSaving} aria-live="polite" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 disabled:cursor-wait disabled:opacity-75">
               {isSaving && <CircleNotch className="w-4 h-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
               {isSaving ? 'Saving changes…' : 'Save Changes'}

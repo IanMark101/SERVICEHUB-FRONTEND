@@ -271,10 +271,10 @@ export default function Header({
     setShowProfileMenu(false);
   };
 
-  const handleNotificationClick = (link?: string | null) => {
+  const handleNotificationClick = (link?: string | null, title?: string) => {
     setShowNotifications(false);
     markNotificationsRead(userId);
-    const targetRoute = resolveNotificationLink(link, currentRole);
+    const targetRoute = resolveNotificationLink(link, currentRole, userId, title);
     if (!targetRoute) return;
 
     if (targetRoute.startsWith('/')) {

@@ -201,7 +201,7 @@ export default function ProfileHeader({
                 )}
               </span>
               <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">
-                marketplace rating
+                provider rating
               </span>
             </div>
 
@@ -312,7 +312,7 @@ export default function ProfileHeader({
                 <span className="text-xs sm:text-sm font-semibold text-[color:var(--workspace-muted)]">No ratings yet</span>
               )}
             </span>
-            <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">rating</span>
+            <span className="mt-0.5 text-xs font-medium lowercase text-[color:var(--workspace-muted)]">provider rating</span>
           </div>
           <div className="flex flex-col items-center justify-center px-2">
             <span className={`flex items-center justify-center gap-1.5 text-xl sm:text-2xl font-extrabold tabular-nums ${accentText}`}>

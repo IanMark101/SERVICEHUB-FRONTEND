@@ -33,6 +33,18 @@ function renderListing(service: ServiceListing) {
 }
 
 describe('Seek Services listing booking entry point', () => {
+  it('shows the same zero rating format for an unreviewed provider and opens provider reviews', () => {
+    const { push } = renderListing(listing);
+    expect(screen.getByRole('img', { name: 'No reviews yet as a service provider' })).toHaveTextContent('0.0(0)');
+    expect(screen.queryByText('NEW')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'View reviews for Ian' }));
+    expect(push).toHaveBeenCalledWith('/profile/provider-1?tab=reviews&reviewRole=provider');
+  });
+
+  it('preserves the actual rating and count for reviewed providers', () => {
+    renderListing({ ...listing, rating: 4.5, reviewCount: 2 });
+    expect(screen.getByRole('img', { name: 'Service provider rating: 4.5 out of 5 from 2 reviews' })).toHaveTextContent('4.5(2)');
+  });
   it('opens direct booking for a FIXED listing instead of redirecting to Post Request', () => {
     const { push, handleBookListing } = renderListing(listing);
     expect(screen.getByText('Accepted payment methods')).toBeInTheDocument();

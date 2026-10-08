@@ -13,6 +13,8 @@ import { clearAccessToken } from '../../lib/api/axios';
 import OnboardingGate from '../../features/onboarding/components/OnboardingGate';
 import { usePersistentSidebarState } from '../../hooks/usePersistentSidebarState';
 import BrandLoading from '@/components/ui/BrandLoading';
+import GcashCheckoutHost from '../../components/seeker/GcashCheckoutHost';
+import sidebarStyles from '../../components/layout/Sidebar.module.css';
 
 export default function SeekerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -71,7 +73,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className={`workspace-shell workspace-shell--seeker h-dvh overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'
+      isDark ? 'bg-charcoal-canvas text-white' : 'bg-[#f7f6f3] text-ink'
     }`}>
       
       {/* Sidebar Component */}
@@ -89,9 +91,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
       />
  
       {/* Main Content Pane */}
-      <div className={`workspace-stage flex-1 flex flex-col min-w-0 h-dvh overflow-y-auto transition-all duration-300 ${
-        isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
-      }`}>
+      <div data-sidebar-collapsed={isSidebarCollapsed} className={`workspace-stage flex-1 flex flex-col min-w-0 h-dvh overflow-y-auto transition-all duration-300 ${sidebarStyles.stage}`}>
         
         {/* Sticky Header Component */}
         <Header 
@@ -139,6 +139,8 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
         state={confirmModal}
         onClose={() => setConfirmModal(null)}
       />
+
+      <GcashCheckoutHost key={user?.id} />
 
       <Suspense fallback={null}>
         <OnboardingGate workspace="seeker" />

@@ -13,7 +13,7 @@ export default function NewCategoriesSection({ categories = [], isDark = false, 
   return (
     <section className={`min-w-0 rounded-3xl border p-4 sm:p-6 transition-all ${
       isDark
-        ? 'bg-[#1c1b18] border-neutral-800/90 shadow-xl shadow-black/40'
+        ? 'bg-charcoal-inset border-neutral-800/90 shadow-xl shadow-black/40'
         : 'bg-white border-slate-200/90 shadow-sm shadow-slate-900/5'
     }`} aria-labelledby="new-categories-title">
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-neutral-800/80 pb-3.5">

@@ -68,7 +68,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
 
       {/* Date filter row */}
       <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-[24px] p-5 border shadow-sm transition-colors duration-200 ${
-        isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
+        isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-200'
       }`}>
         <div>
           <span className={`text-[9px] font-bold uppercase tracking-widest block mb-0.5 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>Total Earnings</span>
@@ -76,7 +76,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
         </div>
 
         <div className={`form-control-group flex items-center rounded-xl px-3 py-2 text-xs border ${
-          isDark ? 'bg-[#1c1b18] border-neutral-850' : 'bg-slate-50 border-slate-200'
+          isDark ? 'bg-charcoal-inset border-neutral-850' : 'bg-slate-50 border-slate-200'
         }`}>
           <Calendar className={`w-4 h-4 mr-1.5 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`} />
           <input
@@ -103,13 +103,13 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
       {/* Ledger Rows */}
       {myTransactions.length === 0 ? (
         <div className={`rounded-[24px] p-12 border text-center text-sm font-medium transition-colors duration-200 ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
+          isDark ? 'bg-charcoal-surface border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
         }`}>
           No transaction history found.
         </div>
       ) : (
         <div className={`rounded-[24px] border overflow-hidden shadow-sm transition-colors duration-200 ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
+          isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-200'
         }`}>
 
           {/* Navigation layout strips */}
@@ -118,7 +118,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
             {/* Arrows decorations */}
             <div className="absolute top-1/2 -left-4 -translate-y-1/2 hidden md:block">
               <button className={`w-8 h-8 rounded-full border flex items-center justify-center shadow transition-all active:scale-90 ${
-                isDark ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:text-white' : 'border-slate-200 bg-white text-ink-subtle hover:text-ink-secondary'
+                isDark ? 'border-neutral-800 bg-charcoal-inset text-ink-muted hover:text-white' : 'border-slate-200 bg-white text-ink-subtle hover:text-ink-secondary'
               }`}>
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -126,7 +126,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
 
             <div className="absolute top-1/2 -right-4 -translate-y-1/2 hidden md:block">
               <button className={`w-8 h-8 rounded-full border flex items-center justify-center shadow transition-all active:scale-90 ${
-                isDark ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:text-white' : 'border-slate-200 bg-white text-ink-subtle hover:text-ink-secondary'
+                isDark ? 'border-neutral-800 bg-charcoal-inset text-ink-muted hover:text-white' : 'border-slate-200 bg-white text-ink-subtle hover:text-ink-secondary'
               }`}>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -149,7 +149,7 @@ export default function TransactionHistory({ currentUserId = 'u3' }: { currentUs
                     isHighlighted
                       ? (isDark ? 'border-orange-500 bg-orange-950/10 ring-1 ring-orange-500/30' : 'border-orange-400 bg-orange-50/70 ring-1 ring-orange-400/40')
                       : isDark
-                      ? 'bg-[#1c1b18] border-neutral-850 hover:border-neutral-800'
+                      ? 'bg-charcoal-inset border-neutral-850 hover:border-neutral-800'
                       : 'bg-slate-50 border-slate-100 hover:border-slate-200'
                   }`}
                 >

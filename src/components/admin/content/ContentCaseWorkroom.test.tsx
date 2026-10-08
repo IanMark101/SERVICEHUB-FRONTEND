@@ -46,4 +46,37 @@ describe('Content case decision safety', () => {
     fireEvent.click(screen.getByRole('radio', { name: /Restore content/ }));
     expect(screen.queryByLabelText(/Account consequence/)).not.toBeInTheDocument();
   });
+  it('separates a resolved content removal from the owner ban and keeps the original content available', () => {
+    render(<ContentCaseWorkroom item={{ ...fixtureCase, status: 'RESOLVED', decision: 'REMOVE', penalty: 'ban',
+      resolution: 'The reviewed content violated the publication rules.', allowedDecisions: [],
+      decisionResult: { contentStatus: 'SUSPENDED', ownerStatus: 'BANNED' } }} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'Recorded outcome' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Recorded outcome' }));
+    expect(screen.getByRole('heading', { name: 'Recorded outcome' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'What was reported' })).not.toBeInTheDocument();
+    expect(screen.getByText('Content action')).toBeInTheDocument();
+    expect(screen.getByText('Account action')).toBeInTheDocument();
+    expect(screen.getAllByText('Removed from marketplace')).toHaveLength(2);
+    expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    expect(screen.queryByText(fixtureCase.contentSnapshot!.description)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Reported content' }));
+    expect(screen.getByText(fixtureCase.contentSnapshot!.description)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'People & bookings' }));
+    expect(screen.getByText('Owner’s bookings and payments')).toBeInTheDocument();
+    expect(apiDecideContentCase).not.toHaveBeenCalled();
+  });
+  it('preserves an entered decision while the admin checks the content and people', () => {
+    render(<ContentCaseWorkroom item={fixtureCase} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);
+    chooseRemoval();
+    fireEvent.click(screen.getByRole('button', { name: 'Reported content' }));
+    fireEvent.click(screen.getByRole('button', { name: 'People & bookings' }));
+    expect(screen.getByRole('radio', { name: /Remove content/ })).toBeChecked();
+    expect(screen.getByLabelText(/Decision explanation/)).toHaveValue(notes);
+    expect(apiDecideContentCase).not.toHaveBeenCalled();
+  });
+  it('does not call the content changed when only its moderation timestamp changed', () => {
+    render(<ContentCaseWorkroom item={{ ...fixtureCase, content: { ...fixtureCase.content!, updatedAt: '2026-10-07T00:00:00Z' } }} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Reported content' }));
+    expect(screen.queryByText(/View current version/)).not.toBeInTheDocument();
+  });
 });

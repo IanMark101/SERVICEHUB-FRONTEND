@@ -58,11 +58,11 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
           inputMode={inputMode}
           aria-invalid={Boolean(error)}
           aria-describedby={error || helperText ? messageId : undefined}
-          className={`w-full border bg-[#f8f6f2] dark:bg-zinc-900/60 ${
+          className={`w-full border bg-[#f8f6f2] dark:bg-charcoal/60 ${
             error
               ? 'border-rose-500 ring-2 ring-rose-500/10 dark:ring-rose-500/20'
               : 'border-[#dedbd5] hover:border-[#c8c3bb] dark:border-white/10 dark:hover:border-white/20'
-          } rounded-xl px-3.5 py-3 text-sm text-ink placeholder:text-ink-muted transition-[background-color,border-color,box-shadow] focus:border-[#c86544] focus:bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#c86544]/15 dark:text-white dark:placeholder:text-ink-muted dark:focus:border-orange-500 dark:focus:bg-zinc-900 dark:focus:ring-orange-500/20 ${
+          } rounded-xl px-3.5 py-3 text-sm text-ink placeholder:text-ink-muted transition-[background-color,border-color,box-shadow] focus:border-[#c86544] focus:bg-[#fffdfa] focus:outline-none focus:ring-2 focus:ring-[#c86544]/15 dark:text-white dark:placeholder:text-ink-muted dark:focus:border-orange-500 dark:focus:bg-charcoal dark:focus:ring-orange-500/20 ${
             children ? 'pr-11' : ''
           } ${className}`}
         />

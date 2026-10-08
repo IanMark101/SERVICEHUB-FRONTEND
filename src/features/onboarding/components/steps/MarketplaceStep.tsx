@@ -8,9 +8,9 @@ const Flow = ({ title, description, steps, icon: Icon, isDark }: {
   icon: typeof Store;
   isDark: boolean;
 }) => (
-  <article className={`rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-[#1c1b18]' : 'border-slate-200 bg-slate-50/70'}`}>
+  <article className={`rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-charcoal-inset' : 'border-slate-200 bg-slate-50/70'}`}>
     <div className="flex items-start gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-ink-secondary dark:border-neutral-700 dark:bg-[#22211e] dark:text-ink-secondary">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-ink-secondary dark:border-neutral-700 dark:bg-charcoal-surface dark:text-ink-secondary">
         <Icon className="h-4 w-4" aria-hidden="true" />
       </span>
       <div>
@@ -21,7 +21,7 @@ const Flow = ({ title, description, steps, icon: Icon, isDark }: {
     <ol className="mt-4 flex flex-wrap items-center gap-2" aria-label={`${title} steps`}>
       {steps.map((step, index) => (
         <li key={step} className="flex items-center gap-2">
-          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-ink-secondary dark:border-neutral-700 dark:bg-[#22211e] dark:text-ink-secondary">{step}</span>
+          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-ink-secondary dark:border-neutral-700 dark:bg-charcoal-surface dark:text-ink-secondary">{step}</span>
           {index < steps.length - 1 && <ArrowRight className="h-3 w-3 text-ink-subtle" aria-hidden="true" />}
         </li>
       ))}

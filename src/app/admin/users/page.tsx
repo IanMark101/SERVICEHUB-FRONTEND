@@ -205,7 +205,7 @@ export default function AdminUsers() {
         
         {/* Search */}
         <div className={`form-control-group flex items-center rounded-xl px-3 py-2 w-full md:max-w-xs border transition-all ${
-          isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-slate-50 border-slate-200'
+          isDark ? 'bg-charcoal-inset border-neutral-800' : 'bg-slate-50 border-slate-200'
         }`}>
           <Search className={`w-4 h-4 mr-2 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`} />
           <input
@@ -233,7 +233,7 @@ export default function AdminUsers() {
             value={roleFilter}
             onChange={(e) => { setRoleFilter(e.target.value); setPage(1); }}
             className={`px-3 py-2 rounded-xl text-xs font-bold border outline-none cursor-pointer ${
-              isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
+              isDark ? 'bg-charcoal-inset border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
             }`}
           >
             <option value="">All Roles</option>
@@ -248,7 +248,7 @@ export default function AdminUsers() {
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className={`px-3 py-2 rounded-xl text-xs font-bold border outline-none cursor-pointer ${
-              isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
+              isDark ? 'bg-charcoal-inset border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
             }`}
           >
             <option value="">All Statuses</option>
@@ -264,7 +264,7 @@ export default function AdminUsers() {
             value={limit}
             onChange={(e) => { setLimit(parseInt(e.target.value)); setPage(1); }}
             className={`px-3 py-2 rounded-xl text-xs font-bold border outline-none cursor-pointer ${
-              isDark ? 'bg-[#1c1b18] border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
+              isDark ? 'bg-charcoal-inset border-neutral-800 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
             }`}
           >
             <option value={4}>4 per page</option>
@@ -275,7 +275,7 @@ export default function AdminUsers() {
 
           <button
             onClick={() => { invalidateApiCache(['admin']); fetchUsers(); }}
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
+            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-charcoal dark:text-ink"
           >
             Refresh
           </button>
@@ -295,24 +295,24 @@ export default function AdminUsers() {
             <div
               key={i}
               className={`rounded-[24px] p-6 border shadow-sm flex flex-col space-y-4 animate-pulse ${
-                isDark ? 'bg-[#22211e] border-neutral-800/80' : 'bg-white border-slate-200'
+                isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-200'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="space-y-2 w-1/2">
-                  <div className="h-4 bg-slate-200 dark:bg-neutral-800 rounded w-3/4" />
-                  <div className="h-3 bg-slate-200 dark:bg-neutral-800 rounded w-5/6" />
+                  <div className="h-4 bg-slate-200 dark:bg-charcoal rounded w-3/4" />
+                  <div className="h-3 bg-slate-200 dark:bg-charcoal rounded w-5/6" />
                 </div>
-                <div className="h-6 bg-slate-200 dark:bg-neutral-800 rounded w-16" />
+                <div className="h-6 bg-slate-200 dark:bg-charcoal rounded w-16" />
               </div>
-              <div className="h-10 bg-slate-200 dark:bg-neutral-800 rounded" />
-              <div className="h-8 bg-slate-200 dark:bg-neutral-800 rounded w-1/3 self-end" />
+              <div className="h-10 bg-slate-200 dark:bg-charcoal rounded" />
+              <div className="h-8 bg-slate-200 dark:bg-charcoal rounded w-1/3 self-end" />
             </div>
           ))}
         </div>
       ) : users.length === 0 ? (
         <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
-          isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
+          isDark ? 'bg-charcoal-surface border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
         }`}>
           No users match the search filters.
         </div>
@@ -323,7 +323,7 @@ export default function AdminUsers() {
               <div
                 key={u.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-colors ${
-                  isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200 hover:shadow-md'
+                  isDark ? 'bg-charcoal-surface border-neutral-800' : 'bg-white border-slate-200 hover:shadow-md'
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -345,7 +345,7 @@ export default function AdminUsers() {
                 </div>
 
                 <div className={`rounded-xl p-3 border text-[10px] flex items-center justify-between ${
-                  isDark ? 'bg-neutral-800/40 border-neutral-800' : 'bg-slate-50 border-slate-100'
+                  isDark ? 'bg-charcoal/40 border-neutral-800' : 'bg-slate-50 border-slate-100'
                 }`}>
                   <div className="flex items-center space-x-1.5 font-semibold">
                     <span className={`w-2.5 h-2.5 rounded-full ${u.moderationStatus === 'ACTIVE' && u.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />

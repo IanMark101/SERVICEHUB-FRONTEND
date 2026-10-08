@@ -55,7 +55,7 @@ export default function HelpHomePage() {
         <div aria-hidden="true" className="pointer-events-none absolute -left-8 top-20 -z-10 h-80 w-[42rem] max-w-[82vw] rounded-full bg-[#d97757]/10 blur-[110px] dark:bg-[#c86544]/8" />
         <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-6 -z-10 h-64 w-[34rem] max-w-[70vw] rounded-full bg-[#e18463]/8 blur-[120px] dark:bg-[#e18463]/6" />
 
-        <div className="flex min-h-[30rem] flex-col justify-center rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_44px_rgba(200,101,68,0.075)] dark:border-white/10 dark:bg-[#171716]/96 dark:shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:p-10">
+        <div className="flex min-h-[30rem] flex-col justify-center rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_44px_rgba(200,101,68,0.075)] dark:border-white/10 dark:bg-charcoal/96 dark:shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:p-10">
           <h1 className="max-w-[15ch] text-[clamp(2.6rem,4.7vw,4.5rem)] font-medium leading-[0.99] tracking-[-0.04em] text-ink dark:text-white">
             Help for every step of local work.
           </h1>
@@ -75,7 +75,7 @@ export default function HelpHomePage() {
           </Link>
         </div>
 
-        <div className="flex flex-col rounded-2xl bg-[#171716] p-7 text-white shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9">
+        <div className="flex flex-col rounded-2xl bg-charcoal p-7 text-white shadow-[0_18px_45px_rgba(23,23,22,0.14)] sm:p-9">
           <div className="flex items-start justify-between gap-6 border-b border-white/12 pb-5">
             <div>
               <h2 className="text-xl font-semibold tracking-[-0.025em]">Start with a common question</h2>
@@ -145,7 +145,7 @@ export default function HelpHomePage() {
         </div>
       </section>
 
-      <section className="flex flex-col items-start justify-between gap-7 rounded-2xl bg-[#171716] p-8 text-white shadow-[0_18px_45px_rgba(23,23,22,0.13)] sm:p-10 md:flex-row md:items-center">
+      <section className="flex flex-col items-start justify-between gap-7 rounded-2xl bg-charcoal p-8 text-white shadow-[0_18px_45px_rgba(23,23,22,0.13)] sm:p-10 md:flex-row md:items-center">
         <div>
           <h2 className="max-w-[24ch] text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">Need help with an account or dispute?</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">Cordova Municipal Moderation can assist with residency verification reviews and dispute arbitration.</p>
@@ -168,7 +168,7 @@ function CategoryGroup({ title, description, slugs }: (typeof categoryGroups)[nu
     .filter((category): category is NonNullable<typeof category> => Boolean(category));
 
   return (
-    <section className="rounded-2xl border border-black/8 bg-[#fffdfa] p-6 shadow-[0_12px_32px_rgba(23,23,22,0.045)] dark:border-white/10 dark:bg-[#171716] sm:p-7">
+    <section className="rounded-2xl border border-black/8 bg-[#fffdfa] p-6 shadow-[0_12px_32px_rgba(23,23,22,0.045)] dark:border-white/10 dark:bg-charcoal sm:p-7">
       <h3 className="text-lg font-semibold tracking-[-0.025em]">{title}</h3>
       <p className="mt-2 max-w-xl text-xs leading-5 text-ink-muted dark:text-white/58">{description}</p>
       <div className="mt-4">

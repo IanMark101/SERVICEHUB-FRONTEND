@@ -1,5 +1,6 @@
 import type { JobEngagement } from '../../types';
 import { getActivitySituation } from './ActivitySituation';
+import ActivityDetailSituation from './ActivityDetailSituation';
 
 function actionCopy(booking: JobEngagement, role: 'seeker' | 'provider', currentUserId?: string, activeJobId?: string, paidWaiting?: boolean): string {
   const cancellation = booking.cancellationRequests?.[0];
@@ -23,34 +24,7 @@ export default function ActivityWorkroomSituation({ booking, role, currentUserId
   paidWaiting?: boolean;
 }) {
   const situation = getActivitySituation(booking, role, currentUserId, activeJobId, paidWaiting);
-  const needsAction = situation.tone === 'action';
-  const action = actionCopy(booking, role, currentUserId, activeJobId, paidWaiting);
   const isHistory = booking.status === 'completed' || booking.status === 'canceled';
-  const emphasis = booking.status === 'canceled'
-    ? 'border-stone-300 bg-stone-50/70 dark:border-neutral-700 dark:bg-neutral-800/40'
-    : role === 'seeker'
-    ? 'border-orange-200 bg-orange-50/40 dark:border-orange-900/50 dark:bg-orange-950/15'
-    : 'border-emerald-200 bg-emerald-50/40 dark:border-emerald-900/50 dark:bg-emerald-950/15';
-  return (
-    <div className={`overflow-hidden rounded-2xl border ${emphasis}`}>
-      <section aria-label="What is happening now" className="px-4 py-4 sm:px-6 sm:py-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-ink-muted dark:text-ink-secondary">Now</p>
-          <span className="rounded-full border border-stone-300 bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-ink-secondary dark:border-neutral-600 dark:bg-neutral-800 dark:text-ink">{situation.label}</span>
-        </div>
-        <h2 className="mt-2 text-xl font-bold leading-snug tracking-tight text-ink dark:text-ink sm:text-2xl">{situation.title}</h2>
-        <p className="mt-1 text-base leading-relaxed text-ink-secondary dark:text-ink">{situation.detail}</p>
-      </section>
-      <div className="grid border-t border-stone-200/80 bg-white/80 dark:border-neutral-700 dark:bg-neutral-900/45 sm:grid-cols-2">
-        <section aria-label="Your action" className="px-4 py-3.5 sm:border-r sm:border-stone-200/80 sm:px-6 dark:sm:border-neutral-700">
-          <h3 className={`text-[11px] font-bold uppercase tracking-widest ${needsAction ? role === 'seeker' ? 'text-orange-700 dark:text-orange-400' : 'text-emerald-700 dark:text-emerald-400' : 'text-ink-muted dark:text-ink-secondary'}`}>Your action</h3>
-          <p className="mt-1 text-base font-semibold leading-relaxed text-ink dark:text-ink">{isHistory ? 'No action needed for this booking.' : action}</p>
-        </section>
-        <section aria-label="What happens next" className="border-t border-stone-200/80 px-4 py-3.5 sm:border-t-0 sm:px-6 dark:border-neutral-700">
-          <h3 className="text-[11px] font-bold uppercase tracking-widest text-ink-muted dark:text-ink-secondary">Next</h3>
-          <p className="mt-1 text-base leading-relaxed text-ink dark:text-ink">{situation.next}</p>
-        </section>
-      </div>
-    </div>
-  );
+  return <ActivityDetailSituation situation={situation} role={role} closed={booking.status === 'canceled'}
+    action={isHistory ? 'No action needed for this booking.' : actionCopy(booking, role, currentUserId, activeJobId, paidWaiting)} />;
 }

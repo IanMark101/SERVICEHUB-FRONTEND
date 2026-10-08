@@ -3,9 +3,9 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
-import BrandLoading from '../ui/BrandLoading';
+import ProfilePageSkeleton from './ProfilePageSkeleton';
 
-export default function LegacyProfileRedirect({ role }: { role: 'seeker' | 'provider' }) {
+export default function LegacyProfileRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useApp();
@@ -19,5 +19,5 @@ export default function LegacyProfileRedirect({ role }: { role: 'seeker' | 'prov
     router.replace(`/profile/${encodeURIComponent(targetId)}${query}`);
   }, [router, searchParams, targetId]);
 
-  return <BrandLoading label="Opening marketplace profile" role={role} />;
+  return <ProfilePageSkeleton isOwnProfile={targetId === user?.id} />;
 }

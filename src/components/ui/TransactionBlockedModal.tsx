@@ -20,11 +20,11 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm select-none animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/75 backdrop-blur-sm select-none animate-in fade-in duration-200">
       
       {/* Modal Card container */}
       <div className={`viewport-dialog-scroll rounded-[24px] max-w-md w-full border shadow-2xl overflow-hidden p-6 relative transition-colors duration-200 ${
-        isDark ? 'bg-[#1c1b18] border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
+        isDark ? 'bg-charcoal-inset border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
       }`}>
         
         {/* Close Button */}
@@ -32,7 +32,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
           onClick={onClose}
           aria-label="Close"
           className={`absolute top-4 right-4 p-1.5 rounded-xl border transition-all cursor-pointer ${
-            isDark ? 'border-neutral-800 hover:bg-neutral-800/80 text-ink-subtle hover:text-white' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle hover:text-ink-secondary'
+            isDark ? 'border-neutral-800 hover:bg-charcoal/80 text-ink-subtle hover:text-white' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle hover:text-ink-secondary'
           }`}
         >
           <X className="w-4 h-4" />
@@ -62,7 +62,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
             onClick={onClose}
             className={`flex-1 py-2.5 font-bold text-xs rounded-xl border transition-all cursor-pointer ${
               isDark
-                ? 'border-neutral-800 hover:bg-neutral-800/60 text-ink-muted hover:text-white'
+                ? 'border-neutral-800 hover:bg-charcoal/60 text-ink-muted hover:text-white'
                 : 'border-slate-200 hover:bg-slate-100 text-ink-muted hover:text-ink'
             }`}
           >
@@ -75,7 +75,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
             className={`flex-1 py-2.5 font-extrabold text-xs rounded-xl shadow-sm transition-all active:scale-98 cursor-pointer ${
               isDark
                 ? 'bg-white hover:bg-neutral-100 text-ink shadow-white/10'
-                : 'bg-neutral-900 hover:bg-black text-white shadow-neutral-900/20'
+                : 'bg-charcoal hover:bg-charcoal text-white shadow-neutral-900/20'
             }`}
           >
             Verify Now

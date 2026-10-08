@@ -5,8 +5,11 @@ import GoogleSignInButton from './shared/GoogleSignInButton';
 import type { FormEvent } from 'react';
 import type { UseFormRegister } from 'react-hook-form';
 import type { AuthFormValues } from '../../schema/auth/useAuthForm';
+import AuthCaptcha from './shared/AuthCaptcha';
+import type { AuthCaptchaModel } from './shared/useAuthCaptcha';
 
 interface LoginFormProps {
+  captcha: AuthCaptchaModel;
   formData: AuthFormValues;
   fieldErrors: Record<string, string>;
   showPassword: boolean;
@@ -23,6 +26,7 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({
+  captcha,
   fieldErrors,
   showPassword,
   setShowPassword,
@@ -92,11 +96,12 @@ export default function LoginForm({
         </div>
 
         {/* Submit button with Tactile Physics */}
+        <AuthCaptcha model={captcha} isDark={isDark} />
         <div className="pt-3">
           <button
             type="submit"
-            disabled={isLoading}
-            className="servicehub-dark-cta flex w-full items-center justify-center gap-2 rounded-xl bg-[#171716] py-3 text-sm font-bold text-white transition-all hover:bg-[#292826] active:translate-y-px disabled:cursor-wait dark:bg-[#e18463] dark:text-charcoal dark:hover:bg-[#eb9577]"
+            disabled={isLoading || captcha.blocked}
+            className="servicehub-dark-cta flex w-full items-center justify-center gap-2 rounded-xl bg-charcoal py-3 text-sm font-bold text-white transition-all hover:bg-charcoal active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e18463] dark:text-charcoal dark:hover:bg-[#eb9577]"
           >
             {isLoading ? (
               <span className="relative z-10">Signing in...</span>
@@ -114,7 +119,7 @@ export default function LoginForm({
           <div className="w-full border-t border-black/[0.08] dark:border-white/10"></div>
         </div>
         <div className="relative flex justify-center text-[10px]">
-          <span className="bg-[#fffdfa] px-3 font-bold uppercase tracking-widest text-ink-muted dark:bg-[#181716] dark:text-ink-muted">
+          <span className="bg-[#fffdfa] px-3 font-bold uppercase tracking-widest text-ink-muted dark:bg-charcoal dark:text-ink-muted">
             OR
           </span>
         </div>

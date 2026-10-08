@@ -39,6 +39,25 @@ const groupIcon = {
   history: CheckCircle,
 };
 
+const activeCardStyles = {
+  seeker: {
+    base: 'border-orange-300 bg-orange-100 focus-visible:outline-orange-600 dark:border-orange-800 dark:bg-orange-950/60',
+    action: 'border-orange-300 bg-orange-200/60 focus-visible:outline-orange-600 dark:border-orange-700 dark:bg-orange-900/40',
+    hover: 'hover:border-orange-400 hover:bg-orange-200/60 dark:hover:border-orange-600 dark:hover:bg-orange-900/40',
+    badge: 'bg-orange-200 text-orange-900 dark:bg-orange-800/60 dark:text-orange-200',
+    actionBadge: 'bg-orange-100 text-orange-900 dark:bg-orange-900/40 dark:text-orange-200',
+    button: 'bg-orange-600 text-white group-hover:bg-orange-700',
+  },
+  provider: {
+    base: 'border-emerald-300 bg-emerald-100 focus-visible:outline-emerald-600 dark:border-emerald-800 dark:bg-emerald-950/60',
+    action: 'border-emerald-300 bg-emerald-200/60 focus-visible:outline-emerald-600 dark:border-emerald-700 dark:bg-emerald-900/40',
+    hover: 'hover:border-emerald-400 hover:bg-emerald-200/60 dark:hover:border-emerald-600 dark:hover:bg-emerald-900/40',
+    badge: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800/60 dark:text-emerald-200',
+    actionBadge: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
+    button: 'bg-emerald-600 text-white group-hover:bg-emerald-700',
+  },
+};
+
 export default function ActivityFeed({ entries, tone, onOpen, onStart, empty }: {
   entries: ActivityFeedEntry[];
   tone: 'seeker' | 'provider';
@@ -47,6 +66,7 @@ export default function ActivityFeed({ entries, tone, onOpen, onStart, empty }: 
   empty?: ReactNode;
 }) {
   if (entries.length === 0) return <>{empty}</>;
+  const styles = activeCardStyles[tone];
   return (
     <div aria-label={`${tone} activity`} className="space-y-7">
       {activityGroupOrder.map((group) => {
@@ -72,7 +92,7 @@ export default function ActivityFeed({ entries, tone, onOpen, onStart, empty }: 
                   const outcomeTone = underReview
                     ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'
                     : closed
-                      ? 'border-stone-300 bg-stone-100 text-ink-secondary dark:border-neutral-600 dark:bg-neutral-800 dark:text-ink'
+                      ? 'border-stone-300 bg-stone-100 text-ink-secondary dark:border-neutral-600 dark:bg-charcoal dark:text-ink'
                       : tone === 'seeker'
                         ? 'border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-900/60 dark:bg-orange-950/30 dark:text-orange-300'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300';
@@ -89,7 +109,7 @@ export default function ActivityFeed({ entries, tone, onOpen, onStart, empty }: 
                       type="button"
                       onClick={() => onOpen(entry)}
                       aria-label={`Open ${entry.kind === 'offer' ? 'offer' : 'booking'} ${entry.title}: ${entry.status}`}
-                      className={`group flex w-full min-w-0 items-start gap-3 overflow-hidden rounded-2xl border bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 sm:items-center sm:gap-4 sm:p-5 dark:bg-[#22211e] ${underReview ? 'border-amber-200/80 focus-visible:outline-amber-600 dark:border-amber-900/50' : 'border-stone-200 focus-visible:outline-stone-700 dark:border-neutral-700'} ${outcomeEdge}`}
+                      className={`group flex w-full min-w-0 items-start gap-3 overflow-hidden rounded-2xl border bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 sm:items-center sm:gap-4 sm:p-5 dark:bg-charcoal-surface ${underReview ? 'border-amber-200/80 focus-visible:outline-amber-600 dark:border-amber-900/50' : 'border-stone-200 focus-visible:outline-stone-700 dark:border-neutral-700'} ${outcomeEdge}`}
                     >
                       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${outcomeTone}`}>
                         <OutcomeIcon size={20} weight="duotone" aria-hidden="true" />
@@ -129,19 +149,19 @@ export default function ActivityFeed({ entries, tone, onOpen, onStart, empty }: 
                     key={`${entry.kind || 'booking'}-${entry.id}`}
                     type="button"
                     onClick={() => onOpen(entry)}
-                    className={`group w-full rounded-2xl border p-5 text-left transition-colors duration-200 hover:border-stone-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 sm:p-6 dark:hover:border-neutral-500 dark:hover:bg-neutral-800/70 ${group === 'your_turn' ? tone === 'seeker' ? 'border-orange-200 bg-orange-50/50 focus-visible:outline-orange-600 dark:border-orange-900/50 dark:bg-orange-950/15' : 'border-emerald-200 bg-emerald-50/50 focus-visible:outline-emerald-600 dark:border-emerald-900/50 dark:bg-emerald-950/15' : 'border-stone-200 bg-white focus-visible:outline-stone-700 dark:border-neutral-700 dark:bg-[#22211e]'}`}
+                    className={`group w-full rounded-2xl border p-5 text-left transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 sm:p-6 ${styles.hover} ${group === 'your_turn' ? styles.action : styles.base}`}
                     aria-label={`Open ${entry.kind === 'offer' ? 'offer' : 'booking'} ${entry.title}: ${entry.status}`}
                   >
-                    <span className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
-                      <span className="min-w-0 flex-1">
+                    <span className="flex flex-col gap-5">
+                      <span className="min-w-0">
                         <span className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-                          <span className="text-base font-bold text-ink dark:text-ink">{entry.title}</span>
-                          <span className="text-base font-bold tabular-nums text-ink dark:text-ink">₱{entry.price}</span>
+                          <span className="min-w-0 flex-1 break-words text-base font-bold text-ink dark:text-ink">{entry.title}</span>
+                          <span className="shrink-0 text-lg font-bold tabular-nums text-ink dark:text-ink">₱{entry.price}</span>
                         </span>
                         <span className="mt-0.5 block text-xs text-ink-muted dark:text-ink-secondary">{entry.participant}</span>
 
                         <span className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
-                          {entry.situationLabel && <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${group === 'your_turn' ? tone === 'seeker' ? 'bg-orange-100 text-orange-900 dark:bg-orange-900/40 dark:text-orange-200' : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200' : 'bg-stone-100 text-ink-secondary dark:bg-neutral-700 dark:text-ink'}`}>{entry.situationLabel}</span>}
+                          {entry.situationLabel && <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${group === 'your_turn' ? styles.actionBadge : styles.badge}`}>{entry.situationLabel}</span>}
                           <span className="text-lg font-bold leading-snug text-ink dark:text-ink">{entry.status}</span>
                         </span>
                         <span className="mt-1.5 block text-sm leading-relaxed text-ink-secondary dark:text-ink">{entry.explanation}</span>
@@ -158,7 +178,7 @@ export default function ActivityFeed({ entries, tone, onOpen, onStart, empty }: 
                           </span>
                         )}
                       </span>
-                      <span className={`inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors lg:w-auto ${group === 'your_turn' ? tone === 'seeker' ? 'bg-orange-600 text-white group-hover:bg-orange-700' : 'bg-emerald-600 text-white group-hover:bg-emerald-700' : 'border border-stone-300 text-ink group-hover:border-stone-500 dark:border-neutral-600 dark:text-ink'}`}>
+                      <span className={`inline-flex min-h-11 w-full self-end shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors sm:w-auto ${styles.button}`}>
                         {entry.openLabel || 'View booking'} <ArrowRight size={17} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
                       </span>
                     </span>

@@ -1,6 +1,6 @@
-.overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgb(23 23 22 / 0.64); }
+.overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgb(10 10 10 / 0.64); }
 .panel { --detail-surface: #fffdfa; --detail-soft: #f6f4f0; --detail-header: #faf0ea; --detail-border: #e7e1d9; --detail-ink: #211e1a; --detail-muted: #655e56; --detail-accent: #aa5032; --detail-button: #c86544; --detail-button-ink: #fff; position: relative; display: flex; flex-direction: column; width: 100%; max-width: 600px; max-height: 90dvh; overflow: hidden; border-radius: 24px; background: var(--detail-surface); color: var(--detail-ink); box-shadow: 0 24px 64px -24px rgb(0 0 0 / 0.5); }
-.panel[data-theme='dark'] { --detail-surface: #1c1b18; --detail-soft: #25231f; --detail-header: #31251f; --detail-border: #423b32; --detail-ink: #f5f1eb; --detail-muted: #c3b9ad; --detail-accent: #e4a18a; --detail-button: #c86544; --detail-button-ink: #fff; }
+.panel[data-theme='dark'] { --detail-surface: var(--color-charcoal); --detail-soft: var(--color-charcoal); --detail-header: var(--color-charcoal); --detail-border: #707070; --detail-ink: var(--text-primary); --detail-muted: var(--text-muted); --detail-accent: #e4a18a; --detail-button: #c86544; --detail-button-ink: #fff; }
 .panel[data-tone='provider'] { --detail-accent: #047857; --detail-button: #047857; --detail-header: #ecfdf5; }
 .panel[data-tone='provider'][data-theme='dark'] { --detail-accent: #6ee7b7; --detail-button: #6ee7b7; --detail-button-ink: #052e21; --detail-header: #173b2d; }
 .panel ::selection { color: var(--detail-ink); background: #ecd9d0; }

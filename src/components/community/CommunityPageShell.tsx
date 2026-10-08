@@ -45,7 +45,7 @@ export default function CommunityPageShell({ children }: { children: React.React
   });
 
   return (
-    <div className={`workspace-shell community-page-shell min-h-[100dvh] transition-colors duration-200 ${isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'}`}>
+    <div className={`workspace-shell community-page-shell min-h-[100dvh] transition-colors duration-200 ${isDark ? 'bg-charcoal-canvas text-white' : 'bg-[#f7f6f3] text-ink'}`}>
       <Header
         currentRole={role}
         activeTab="community-hub"

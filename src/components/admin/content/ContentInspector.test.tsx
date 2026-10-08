@@ -20,11 +20,23 @@ describe('Routine content inspection', () => {
     expect(screen.getByRole('button', { name: 'Review action' })).toBeDisabled();
     fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'Reviewed this removal and confirmed restoration is appropriate.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Review action' }));
+    expect(screen.getByRole('heading', { name: 'Restore this content?' })).toHaveFocus();
     expect(screen.getByRole('button', { name: 'Restore content' })).toBeDisabled();
     fireEvent.click(screen.getByRole('checkbox', { name: 'I reviewed the impact.' }));
     fireEvent.click(screen.getByRole('button', { name: 'Restore content' }));
     await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
     expect(apiChangeMarketplaceItem).toHaveBeenCalledWith(item, 'RESTORE', 'Reviewed this removal and confirmed restoration is appropriate.');
     expect(screen.queryByLabelText(/Account consequence/)).not.toBeInTheDocument();
+  });
+  it('keeps the inspection reason while checking owner and publication status', () => {
+    render(<ContentInspector item={fixtureContent} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);
+    fireEvent.click(screen.getByRole('radio', { name: /Remove from marketplace/ }));
+    fireEvent.change(screen.getByLabelText(/^Reason/), { target: { value: 'The publication rules require removing this listing.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Owner account' }));
+    expect(screen.getByText(fixtureContent.owner.email)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Publication status' }));
+    expect(screen.getByText('Marketplace visibility')).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Reason/)).toHaveValue('The publication rules require removing this listing.');
+    expect(apiChangeMarketplaceItem).not.toHaveBeenCalled();
   });
 });

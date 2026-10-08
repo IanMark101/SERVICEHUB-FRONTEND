@@ -92,10 +92,10 @@ export default function ActivitySituation({ booking, role, currentUserId, active
     action: role === 'provider'
       ? 'border-emerald-200 bg-emerald-50/80 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/25 dark:text-emerald-100'
       : 'border-orange-200 bg-orange-50/80 text-orange-950 dark:border-orange-900/50 dark:bg-orange-950/25 dark:text-orange-100',
-    waiting: 'border-stone-200 bg-stone-50 text-ink dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-ink',
+    waiting: 'border-stone-200 bg-stone-50 text-ink dark:border-neutral-700 dark:bg-charcoal/50 dark:text-ink',
     active: 'border-emerald-200 bg-emerald-50/70 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/25 dark:text-emerald-100',
     review: 'border-amber-200 bg-amber-50/75 text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-100',
-    finished: 'border-stone-200 bg-stone-50 text-ink dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-ink',
+    finished: 'border-stone-200 bg-stone-50 text-ink dark:border-neutral-700 dark:bg-charcoal/50 dark:text-ink',
   };
 
   return (

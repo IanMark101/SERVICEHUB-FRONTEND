@@ -87,13 +87,13 @@ export default function AccountBannedPage() {
 
   if (authLoading || !isAuthenticated || user?.moderationStatus !== 'BANNED') return <BrandLoading label="Checking account status" />;
 
-  return <main className="flex min-h-screen items-center justify-center bg-[#f8f5f2] px-4 py-12 text-ink dark:bg-[#151313] dark:text-[#f7eeea]">
-    <section className="w-full max-w-xl rounded-3xl border border-red-200 bg-white p-7 shadow-xl shadow-red-950/5 dark:border-red-900/50 dark:bg-[#211c1b] sm:p-10" aria-labelledby="ban-title">
+  return <main className="flex min-h-screen items-center justify-center bg-[#f8f5f2] px-4 py-12 text-ink dark:bg-charcoal dark:text-[#f7eeea]">
+    <section className="w-full max-w-xl rounded-3xl border border-red-200 bg-white p-7 shadow-xl shadow-red-950/5 dark:border-red-900/50 dark:bg-charcoal sm:p-10" aria-labelledby="ban-title">
       <div className="mb-6 flex size-12 items-center justify-center rounded-2xl bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300"><ShieldAlert size={25} /></div>
       <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-red-700 dark:text-red-300">Account status</p>
       <h1 id="ban-title" className="text-2xl font-bold tracking-tight sm:text-3xl">Your ServiceHub account has been banned.</h1>
       <p className="mt-3 leading-7 text-ink-muted dark:text-ink-secondary">Normal ServiceHub access is unavailable. If you believe this decision should be reviewed, you may submit one appeal for this ban.</p>
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-zinc-700 dark:bg-zinc-900/60">
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-zinc-700 dark:bg-charcoal/60">
         {loading ? <p>Loading appeal status…</p> : appeal ? <div>
           <p className="font-semibold">Appeal {appeal.status === 'PENDING' ? 'awaiting Admin review' : appeal.status.toLowerCase()}</p>
           <p className="mt-1 text-sm text-ink-muted dark:text-ink-secondary">Submitted {new Date(appeal.createdAt).toLocaleDateString()}.</p>
@@ -101,12 +101,12 @@ export default function AccountBannedPage() {
         </div> : <form onSubmit={submit} className="space-y-3">
           <label htmlFor="appeal-message" className="block text-sm font-semibold">Appeal Ban</label>
           <p className="text-sm text-ink-muted dark:text-ink-secondary">Explain why this decision should be reviewed.</p>
-          <textarea id="appeal-message" required minLength={20} maxLength={2000} rows={5} value={message} onChange={(event) => setMessage(event.target.value)} className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm text-ink outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 dark:border-zinc-600 dark:bg-[#211c1b] dark:text-white" />
+          <textarea id="appeal-message" required minLength={20} maxLength={2000} rows={5} value={message} onChange={(event) => setMessage(event.target.value)} className="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm text-ink outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20 dark:border-zinc-600 dark:bg-charcoal dark:text-white" />
           <button type="submit" disabled={submitting || message.trim().length < 20} className="rounded-xl bg-red-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50">{submitting ? 'Submitting…' : 'Submit appeal'}</button>
         </form>}
       </div>
       {error && <p role="alert" className="mt-4 text-sm text-red-700 dark:text-red-300">{error}</p>}
-      <button type="button" onClick={logout} disabled={loggingOut} className="mt-6 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold hover:bg-slate-100 disabled:opacity-50 dark:border-zinc-600 dark:hover:bg-zinc-800">{loggingOut ? 'Logging out…' : 'Log Out'}</button>
+      <button type="button" onClick={logout} disabled={loggingOut} className="mt-6 rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold hover:bg-slate-100 disabled:opacity-50 dark:border-zinc-600 dark:hover:bg-charcoal">{loggingOut ? 'Logging out…' : 'Log Out'}</button>
     </section>
   </main>;
 }

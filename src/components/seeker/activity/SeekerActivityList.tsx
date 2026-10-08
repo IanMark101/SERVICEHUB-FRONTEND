@@ -14,6 +14,7 @@ import ActivityFeed, { type ActivityFeedEntry } from '../../activity/ActivityFee
 import { getBookingOutcome } from '../../../lib/bookingOutcome';
 import { getActivityPaymentCopy, getActivityQueueCopy, getBookingActivityGroup } from '../../activity/activityPresentation';
 import { getActivitySituation } from '../../activity/ActivitySituation';
+import BookingDetailState, { type ActivityLoadStatus } from '../../activity/BookingDetailState';
 
 interface SeekerActivityListModel extends SeekerActivityItemModel {
   myEngagements: JobEngagement[];
@@ -22,6 +23,8 @@ interface SeekerActivityListModel extends SeekerActivityItemModel {
   sortBy: SeekerActivitySort;
   setSortBy: Dispatch<SetStateAction<SeekerActivitySort>>;
   isLoading: boolean;
+  engagementsStatus: ActivityLoadStatus;
+  retryBooking: () => Promise<void>;
   filteredEngagements: JobEngagement[];
   activeTab: SeekerActivityTab;
   paginatedEngagements: JobEngagement[];
@@ -40,7 +43,7 @@ interface SeekerActivityListModel extends SeekerActivityItemModel {
 export default function SeekerActivityList({ model }: { model: SeekerActivityListModel }) {
   const {
     myEngagements, isDark, searchQuery, setSearchQuery, sortBy, setSortBy,
-    isLoading, filteredEngagements, activeTab, router, paginatedEngagements,
+    isLoading, engagementsStatus, retryBooking, filteredEngagements, activeTab, router, paginatedEngagements,
     highlightedBookingId, getCategoryForEngagement, currentUserId,
     loadingItemId, loadingActionType, setReviewingEngagement,
     handleDeleteClick, setDisputingJob, setConfirmModal,
@@ -50,7 +53,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
     openBookingId, openBooking, closeBooking
   } = model;
 
-  const selectedBooking = openBookingId ? myEngagements.find((booking) => booking.id === openBookingId) : null;
+  const selectedBooking = openBookingId ? myEngagements.find((booking) => booking.id === openBookingId || booking.completedServiceId === openBookingId) : null;
   const itemModel: SeekerActivityItemModel = {
     isDark, highlightedBookingId, getCategoryForEngagement, currentUserId,
     loadingItemId, loadingActionType, setReviewingEngagement, handleDeleteClick,
@@ -92,11 +95,11 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
   });
 
   if (openBookingId) return (
-    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-[#171715] sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
-      <button type="button" onClick={closeBooking} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-orange-500 dark:text-ink dark:hover:bg-neutral-800">
+    <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-charcoal sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
+      {selectedBooking && <button type="button" onClick={closeBooking} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-orange-500 dark:text-ink dark:hover:bg-charcoal">
         <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
-      </button>
-      {selectedBooking ? <SeekerActivityItem engagement={selectedBooking} model={itemModel} /> : <p role="status" className="rounded-2xl border border-stone-200 p-6 text-sm dark:border-neutral-700">This booking is not available in your Activity.</p>}
+      </button>}
+      {selectedBooking ? <SeekerActivityItem engagement={selectedBooking} model={itemModel} /> : <BookingDetailState status={engagementsStatus} role="seeker" onRetry={retryBooking} onBack={closeBooking} />}
     </div>
   );
 

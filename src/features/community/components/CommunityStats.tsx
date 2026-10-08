@@ -79,7 +79,7 @@ export default function CommunityStats({
     <div
       className={`overflow-hidden rounded-3xl border transition-all ${
         isDark
-          ? 'bg-[#1c1b18] border-neutral-800/90 shadow-xl shadow-black/40'
+          ? 'bg-charcoal-inset border-neutral-800/90 shadow-xl shadow-black/40'
           : 'bg-white border-slate-200/90 shadow-sm shadow-slate-900/5'
       }`}
       aria-label="Community statistics"
@@ -91,7 +91,7 @@ export default function CommunityStats({
           return (
             <div
               key={item.label}
-              className={`flex min-w-0 flex-col justify-between p-3.5 sm:p-5 lg:p-6 transition-colors hover:bg-slate-50/50 dark:hover:bg-neutral-800/20 ${
+              className={`flex min-w-0 flex-col justify-between p-3.5 sm:p-5 lg:p-6 transition-colors hover:bg-slate-50/50 dark:hover:bg-charcoal/20 ${
                 isRightColOnMobile ? '' : 'border-r border-slate-100 dark:border-neutral-800/80'
               } ${
                 isLastColOnDesktop ? '' : 'sm:border-r border-slate-100 dark:border-neutral-800/80'

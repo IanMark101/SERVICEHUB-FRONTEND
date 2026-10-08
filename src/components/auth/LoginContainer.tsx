@@ -79,6 +79,7 @@ export default function LoginContainer({
   }, [sessionNotice, deletionNotice, passwordNotice]);
 
   const {
+    captcha,
     formData,
     step,
     showPassword,
@@ -116,7 +117,7 @@ export default function LoginContainer({
       />
 
       {/* Right Panel: the panel itself is the form surface */}
-      <main className="auth-form-panel relative z-10 min-h-[100dvh] w-full border-black/[0.06] bg-[#fffdfa] transition-colors duration-300 dark:border-white/10 dark:bg-[#181716] lg:w-1/2 lg:border-l">
+      <main className="auth-form-panel relative z-10 min-h-[100dvh] w-full border-black/[0.06] bg-[#fffdfa] transition-colors duration-300 dark:border-white/10 dark:bg-charcoal lg:w-1/2 lg:border-l">
         <div className="auth-form-panel__inner mx-auto flex min-h-[100dvh] w-full max-w-3xl flex-col px-5 py-5 sm:px-8 sm:py-7 lg:px-14 xl:px-20">
         {/* Mobile-Only Header Bar */}
         <div className="mb-8 flex w-full items-center justify-between lg:hidden">
@@ -141,7 +142,7 @@ export default function LoginContainer({
             <button
               type="button"
               onClick={toggleTheme}
-              className="ml-1 grid size-9 place-items-center rounded-xl border border-black/[0.08] bg-white text-ink-muted transition-colors hover:text-ink dark:border-white/10 dark:bg-zinc-900 dark:text-ink-secondary dark:hover:text-white"
+              className="ml-1 grid size-9 place-items-center rounded-xl border border-black/[0.08] bg-white text-ink-muted transition-colors hover:text-ink dark:border-white/10 dark:bg-charcoal dark:text-ink-secondary dark:hover:text-white"
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
@@ -152,7 +153,7 @@ export default function LoginContainer({
         <div className="auth-form-panel__content flex flex-1 items-center py-6 lg:py-10">
         <div className="mx-auto w-full max-w-[27rem]">
 
-          {deletionNotice && mode === 'login' && <div role="status" className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-ink dark:border-neutral-700 dark:bg-neutral-900 dark:text-ink"><p className="font-semibold">Your account has been deleted</p><p className="mt-1 text-sm leading-relaxed">Your account and its associated database records were permanently deleted. Every device was signed out.</p></div>}
+          {deletionNotice && mode === 'login' && <div role="status" className="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-ink dark:border-neutral-700 dark:bg-charcoal dark:text-ink"><p className="font-semibold">Your account has been deleted</p><p className="mt-1 text-sm leading-relaxed">Your account and its associated database records were permanently deleted. Every device was signed out.</p></div>}
           {sessionNotice && !deletionNotice && mode === 'login' && (
             <div role="status" className="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/25 dark:text-amber-200">
               <CircleAlert size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
@@ -181,6 +182,7 @@ export default function LoginContainer({
           {/* Dynamic Form Render based on Active mode */}
           {mode === 'login' && (
             <LoginForm
+              captcha={captcha}
               formData={formData}
               fieldErrors={fieldErrors}
               showPassword={showPassword}
@@ -199,6 +201,8 @@ export default function LoginContainer({
 
           {mode === 'forgot' && (
             <ForgotPasswordForm
+              captcha={captcha}
+              isDark={isDark}
               isLoading={isLoading}
               formData={formData}
               fieldErrors={fieldErrors}

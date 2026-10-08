@@ -79,18 +79,18 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
       <LimitedModeDashboardCard role="provider" />
 
       {pendingRequests.length === 0 && quoteInquiries.length === 0 && (requestsStatus === 'loading' || engagementsStatus === 'loading') ? (
-        <div role="status" className={`rounded-[24px] border p-12 text-center ${isDark ? 'border-neutral-850 bg-[#22211e] text-ink-muted' : 'border-slate-200 bg-white text-ink-muted'}`}>
+        <div role="status" className={`rounded-[24px] border p-12 text-center ${isDark ? 'border-neutral-850 bg-charcoal-surface text-ink-muted' : 'border-slate-200 bg-white text-ink-muted'}`}>
           <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin" aria-hidden="true" />
           Loading incoming requests...
         </div>
       ) : pendingRequests.length === 0 && quoteInquiries.length === 0 && (requestsStatus === 'error' || engagementsStatus === 'error') ? (
-        <div className={`rounded-[24px] border p-12 text-center ${isDark ? 'border-neutral-850 bg-[#22211e] text-ink-muted' : 'border-slate-200 bg-white text-ink-muted'}`}>
+        <div className={`rounded-[24px] border p-12 text-center ${isDark ? 'border-neutral-850 bg-charcoal-surface text-ink-muted' : 'border-slate-200 bg-white text-ink-muted'}`}>
           <p className="text-sm font-semibold">Incoming requests could not be loaded.</p>
           <button type="button" onClick={refreshAll} className="mt-3 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white">Try again</button>
         </div>
       ) : pendingRequests.length === 0 && quoteInquiries.length === 0 ? (
         <div className={`rounded-[24px] p-12 border text-center transition-all ${
-          isDark ? 'bg-[#22211e] border-neutral-850 text-ink-muted' : 'bg-white border-slate-200 shadow-sm text-ink-muted'
+          isDark ? 'bg-charcoal-surface border-neutral-850 text-ink-muted' : 'bg-white border-slate-200 shadow-sm text-ink-muted'
         }`}>
           <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-emerald-500/10 text-emerald-500">
             <Inbox className="w-6 h-6" />
@@ -105,7 +105,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
       ) : (
         <div className="space-y-3">
           {quoteInquiries.map((request) => (
-            <div key={request.id} className={`rounded-[20px] border p-4 sm:p-5 shadow-sm ${isDark ? 'border-neutral-850 bg-[#22211e]' : 'border-slate-200 bg-white'}`}>
+            <div key={request.id} className={`rounded-[20px] border p-4 sm:p-5 shadow-sm ${isDark ? 'border-neutral-850 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 space-y-1">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-orange-600 dark:text-orange-400">Existing listing inquiry · final price needed</span>
@@ -131,7 +131,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                 key={je.id} 
                 className={`rounded-[20px] p-4 sm:p-5 border shadow-sm transition-all duration-200 ${
                   isDark 
-                    ? 'bg-[#22211e] border-neutral-850 hover:border-neutral-800' 
+                    ? 'bg-charcoal-surface border-neutral-850 hover:border-neutral-800'
                     : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
                 }`}
               >
@@ -206,7 +206,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                 {/* Row 2: Customer Note (Compact Single-Container Inline Strip) */}
                 {je.description && (
                   <div className={`mt-3 px-3.5 py-2.5 rounded-xl border flex items-start gap-2 text-xs leading-relaxed ${
-                    isDark ? 'bg-[#181714] border-neutral-850' : 'bg-slate-50 border-slate-200/80'
+                    isDark ? 'bg-charcoal border-neutral-850' : 'bg-slate-50 border-slate-200/80'
                   }`}>
                     <MessageSquare className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                     <span className="font-semibold text-ink-subtle dark:text-ink-subtle shrink-0">Note:</span>
@@ -218,7 +218,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
 
                 {je.preferredSchedule && (
                   <div className={`mt-2 px-3.5 py-2.5 rounded-xl border flex flex-wrap items-start gap-2 text-xs leading-relaxed ${
-                    isDark ? 'bg-[#181714] border-neutral-850' : 'bg-slate-50 border-slate-200/80'
+                    isDark ? 'bg-charcoal border-neutral-850' : 'bg-slate-50 border-slate-200/80'
                   }`}>
                     <Clock className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
                     <span className="font-semibold text-ink-subtle dark:text-ink-subtle shrink-0">Preferred schedule:</span>
@@ -241,7 +241,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                       onClick={() => handleRespond(je.id, false)}
                       className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all flex items-center gap-1 cursor-pointer ${
                         loadingJobId === je.id && loadingAction === 'declining'
-                          ? 'bg-neutral-800 border-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
+                          ? 'bg-charcoal border-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
                           : isDark 
                             ? 'border-neutral-800 hover:bg-red-950/30 hover:text-red-400 hover:border-red-900/40 text-ink-muted'
                             : 'border-slate-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-ink-secondary'
@@ -266,7 +266,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
                       onClick={() => handleRespond(je.id, true)}
                       className={`px-4 sm:px-5 py-1.5 font-extrabold text-xs rounded-xl shadow-xs transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
                         loadingJobId === je.id && loadingAction === 'accepting'
-                          ? 'bg-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
+                          ? 'bg-charcoal text-ink-muted cursor-not-allowed opacity-60'
                           : 'bg-emerald-600 hover:bg-emerald-500 text-white'
                       }`}
                     >

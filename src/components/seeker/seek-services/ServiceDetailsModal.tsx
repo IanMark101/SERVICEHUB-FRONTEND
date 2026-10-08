@@ -104,7 +104,7 @@ export default function ServiceDetailsModal({
           <div className={styles.identity}>
             <div className={styles.person}>
               {listing.providerAvatar ? <Image unoptimized width={48} height={48} src={listing.providerAvatar} alt={listing.providerName} className="size-12 rounded-full object-cover shrink-0" /> :
-                <div className="size-12 rounded-full bg-orange-100 dark:bg-neutral-800 text-orange-800 dark:text-orange-300 grid place-items-center font-bold text-base shrink-0">{listing.providerName?.charAt(0) || 'P'}</div>}
+                <div className="size-12 rounded-full bg-orange-100 dark:bg-charcoal text-orange-800 dark:text-orange-300 grid place-items-center font-bold text-base shrink-0">{listing.providerName?.charAt(0) || 'P'}</div>}
               <div className={styles.personText}>
                 <div className={styles.personName}>
                   <span>{listing.providerName}</span>

@@ -42,7 +42,9 @@ const profile = { id: 'session-account', name: 'Session Account', email: 'accoun
 const defaultAdapter = api.defaults.adapter;
 let cookieValid: boolean;
 let sessionRequest: ((config: InternalAxiosRequestConfig) => ReturnType<AxiosAdapter>) | undefined;
+let captchaPolicyRequest: ((config: InternalAxiosRequestConfig) => ReturnType<AxiosAdapter>) | undefined;
 let finishSessionCheck: (() => void) | undefined;
+let finishCaptchaPolicyCheck: (() => void) | undefined;
 let googleRequest: ((config: InternalAxiosRequestConfig) => ReturnType<AxiosAdapter>) | undefined;
 let currentProfile: typeof profile;
 let transport: ReturnType<typeof vi.fn<AxiosAdapter>>;
@@ -73,6 +75,12 @@ async function deliverGoogleCredential() {
   await act(async () => { config.callback({ credential: 'sdk-test-credential' }); });
 }
 
+async function submitEmailLogin() {
+  const button = screen.getByRole('button', { name: 'Sign In' });
+  await waitFor(() => expect(button).toBeEnabled());
+  fireEvent.click(button);
+}
+
 describe('login/session integration through the real auth flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -95,7 +103,9 @@ describe('login/session integration through the real auth flow', () => {
     });
     cookieValid = false;
     sessionRequest = undefined;
+    captchaPolicyRequest = undefined;
     finishSessionCheck = undefined;
+    finishCaptchaPolicyCheck = undefined;
     googleRequest = undefined;
     currentProfile = { ...profile };
     vi.stubEnv('NEXT_PUBLIC_GOOGLE_CLIENT_ID', 'test-client');
@@ -103,6 +113,8 @@ describe('login/session integration through the real auth flow', () => {
     window.google = { accounts: { id: { initialize, renderButton: vi.fn() } } };
     transport = vi.fn<AxiosAdapter>(async config => {
       expect(config.withCredentials).toBe(true);
+      if (config.url === '/auth/captcha-config' && captchaPolicyRequest) return captchaPolicyRequest(config);
+      if (config.url === '/auth/captcha-config') return reply(config, { success: true, data: { enabled: true, siteKey: 'fixture-site-key', loginRequired: false } });
       if (config.url === '/auth/session' && sessionRequest) return sessionRequest(config);
       if (config.url === '/auth/session') return reply(config, { success: true, data: cookieValid ? { authenticated: true, accessToken: 'test-access' } : { authenticated: false } });
       if (config.url === '/auth/me') {
@@ -181,7 +193,7 @@ describe('login/session integration through the real auth flow', () => {
 
     if (path === '/login') {
       fireEvent.change(screen.getByPlaceholderText('Enter your password'), { target: { value: 'Example-password-1!' } });
-      fireEvent.click(screen.getByRole('button', { name: 'Sign In' }));
+      await submitEmailLogin();
       await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith('/seeker'));
       expect(screen.getByLabelText('Session identity')).toHaveTextContent('session-account:seeker');
       expect(getAccessToken()).toBe('test-access');
@@ -267,7 +279,7 @@ describe('login/session integration through the real auth flow', () => {
     if (method === 'email') {
       fireEvent.change(screen.getByLabelText('Email'), { target: { value: profile.email } });
       fireEvent.change(screen.getByPlaceholderText('Enter your password'), { target: { value: 'Example-password-1!' } });
-      fireEvent.click(screen.getByRole('button', { name: 'Sign In' }));
+      await submitEmailLogin();
     } else await deliverGoogleCredential();
     await waitFor(() => expect(screen.getByLabelText('Session identity')).toHaveTextContent('session-account:seeker'));
     expect(screen.getByLabelText('Session identity')).toHaveAttribute('data-loading', 'false');
@@ -281,7 +293,7 @@ describe('login/session integration through the real auth flow', () => {
   });
   afterEach(async () => {
     cleanup();
-    await act(async () => { await Promise.resolve(); finishSessionCheck?.(); });
+    await act(async () => { await Promise.resolve(); finishSessionCheck?.(); finishCaptchaPolicyCheck?.(); });
     clearAccessToken();
     api.defaults.adapter = defaultAdapter;
     delete window.google;
@@ -314,13 +326,49 @@ describe('login/session integration through the real auth flow', () => {
     expect(screen.queryByText('Your session ended')).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Email'), { target: { value: profile.email } });
     fireEvent.change(screen.getByPlaceholderText('Enter your password'), { target: { value: 'Example-password-1!' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Sign In' }));
+    await submitEmailLogin();
     await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith('/seeker'));
     expect(getAccessToken()).toBe('test-access');
     expect(screen.getByLabelText('Session identity')).toHaveTextContent('session-account:seeker');
     expect(localStorage.getItem('userSession')).toBeNull();
     expect(localStorage.getItem('servicehub:session-present')).toBe('true');
-    expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/auth/login']);
+    expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/auth/captcha-config', '/auth/login']);
+  });
+
+  it('keeps entered credentials editable but waits for the server security policy before signing in', async () => {
+    captchaPolicyRequest = config => new Promise(resolve => {
+      finishCaptchaPolicyCheck = () => resolve(reply(config, { success: true, data: { enabled: true, siteKey: 'fixture-site-key', loginRequired: false } }));
+    });
+    mountLogin();
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: profile.email } });
+    fireEvent.change(screen.getByPlaceholderText('Enter your password'), { target: { value: 'Example-password-1!' } });
+    await waitFor(() => expect(finishCaptchaPolicyCheck).toBeTypeOf('function'));
+    const button = screen.getByRole('button', { name: 'Sign In' });
+    expect(button).toBeDisabled();
+    fireEvent.submit(button.closest('form')!);
+    expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/auth/captcha-config']);
+    expect(getAccessToken()).toBeNull();
+
+    await act(async () => { finishCaptchaPolicyCheck!(); });
+    expect(screen.getByLabelText('Email')).toHaveValue(profile.email);
+    expect(screen.getByPlaceholderText('Enter your password')).toHaveValue('Example-password-1!');
+    await submitEmailLogin();
+    await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith('/seeker'));
+    expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/auth/captcha-config', '/auth/login']);
+  });
+
+  it('does not transmit credentials when the server security policy cannot load', async () => {
+    captchaPolicyRequest = () => Promise.reject(new Error('Security policy unavailable'));
+    mountLogin();
+    await screen.findByText('Security settings could not load. Check your connection, then retry.');
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: profile.email } });
+    fireEvent.change(screen.getByPlaceholderText('Enter your password'), { target: { value: 'Example-password-1!' } });
+    const button = screen.getByRole('button', { name: 'Sign In' });
+    expect(button).toBeDisabled();
+    fireEvent.submit(button.closest('form')!);
+    expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/auth/captcha-config']);
+    expect(getAccessToken()).toBeNull();
+    expect(mocks.router.replace).not.toHaveBeenCalled();
   });
 
   it('opens Get started and the sign-in form from a guest landing page without contacting the session API', async () => {
@@ -334,7 +382,8 @@ describe('login/session integration through the real auth flow', () => {
     mocks.pathname = '/login';
     view.rerender(<StrictMode><AppProvider><LoginPage /></AppProvider></StrictMode>);
     expect(screen.getByRole('heading', { name: 'Sign In' })).toBeVisible();
-    expect(transport).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Sign In' })).toBeEnabled());
+    expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/auth/captcha-config']);
   });
 
   it('opens registration when Get started cannot recover a saved session, keeping the hint for a later retry', async () => {
@@ -475,7 +524,7 @@ describe('login/session integration through the real auth flow', () => {
 
   it.each([
     { role: 'seeker', path: '/seeker/seek-services', heading: 'Find local experts for any task.' },
-    { role: 'provider', path: '/provider/browse-services', heading: 'Find client requests for any task.' },
+    { role: 'provider', path: '/provider/browse-services', heading: 'Find seeker requests for any task.' },
   ])('reopens the real $role content repeatedly after visiting the landing page', async ({ role, path, heading }) => {
     cookieValid = true;
     localStorage.setItem('workspaceRole', role);

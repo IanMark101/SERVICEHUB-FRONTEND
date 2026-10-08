@@ -79,7 +79,7 @@ export default function JobRequestDetailsModal({
           <h2 id="job-request-details-title" className={styles.title}>{request.title}</h2>
           <div className={styles.priceLine}>
             <span className={styles.price}>{request.targetServiceId && !request.budget ? 'Quote required' : `₱${request.budget}`}</span>
-            <span className={styles.priceNote}>{request.targetServiceId ? 'Listed Rate' : 'Client Budget'}</span>
+            <span className={styles.priceNote}>{request.targetServiceId ? 'Listed Rate' : 'Seeker Budget'}</span>
           </div>
           {request.targetServiceId && <p className={styles.hint}>Requested from your listing</p>}
         </header>
@@ -87,9 +87,9 @@ export default function JobRequestDetailsModal({
         <div className={styles.body}>
           <div className={styles.identity}>
             <div className={styles.person}>
-              <UserAvatar src={request.seekerAvatar} name={request.seekerName || 'Client'} alt={request.seekerName} size={48} role="seeker" />
+              <UserAvatar src={request.seekerAvatar} name={request.seekerName || 'Service seeker'} alt={request.seekerName} size={48} role="seeker" />
               <div className={styles.personText}>
-                <div className={styles.personName}><span>{request.seekerName}</span><span className={styles.tag}>Client</span></div>
+                <div className={styles.personName}><span>{request.seekerName}</span><span className={styles.tag}>Service Seeker</span></div>
                 <div className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1"><ShieldCheck size={14} /><span>Verified resident</span></div>
               </div>
             </div>

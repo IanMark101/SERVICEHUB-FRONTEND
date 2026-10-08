@@ -181,7 +181,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                 value={editForm.phone}
                 onChange={e => setEditForm((form) => ({ ...form, phone: e.target.value }))}
                 placeholder="+63 9XX XXX XXXX"
-                className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-neutral-900 pr-9' : ''}`}
+                className={`${inputClass} ${hasActiveEngagements ? 'opacity-60 cursor-not-allowed bg-neutral-100 dark:bg-charcoal pr-9' : ''}`}
               />
               {hasActiveEngagements && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle">
@@ -221,7 +221,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
               rows={3}
               value={editForm.bio}
               onChange={e => setEditForm((form) => ({ ...form, bio: e.target.value }))}
-              placeholder="Tell clients or providers about your background, experience, and services..."
+              placeholder="Tell service seekers or providers about your background, experience, and services..."
               className={`${inputClass} resize-none`}
             />
           </div>
@@ -236,7 +236,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={processingImage}
-                  className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-[24%] bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                  className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-[24%] bg-charcoal/40 text-white opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                   title="Change Photo"
                 >
                   <Camera size={20} />
@@ -341,9 +341,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
       {!isAdmin && <section id="verification" className={`${cardBg} scroll-mt-24 rounded-2xl border p-5 sm:p-6`}>
         <h2 className={`text-base font-bold ${headingText}`}>Residency verification</h2>
         <p className={`mt-2 mb-5 text-sm ${labelText}`}>Manage your private verification submission. Only your verification status appears on your profile.</p>
-        {user.verificationStatus === 'APPROVED' ? <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Your Cordova residency is verified.</p>
-          : user.verificationStatus === 'PENDING_REVIEW' ? <p className={`text-sm ${labelText}`}>Your submission is awaiting review.</p>
-          : <VerificationUpload isDark={isDark} />}
+        <VerificationUpload isDark={isDark} embedded />
       </section>}
 
       <PasswordSecurityPanel isDark={isDark} />

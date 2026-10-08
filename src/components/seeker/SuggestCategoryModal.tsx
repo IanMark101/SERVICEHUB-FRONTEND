@@ -97,18 +97,18 @@ export default function SuggestCategoryModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className={`w-full max-w-xl max-h-[calc(100dvh-2rem)] min-w-0 flex flex-col rounded-3xl border shadow-2xl overflow-hidden transition-all duration-200 ${
           isDark
-            ? 'bg-[#1c1b18] border-neutral-800 text-white'
+            ? 'bg-charcoal-inset border-neutral-800 text-white'
             : 'bg-white border-slate-200 text-ink'
         }`}
       >
         {/* Header */}
         <div
           className={`px-5 sm:px-6 py-5 shrink-0 border-b flex items-center justify-between gap-3 ${
-            isDark ? 'border-neutral-800 bg-[#22211e]' : 'border-slate-100 bg-slate-50'
+            isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-100 bg-slate-50'
           }`}
         >
           <div className="flex min-w-0 items-center gap-3">
@@ -131,7 +131,7 @@ export default function SuggestCategoryModal({
             onClick={onClose}
             className={`p-2 shrink-0 rounded-xl border transition-all cursor-pointer ${
               isDark
-                ? 'border-neutral-800 hover:bg-neutral-800 text-ink-subtle'
+                ? 'border-neutral-800 hover:bg-charcoal text-ink-subtle'
                 : 'border-slate-200 hover:bg-slate-100 text-ink-muted'
             }`}
           >
@@ -211,7 +211,7 @@ export default function SuggestCategoryModal({
                     onChange={(e) => setName(e.target.value)}
                     className={`w-full px-4 py-2.5 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-orange-500/10 ${
                       isDark
-                        ? 'bg-[#22211e] border-neutral-800 text-white focus:border-orange-500'
+                        ? 'bg-charcoal-surface border-neutral-800 text-white focus:border-orange-500'
                         : 'bg-white border-slate-200 text-ink focus:border-orange-500'
                     }`}
                   />
@@ -234,7 +234,7 @@ export default function SuggestCategoryModal({
                     onChange={(e) => setDescription(e.target.value)}
                     className={`w-full px-4 py-2.5 rounded-xl border outline-none font-medium text-sm resize-none transition-all focus:ring-4 focus:ring-orange-500/10 ${
                       isDark
-                        ? 'bg-[#22211e] border-neutral-800 text-white focus:border-orange-500'
+                        ? 'bg-charcoal-surface border-neutral-800 text-white focus:border-orange-500'
                         : 'bg-white border-slate-200 text-ink focus:border-orange-500'
                     }`}
                   />
@@ -246,7 +246,7 @@ export default function SuggestCategoryModal({
                     onClick={onClose}
                     className={`px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer ${
                       isDark
-                        ? 'border-neutral-800 hover:bg-neutral-800 text-ink-subtle'
+                        ? 'border-neutral-800 hover:bg-charcoal text-ink-subtle'
                         : 'border-slate-200 hover:bg-slate-100 text-ink-muted'
                     }`}
                   >
@@ -257,7 +257,7 @@ export default function SuggestCategoryModal({
                     disabled={loading || !canTransact}
                     className={`px-5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer ${
                       !canTransact
-                        ? 'bg-neutral-600 text-ink-subtle cursor-not-allowed'
+                        ? 'bg-neutral-600 dark:bg-charcoal text-ink-subtle cursor-not-allowed'
                         : 'bg-orange-600 hover:bg-orange-700 text-white'
                     }`}
                   >
@@ -305,10 +305,10 @@ export default function SuggestCategoryModal({
                       className={`border rounded-2xl p-4 space-y-2.5 transition-all duration-200 cursor-pointer ${
                         isExpanded
                           ? isDark
-                            ? 'bg-[#282723] border-orange-500/60 shadow-md ring-1 ring-orange-500/20'
+                            ? 'bg-charcoal border-orange-500/60 shadow-md ring-1 ring-orange-500/20'
                             : 'bg-white border-orange-500/60 shadow-md ring-1 ring-orange-500/20'
                           : isDark
-                          ? 'bg-[#22211e] border-neutral-800 hover:border-neutral-700'
+                          ? 'bg-charcoal-surface border-neutral-800 hover:border-neutral-700'
                           : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                       }`}
                     >

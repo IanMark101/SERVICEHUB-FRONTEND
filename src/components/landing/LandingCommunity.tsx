@@ -32,7 +32,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
     <section
       id="community"
       data-theme={isDark ? 'dark' : 'light'}
-      className="scroll-mt-20 border-b border-white/10 bg-[#171716] px-5 py-20 text-zinc-100 sm:px-8 lg:px-10 lg:py-28"
+      className="scroll-mt-20 border-b border-white/10 bg-charcoal px-5 py-20 text-zinc-100 sm:px-8 lg:px-10 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         <ScrollReveal className="max-w-3xl">
@@ -53,7 +53,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
                 direction="scale"
                 delay={index * 0.09}
                 hoverLift
-                className="rounded-2xl border border-white/10 bg-[#222220] p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-colors hover:border-white/20 sm:p-8"
+                className="rounded-2xl border border-white/10 bg-charcoal p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-colors hover:border-white/20 sm:p-8"
               >
                 <div className="grid size-11 place-items-center rounded-xl bg-[#c86544]/15 text-orange-300">
                   <Icon size={22} />

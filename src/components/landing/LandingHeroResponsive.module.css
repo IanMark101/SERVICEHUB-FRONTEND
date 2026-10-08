@@ -24,10 +24,10 @@
   background: linear-gradient(to bottom, transparent, #f5f4f2);
 }
 
-:global(.dark) .heroSurface { background-color: #121211; }
+:global(.dark) .heroSurface { background-color: var(--color-charcoal); }
 :global(.dark) .heroSurface::before { opacity: 0.055; }
 :global(.dark) .heroSurface::after {
-  background: linear-gradient(to bottom, transparent, #121211);
+  background: linear-gradient(to bottom, transparent, var(--color-charcoal));
 }
 
 .heroBadge {

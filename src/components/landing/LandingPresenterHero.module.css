@@ -22,14 +22,14 @@
 /* The PNG's alpha supplies the hand's contour; this crop isolates the raised arm. */
 .presenterHand { z-index: 3; pointer-events: none; clip-path: polygon(70% 60%, 74% 45%, 100% 45%, 100% 62%, 80% 77%, 63% 79%, 62% 72%); }
 .preview { position: absolute; top: 24px; right: 0; isolation: isolate; z-index: 2; width: 44%; max-width: 280px; margin: 0; container-type: inline-size; }
-.phone { position: relative; padding: 7px; border: 2px solid #777774; border-radius: 40px; background: linear-gradient(to bottom, #2a2a2a, #1a1a1a, #0e0e0e); box-shadow: inset 0 0 0 2px #0a0a0a, inset 0 3px 3px rgb(255 255 255 / .35), 0 22px 38px -20px rgb(23 23 22 / .45), 0 8px 16px -10px rgb(23 23 22 / .3); }
-.volumeButtons, .powerButton { position: absolute; width: 3px; border-radius: 2px; background: linear-gradient(90deg, #858581, #292928); }
+.phone { position: relative; padding: 7px; border: 2px solid #777774; border-radius: 40px; background: linear-gradient(to bottom, var(--color-charcoal), var(--color-charcoal), var(--color-charcoal)); box-shadow: inset 0 0 0 2px #0a0a0a, inset 0 3px 3px rgb(255 255 255 / .35), 0 22px 38px -20px rgb(23 23 22 / .45), 0 8px 16px -10px rgb(23 23 22 / .3); }
+.volumeButtons, .powerButton { position: absolute; width: 3px; border-radius: 2px; background: linear-gradient(90deg, #858581, var(--color-charcoal)); }
 .volumeButtons { left: -4px; top: 94px; height: 30px; box-shadow: 0 39px 0 #555552; }
 .powerButton { right: -4px; top: 132px; height: 50px; }
 .screen { overflow: hidden; border-radius: 31px; background: #fffdfa; color: #211e1a; }
 .statusBar { position: relative; display: flex; align-items: center; justify-content: space-between; height: 34px; padding-inline: 7cqw; font-size: clamp(8px, 3.4cqw, 10px); font-weight: 700; }
-.cameraIsland { position: absolute; top: 8px; left: 50%; display: flex; align-items: center; justify-content: flex-end; width: 30%; height: 20px; padding-right: 7px; transform: translateX(-50%); border-radius: 999px; background: #080808; }
-.cameraIsland > span { width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #344c70, #0c1725 60%, #050505); }
+.cameraIsland { position: absolute; top: 8px; left: 50%; display: flex; align-items: center; justify-content: flex-end; width: 30%; height: 20px; padding-right: 7px; transform: translateX(-50%); border-radius: 999px; background: var(--color-charcoal); }
+.cameraIsland > span { width: 6px; height: 6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #344c70, #0c1725 60%, var(--color-charcoal)); }
 .statusIcons { display: flex; align-items: center; gap: 2px; }
 .statusIcons svg { width: clamp(9px, 3.8cqw, 12px); height: auto; stroke-width: 2.5; }
 .phoneWorkspace { position: relative; padding-bottom: 8px; background: #e6e2dc; }
@@ -39,13 +39,13 @@
 .modalStage > div { border-radius: 14px; box-shadow: 0 8px 18px -10px rgb(23 23 22 / .45); }
 .homeBar { display: grid; place-items: center; height: 18px; }
 .homeBar > span { width: 36%; height: 3px; border-radius: 999px; background: currentColor; }
-:global(.dark) .hero { background: #121211; color: #f2efe9; border-color: rgb(242 239 233 / 0.1); }
+:global(.dark) .hero { background: var(--color-charcoal); color: #f2efe9; border-color: rgb(242 239 233 / 0.1); }
 :global(.dark) .description { color: #e4a18a; }
 :global(.dark) .supporting { color: #bdb6ad; }
-:global(.dark) .secondary { color: #fff; border-color: #453e35; background: #1c1b18; }
-:global(.dark) .secondary:hover { color: #fff; border-color: #675d50; background: #25231f; }
-:global(.dark) .screen { background: #1c1b18; color: #f5f1eb; }
-:global(.dark) .phoneWorkspace { background: #121211; }
+:global(.dark) .secondary { color: #fff; border-color: #453e35; background: var(--color-charcoal); }
+:global(.dark) .secondary:hover { color: #fff; border-color: #675d50; background: var(--color-charcoal); }
+:global(.dark) .screen { background: var(--color-charcoal); color: #f5f1eb; }
+:global(.dark) .phoneWorkspace { background: var(--color-charcoal); }
 :global(.dark) .workspaceBar { color: #bdb6ad; }
 @media (min-width: 1600px) { .layout { min-height: 780px; } }
 @media (min-width: 1024px) and (max-width: 1199px) {

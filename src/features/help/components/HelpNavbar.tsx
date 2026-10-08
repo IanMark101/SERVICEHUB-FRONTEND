@@ -28,7 +28,7 @@ export default function HelpNavbar() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           <Link
             href="/help"
-            className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-black/10 bg-[#fffdfa] px-3 py-2 shadow-[0_8px_22px_rgba(23,23,22,0.10)] transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-[#201f1c]"
+            className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-black/10 bg-[#fffdfa] px-3 py-2 shadow-[0_8px_22px_rgba(23,23,22,0.10)] transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-charcoal"
           >
             <Image width={30} height={30} src="/logo.svg?v=6" alt="" className="size-[30px] rounded-lg object-contain" priority />
             <span className="leading-none">
@@ -37,10 +37,10 @@ export default function HelpNavbar() {
             </span>
           </Link>
 
-          <nav aria-label="Help center actions" className="pointer-events-auto flex items-center gap-1 rounded-2xl border border-black/10 bg-[#fffdfa] p-1.5 shadow-[0_8px_22px_rgba(23,23,22,0.10)] dark:border-white/12 dark:bg-[#201f1c]">
+          <nav aria-label="Help center actions" className="pointer-events-auto flex items-center gap-1 rounded-2xl border border-black/10 bg-[#fffdfa] p-1.5 shadow-[0_8px_22px_rgba(23,23,22,0.10)] dark:border-white/12 dark:bg-charcoal">
           <Link
             href="/help/search"
-            className="flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-medium text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-white/[0.06] dark:hover:text-white"
+            className="flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-medium text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-charcoal dark:hover:text-white"
           >
             <MagnifyingGlass size={15} aria-hidden="true" />
             <span className="hidden sm:inline">Search help</span>
@@ -49,7 +49,7 @@ export default function HelpNavbar() {
           <Link
             href={backHref}
             suppressHydrationWarning
-            className="flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-white/[0.06] dark:hover:text-white"
+            className="flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-semibold text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-charcoal dark:hover:text-white"
           >
             <ArrowLeft size={15} aria-hidden="true" />
             <span className="hidden md:inline">Back to app</span>
@@ -58,7 +58,7 @@ export default function HelpNavbar() {
           <button
             onClick={toggleTheme}
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="grid size-9 cursor-pointer place-items-center rounded-xl text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-white/[0.06] dark:hover:text-white"
+            className="grid size-9 cursor-pointer place-items-center rounded-xl text-ink-secondary transition-colors hover:bg-[#f5f4f2] hover:text-ink focus-visible:outline-2 focus-visible:outline-[#c86544] dark:text-white/66 dark:hover:bg-charcoal dark:hover:text-white"
           >
             {mounted ? (
               isDark ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />

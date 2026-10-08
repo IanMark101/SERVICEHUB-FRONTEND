@@ -15,13 +15,26 @@ interface ApiReview { rating?: number }
 interface ApiUser { id?: string; name?: string; avatarUrl?: string | null; trustScore?: number; verificationStatus?: string; location?: string; reviewsReceived?: ApiReview[]; clientRating?: number; clientReviewCount?: number }
 interface ApiCategory { name?: string }
 interface ApiService { id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; providerWaitingCount?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
-interface ApiDirectRequest { agreedPrice?: number | string; quantity?: number; message?: string; schedule?: string; service?: { title?: string } }
-interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; estimatedDuration?: number; availability?: string; message?: string; status?: string; decisionReason?: Bid['decisionReason']; createdAt?: string; request?: { title?: string; status?: string; seekerId?: string; seeker?: ApiUser; category?: ApiCategory | string; paymentMethods?: JobRequest['paymentMethods']; preferredPaymentMethod?: JobRequest['preferredPaymentMethod'] } }
-export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: { title?: string; price?: number | string; priceType?: ServiceListing['priceType'] }; offer?: ApiOffer; directRequest?: ApiDirectRequest; agreedAmount?: number | string | null; queue?: { status?: string; position?: number; estimatedWait?: number; paymentStatus?: string } | null; paymentMethod?: string; paymentStatus?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests']; progressEvents?: JobEngagement['progressEvents'] }
+interface ApiBookingService { title?: string; category?: ApiCategory; estimatedDurationMins?: number; price?: number | string; priceType?: ServiceListing['priceType'] }
+interface ApiDirectRequest { agreedPrice?: number | string; quantity?: number; message?: string; schedule?: string; service?: ApiBookingService }
+interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; estimatedDuration?: number; availability?: string; message?: string; status?: string; decisionReason?: Bid['decisionReason']; decisionAt?: string | null; createdAt?: string; request?: { title?: string; targetServiceId?: string | null; status?: string; seekerId?: string; seeker?: ApiUser; category?: ApiCategory | string; paymentMethods?: JobRequest['paymentMethods']; preferredPaymentMethod?: JobRequest['preferredPaymentMethod'] } }
+export interface ApiBooking { id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: ApiBookingService; estimatedDurationMins?: number | null; offer?: ApiOffer; directRequest?: ApiDirectRequest; agreedAmount?: number | string | null; queue?: { status?: string; position?: number; estimatedWait?: number; paymentStatus?: string } | null; paymentMethod?: string; paymentStatus?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests']; progressEvents?: JobEngagement['progressEvents'] }
 export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; paymentStatus?: string; completedAt?: string; reviews?: JobEngagement['reviews'] }
-interface ApiRequest { id: string; seekerId?: string; seeker?: ApiUser; targetProviderId?: string | null; targetServiceId?: string | null; preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null; paymentMethods?: JobRequest['paymentMethods']; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: { status?: string; booking?: { status?: string } | null }[]; canDelete?: boolean; deleteBlockedReason?: string | null }
+interface ApiRequest { id: string; seekerId?: string; seeker?: ApiUser; targetProviderId?: string | null; targetServiceId?: string | null; preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null; paymentMethods?: JobRequest['paymentMethods']; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: { status?: string; booking?: { status?: string } | null }[]; canArchive?: boolean; archivedAt?: string | null; canDelete?: boolean; deleteBlockedReason?: string | null }
 interface ApiNotification { id: string; userId: string; title: string; body: string; createdAt: string; isRead: boolean; link?: string | null }
 interface ApiTransaction { id: string; relatedBookingId?: string; walletOwnerId: string; amount: number | string; description?: string; createdAt?: string }
+
+function bookingMetadata(booking?: ApiBooking) {
+  const requestCategory = booking?.offer?.request?.category;
+  return {
+    category: (typeof requestCategory === 'string' ? requestCategory : requestCategory?.name)
+      || booking?.service?.category?.name || booking?.directRequest?.service?.category?.name,
+    estimatedDurationMins: booking?.estimatedDurationMins ?? booking?.offer?.estimatedDuration
+      ?? booking?.service?.estimatedDurationMins ?? booking?.directRequest?.service?.estimatedDurationMins,
+    providerAvailability: booking?.offer?.availability,
+    preferredSchedule: booking?.directRequest?.schedule || '',
+  };
+}
 
 export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
   const title = b.offer?.request?.title || b.service?.title || b.directRequest?.service?.title || 'Job Engagement';
@@ -50,6 +63,7 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
   return {
     id: b.id,
     title,
+    ...bookingMetadata(b),
     seekerId: b.seekerId,
     seekerName: b.seeker?.name || 'Seeker',
     seekerAvatar: b.seeker?.avatarUrl || DEFAULT_AVATAR,
@@ -63,18 +77,17 @@ export function mapBookingToEngagement(b: ApiBooking): JobEngagement {
     providerVerificationStatus: b.provider?.verificationStatus,
     providerLocation: b.provider?.location || 'Cordova, Cebu',
     serviceId: b.serviceId || null,
+    repostRequestId: b.status === 'COMPLETED' && b.offer?.request?.targetServiceId === null ? b.offer.requestId : undefined,
     price: Number(b.agreedAmount ?? b.directRequest?.agreedPrice ?? b.offer?.offeredPrice ?? b.service?.price ?? 0),
     quantity: b.directRequest?.quantity,
     priceType: b.service?.priceType,
     status: mappedStatus as JobEngagement['status'],
     bookingStatus: b.status,
-    providerAvailability: b.offer?.availability,
     paymentMethod: b.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
     paymentStatus: b.paymentStatus,
     createdAt: b.createdAt || '',
     completedAt: b.status === 'COMPLETED' ? b.updatedAt || '' : undefined,
     description: b.directRequest?.message || b.offer?.message || b.description || '',
-    preferredSchedule: b.directRequest?.schedule || '',
     disputeReason: b.reports?.[0]?.description || '',
     started: b.started,
     queuePosition: b.queue?.position,
@@ -95,23 +108,24 @@ export function mapCompletedServiceToEngagement(cs: ApiCompletedService): JobEng
   return {
     id: cs.bookingId || cs.id,
     title,
+    ...bookingMetadata(booking),
     seekerId: cs.seekerId,
     seekerName: cs.seeker?.name || 'Seeker',
-    seekerAvatar: cs.seeker?.avatarUrl || DEFAULT_AVATAR,
-    seekerTrustScore: typeof cs.seeker?.trustScore === 'number' ? cs.seeker.trustScore : undefined,
+    seekerAvatar: cs.seeker?.avatarUrl || booking?.seeker?.avatarUrl || DEFAULT_AVATAR,
+    seekerTrustScore: cs.seeker?.trustScore ?? booking?.seeker?.trustScore,
     seekerVerificationStatus: cs.seeker?.verificationStatus,
     seekerLocation: cs.seeker?.location || 'Cordova, Cebu',
     providerId: cs.providerId,
     providerName: cs.provider?.name || 'Provider',
-    providerAvatar: cs.provider?.avatarUrl || DEFAULT_AVATAR,
-    providerTrustScore: typeof cs.provider?.trustScore === 'number' ? cs.provider.trustScore : undefined,
+    providerAvatar: cs.provider?.avatarUrl || booking?.provider?.avatarUrl || DEFAULT_AVATAR,
+    providerTrustScore: cs.provider?.trustScore ?? booking?.provider?.trustScore,
     providerVerificationStatus: cs.provider?.verificationStatus,
     providerLocation: cs.provider?.location || 'Cordova, Cebu',
     serviceId: booking?.serviceId || null,
+    repostRequestId: booking?.offer?.request?.targetServiceId === null ? booking.offer.requestId : undefined,
     price: Number(cs.finalPrice),
     status: 'completed',
     bookingStatus: 'COMPLETED',
-    providerAvailability: booking?.offer?.availability,
     paymentMethod: booking?.paymentMethod === 'GCash' ? 'GCash' : 'On-site Cash',
     paymentStatus: cs.paymentStatus || booking?.paymentStatus,
     queueStatus: booking?.queue?.status,
@@ -216,6 +230,8 @@ export function mapRequestToJobRequest(r: ApiRequest): JobRequest {
     hasAcceptedOffer: r.offers?.some(offer => offer.status === 'ACCEPTED') || false,
     hasPendingPaymentOffer: r.offers?.some(offer => offer.status === 'PENDING_PAYMENT') || false,
     canDelete: r.canDelete,
+    canArchive: r.canArchive,
+    archivedAt: r.archivedAt,
     deleteBlockedReason: r.deleteBlockedReason,
   };
 }
@@ -231,7 +247,9 @@ export function mapOfferToBid(o: ApiOffer): Bid {
   return {
     id: o.id,
     requestId: o.requestId,
-      seekerId: o.request?.seekerId,
+    seekerId: o.request?.seekerId || o.request?.seeker?.id,
+    seekerAvatar: o.request?.seeker?.avatarUrl || '',
+    seekerTrustScore: o.request?.seeker?.trustScore,
     providerId: o.providerId || o.provider?.id || '',
     serviceId: o.serviceId,
     requestPaymentMethods: o.request?.paymentMethods,
@@ -240,6 +258,7 @@ export function mapOfferToBid(o: ApiOffer): Bid {
     availability: o.availability,
     requestStatus: o.request?.status,
     decisionReason: o.decisionReason,
+    decisionAt: o.decisionAt,
     providerName: o.provider?.name || 'Provider',
     providerAvatar: o.provider?.avatarUrl || DEFAULT_AVATAR,
     providerRating: avgRating,

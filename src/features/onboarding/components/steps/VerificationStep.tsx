@@ -22,7 +22,7 @@ export default function VerificationStep({ user, isDark }: OnboardingStepProps) 
         </p>
       </div>
 
-      <div className={`flex items-start gap-3 rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-[#1c1b18]' : 'border-slate-200 bg-slate-50/70'}`}>
+      <div className={`flex items-start gap-3 rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-charcoal-inset' : 'border-slate-200 bg-slate-50/70'}`}>
         <MailCheck className={`mt-0.5 h-5 w-5 shrink-0 ${user.emailVerified ? 'text-emerald-600' : 'text-amber-600'}`} aria-hidden="true" />
         <div>
           <p className="text-sm font-bold text-ink dark:text-white">Email: {user.emailVerified ? 'Verified' : 'Verification needed'}</p>

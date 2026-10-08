@@ -67,7 +67,7 @@ export default function PaginationBar({
 
   return (
     <div className={`min-w-0 flex flex-col sm:flex-row sm:flex-wrap items-center justify-between gap-4 p-4 rounded-[24px] border transition-colors duration-200 select-none ${
-      isDark ? 'bg-[#22211e]/60 border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
+      isDark ? 'bg-charcoal-surface/60 border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-200 text-ink-muted'
     }`}>
       {/* Items Counter Info */}
       <div className="text-xs font-semibold">
@@ -84,7 +84,7 @@ export default function PaginationBar({
           disabled={currentPage === 1}
           className={`shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
             isDark 
-              ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27]'
+              ? 'border-neutral-800 bg-charcoal-inset text-ink-muted hover:bg-charcoal-hover'
               : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-50'
           }`}
           title="Previous Page"
@@ -116,7 +116,7 @@ export default function PaginationBar({
                 isActive
                   ? activeBgClass
                   : isDark
-                    ? `border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27] ${hoverBorderClass}`
+                    ? `border-neutral-800 bg-charcoal-inset text-ink-muted hover:bg-charcoal-hover ${hoverBorderClass}`
                     : `border-slate-200 bg-white text-ink-muted hover:bg-slate-50 ${hoverBorderClass}`
               }`}
             >
@@ -131,7 +131,7 @@ export default function PaginationBar({
           disabled={currentPage === totalPages}
           className={`shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center ${
             isDark 
-              ? 'border-neutral-800 bg-[#1c1b18] text-ink-muted hover:bg-[#2c2b27]'
+              ? 'border-neutral-800 bg-charcoal-inset text-ink-muted hover:bg-charcoal-hover'
               : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-50'
           }`}
           title="Next Page"

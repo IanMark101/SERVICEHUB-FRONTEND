@@ -75,9 +75,9 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
     <>
       {/* Set Trust Score Overlay */}
       {editingTrustUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+            isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={handleUpdateTrust} className="p-5 space-y-4">
               <h4 className="font-extrabold text-sm">Adjust Trust Score</h4>
@@ -95,7 +95,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                     value={trustDelta}
                     onChange={(e) => setTrustDelta(parseInt(e.target.value) || 0)}
                     className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                      isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
+                      isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                     }`}
                   />
                   {trustDelta !== 0 && (
@@ -115,7 +115,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                     onChange={(e) => setTrustReason(e.target.value)}
                     rows={3}
                     className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                      isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
+                      isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                     }`}
                   />
                 </div>
@@ -129,7 +129,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                     value={trustPassword}
                     onChange={(event) => setTrustPassword(event.target.value)}
                     className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                      isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
+                      isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                     }`}
                   />
                 </div>
@@ -138,7 +138,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                 <button
                   type="button"
                   onClick={closeTrustModal}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
+                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
@@ -157,9 +157,9 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
 
       {/* Suspend Overlay */}
       {suspendingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+            isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={handleSuspend} className="p-5 space-y-4">
               <h4 className="font-extrabold text-sm">Suspend User Account</h4>
@@ -171,7 +171,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                   value={suspendReason}
                   onChange={(e) => setSuspendReason(e.target.value)}
                   className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
+                    isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                   }`}
                 />
                 <input
@@ -182,7 +182,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                   onChange={(e) => setSuspendDuration(parseInt(e.target.value))}
                   placeholder="Duration (days)"
                   className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
+                    isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                   }`}
                 />
               </div>
@@ -190,7 +190,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                 <button
                   type="button"
                   onClick={() => setSuspendingUser(null)}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
+                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
@@ -208,9 +208,9 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
 
       {/* Ban Overlay */}
       {banningUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+            isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={handleBan} className="p-5 space-y-4">
               <h4 className="font-extrabold text-sm flex items-center gap-1.5 text-red-500">
@@ -225,7 +225,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                   value={banReason}
                   onChange={(e) => setBanReason(e.target.value)}
                   className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                    isDark ? 'bg-[#1c1b18] border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
+                    isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
                   }`}
                 />
               </div>
@@ -233,7 +233,7 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                 <button
                   type="button"
                   onClick={() => setBanningUser(null)}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
+                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
@@ -252,20 +252,20 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
 
       {/* Reusable custom confirmation overlay to remove browser confirms */}
       {confirmRestoreUserId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+            isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={(event) => { event.preventDefault(); handleRestore(confirmRestoreUserId); }} className="p-5 space-y-4">
               <h4 className="font-extrabold text-sm text-emerald-600">{restoreIsBan ? 'Unban User' : 'Restore account access'}</h4>
               <p className="text-xs leading-relaxed">The account will return to ACTIVE. Email and residency verification rules still apply. Existing bookings and payments remain unchanged.</p>
               <label htmlFor="restore-reason" className="block text-xs font-semibold">Reason for restoring access</label>
-              <textarea id="restore-reason" required minLength={3} maxLength={500} rows={3} value={restoreReason} onChange={(event) => setRestoreReason(event.target.value)} className={`w-full rounded-xl border p-3 text-xs ${isDark ? 'border-neutral-700 bg-[#1c1b18] text-white' : 'border-slate-300 bg-white text-ink'}`} />
+              <textarea id="restore-reason" required minLength={3} maxLength={500} rows={3} value={restoreReason} onChange={(event) => setRestoreReason(event.target.value)} className={`w-full rounded-xl border p-3 text-xs ${isDark ? 'border-neutral-700 bg-charcoal-inset text-white' : 'border-slate-300 bg-white text-ink'}`} />
               <div className="flex items-center justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => { setConfirmRestoreUserId(null); setRestoreReason(''); }}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
+                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>

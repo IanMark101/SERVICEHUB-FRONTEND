@@ -1,4 +1,4 @@
-import type { JobEngagement } from '../../types';
+import type { JobEngagement, JobRequest, ServiceListing } from '../../types';
 import { getActivitySituation } from './ActivitySituation';
 
 export type ActivityRole = 'seeker' | 'provider';
@@ -15,6 +15,13 @@ export const activityGroupLabels: Record<ActivityGroup, string> = {
   under_review: 'Under Review',
   history: 'History',
 };
+
+export function getActivityCategory(booking: JobEngagement, services: ServiceListing[], requests: JobRequest[]): string {
+  return booking.category?.trim()
+    || services.find(service => service.id === booking.serviceId)?.category
+    || requests.find(request => request.seekerId === booking.seekerId && request.title === booking.title)?.category
+    || 'General';
+}
 
 
 export function getBookingActivityGroup(

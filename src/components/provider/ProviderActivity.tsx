@@ -21,7 +21,7 @@ import ProviderWorkloadPanel from './activity/ProviderWorkloadPanel';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import { normalizeOfferStatus } from '../../lib/offerStatus';
 import SafetyReportModal from '../activity/SafetyReportModal';
-import { activityGroupOrder, getBookingActivityGroup } from '../activity/activityPresentation';
+import { activityGroupOrder, getActivityCategory, getBookingActivityGroup } from '../activity/activityPresentation';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
@@ -56,6 +56,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
   const {
     jobEngagements,
+    engagementsStatus,
     bids,
     jobRequests,
     requestJobApproval,
@@ -64,8 +65,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     services,
     isDark,
     refreshEngagements,
-    refreshAll,
-    notifications,
+    applyBookingAction,
     user
   } = useApp();
   const { success, error: toastError, info } = useToast();
@@ -111,41 +111,21 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   // Confirm Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
-  // Debounced auto-refresh effect
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    const triggerDebounce = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        refreshEngagements();
-        refreshAll();
-      }, 300);
-    };
-
-    triggerDebounce();
-
-    const handleFocus = () => {
-      triggerDebounce();
-    };
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
+  // The shared data loader owns initial, socket, and focus refreshes. Changing
+  // a local filter or receiving a notification must not reload the workspace.
 
   useEffect(() => {
     if (tabParam && manuallyOverriddenLink.current !== deepLinkKey) {
-      const allowed: ProviderActivityTab[] = ['all', 'in_progress', 'waiting', 'pending_offers', 'awaiting_approval', 'disputed', 'canceled'];
-      if (allowed.includes(tabParam as ProviderActivityTab)) {
+      const targetTab = tabParam === 'canceled' && offerIdParam ? 'closed_offers' : tabParam;
+      const allowed: ProviderActivityTab[] = ['all', 'in_progress', 'waiting', 'pending_offers', 'closed_offers', 'awaiting_approval', 'disputed', 'completed', 'canceled'];
+      if (allowed.includes(targetTab as ProviderActivityTab)) {
         const timer = window.setTimeout(() => {
-          if (manuallyOverriddenLink.current !== deepLinkKey) setActiveTab(tabParam as ProviderActivityTab);
+          if (manuallyOverriddenLink.current !== deepLinkKey) setActiveTab(targetTab as ProviderActivityTab);
         }, 0);
         return () => window.clearTimeout(timer);
       }
     }
-  }, [tabParam, deepLinkKey]);
+  }, [tabParam, offerIdParam, deepLinkKey]);
 
   useEffect(() => {
     if (bookingIdParam && manuallyOverriddenLink.current !== deepLinkKey && appliedBookingLink.current !== deepLinkKey) {
@@ -185,16 +165,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<ProviderActivitySort>('newest');
 
-  const getCategoryForEngagement = (engagement: JobEngagement) => {
-    if (engagement.serviceId) {
-      const service = services.find((item) => item.id === engagement.serviceId);
-      if (service) return service.category;
-    }
-
-    return jobRequests.find(
-      (request) => request.seekerId === engagement.seekerId && request.title === engagement.title,
-    )?.category || 'General';
-  };
+  const getCategoryForEngagement = (engagement: JobEngagement) => getActivityCategory(engagement, services, jobRequests);
 
   const getRequestForBid = (requestId: string) =>
     jobRequests.find((request) => request.id === requestId);
@@ -237,23 +208,24 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
   const handleReviewSubmit = async (rating: number, comment: string, tags: string[], reviewId?: string) => {
     if (reviewId) {
-      await apiUpdateReview(reviewId, {
+      const res = await apiUpdateReview(reviewId, {
         rating,
         text: comment,
         tags
       });
-      success('Review updated', 'Your review for the client has been updated.');
+      if (res.data && reviewingEngagement) applyBookingAction({ id: reviewingEngagement.id, review: res.data });
+      success('Review updated', 'Your review for the seeker has been updated.');
     } else {
       if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
-      await apiSubmitReview({
+      const res = await apiSubmitReview({
         completedServiceId: reviewingEngagement.completedServiceId,
         rating,
         text: comment,
         tags
       });
-      success('Client review submitted', 'Thank you for your rating and feedback.');
+      if (res.data) applyBookingAction({ id: reviewingEngagement.id, review: res.data });
+      success('Seeker review submitted', 'Thank you for your rating and feedback.');
     }
-    refreshEngagements();
   };
 
   const handleProviderStartJob = async (id: string) => {
@@ -289,7 +261,6 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     try {
       await apiEscalateCompletion(id, 'The seeker has not responded to the completion request after the required waiting period.');
       success('Review requested', 'The completion was sent to an administrator for review.');
-      refreshEngagements();
     } catch (err: unknown) {
       toastError('Unable to escalate', getApiErrorMessage(err, 'Unable to escalate this completion.'));
     } finally {
@@ -310,6 +281,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     setLoadingActionType('remove');
     try {
       const response = await apiCancelBooking(id, cancelReason.trim());
+      if (!response.success) throw new Error(response.message || 'Unable to cancel this booking.');
+      if (response.data) applyBookingAction({ id, ...response.data });
       if (response.data?.immediate) {
         success('Booking Cancelled', 'The reason was recorded and any eligible online refund was submitted.');
       } else {
@@ -317,7 +290,6 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       }
       setCancelingBookingId(null);
       setCancelReason('');
-      refreshEngagements();
     } catch (err: unknown) {
       toastError('Cancellation failed', getApiErrorMessage(err, 'Unable to cancel this booking.'));
     } finally {
@@ -330,9 +302,10 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     setLoadingItemId(requestId);
     setLoadingActionType('escalate_cancellation');
     try {
-      await apiEscalateCancellationRequest(requestId);
+      const res = await apiEscalateCancellationRequest(requestId);
+      if (!res.success) throw new Error(res.message || 'Unable to escalate this cancellation.');
+      if (res.data) applyBookingAction({ id: res.data.bookingId, cancellationRequest: res.data });
       success('Escalated to Admin', 'An administrator will review the cancellation decision.');
-      refreshEngagements();
     } catch (err: unknown) {
       toastError('Escalation failed', getApiErrorMessage(err, 'Unable to escalate this cancellation.'));
     } finally {
@@ -373,8 +346,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         try {
           const res = await apiRespondCancellationRequest(requestId, true);
           if (res.success) {
+            if (res.data?.booking) applyBookingAction({ id: res.data.booking.id, ...res.data });
             success('Cancellation Approved', onlinePayment ? 'Booking cancelled and any eligible GCash Test Mode refund was submitted.' : 'Booking cancelled. ServiceHub has not collected a cash payment.');
-            refreshEngagements();
           } else {
             toastError('Action Failed', res.message || 'Failed to approve cancellation.');
           }
@@ -404,8 +377,8 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         try {
           const res = await apiHideBooking(je.id);
           if (res.success) {
+            applyBookingAction({ id: je.id, hidden: true });
             success('Removed', 'Record removed from your activity list.');
-            refreshEngagements();
           } else {
             toastError('Remove Failed', res.message || 'Failed to remove record.');
           }
@@ -428,10 +401,10 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     try {
       const res = await apiRespondCancellationRequest(respondingReqId, false, declineNote);
       if (res.success) {
+        if (res.data?.booking) applyBookingAction({ id: res.data.booking.id, ...res.data });
         info('Cancellation Declined', 'The seeker has been notified and may escalate to admin.');
         setRespondingReqId(null);
         setDeclineNote('');
-        refreshEngagements();
       } else {
         toastError('Action Failed', res.message || 'Failed to decline cancellation.');
       }
@@ -450,7 +423,6 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
 
       {!openItemId && <ProviderWorkloadPanel
-        refreshKey={`${notifications.length}:${loadingItemId ?? ''}:${myEngagements.map((booking) => `${booking.id}:${booking.status}:${booking.queuePosition ?? ''}:${booking.queueEstimatedWait ?? ''}`).join('|')}`}
         onOpen={(id) => openItem(id, 'booking')}
         onStart={(id) => { void handleProviderStartJob(id); }}
         startingBookingId={loadingActionType === 'start' ? loadingItemId : null}
@@ -467,7 +439,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       <ProviderActivityList
         model={{
           myOffers, myEngagements, isDark, searchQuery, setSearchQuery,
-          sortBy, setSortBy, isLoading, filteredItems, activeTab, router,
+          sortBy, setSortBy, isLoading, engagementsStatus, retryBooking: refreshEngagements, filteredItems, activeTab, router,
           paginatedItems, getRequestForBid, getCategoryForEngagement,
           loadingItemId, loadingActionType, highlightedBookingId,
           handleCancelOffer, handleApproveCancellation, handleDeleteClick,
@@ -499,10 +471,9 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         targetRole="seeker"
         isDark={isDark}
         onClose={() => setReportingEngagement(null)}
-        onSubmitted={async (created) => {
+        onSubmitted={(created) => {
           if (created) success('Report submitted', 'Your private safety report was sent to an administrator.');
           else info('Report already received', 'This same incident is already in the moderation queue.');
-          await refreshEngagements();
         }}
       />
 
@@ -524,7 +495,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
             onClose={() => setReviewingEngagement(null)}
             onSubmit={handleReviewSubmit}
             targetName={reviewingEngagement.seekerName}
-            targetRole="client"
+            targetRole="seeker"
             isDark={isDark}
             isEdit={!!existingReview}
             reviewId={existingReview?.id}

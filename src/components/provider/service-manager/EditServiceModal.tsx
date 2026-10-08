@@ -54,7 +54,7 @@ export default function EditServiceModal({
 
   const field = `w-full px-4 py-3 rounded-xl border text-sm transition-all outline-none font-medium ${
     isDark
-      ? 'bg-[#161513] border-neutral-800 text-white placeholder:text-neutral-600 focus:border-emerald-500/80 focus:ring-2 focus:ring-emerald-500/10'
+      ? 'bg-charcoal border-neutral-800 text-white placeholder:text-neutral-600 focus:border-emerald-500/80 focus:ring-2 focus:ring-emerald-500/10'
       : 'bg-slate-50/80 border-slate-200 text-ink placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10'
   }`;
 
@@ -69,19 +69,19 @@ export default function EditServiceModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="edit-service-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-6 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-6 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200"
     >
       <div
         className={`relative w-full max-w-lg max-h-[90dvh] flex flex-col rounded-3xl border shadow-2xl overflow-hidden transition-all duration-200 ${
           isDark
-            ? 'bg-[#1c1b18] border-neutral-800 text-white'
+            ? 'bg-charcoal-inset border-neutral-800 text-white'
             : 'bg-white border-slate-200/80 text-ink'
         }`}
       >
         {/* Modal Top Bar */}
         <div
           className={`flex items-center justify-between px-6 py-4.5 border-b ${
-            isDark ? 'border-neutral-800 bg-[#22211e]/60' : 'border-slate-100 bg-slate-50/70'
+            isDark ? 'border-neutral-800 bg-charcoal-surface/60' : 'border-slate-100 bg-slate-50/70'
           }`}
         >
           <h3 id="edit-service-modal-title" className="font-extrabold text-base tracking-tight">
@@ -93,7 +93,7 @@ export default function EditServiceModal({
             aria-label="Close"
             className={`p-1.5 rounded-full transition-colors cursor-pointer ${
               isDark
-                ? 'text-neutral-400 hover:text-white hover:bg-neutral-800'
+                ? 'text-neutral-400 hover:text-white hover:bg-charcoal'
                 : 'text-ink-subtle hover:text-ink hover:bg-slate-100'
             }`}
           >
@@ -202,7 +202,7 @@ export default function EditServiceModal({
                             ? 'bg-emerald-950/20 border-emerald-900/50 text-white shadow-xs'
                             : 'bg-emerald-50/50 border-emerald-300 text-emerald-950 shadow-xs'
                           : isDark
-                          ? 'bg-[#161513] border-neutral-800 text-neutral-400 hover:border-neutral-700'
+                          ? 'bg-charcoal border-neutral-800 text-neutral-400 hover:border-neutral-700'
                           : 'bg-slate-50/70 border-slate-200 text-ink-muted hover:border-slate-300'
                       }`}
                     >
@@ -251,7 +251,7 @@ export default function EditServiceModal({
           {/* Modal Footer with Soft Divider */}
           <div
             className={`px-6 py-4 border-t flex items-center justify-end gap-2.5 ${
-              isDark ? 'border-neutral-800 bg-[#22211e]/60' : 'border-slate-100 bg-slate-50/70'
+              isDark ? 'border-neutral-800 bg-charcoal-surface/60' : 'border-slate-100 bg-slate-50/70'
             }`}
           >
             <button
@@ -259,7 +259,7 @@ export default function EditServiceModal({
               onClick={onClose}
               className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition-colors cursor-pointer ${
                 isDark
-                  ? 'border-neutral-700 bg-neutral-800 text-neutral-200 hover:bg-neutral-700'
+                  ? 'border-neutral-700 bg-charcoal text-neutral-200 hover:bg-charcoal'
                   : 'border-slate-200 bg-white text-ink-secondary hover:bg-slate-100'
               }`}
             >

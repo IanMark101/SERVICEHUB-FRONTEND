@@ -27,7 +27,7 @@ function defaults(config: InternalAxiosRequestConfig) {
   if (config.url === '/auth/session') return reply(config, { success: true, data: { authenticated: true, accessToken: 'verified-test-token', user: profile } });
   if (config.url === '/auth/me') return reply(config, { success: true, data: { user: profile } });
   if (config.url === '/services') return reply(config, { success: true, data: [listing] });
-  if (config.url === '/bookings/mine') return reply(config, { success: true, data: { bookings: [], completedServices: [] } });
+  if (config.url === '/bookings/my-engagements') return reply(config, { success: true, data: { bookings: [], completedServices: [] } });
   return reply(config, { success: true, data: [] });
 }
 function Workspace() {
@@ -36,6 +36,14 @@ function Workspace() {
   return shouldRender ? <><output>{user?.role}:{servicesStatus}</output><button onClick={refreshServices}>Refresh listings</button><SeekServices /></> : <p>Verifying access</p>;
 }
 function mount() { return render(<StrictMode><AppProvider><Workspace /></AppProvider></StrictMode>); }
+
+function BookingWorkspace() {
+  const { shouldRender } = useRouteGuard(['user']);
+  const { jobEngagements, engagementsStatus, refreshEngagements } = useApp();
+  return shouldRender ? <><output aria-label="Booking load status">{engagementsStatus}</output><button onClick={() => { void refreshEngagements(); }}>Refresh bookings</button>{jobEngagements.map(booking => <h2 key={booking.id}>{booking.title}</h2>)}</> : <p>Verifying access</p>;
+}
+const testBooking = { id: 'refresh-booking', seekerId: profile.id, providerId: 'other-provider', status: 'ACCEPTED', started: false, createdAt: '2026-10-08T05:00:00.000Z', service: { title: 'OUTLET REPAIR BOOKING' } };
+function bookingReply(config: InternalAxiosRequestConfig, bookings = [testBooking]) { return reply(config, { success: true, data: { bookings, completedServices: [] } }); }
 
 describe('full refresh through real recovery, Axios, data sync and service UI', () => {
   beforeEach(() => {
@@ -101,7 +109,7 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
     localStorage.setItem('userSession', JSON.stringify({ id: profile.id }));
     handler = async config => { if (config.url === '/auth/session') throw failure(config); return defaults(config); };
     mount();
-    await screen.findByText('Connection interrupted');
+    await screen.findByText('Service temporarily unavailable');
     expect(localStorage.getItem('userSession')).toBeNull();
     expect(localStorage.getItem('servicehub:session-present')).toBe('true');
     expect(mocks.router.replace).not.toHaveBeenCalled();
@@ -124,5 +132,48 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
     mount();
     await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith(expect.stringContaining('/login')));
     expect(screen.queryByText(listing.title)).not.toBeInTheDocument();
+  });
+
+  it('tracks the real booking fetch, preserves loaded bookings after a failed refresh, and allows recovery', async () => {
+    mocks.pathname = '/seeker/seeker-activity';
+    let resolveBookings!: () => void;
+    handler = config => config.url === '/bookings/my-engagements' ? new Promise(resolve => { resolveBookings = () => resolve(bookingReply(config)); }) : Promise.resolve(defaults(config));
+    render(<StrictMode><AppProvider><BookingWorkspace /></AppProvider></StrictMode>);
+    await waitFor(() => expect(resolveBookings).toBeTypeOf('function'));
+    expect(screen.getByLabelText('Booking load status')).toHaveTextContent('loading');
+    await act(async () => { resolveBookings(); });
+    await screen.findByText(testBooking.service.title);
+    expect(screen.getByLabelText('Booking load status')).toHaveTextContent('ready');
+
+    handler = async config => { if (config.url === '/bookings/my-engagements') throw failure(config); return defaults(config); };
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh bookings' }));
+    await waitFor(() => expect(screen.getByLabelText('Booking load status')).toHaveTextContent('error'));
+    expect(screen.getByText(testBooking.service.title)).toBeVisible();
+
+    handler = async config => config.url === '/bookings/my-engagements' ? bookingReply(config) : defaults(config);
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh bookings' }));
+    await waitFor(() => expect(screen.getByLabelText('Booking load status')).toHaveTextContent('ready'));
+    expect(screen.getByText(testBooking.service.title)).toBeVisible();
+    expect(mocks.router.replace).not.toHaveBeenCalled();
+  });
+
+  it('does not let an older booking response overwrite a newer refresh or its pending state', async () => {
+    mocks.pathname = '/seeker/seeker-activity';
+    handler = async config => config.url === '/bookings/my-engagements' ? bookingReply(config) : defaults(config);
+    render(<StrictMode><AppProvider><BookingWorkspace /></AppProvider></StrictMode>);
+    await screen.findByText(testBooking.service.title);
+    const pending: Array<(bookings: typeof testBooking[]) => void> = [];
+    handler = config => config.url === '/bookings/my-engagements' ? new Promise(resolve => { pending.push(bookings => resolve(bookingReply(config, bookings))); }) : Promise.resolve(defaults(config));
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh bookings' }));
+    await waitFor(() => expect(pending).toHaveLength(1));
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh bookings' }));
+    await waitFor(() => expect(pending).toHaveLength(2));
+    await act(async () => { pending[0]([]); });
+    expect(screen.getByLabelText('Booking load status')).toHaveTextContent('loading');
+    expect(screen.getByText(testBooking.service.title)).toBeVisible();
+    await act(async () => { pending[1]([{ ...testBooking, service: { title: 'UPDATED OUTLET REPAIR BOOKING' } }]); });
+    await screen.findByText('UPDATED OUTLET REPAIR BOOKING');
+    expect(screen.getByLabelText('Booking load status')).toHaveTextContent('ready');
+    expect(screen.queryByText(testBooking.service.title)).not.toBeInTheDocument();
   });
 });

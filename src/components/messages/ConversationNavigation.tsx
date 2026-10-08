@@ -17,7 +17,7 @@ const accentStyles = {
     badge: 'bg-orange-500',
     avatar: 'bg-orange-500/15 text-orange-700 dark:text-orange-400',
     threadSelected: 'border-orange-500/70 bg-orange-50 text-orange-900 shadow-xs dark:bg-orange-950/40 dark:border-orange-500/60 dark:text-orange-200 ring-1 ring-orange-500/20',
-    threadInactive: 'border-slate-200/80 bg-white text-ink-secondary hover:bg-slate-50 hover:border-slate-300 dark:border-neutral-800 dark:bg-[#1e1d1a] dark:text-ink-secondary dark:hover:bg-neutral-800/70',
+    threadInactive: 'border-slate-200/80 bg-white text-ink-secondary hover:bg-slate-50 hover:border-slate-300 dark:border-neutral-800 dark:bg-charcoal dark:text-ink-secondary dark:hover:bg-charcoal/70',
   },
   emerald: {
     selected: 'bg-emerald-50/80 border-emerald-200 text-emerald-950 dark:bg-emerald-950/25 dark:border-emerald-500/30 dark:text-emerald-200 shadow-2xs',
@@ -27,7 +27,7 @@ const accentStyles = {
     badge: 'bg-emerald-600',
     avatar: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
     threadSelected: 'border-emerald-500/70 bg-emerald-50 text-emerald-900 shadow-xs dark:bg-emerald-950/40 dark:border-emerald-500/60 dark:text-emerald-200 ring-1 ring-emerald-500/20',
-    threadInactive: 'border-slate-200/80 bg-white text-ink-secondary hover:bg-slate-50 hover:border-slate-300 dark:border-neutral-800 dark:bg-[#1e1d1a] dark:text-ink-secondary dark:hover:bg-neutral-800/70',
+    threadInactive: 'border-slate-200/80 bg-white text-ink-secondary hover:bg-slate-50 hover:border-slate-300 dark:border-neutral-800 dark:bg-charcoal dark:text-ink-secondary dark:hover:bg-charcoal/70',
   },
 } as const;
 
@@ -70,7 +70,7 @@ function ContactRow({
       className={`group relative mx-2 my-1 flex w-[calc(100%-1rem)] items-start gap-3 rounded-2xl p-3 text-left border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 ${styles.focus} ${
         selected
           ? styles.selected
-          : 'border-transparent hover:bg-slate-50/80 dark:hover:bg-neutral-800/40 text-ink-secondary dark:text-ink-secondary'
+          : 'border-transparent hover:bg-slate-50/80 dark:hover:bg-charcoal/40 text-ink-secondary dark:text-ink-secondary'
       }`}
     >
       {/* Active selection accent bar */}
@@ -102,7 +102,7 @@ function ContactRow({
         {group.unreadCount > 0 && (
           <span
             className={`absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 ${
-              isDark ? 'border-[#1c1b18]' : 'border-white'
+              isDark ? 'border-charcoal-inset' : 'border-white'
             } ${styles.badge}`}
           />
         )}
@@ -164,7 +164,7 @@ export function PeopleInbox({ state, accent }: { state: MessagesState; accent: A
 
   return (
     <aside
-      className={`${selectedConv ? 'hidden xl:flex' : 'flex'} w-full shrink-0 flex-col border-r border-slate-200/90 dark:border-neutral-800/80 xl:w-80 bg-slate-50/40 dark:bg-[#1a1917]/50`}
+      className={`${selectedConv ? 'hidden xl:flex' : 'flex'} w-full shrink-0 flex-col border-r border-slate-200/90 dark:border-neutral-800/80 xl:w-80 bg-slate-50/40 dark:bg-charcoal/50`}
       aria-label="People in your inbox"
     >
       {/* Top Header */}
@@ -192,7 +192,7 @@ export function PeopleInbox({ state, accent }: { state: MessagesState; accent: A
             onChange={(event) => setSearchQuery(event.target.value)}
             className={`w-full rounded-xl border py-2 pl-9 pr-8 text-xs outline-none transition-all focus-visible:ring-2 ${styles.focus} ${
               isDark
-                ? 'border-neutral-800 bg-[#22211e] text-white placeholder-ink-muted focus:bg-[#282723]'
+                ? 'border-neutral-800 bg-charcoal-surface text-white placeholder-ink-muted focus:bg-charcoal'
                 : 'border-slate-200 bg-white text-ink placeholder-ink-subtle shadow-2xs focus:bg-white'
             }`}
           />
@@ -326,7 +326,7 @@ export function BookingThreads({ state, accent }: { state: MessagesState; accent
 
   return (
     <nav
-      className="shrink-0 border-b border-slate-200/80 px-4 py-2.5 dark:border-neutral-800/80 bg-slate-50/50 dark:bg-[#191816]/60 transition-colors"
+      className="shrink-0 border-b border-slate-200/80 px-4 py-2.5 dark:border-neutral-800/80 bg-slate-50/50 dark:bg-charcoal/60 transition-colors"
       aria-label={`Jobs with ${selectedGroup.otherPartyName}`}
     >
       {/* Thread Ribbon Header */}
@@ -337,7 +337,7 @@ export function BookingThreads({ state, accent }: { state: MessagesState; accent
             Jobs with {selectedGroup.otherPartyName}
           </span>
         </div>
-        <span className="shrink-0 rounded-full bg-slate-200/70 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-ink-muted dark:text-ink-muted">
+        <span className="shrink-0 rounded-full bg-slate-200/70 dark:bg-charcoal px-2 py-0.5 text-[10px] font-semibold text-ink-muted dark:text-ink-muted">
           {selectedGroup.bookings.length} {selectedGroup.bookings.length === 1 ? 'total' : 'total'}
         </span>
       </div>

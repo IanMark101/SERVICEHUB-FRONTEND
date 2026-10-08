@@ -54,7 +54,7 @@ export default function AdminOverviewCharts({
 }: AdminOverviewChartsProps) {
   const router = useRouter();
   const surface = isDark
-    ? 'border-neutral-800 bg-[#22211e] text-white'
+    ? 'border-neutral-800 bg-charcoal-surface text-white'
     : 'border-slate-200 bg-white text-ink';
   const activityMaximum = Math.max(
     1,
@@ -140,7 +140,7 @@ export default function AdminOverviewCharts({
               role="img"
               aria-label={`${workloadTotal} total moderation items: ${moderationWorkload.map((item) => `${item.label} ${item.count}`).join(', ')}`}
             >
-              <div className={`absolute inset-5 flex flex-col items-center justify-center rounded-full ${isDark ? 'bg-[#22211e]' : 'bg-white'}`}>
+              <div className={`absolute inset-5 flex flex-col items-center justify-center rounded-full ${isDark ? 'bg-charcoal-surface' : 'bg-white'}`}>
                 <strong className="text-2xl font-bold">{workloadTotal}</strong>
                 <span className="text-[9px] font-semibold uppercase tracking-wider text-ink-subtle">Open items</span>
               </div>
@@ -152,7 +152,7 @@ export default function AdminOverviewCharts({
                   key={item.label}
                   type="button"
                   onClick={() => item.href && router.push(item.href)}
-                  className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left text-[10px] transition-colors hover:bg-slate-50 dark:hover:bg-neutral-800"
+                  className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left text-[10px] transition-colors hover:bg-slate-50 dark:hover:bg-charcoal"
                 >
                   <span className="flex items-center gap-2 font-semibold text-ink-muted dark:text-ink-secondary">
                     <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: workloadColors[index % workloadColors.length] }} />
@@ -181,7 +181,7 @@ export default function AdminOverviewCharts({
                 <span className="font-semibold text-ink-muted dark:text-ink-secondary">{item.label}</span>
                 <strong>{item.count}</strong>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-800">
+              <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-charcoal">
                 <div
                   className="h-full rounded-full bg-[var(--admin-chart-primary)]"
                   style={{ width: item.count > 0 ? `${Math.max(3, (item.count / lifecycleMaximum) * 100)}%` : '0%' }}

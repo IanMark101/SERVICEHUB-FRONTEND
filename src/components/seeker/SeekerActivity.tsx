@@ -22,11 +22,11 @@ import ReasonModal from '../ui/ReasonModal';
 import RequestServiceModal from './RequestServiceModal';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import SafetyReportModal from '../activity/SafetyReportModal';
-import { activityGroupOrder, getBookingActivityGroup } from '../activity/activityPresentation';
+import { activityGroupOrder, getActivityCategory, getBookingActivityGroup } from '../activity/activityPresentation';
 
 
 export default function SeekerActivity({ currentUserId }: { currentUserId?: string }) {
-  const { jobEngagements, confirmJobCompletion, disputeJob, services, jobRequests, isDark, refreshEngagements, refreshAll, notifications, user } = useApp();
+  const { jobEngagements, engagementsStatus, confirmJobCompletion, disputeJob, services, jobRequests, isDark, refreshEngagements, applyBookingAction, user } = useApp();
   const { success, error: toastError, info } = useToast();
   const router = useRouter();
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
@@ -104,33 +104,12 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     }, 250);
   };
 
-  // Debounced auto-refresh effect
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    const triggerDebounce = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        refreshEngagements();
-        refreshAll();
-      }, 300);
-    };
-
-    triggerDebounce();
-
-    const handleFocus = () => {
-      triggerDebounce();
-    };
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [activeTab, notifications.length, refreshEngagements, refreshAll]);
+  // Initial loading, live changes, and tab focus are handled by the shared
+  // data loader. Activity tabs filter that state without requesting it again.
 
   useEffect(() => {
     if (tabParam && manuallyOverriddenLink.current !== deepLinkKey) {
-      const allowed: SeekerActivityTab[] = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'canceled'];
+      const allowed: SeekerActivityTab[] = ['all', 'action_required', 'pending', 'active', 'waiting', 'disputed', 'completed', 'canceled'];
       if (allowed.includes(tabParam as SeekerActivityTab)) {
         const timer = window.setTimeout(() => {
           if (manuallyOverriddenLink.current !== deepLinkKey) setActiveTab(tabParam as SeekerActivityTab);
@@ -180,15 +159,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const [sortBy, setSortBy] = useState<SeekerActivitySort>('newest');
 
   // Helper to resolve category of a job engagement
-  const getCategoryForEngagement = (je: JobEngagement) => {
-    if (je.serviceId) {
-      const s = services.find(srv => srv.id === je.serviceId);
-      if (s) return s.category;
-    }
-    const req = jobRequests.find(r => r.seekerId === je.seekerId && r.title === je.title);
-    if (req) return req.category;
-    return 'General';
-  };
+  const getCategoryForEngagement = (je: JobEngagement) => getActivityCategory(je, services, jobRequests);
 
   // Dispute Dialog Modal State
   const [disputingJob, setDisputingJob] = useState<JobEngagement | null>(null);
@@ -259,23 +230,24 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   const handleReviewSubmit = async (rating: number, comment: string, tags: string[], reviewId?: string) => {
     if (reviewId) {
-      await apiUpdateReview(reviewId, {
+      const res = await apiUpdateReview(reviewId, {
         rating,
         text: comment,
         tags
       });
+      if (res.data && reviewingEngagement) applyBookingAction({ id: reviewingEngagement.id, review: res.data });
       success('Review updated', 'Your review has been updated.');
     } else {
       if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
-      await apiSubmitReview({
+      const res = await apiSubmitReview({
         completedServiceId: reviewingEngagement.completedServiceId,
         rating,
         text: comment,
         tags
       });
+      if (res.data) applyBookingAction({ id: reviewingEngagement.id, review: res.data });
       success('Review submitted', 'Thank you for your feedback.');
     }
-    refreshEngagements();
   };
 
 
@@ -296,6 +268,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     try {
       const res = await apiCancelBooking(cancelingJob.id, cancelReason.trim());
       if (res.success) {
+        if (res.data) applyBookingAction({ id: cancelingJob.id, ...res.data });
         if (cancelingJob.started) {
           info('Cancellation Request Sent', 'The provider will review your request.');
         } else {
@@ -303,7 +276,6 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         }
         setCancelingJob(null);
         setCancelReason('');
-        refreshEngagements();
       } else {
         toastError('Request Failed', res.message || 'Failed to submit request.');
       }
@@ -331,8 +303,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         try {
           const res = await apiEscalateCancellationRequest(requestId);
           if (res.success) {
+            if (res.data) applyBookingAction({ id: res.data.bookingId, cancellationRequest: res.data });
             success('Escalated to Admin', 'An administrator will review and resolve your case.');
-            refreshEngagements();
           } else {
             toastError('Escalation Failed', res.message || 'Failed to escalate request.');
           }
@@ -359,14 +331,15 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
     setLoadingItemId(requestId);
     setLoadingActionType(approve ? 'approve_cancellation' : 'decline_cancellation');
     try {
-      await apiRespondCancellationRequest(requestId, approve, note);
+      const res = await apiRespondCancellationRequest(requestId, approve, note);
+      if (!res.success) throw new Error(res.message || 'Unable to respond to the cancellation.');
+      if (res.data?.booking) applyBookingAction({ id: res.data.booking.id, ...res.data });
       success(approve ? 'Cancellation Approved' : 'Cancellation Declined', approve ? 'The booking was cancelled and any eligible refund was submitted.' : 'The provider may escalate the decision to Admin.');
-      await refreshEngagements();
       setDecliningCancellationId(null);
       setDeclineCancellationReason('');
     } catch (err: unknown) {
       toastError('Response failed', getApiErrorMessage(err, 'Unable to respond to the cancellation.'));
-      try { await refreshEngagements(); } catch { /* Keep the original response error visible. */ }
+      void refreshEngagements().catch(() => { /* Reconcile in the background without prolonging a failed action. */ });
     } finally {
       setLoadingItemId(null);
       setLoadingActionType(null);
@@ -388,8 +361,8 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         try {
           const res = await apiHideBooking(je.id);
           if (res.success) {
+            applyBookingAction({ id: je.id, hidden: true });
             success('Removed', 'Record removed from your activity list.');
-            refreshEngagements();
           } else {
             toastError('Remove Failed', res.message || 'Failed to remove record.');
           }
@@ -420,7 +393,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
       <SeekerActivityList
         model={{
           myEngagements, isDark, searchQuery, setSearchQuery, sortBy, setSortBy,
-          isLoading, filteredEngagements, activeTab, router, paginatedEngagements,
+          isLoading, engagementsStatus, retryBooking: refreshEngagements, filteredEngagements, activeTab, router, paginatedEngagements,
           highlightedBookingId, getCategoryForEngagement,
           loadingItemId, loadingActionType, setReviewingEngagement,
           handleDeleteClick, setDisputingJob, setConfirmModal,
@@ -439,10 +412,9 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
         targetRole="provider"
         isDark={isDark}
         onClose={() => setReportingEngagement(null)}
-        onSubmitted={async (created) => {
+        onSubmitted={(created) => {
           if (created) success('Report submitted', 'Your private safety report was sent to an administrator.');
           else info('Report already received', 'This same incident is already in the moderation queue.');
-          await refreshEngagements();
         }}
       />
 

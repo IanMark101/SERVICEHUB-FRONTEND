@@ -26,21 +26,21 @@ const STYLES = `
   font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   
-  --bg-token: #0d0d0c;
+  --bg-token: var(--color-charcoal);
   --fg-token: #f7f4ed;
   --accent-orange: #c86544;
   --accent-orange-light: #ea7a56;
   --sub-text: rgba(161,161,170,1);
   
-  --pill-bg-1: color-mix(in oklch, var(--fg-token) 4%, transparent);
-  --pill-bg-2: color-mix(in oklch, var(--fg-token) 1.5%, transparent);
+  --pill-bg-1: var(--color-charcoal);
+  --pill-bg-2: var(--color-charcoal);
   --pill-shadow: color-mix(in oklch, var(--bg-token) 60%, transparent);
   --pill-highlight: color-mix(in oklch, var(--fg-token) 12%, transparent);
   --pill-inset-shadow: color-mix(in oklch, var(--bg-token) 85%, transparent);
   --pill-border: color-mix(in oklch, var(--fg-token) 10%, transparent);
   
-  --pill-bg-1-hover: color-mix(in oklch, var(--fg-token) 10%, transparent);
-  --pill-bg-2-hover: color-mix(in oklch, var(--fg-token) 3%, transparent);
+  --pill-bg-1-hover: var(--color-charcoal);
+  --pill-bg-2-hover: var(--color-charcoal);
   --pill-border-hover: color-mix(in oklch, var(--fg-token) 24%, transparent);
   --pill-shadow-hover: color-mix(in oklch, var(--bg-token) 75%, transparent);
   --pill-highlight-hover: color-mix(in oklch, var(--fg-token) 25%, transparent);
@@ -49,7 +49,7 @@ const STYLES = `
   --copyright-color: #71717a;
   --badge-text: #a1a1aa;
   --badge-brand: #ffffff;
-  --location-tag-bg: rgba(255,255,255,0.05);
+  --location-tag-bg: var(--color-charcoal);
   --location-tag-border: rgba(255,255,255,0.10);
   --location-tag-text: rgba(255,255,255,0.80);
   --pill-text: #ffffff;
@@ -352,7 +352,7 @@ export function CinematicFooter({
         <footer
           className={cn(
             "relative flex min-h-[100svh] w-full flex-col justify-between overflow-hidden cinematic-footer-wrapper",
-            isDark ? "bg-[#0d0d0c] text-[#f7f4ed]" : "light-mode bg-[var(--landing-surface,#faf9f6)] text-[#1c1917]"
+            isDark ? "bg-charcoal text-[#f7f4ed]" : "light-mode bg-[var(--landing-surface,#faf9f6)] text-[#1c1917]"
           )}
         >
           {/* Shared interactive particle background, behind the footer controls. */}

@@ -21,6 +21,7 @@ import EmptyState from '../components/ui/EmptyState';
 import { hasStoredSessionHint, isPublicEntryRoute } from '../lib/publicRoutes';
 import { clearLegacyAuthStorage, clearSessionHint, markSessionPresent } from '../lib/browserStorage';
 import { shouldLoadMarketplaceData } from '../lib/routeDataPolicy';
+import { isApiServiceUnavailable, SERVICE_UNAVAILABLE_MESSAGE } from '../lib/api/errors';
 
 
 // Modular Helpers and Hooks
@@ -28,6 +29,7 @@ import { useSeekerActions } from '../hooks/useSeekerActions';
 import { useProviderActions } from '../hooks/useProviderActions';
 import { useSharedActions } from '../hooks/useSharedActions';
 import { useAppDataSync } from '../hooks/useAppDataSync';
+import type { BookingActionResult } from '../lib/bookingActionUpdate';
 import { useToast } from '../components/ui/Toast';
 
 interface AppContextType {
@@ -61,12 +63,12 @@ interface AppContextType {
   editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
   deleteJobRequest: (requestId: string) => Promise<boolean>;
   toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
-  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => void;
+  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
   declineBid: (bidId: string) => void;
-  confirmJobCompletion: (jobId: string) => void;
-  disputeJob: (jobId: string, reason: string) => void;
+  confirmJobCompletion: (jobId: string) => Promise<void>;
+  disputeJob: (jobId: string, reason: string) => Promise<void>;
   suggestCategory: (seekerName: string, name: string, description: string) => void;
-  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash', quantity?: number) => void;
+  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash', quantity?: number) => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
 
   // Provider actions
   createServiceListing: (
@@ -99,7 +101,7 @@ interface AppContextType {
   deleteServiceListing: (serviceId: string) => void;
   submitBid: (requestId: string, providerId: string, serviceId: string | undefined, price: number, estimatedDuration: number, message: string, availability?: string) => Promise<boolean>;
   respondToDirectBooking: (jobId: string, accept: boolean) => void;
-  requestJobApproval: (jobId: string) => void;
+  requestJobApproval: (jobId: string) => Promise<void>;
   providerStartJob: (id: string) => Promise<void>;
 
   // Admin actions
@@ -110,6 +112,7 @@ interface AppContextType {
   isDark: boolean;
   toggleTheme: () => void;
   refreshEngagements: () => Promise<void>;
+  applyBookingAction: (result: BookingActionResult) => void;
   refreshAll: () => void;
   user: UserSession | null;
   setUser: (user: UserSession | null | ((prev: UserSession | null) => UserSession | null)) => void;
@@ -188,6 +191,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBids,
     jobEngagements,
     setJobEngagements,
+    applyBookingAction,
     requestsStatus,
     offersStatus,
     engagementsStatus,
@@ -293,12 +297,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setIsAuthenticated(false);
           }
         })
-        .catch(() => {
+        .catch((failure) => {
           if (!active || getSessionGeneration() !== recoveryGeneration) return;
           // A timeout, canceled read or server failure does not prove sign-out.
           // Keep cached hints/cookies intact, but do not authorize a workspace
           // until the server has verified it. The user can retry in place.
-          setAuthError('Could not restore your session. Check your connection and try again.');
+          setAuthError(isApiServiceUnavailable(failure) ? SERVICE_UNAVAILABLE_MESSAGE
+            : 'Could not restore your session. Check your connection and try again.');
         })
         .finally(() => {
           if (active) {
@@ -447,6 +452,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     syncBids,
     syncNotifications,
     syncTransactions,
+    applyBookingAction,
     helperAddNotification
   });
 
@@ -464,6 +470,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     syncEngagements,
     syncNotifications,
     syncBids,
+    applyBookingAction,
     helperAddNotification
   });
 
@@ -510,6 +517,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       refreshEngagements,
       refreshAll,
       user,
+      applyBookingAction,
       setUser,
       isAuthenticated,
       setIsAuthenticated,
@@ -525,15 +533,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }}>
       {/* Session recovery must not replace public sign-in or account-recovery forms. */}
       {authError && !publicPage
-        ? <main className="flex min-h-screen items-center justify-center bg-[#f7f6f3] p-5 dark:bg-[#141312]">
+        ? <main className="flex min-h-screen items-center justify-center bg-[#f7f6f3] p-5 dark:bg-charcoal-canvas">
             <div className="w-full max-w-lg" role="alert">
-              <EmptyState title="Connection interrupted" description={authError} actionLabel="Try again" onAction={retrySession} />
+              <EmptyState title={authError === SERVICE_UNAVAILABLE_MESSAGE ? 'Service temporarily unavailable' : 'Connection interrupted'} description={authError} actionLabel="Try again" onAction={retrySession} />
               <button type="button" onClick={() => router.push('/')} className="mt-4 block w-full text-center text-sm underline">Back to home</button>
             </div>
           </main>
         : authLoading || user?.moderationStatus !== 'BANNED' || pathname === '/account-banned'
         ? children
-        : <main className="flex min-h-screen items-center justify-center bg-[#151313] text-white" role="status">Opening account notice…</main>}
+        : <main className="flex min-h-screen items-center justify-center bg-charcoal text-white" role="status">Opening account notice…</main>}
     </AppContext.Provider>
   );
 }

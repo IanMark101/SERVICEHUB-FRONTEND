@@ -3,6 +3,7 @@ import React, { Suspense, useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import Sidebar from '../../components/layout/Sidebar';
+import sidebarStyles from '../../components/layout/Sidebar.module.css';
 import Header from '../../components/layout/Header';
 import ConfirmModal, { ConfirmModalState } from '../../components/ui/ConfirmModal';
 import { apiLogout } from '../../api/auth.api';
@@ -71,7 +72,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
   return (
     <div className={`workspace-shell workspace-shell--provider h-dvh overflow-hidden flex transition-colors duration-200 ${
-      isDark ? 'bg-[#141312] text-white' : 'bg-[#f7f6f3] text-ink'
+      isDark ? 'bg-charcoal-canvas text-white' : 'bg-[#f7f6f3] text-ink'
     }`}>
       
       {/* Sidebar Component */}
@@ -89,9 +90,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
       />
  
       {/* Main Content Pane */}
-      <div className={`workspace-stage flex-1 flex flex-col min-w-0 h-dvh overflow-y-auto transition-all duration-300 ${
-        isSidebarCollapsed ? 'md:pl-20' : 'md:pl-64'
-      }`}>
+      <div data-sidebar-collapsed={isSidebarCollapsed} className={`workspace-stage flex-1 flex flex-col min-w-0 h-dvh overflow-y-auto transition-all duration-300 ${sidebarStyles.stage}`}>
         
         {/* Sticky Header Component */}
         <Header 

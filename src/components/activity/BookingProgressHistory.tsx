@@ -1,5 +1,5 @@
 import type { BookingProgressEvent, JobEngagement } from '../../types';
-import './booking-progress-history.css';
+import ActivityProgressTimes, { isActivityTimestamp as isTimestamp } from './ActivityProgressTimes';
 
 type HistoryRow = {
   id: string;
@@ -10,9 +10,9 @@ type HistoryRow = {
   state: 'recorded' | 'missing' | 'pending';
 };
 
-const milestones = ['ACCEPTED', 'STARTED', 'WORK_MARKED_COMPLETE', 'COMPLETION_CONFIRMED'];
+const milestones = ['STARTED', 'WORK_MARKED_COMPLETE', 'COMPLETION_CONFIRMED'];
 const labels: Record<string, string> = {
-  CREATED: 'Booking created', ACCEPTED: 'Booking accepted', STARTED: 'Work started',
+  CREATED: 'Booking created', STARTED: 'Work started',
   WORK_MARKED_COMPLETE: 'Work marked complete', COMPLETION_CONFIRMED: 'Completion confirmed',
   DECLINED: 'Booking declined', CANCELLATION_REQUESTED: 'Cancellation requested',
   CANCELLATION_APPROVED: 'Cancellation approved', CANCELLATION_DECLINED: 'Cancellation declined',
@@ -20,24 +20,13 @@ const labels: Record<string, string> = {
   COMPLETION_RECORDED: 'Completion recorded', CANCELLATION_RESOLVED: 'Cancellation resolved',
 };
 
-// Both participants see the same Philippine time, including its calendar date.
-const dateFormatter = new Intl.DateTimeFormat('en-PH', {
-  timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric',
-});
-const timeFormatter = new Intl.DateTimeFormat('en-PH', {
-  timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit', hour12: true,
-});
-const isTimestamp = (value?: string | null): value is string =>
-  Boolean(value && value.includes('T') && Number.isFinite(Date.parse(value)));
-
 export function bookingProgressRows(booking: JobEngagement): HistoryRow[] {
-  const events = booking.progressEvents || [];
+  // Acceptance is already represented by the journey stages. Keep the time
+  // history focused on work and decisions, including older booking records.
+  const events = (booking.progressEvents || []).filter(event => event.kind !== 'ACCEPTED');
   const rows: HistoryRow[] = events.map(event => ({
     ...event,
-    label: event.kind === 'ACCEPTED' && event.actorRole === 'SYSTEM'
-      ? 'Booking confirmed after payment'
-      : event.kind === 'ACCEPTED' && event.actorRole === 'SEEKER'
-        ? 'Offer accepted' : labels[event.kind] || 'Booking updated',
+    label: labels[event.kind] || 'Booking updated',
     state: isTimestamp(event.occurredAt) ? 'recorded' : 'missing',
   }));
   const createdAt = booking.bookingCreatedAt || (booking.completedServiceId ? undefined : booking.createdAt);
@@ -73,9 +62,7 @@ export function bookingProgressRows(booking: JobEngagement): HistoryRow[] {
   const awaiting = booking.status === 'awaiting_seeker_approval';
   const started = booking.started === true || awaiting || completed
     || events.some(event => ['STARTED', 'WORK_MARKED_COMPLETE', 'COMPLETION_CONFIRMED'].includes(event.kind));
-  const accepted = started || ['ACCEPTED', 'WAITING', 'QUEUED'].includes(booking.bookingStatus || '')
-    || booking.status === 'queued' || booking.status === 'in_progress';
-  const reached = [accepted, started, awaiting || completed, completed];
+  const reached = [started, awaiting || completed, completed];
   milestones.forEach((kind, index) => {
     if (events.some(event => event.kind === kind)
       || (kind === 'COMPLETION_CONFIRMED' && rows.some(row => row.kind === 'COMPLETION_RECORDED'))) return;
@@ -100,23 +87,6 @@ export default function BookingProgressHistory({ booking }: { booking: JobEngage
     if (role === 'SYSTEM') return 'ServiceHub';
     return undefined;
   };
-  return (
-    <section className="booking-progress" aria-label="Booking progress times">
-      <div className="booking-progress__heading"><h4>Progress times</h4><span>Philippine time (UTC+8)</span></div>
-      <ol className="booking-progress__list">
-        {bookingProgressRows(booking).map(row => (
-          <li key={row.id} className="booking-progress__row" data-state={row.state}>
-            <span className="booking-progress__dot" aria-hidden="true" />
-            <div className="booking-progress__action"><p>{row.label}</p>{actor(row.actorRole) && <span>{actor(row.actorRole)}</span>}</div>
-            {row.state === 'recorded' && isTimestamp(row.occurredAt) ? (
-              <time dateTime={row.occurredAt} className="booking-progress__time">
-                <strong>{timeFormatter.format(new Date(row.occurredAt))}</strong>
-                <span>{dateFormatter.format(new Date(row.occurredAt))}</span>
-              </time>
-            ) : <span className="booking-progress__status">{row.state === 'pending' ? 'Pending' : 'Time not recorded'}</span>}
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
+  return <ActivityProgressTimes label="Booking progress times"
+    rows={bookingProgressRows(booking).map(row => ({ ...row, actor: actor(row.actorRole) }))} />;
 }

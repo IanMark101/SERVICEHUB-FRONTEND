@@ -16,17 +16,19 @@ beforeEach(() => { vi.clearAllMocks(); mocks.query = ''; vi.mocked(apiListModera
 it('starts with the active queue and delegates concern, payment and status filters to the server', async () => {
   render(<Page />); await screen.findByRole('button', { name: 'Open case' });
   expect(apiListModerationCases).toHaveBeenCalledWith(expect.objectContaining({ view: 'active', sort: 'attention', page: 1, limit: 12 }));
+  expect(screen.queryByLabelText('Case status')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'More filters' }));
   expect(screen.getByLabelText('Case status')).toBeVisible();
   expect(screen.getByLabelText('Case type')).toBeVisible();
   expect(screen.getByLabelText('Payment method')).toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: 'More filters' }));
-  fireEvent.change(screen.getByLabelText('Concern'), { target: { value: 'SCAM_OR_FRAUD' } });
+  fireEvent.change(screen.getByLabelText('Reported issue'), { target: { value: 'SCAM_OR_FRAUD' } });
   fireEvent.change(screen.getByLabelText('Payment method'), { target: { value: 'GCash' } });
   fireEvent.change(screen.getByLabelText('Case status'), { target: { value: 'UNDER_REVIEW' } });
   await waitFor(() => expect(apiListModerationCases).toHaveBeenLastCalledWith(expect.objectContaining({ concern: 'SCAM_OR_FRAUD', payment: 'GCash', status: 'UNDER_REVIEW', page: 1 })));
 });
 it('searches the full queue and offers closed-case history', async () => {
   render(<Page />); await screen.findByRole('button', { name: 'Open case' });
+  fireEvent.click(screen.getByRole('button', { name: 'More filters' }));
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Mara' } });
   await waitFor(() => expect(apiListModerationCases).toHaveBeenLastCalledWith(expect.objectContaining({ search: 'Mara' })));
   fireEvent.click(screen.getByRole('button', { name: /Case history/ }));
@@ -37,6 +39,7 @@ it('searches the full queue and offers closed-case history', async () => {
 });
 it('removes individual filters and resets incompatible status and sorting when switching views', async () => {
   render(<Page />); await screen.findByRole('button', { name: 'Open case' });
+  fireEvent.click(screen.getByRole('button', { name: 'More filters' }));
   fireEvent.change(screen.getByLabelText('Case status'), { target: { value: 'UNDER_REVIEW' } });
   fireEvent.change(screen.getByLabelText('Payment method'), { target: { value: 'GCash' } });
   fireEvent.click(screen.getByRole('button', { name: 'Remove Payment: GCash' }));
@@ -98,10 +101,10 @@ it('uses an error state with retry instead of pretending the queue is empty', as
 it('distinguishes public content from booking cases with links to both workflows', async () => {
   render(<Page />); await screen.findByRole('button', { name: 'Open case' });
   const navigation = screen.getByRole('navigation', { name: 'Report workflows' });
-  expect(navigation).toHaveTextContent('Listings and public requests');
-  expect(navigation).toHaveTextContent('Bookings, services and payments');
+  expect(navigation).toHaveTextContent('Ban Appeals');
   expect(screen.getByRole('link', { name: /Content Reports & Appeals/ })).toHaveAttribute('href', '/admin/content-cases');
   expect(screen.getByRole('link', { name: /Disputes & Reports/ })).toHaveAttribute('aria-current', 'page');
+  expect(screen.getByRole('link', { name: 'Ban Appeals' })).toHaveAttribute('href', '/admin/ban-appeals');
 });
 it('switches and toggles quick filters without keeping an incompatible escalation type', async () => {
   vi.mocked(apiListModerationCases).mockResolvedValue({ ...response, summary: { ...response.summary, concerns: { INAPPROPRIATE_BEHAVIOR: 1, COMPLETION_REVIEW: 1 } } });

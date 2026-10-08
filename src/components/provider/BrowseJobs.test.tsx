@@ -30,6 +30,13 @@ const listing = {
 };
 
 describe('Browse Jobs offer eligibility', () => {
+  it('opens the request author’s seeker reviews directly while the author link opens their overview', async () => {
+    render(<BrowseJobs />);
+    fireEvent.click(await screen.findByRole('button', { name: 'View service seeker reviews for Client' }));
+    expect(push).toHaveBeenLastCalledWith('/profile/seeker-id?tab=reviews&reviewRole=seeker');
+    fireEvent.click(screen.getByRole('button', { name: "View Client's profile" }));
+    expect(push).toHaveBeenLastCalledWith('/profile/seeker-id');
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({

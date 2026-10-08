@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 /** Keep keyboard focus in an open dialog and return it to its trigger on close. */
-export default function useDialogFocus(isOpen: boolean, isBusy: boolean, onClose: () => void) {
+export default function useDialogFocus(isOpen: boolean, isBusy: boolean, onClose: () => void, initialFocus: 'field' | 'dialog' = 'field') {
   const ref = useRef<HTMLDivElement>(null);
   const latest = useRef({ isBusy, onClose });
   useEffect(() => { latest.current = { isBusy, onClose }; }, [isBusy, onClose]);
@@ -18,7 +18,8 @@ export default function useDialogFocus(isOpen: boolean, isBusy: boolean, onClose
     const controls = () => Array.from(dialog.querySelectorAll<HTMLElement>('button:not(:disabled), textarea:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]'))
       .filter(element => !element.closest('[hidden], [aria-hidden="true"]'));
     if (!dialog.contains(document.activeElement)) {
-      (dialog.querySelector<HTMLElement>('textarea, input') || controls()[0] || dialog).focus();
+      // Long forms should open at their summary instead of scrolling to an input.
+      (initialFocus === 'dialog' ? dialog : dialog.querySelector<HTMLElement>('textarea:not(:disabled), input:not(:disabled)') || controls()[0] || dialog).focus({ preventScroll: true });
     }
     const keydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -37,6 +38,6 @@ export default function useDialogFocus(isOpen: boolean, isBusy: boolean, onClose
     };
     dialog.addEventListener('keydown', keydown);
     return () => { dialog.removeEventListener('keydown', keydown); if (trigger?.isConnected) trigger.focus(); };
-  }, [isOpen]);
+  }, [isOpen, initialFocus]);
   return ref;
 }

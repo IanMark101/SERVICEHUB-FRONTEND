@@ -2,6 +2,7 @@ import { api, clearAccessToken, getSessionGeneration, setAccessToken } from '../
 import { clearSessionHint, markSessionPresent } from '../lib/browserStorage';
 import axios from 'axios';
 import type { AxiosRequestConfig } from 'axios';
+import { getApiErrorBody } from '../lib/api/errors';
 
 let sessionRecoveryRequest: ReturnType<typeof apiGetMe> | null = null;
 const SESSION_RECOVERY_TIMEOUT_MS = 15_000;
@@ -14,6 +15,22 @@ export interface RegisterPayload {
   location: string;
   bio?: string;
   avatarUrl?: string;
+  captchaToken?: string;
+}
+
+export interface CaptchaPolicy {
+  enabled: boolean;
+  siteKey: string;
+  loginRequired: boolean;
+}
+
+export async function apiGetCaptchaPolicy(signal?: AbortSignal): Promise<CaptchaPolicy> {
+  const response = await api.get('/auth/captcha-config', { signal, timeout: 10_000 });
+  const policy = response.data?.data;
+  if (response.data?.success !== true || typeof policy?.enabled !== 'boolean' || typeof policy?.loginRequired !== 'boolean' || typeof policy?.siteKey !== 'string' || (policy.enabled && !policy.siteKey)) {
+    throw new Error('Security verification settings could not load. Please retry.');
+  }
+  return policy;
 }
 
 export async function apiRegister(data: RegisterPayload) {
@@ -21,7 +38,7 @@ export async function apiRegister(data: RegisterPayload) {
   return response.data;
 }
 
-export async function apiLogin(data: { email: string; password: string }) {
+export async function apiLogin(data: { email: string; password: string; captchaToken?: string }) {
   const response = await api.post('/auth/login', data, { timeout: 15_000, timeoutErrorMessage: 'Sign-in took too long. Please try again.' });
   return response.data;
 }
@@ -90,6 +107,7 @@ export function apiRecoverSession() {
         // Authentication refusals and explicit session changes are not retried.
         if (!axios.isAxiosError(error) || axios.isCancel(error)
           || (error.response && error.response.status < 500)
+          || getApiErrorBody(error)?.code === 'DATABASE_QUOTA_EXCEEDED'
           || generation !== getSessionGeneration() || controller.signal.aborted) throw error;
         sessionResult = await apiSession(config);
       }
@@ -128,8 +146,8 @@ export async function apiResendVerification(email: string) {
   return response.data;
 }
 
-export async function apiForgotPassword(email: string) {
-  const response = await api.post('/auth/forgot-password', { email });
+export async function apiForgotPassword(email: string, captchaToken?: string) {
+  const response = await api.post('/auth/forgot-password', { email, captchaToken });
   return response.data;
 }
 
@@ -170,7 +188,7 @@ export async function apiChangePassword(data: { currentPassword: string; newPass
 
 export interface SecurityMethods { passwordEnabled: boolean; googleConnected: boolean; legacyPasswordUnconfirmed: boolean; googleAvailable: boolean; email: string }
 export async function apiGetSecurityMethods(): Promise<{ success: boolean; data: SecurityMethods }> {
-  return (await api.get('/auth/security')).data;
+  return (await api.get('/auth/security', { timeout: 15_000 })).data;
 }
 export async function apiStartPasswordSetup(): Promise<{ data: { nonce: string; challenge: string; expiresInSeconds: number } }> {
   return (await api.post('/auth/password-setup/challenge')).data;

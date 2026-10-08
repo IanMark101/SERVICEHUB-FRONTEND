@@ -103,10 +103,10 @@ export default function AdminAnnouncementsPage() {
   };
 
   const card = isDark
-    ? 'bg-[#22211e] border-neutral-800/80 text-white'
+    ? 'bg-charcoal-surface border-neutral-800/80 text-white'
     : 'bg-white border-slate-200 text-ink';
   const input = isDark
-    ? 'bg-[#191919] border-neutral-700 text-white placeholder:text-ink-muted'
+    ? 'bg-charcoal border-neutral-700 text-white placeholder:text-ink-muted'
     : 'bg-white border-slate-300 text-ink placeholder:text-ink-subtle';
 
   return (
@@ -182,7 +182,7 @@ export default function AdminAnnouncementsPage() {
           <button
             onClick={() => { invalidateApiCache(['admin']); void loadAnnouncements(); }}
             disabled={loading}
-            className={`p-2 rounded-lg border cursor-pointer ${isDark ? 'border-neutral-800 hover:bg-neutral-800' : 'border-slate-200 hover:bg-slate-50'}`}
+            className={`p-2 rounded-lg border cursor-pointer ${isDark ? 'border-neutral-800 hover:bg-charcoal' : 'border-slate-200 hover:bg-slate-50'}`}
             title="Refresh announcements"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -206,7 +206,7 @@ export default function AdminAnnouncementsPage() {
                       <span className={`text-[9px] uppercase tracking-wide font-extrabold px-2 py-0.5 rounded-full border ${
                         item.isPublished
                           ? (isDark ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700')
-                          : (isDark ? 'bg-neutral-800 border-neutral-700 text-ink-subtle' : 'bg-slate-100 border-slate-200 text-ink-muted')
+                          : (isDark ? 'bg-charcoal border-neutral-700 text-ink-subtle' : 'bg-slate-100 border-slate-200 text-ink-muted')
                       }`}>
                         {item.isPublished ? 'Published' : 'Archived'}
                       </span>
@@ -222,7 +222,7 @@ export default function AdminAnnouncementsPage() {
                     onClick={() => togglePublished(item)}
                     disabled={updatingId === item.id}
                     className={`shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[10px] font-bold transition-colors cursor-pointer disabled:opacity-60 ${
-                      isDark ? 'border-neutral-700 hover:bg-neutral-800' : 'border-slate-200 hover:bg-slate-50'
+                      isDark ? 'border-neutral-700 hover:bg-charcoal' : 'border-slate-200 hover:bg-slate-50'
                     }`}
                   >
                     {updatingId === item.id ? (

@@ -209,7 +209,7 @@ export default function SeekServices() {
       <LimitedModeDashboardCard role="seeker" />
 
       {/* Search Banner: Warm, integrated discovery hero */}
-      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:from-[#1e1d1a] dark:to-[#171615] dark:shadow-none">
+      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:bg-none dark:bg-charcoal-surface dark:shadow-none">
         {/* Subtle warm accent hairline */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#c86544]/50 to-transparent" />
 
@@ -229,7 +229,7 @@ export default function SeekServices() {
               block: 'start',
             });
           }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-[#c86544]/20 ${
-            isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-white border-black/10'
+            isDark ? 'bg-charcoal-inset border-neutral-800' : 'bg-white border-black/10'
           }`}>
             <span className={`pl-3 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
               <Search className="w-4 h-4" />
@@ -271,7 +271,7 @@ export default function SeekServices() {
             title={filter.title}
             className={`min-h-10 rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors ${activeFilter === filter.id
               ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]' : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
-              : isDark ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white' : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
+              : isDark ? 'border-white/10 bg-charcoal-surface text-ink-muted hover:bg-charcoal hover:text-white' : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
             }`}
           >{filter.label}</button>
         ))}
@@ -290,7 +290,7 @@ export default function SeekServices() {
                   ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]'
                   : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
                 : isDark
-                  ? 'border-white/10 bg-[#201f1d] text-ink-muted hover:bg-white/10 hover:text-white'
+                  ? 'border-white/10 bg-charcoal-surface text-ink-muted hover:bg-charcoal hover:text-white'
                   : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
               }`}
           >

@@ -44,7 +44,7 @@ export default function OfficialAnnouncements({
             Official municipal notices
           </h2>
         </div>
-        <div className={`rounded-3xl border p-6 ${isDark ? 'bg-[#1c1b18] border-neutral-800' : 'bg-white border-slate-200/90'}`}>
+        <div className={`rounded-3xl border p-6 ${isDark ? 'bg-charcoal-inset border-neutral-800' : 'bg-white border-slate-200/90'}`}>
           <CommunityEmptyState
             icon={Bell}
             title="No official announcements at this time"
@@ -108,7 +108,7 @@ export default function OfficialAnnouncements({
                 aria-label="Previous announcement"
                 className={`grid size-8 place-items-center rounded-xl border transition-colors ${
                   isDark
-                    ? 'border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                    ? 'border-neutral-800 bg-charcoal text-neutral-300 hover:bg-charcoal hover:text-white'
                     : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-100 hover:text-ink shadow-2xs'
                 }`}
               >
@@ -120,7 +120,7 @@ export default function OfficialAnnouncements({
                 aria-label="Next announcement"
                 className={`grid size-8 place-items-center rounded-xl border transition-colors ${
                   isDark
-                    ? 'border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-white'
+                    ? 'border-neutral-800 bg-charcoal text-neutral-300 hover:bg-charcoal hover:text-white'
                     : 'border-slate-200 bg-white text-ink-muted hover:bg-slate-100 hover:text-ink shadow-2xs'
                 }`}
               >
@@ -135,7 +135,7 @@ export default function OfficialAnnouncements({
       <article
         className={`relative overflow-hidden rounded-3xl border p-4 sm:p-7 md:p-8 transition-all ${
           isDark
-            ? 'bg-gradient-to-br from-[#241d18] via-[#1c1b18] to-[#171716] border-orange-500/30 text-white shadow-2xl shadow-black/40'
+            ? 'bg-gradient-to-br from-charcoal via-charcoal to-charcoal border-orange-500/30 text-white shadow-2xl shadow-black/40'
             : 'bg-gradient-to-br from-orange-50/80 via-amber-50/30 to-white border-orange-200/90 text-ink shadow-lg shadow-orange-950/5'
         }`}
       >
@@ -202,7 +202,7 @@ export default function OfficialAnnouncements({
                       idx === activeIndex
                         ? 'w-6 bg-orange-500'
                         : isDark
-                          ? 'w-2 bg-neutral-700 hover:bg-neutral-600'
+                          ? 'w-2 bg-charcoal hover:bg-charcoal'
                           : 'w-2 bg-slate-300 hover:bg-slate-400'
                     }`}
                   />

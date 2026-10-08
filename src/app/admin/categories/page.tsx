@@ -97,7 +97,7 @@ export default function AdminCategories() {
         </h4>
         <button
           onClick={() => { invalidateApiCache(['admin', 'categories']); fetchSuggestions(); }}
-          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-[#202020] dark:text-ink"
+          className="flex items-center space-x-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-ink-secondary hover:bg-slate-50 dark:border-neutral-700 dark:bg-charcoal dark:text-ink"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh Suggestions</span>
@@ -116,7 +116,7 @@ export default function AdminCategories() {
           <WorkspacePageSkeleton label="Loading category suggestions" role="admin" variant="suggestions" />
         ) : suggestions.length === 0 ? (
           <div className={`rounded-[24px] p-12 border text-center text-sm font-medium ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
+            isDark ? 'bg-charcoal-surface border-neutral-800/80 text-ink-muted' : 'bg-white border-slate-300 text-ink-muted'
           }`}>
             No pending category suggestions found.
           </div>
@@ -130,13 +130,13 @@ export default function AdminCategories() {
               <div
                 key={item.id}
                 className={`rounded-[24px] p-6 border shadow-sm flex flex-col justify-between space-y-4 transition-all ${
-                  isDark ? 'bg-[#22211e] border-neutral-800' : 'bg-white border-slate-200'
+                  isDark ? 'bg-charcoal-surface border-neutral-800' : 'bg-white border-slate-200'
                 }`}
               >
                 {/* Header Info */}
                 <div className="flex items-start justify-between border-b pb-3 border-slate-100 dark:border-neutral-800">
                   <div className="flex items-center space-x-2.5">
-                    <div className="p-2 rounded-xl bg-slate-100 text-ink-muted border border-slate-200 dark:bg-neutral-800 dark:text-ink-secondary dark:border-neutral-700">
+                    <div className="p-2 rounded-xl bg-slate-100 text-ink-muted border border-slate-200 dark:bg-charcoal dark:text-ink-secondary dark:border-neutral-700">
                       <Tag className="w-4 h-4" />
                     </div>
                     <div>
@@ -166,7 +166,7 @@ export default function AdminCategories() {
 
                   {/* Submitter details */}
                   <div className={`rounded-xl p-2.5 border flex items-center space-x-2 text-[10px] ${
-                    isDark ? 'bg-neutral-800/40 border-neutral-800 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'
+                    isDark ? 'bg-charcoal/40 border-neutral-800 text-white' : 'bg-slate-50 border-slate-200 text-ink-secondary'
                   }`}>
                     <User className="w-3.5 h-3.5 text-ink-muted" />
                     <span className="font-semibold text-ink-subtle">Suggested By:</span>
@@ -204,9 +204,9 @@ export default function AdminCategories() {
 
       {/* Confirmation Dialog Overlay */}
       {pendingAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
-            isDark ? 'bg-[#22211e] border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
+            isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <div className="p-5 space-y-4">
               <h4 className={`font-extrabold text-sm flex items-center gap-1.5 ${pendingAction.approve ? 'text-emerald-500' : 'text-red-500'}`}>
@@ -223,12 +223,12 @@ export default function AdminCategories() {
                 minLength={pendingAction.approve ? undefined : 3}
                 rows={3}
                 placeholder={pendingAction.approve ? 'Optional review notes...' : 'Explain why this category is not appropriate...'}
-                className={`w-full rounded-xl border p-3 text-xs outline-none ${isDark ? 'bg-[#1c1b18] border-neutral-700' : 'bg-slate-50 border-slate-300'}`}
+                className={`w-full rounded-xl border p-3 text-xs outline-none ${isDark ? 'bg-charcoal-inset border-neutral-700' : 'bg-slate-50 border-slate-300'}`}
               />
               <div className="flex items-center justify-end space-x-2">
                 <button
                   onClick={() => { setPendingAction(null); setAdminNotes(''); }}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-[#2c2b27]' : 'border-slate-200 hover:bg-slate-100'}`}
+                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
