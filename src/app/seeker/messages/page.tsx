@@ -62,7 +62,7 @@ export default function SeekerMessagesPage() {
         {!selectedConv ? (
           <div className={`flex-1 flex items-center justify-center text-center p-8 ${textMuted}`}>
             <div className="max-w-sm">
-              <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-orange-500/10 text-orange-500">
+              <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-orange-500/10 text-brand-text">
                 <MessageSquare size={24} />
               </div>
               <p className="text-sm font-bold text-ink dark:text-ink">
@@ -85,7 +85,7 @@ export default function SeekerMessagesPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedConv(null)}
-                  className={`xl:hidden shrink-0 rounded-lg p-1.5 ${textMuted} hover:text-orange-500 hover:bg-slate-100 dark:hover:bg-charcoal`}
+                  className={`xl:hidden shrink-0 rounded-lg p-1.5 ${textMuted} hover:text-brand-text hover:bg-slate-100 dark:hover:bg-charcoal`}
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -100,7 +100,7 @@ export default function SeekerMessagesPage() {
                     className="size-10 rounded-full object-cover ring-1 ring-slate-200 dark:ring-neutral-800 shrink-0"
                   />
                 ) : (
-                  <div className="size-10 rounded-full bg-orange-500/15 flex items-center justify-center text-orange-600 dark:text-orange-400 font-black text-sm shrink-0 ring-1 ring-slate-200 dark:ring-neutral-800">
+                  <div className="size-10 rounded-full bg-orange-500/15 flex items-center justify-center text-brand-text dark:text-orange-400 font-black text-sm shrink-0 ring-1 ring-slate-200 dark:ring-neutral-800">
                     {selectedConv.otherPartyName.charAt(0)}
                   </div>
                 )}
@@ -114,7 +114,7 @@ export default function SeekerMessagesPage() {
                       className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
                         selectedConv.otherPartyRole === 'Provider'
                           ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
-                          : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/25'
+                          : 'bg-orange-500/10 text-brand-text dark:text-orange-400 border-orange-500/25'
                       }`}
                     >
                       {selectedConv.otherPartyRole}
@@ -177,7 +177,7 @@ export default function SeekerMessagesPage() {
             >
               {loading && (
                 <div className={`flex justify-center py-10 ${textMuted}`}>
-                  <Loader2 size={24} className="animate-spin text-orange-500" />
+                  <Loader2 size={24} className="animate-spin text-brand-text" />
                 </div>
               )}
 
@@ -228,7 +228,7 @@ export default function SeekerMessagesPage() {
                             : 'bg-orange-50 border-orange-100 text-orange-800'
                         }`}
                       >
-                        <ShieldCheck size={13} className="text-orange-500" />
+                        <ShieldCheck size={13} className="text-brand-text" />
                         <span>{msg.content}</span>
                       </div>
                     </div>
@@ -252,7 +252,7 @@ export default function SeekerMessagesPage() {
                             alt=""
                           />
                         ) : (
-                          <div className="size-7 rounded-full bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center text-[10px] font-black ring-1 ring-slate-200 dark:ring-neutral-800">
+                          <div className="size-7 rounded-full bg-orange-500/20 text-brand-text dark:text-orange-400 flex items-center justify-center text-[10px] font-black ring-1 ring-slate-200 dark:ring-neutral-800">
                             {selectedConv.otherPartyName.charAt(0)}
                           </div>
                         )}

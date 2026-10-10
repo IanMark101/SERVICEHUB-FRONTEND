@@ -39,7 +39,7 @@ export default function TrustHistorySection({ events, loading, error, onRetry, s
         {error && events.length > 0 && (
           <div role="alert" className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <p className={`text-sm ${muted}`}>Couldn’t refresh trust history. Showing the last loaded changes.</p>
-            <button type="button" onClick={onRetry} className="min-h-11 px-3 text-sm font-semibold underline underline-offset-4">Try again</button>
+            <button type="button" onClick={onRetry} className="min-h-11 px-3 text-sm font-semibold  ">Try again</button>
           </div>
         )}
         {loading ? (
@@ -75,7 +75,7 @@ export default function TrustHistorySection({ events, loading, error, onRetry, s
       </div>
       <div className={`border-t pt-4 ${isDark ? 'border-neutral-800' : 'border-slate-200'}`}>
         <p className={`text-sm leading-6 ${muted}`}>Trust scores reflect verification, completed bookings, reviews, and confirmed account actions.</p>
-        <Link href="/help/trust-reputation/what-is-trust-score" className={`mt-2 inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 ${isDark ? 'text-orange-300' : 'text-orange-800'}`}>How trust scores work</Link>
+        <Link href="/help/trust-reputation/what-is-trust-score" className={`mt-2 inline-flex min-h-11 items-center text-sm font-semibold   focus-visible:outline-2 focus-visible:outline-offset-2 ${isDark ? 'text-orange-300' : 'text-orange-800'}`}>How trust scores work</Link>
       </div>
     </section>
   );

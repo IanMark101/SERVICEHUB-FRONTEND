@@ -14,7 +14,7 @@ export const REVIEWS_ARTICLES: HelpArticle[] = [
       {
         heading: 'Genuine, Transaction-Verified Reviews Only',
         paragraphs: [
-          'On ServiceHub Cordova, nobody can leave fake reviews or review a service they did not actually hire. The review option is strictly unlocked only after a service booking has been confirmed as completed.',
+          'On ServiceHub, nobody can leave fake reviews or review a service they did not actually hire. The review option is strictly unlocked only after a service booking has been confirmed as completed.',
         ],
       },
       {

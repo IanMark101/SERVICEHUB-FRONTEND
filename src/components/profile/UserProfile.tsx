@@ -76,7 +76,7 @@ export default function UserProfile({
 
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
-  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-brand-text';
   const tabTone = isProvider ? 'provider' : isAdmin ? 'neutral' : 'seeker';
 
   if (loading && variant === 'marketplace') {
@@ -177,8 +177,8 @@ export default function UserProfile({
           <MarketplaceProfileOverview model={profile} />
         ) : variant === 'marketplace' && activeTab === 'verification' ? (
           <section className="profile-section">
-            <h2 className="text-lg font-bold">Cordova residency</h2>
-            <p className="mt-3 text-sm font-semibold">{verStatus === 'APPROVED' ? 'Verified Cordova resident' : 'Residency not yet verified'}</p>
+            <h2 className="text-lg font-bold">residency</h2>
+            <p className="mt-3 text-sm font-semibold">{verStatus === 'APPROVED' ? 'Identity and residency verified' : 'Residency not yet verified'}</p>
             <p className="mt-2 text-sm text-[color:var(--workspace-muted)]">Only verification status is shared on this profile. Identity documents remain private.</p>
             {isOwnProfile && <Link href="/account/settings#verification" className="mt-5 inline-flex min-h-11 items-center font-semibold text-[color:var(--workspace-focus)]">Manage your verification</Link>}
           </section>

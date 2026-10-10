@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ServiceListing } from '../../types';
 import { useApp } from '../../context/AppContext';
@@ -37,7 +37,7 @@ describe('direct listing booking payment choices', () => {
     fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({
-      serviceId: 'fixed-listing', quantity: 1, message: 'Please clean the kitchen and living room.', schedule: undefined,
+      jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, serviceId: 'fixed-listing', quantity: 1, message: 'Please clean the kitchen and living room.', schedule: undefined,
     }));
     expect(online).not.toHaveBeenCalled();
   });
@@ -64,7 +64,7 @@ describe('direct listing booking payment choices', () => {
     fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({
-      serviceId: 'fixed-listing', quantity: 2, message: 'Please clean the kitchen and living room.', schedule: undefined,
+      jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, serviceId: 'fixed-listing', quantity: 2, message: 'Please clean the kitchen and living room.', schedule: undefined,
     }));
     expect(online).not.toHaveBeenCalled();
   });
@@ -75,7 +75,7 @@ describe('direct listing booking payment choices', () => {
     fireEvent.click(screen.getByRole('button', { name: /GCash · Test Mode/ }));
     fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Continue to GCash' }));
-    await waitFor(() => expect(online).toHaveBeenCalledWith('seeker-1', 'fixed-listing', 500, 'Please clean the kitchen and living room.', 'GCash', 3));
+    await waitFor(() => expect(online).toHaveBeenCalledWith('seeker-1', 'fixed-listing', 500, 'Please clean the kitchen and living room.', 'GCash', 3, { latitude: 10.3, longitude: 123.9, label: 'Cebu' }));
   });
 
   it('hands checkout to the workspace dialog without claiming a booking or keeping the request dialog open', async () => {
@@ -104,5 +104,24 @@ describe('direct listing booking payment choices', () => {
     expect(screen.getByText('Price unavailable')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Price Needed Before Booking' })).toBeDisabled();
     expect(apiBookDirect).not.toHaveBeenCalled();
+  });
+});
+
+// These regression tests supply an explicit location fixture; location interaction is tested separately.
+vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled }: { onChange: (point: { latitude:number; longitude:number; label:string }) => void; disabled?:boolean }) => <button type="button" data-testid="test-location" disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
+function render(...args: Parameters<typeof rtlRender>) { const view = rtlRender(...args); const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]'); if (choice) fireEvent.click(choice); return view; }
+
+describe('one-time direct booking transportation', () => {
+  it('includes travel once in a multi-hour cash booking and forwards the actual job point', async () => {
+    vi.clearAllMocks();
+    vi.mocked(useApp).mockReturnValue({ user:{id:'seeker-1'}, bookProviderDirectly:online, isDark:false,jobEngagements:[] } as unknown as ReturnType<typeof useApp>);
+    vi.mocked(apiBookDirect).mockResolvedValue({success:true});
+    render(<RequestServiceModal listing={{...listing,price:200,priceType:'PER_HOUR',transportationFee:100}} onClose={vi.fn()}/>);
+    fireEvent.change(screen.getByLabelText('Number of hours'),{target:{value:'3'}});
+    expect(screen.getByText('Total: ₱700')).toBeVisible();
+    fireEvent.change(screen.getByLabelText('Describe the work needed'),{target:{value:'Repair the kitchen pipe.'}});
+    fireEvent.click(screen.getByRole('button',{name:'Send Request'}));
+    await waitFor(()=>expect(apiBookDirect).toHaveBeenCalledWith(expect.objectContaining({quantity:3,jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu'}})));
+    expect(apiBookDirect).toHaveBeenCalledTimes(1);
   });
 });

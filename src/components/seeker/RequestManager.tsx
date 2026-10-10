@@ -208,6 +208,11 @@ export default function RequestManager({
   const handleOpenEdit = (req: JobRequest) => {
     setEditingRequest({
       requestId: req.id,
+      jobLocation: req.jobLocation,
+      originalJobLocation: req.jobLocation,
+      transportationFee: req.transportationFee == null ? '' : String(req.transportationFee),
+      originalTransportationFee: req.transportationFee,
+      locationLocked: req.hasAcceptedOffer || req.hasPendingPaymentOffer || bids.some(bid => bid.requestId === req.id && ['pending', 'PENDING', 'accepted', 'ACCEPTED', 'pending_payment', 'PENDING_PAYMENT'].includes(bid.status)),
       title: req.title,
       budget: req.budget,
       description: req.description,
@@ -229,6 +234,10 @@ export default function RequestManager({
         editingRequest.budget,
         editingRequest.description,
         editingRequest.urgency,
+        {
+          ...(editingRequest.jobLocation && JSON.stringify(editingRequest.jobLocation) !== JSON.stringify(editingRequest.originalJobLocation) && { jobLocation: editingRequest.jobLocation }),
+          ...((editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null) !== (editingRequest.originalTransportationFee ?? null) && { transportationFee: editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null }),
+        },
       );
       if (!updated) return;
 
@@ -251,7 +260,7 @@ export default function RequestManager({
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         {/* Quick Info & Count */}
         <div className="flex items-center space-x-2">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-600'}`}>
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-brand-text'}`}>
             <ClipboardList className="w-4 h-4" />
           </div>
           <div>
@@ -259,7 +268,7 @@ export default function RequestManager({
               Your Requests
             </h2>
             <p className={`text-[11px] ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-              {myRequests.length} {myRequests.length === 1 ? 'task request' : 'task requests'} posted to local Cordova providers
+              {myRequests.length} {myRequests.length === 1 ? 'task request' : 'task requests'} posted to nearby providers
             </p>
           </div>
         </div>
@@ -329,7 +338,7 @@ export default function RequestManager({
                               : 'border-slate-200 hover:bg-slate-50 text-ink-muted hover:text-ink'
                         }`}
                       >
-                        <UsersRound className="w-3.5 h-3.5 text-orange-500" />
+                        <UsersRound className="w-3.5 h-3.5 text-brand-text" />
                         <span>AI Matches</span>
                       </button>}
 
@@ -390,7 +399,7 @@ export default function RequestManager({
                             )}
                           </div>
                         ) : req.targetServiceId ? (
-                          <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">{bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Quote received · review offer' : 'Awaiting provider quote'}</span>
+                          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">{bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Quote received · review offer' : 'Awaiting provider quote'}</span>
                         ) : (() => {
                           const isToggling = togglingRequestId === req.id;
                           return (
@@ -414,7 +423,7 @@ export default function RequestManager({
                                   }`}
                                 >
                                   {isToggling && (
-                                    <Loader2 className="w-2.5 h-2.5 text-orange-600 animate-spin" />
+                                    <Loader2 className="w-2.5 h-2.5 text-brand-text animate-spin" />
                                   )}
                                 </span>
                               </button>
@@ -456,7 +465,7 @@ export default function RequestManager({
                   }`}>
                     <div className="flex items-center space-x-2">
                       <span className="text-[11px] font-semibold text-ink-muted">{req.targetServiceId ? 'Displayed listing rate · final quote pending' : 'Estimated budget'}</span>
-                      <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-orange-600'}`}>
+                      <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-brand-text'}`}>
                         {req.targetServiceId && !req.budget ? 'Quote required' : `₱${req.budget}`}
                       </span>
                     </div>
@@ -470,7 +479,7 @@ export default function RequestManager({
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border ${
                         isDark ? 'bg-charcoal-inset border-neutral-800 text-neutral-300' : 'bg-slate-50 border-slate-200 text-ink-muted'
                       }`}>
-                        <MapPin className="h-3.5 w-3.5" weight="duotone" /> Central Cordova
+                        <MapPin className="h-3.5 w-3.5" weight="duotone" /> {req.locationLabel || 'Job location not provided'}
                       </span>
                     </div>
                   </div>
@@ -484,7 +493,7 @@ export default function RequestManager({
                       }`}
                     >
                       <div className="flex items-center space-x-2 mb-3">
-                        <UsersRound className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-orange-600'}`} />
+                        <UsersRound className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-brand-text'}`} />
                         <h4 className="text-xs font-bold text-ink dark:text-white">
                           Suggested providers
                         </h4>
@@ -492,19 +501,19 @@ export default function RequestManager({
 
                       {loadingAiMap[req.id] ? (
                         <div className="flex items-center space-x-2 py-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
+                          <Loader2 className="h-4 w-4 animate-spin text-brand-text" />
                           <span className="text-xs text-ink-subtle dark:text-ink-muted font-semibold pl-1">Analyzing provider capabilities and trust scores...</span>
                         </div>
                       ) : !aiSuggestions[req.id] ? (
                         <p className="text-xs text-ink-subtle dark:text-ink-subtle italic">Click the button above to generate AI-powered provider matches.</p>
                       ) : aiSuggestions[req.id].length === 0 ? (
                         <div className="flex items-start space-x-2 text-xs text-ink-muted dark:text-ink-muted">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-orange-600" />
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-brand-text" />
                           <span>No providers found in this category yet. Try again after more providers join.</span>
                         </div>
                       ) : aiSuggestions[req.id][0]?.name === "No Suggestion" || aiSuggestions[req.id][0]?.name === "Error" ? (
                         <div className="flex items-start space-x-2 text-xs">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-orange-600" />
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-brand-text" />
                           <span className="text-ink-muted dark:text-ink-muted italic">{aiSuggestions[req.id][0]?.rationale}</span>
                         </div>
                       ) : (
@@ -518,7 +527,7 @@ export default function RequestManager({
                             >
                               <div className="space-y-1">
                                 <div className="flex items-center space-x-2">
-                                  <span className="font-extrabold text-orange-600 dark:text-orange-400">Rank #{idx + 1}</span>
+                                  <span className="font-extrabold text-brand-text dark:text-orange-400">Rank #{idx + 1}</span>
                                   <span className="font-extrabold text-ink dark:text-white">{sug.name}</span>
                                 </div>
                                 <p className="text-ink-muted dark:text-ink-muted italic leading-normal">

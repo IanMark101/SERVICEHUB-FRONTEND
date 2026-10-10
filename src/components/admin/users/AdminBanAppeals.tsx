@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useApiCacheRefresh } from '@/hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '@/hooks/useRefreshableLoad';
 import useDialogFocus from '@/hooks/useDialogFocus';
 import { apiDecideBanAppeal, apiListBanAppeals } from '@/api/admin.api';
 import { invalidateApiCache } from '@/lib/api/responseCache';
@@ -18,7 +19,7 @@ export default function AdminBanAppeals({ onDecision, initialView = 'pending', o
   const [status, setStatus] = useState<'' | 'APPROVED' | 'REJECTED'>('');
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { loading, beginLoad } = useRefreshableLoad(JSON.stringify([page, status, view]));
   const [error, setError] = useState('');
   const [selected, setSelected] = useState<AppealSelection | null>(null);
   const [reason, setReason] = useState('');
@@ -28,15 +29,17 @@ export default function AdminBanAppeals({ onDecision, initialView = 'pending', o
   const invalidate = useCallback(() => { generation.current++; }, []);
   const load = useCallback(async () => {
     const current = ++generation.current;
-    setLoading(true);
+    const request = beginLoad();
+    let succeeded = false;
     try {
       const result = await apiListBanAppeals({ view, status: view === 'history' && status ? status : undefined, page, limit: 10 });
-      if (current !== generation.current) return;
+      if (current !== generation.current || !request.current()) return;
       setAppeals(result.data); setTotal(result.pagination?.total || 0);
       setTotalPages(Math.max(1, result.pagination?.totalPages || 1)); setError('');
-    } catch (cause) { if (current === generation.current) setError(getApiErrorMessage(cause, 'Could not load ban appeals.')); }
-    finally { if (current === generation.current) setLoading(false); }
-  }, [page, status, view]);
+      succeeded = true;
+    } catch (cause) { if (current === generation.current && request.current()) setError(getApiErrorMessage(cause, 'Could not load ban appeals.')); }
+    finally { if (current === generation.current) request.finish(succeeded); }
+  }, [page, status, view, beginLoad]);
   useApiCacheRefresh(['admin'], load, !saving && !selected);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 0); return () => { window.clearTimeout(timer); invalidate(); }; }, [load, invalidate]);
   const close = useCallback(() => { if (saving) return; setSelected(null); setReason(''); setDecisionError(''); }, [saving]);

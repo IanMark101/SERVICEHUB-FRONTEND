@@ -16,7 +16,7 @@ export const QUEUE_ARTICLES: HelpArticle[] = [
         heading: 'Why the Queue Exists',
         paragraphs: [
           'Solo service providers (e.g. plumbers, tutors, electricians) can only handle a limited number of clients. In traditional apps, providers can receive too many requests at once, leading to delayed replies and missed commitments.',
-          'ServiceHub Cordova uses one First-Come, First-Served (FCFS) paid queue per provider. Bookings from all their service listings and accepted custom offers share the provider’s waiting capacity and a visible position.',
+          'ServiceHub uses one First-Come, First-Served (FCFS) paid queue per provider. Bookings from all their service listings and accepted custom offers share the provider’s waiting capacity and a visible position.',
         ],
         example: {
           title: 'Realistic Example: Maria’s Work Queue',

@@ -59,7 +59,7 @@ export default function HeaderMobileSearch({ isOpen, isDark, query, showResults,
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-bold text-xs truncate">{getDisplayName(result)}</div>
-                      <span className={`text-[9px] font-extrabold uppercase ${result.role === 'provider' ? 'text-emerald-500' : 'text-orange-500'}`}>{result.role}</span>
+                      <span className={`text-[9px] font-extrabold uppercase ${result.role === 'provider' ? 'text-emerald-500' : 'text-brand-text'}`}>{result.role}</span>
                     </div>
                     {email ? <div className="text-[10px] text-ink-subtle dark:text-ink-subtle truncate">{email}</div> : result.location ? <div className="flex items-center gap-1 text-[10px] text-ink-subtle dark:text-ink-subtle truncate"><MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" /><span>{result.location}</span></div> : null}
                   </div>

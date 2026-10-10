@@ -12,7 +12,7 @@ import { useApp } from '../../../context/AppContext';
 import styles from './HelpHomePage.module.css';
 
 const quickTopics = [
-  { label: 'Residency verification', detail: 'Why local eligibility matters', href: '/help/verification/why-verification-is-required' },
+  { label: 'Identity and residency', detail: 'How member verification works', href: '/help/verification/why-verification-is-required' },
   { label: 'Trust Score system', detail: 'How reputation changes over time', href: '/help/trust-reputation/what-is-trust-score' },
   { label: 'Service queues', detail: 'How first-come, first-served works', href: '/help/queue/how-the-queue-works' },
   { label: 'Direct bookings', detail: 'Request a listed service safely', href: '/help/bookings/how-direct-booking-works' },
@@ -52,22 +52,22 @@ export default function HelpHomePage() {
   return (
     <div className="space-y-24 pb-4 sm:space-y-28">
       <section className={`${styles.hero} relative isolate grid items-stretch gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:gap-7`}>
-        <div aria-hidden="true" className="pointer-events-none absolute -left-8 top-20 -z-10 h-80 w-[42rem] max-w-[82vw] rounded-full bg-[#d97757]/10 blur-[110px] dark:bg-[#c86544]/8" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-6 -z-10 h-64 w-[34rem] max-w-[70vw] rounded-full bg-[#e18463]/8 blur-[120px] dark:bg-[#e18463]/6" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-8 top-20 -z-10 h-80 w-[42rem] max-w-[82vw] rounded-full bg-brand/10 blur-[110px] dark:bg-brand/8" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-4 -top-6 -z-10 h-64 w-[34rem] max-w-[70vw] rounded-full bg-brand-on-dark/8 blur-[120px] dark:bg-brand-on-dark/6" />
 
-        <div className="flex min-h-[30rem] flex-col justify-center rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_44px_rgba(200,101,68,0.075)] dark:border-white/10 dark:bg-charcoal/96 dark:shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:p-10">
+        <div className="flex min-h-[30rem] flex-col justify-center rounded-2xl border border-black/8 bg-[#fffdfa]/96 p-7 shadow-[0_16px_44px_color-mix(in_srgb,var(--color-brand)_7.5%,transparent)] dark:border-white/10 dark:bg-charcoal/96 dark:shadow-[0_16px_44px_rgba(0,0,0,0.18)] sm:p-10">
           <h1 className="max-w-[15ch] text-[clamp(2.6rem,4.7vw,4.5rem)] font-medium leading-[0.99] tracking-[-0.04em] text-ink dark:text-white">
-            Help for every step of local work.
+            Answers for every step.
           </h1>
           <p className="mt-6 max-w-[37rem] text-sm leading-6 text-ink-muted dark:text-white/64 sm:text-base sm:leading-7">
-            Find clear guidance for verification, Trust Scores, bookings, queues, messages, and payment records across ServiceHub Cordova.
+            Learn how to find a service, post a request or offer your skills. Get clear guidance on search locations, verification, bookings, queues and payments.
           </p>
           <div className="mt-8 max-w-[39rem]">
             <HelpSearch size="lg" autoFocus={false} placeholder="What do you need help with?" />
           </div>
           <Link
             href={quickTourHref}
-            className="mt-6 inline-flex w-fit items-center gap-2 text-xs font-semibold text-[#c86544] transition-colors hover:text-[#aa5032] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-[#e18463]"
+            className="mt-6 inline-flex w-fit items-center gap-2 text-xs font-semibold text-brand-text transition-colors hover:text-brand-action-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:text-brand-on-dark"
           >
             <PlayCircle size={17} aria-hidden="true" />
             Open your quick start
@@ -79,22 +79,22 @@ export default function HelpHomePage() {
           <div className="flex items-start justify-between gap-6 border-b border-white/12 pb-5">
             <div>
               <h2 className="text-xl font-semibold tracking-[-0.025em]">Start with a common question</h2>
-              <p className="mt-2 max-w-[31rem] text-xs leading-5 text-white/58">Six useful routes for the moments residents ask about most.</p>
+              <p className="mt-2 max-w-[31rem] text-xs leading-5 text-white/58">Six useful routes for the moments members ask about most.</p>
             </div>
-            <ChatCenteredText size={24} className="shrink-0 text-[#e18463]" aria-hidden="true" />
+            <ChatCenteredText size={24} className="shrink-0 text-brand-on-dark" aria-hidden="true" />
           </div>
           <div className="flex-1">
             {quickTopics.map((topic) => (
               <Link
                 key={topic.label}
                 href={topic.href}
-                className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-white/10 py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e18463]"
+                className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-white/10 py-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-on-dark"
               >
                 <span>
-                  <span className="block text-sm font-semibold text-white/92 transition-colors group-hover:text-[#e9a58c]">{topic.label}</span>
+                  <span className="block text-sm font-semibold text-white/92 transition-colors group-hover:text-orange-300">{topic.label}</span>
                   <span className="mt-1 block text-[11px] leading-4 text-white/52">{topic.detail}</span>
                 </span>
-                <ArrowRight size={15} className="text-white/42 transition-transform group-hover:translate-x-0.5 group-hover:text-[#e18463]" aria-hidden="true" />
+                <ArrowRight size={15} className="text-white/42 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-on-dark" aria-hidden="true" />
               </Link>
             ))}
           </div>
@@ -122,7 +122,7 @@ export default function HelpHomePage() {
       <section aria-labelledby="frequent-guides-heading">
         <div className="mb-7 border-b border-black/10 pb-5 dark:border-white/10">
           <h2 id="frequent-guides-heading" className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Frequently read guides</h2>
-          <p className="mt-3 text-sm leading-6 text-ink-muted dark:text-white/58">Good starting points for new residents and providers.</p>
+          <p className="mt-3 text-sm leading-6 text-ink-muted dark:text-white/58">Good starting points for new seekers and providers.</p>
         </div>
         <div className="grid gap-x-10 md:grid-cols-2">
           {popularArticles.map((article) => {
@@ -131,14 +131,14 @@ export default function HelpHomePage() {
               <Link
                 key={article.slug}
                 href={`/help/${article.category}/${article.slug}`}
-                className="group grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-b border-black/8 py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/10"
+                className="group grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-b border-black/8 py-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:border-white/10"
               >
                 <span>
-                  <span className="block text-sm font-semibold tracking-[-0.015em] text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{article.title}</span>
+                  <span className="block text-sm font-semibold tracking-[-0.015em] text-ink transition-colors group-hover:text-brand-text dark:text-white dark:group-hover:text-brand-on-dark">{article.title}</span>
                   <span className="mt-1.5 line-clamp-2 block text-xs leading-5 text-ink-muted dark:text-white/58">{article.description}</span>
                   <span className="mt-3 block text-[11px] font-medium text-ink-subtle dark:text-white/44">{category?.shortTitle || category?.title} / {article.readTimeMinutes} min read</span>
                 </span>
-                <ArrowRight size={16} className="mt-1 text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-[#c86544]" aria-hidden="true" />
+                <ArrowRight size={16} className="mt-1 text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-brand-text" aria-hidden="true" />
               </Link>
             );
           })}
@@ -148,15 +148,15 @@ export default function HelpHomePage() {
       <section className="flex flex-col items-start justify-between gap-7 rounded-2xl bg-charcoal p-8 text-white shadow-[0_18px_45px_rgba(23,23,22,0.13)] sm:p-10 md:flex-row md:items-center">
         <div>
           <h2 className="max-w-[24ch] text-2xl font-semibold tracking-[-0.03em] sm:text-3xl">Need help with an account or dispute?</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">Cordova Municipal Moderation can assist with residency verification reviews and dispute arbitration.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">ServiceHub administrators review identity and residency verification, marketplace reports, and booking disputes across participating communities.</p>
         </div>
-        <a
-          href="mailto:admin@servicehub-cordova.local"
-          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#c86544] px-5 py-3 text-xs font-semibold text-white transition-colors hover:bg-[#aa5032] active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#fffdfa]"
+        <Link
+          href="/help/safety"
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-brand-action px-5 py-3 text-xs font-semibold text-white transition-colors hover:bg-brand-action-hover active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#fffdfa]"
         >
-          Contact support
+          Read safety and support guides
           <ArrowRight size={15} aria-hidden="true" />
-        </a>
+        </Link>
       </section>
     </div>
   );

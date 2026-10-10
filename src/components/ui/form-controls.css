@@ -1,7 +1,7 @@
 /* Share field chrome, leaving layout, validation and actions with each form.
    Important declarations replace the old utility/inline field chrome. */
 :root {
-  --form-accent: #c86544;
+  --form-accent: var(--color-brand-focus);
   --form-surface: #fffdfa;
   --form-border: #dedbd5;
   --form-border-hover: #b8b3aa;
@@ -23,7 +23,7 @@
 body:has(.workspace-shell--provider) { --form-accent: #059669; }
 body:has(.admin-workspace) { --form-accent: #ae3333; }
 .dark body:has(.admin-workspace) { --form-accent: #f2605c; }
-[data-form-tone="seeker"] { --form-accent: #c86544; }
+[data-form-tone="seeker"] { --form-accent: var(--color-brand-focus); }
 [data-form-tone="provider"] { --form-accent: #059669; }
 [data-form-tone="admin"] { --form-accent: var(--admin-accent, #ae3333); }
 

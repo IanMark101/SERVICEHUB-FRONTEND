@@ -29,7 +29,7 @@ const listing = {
   category: { name: 'Plumbing' }, status: 'ACTIVE', isAvailable: true, price: 500,
 };
 
-describe('Browse Jobs offer eligibility', () => {
+describe('Browse Service Requests offer eligibility', () => {
   it('opens the request author’s seeker reviews directly while the author link opens their overview', async () => {
     render(<BrowseJobs />);
     fireEvent.click(await screen.findByRole('button', { name: 'View service seeker reviews for Client' }));
@@ -158,7 +158,7 @@ describe('Browse Jobs offer eligibility', () => {
     } as unknown as ReturnType<typeof useApp>);
     render(<BrowseJobs />);
     if (viewerId === 'another-provider-id') {
-      await screen.findByRole('heading', { name: 'No Open Job Requests' });
+      await screen.findByRole('heading', { name: 'No Open Service Requests' });
       expect(screen.queryByText(request.title)).not.toBeInTheDocument();
     } else {
       expect(await screen.findByText(request.title)).toBeInTheDocument();
@@ -194,3 +194,8 @@ describe('Browse Jobs offer eligibility', () => {
   });
 
 });
+
+vi.mock('../../hooks/useNearbyMarketplace', () => ({ default: (_workspace: string, _id: string, search: string, category: string, filter: string) => {
+  const requests = useApp().jobRequests.filter(request => ['OPEN', 'open'].includes(request.status) && (!request.targetServiceId || [request.targetProviderId, request.seekerId].includes(_id)) && (category==='All Categories' || request.category===category) && (!search || (request.title+' '+request.description+' '+request.seekerName).toLowerCase().includes(search.toLowerCase())) && (filter!=='high-budget' || request.budget>=500) && (filter!=='few-offers' || (request.offersCount ?? 0)<=1));
+  return { location: { point: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, radiusKm: 10 }, applyLocation: vi.fn(), refresh: vi.fn(), items: requests, loading: false, error:'',totalItems:requests.length,currentPage:1,totalPages:1,startIndex:0,endIndex:requests.length,goToPage:vi.fn(),nextPage:vi.fn(),prevPage:vi.fn() };
+} }));

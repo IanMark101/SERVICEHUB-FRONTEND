@@ -17,7 +17,7 @@ export default function HelpBreadcrumbs({ items }: HelpBreadcrumbsProps) {
     <nav aria-label="Breadcrumbs" className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-ink-subtle dark:text-white/48">
       <Link
         href="/help"
-        className="font-medium transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:text-[#e18463]"
+        className="font-medium transition-colors hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:hover:text-brand-on-dark"
       >
         All Collections
       </Link>
@@ -34,7 +34,7 @@ export default function HelpBreadcrumbs({ items }: HelpBreadcrumbsProps) {
             ) : (
               <Link
                 href={item.href}
-                className="max-w-[200px] truncate font-medium transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:text-[#e18463]"
+                className="max-w-[200px] truncate font-medium transition-colors hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:hover:text-brand-on-dark"
               >
                 {item.label}
               </Link>

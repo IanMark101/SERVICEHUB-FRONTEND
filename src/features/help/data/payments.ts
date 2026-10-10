@@ -5,7 +5,7 @@ export const PAYMENTS_ARTICLES: HelpArticle[] = [
     slug: 'payment-methods-overview',
     title: 'Payment Methods: Online Test Mode vs. On-Site Cash',
     category: 'payments',
-    description: 'When each ServiceHub Cordova payment workflow applies.',
+    description: 'When each ServiceHub payment workflow applies.',
     lastUpdated: 'September 2026',
     readTimeMinutes: 3,
     popular: true,

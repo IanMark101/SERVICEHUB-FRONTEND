@@ -118,7 +118,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
               4
             </div>
             <span className="font-medium text-ink-muted dark:text-ink-muted flex items-center space-x-1.5">
-              <span>Complete Cordova residency verification after opening your workspace</span>
+              <span>Complete identity and residency verification after opening your workspace</span>
               <ShieldCheck className="w-3.5 h-3.5 text-ink-subtle" />
             </span>
           </div>
@@ -141,7 +141,7 @@ export default function RegistrationSuccess({ email, emailSent, onGoToLogin }: R
         <button
           type="button"
           onClick={onGoToLogin}
-          className="w-full py-3 bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
+          className="w-full py-3 bg-brand-action hover:bg-brand-action-hover active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-all flex items-center justify-center space-x-2 cursor-pointer"
         >
           <span>Go to Login</span>
           <ArrowRight className="w-4 h-4" />

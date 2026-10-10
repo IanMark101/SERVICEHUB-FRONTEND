@@ -22,7 +22,7 @@ export default function useHeroEntrance() {
     if (!first || window.matchMedia('(prefers-reduced-motion: reduce)').matches
       || window.getComputedStyle(first).opacity === '1') return;
 
-    const controls = entrance.map(({ name, transform, duration, delay }) => animate(
+    const controls = entrance.filter(({ name }) => scope.current?.querySelector(`[data-hero-entrance="${name}"]`)).map(({ name, transform, duration, delay }) => animate(
       `[data-hero-entrance="${name}"]`,
       { opacity: [0, 1], transform: [transform, 'none'] },
       { duration, delay, ease },

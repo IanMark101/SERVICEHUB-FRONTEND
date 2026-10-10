@@ -4,6 +4,7 @@ import { apiRecoverSession } from '../api/auth.api';
 import { clearAccessToken } from '../lib/api/axios';
 import { AppProvider, useApp } from './AppContext';
 import { useRouteGuard } from '../hooks/useRouteGuard';
+import HelpHomePage from '../features/help/pages/HelpHomePage';
 
 const mocks = vi.hoisted(() => ({
   generation: 0,
@@ -102,6 +103,19 @@ describe('session recovery with an interactive public landing page', () => {
     await act(async () => { resolve({ success: true, data: { user: { id: 'cookie-account', name: 'Test Account', emailVerified: true } } }); });
     expect(screen.getByText('Verified workspace')).toBeVisible();
     expect(apiRecoverSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps Help Center content readable while session recovery is pending and after it fails', async () => {
+    mocks.pathname = '/help';
+    let reject!: (reason: Error) => void;
+    vi.mocked(apiRecoverSession).mockReturnValue(new Promise((_, fail) => { reject = fail; }));
+    render(<AppProvider><HelpHomePage /></AppProvider>);
+    expect(apiRecoverSession).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('heading', { name: 'Answers for every step.' })).toBeVisible();
+    expect(screen.getByLabelText('Search the ServiceHub help center')).toBeEnabled();
+    await act(async () => { reject(new Error('Session recovery timed out')); });
+    expect(screen.getByRole('heading', { name: 'Answers for every step.' })).toBeVisible();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('keeps a recovery failure distinct from a confirmed sign-out and supports retry', async () => {

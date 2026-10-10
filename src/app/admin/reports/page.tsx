@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApiCacheRefresh } from '@/hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '@/hooks/useRefreshableLoad';
 import { invalidateApiCache } from '@/lib/api/responseCache';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -38,7 +39,7 @@ export default function AdminReportsPage() {
   const [items, setItems] = useState<ModerationCase[]>([]);
   const [summary, setSummary] = useState<CaseSummary | null>(null);
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
+  const { loading, beginLoad } = useRefreshableLoad(JSON.stringify([filters, page, userId, bookingId]));
   const [loadError, setLoadError] = useState('');
   const [detail, setDetail] = useState<ModerationCase | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -76,16 +77,19 @@ export default function AdminReportsPage() {
   }
   const loadCases = useCallback(async () => {
     const sequence = ++listSequence.current;
-    setLoading(true); setLoadError('');
+    const request = beginLoad();
+    let succeeded = false;
+    setLoadError('');
     try {
       const response = await apiListModerationCases({ ...filters, page, limit: PAGE_SIZE, userId, bookingId });
-      if (sequence !== listSequence.current) return;
+      if (sequence !== listSequence.current || !request.current()) return;
       setItems(response.data || []); setSummary(response.summary);
       setPagination({ total: response.pagination.total, totalPages: Math.max(1, response.pagination.totalPages) });
       if (page > Math.max(1, response.pagination.totalPages)) setPage(Math.max(1, response.pagination.totalPages));
-    } catch (cause) { if (sequence === listSequence.current) setLoadError(getApiErrorMessage(cause, 'Cases could not be loaded. Try again.')); }
-    finally { if (sequence === listSequence.current) setLoading(false); }
-  }, [filters, page, userId, bookingId]);
+      succeeded = true;
+    } catch (cause) { if (sequence === listSequence.current && request.current()) setLoadError(getApiErrorMessage(cause, 'Cases could not be loaded. Try again.')); }
+    finally { if (sequence === listSequence.current) request.finish(succeeded); }
+  }, [filters, page, userId, bookingId, beginLoad, setItems, setSummary, setPagination, setPage]);
   const loadDetail = useCallback(async (startReview = false) => {
     if (!caseKey) return;
     const [source, id] = caseKey.split(':');

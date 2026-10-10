@@ -48,7 +48,6 @@ function getNotificationCta(link?: string | null, title?: string) {
   if (path.includes('incoming-offers')) return 'Review Offers';
   if (path.includes('service-manager')) return 'Manage Listing';
   if (path.includes('/admin/services')) return 'Review Listing';
-  if (path.includes('suggest-category')) return 'View Category';
   if (path.includes('account-settings') || path.includes('settings')) return 'Open Settings';
   if (path.includes('verification')) return 'Open Verification';
   if (path.includes('reviews')) return 'View Review';

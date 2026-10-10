@@ -1,16 +1,7 @@
+import type { LocationPoint } from '../lib/location';
 import React from 'react';
 import type { BookingActionResult } from '../lib/bookingActionUpdate';
-import {
-  User,
-  ServiceListing,
-  JobRequest,
-  Bid,
-  JobEngagement,
-  Transaction,
-  Notification,
-  CategorySuggestion,
-  UserReport
-} from '../types';
+import { User, ServiceListing, JobRequest, Bid, JobEngagement, Transaction, Notification, UserReport } from '../types';
 import { apiCreateRequest, apiUpdateRequest, apiDeleteRequest } from '../api/requests.api';
 import type { RequestUrgency } from '../lib/requestUrgency';
 import {
@@ -21,7 +12,6 @@ import {
   apiDisputeJob
 } from '../api/bookings.api';
 import { apiRejectOffer } from '../api/offers.api';
-import { apiSuggestCategory } from '../api/categories.api';
 import { useToast } from '../components/ui/Toast';
 import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
 import { isPayMongoCheckoutUrl, navigateGcashWindow, prepareGcashWindow, rememberGcashCheckout, type PendingGcashCheckout } from '../lib/paymentCheckout';
@@ -40,7 +30,6 @@ interface SeekerActionsDeps {
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
   setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
   setUserReports: React.Dispatch<React.SetStateAction<UserReport[]>>;
-  setCategorySuggestions: React.Dispatch<React.SetStateAction<CategorySuggestion[]>>;
   syncRequests: () => Promise<void>;
   syncEngagements: () => Promise<void>;
   syncBids: () => Promise<void>;
@@ -57,19 +46,19 @@ export function useSeekerActions({
   dbCategories,
   setJobRequests,
   setBids,
-  setCategorySuggestions,
   syncRequests,
   syncBids,
   applyBookingAction,
 }: SeekerActionsDeps) {
   const { success, error: toastError, info } = useToast();
 
-  const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>) => {
+  const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>, jobLocation?: LocationPoint) => {
     const popup = prepareGcashWindow();
     try {
       const response = await apiInitiatePayment({
         serviceId: context.serviceId, offerId: context.offerId,
         quantity: context.quantity, paymentMethodType: 'gcash',
+        ...(jobLocation && { jobLocation }),
       });
       if (!response.success || !response.data?.paymentIntentId) throw new Error(response.error || 'GCash checkout could not be started.');
       if (response.data.redirectUrl && !isPayMongoCheckoutUrl(response.data.redirectUrl)) throw new Error('The payment checkout link is unavailable. Please try again.');
@@ -93,7 +82,8 @@ export function useSeekerActions({
     urgency: RequestUrgency,
     budget: number,
     description: string,
-    paymentMethods = { cash: true, gcash: true }
+    paymentMethods = { cash: true, gcash: true },
+    locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }
   ) => {
     try {
       const catId = dbCategories.find(c => c.id === category)?.id;
@@ -106,6 +96,7 @@ export function useSeekerActions({
           budgetMax: budget,
           urgency,
           paymentMethods,
+          ...locationOptions,
         });
 
         if (res.success) {
@@ -126,11 +117,12 @@ export function useSeekerActions({
     return false;
   };
 
-  const editJobRequest = async (requestId: string, title: string, budget: number, description: string, urgency?: RequestUrgency): Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null> => {
+  const editJobRequest = async (requestId: string, title: string, budget: number, description: string, urgency?: RequestUrgency, locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }): Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null> => {
     try {
-      const res = await apiUpdateRequest(requestId, { title, budgetMin: budget, budgetMax: budget, description, ...(urgency !== undefined && { urgency }) });
+      const res = await apiUpdateRequest(requestId, { title, budgetMin: budget, budgetMax: budget, description, ...locationOptions, ...(urgency !== undefined && { urgency }) });
       if (res.success) {
         const updated = {
+          ...locationOptions,
           title: res.data?.title ?? title.trim().toUpperCase(),
           budget: Number(res.data?.budgetMax ?? res.data?.budgetMin ?? budget),
           description: res.data?.description ?? description,
@@ -207,13 +199,15 @@ export function useSeekerActions({
     price: number,
     description: string,
     paymentMethod: 'GCash' | 'On-site Cash',
-    quantity = 1
+    quantity = 1,
+    jobLocation?: LocationPoint
   ) => {
     try {
       if (paymentMethod === 'On-site Cash') {
         const res = await apiBookDirect({
           serviceId,
           quantity,
+          ...(jobLocation && { jobLocation }),
           schedule: 'Immediate',
           message: description,
         });
@@ -223,7 +217,7 @@ export function useSeekerActions({
         }
       } else {
         const service = services.find(entry => entry.id === serviceId);
-        return await startGcashCheckout({ seekerId, serviceId, quantity, title: service?.title, providerName: service?.providerName });
+        return await startGcashCheckout({ seekerId, serviceId, quantity, title: service?.title, providerName: service?.providerName }, jobLocation);
       }
     } catch (err: unknown) {
       toastError('Booking Failed', getApiErrorMessage(err, 'Unable to create the booking.'));
@@ -303,26 +297,6 @@ export function useSeekerActions({
     }
   };
 
-  const suggestCategory = async (seekerName: string, name: string, description: string) => {
-    try {
-      const res = await apiSuggestCategory({ name, description });
-      if (res.success) {
-        const newSuggestion: CategorySuggestion = {
-          id: res.data.id,
-          name,
-          description,
-          suggestedBy: seekerName,
-          status: 'pending'
-        };
-        setCategorySuggestions(prev => [newSuggestion, ...prev]);
-        success('Category Suggested', 'Admin will review your category request.');
-        return;
-      }
-    } catch (err: unknown) {
-      toastError('Request Failed', getApiErrorMessage(err, 'Unable to suggest the category.'));
-    }
-  };
-
   return {
     postJobRequest,
     editJobRequest,
@@ -332,7 +306,6 @@ export function useSeekerActions({
     declineBid,
     confirmJobCompletion,
     disputeJob,
-    suggestCategory,
     bookProviderDirectly
   };
 }

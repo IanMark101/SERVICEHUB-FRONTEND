@@ -12,7 +12,7 @@ export default function ProfileStep({ user, isDark, onOpenProfile, onOpenVerific
   const profileItems = [
     { label: 'Full name', complete: Boolean(fullName) },
     { label: 'Phone number', complete: Boolean(user.phone?.trim()) },
-    { label: 'Cordova location', complete: Boolean(user.location?.trim()) },
+    { label: 'Profile location', complete: Boolean(user.location?.trim()) },
     { label: 'Profile photo', complete: Boolean(user.avatarUrl?.trim()), optional: true },
     { label: 'Short bio', complete: Boolean(user.bio?.trim()), optional: true },
   ];
@@ -42,7 +42,7 @@ export default function ProfileStep({ user, isDark, onOpenProfile, onOpenVerific
 
         <section className={`rounded-2xl border p-4 ${isDark ? 'border-neutral-800 bg-charcoal-inset' : 'border-slate-200 bg-slate-50/70'}`} aria-labelledby="verification-next-title">
           <div className="mb-3 flex items-center gap-2"><ShieldCheck className={`h-4 w-4 ${verificationApproved ? 'text-emerald-600' : 'text-amber-600'}`} aria-hidden="true" /><h3 id="verification-next-title" className="text-sm font-bold text-ink dark:text-white">Residency verification</h3></div>
-          <p className="text-xs leading-5 text-ink-muted dark:text-ink-muted">{verificationApproved ? 'Your Cordova residency is approved. Marketplace actions remain subject to normal booking and account rules.' : 'Complete this when you are ready to book, post requests, submit offers, or publish a listing.'}</p>
+          <p className="text-xs leading-5 text-ink-muted dark:text-ink-muted">{verificationApproved ? 'Your residency is approved. Marketplace actions remain subject to normal booking and account rules.' : 'Complete this when you are ready to book, post requests, submit offers, or publish a listing.'}</p>
           {!verificationApproved && (
             <button type="button" disabled={saving} onClick={onOpenVerification} className="mt-4 w-full rounded-xl bg-charcoal px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 disabled:opacity-60 dark:bg-neutral-100 dark:text-charcoal dark:hover:bg-white">Complete verification</button>
           )}

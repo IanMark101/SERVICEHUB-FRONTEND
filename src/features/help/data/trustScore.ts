@@ -5,7 +5,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
     slug: 'what-is-trust-score',
     title: 'What is Trust Score?',
     category: 'trust-reputation',
-    description: 'Understand ServiceHub Cordova’s 0-100 reputation metric and how it protects community members.',
+    description: 'Understand ServiceHub’s 0-100 reputation metric and how it protects community members.',
     lastUpdated: 'August 2026',
     readTimeMinutes: 3,
     popular: true,
@@ -15,7 +15,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'A Living Measure of Reliability',
         paragraphs: [
-          'Trust Score is a transparent 0-to-100 rating assigned to every ServiceHub Cordova user (both Seekers and Providers). It represents your track record of reliability, punctuality, fair transactions, and community standing.',
+          'Trust Score is a transparent 0-to-100 rating assigned to every ServiceHub user (both Seekers and Providers). It represents your track record of reliability, punctuality, fair transactions, and community standing.',
           'Instead of static star ratings that can be easily manipulated, the Trust Score is calculated dynamically from real, verifiable marketplace actions.',
         ],
       },
@@ -49,7 +49,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'Ways to Gain Trust Points (+)',
         bullets: [
-          'Your first approved Cordova residency verification increases your score once.',
+          'Your first approved identity and residency verification increases your score once.',
           'As a provider, completing work that the seeker confirms increases your score. An admin can also confirm completion after reviewing a case.',
           'Receiving a positive review for completed work can increase your score, whether you were the seeker or provider.',
           'Payments, accepting bookings, and starting work do not award extra trust points by themselves.',

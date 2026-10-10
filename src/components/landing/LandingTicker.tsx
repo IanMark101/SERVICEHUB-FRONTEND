@@ -19,41 +19,33 @@ const TICKER_DATA: Record<TickerVariant, string[]> = {
     'Electrical Repair', 'Haircut', 'House Cleaning', 'Lawn Care', 'Plumbing', 'Tutoring',
   ],
   locality: [
-    'Barangay Alegria', 'Barangay Bangbang', 'Barangay Buagsong',
-    'Barangay Catarman', 'Barangay Cogon', 'Barangay Dapitan',
-    'Barangay Day-as', 'Barangay Gabi', 'Barangay Gilutongan',
-    'Barangay Ibabao', 'Barangay Pilipog', 'Barangay Poblacion', 'Barangay San Miguel',
+    'Choose Your Location', 'Adjust Your Search Radius', 'Nearby Providers',
+    'Find the Right Help', 'Offer Your Skills', 'Find Service Requests',
+    'Clear Service Coverage', 'One Account, Two Workspaces',
   ],
   trust: [
-    'Cordova Residency Verification',
+    'Identity & Residency Verification',
     'First-Come, First-Served Online Queues',
     'Clear Service Pricing',
-    '13 Cordova Barangays',
+    'Location + Radius Discovery',
     'GCash Test Mode and On-Site Cash',
     'Services from Verified Residents',
     'Reviews After Completed Work',
     'One Account for Both Workspaces',
   ],
   barangays: [
-    'Barangay Ibabao',
+    'Nearby Providers',
     'Electrical & Diagnostic Repair',
-    'Barangay Poblacion',
+    'Choose Your Location',
     'Plumbing & Water Pumps',
-    'Barangay Catarman',
+    'Across Communities',
     'Aircon Deep Cleaning & Servicing',
-    'Barangay Gabi',
+    'Flexible Search Radius',
     'Carpentry & Masonry',
-    'Barangay Pilipog',
+    'Nearby Work Opportunities',
     'Appliance Diagnostics',
-    'Barangay Day-as',
+    'Verified Members',
     'Motorcycle & Engine Care',
-    'Barangay Alegria',
-    'Barangay Bangbang',
-    'Barangay Buagsong',
-    'Barangay Cogon',
-    'Barangay Dapitan',
-    'Barangay Gilutongan',
-    'Barangay San Miguel',
   ],
   standards: [
     'Email and Residency Verification',
@@ -98,7 +90,7 @@ export default function LandingTicker({
                 <span className="whitespace-nowrap text-sm font-bold uppercase leading-5 tracking-[0.24em] text-neutral-700 dark:text-neutral-200 sm:text-base sm:leading-6">
                   {item}
                 </span>
-                <span className="h-4 w-px shrink-0 bg-[#c86544]/50" aria-hidden="true" />
+                <span className="h-4 w-px shrink-0 bg-brand/50" aria-hidden="true" />
               </div>
             ))}
           </div>
@@ -110,7 +102,7 @@ export default function LandingTicker({
                 <span className="whitespace-nowrap text-sm font-bold uppercase leading-5 tracking-[0.24em] text-neutral-700 dark:text-neutral-200 sm:text-base sm:leading-6">
                   {item}
                 </span>
-                <span className="h-4 w-px shrink-0 bg-[#c86544]/50" />
+                <span className="h-4 w-px shrink-0 bg-brand/50" />
               </div>
             ))}
           </div>

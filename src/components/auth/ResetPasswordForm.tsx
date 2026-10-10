@@ -36,7 +36,7 @@ export default function ResetPasswordForm({
       
       {/* Header Info */}
       <div className="text-left">
-        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#c86544]/30 bg-[#c86544]/[0.08] px-3 py-0.5 text-[11px] font-semibold text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
+        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/[0.08] px-3 py-0.5 text-[11px] font-semibold text-brand-action-hover dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
           <span>Security</span>
         </div>
         <h2 className="font-sans text-2xl font-semibold text-ink dark:text-white tracking-tight leading-tight">
@@ -80,7 +80,7 @@ export default function ResetPasswordForm({
           <button
             type="submit"
             disabled={isLoading || !validation.success || !formData.confirmPassword || mismatch}
-            className="w-full min-h-11 py-2.5 bg-[#c86544] hover:bg-[#aa5032] text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full min-h-11 py-2.5 bg-brand-action hover:bg-brand-action-hover text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Resetting password…' : 'Reset Password'}
           </button>
@@ -92,7 +92,7 @@ export default function ResetPasswordForm({
         <button
           type="button"
           onClick={() => setMode('login')}
-          className="font-bold text-orange-600 dark:text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-brand-text dark:text-brand-text hover:text-orange-700 dark:hover:text-orange-400 cursor-pointer focus:outline-none transition-colors"
         >
           Back to Log in
         </button>

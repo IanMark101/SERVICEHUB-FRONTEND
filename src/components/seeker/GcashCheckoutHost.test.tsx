@@ -79,7 +79,7 @@ describe('Workspace GCash dialog', () => {
     act(() => rememberGcashCheckout(checkout));
     fireEvent.click(await screen.findByRole('button', { name: 'Try GCash Again' }));
     await screen.findByRole('dialog', { name: 'Waiting for payment confirmation' });
-    expect(apiInitiatePayment).toHaveBeenCalledWith({ serviceId: 'service', offerId: undefined, quantity: 3, paymentMethodType: 'gcash' });
+    expect(apiInitiatePayment).toHaveBeenCalledWith({ retryPaymentIntentId: 'pi_one', serviceId: 'service', offerId: undefined, quantity: 3, paymentMethodType: 'gcash' });
     expect(apiConfirmOnlineBooking).toHaveBeenLastCalledWith({ paymentIntentId: 'pi_new' });
     expect(screen.getByRole('link', { name: /Open PayMongo/ })).toHaveAttribute('href', 'https://test-sources.paymongo.com/sources/new');
     expect(state.replace).not.toHaveBeenCalled();

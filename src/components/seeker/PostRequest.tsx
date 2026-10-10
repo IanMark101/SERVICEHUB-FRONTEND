@@ -1,3 +1,7 @@
+import LocationField from '../location/LocationField';
+import { orderServiceCategories } from '../../lib/category-catalog';
+import TransportationField, { validTransportationFee } from '../location/TransportationField';
+import { LocationSchema, type LocationPoint } from '../../lib/location';
 import FormSelect from '../ui/FormSelect';
 import React, { useState, FormEvent } from 'react';
 import { useApp } from '../../context/AppContext';
@@ -17,6 +21,8 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
   const { error } = useToast();
   const [title, setTitle] = useState<string>(initialTemplate?.title ?? '');
   const [category, setCategory] = useState<string>(initialTemplate?.categoryId ?? '');
+  const [jobLocation, setJobLocation] = useState<LocationPoint | null>(initialTemplate?.jobLocation ?? null);
+  const [transportationFee, setTransportationFee] = useState(initialTemplate?.transportationFee == null ? '' : String(initialTemplate.transportationFee));
   const [urgency, setUrgency] = useState<string>('');
   const [budget, setBudget] = useState<number>(initialTemplate?.budget ?? 500);
   const [description, setDescription] = useState<string>(initialTemplate?.description ?? '');
@@ -51,12 +57,14 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       error('Category required', 'Select an active service category.');
       return;
     }
+    if (!LocationSchema.safeParse(jobLocation).success) { error('Job location required', 'Choose where the work will happen and enter its area name.'); return; }
+    if (!validTransportationFee(transportationFee)) { error('Invalid travel budget', 'Enter an amount from ₱0 to ₱5,000, with at most two decimal places.'); return; }
     if (!hasPaymentMethod) return;
 
     setLoading(true);
     setSuccess(false);
     try {
-      const posted = await postJobRequest(user?.id || '', title.trim(), selectedCategoryId, urgency, budget, description.trim(), paymentMethods);
+      const posted = await postJobRequest(user?.id || '', title.trim(), selectedCategoryId, urgency, budget, description.trim(), paymentMethods, { jobLocation: jobLocation!, transportationFee: transportationFee === '' ? null : Number(transportationFee) });
       if (posted !== true) {
         if (posted && typeof posted === 'object') setModerationError({ field: posted.field, message: posted.error });
         return;
@@ -65,6 +73,8 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       setTitle('');
       setDescription('');
       setBudget(500);
+      setJobLocation(null);
+      setTransportationFee('');
       setCategory('');
       setUrgency('');
       setPaymentMethods({ cash: true, gcash: true });
@@ -86,7 +96,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
 
         {/* Header */}
         <div className={`flex items-center space-x-3 mb-6 pb-4 border-b ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-orange-600'
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-50 text-brand-text'
             }`}>
             <PlusCircle className="w-5 h-5" />
           </div>
@@ -113,7 +123,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
           }`}>
             <div>
               <span className="font-bold">Verification Required:</span>
-              <span className="font-medium ml-1">You may browse ServiceHub freely, but you must complete Cordova Residency Verification before participating in marketplace transactions.</span>
+              <span className="font-medium ml-1">You may browse ServiceHub freely, but you must complete Identity & Residency Verification before participating in marketplace transactions.</span>
             </div>
             <button
               type="button"
@@ -206,13 +216,14 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                   required
                   disabled={!canTransact}
                   onChange={(e) => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
-                  options={dbCategories.map((cat) => ({ value: cat.id, label: cat.name }))}
+                  options={orderServiceCategories(dbCategories).map((cat) => ({ value: cat.id, label: cat.name }))}
                   placeholder="Select a category..."
                   isDark={isDark}
                   theme="seeker"
                   ariaInvalid={moderationError?.field === 'category'}
                   ariaDescribedBy={moderationError?.field === 'category' ? 'request-category-policy-error' : undefined}
                 />
+                <p className="mt-2 text-xs text-ink-muted">No suitable category? Choose Other Services and describe the task in your title and description.</p>
                 {moderationError?.field === 'category' && <p id="request-category-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message}</p>}
               </div>
 
@@ -240,6 +251,9 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                   Choose how soon you need help. Add any specific date or time to your description.
                 </p>
               </div>
+
+              <LocationField label="Where will the job happen?" value={jobLocation} onChange={setJobLocation} privateAddress disabled={!canTransact || loading} />
+              <TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} budget disabled={!canTransact || loading} />
 
               {/* Budget */}
               <div>
@@ -287,7 +301,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       {/* Form Note Box */}
       <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-charcoal-inset border-neutral-800/80 text-ink-muted' : 'bg-slate-50 border-slate-300 text-ink-muted'
         }`}>
-        <Info className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+        <Info className="w-4 h-4 text-brand-text mt-0.5 flex-shrink-0" />
         <div><p className="text-[10px] leading-relaxed">
           A request that passes ServiceHub content checks is shared with verified providers. You can compare their offers and profiles, then choose the provider who best matches your needs.
         </p>{safeAppealRequestId && <div className="mt-2"><strong className="text-xs">Was your request removed?</strong><p className="text-xs">You can ask an Admin to review the removal. This will not republish the request automatically.</p><ContentCaseAction caseType="APPEAL" contentType="SERVICE_REQUEST" resourceId={safeAppealRequestId} isDark={isDark} label="Appeal this removal" /></div>}</div>

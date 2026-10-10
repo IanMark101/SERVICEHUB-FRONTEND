@@ -26,6 +26,7 @@ function failure(config: InternalAxiosRequestConfig, status = 503) { return new 
 function defaults(config: InternalAxiosRequestConfig) {
   if (config.url === '/auth/session') return reply(config, { success: true, data: { authenticated: true, accessToken: 'verified-test-token', user: profile } });
   if (config.url === '/auth/me') return reply(config, { success: true, data: { user: profile } });
+  if (config.url === '/services/nearby') return reply(config, { success: true, data: { items: [listing], pagination: { page:1, limit:6, total:1, totalPages:1 } } });
   if (config.url === '/services') return reply(config, { success: true, data: [listing] });
   if (config.url === '/bookings/my-engagements') return reply(config, { success: true, data: { bookings: [], completedServices: [] } });
   return reply(config, { success: true, data: [] });
@@ -50,6 +51,7 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
     vi.clearAllMocks();
     clearAccessToken();
     localStorage.clear(); sessionStorage.clear();
+    localStorage.setItem('servicehub:marketplace-location:refresh-account:seeker', JSON.stringify({ point: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, radiusKm:10 }));
     mocks.pathname = '/seeker/seek-services';
     calls = [];
     handler = async config => defaults(config);
@@ -75,12 +77,13 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
   it('does not show an empty marketplace while browsing takes longer than 450ms, or wait for private listings', async () => {
     let resolveBrowse!: () => void;
     let resolveMine!: () => void;
-    handler = config => config.url === '/services' ? new Promise(resolve => { resolveBrowse = () => resolve(defaults(config)); })
+    handler = config => config.url === '/services/nearby' ? new Promise(resolve => { resolveBrowse = () => resolve(defaults(config)); })
       : config.url === '/services/mine' ? new Promise(resolve => { resolveMine = () => resolve(defaults(config)); }) : Promise.resolve(defaults(config));
     mount();
     await waitFor(() => expect(resolveBrowse).toBeTypeOf('function'));
     await act(async () => { await new Promise(resolve => setTimeout(resolve, 650)); });
-    expect(screen.getByText('seeker:loading')).toBeVisible();
+    expect(screen.getByText('seeker:ready')).toBeVisible();
+    expect(screen.getByRole('status', { name: 'Loading services' })).toBeVisible();
     expect(screen.queryByText('No Services Found')).not.toBeInTheDocument();
     await act(async () => { resolveBrowse(); });
     await screen.findByText(listing.title);
@@ -90,7 +93,7 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
 
   it('shows a retryable listing error without signing out, and preserves cards on a failed later refresh', async () => {
     let failBrowse = true;
-    handler = async config => { if (failBrowse && config.url === '/services') throw failure(config); return defaults(config); };
+    handler = async config => { if (failBrowse && ['/services', '/services/nearby'].includes(config.url || '')) throw failure(config); return defaults(config); };
     mount();
     await screen.findByText('Services could not be loaded');
     expect(screen.queryByText('No Services Found')).not.toBeInTheDocument();
@@ -157,7 +160,7 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
     expect(mocks.router.replace).not.toHaveBeenCalled();
   });
 
-  it('does not let an older booking response overwrite a newer refresh or its pending state', async () => {
+  it('does not let an older booking response overwrite a newer refresh or reset the confirmed load state', async () => {
     mocks.pathname = '/seeker/seeker-activity';
     handler = async config => config.url === '/bookings/my-engagements' ? bookingReply(config) : defaults(config);
     render(<StrictMode><AppProvider><BookingWorkspace /></AppProvider></StrictMode>);
@@ -169,7 +172,7 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
     fireEvent.click(screen.getByRole('button', { name: 'Refresh bookings' }));
     await waitFor(() => expect(pending).toHaveLength(2));
     await act(async () => { pending[0]([]); });
-    expect(screen.getByLabelText('Booking load status')).toHaveTextContent('loading');
+    expect(screen.getByLabelText('Booking load status')).toHaveTextContent('ready');
     expect(screen.getByText(testBooking.service.title)).toBeVisible();
     await act(async () => { pending[1]([{ ...testBooking, service: { title: 'UPDATED OUTLET REPAIR BOOKING' } }]); });
     await screen.findByText('UPDATED OUTLET REPAIR BOOKING');

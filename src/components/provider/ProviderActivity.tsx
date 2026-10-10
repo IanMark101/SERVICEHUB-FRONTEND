@@ -57,6 +57,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const {
     jobEngagements,
     engagementsStatus,
+    offersStatus,
     bids,
     jobRequests,
     requestJobApproval,
@@ -87,19 +88,12 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
 
   // Filter state
   const [activeTab, setActiveTab] = useState<ProviderActivityTab>('all');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 450);
-    return () => clearTimeout(t);
-  }, []);
+  const isLoading = engagementsStatus === 'loading' || offersStatus === 'loading';
 
   const handleTabChange = (tab: typeof activeTab) => {
     if (tab === activeTab) return;
     manuallyOverriddenLink.current = deepLinkKey;
-    setIsLoading(true);
     setActiveTab(tab);
-    setTimeout(() => setIsLoading(false), 250);
   };
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);

@@ -91,12 +91,12 @@ export default function EmailVerificationRequiredPage() {
         <div className="space-y-6 px-6 py-7 sm:px-9">
           <div className="flex gap-3 rounded-2xl border border-stone-200 p-4 dark:border-neutral-700">
             <CheckCircle2 aria-hidden="true" className="mt-0.5 shrink-0 text-orange-700 dark:text-orange-300" size={19} />
-            <div><p className="text-sm font-semibold">What happens after verification?</p><p className="mt-1 text-sm leading-6 text-ink-muted dark:text-ink-secondary">Your workspace opens. Cordova residency verification then determines whether you can book or offer services.</p></div>
+            <div><p className="text-sm font-semibold">What happens after verification?</p><p className="mt-1 text-sm leading-6 text-ink-muted dark:text-ink-secondary">Your workspace opens. Identity and residency verification then determines whether you can book or offer services.</p></div>
           </div>
           {notice && <p role="status" className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200">{notice}</p>}
           {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-950/30 dark:text-red-200">{error}</p>}
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button type="button" onClick={() => void checkStatus()} disabled={busy !== null} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#c86646] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#ad5032] disabled:opacity-50"><RefreshCw aria-hidden="true" size={16} />{busy === 'check' ? 'Checking…' : 'I verified my email'}<ArrowRight aria-hidden="true" size={16} /></button>
+            <button type="button" onClick={() => void checkStatus()} disabled={busy !== null} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-action px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-action-hover disabled:opacity-50"><RefreshCw aria-hidden="true" size={16} />{busy === 'check' ? 'Checking…' : 'I verified my email'}<ArrowRight aria-hidden="true" size={16} /></button>
             <button type="button" onClick={() => void resend()} disabled={busy !== null} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-300 px-5 py-2.5 text-sm font-semibold hover:bg-stone-50 disabled:opacity-50 dark:border-neutral-600 dark:hover:bg-charcoal">{busy === 'resend' ? 'Sending…' : 'Resend verification link'}</button>
           </div>
           <button type="button" onClick={() => void logout()} disabled={busy !== null} className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-ink-muted hover:text-ink disabled:opacity-50 dark:text-ink-secondary dark:hover:text-white"><LogOut aria-hidden="true" size={16} />Sign out</button>

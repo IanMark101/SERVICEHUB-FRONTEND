@@ -11,7 +11,7 @@
 .booking-progress__row { position: relative; display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; column-gap: 12px; padding-bottom: 18px; font-size: 14px; line-height: 1.5; }
 .booking-progress__row:last-child { padding-bottom: 0; }
 .booking-progress__row:not(:last-child)::before { content: ''; position: absolute; inset-inline-start: 5px; top: 14px; bottom: 0; width: 1px; background: var(--workspace-border-strong, #d6d3d1); }
-.booking-progress__dot { position: relative; margin-top: 5px; width: 11px; height: 11px; border-radius: 50%; background: var(--workspace-focus, #b54f2f); border: 1px solid var(--workspace-focus, #b54f2f); }
+.booking-progress__dot { position: relative; margin-top: 5px; width: 11px; height: 11px; border-radius: 50%; background: var(--workspace-focus, var(--color-brand-focus)); border: 1px solid var(--workspace-focus, var(--color-brand-focus)); }
 .booking-progress__row[data-state='pending'] .booking-progress__dot { background: transparent; border-color: var(--text-secondary); }
 .booking-progress__row[data-state='missing'] .booking-progress__dot { background: var(--text-secondary); border-color: var(--text-secondary); }
 .booking-progress__action { min-width: 0; overflow-wrap: anywhere; }

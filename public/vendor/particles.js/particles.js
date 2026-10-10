@@ -1378,10 +1378,10 @@ var pJS = function(tag_id, params){
     pJS.fn.canvasSize();
     pJS.fn.canvasPaint();
     pJS.fn.particlesCreate();
-    pJS.fn.vendors.densityAutoParticles();
 
-    /* particles.line_linked - convert hex colors to rgb */
+    /* Static mode can draw during density adjustment, so resolve links first. */
     pJS.particles.line_linked.color_rgb_line = hexToRgb(pJS.particles.line_linked.color);
+    pJS.fn.vendors.densityAutoParticles();
 
   };
 

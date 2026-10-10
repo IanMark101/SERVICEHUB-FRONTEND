@@ -33,7 +33,7 @@ export default function NewServicesSection({ services = [], isDark = false, onSe
     }`} aria-labelledby="new-services-title">
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-neutral-800/80 pb-3.5">
         <div className="flex items-center gap-2">
-          <Briefcase size={18} className="text-[#c86544]" aria-hidden="true" />
+          <Briefcase size={18} className="text-brand-text" aria-hidden="true" />
           <h3 id="new-services-title" className={`text-base font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>New services</h3>
         </div>
         <span className={`text-xs font-semibold ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>{services.length} listings</span>
@@ -52,12 +52,12 @@ export default function NewServicesSection({ services = [], isDark = false, onSe
                 onClick={() => onSelectProvider?.(service.provider.id)}
                 aria-label={`View ${service.provider.name} profile`}
                 disabled={!onSelectProvider}
-                className="shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] disabled:cursor-default"
+                className="shrink-0 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus disabled:cursor-default"
               >
                 {service.provider.avatarUrl ? (
                   <Image src={service.provider.avatarUrl} alt="" width={40} height={40} unoptimized className="size-9 sm:size-10 rounded-xl object-cover" />
                 ) : (
-                  <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-[#f5ebe6] text-sm font-semibold text-[#aa5032] dark:bg-[#c86544]/15 dark:text-[#e9a58c]">{service.provider.name?.charAt(0).toUpperCase() || 'P'}</span>
+                  <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-orange-100 text-sm font-semibold text-brand-action-hover dark:bg-brand/15 dark:text-orange-300">{service.provider.name?.charAt(0).toUpperCase() || 'P'}</span>
                 )}
               </button>
 
@@ -65,7 +65,7 @@ export default function NewServicesSection({ services = [], isDark = false, onSe
                 <button
                   type="button"
                   onClick={() => onSelectService(service.id)}
-                  className={`block uppercase break-words [overflow-wrap:anywhere] text-left text-sm font-semibold leading-5 tracking-[-0.02em] transition-colors hover:text-[#aa5032] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:hover:text-[#e9a58c] ${isDark ? 'text-white' : 'text-ink'}`}
+                  className={`block uppercase break-words [overflow-wrap:anywhere] text-left text-sm font-semibold leading-5 tracking-[-0.02em] transition-colors hover:text-brand-action-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:hover:text-orange-300 ${isDark ? 'text-white' : 'text-ink'}`}
                 >
                   {service.title}
                 </button>
@@ -75,7 +75,7 @@ export default function NewServicesSection({ services = [], isDark = false, onSe
                     type="button"
                     onClick={() => onSelectProvider?.(service.provider.id)}
                     disabled={!onSelectProvider}
-                    className="font-semibold underline decoration-transparent underline-offset-2 transition-colors hover:text-[#aa5032] hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] disabled:no-underline dark:hover:text-[#e9a58c]"
+                    className="font-semibold    transition-colors hover:text-brand-action-hover  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus  dark:hover:text-orange-300"
                   >
                     {service.provider.name || 'Local provider'}
                   </button>
@@ -84,16 +84,16 @@ export default function NewServicesSection({ services = [], isDark = false, onSe
                   <span>Published {new Date(service.publishedAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                   {service.provider.trustScore != null && <TrustScoreBadge score={service.provider.trustScore} />}
                 </p>
-                <span className={`mt-1.5 block text-xs font-semibold sm:hidden ${isDark ? 'text-[#e9a58c]' : 'text-[#aa5032]'}`}>{formatPrice(service)}</span>
+                <span className={`mt-1.5 block text-xs font-semibold sm:hidden ${isDark ? 'text-orange-300' : 'text-brand-action-hover'}`}>{formatPrice(service)}</span>
               </div>
 
               <button
                 type="button"
                 onClick={() => onSelectService(service.id)}
                 aria-label={`Open ${formatPrice(service)} listing`}
-                className="flex shrink-0 items-start gap-2 rounded-lg p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]"
+                className="flex shrink-0 items-start gap-2 rounded-lg p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
               >
-                <span className={`hidden text-xs font-semibold sm:block ${isDark ? 'text-[#e9a58c]' : 'text-[#aa5032]'}`}>{formatPrice(service)}</span>
+                <span className={`hidden text-xs font-semibold sm:block ${isDark ? 'text-orange-300' : 'text-brand-action-hover'}`}>{formatPrice(service)}</span>
                 <ArrowUpRight size={16} className="text-ink-subtle transition-transform group-hover/row:-translate-y-0.5 group-hover/row:translate-x-0.5" aria-hidden="true" />
               </button>
             </article>

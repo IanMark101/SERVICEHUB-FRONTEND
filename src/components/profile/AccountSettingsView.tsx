@@ -1,5 +1,4 @@
 "use client";
-import FormSelect from '../ui/FormSelect';
 import React, { useRef, useState } from 'react';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import PhonePasswordConfirmModal from './PhonePasswordConfirmModal';
@@ -23,12 +22,6 @@ import AccountDeletionPanel from './account-settings/AccountDeletionPanel';
 import PasswordSecurityPanel from './account-settings/PasswordSecurityPanel';
 import UserAvatar from '../ui/UserAvatar';
 import VerificationUpload from './VerificationUpload';
-
-const CORDOVA_BARANGAYS = [
-  "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
-  "Dapitan", "Day-as", "Gabi", "Ibabao-Estancia", "Pilipog",
-  "Poblacion", "San Miguel",
-];
 
 interface AccountSettingsViewProps {
   user: UserSession;
@@ -77,12 +70,12 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
 
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
-  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-[var(--admin-accent)]' : 'text-orange-500';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-[var(--admin-accent)]' : 'text-brand-text';
   const verifiedBadge = isProvider
     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     : isAdmin
       ? 'bg-[var(--admin-soft)] text-[var(--admin-accent)] border-[var(--admin-border)]'
-      : 'bg-orange-500/10 text-orange-600 border-orange-500/20';
+      : 'bg-orange-500/10 text-brand-text border-orange-500/20';
 
   const cardBg = 'bg-[color:var(--workspace-surface)] border-[color:var(--workspace-border)]';
   const innerBg = 'bg-[color:var(--workspace-surface-muted)] border-[color:var(--workspace-border)]';
@@ -201,18 +194,17 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
 
           <div className="space-y-1.5">
-            <label className={`block font-semibold ${labelText}`}>Barangay (Cordova, Cebu)</label>
-            <FormSelect
-              aria-label="Barangay (Cordova, Cebu)"
+            <label htmlFor="account-profile-location" className={`block font-semibold ${labelText}`}>City / municipality and barangay</label>
+            <input
+              id="account-profile-location"
+              aria-label="City / municipality and barangay"
+              maxLength={100}
+              placeholder="e.g. Marigondon, Lapu-Lapu City, Cebu"
               value={editForm.location}
               onChange={e => setEditForm((form) => ({ ...form, location: e.target.value }))}
               className={inputClass}
-            >
-              <option value="">Select Barangay...</option>
-              {CORDOVA_BARANGAYS.map(b => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </FormSelect>
+            />
+            <p className={`text-[11px] ${labelText}`}>Your general profile area. Marketplace search and actual job locations are set separately.</p>
           </div>
 
           <div className="sm:col-span-2 space-y-1.5">

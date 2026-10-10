@@ -1,10 +1,10 @@
 :root,
 .workspace-seeker,
 [data-feedback-workspace="seeker"] {
-  --feedback-accent: #b54f2f;
-  --feedback-solid: #b54f2f;
-  --feedback-soft: #fff1e8;
-  --feedback-border: #e6b49f;
+  --feedback-accent: var(--color-brand-text);
+  --feedback-solid: var(--color-brand-action);
+  --feedback-soft: var(--color-brand-soft);
+  --feedback-border: var(--color-brand-border);
   --feedback-surface: #fffdfa;
 }
 .workspace-provider,
@@ -17,9 +17,9 @@
 }
 :root.dark,
 .dark [data-feedback-workspace="seeker"] {
-  --feedback-accent: #f2a07e;
-  --feedback-soft: #34221b;
-  --feedback-border: #81513d;
+  --feedback-accent: var(--color-brand-on-dark);
+  --feedback-soft: color-mix(in srgb, var(--color-brand) 12%, var(--color-charcoal));
+  --feedback-border: color-mix(in srgb, var(--color-brand) 40%, var(--color-charcoal));
   --feedback-surface: var(--color-charcoal-surface);
 }
 .dark.workspace-provider,

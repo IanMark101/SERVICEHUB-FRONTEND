@@ -18,7 +18,7 @@ export default function VerificationStep({ user, isDark }: OnboardingStepProps) 
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-muted">Important rules</p>
         <h2 id="onboarding-title" className="mt-2 text-2xl font-extrabold tracking-tight text-ink dark:text-white">Verification protects the local marketplace</h2>
         <p id="onboarding-description" className="mt-2 text-sm leading-6 text-ink-muted dark:text-ink-muted">
-          You can browse in Limited Mode, but starting a new booking, request, offer, or listing requires a verified email and approved Cordova residency.
+          You can browse in Limited Mode, but starting a new booking, request, offer, or listing requires a verified email and approved residency.
         </p>
       </div>
 

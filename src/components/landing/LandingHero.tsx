@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { ArrowRight, BatteryFull, MapPin, Menu, Signal, Wifi } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, BatteryFull, BookOpen, MapPin, Menu, Signal, Wifi } from 'lucide-react';
 import ParticlesComponent from '@/components/ui/particles-bg';
 import styles from './LandingPresenterHero.module.css';
 import LandingActionLink from './LandingActionLink';
@@ -17,18 +18,25 @@ export default function LandingHero({ isDark }: LandingHeroProps) {
       <ParticlesComponent isDark={isDark} variant="brand" />
       <div className={styles.layout}>
         <div className={styles.copy}>
-          <span data-hero-entrance="badge" className={`${styles.badge} inline-flex items-center gap-2 rounded-full border border-[#c86544]/35 bg-[#c86544]/[0.04] px-3.5 py-2 text-xs font-medium text-[#0a0a0a] dark:border-[#e4a18a]/40 dark:bg-[#e4a18a]/[0.06] dark:text-white`}><MapPin size={13} className="text-[#c86544] dark:text-[#e4a18a]" aria-hidden="true" />Built for Cordova, Cebu</span>
+          <a data-hero-entrance="badge" href="#workspaces" className={styles.badge}>
+            <span className={styles.badgeLabel}><MapPin size={13} aria-hidden="true" />Marketplace</span>
+            <span>Book services. Find work.</span>
+            <ArrowRight size={14} className={styles.badgeArrow} aria-hidden="true" />
+          </a>
           <h1 data-hero-entrance="heading" id="landing-hero-title" className={`${styles.title} text-[#0a0a0a] dark:text-white`}>
-            ServiceHub Cordova
+            ServiceHub
           </h1>
-          <p data-hero-entrance="heading" className={`${styles.tagline} text-[#0a0a0a] dark:text-white`}>Find local help.<br />Offer your skills.</p>
+          <p data-hero-entrance="heading" className={styles.tagline}>Find Services Near You</p>
           <p data-hero-entrance="description" className={styles.description}>
-            Find and offer services in Cordova, Cebu, with residency verification and reviews from completed work.
+            Book a service, post a request, or offer your skills. Choose your search area and connect with verified members.
           </p>
-          <p data-hero-entrance="description" className={styles.supporting}>Browse services, compare offers, and keep booking progress together.</p>
           <div data-hero-entrance="actions" className={styles.actions}>
             <LandingActionLink size="hero">Get started</LandingActionLink>
             <a href="#workspaces" className={styles.secondary}>Explore the workspaces <ArrowRight size={16} aria-hidden="true" /></a>
+          </div>
+          <div data-hero-entrance="actions" className={styles.helpBar}>
+            <span className={styles.helpPrompt}><BookOpen size={17} aria-hidden="true" />Need a hand getting started?</span>
+            <Link href="/help" className={styles.helpLink}>Open Help Center <ArrowRight size={14} aria-hidden="true" /></Link>
           </div>
         </div>
         <div data-hero-entrance="scene" className={styles.scene}>

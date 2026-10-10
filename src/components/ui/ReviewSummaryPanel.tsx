@@ -24,10 +24,13 @@ function SummaryContent({ subjectId, context, serviceId, isDark = false }: Props
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
-  useApiCacheRefresh(['summaries'], () => {
-    // Withdraw invalidated facts while checking edited or moderated reviews.
-    setData(undefined);
-    setLoading(true);
+  useApiCacheRefresh(['summaries'], change => {
+    // Returning to the browser keeps the confirmed digest visible. Actual
+    // review edits/moderation still withdraw facts known to be invalidated.
+    if (!['focus', 'online', 'reconnect'].includes(change.reason)) {
+      setData(undefined);
+      setLoading(true);
+    }
     setError(false);
     setAttempt(value => value + 1);
   });
@@ -63,10 +66,10 @@ function SummaryContent({ subjectId, context, serviceId, isDark = false }: Props
   return (
     <section aria-label={title} aria-live="polite" aria-busy={loading} className={`rounded-xl border p-4 text-xs leading-relaxed break-words ${tone}`}>
       <h4 className="mb-1.5 flex items-center gap-2 font-bold text-sm"><MessageSquareText className="h-4 w-4 shrink-0" aria-hidden="true" />{title}</h4>
+      {error && <div><p>Could not load reviews. You can continue with your {context === 'provider' ? 'booking' : 'offer'}.</p><button type="button" onClick={() => { setError(false); setLoading(!data); setAttempt(n => n + 1); }} className="mt-2 rounded   font-semibold focus-visible:outline-2 focus-visible:outline-offset-4">Retry review summary</button></div>}
       {loading ? <p className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Loading completed-booking reviews…</p>
-        : error ? <div><p>Could not load reviews. You can continue with your {context === 'provider' ? 'booking' : 'offer'}.</p><button type="button" onClick={() => { setError(false); setLoading(true); setAttempt(n => n + 1); }} className="mt-2 rounded underline underline-offset-4 font-semibold focus-visible:outline-2 focus-visible:outline-offset-4">Retry review summary</button></div>
         : data?.summary ? <><p>{data.summary}</p><p className="mt-2 text-[11px]">{data.source === 'gemini' ? 'AI-assisted selection of original review excerpts.' : 'Calculated from review ratings and tags.'} {context === 'provider' ? 'Reviews from service seekers across this service provider’s services.' : 'Feedback received as a service seeker from service providers.'} Up to 20 latest visible reviews from completed bookings.</p></>
-        : <p>{data?.reason || (context === 'provider' ? 'No reviews as a service provider from completed bookings yet.' : 'No reviews as a service seeker from completed bookings yet.')}</p>}
+        : (data || !error) && <p>{data?.reason || (context === 'provider' ? 'No reviews as a service provider from completed bookings yet.' : 'No reviews as a service seeker from completed bookings yet.')}</p>}
     </section>
   );
 }

@@ -43,7 +43,7 @@ export const signupStep2Schema = z.object({
     .refine((val) => /^(\+639|09|9)\d{9}$/.test(val), {
       message: 'Invalid Philippine mobile format (e.g. 917 123 4567)',
     }),
-  location: z.string().trim().min(1, 'Location is required'),
+  location: z.string().trim().min(1, 'Location is required').max(100, 'Use your general city and barangay, up to 100 characters'),
 });
 
 // Login Form

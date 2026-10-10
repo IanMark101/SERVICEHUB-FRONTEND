@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useState } from 'react';
 import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '../../../hooks/useRefreshableLoad';
 import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { useApp } from '../../../context/AppContext';
 import { apiAccessVerificationProof, apiListPendingVerifications, apiReviewVerification } from '../../../api/admin.api';
@@ -39,7 +40,6 @@ export default function AdminVerifications() {
   const { success: toastSuccess, error: toastError } = useToast();
 
   const [verifications, setVerifications] = useState<VerificationItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -68,25 +68,23 @@ export default function AdminVerifications() {
     }
   };
 
-  const fetchVerifications = useCallback(() => {
-    setLoading(true);
-    apiListPendingVerifications({ page, limit: PAGE_SIZE })
-      .then(res => {
-        if (res.success) {
-          setVerifications(res.data);
-          setTotal(res.pagination?.total || 0);
-          setTotalPages(Math.max(1, res.pagination?.totalPages || 1));
-          setError('');
-        } else {
-          setError("Failed to fetch pending verifications queue.");
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message || "An error occurred.");
-        setLoading(false);
-      });
-  }, [page]);
+  const { loading, beginLoad } = useRefreshableLoad(String(page));
+  const fetchVerifications = useCallback(async () => {
+    const request = beginLoad();
+    let succeeded = false;
+    try {
+      const res = await apiListPendingVerifications({ page, limit: PAGE_SIZE });
+      if (!request.current()) return;
+      if (!res.success) throw new Error('Failed to fetch pending verifications queue.');
+      setVerifications(res.data);
+      setTotal(res.pagination?.total || 0);
+      setTotalPages(Math.max(1, res.pagination?.totalPages || 1));
+      setError('');
+      succeeded = true;
+    } catch (err) {
+      if (request.current()) setError(getApiErrorMessage(err, 'An error occurred.'));
+    } finally { request.finish(succeeded); }
+  }, [page, beginLoad]);
   useApiCacheRefresh(['admin'], () => fetchVerifications(), !submittingReview);
 
   useEffect(() => {

@@ -3,7 +3,7 @@ import { ActivityItemSkeleton, JobRequestSkeleton, ServiceListingSkeleton } from
 import ProfilePageSkeleton from '../profile/ProfilePageSkeleton';
 
 export type WorkspaceSkeletonRole = 'seeker' | 'provider' | 'admin';
-export type WorkspaceSkeletonVariant = 'marketplace' | 'profile' | 'table' | 'overview' | 'announcements' | 'verification' | 'suggestions' | 'manager' | 'activity';
+export type WorkspaceSkeletonVariant = 'marketplace' | 'profile' | 'table' | 'overview' | 'announcements' | 'verification' | 'manager' | 'activity';
 
 interface WorkspacePageSkeletonProps {
   label?: string;
@@ -25,7 +25,7 @@ export default function WorkspacePageSkeleton({ label = 'Loading workspace conte
       <div className="space-y-3"><Skeleton className="h-5 w-40" /><Skeleton className="h-4 w-3/4" /><div className="grid gap-4 xl:grid-cols-[1.35fr_0.85fr]"><div className={panel}><Skeleton className="h-5 w-44" /><Skeleton className="mt-1 h-4 w-2/3" /><Skeleton className="mt-5 h-4 w-48" /><Skeleton className="mt-4 h-44 w-full" /></div><div className={panel}><Skeleton className="h-5 w-40" /><Skeleton className="mt-1 h-4 w-2/3" /><Skeleton variant="circular" className="mx-auto mt-5 size-40" /></div></div><div className={panel}><Skeleton className="h-5 w-44" /><Skeleton className="mt-4 h-36 w-full" /></div></div>
       <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">{[0, 1].map(index => <div key={index} className={panel}><Skeleton className="mb-4 h-5 w-44" /><Skeleton className="h-10 w-full" /><Skeleton className="mt-3 h-10 w-full" /></div>)}</div>
     </div>;
-  } else if (['announcements', 'verification', 'suggestions'].includes(variant)) {
+  } else if (['announcements', 'verification'].includes(variant)) {
     const verification = variant === 'verification';
     content = <div className={variant === 'announcements' ? 'space-y-3' : 'space-y-6'}>{Array.from({ length: 3 }, (_, index) => <article key={index} className={`workspace-surface border ${variant === 'announcements' ? 'rounded-2xl p-5' : 'rounded-[24px] p-6'}`}>
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"><div className="min-w-0 flex-1 space-y-2"><div className="flex gap-2"><Skeleton className="h-5 w-24" /><Skeleton className="h-4 w-28" /></div><Skeleton className="h-5 w-52 max-w-full" /><Skeleton className="h-4 w-full" /></div><Skeleton className="h-8 w-28 shrink-0" /></div>

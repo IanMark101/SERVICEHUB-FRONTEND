@@ -89,7 +89,7 @@ describe('Request Manager activation', () => {
     expect(screen.getByRole('button', { name: 'Close edit request' })).toBeDisabled();
     fireEvent.submit(screen.getByRole('button', { name: /Saving changes/ }).closest('form')!);
     expect(edit).toHaveBeenCalledTimes(1);
-    expect(edit).toHaveBeenCalledWith(request.id, saved.title, saved.budget, saved.description, undefined);
+    expect(edit).toHaveBeenCalledWith(request.id, saved.title, saved.budget, saved.description, undefined, {});
 
     await act(async () => { update.resolve(saved); });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -173,7 +173,7 @@ describe('booked requests belong in Activity', () => {
     expect(screen.getByRole('heading', { name: awaitingAcceptance.title })).toBeInTheDocument();
     await act(async () => { invalidateApiCache(['requests', 'bookings'], 'socket'); });
     await waitFor(() => expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument());
-    expect(screen.getByText('0 task requests posted to local Cordova providers')).toBeInTheDocument();
+    expect(screen.getByText('0 task requests posted to nearby providers')).toBeInTheDocument();
   });
 
   it.each(['ACCEPTED', 'WAITING', 'ONGOING', 'AWAITING_CONFIRMATION', 'DISPUTED', 'COMPLETED'])('hides requests with a %s booking even when the listing status is stale', async status => {
@@ -230,7 +230,7 @@ describe('booked requests belong in Activity', () => {
     expect(screen.getByRole('switch', { name: 'Pause OPEN PIPE REPAIR' })).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: 'Activate PAUSED PIPE REPAIR' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
-    expect(screen.getByText('2 task requests posted to local Cordova providers')).toBeInTheDocument();
+    expect(screen.getByText('2 task requests posted to nearby providers')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Offers/ })).not.toBeInTheDocument();
   });
 });

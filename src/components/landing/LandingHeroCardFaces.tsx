@@ -21,7 +21,7 @@ export function AcceptedBookingFace() {
         <span className={`${styles.editorialOrangeNode} ${styles.editorialOrangeNodeOffer}`}><Wrench size={17} weight="bold" /></span>
       </div>
       <span className={styles.editorialOrangeLabel}>
-        <MapPin size={12} weight="bold" aria-hidden="true" /> Built for Cordova, Cebu
+        <MapPin size={12} weight="bold" aria-hidden="true" /> Find services nearby
       </span>
       <h2 className={styles.editorialOrangeHeadline}>
         <span>CLEAR OFFERS.</span>
@@ -47,7 +47,7 @@ export function MessagesFace() {
         </span>
       </div>
       <div className={styles.editorialTrustFacts}>
-        <p className={styles.editorialTrustFact}><CheckCircle size={15} weight="fill" className={styles.editorialTrustIcon} aria-hidden="true" /> Verified Cordova residents</p>
+        <p className={styles.editorialTrustFact}><CheckCircle size={15} weight="fill" className={styles.editorialTrustIcon} aria-hidden="true" /> Verified members</p>
         <p className={styles.editorialTrustFact}><CheckCircle size={15} weight="fill" className={styles.editorialTrustIcon} aria-hidden="true" /> Reviews after completed services</p>
         <p className={styles.editorialTrustFact}><CheckCircle size={15} weight="fill" className={styles.editorialTrustIcon} aria-hidden="true" /> Trust from real ServiceHub activity</p>
       </div>
@@ -59,7 +59,7 @@ export function MarketplaceConnectionFace() {
   return (
     <div className={styles.connectionFace}>
       <div className={styles.connectionHeader}>
-        <span className={styles.connectionBrand}><MapPin size={13} weight="fill" aria-hidden="true" /> ServiceHub Cordova</span>
+        <span className={styles.connectionBrand}><MapPin size={13} weight="fill" aria-hidden="true" /> ServiceHub</span>
         <span>Example booking</span>
       </div>
       <div className={styles.connectionDiagram}>

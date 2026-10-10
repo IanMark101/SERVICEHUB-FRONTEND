@@ -5,7 +5,7 @@ import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { useApp } from '../../../context/AppContext';
 import { useRouter } from 'next/navigation';
 import { apiGetAdminOverview } from '../../../api/admin.api';
-import { Users, Shield, Briefcase, AlertTriangle, HelpCircle, RefreshCw, Activity, Database, Radio } from 'lucide-react';
+import { Users, Shield, Briefcase, AlertTriangle, Tag, RefreshCw, Activity, Database, Radio } from 'lucide-react';
 import { getSocket } from '../../../lib/socket';
 import AdminOverviewCharts, {
   type AdminActivityPoint,
@@ -18,7 +18,7 @@ interface StatsData {
   activeServices: number;
   pendingVerifications: number;
   openReports: number;
-  categorySuggestions: number;
+  activeCategories: number;
   moderationWorkload: AdminChartMetric[];
   bookingLifecycle: AdminChartMetric[];
   sevenDayActivity: AdminActivityPoint[];
@@ -108,7 +108,7 @@ export default function AdminOverview() {
       value: stats?.pendingVerifications || 0,
       icon: Shield,
       color: (stats?.pendingVerifications ?? 0) > 0
-        ? "bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400"
+        ? "bg-orange-500/10 text-brand-text border-orange-500/20 dark:text-orange-400"
         : neutralIconColor,
       desc: "Pending provider document submissions.",
       href: '/admin/verifications',
@@ -124,11 +124,11 @@ export default function AdminOverview() {
       href: '/admin/reports',
     },
     {
-      title: "Suggested Categories",
-      value: stats?.categorySuggestions || 0,
-      icon: HelpCircle,
+      title: "Categories",
+      value: stats?.activeCategories || 0,
+      icon: Tag,
       color: neutralIconColor,
-      desc: "New category requests from seekers.",
+      desc: "Active categories available for requests and listings.",
       href: '/admin/categories',
     },
   ];

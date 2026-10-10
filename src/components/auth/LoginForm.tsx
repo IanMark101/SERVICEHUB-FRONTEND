@@ -47,7 +47,7 @@ export default function LoginForm({
           Sign In
         </h2>
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-muted dark:text-ink-muted">
-          Enter your credentials to access the Cordova local service network.
+          Sign in to find nearby services, offer your skills, and manage your bookings.
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export default function LoginForm({
             <button
               type="button"
               onClick={() => setMode('forgot')}
-              className="text-xs font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 transition-colors focus:outline-none cursor-pointer"
+              className="text-xs font-bold text-brand-text hover:text-brand-action-hover dark:text-orange-400 dark:hover:text-orange-300 transition-colors focus:outline-none cursor-pointer"
             >
               Forgot password?
             </button>
@@ -101,7 +101,7 @@ export default function LoginForm({
           <button
             type="submit"
             disabled={isLoading || captcha.blocked}
-            className="servicehub-dark-cta flex w-full items-center justify-center gap-2 rounded-xl bg-charcoal py-3 text-sm font-bold text-white transition-all hover:bg-charcoal active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e18463] dark:text-charcoal dark:hover:bg-[#eb9577]"
+            className="servicehub-dark-cta flex w-full items-center justify-center gap-2 rounded-xl bg-charcoal py-3 text-sm font-bold text-white transition-all hover:bg-charcoal active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 dark:bg-brand-on-dark dark:text-charcoal dark:hover:bg-orange-400"
           >
             {isLoading ? (
               <span className="relative z-10">Signing in...</span>
@@ -142,7 +142,7 @@ export default function LoginForm({
         <button
           type="button"
           onClick={toggleMode}
-          className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 ml-1.5 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-brand-text hover:text-brand-action-hover dark:text-orange-400 dark:hover:text-orange-300 ml-1.5 cursor-pointer focus:outline-none transition-colors"
         >
           Register here
         </button>

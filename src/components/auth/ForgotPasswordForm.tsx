@@ -31,7 +31,7 @@ export default function ForgotPasswordForm({
     <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
       {/* Header Info */}
       <div className="text-left">
-        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#c86544]/30 bg-[#c86544]/[0.08] px-3 py-0.5 text-[11px] font-semibold text-[#aa5032] dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
+        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/[0.08] px-3 py-0.5 text-[11px] font-semibold text-brand-action-hover dark:border-orange-500/30 dark:bg-orange-950/40 dark:text-orange-300">
           <span>Account Recovery</span>
         </div>
         <h2 className="font-sans text-2xl font-semibold text-ink dark:text-white tracking-tight leading-tight">
@@ -57,7 +57,7 @@ export default function ForgotPasswordForm({
           <button
             type="submit"
             disabled={isLoading || captcha.blocked}
-            className="w-full py-2.5 bg-[#c86544] hover:bg-[#aa5032] active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full py-2.5 bg-brand-action hover:bg-brand-action-hover active:scale-[0.98] text-white rounded-xl font-bold text-sm shadow-md shadow-orange-950/15 transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? 'Sending…' : 'Send Reset Link'}
           </button>
@@ -69,7 +69,7 @@ export default function ForgotPasswordForm({
         <button
           type="button"
           onClick={() => setMode('login')}
-          className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-brand-text hover:text-brand-action-hover dark:text-orange-400 dark:hover:text-orange-300 cursor-pointer focus:outline-none transition-colors"
         >
           Back to Log In
         </button>

@@ -1,37 +1,43 @@
+import MarketplacePresentation from '../marketplace/MarketplacePresentation';
+import { orderServiceCategories } from '../../lib/category-catalog';
+import useNearbyMarketplace from '../../hooks/useNearbyMarketplace';
+import MarketplaceLocationControl from '../location/MarketplaceLocationControl';
+import MarketplaceEmptyState from '../location/MarketplaceEmptyState';
+import MarketplaceResultsSummary from '../location/MarketplaceResultsSummary';
+import ServiceDetailsModal from './seek-services/ServiceDetailsModal';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
 import { MagnifyingGlass as Search } from '@phosphor-icons/react';
 import RequestServiceModal from './RequestServiceModal';
-import { usePagination } from '../../hooks/usePagination';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { joinServiceRoom } from '../../lib/socket';
 import { apiJoinWaitlist } from '../../api/bookings.api';
 import { useToast } from '../ui/Toast';
-import SuggestCategoryModal from './SuggestCategoryModal';
 import { apiGetProviderSummary } from '../../api/ai.api';
 import ServiceMarketplaceGrid from './seek-services/ServiceMarketplaceGrid';
 import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 
 export default function SeekServices() {
   const router = useRouter();
-  const { services, servicesStatus, refreshServices, users, isDark, user, dbCategories, jobEngagements } = useApp();
+  const { services, users, isDark, user, dbCategories, jobEngagements } = useApp();
   const { canTransact } = useTransactionPermission();
   const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [locationOpen, setLocationOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [linkedServiceId, setLinkedServiceId] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
   const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
-  const [isSuggestModalOpen, setIsSuggestModalOpen] = useState<boolean>(false);
 
   // Quick Filters state
   const [activeFilter, setActiveFilter] = useState<'all' | 'available' | 'rated' | 'low-queue'>('all');
-  const isLoading = servicesStatus === 'loading' && services.length === 0;
+  const nearby = useNearbyMarketplace('seeker', user?.id, searchQuery, selectedCategory, activeFilter);
+  const isLoading = nearby.loading;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -55,9 +61,16 @@ export default function SeekServices() {
     setActiveFilter(filter);
   };
 
+  const clearFilters = () => {
+    setLinkedServiceId(null);
+    setSearchQuery('');
+    setSelectedCategory('All Categories');
+    setActiveFilter('all');
+  };
+
   const categories = [
     'All Categories',
-    ...dbCategories.map(c => c.name)
+    ...orderServiceCategories(dbCategories).map(c => c.name)
   ];
   const quickFilters = [
     { id: 'all', label: 'All', title: 'Show all active listings' },
@@ -138,56 +151,11 @@ export default function SeekServices() {
     }
   };
 
-  // Filter listings based on category tabs, search strings, and quick filter options
-  const filteredServices = services.filter(service => {
-    // 0. Marketplace visibility guard: hide paused or unpublished listings
-    if (service.isPaused) return false;
-    if (service.status && service.status !== 'ACTIVE') return false;
-
-    // 1. Search Query filter
-    const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = linkedServiceId
-      ? service.id === linkedServiceId
-      : service.title.toLowerCase().includes(query) ||
-      service.description.toLowerCase().includes(query) ||
-      service.providerName.toLowerCase().includes(query) ||
-      service.category.toLowerCase().includes(query) ||
-      // Special aliases for common abbreviations or alternate terms
-      (query === 'aircon' && (service.title.toLowerCase().includes('air conditioner') || service.category.toLowerCase().includes('aircon') || service.category.toLowerCase().includes('ac'))) ||
-      (query === 'ac' && (service.title.toLowerCase().includes('air conditioner') || service.title.toLowerCase().includes('aircon'))) ||
-      (query === 'electrical' && service.category.toLowerCase().includes('electrical')) ||
-      (query === 'electrician' && service.category.toLowerCase().includes('electrical'));
-
-    // 2. Category Tab filter — pills use live DB category names
-    const matchesCategory = selectedCategory === 'All Categories' || service.category.toLowerCase() === selectedCategory.toLowerCase();
-
-    // 3. Quick Filter conditions
-    let matchesQuickFilter = true;
-    if (activeFilter === 'available') {
-      // Show services that are not paused AND not at queue capacity
-      const queueLimit = service.queueLimit ?? 5;
-      matchesQuickFilter = !service.isPaused && (service.providerWaitingCount ?? service.queueSize) < queueLimit;
-    } else if (activeFilter === 'rated') {
-      // Top Rated: trustScore >= 80 → rating >= 4.0 (trustScore / 20)
-      matchesQuickFilter = service.rating >= 4.0;
-    } else if (activeFilter === 'low-queue') {
-      // Low queue: 2 or fewer people in line
-      matchesQuickFilter = (service.providerWaitingCount ?? service.queueSize) <= 2;
-    }
-    return matchesSearch && matchesCategory && matchesQuickFilter;
-  });
-
-  // Pagination
-  const {
-    currentPage,
-    totalPages,
-    paginatedItems: paginatedServices,
-    goToPage,
-    nextPage,
-    prevPage,
-    startIndex,
-    endIndex
-  } = usePagination(filteredServices, 6);
+  // Explicit links open details; they never replace the filtered nearby feed.
+  const linkedService = linkedServiceId ? services.find(service => service.id === linkedServiceId && service.status === 'ACTIVE' && !service.isPaused) : undefined;
+  const filteredServices = nearby.items as ServiceListing[];
+  const paginatedServices = filteredServices;
+  const { currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex } = nearby;
 
   // Helper to fetch matching provider user details (like verification flags)
   const getProviderDetails = (providerId: string) => {
@@ -208,27 +176,20 @@ export default function SeekServices() {
 
       <LimitedModeDashboardCard role="seeker" />
 
-      {/* Search Banner: Warm, integrated discovery hero */}
       <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:bg-none dark:bg-charcoal-surface dark:shadow-none">
-        {/* Subtle warm accent hairline */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#c86544]/50 to-transparent" />
-
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
         <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
-          <h2 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">
-            Find local experts for any task.
-          </h2>
-          <p className="mx-auto max-w-md text-xs leading-relaxed text-ink-muted dark:text-ink-muted sm:text-sm">
-            Search our trusted community marketplace for specialized services.
-          </p>
-
-          {/* Inputs Row inside Banner */}
+          <h2 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">Find local experts for any task.</h2>
+          <p className="mx-auto max-w-md text-xs leading-relaxed text-ink-muted dark:text-ink-muted sm:text-sm">Browse provider services nearby, then narrow by service, category or availability.</p>
           <form role="search" onSubmit={(event) => {
             event.preventDefault();
+            nearby.submitSearch?.();
+            if (!nearby.location) { setLocationOpen(true); return; }
             document.getElementById('service-results')?.scrollIntoView({
               behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
               block: 'start',
             });
-          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-[#c86544]/20 ${
+          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-brand/20 ${
             isDark ? 'bg-charcoal-inset border-neutral-800' : 'bg-white border-black/10'
           }`}>
             <span className={`pl-3 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
@@ -238,6 +199,7 @@ export default function SeekServices() {
             <input
               id="service-search-query"
               type="text"
+              maxLength={100}
               placeholder="What service are you looking for?"
               value={searchQuery}
               onChange={(e) => {
@@ -256,57 +218,48 @@ export default function SeekServices() {
               Search
             </button>
           </form>
+          <MarketplaceLocationControl workspace="seeker" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation} />
         </div>
       </div>
 
-      {/* Quick Filters Row */}
-      <div role="group" aria-label="Quick service filters" className={`flex flex-wrap items-center gap-2 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-black/10'}`}>
-        <span className={`mr-2 text-xs font-semibold ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>Quick filters</span>
-        {quickFilters.map((filter) => (
-          <button
-            key={filter.id}
-            type="button"
-            aria-pressed={activeFilter === filter.id}
-            onClick={() => handleFilterChange(filter.id)}
-            title={filter.title}
-            className={`min-h-10 rounded-full border px-3.5 py-1 text-xs font-semibold transition-colors ${activeFilter === filter.id
-              ? isDark ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]' : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
-              : isDark ? 'border-white/10 bg-charcoal-surface text-ink-muted hover:bg-charcoal hover:text-white' : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
-            }`}
-          >{filter.label}</button>
-        ))}
-      </div>
-
-      {/* Horizontal Category pills row */}
-      <div role="group" aria-label="Service categories" className="mt-2 flex flex-wrap gap-2">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            aria-pressed={selectedCategory === cat}
-            onClick={() => handleCategoryChange(cat)}
-            className={`min-h-10 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${selectedCategory === cat
-                ? isDark
-                  ? 'border-[#c86544]/40 bg-[#c86544]/20 text-[#f3b69f]'
-                  : 'border-[#e5c0b2] bg-[#f7ede8] text-[#92452b]'
-                : isDark
-                  ? 'border-white/10 bg-charcoal-surface text-ink-muted hover:bg-charcoal hover:text-white'
-                  : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:bg-white hover:text-ink'
-              }`}
-          >
-            {cat}
+      <MarketplacePresentation role="seeker">
+      <div role="group" aria-label="Quick service filters" className="marketplace-filter-row">
+        <span className="marketplace-filter-label">Quick filters</span>
+        {quickFilters.map(filter => (
+          <button key={filter.id} type="button" aria-pressed={activeFilter === filter.id}
+            onClick={() => handleFilterChange(filter.id)} title={filter.title} className="marketplace-chip">
+            {filter.label}
           </button>
         ))}
       </div>
 
+      <div role="group" aria-label="Service categories" className="marketplace-category-row">
+        {categories.map(cat => (
+          <button key={cat} type="button" aria-pressed={selectedCategory === cat}
+            onClick={() => handleCategoryChange(cat)} className="marketplace-chip">{cat}</button>
+        ))}
+      </div>
+
       <div id="service-results" className="marketplace-results scroll-mt-24">
-      <ServiceMarketplaceGrid
+      <div className="marketplace-result-context">
+      <MarketplaceResultsSummary workspace="seeker" location={nearby.location} search={searchQuery} category={selectedCategory} filterLabel={activeFilter !== 'all' ? quickFilters.find(filter => filter.id === activeFilter)?.label : undefined} total={nearby.totalItems} loading={nearby.loading}/>
+      {nearby.location && !nearby.loading && !nearby.error && <span className="marketplace-count">{nearby.totalItems} Service{nearby.totalItems === 1 ? '' : 's'} Available</span>}
+      </div>
+      {nearby.refreshError && <div role="alert" className="workspace-surface mb-4 rounded-xl border p-4 text-sm">
+        Could not refresh services. Showing the last loaded results.{' '}
+        <button type="button" className="font-semibold" onClick={nearby.refresh}>Try again</button>
+      </div>}
+      {!nearby.location && !nearby.initializing ? <MarketplaceEmptyState workspace="seeker" location={null} search={searchQuery} category={selectedCategory} hasFilters={!!searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'} onChangeLocation={() => setLocationOpen(true)} onClearFilters={clearFilters} onPostRequest={() => router.push('/seeker/post-request')}/> : <ServiceMarketplaceGrid
         model={{
           router,
           isDark,
           isLoading,
-          servicesError: servicesStatus === 'error',
-          refreshServices,
+          servicesError: !!nearby.error,
+          refreshServices: nearby.refresh,
+          totalItems: nearby.totalItems,
+          searchLocation: nearby.location,
+          onChangeLocation: () => setLocationOpen(true),
+          onExpandRadius: radiusKm => { if (nearby.location) nearby.applyLocation({ ...nearby.location, radiusKm }); },
           activeFilter,
           setActiveFilter,
           searchQuery,
@@ -330,11 +283,13 @@ export default function SeekServices() {
           handleBookListing,
           handleJoinWaitlist,
           joiningWaitlistId,
-          setIsSuggestModalOpen,
           prefetchProviderSummary
         }}
-      />
+      />}
       </div>
+      </MarketplacePresentation>
+
+      <ServiceDetailsModal listing={linkedService || null} isOpen={!!linkedService} onClose={() => setLinkedServiceId(null)} onBookListing={(listing, method) => { setLinkedServiceId(null); handleBookListing(listing, method); }} onJoinWaitlist={handleJoinWaitlist} joiningWaitlistId={joiningWaitlistId} isOwned={linkedService?.providerId === user?.id} activeEngagement={jobEngagements.find(engagement => engagement.serviceId === linkedService?.id && engagement.seekerId === user?.id && ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(engagement.status))} isDark={isDark} router={router} prefetchProviderSummary={prefetchProviderSummary}/>
 
       {/* Direct Booking Modal trigger */}
       {selectedListing && (
@@ -349,13 +304,6 @@ export default function SeekServices() {
       <TransactionBlockedModal
         isOpen={blockedModalOpen}
         onClose={() => setBlockedModalOpen(false)}
-      />
-
-      {/* Suggest Category Modal */}
-      <SuggestCategoryModal
-        isOpen={isSuggestModalOpen}
-        onClose={() => setIsSuggestModalOpen(false)}
-        initialQuery={searchQuery}
       />
 
     </div>

@@ -165,6 +165,9 @@ export default function ServiceManager({
     const needsExactPrice = s.priceType === 'STARTS_AT' || s.priceType === 'CUSTOM';
     setEditingService({
       serviceId: s.id,
+      serviceLocation: s.serviceLocation,
+      coverageRadiusKm: s.coverageRadiusKm,
+      transportationFee: s.transportationFee == null ? '' : String(s.transportationFee),
       title: s.title,
       price: needsExactPrice ? 0 : s.price,
       priceType: needsExactPrice || s.priceType === 'PER_SESSION' ? 'FIXED' : s.priceType || 'FIXED',
@@ -185,6 +188,9 @@ export default function ServiceManager({
       editingService.price,
       editingService.description,
       {
+        ...(editingService.serviceLocation && { serviceLocation: editingService.serviceLocation }),
+        coverageRadiusKm: editingService.coverageRadiusKm ?? null,
+        transportationFee: editingService.transportationFee ? Number(editingService.transportationFee) : null,
         priceType: editingService.priceType,
         serviceType: editingService.serviceType,
         estimatedDurationMins: Math.max(15, Math.min(480, Number(editingService.estimatedDurationMins) || 60)),
@@ -354,6 +360,8 @@ export default function ServiceManager({
                     </div>
                   )}
 
+                  {!service.serviceLocation && <p className="text-xs text-ink-muted">Add your service base in Edit to appear in nearby discovery.</p>}
+                  {service.locationLabel && <p className="text-xs text-ink-muted">{service.locationLabel}{service.coverageRadiusKm != null && <> · Covers {service.coverageRadiusKm} km</>}</p>}
                   {/* Tier 2: Title & Description */}
                   <div className="space-y-1.5">
                     <h3 className={`uppercase break-words [overflow-wrap:anywhere] font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-white' : 'text-ink'}`}>

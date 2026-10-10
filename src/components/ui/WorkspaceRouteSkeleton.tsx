@@ -9,7 +9,7 @@ export default function WorkspaceRouteSkeleton({ role }: { role: WorkspaceSkelet
   const segment = pathname.split('/').filter(Boolean).at(-1);
   let variant: WorkspaceSkeletonVariant | undefined;
   if (role === 'admin') {
-    variant = ({ admin: 'overview', overview: 'overview', categories: 'suggestions', announcements: 'announcements', verifications: 'verification' } as const)[segment as 'admin' | 'overview' | 'categories' | 'announcements' | 'verifications'];
+    variant = ({ admin: 'overview', overview: 'overview', categories: 'table', announcements: 'announcements', verifications: 'verification' } as const)[segment as 'admin' | 'overview' | 'categories' | 'announcements' | 'verifications'];
   } else if (['seeker', 'provider', 'seek-services', 'browse-services'].includes(segment || '')) variant = 'marketplace';
   else if (segment === 'activity') variant = 'activity';
   else if (segment === 'service-manager' || segment === 'request-manager') variant = 'manager';

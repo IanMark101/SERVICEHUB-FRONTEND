@@ -2,6 +2,7 @@
 
 import React, { FormEvent, useCallback, useEffect, useState } from 'react';
 import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '../../../hooks/useRefreshableLoad';
 import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { Archive, CheckCircle2, Loader2, Megaphone, RefreshCw, Send } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
@@ -31,29 +32,33 @@ export default function AdminAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<AdminAnnouncement[]>([]);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [page, setPage] = useState(1);
+  const { loading, beginLoad } = useRefreshableLoad(String(page));
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
   const loadAnnouncements = useCallback(async () => {
-    setLoading(true);
+    const request = beginLoad();
+    let succeeded = false;
     try {
       const response = await apiListAnnouncements({ page, limit: PAGE_SIZE });
-      setAnnouncements(response.success && Array.isArray(response.data) ? response.data : []);
+      if (!request.current()) return;
+      if (!response.success || !Array.isArray(response.data)) throw new Error('Unable to load announcements.');
+      setAnnouncements(response.data);
       setTotal(response.pagination?.total || 0);
       setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
       setError('');
+      succeeded = true;
     } catch (err: unknown) {
-      setError(getApiErrorMessage(err, 'Unable to load announcements.'));
+      if (request.current()) setError(getApiErrorMessage(err, 'Unable to load announcements.'));
     } finally {
-      setLoading(false);
+      request.finish(succeeded);
     }
-  }, [page]);
+  }, [page, beginLoad]);
 
   useApiCacheRefresh(['admin'], () => loadAnnouncements());
   useEffect(() => {
@@ -119,7 +124,7 @@ export default function AdminAnnouncementsPage() {
           <div>
             <h3 className="text-base font-extrabold">Publish an official announcement</h3>
             <p className={`text-xs mt-1 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-              Keep notices concise and relevant to ServiceHub Cordova operations. Published items appear immediately in both user workspaces.
+              Keep notices concise and relevant to ServiceHub operations. Published items appear immediately in both user workspaces.
             </p>
           </div>
         </div>

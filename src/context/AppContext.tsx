@@ -1,18 +1,9 @@
-"use client";
+'use client';
+
+import type { LocationPoint } from '../lib/location';
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  User,
-  ServiceListing,
-  JobRequest,
-  Bid,
-  JobEngagement,
-  Transaction,
-  Notification,
-  Message,
-  CategorySuggestion,
-  UserReport
-} from '../types';
+import { User, ServiceListing, JobRequest, Bid, JobEngagement, Transaction, Notification, Message, UserReport } from '../types';
 import { UserSession } from '../components/auth/LoginContainer';
 import { apiGetMe, apiRecoverSession } from '../api/auth.api';
 import { clearAccessToken, getSessionGeneration } from '../lib/api/axios';
@@ -47,7 +38,6 @@ interface AppContextType {
   transactions: Transaction[];
   notifications: Notification[];
   messages: Message[];
-  categorySuggestions: CategorySuggestion[];
   userReports: UserReport[];
   // Live admin-controlled category list. Always sourced from the database.
   // Populated after session recovery and refreshable via refreshCategories().
@@ -59,16 +49,15 @@ interface AppContextType {
   updateUserProfile: (userId: string, data: Partial<User>) => void;
 
   // Seeker actions
-  postJobRequest: (seekerId: string, title: string, category: string, urgency: import('../lib/requestUrgency').RequestUrgency, budget: number, description: string, paymentMethods?: { cash: boolean; gcash: boolean }) => Promise<boolean | { success: false; error: string; field?: 'title' | 'description' | 'category' }>;
-  editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
+  postJobRequest: (seekerId: string, title: string, category: string, urgency: import('../lib/requestUrgency').RequestUrgency, budget: number, description: string, paymentMethods?: { cash: boolean; gcash: boolean }, locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }) => Promise<boolean | { success: false; error: string; field?: 'title' | 'description' | 'category' }>;
+  editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency, locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
   deleteJobRequest: (requestId: string) => Promise<boolean>;
   toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
   acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
   declineBid: (bidId: string) => void;
   confirmJobCompletion: (jobId: string) => Promise<void>;
   disputeJob: (jobId: string, reason: string) => Promise<void>;
-  suggestCategory: (seekerName: string, name: string, description: string) => void;
-  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash', quantity?: number) => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
+  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash', quantity?: number, jobLocation?: LocationPoint) => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
 
   // Provider actions
   createServiceListing: (
@@ -79,6 +68,9 @@ interface AppContextType {
     description: string,
     paymentMethods: { cash: boolean; gcash: boolean },
     options?: {
+      serviceLocation?: LocationPoint;
+      coverageRadiusKm?: number | null;
+      transportationFee?: number | null;
       serviceType?: ServiceListing['serviceType'];
       priceType?: ServiceListing['priceType'];
       estimatedDurationMins?: number;
@@ -91,6 +83,9 @@ interface AppContextType {
     price: number,
     description: string,
     options?: {
+      serviceLocation?: LocationPoint;
+      coverageRadiusKm?: number | null;
+      transportationFee?: number | null;
       priceType?: ServiceListing['priceType'];
       serviceType?: ServiceListing['serviceType'];
       estimatedDurationMins?: number;
@@ -202,8 +197,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     messages,
     setMessages,
     unreadMessagesCount,
-    categorySuggestions,
-    setCategorySuggestions,
     userReports,
     setUserReports,
     dbCategories,
@@ -446,7 +439,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTransactions,
     setNotifications,
     setUserReports,
-    setCategorySuggestions,
     syncRequests,
     syncEngagements,
     syncBids,
@@ -504,7 +496,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       transactions,
       notifications,
       messages,
-      categorySuggestions,
       userReports,
       dbCategories,
       refreshCategories,
@@ -536,7 +527,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ? <main className="flex min-h-screen items-center justify-center bg-[#f7f6f3] p-5 dark:bg-charcoal-canvas">
             <div className="w-full max-w-lg" role="alert">
               <EmptyState title={authError === SERVICE_UNAVAILABLE_MESSAGE ? 'Service temporarily unavailable' : 'Connection interrupted'} description={authError} actionLabel="Try again" onAction={retrySession} />
-              <button type="button" onClick={() => router.push('/')} className="mt-4 block w-full text-center text-sm underline">Back to home</button>
+              <button type="button" onClick={() => router.push('/')} className="mt-4 block w-full text-center text-sm ">Back to home</button>
             </div>
           </main>
         : authLoading || user?.moderationStatus !== 'BANNED' || pathname === '/account-banned'

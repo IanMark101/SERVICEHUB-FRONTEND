@@ -210,10 +210,10 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
         <>
           {statusError && <div role="alert" className="mb-4 space-y-2 text-sm text-[color:var(--workspace-muted)]">
             <p>Could not refresh verification details. {statusError}</p>
-            <button type="button" onClick={() => void loadStatus()} className="min-h-11 font-semibold underline underline-offset-4">Retry verification details</button>
+            <button type="button" onClick={() => void loadStatus()} className="min-h-11 font-semibold  ">Retry verification details</button>
           </div>}
           <VerificationDecision verification={verification} />
-          <Link href="/help/verification/why-verification-is-required" className="mb-5 inline-flex min-h-11 items-center text-sm font-semibold text-[color:var(--workspace-focus)] underline underline-offset-4">Why residency verification is required</Link>
+          <Link href="/help/verification/why-verification-is-required" className="mb-5 inline-flex min-h-11 items-center text-sm font-semibold text-[color:var(--workspace-focus)]  ">Why residency verification is required</Link>
           {status !== 'APPROVED' && status !== 'PENDING_REVIEW' && <>
           <div style={{ marginBottom: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', background: isDark ? 'var(--color-charcoal)' : '#fefce8', padding: '12px', borderRadius: '12px', border: `1px solid ${isDark ? '#3a3730' : '#fef08a'}` }}>
@@ -340,7 +340,7 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
 
           {privacyError ? <div role="alert" className="mb-3 space-y-2 text-sm text-[color:var(--workspace-muted)]">
             <p>{privacyError}</p>
-            <button type="button" onClick={() => void loadPrivacyNotice()} className="min-h-11 font-semibold underline underline-offset-4">Retry privacy notice</button>
+            <button type="button" onClick={() => void loadPrivacyNotice()} className="min-h-11 font-semibold  ">Retry privacy notice</button>
           </div> : <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '14px', marginBottom: '12px', borderRadius: '12px', border: `1px solid ${border}`, background: isDark ? 'var(--color-charcoal)' : '#f8fafc', cursor: privacyNotice && !privacyLoading ? 'pointer' : 'not-allowed' }}>
             <input
               type="checkbox"

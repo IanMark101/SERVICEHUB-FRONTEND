@@ -1,98 +1,50 @@
 'use client';
 
-import React from 'react';
-import { Check, Minus } from 'lucide-react';
+import { Check, X } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import ScrollReveal from './ScrollReveal';
+import styles from './LandingComparison.module.css';
 
-interface LandingComparisonProps {
-  isDark: boolean;
-}
-
-const rows = [
-  {
-    capability: 'Content reports',
-    context: 'Content',
-    serviceHub: true,
-    detail: 'Flag a service listing or request that may break the rules.',
-  },
-  {
-    capability: 'Booking disputes',
-    context: 'Booking',
-    serviceHub: true,
-    detail: 'Raise a problem with work or payment through the booking so the relevant records can be reviewed.',
-  },
-  {
-    capability: 'Account appeals',
-    context: 'Account',
-    serviceHub: true,
-    detail: 'Ask an administrator to reconsider an account ban through the appeal process.',
-  },
-  {
-    capability: 'Help Center',
-    context: 'Guides',
-    serviceHub: false,
-    detail: 'Find instructions for everyday tasks before you need to ask for help.',
-  },
+const features = [
+  { title: 'Nearby service discovery', detail: 'Listings and requests filtered by category and chosen radius.' },
+  { title: 'Structured requests and offers', detail: 'Service requirements, proposed prices and terms in one workflow.' },
+  { title: 'Booking progress and history', detail: 'Agreements, service status and progress tied to a booking.' },
+  { title: 'Reviews from completed services', detail: 'Feedback linked to confirmed work between the participants.' },
+  { title: 'Booking-linked dispute records', detail: 'Service concerns and relevant booking records available for review.' },
 ];
 
-export default function LandingComparison({ isDark }: LandingComparisonProps) {
+export default function LandingComparison({ isDark }: { isDark: boolean }) {
+  const reduce = useReducedMotion();
   return (
-    <section
-      id="comparison"
-      data-theme={isDark ? 'dark' : 'light'}
-      className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 py-20 dark:border-white/10 sm:px-8 lg:px-10 lg:py-28"
-    >
-      <div className="mx-auto max-w-5xl">
-        <ScrollReveal className="text-center">
-          <h2 className="font-sans text-3xl font-extrabold tracking-tight text-[#0a0a0a] dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
-            Support when something needs attention.
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-neutral-600 dark:text-zinc-400">
-            Choose the route that matches the issue. Content reports, booking disputes, and account appeals serve different purposes.
-          </p>
+    <section id="comparison" aria-labelledby="comparison-heading" data-theme={isDark ? 'dark' : 'light'} className={styles.section}>
+      <div className={styles.container} data-landing-anchor>
+        <ScrollReveal className={styles.headingGroup}>
+          <h2 id="comparison-heading">A clearer way to find and offer services.</h2>
+          <p>See what ServiceHub brings together when services would otherwise be arranged across Facebook posts, groups and private messages.</p>
         </ScrollReveal>
-
-        <ScrollReveal className="mt-12 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs dark:border-zinc-800 dark:bg-charcoal">
-          {/* Table Header */}
-          <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_5rem] sm:grid-cols-[1fr_120px_140px] items-center border-b border-slate-200 bg-slate-100/70 px-6 py-4.5 text-xs font-bold text-neutral-700 dark:border-zinc-800 dark:bg-charcoal/60 dark:text-zinc-300 sm:px-8">
-            <span>Support route</span>
-            <span className="text-center">For</span>
-            <div className="text-center">
-              <span className="inline-block rounded-md bg-[#c86544]/10 px-2.5 py-1 text-[11px] font-bold text-[#c86544] dark:bg-orange-950/50 dark:text-orange-300">
-                Admin review
-              </span>
-            </div>
-          </div>
-
-          {/* Table Rows */}
-          <div className="divide-y divide-slate-100 dark:divide-zinc-800/80">
-            {rows.map((row) => (
-              <div
-                key={row.capability}
-                className="grid grid-cols-[minmax(0,1fr)_3.5rem_5rem] sm:grid-cols-[1fr_120px_140px] items-center px-6 py-5 transition-colors hover:bg-slate-50/50 dark:hover:bg-charcoal/30 sm:px-8"
-              >
-                <div>
-                  <p className="text-sm font-bold text-[#0a0a0a] dark:text-white">
-                    {row.capability}
-                  </p>
-                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-zinc-400">
-                    {row.detail}
-                  </p>
-                </div>
-                <div className="grid place-items-center text-xs font-semibold text-neutral-600 dark:text-zinc-400">
-                  {row.context}
-                </div>
-                <div className="grid place-items-center text-emerald-600 dark:text-emerald-400">
-                  {row.serviceHub ? (
-                    <div className="grid size-7 place-items-center rounded-full bg-emerald-50 dark:bg-emerald-950/50">
-                      <Check size={16} className="stroke-[2.5]" aria-label="Admin review available" />
-                    </div>
-                  ) : <Minus size={18} className="text-neutral-400" aria-label="Self-service guide" />}
-                </div>
-              </div>
-            ))}
-          </div>
+        <ScrollReveal className={styles.frame}>
+          <table className={styles.table}>
+            <caption className="sr-only">Built-in service workflows in ServiceHub compared with arranging services through ordinary Facebook posts and messages</caption>
+            <colgroup><col /><col className={styles.facebookColumn} /><col className={styles.serviceHubColumn} /></colgroup>
+            <thead>
+              <tr>
+                <th scope="col">Service features</th>
+                <th scope="col" className={styles.platform}>Facebook<span>Posts and messages</span></th>
+                <th scope="col" className={[styles.platform, styles.serviceHub].join(' ')}>ServiceHub<span>Centralized workflow</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {features.map((feature, index) => (
+                <motion.tr key={feature.title} initial={false} whileInView={reduce ? undefined : { opacity: [0.8, 1] }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
+                  <th scope="row"><span className={styles.featureTitle}>{feature.title}</span><span className={styles.featureDetail}>{feature.detail}</span></th>
+                  <td><span className={styles.manual}><X size={18} aria-hidden="true" /><span className="sr-only">Arranged manually through posts and messages</span></span></td>
+                  <td className={styles.serviceHub}><span className={styles.included}><Check size={18} strokeWidth={2.5} aria-hidden="true" /><span className="sr-only">Built into ServiceHub</span></span></td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
         </ScrollReveal>
+        <p className={styles.scope}>Checks show built-in ServiceHub workflows. Crosses refer to ordinary Facebook posts and messages, where members arrange these steps themselves.</p>
       </div>
     </section>
   );

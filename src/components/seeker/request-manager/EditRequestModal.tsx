@@ -1,3 +1,6 @@
+import type { LocationPoint } from '../../../lib/location';
+import LocationField from '../../location/LocationField';
+import TransportationField from '../../location/TransportationField';
 import FormSelect from '../../ui/FormSelect';
 import type { FormEvent } from 'react';
 import { X, CircleNotch } from '@phosphor-icons/react';
@@ -6,6 +9,11 @@ import useDialogFocus from '../../../hooks/useDialogFocus';
 import { formatRequestUrgency, REQUEST_URGENCY_OPTIONS, type RequestUrgency } from '../../../lib/requestUrgency';
 
 export interface EditRequestState {
+  jobLocation?: LocationPoint;
+  originalJobLocation?: LocationPoint;
+  transportationFee?: string;
+  originalTransportationFee?: number | null;
+  locationLocked?: boolean;
   requestId: string;
   title: string;
   budget: number;
@@ -46,6 +54,10 @@ export default function EditRequestModal({ value, isDark, isSaving = false, onCh
             </FormSelect>
             <p className="mt-1.5 text-xs text-ink-muted">Choose a new urgency or keep the saved value.</p>
           </div>
+          <LocationField label="Where will the job happen?" value={value.jobLocation ?? null} privateAddress disabled={isSaving || value.locationLocked} onChange={jobLocation => onChange({ ...value, jobLocation })} />
+          <TransportationField budget isDark={isDark} disabled={isSaving || value.locationLocked} value={value.transportationFee ?? ''} onChange={transportationFee => onChange({ ...value, transportationFee })} />
+          {value.locationLocked && <p className="text-xs text-ink-muted">Location and travel budget stay fixed while offers are awaiting a decision. Close those offers before changing the job location.</p>}
+          {!value.jobLocation && <p className="text-xs text-ink-muted">Add the actual job location to include this older request in nearby discovery.</p>}
           <div><label htmlFor="edit-request-description" className={labelClass}>Description</label><textarea id="edit-request-description" disabled={isSaving} rows={4} required value={value.description} onChange={(event) => onChange({ ...value, description: event.target.value })} className={`${fieldClass} font-medium resize-none`} /></div>
           <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
             <button type="button" disabled={isSaving} onClick={onClose} className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all disabled:cursor-wait disabled:opacity-50 ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover text-ink-muted' : 'border-slate-200 hover:bg-slate-50 text-ink-muted'}`}>Cancel</button>

@@ -112,6 +112,7 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
     setRetryError('');
     try {
       const result = await apiInitiatePayment({
+        retryPaymentIntentId: paymentIntentId,
         serviceId: checkout.serviceId, offerId: checkout.offerId,
         ...(checkout.quantity !== undefined ? { quantity: checkout.quantity } : {}), paymentMethodType: 'gcash',
       });

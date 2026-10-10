@@ -122,7 +122,7 @@ export default function ProfileHeader({
             </div>
             <span
               className={`absolute bottom-1 right-1 grid size-8 sm:size-9 place-items-center rounded-full border-[3px] border-[color:var(--workspace-surface)] text-white shadow-md ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
-              title={verStatus === 'APPROVED' ? 'Verified Cordova resident' : 'Residency not verified'}
+              title={verStatus === 'APPROVED' ? 'Identity and residency verified' : 'Residency not verified'}
             >
               {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
             </span>
@@ -144,7 +144,7 @@ export default function ProfileHeader({
           <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm ${labelText}`}>
             <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
               <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
-              {location ? `${location}, Cordova` : 'Cordova, Cebu'}
+              {location || 'Location not provided'}
             </span>
             <span className="text-[color:var(--workspace-border-strong)]" aria-hidden="true">•</span>
             <span className="font-semibold text-[color:var(--workspace-ink)]">@{usernameHandle.replace(/^@/, '')}</span>
@@ -247,7 +247,7 @@ export default function ProfileHeader({
           </div>
           <span
             className={`absolute bottom-1 right-1 grid size-8 sm:size-9 place-items-center rounded-full border-[3px] border-[color:var(--workspace-surface)] text-white shadow-md ${verStatus === 'APPROVED' ? 'bg-emerald-600' : 'bg-amber-500'}`}
-            title={verStatus === 'APPROVED' ? 'Verified Cordova Resident' : 'Residency Unverified'}
+            title={verStatus === 'APPROVED' ? 'Verified Local Member' : 'Residency Unverified'}
           >
             {verStatus === 'APPROVED' ? <ShieldCheck size={16} /> : <Clock size={15} />}
           </span>
@@ -267,7 +267,7 @@ export default function ProfileHeader({
         <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm ${labelText}`}>
           <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
             <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
-            <span>{location ? `${location}, Cordova` : 'Cordova, Cebu'}</span>
+            <span>{location || 'Location not provided'}</span>
           </span>
           <span className="h-3 w-px bg-[color:var(--workspace-border-strong)]" aria-hidden="true" />
           <span className="font-semibold text-[color:var(--workspace-ink)]">@{usernameHandle.replace(/^@/, '')}</span>

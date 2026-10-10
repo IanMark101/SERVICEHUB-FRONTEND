@@ -3,8 +3,8 @@ import { Metadata } from 'next';
 import HelpHomePage from '@/features/help/pages/HelpHomePage';
 
 export const metadata: Metadata = {
-  title: 'Help Center & Documentation | ServiceHub Cordova',
-  description: 'Learn how ServiceHub Cordova works: verification, Trust Scores, provider queues, bookings, and payments.',
+  title: 'Help Center & Documentation | ServiceHub',
+  description: 'Learn how ServiceHub works: verification, Trust Scores, provider queues, bookings, and payments.',
 };
 
 export default function Page() {

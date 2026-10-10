@@ -83,7 +83,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                 <span className={labelText}>Location</span>
                 <span className={`font-bold flex items-center gap-1 ${headingText}`}>
                   <MapPin size={13} className="text-rose-500" />
-                  {location ? `${location}, Cordova` : 'Cordova, Cebu'}
+                  {location || 'Location not provided'}
                 </span>
               </div>
 
@@ -250,14 +250,14 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                 {userRequests.length === 0 ? (
                   <div className={`p-6 rounded-2xl border ${innerBg} text-center space-y-1`}>
                     <p className={`text-xs font-semibold ${headingText}`}>No service requests posted yet.</p>
-                    <p className={`text-[11px] ${labelText}`}>When this user posts a service request or seeks assistance on ServiceHub Cordova, their active requests will post here.</p>
+                    <p className={`text-[11px] ${labelText}`}>When this user posts a service request or seeks assistance on ServiceHub, their active requests will post here.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {userRequests.map((req) => (
                       <div key={req.id} className={`p-3.5 rounded-2xl border ${innerBg} space-y-1.5`}>
                         <div className="flex items-center justify-between">
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-orange-500/10 text-brand-text border border-orange-500/20">
                             {req.category}
                           </span>
                           <span className={`text-xs font-black ${headingText}`}>₱{req.budget}</span>
@@ -318,8 +318,8 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
             </h3>
             <p className={`text-xs ${labelText} mt-0.5`}>
               {isOwnProfile
-                ? 'Verify your official Cordova residency to unlock trusted provider and seeker status.'
-                : `Official identity and Cordova residency credentials for ${displayName}.`}
+                ? 'Verify your official residency to unlock trusted provider and seeker status.'
+                : `Official identity and residency credentials for ${displayName}.`}
             </p>
           </div>
 
@@ -334,12 +334,12 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                   APPROVED VERIFIED RESIDENT
                 </span>
                 <h4 className={`text-base font-extrabold ${headingText} pt-2`}>
-                  {isOwnProfile ? 'You are a Verified Resident of Cordova!' : `${displayName} is a Verified Resident of Cordova!`}
+                  {isOwnProfile ? 'You are a verified ServiceHub member!' : `${displayName} is a verified ServiceHub member!`}
                 </h4>
                 <p className={`text-xs ${labelText} max-w-md mx-auto leading-relaxed`}>
                   {isOwnProfile
-                    ? 'Your PhilSys ID and Barangay Residency documents have been officially reviewed and verified by Cordova Marketplace Administrators.'
-                    : `${displayName}'s PhilSys ID and Barangay Residency documents have been officially reviewed and verified by Cordova Marketplace Administrators.`}
+                    ? 'Your PhilSys ID and Barangay Residency documents have been officially reviewed and verified by ServiceHub administrators.'
+                    : `${displayName}'s PhilSys ID and Barangay Residency documents have been officially reviewed and verified by ServiceHub administrators.`}
                 </p>
               </div>
             </div>
@@ -360,7 +360,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                 </h4>
                 <p className={`text-xs ${labelText} max-w-md mx-auto leading-relaxed`}>
                   {isOwnProfile
-                    ? 'Your document photos are currently being reviewed by Cordova Administrators. Estimated review time: 24 to 48 hours.'
+                    ? 'Your document photos are currently being reviewed by ServiceHub administrators. Estimated review time: 24 to 48 hours.'
                     : `${displayName} has submitted residency documents and is currently awaiting administrative review.`}
                 </p>
               </div>
@@ -384,7 +384,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                   <p className={`text-xs ${isOwnProfile ? 'text-rose-500 font-medium' : labelText} max-w-md mx-auto leading-relaxed`}>
                     {isOwnProfile
                       ? 'Reason: Uploaded photos were unreadable or incomplete. Please upload a clear photo of your government ID or Barangay certificate.'
-                      : `${displayName} has not yet completed Cordova residency verification. Keep all bookings and communication inside ServiceHub for protection.`}
+                      : `${displayName} has not yet completed identity and residency verification. Keep all bookings and communication inside ServiceHub for protection.`}
                   </p>
                 </div>
               </div>
@@ -404,7 +404,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                       <AlertTriangle size={16} /> Residency Verification Requirements:
                     </div>
                     <p className={`${labelText} leading-relaxed`}>
-                      Upload clear photos of official documents (PhilSys ID, Driver&apos;s License, Barangay Certificate, or Utility Bill) to verify your Cordova address.
+                      Upload clear photos of official documents (PhilSys ID, Driver&apos;s License, Barangay Certificate, or Utility Bill) to verify your identity and current address.
                     </p>
                   </div>
                   <VerificationUpload isDark={isDark} />
@@ -422,7 +422,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
                       Residency Verification Incomplete
                     </h4>
                     <p className={`text-xs ${labelText} max-w-md mx-auto leading-relaxed`}>
-                      {displayName} has not yet completed Cordova residency verification. Exercise standard precautions when arranging services, and keep all agreements and payments inside ServiceHub.
+                      {displayName} has not yet completed identity and residency verification. Exercise standard precautions when arranging services, and keep all agreements and payments inside ServiceHub.
                     </p>
                   </div>
                 </div>

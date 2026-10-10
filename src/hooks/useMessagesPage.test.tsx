@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSearchParams } from 'next/navigation';
 import { apiGetConversationGroups, apiGetConversationGroupForBooking, apiGetMessages } from '../api/messages.api';
@@ -50,6 +50,31 @@ describe('message pane scrolling', () => {
     vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as ReturnType<typeof useSearchParams>);
     vi.mocked(useApp).mockReturnValue({ isDark: false, user: { id: 'johncarlo' }, syncUnreadMessages: vi.fn() } as unknown as ReturnType<typeof useApp>);
     vi.mocked(apiGetConversationGroups).mockResolvedValue({ success: true, data: [] } as Awaited<ReturnType<typeof apiGetConversationGroups>>);
+  });
+
+  it.each(['focus', 'online', 'reconnect'] as const)('retains a confirmed empty conversation during %s, but loads a different conversation visibly', async reason => {
+    const first = { bookingId: 'booking-1', title: 'House Cleaning', otherPartyId: 'ian', otherPartyName: 'Ian', otherPartyRole: 'Provider' as const, status: 'IN_PROGRESS', unreadCount: 0 };
+    const second = { ...first, bookingId: 'booking-2', title: 'Other job' };
+    vi.mocked(apiGetConversationGroups).mockResolvedValue({ success: true, data: [{ otherPartyId: 'ian', otherPartyName: 'Ian', unreadCount: 0, bookings: [first, second] }] });
+    vi.mocked(apiGetMessages).mockResolvedValue({ success: true, data: [] });
+    const { result } = renderHook(() => useMessagesPage());
+    await waitFor(() => expect(apiGetMessages).toHaveBeenCalledWith('booking-1'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    let resolve!: (response: Awaited<ReturnType<typeof apiGetMessages>>) => void;
+    vi.mocked(apiGetMessages).mockImplementationOnce(() => new Promise(done => { resolve = done; }));
+    act(() => invalidateApiCache(['messages'], reason));
+    await waitFor(() => expect(apiGetMessages).toHaveBeenCalledTimes(2));
+    expect(result.current.loading).toBe(false);
+    expect(result.current.messages).toEqual([]);
+    let resolveNew!: typeof resolve;
+    vi.mocked(apiGetMessages).mockImplementationOnce(() => new Promise(done => { resolveNew = done; }));
+    act(() => result.current.selectConversation(second));
+    expect(result.current.loading).toBe(true);
+    await act(async () => resolve({ success: true, data: [{ id: 'old', bookingId: 'booking-1', content: 'Wrong conversation' }] }));
+    expect(result.current.messages).toEqual([]);
+    expect(result.current.loading).toBe(true);
+    await act(async () => resolveNew({ success: true, data: [] }));
+    expect(result.current.loading).toBe(false);
   });
 
   it('does not scroll the outer page when the message pane initializes', async () => {

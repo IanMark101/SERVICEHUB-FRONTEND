@@ -1,3 +1,5 @@
+import LocationField from '../location/LocationField';
+import { LocationSchema, type LocationPoint } from '../../lib/location';
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ServiceListing } from '../../types';
@@ -39,7 +41,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const [description, setDescription] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'GCash' | 'On-site Cash'>(resolveDefault);
   const [preferredSchedule, setPreferredSchedule] = useState<string>('');
+  const [jobLocation, setJobLocation] = useState<LocationPoint | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
+  const total = Number(listing.price) * quantity + (listing.transportationFee ?? 0);
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -63,7 +67,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       setFormError(`Choose a valid number of ${unitName}.`);
       return;
     }
-    if (Number(listing.price) * quantity > 50_000) {
+    if (total > 50_000) {
       setFormError('The booking total cannot exceed ₱50,000. Choose fewer hours or days.');
       return;
     }
@@ -94,12 +98,14 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       return;
     }
 
+    if (!LocationSchema.safeParse(jobLocation).success) { setFormError('Choose where the work will happen and enter its area name.'); return; }
     setLoading(true);
     try {
       if (paymentMethod === 'On-site Cash') {
         // Cash requests are provider-confirmed. The preferred schedule is a
         // proposal and does not reserve provider availability.
         await apiBookDirect({
+          jobLocation: jobLocation!,
           serviceId: listing.id,
           quantity,
           message: description,
@@ -107,7 +113,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         });
       } else {
         // GCash/online path — use the existing hook
-        const checkout = await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity);
+        const checkout = await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity, jobLocation!);
         // The workspace payment dialog takes over without leaving the listing.
         // Initiating checkout alone must never claim a successful booking.
         setLoading(false);
@@ -160,7 +166,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   </div>
                   <p className={styles.hint}>
                     <strong>{isMetered ? 'Displayed listing rate' : 'Agreed listing price'}</strong>
-                    {' · '}{priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'The server records this exact amount.'}
+                    {' · '}{priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'The total includes any one-time transportation fee shown below.'}
                   </p>
                 </section>
 
@@ -173,6 +179,8 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     placeholder="Describe exactly what needs to be done, location details, preferred schedules..."
                     value={description} onChange={(event) => setDescription(event.target.value)} className={styles.field} />
                 </div>
+
+                <LocationField label="Where will the job happen?" value={jobLocation} onChange={setJobLocation} privateAddress disabled={loading || isOwned} />
 
                 {paymentMethod === 'On-site Cash' && (
                   <div>
@@ -189,10 +197,15 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     <label htmlFor="booking-quantity" className={styles.label}>Number of {unitName}</label>
                     <input id="booking-quantity" type="number" min={1} max={listing.priceType === 'PER_DAY' ? 7 : 40} step={1} required value={quantity}
                       onChange={(event) => setQuantity(Number(event.target.value))} className={styles.field} />
-                    <p className={styles.total}>Total: ₱{(Number(listing.price) * quantity).toLocaleString()}</p>
+
                   </div>
                 )}
 
+                {!priceUnavailable && <div className={styles.hint}>
+                  <p>Service: ₱{(Number(listing.price) * quantity).toLocaleString()}</p>
+                  {!!listing.transportationFee && <p>Transportation (once): ₱{listing.transportationFee.toLocaleString()}</p>}
+                  <p className={styles.total}>Total: ₱{total.toLocaleString()}</p>
+                </div>}
                 <section className={styles.payment} aria-labelledby="request-payment-title">
                   <h4 id="request-payment-title" className={styles.label}>Payment Method</h4>
                   <div className={styles.paymentChoices} data-single={!(cash && gcash)}>

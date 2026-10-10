@@ -13,7 +13,7 @@ const accentStyles = {
     selected: 'bg-orange-50/80 border-orange-200 text-orange-950 dark:bg-orange-950/25 dark:border-orange-500/30 dark:text-orange-200 shadow-2xs',
     activeIndicator: 'bg-orange-500',
     focus: 'focus-visible:ring-orange-500',
-    text: 'text-orange-600 dark:text-orange-400',
+    text: 'text-brand-text dark:text-orange-400',
     badge: 'bg-orange-500',
     avatar: 'bg-orange-500/15 text-orange-700 dark:text-orange-400',
     threadSelected: 'border-orange-500/70 bg-orange-50 text-orange-900 shadow-xs dark:bg-orange-950/40 dark:border-orange-500/60 dark:text-orange-200 ring-1 ring-orange-500/20',

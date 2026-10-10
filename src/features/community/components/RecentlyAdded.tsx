@@ -25,7 +25,7 @@ export default function RecentlyAdded({
     return (
       <section id="community-newly-approved" className="scroll-mt-24 space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
-          <div className="flex items-center gap-2.5"><Sparkle size={18} className="text-[#c86544]" aria-hidden="true" /><h2 className={`text-lg font-black tracking-tight sm:text-2xl ${isDark ? 'text-white' : 'text-ink'}`}>Recently added</h2></div>
+          <div className="flex items-center gap-2.5"><Sparkle size={18} className="text-brand-text" aria-hidden="true" /><h2 className={`text-lg font-black tracking-tight sm:text-2xl ${isDark ? 'text-white' : 'text-ink'}`}>Recently added</h2></div>
           <span className="text-xs text-ink-muted">Added in the last 30 days</span>
         </div>
         <RecentGridSkeleton isDark={isDark} />
@@ -51,7 +51,7 @@ export default function RecentlyAdded({
     <section id="community-newly-approved" className="scroll-mt-24 space-y-4" aria-labelledby="recently-added-title">
       <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
         <div className="flex items-center gap-2.5">
-          <Sparkle size={18} className="text-[#c86544]" aria-hidden="true" />
+          <Sparkle size={18} className="text-brand-text" aria-hidden="true" />
           <h2 id="recently-added-title" className={`text-lg sm:text-2xl font-black tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
             Recently added
           </h2>

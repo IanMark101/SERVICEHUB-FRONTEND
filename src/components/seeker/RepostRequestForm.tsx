@@ -28,7 +28,7 @@ export default function RepostRequestForm({ requestId }: { requestId: string }) 
         <p className="text-sm leading-6">{error}</p>
         <button type="button" onClick={() => { setError(null); setAttempt(value => value + 1); }} className="min-h-11 rounded-xl bg-orange-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-orange-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">Try again</button>
       </div> : <p role="status" className="mt-4 text-sm text-[color:var(--workspace-muted)]">Loading your previous request details…</p>}
-      <Link href="/seeker/request-manager" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">Return to Request Manager</Link>
+      <Link href="/seeker/request-manager" className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold   focus-visible:outline-2 focus-visible:outline-offset-2">Return to Request Manager</Link>
     </div>
   );
 }

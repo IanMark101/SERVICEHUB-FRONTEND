@@ -5,7 +5,7 @@ export const MESSAGING_ARTICLES: HelpArticle[] = [
     slug: 'when-messaging-unlocks',
     title: 'When Messaging Unlocks & Becomes Available',
     category: 'messaging',
-    description: 'Learn why messaging requires an active transaction on ServiceHub Cordova to protect against spam and harassment.',
+    description: 'Learn why messaging requires an active transaction on ServiceHub to protect against spam and harassment.',
     lastUpdated: 'August 2026',
     readTimeMinutes: 3,
     popular: true,
@@ -15,14 +15,14 @@ export const MESSAGING_ARTICLES: HelpArticle[] = [
       {
         heading: 'Transaction-Bound Communication',
         paragraphs: [
-          'On ServiceHub Cordova, you cannot randomly private message strangers or unsolicited users. Direct messaging is strictly bound to active service transactions.',
+          'On ServiceHub, you cannot randomly private message strangers or unsolicited users. Direct messaging is strictly bound to active service transactions.',
         ],
       },
       {
         heading: 'When Does Chat Open?',
         bullets: [
-          'Direct Bookings (Flow A): Chat unlocks the moment the provider accepts your booking request.',
-          'Custom Job Requests (Flow B): Chat unlocks the moment the seeker accepts a provider\'s bid offer.',
+          'Direct Bookings (Flow A): Cash chat unlocks after provider acceptance. GCash Test Mode chat unlocks after verified payment creates the accepted booking, without another provider acceptance.',
+          'Custom Job Requests (Flow B): Chat unlocks when offer acceptance creates the booking. For GCash Test Mode, payment must succeed first.',
         ],
         example: {
           title: 'Realistic Example',
@@ -48,7 +48,7 @@ export const MESSAGING_ARTICLES: HelpArticle[] = [
         ],
         bullets: [
           '1. Spam & Harassment Prevention: Providers and seekers are protected from unsolicited DMs, marketing spam, or out-of-context harassment.',
-          '2. Fair Dispute Evidence: If a dispute or report is filed, Municipal Administrators can review the exact, untampered chat logs between both parties for that specific booking to make an impartial decision.',
+          '2. Fair Dispute Evidence: If a dispute or report is filed, ServiceHub administrators can review the exact, untampered chat logs between both parties for that specific booking to make an impartial decision.',
         ],
       },
       {

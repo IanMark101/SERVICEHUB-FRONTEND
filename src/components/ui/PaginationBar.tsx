@@ -60,7 +60,7 @@ export default function PaginationBar({
     : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700';
   
   const hoverBorderClass = variant === 'seeker'
-    ? 'hover:border-orange-500/50 hover:text-orange-500'
+    ? 'hover:border-orange-500/50 hover:text-brand-text'
     : variant === 'admin'
     ? 'hover:border-red-500/50 hover:text-red-500'
     : 'hover:border-emerald-500/50 hover:text-emerald-500';

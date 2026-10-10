@@ -21,8 +21,8 @@ export default function OfficialAnnouncements({
     return (
       <section id="community-announcements" className="scroll-mt-28 space-y-4" aria-label="Official announcements">
         <div className="flex items-center gap-2.5">
-          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-orange-500/15 text-orange-600"><Megaphone size={19} weight="fill" aria-hidden="true" /></div>
-          <div className="min-w-0"><h2 className="text-lg font-black tracking-tight sm:text-2xl">Official municipal notices</h2><p className="truncate text-[11px] text-ink-muted sm:text-xs">Direct announcements from ServiceHub Cordova Administration</p></div>
+          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-orange-500/15 text-brand-text"><Megaphone size={19} weight="fill" aria-hidden="true" /></div>
+          <div className="min-w-0"><h2 className="text-lg font-black tracking-tight sm:text-2xl">Official platform notices</h2><p className="truncate text-[11px] text-ink-muted sm:text-xs">Direct announcements from ServiceHub Administration</p></div>
         </div>
         <UpdatesSkeleton isDark={isDark} />
       </section>
@@ -37,18 +37,18 @@ export default function OfficialAnnouncements({
         aria-labelledby="official-announcements-title"
       >
         <div className="flex items-center gap-2.5">
-          <div className="grid size-8 place-items-center rounded-xl bg-orange-500/15 text-orange-600 dark:text-orange-400">
+          <div className="grid size-8 place-items-center rounded-xl bg-orange-500/15 text-brand-text dark:text-orange-400">
             <Megaphone size={18} weight="fill" aria-hidden="true" />
           </div>
           <h2 id="official-announcements-title" className={`text-xl font-extrabold tracking-tight sm:text-2xl ${isDark ? 'text-white' : 'text-ink'}`}>
-            Official municipal notices
+            Official platform notices
           </h2>
         </div>
         <div className={`rounded-3xl border p-6 ${isDark ? 'bg-charcoal-inset border-neutral-800' : 'bg-white border-slate-200/90'}`}>
           <CommunityEmptyState
             icon={Bell}
             title="No official announcements at this time"
-            description="Important ServiceHub Cordova notices will be published here."
+            description="Important ServiceHub notices will be published here."
             isDark={isDark}
           />
         </div>
@@ -82,7 +82,7 @@ export default function OfficialAnnouncements({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <h2 id="official-announcements-title" className={`text-lg font-black tracking-tight sm:text-2xl ${isDark ? 'text-white' : 'text-ink'}`}>
-                Official municipal notices
+                Official platform notices
               </h2>
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
@@ -90,7 +90,7 @@ export default function OfficialAnnouncements({
               </span>
             </div>
             <p className={`text-[11px] sm:text-xs truncate ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
-              Direct announcements from ServiceHub Cordova Administration
+              Direct announcements from ServiceHub Administration
             </p>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function OfficialAnnouncements({
                 ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/40'
                 : 'bg-orange-100 text-orange-800 ring-1 ring-orange-300/80'
             }`}>
-              <Megaphone size={13} weight="fill" className="text-orange-600 dark:text-orange-400 shrink-0" />
+              <Megaphone size={13} weight="fill" className="text-brand-text dark:text-orange-400 shrink-0" />
               Official Administration Notice
             </span>
 
@@ -187,7 +187,7 @@ export default function OfficialAnnouncements({
           <div className="pt-2 sm:pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-t border-orange-200/50 dark:border-neutral-800">
             <div className="flex min-w-0 items-center gap-1.5 text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400">
               <SealCheck size={16} weight="fill" className="shrink-0" />
-              <span className="truncate">Posted by {currentNotice.author?.name || 'ServiceHub Cordova Administration'}</span>
+              <span className="truncate">Posted by {currentNotice.author?.name || 'ServiceHub Administration'}</span>
             </div>
 
             {hasMultiple && (

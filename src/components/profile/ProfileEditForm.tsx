@@ -1,15 +1,8 @@
 "use client";
-import FormSelect from '../ui/FormSelect';
 import React, { useRef, useState } from 'react';
 import { AlertTriangle, Edit3, X, Save, Camera, Upload, Trash2, Lock } from 'lucide-react';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
 import UserAvatar from '../ui/UserAvatar';
-
-const CORDOVA_BARANGAYS = [
-  "Alegria", "Bangbang", "Buagsong", "Catarman", "Cogon",
-  "Dapitan", "Day-as", "Gabi", "Ibabao-Estancia", "Pilipog",
-  "Poblacion", "San Miguel",
-];
 
 interface ProfileEditFormValue {
     name: string;
@@ -55,7 +48,7 @@ export default function ProfileEditForm({
 }: ProfileEditFormProps) {
   const isProvider = role === 'provider';
   const isAdmin = role === 'admin';
-  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-orange-500';
+  const accentColor = isProvider ? 'text-emerald-500' : isAdmin ? 'text-blue-500' : 'text-brand-text';
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -133,18 +126,9 @@ export default function ProfileEditForm({
         </div>
 
         <div>
-          <label className={`block text-xs font-bold mb-1 ${labelText}`}>Barangay (Cordova, Cebu)</label>
-          <FormSelect
-            aria-label="Barangay (Cordova, Cebu)"
-            className={inputClass}
-            value={editForm.location}
-            onChange={e => setEditForm((form) => ({ ...form, location: e.target.value }))}
-          >
-            <option value="">Select Barangay...</option>
-            {CORDOVA_BARANGAYS.map(b => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </FormSelect>
+          <label className={`block text-xs font-bold mb-1 ${labelText}`}>City / municipality and barangay</label>
+          <input aria-label="City / municipality and barangay" className={inputClass} maxLength={100} placeholder="e.g. Marigondon, Lapu-Lapu City, Cebu" value={editForm.location} onChange={e => setEditForm(form => ({ ...form, location: e.target.value }))} />
+          <p className="mt-1.5 text-xs text-ink-muted">General profile area only. Your marketplace search and job locations are separate.</p>
         </div>
 
         <div className="sm:col-span-2">

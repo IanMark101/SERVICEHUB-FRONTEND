@@ -49,8 +49,8 @@
 .booking-actions__row button[aria-label="Open Conversation"] { padding: 0; }
 .booking-actions__row button[data-action="finish"] { color: white; background: #047857; }
 .booking-actions__row button[data-action="finish"]:hover { background: #065f46; }
-.booking-actions__row button[data-action="complete"] { color: white; background: #b94f31; }
-.booking-actions__row button[data-action="complete"]:hover { background: #9f4228; }
+.booking-actions__row button[data-action="complete"] { color: white; background: var(--color-brand-action); }
+.booking-actions__row button[data-action="complete"]:hover { background: var(--color-brand-action-hover); }
 .booking-actions__row button[data-action="admin-review"] { color: #ffffff; background: var(--color-charcoal); }
 .dark .booking-actions__row button[data-action="admin-review"] { color: var(--color-charcoal); background: #f2efe9; }
 .booking-actions__row button[data-action="admin-review"]:not(:disabled):hover { filter: brightness(.9); }

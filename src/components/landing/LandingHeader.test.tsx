@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '@/context/AppContext';
@@ -32,15 +32,16 @@ describe('landing navigation session awareness', () => {
     expect(screen.getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/login');
     expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/get-started');
     expect(screen.getByRole('link', { name: 'How it works' })).toHaveAttribute('href', '#how-it-works');
-    expect(screen.getByRole('link', { name: 'Reviews' })).toHaveAttribute('href', '#reviews');
+    expect(screen.getByRole('link', { name: 'Booking progress' })).toHaveAttribute('href', '#booking-progress');
+    expect(screen.getByRole('navigation', { name: 'Main navigation' }).querySelectorAll('a')).toHaveLength(6);
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
     expect(screen.getByRole('navigation', { name: 'Mobile navigation' })).toBeVisible();
     expect(screen.queryByText('Open ServiceHub')).not.toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: 'Log in' })).toHaveLength(2);
-    const reviewLinks = screen.getAllByRole('link', { name: 'Reviews' });
-    expect(reviewLinks).toHaveLength(2);
-    expect(reviewLinks[1]).toHaveAttribute('href', '#reviews');
-    fireEvent.click(reviewLinks[1]);
+    const compareLinks = screen.getAllByRole('link', { name: 'Compare' });
+    expect(compareLinks).toHaveLength(2);
+    expect(compareLinks[1]).toHaveAttribute('href', '#comparison');
+    fireEvent.click(compareLinks[1]);
     expect(screen.queryByRole('navigation', { name: 'Mobile navigation' })).not.toBeInTheDocument();
   });
 
@@ -69,5 +70,21 @@ describe('landing navigation session awareness', () => {
     expect(screen.getAllByRole('link', { name: 'Open workspace' })).toHaveLength(2);
     for (const link of screen.getAllByRole('link', { name: 'Open workspace' })) expect(link).toHaveAttribute('href', path);
     expect(screen.queryByRole('link', { name: 'Log in' })).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['Compare', '#comparison'],
+    ['Booking progress', '#booking-progress'],
+  ])('links to %s from both menus and closes mobile navigation after choosing it', (label, href) => {
+    render(<LandingHeader isDark={false} toggleTheme={vi.fn()} />);
+    const desktop = screen.getByRole('navigation', { name: 'Main navigation' });
+    expect(within(desktop).getByRole('link', { name: label })).toHaveAttribute('href', href);
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
+    const mobile = screen.getByRole('navigation', { name: 'Mobile navigation' });
+    const shortcut = within(mobile).getByRole('link', { name: label });
+    expect(shortcut).toHaveAttribute('href', href);
+    fireEvent.click(shortcut);
+    expect(screen.queryByRole('navigation', { name: 'Mobile navigation' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open navigation' })).toHaveAttribute('aria-expanded', 'false');
   });
 });

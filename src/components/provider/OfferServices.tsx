@@ -1,3 +1,8 @@
+import LocationField from '../location/LocationField';
+import TransportationField, { validTransportationFee } from '../location/TransportationField';
+import { LocationSchema, type LocationPoint } from '../../lib/location';
+import CoverageField from '../location/CoverageField';
+import { orderServiceCategories } from '../../lib/category-catalog';
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Briefcase, Info } from 'lucide-react';
@@ -23,6 +28,10 @@ export default function OfferServices() {
   const [durationMins, setDurationMins] = useState<number>(30);
   const [availability, setAvailability] = useState<string>('Available Now');
 
+  const [serviceLocation, setServiceLocation] = useState<LocationPoint | null>(null);
+  const [coverageRadiusKm, setCoverageRadiusKm] = useState<number | null>(null);
+  const [transportationFee, setTransportationFee] = useState('');
+
   // Payment methods
   const [acceptCash, setAcceptCash] = useState<boolean>(true);
   const [acceptGCash, setAcceptGCash] = useState<boolean>(true);
@@ -31,7 +40,7 @@ export default function OfferServices() {
   const [moderationError, setModerationError] = useState<{ field?: 'title' | 'description' | 'category'; message: string } | null>(null);
   const hasMobileNumber = Boolean(user?.phone?.trim());
 
-  const categories = dbCategories;
+  const categories = orderServiceCategories(dbCategories);
   const selectedCategoryId = categories.some((item) => item.id === category) ? category : '';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +57,8 @@ export default function OfferServices() {
       return;
     }
 
+    if (!LocationSchema.safeParse(serviceLocation).success) { error('Service location required', 'Choose your operating base and enter its area name.'); return; }
+    if (!validTransportationFee(transportationFee)) { error('Invalid transportation fee', 'Enter an amount from ₱0 to ₱5,000, with at most two decimal places.'); return; }
     setLoading(true);
     const providerId = user?.id || '';
     const res = await createServiceListing(
@@ -58,6 +69,9 @@ export default function OfferServices() {
       description,
       { cash: acceptCash, gcash: acceptGCash },
       {
+        serviceLocation: serviceLocation!,
+        coverageRadiusKm,
+        transportationFee: transportationFee === '' ? null : Number(transportationFee),
         serviceType: 'ONE_TIME',
         priceType,
         estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
@@ -68,6 +82,9 @@ export default function OfferServices() {
 
     if (res?.success) {
       // Reset form
+      setServiceLocation(null);
+      setCoverageRadiusKm(null);
+      setTransportationFee('');
       setTitle('');
       setDescription('');
       setPrice(500);
@@ -109,7 +126,7 @@ export default function OfferServices() {
           }`}>
             <div>
               <span className="font-bold">Verification Required:</span>
-              <span className="font-medium ml-1">You may browse ServiceHub freely, but you must complete Cordova Residency Verification before participating in marketplace transactions.</span>
+              <span className="font-medium ml-1">You may browse ServiceHub freely, but you must complete Identity & Residency Verification before participating in marketplace transactions.</span>
             </div>
             <button
               type="button"
@@ -210,8 +227,13 @@ export default function OfferServices() {
                   ariaInvalid={moderationError?.field === 'category'}
                   ariaDescribedBy={moderationError?.field === 'category' ? 'listing-category-policy-error' : undefined}
                 />
+                <p className="mt-2 text-xs text-ink-muted">Choose a broad service category. Use Other Services if none fits, and describe your specific service in the title and description.</p>
                 {moderationError?.field === 'category' && <p id="listing-category-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message} Choose the right category and try again.</p>}
               </div>
+
+            <CoverageField value={coverageRadiusKm} onChange={setCoverageRadiusKm} isDark={isDark} disabled={!canTransact || loading} />
+            <LocationField label="Service operating base" value={serviceLocation} onChange={setServiceLocation} radiusKm={coverageRadiusKm} workspace="provider" disabled={!canTransact || loading} />
+            <TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} disabled={!canTransact || loading} />
 
               {/* Engagement / Booking model */}
               <div>

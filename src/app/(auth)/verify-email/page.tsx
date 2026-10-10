@@ -109,7 +109,7 @@ function VerifyEmailContent() {
                 One last step to unlock your account.
               </h1>
               <p className="mt-4 max-w-md text-sm leading-7 text-ink-muted sm:text-base">
-                We’re confirming your email address so you can securely book and offer services in Cordova.
+                We’re confirming your email address so you can securely book and offer services in nearby communities.
               </p>
             </div>
 
@@ -140,7 +140,7 @@ function VerifyEmailContent() {
                     ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
                     : isError
                       ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
-                      : "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20"
+                      : "bg-orange-500/10 text-brand-text dark:text-orange-400 border border-orange-500/20"
                 }`}
               >
                 {status === "loading" ? (

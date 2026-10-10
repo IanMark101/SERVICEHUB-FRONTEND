@@ -35,7 +35,7 @@ export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardC
 
   const ctaTextColor = isProvider
     ? isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700'
-    : isDark ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-700';
+    : isDark ? 'text-orange-400 hover:text-orange-300' : 'text-brand-text hover:text-orange-700';
 
   return (
     <div className={`rounded-3xl border p-5 relative shadow-sm transition-all duration-200 ${
@@ -91,14 +91,14 @@ export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardC
             {isPending
               ? 'Verification submitted. Our administrators usually review submissions within 24 hours. Until approval, you may continue browsing but marketplace actions remain disabled.'
               : isRejected
-                ? 'Your previous residency verification was rejected by administrators. Please resubmit clear proofs of your Cordova residency to unlock marketplace actions.'
-                : 'You can explore ServiceHub and view available services, but marketplace transactions are locked until your Cordova Residency Verification is approved.'}
+                ? 'Your previous residency verification was rejected by administrators. Please resubmit clear proofs of your residency to unlock marketplace actions.'
+                : 'You can explore ServiceHub and view available services, but marketplace transactions are locked until your Identity & Residency Verification is approved.'}
           </p>
 
           {!isPending && (
             <button
               onClick={navigateToVerification}
-              className={`inline-flex items-center space-x-1 text-xs font-extrabold hover:underline mt-2 cursor-pointer transition-colors ${ctaTextColor}`}
+              className={`inline-flex items-center space-x-1 text-xs font-extrabold  mt-2 cursor-pointer transition-colors ${ctaTextColor}`}
             >
               <span>Verify Now</span>
               <ArrowRight className="w-3.5 h-3.5" />

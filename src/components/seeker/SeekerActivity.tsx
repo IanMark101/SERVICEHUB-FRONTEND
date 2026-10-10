@@ -81,27 +81,12 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
 
   // Filter Tab State
   const [activeTab, setActiveTab] = useState<SeekerActivityTab>('all');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const tabLoadingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 450);
-    return () => {
-      clearTimeout(t);
-      if (tabLoadingTimer.current) clearTimeout(tabLoadingTimer.current);
-    };
-  }, []);
+  const isLoading = engagementsStatus === 'loading';
 
   const handleTabChange = (tab: typeof activeTab) => {
     if (tab === activeTab) return;
     manuallyOverriddenLink.current = deepLinkKey;
-    setIsLoading(true);
     setActiveTab(tab);
-    if (tabLoadingTimer.current) clearTimeout(tabLoadingTimer.current);
-    tabLoadingTimer.current = setTimeout(() => {
-      setIsLoading(false);
-      tabLoadingTimer.current = null;
-    }, 250);
   };
 
   // Initial loading, live changes, and tab focus are handled by the shared

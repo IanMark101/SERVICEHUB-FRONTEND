@@ -1,8 +1,9 @@
+import type { LocationPoint } from '../lib/location';
 import { api } from '../lib/api/axios';
 import type { PaymentMethods } from '../types';
 import type { RequestUrgency } from '../lib/requestUrgency';
 
-export async function apiCreateRequest(data: { categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency: RequestUrgency; paymentMethods: PaymentMethods }) {
+export async function apiCreateRequest(data: { jobLocation?: LocationPoint; transportationFee?: number | null; categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency: RequestUrgency; paymentMethods: PaymentMethods }) {
   const response = await api.post('/requests', { ...data, title: data.title.trim().toUpperCase() });
   return response.data;
 }
@@ -18,6 +19,8 @@ export async function apiGetMyRequests() {
 }
 
 export interface RequestRepostTemplate {
+  jobLocation?: LocationPoint;
+  transportationFee?: number | null;
   title: string;
   description: string;
   categoryId: string;
@@ -32,6 +35,8 @@ export async function apiGetRequestRepostTemplate(id: string): Promise<{ success
 }
 
 type RequestUpdate = Partial<{
+  jobLocation: LocationPoint;
+  transportationFee: number | null;
   title: string;
   description: string;
   budgetMin: number;

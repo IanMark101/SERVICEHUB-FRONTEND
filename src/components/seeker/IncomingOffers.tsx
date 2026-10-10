@@ -295,7 +295,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                       <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-ink-muted dark:text-ink-muted font-medium">
                         <span className="inline-flex items-center gap-1">
                           <MapPin className="w-3 h-3 text-red-400" />
-                          {provider?.location || 'Cordova, Cebu'}
+                          {provider?.location || 'Location not provided'}
                         </span>
                         <span>•</span>
                         <TrustScoreBadge score={trustScore} />
@@ -437,7 +437,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
               isDark ? 'border-neutral-850 bg-charcoal-inset/45' : 'border-slate-100 bg-slate-50/50'
             }`}>
               <h3 id="offer-payment-title" className={`font-extrabold text-base flex items-center space-x-2 ${isDark ? 'text-white' : 'text-ink'}`}>
-                <CreditCard className="w-4 h-4 text-orange-600" />
+                <CreditCard className="w-4 h-4 text-brand-text" />
                 <span>{cashOnlyConfirmation ? 'Confirm offer' : 'Select Payment Method'}</span>
               </h3>
               <button

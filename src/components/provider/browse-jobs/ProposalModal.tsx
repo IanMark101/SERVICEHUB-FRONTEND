@@ -55,6 +55,8 @@ export default function ProposalModal({ request, listings, serviceId, onServiceC
                 </div>
               </section>
 
+              {request.locationLabel && <p className={styles.hint}>Job area: {request.locationLabel}. Exact directions become available when a booking is created.</p>}
+              {!!request.transportationFee && <p className={styles.hint}>Additional travel budget: ₱{request.transportationFee.toLocaleString()}</p>}
               <div className={styles.review}><ReviewSummaryPanel subjectId={request.seekerId} context="seeker" isDark={isDark} /></div>
 
               <div>
@@ -70,6 +72,7 @@ export default function ProposalModal({ request, listings, serviceId, onServiceC
                 <div><label htmlFor="offer-price" className={styles.label}>Your price (₱)</label><input id="offer-price" type="number" min={50} max={50000} step="0.01" required value={price} onChange={(event) => onPriceChange(Number(event.target.value))} className={styles.field} /></div>
                 <div><label htmlFor="offer-duration" className={styles.label}>Expected duration (minutes)</label><input id="offer-duration" type="number" min={15} max={480} required value={duration} onChange={(event) => onDurationChange(Number(event.target.value))} className={styles.field} /></div>
               </div>
+              <p className={styles.hint}>Quote one final total including transportation. The listing fee or seeker travel allowance will not be added again.</p>
               <div><label htmlFor="offer-availability" className={styles.label}>Availability <span className={styles.optional}>(optional)</span></label><input id="offer-availability" maxLength={500} placeholder="For example, Saturday morning" value={availability} onChange={(event) => onAvailabilityChange(event.target.value)} className={styles.field} /></div>
               <div><label htmlFor="offer-message" className={styles.label}>How you will handle this job</label><textarea id="offer-message" rows={3} maxLength={2000} required placeholder="Describe your approach and availability" value={message} onChange={(event) => onMessageChange(event.target.value)} className={styles.field} /></div>
 

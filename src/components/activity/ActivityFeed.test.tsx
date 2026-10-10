@@ -12,14 +12,17 @@ const queued: ActivityFeedEntry = {
 };
 
 describe('Activity overview', () => {
-  it.each(['seeker', 'provider'] as const)('keeps the %s work underway card tinted at rest and on hover', (tone) => {
+  it.each(['seeker', 'provider'] as const)('keeps %s bookings compact while retaining payment, queue and workroom navigation', (tone) => {
     const entry = { ...queued, group: 'work_underway' as const, queueOverview: false, status: 'Work is underway' };
     const onOpen = vi.fn();
     render(<ActivityFeed entries={[entry]} tone={tone} onOpen={onOpen} />);
     const card = screen.getByRole('button', { name: 'Open booking House Cleaning: Work is underway' });
-    const color = tone === 'provider' ? 'emerald' : 'orange';
-    expect(card).toHaveClass(`bg-${color}-100`, `hover:bg-${color}-200/60`, `dark:bg-${color}-950/60`, `dark:hover:bg-${color}-900/40`);
-    expect(card).not.toHaveClass('bg-white');
+    expect(card).toHaveClass('bg-white', 'dark:bg-charcoal-surface');
+    expect(within(card).getByText(/Payment confirmed$/)).toBeInTheDocument();
+    expect(within(card).getByText(/Position #1$/)).toBeInTheDocument();
+    expect(within(card).getByText('Work is underway')).toBeInTheDocument();
+    expect(within(card).queryByText('Your action')).not.toBeInTheDocument();
+    expect(within(card).queryByText('What happens next')).not.toBeInTheDocument();
     fireEvent.click(card);
     expect(onOpen).toHaveBeenCalledWith(entry);
   });
@@ -45,8 +48,8 @@ describe('Activity overview', () => {
     expect(within(booking).getByText('Waiting for provider to start')).toBeInTheDocument();
     expect(within(booking).getByText(/booking is secured/)).toBeInTheDocument();
     expect(within(booking).getByText('No action needed now')).toBeInTheDocument();
-    expect(within(booking).getByText('The provider can start this booking when available.')).toBeInTheDocument();
-    expect(within(booking).getByText('Payment confirmed')).toBeInTheDocument();
+    expect(within(booking).queryByText(queued.next)).not.toBeInTheDocument();
+    expect(within(booking).getByText(/Payment confirmed$/)).toBeInTheDocument();
     expect(within(booking).getByText('#1')).toBeInTheDocument();
     expect(within(booking).queryByRole('button', { name: /Start Job/ })).not.toBeInTheDocument();
     fireEvent.click(within(booking).getByRole('button', { name: 'Booking details' }));
@@ -66,7 +69,7 @@ describe('Activity overview', () => {
     const booking = screen.getByRole('article', { name: 'House Cleaning queue booking' });
     expect(within(booking).getByText('Ready to start')).toBeInTheDocument();
     expect(within(booking).getByText('#1')).toBeInTheDocument();
-    expect(within(booking).getByText('Payment confirmed')).toBeInTheDocument();
+    expect(within(booking).getByText(/Payment confirmed$/)).toBeInTheDocument();
     fireEvent.click(within(booking).getByRole('button', { name: 'Start Job: House Cleaning' }));
     expect(onStart).toHaveBeenCalledWith(providerEntry);
     expect(onOpen).not.toHaveBeenCalled();

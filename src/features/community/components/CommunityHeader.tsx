@@ -100,7 +100,7 @@ export function CommunitySectionNav({ isDark = false }: CommunityHeaderProps) {
               href={href}
               onClick={(e) => handleNavClick(e, href)}
               aria-current={active ? 'location' : undefined}
-              className={`inline-flex min-h-8.5 sm:min-h-9 shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${
+              className={`inline-flex min-h-8.5 sm:min-h-9 shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus ${
                 active
                   ? isDark
                     ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-xs'

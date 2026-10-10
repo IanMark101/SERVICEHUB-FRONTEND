@@ -20,7 +20,7 @@ export default function HeaderProfileMenu({ currentRole, user, isDark, isOpen, b
   if (!user) return null;
   return (
     <div className="relative">
-      <button type="button" onClick={onToggle} aria-label="Open account menu" aria-expanded={isOpen} className={`workspace-header-control flex h-9 shrink-0 items-center gap-2 rounded-full p-1 pr-2.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${borderHoverClass} ${isOpen ? (isDark ? 'bg-charcoal' : 'bg-[#f5ebe6]') : ''}`}>
+      <button type="button" onClick={onToggle} aria-label="Open account menu" aria-expanded={isOpen} className={`workspace-header-control flex h-9 shrink-0 items-center gap-2 rounded-full p-1 pr-2.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)] ${borderHoverClass} ${isOpen ? (isDark ? 'bg-charcoal' : 'bg-orange-100') : ''}`}>
         <UserAvatar src={user.avatarUrl} name={`${user.firstName || ''} ${user.lastName || ''}`} alt="Profile avatar" size={28} role={currentRole} />
         <span className={`hidden max-w-[80px] truncate text-xs font-semibold xl:inline-block ${isDark ? 'text-white' : 'text-ink'}`}>{user.firstName}</span>
         <ChevronDown className="w-3.5 h-3.5 text-ink-subtle" />

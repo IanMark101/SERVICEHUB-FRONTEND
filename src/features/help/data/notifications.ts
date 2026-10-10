@@ -24,7 +24,6 @@ export const NOTIFICATIONS_ARTICLES: HelpArticle[] = [
           '📋 Booking Updates: Prompts when a provider accepts, arrives, or completes your booking.',
           '💬 Message Alerts: Unread chat alerts with direct links to the relevant booking conversation.',
           '⏳ Queue Advances: Live updates when your position moves up in an active queue.',
-          '🏷️ Category Suggestion Approvals: Announcements when a community-requested category becomes official.',
         ],
         callout: {
           type: 'tip',

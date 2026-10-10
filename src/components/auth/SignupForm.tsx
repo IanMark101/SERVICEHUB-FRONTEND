@@ -109,7 +109,7 @@ export default function SignupForm({
           <span className="text-xs font-semibold text-ink-muted dark:text-ink-secondary">
             Resident registration
           </span>
-          <span className="text-xs font-semibold text-[#c86544] dark:text-orange-400">
+          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">
             Step {step} of 3
           </span>
         </div>
@@ -129,13 +129,12 @@ export default function SignupForm({
                 aria-current={isActive ? 'step' : undefined}
                 className={`relative min-w-0 px-3 py-3 transition-colors first:pl-0 last:pr-0 ${item.s > 1 ? 'border-l border-black/[0.06] dark:border-white/10' : ''} ${
                   isActive
-                    ? 'text-[#c86544] dark:text-orange-300'
+                    ? 'bg-brand-soft text-brand-text dark:bg-brand/10 dark:text-orange-300'
                     : isCompleted
                     ? 'text-emerald-700 dark:text-emerald-400'
                     : 'text-ink-subtle dark:text-ink-subtle'
                 }`}
               >
-                {isActive && <span className="absolute inset-x-3 -bottom-px h-0.5 bg-[#c86544] first:left-0 dark:bg-orange-400" />}
                 <span className="text-[10px] font-semibold tracking-[0.14em]">
                   {isCompleted ? 'DONE' : `0${item.s}`}
                 </span>
@@ -160,7 +159,7 @@ export default function SignupForm({
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-muted dark:text-ink-muted">
           {step === 1 && 'Enter your personal information to get started with ServiceHub.'}
-          {step === 2 && 'Provide your mobile number and select your Cordova neighborhood.'}
+          {step === 2 && 'Provide your mobile number and enter your city or municipality and barangay.'}
           {step === 3 && 'Choose your avatar and introduce yourself to the community.'}
         </p>
       </div>
@@ -211,10 +210,10 @@ export default function SignupForm({
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
             className={`flex flex-grow items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
               isLoading
-                ? 'servicehub-dark-cta cursor-wait bg-charcoal text-white dark:bg-[#e18463] dark:text-charcoal'
+                ? 'servicehub-dark-cta cursor-wait bg-charcoal text-white dark:bg-brand-on-dark dark:text-charcoal'
                 : (step < 3 ? isNextDisabled : captcha.blocked)
                   ? 'bg-slate-200 dark:bg-charcoal text-ink-subtle dark:text-ink-subtle cursor-not-allowed shadow-none'
-                  : 'servicehub-dark-cta cursor-pointer bg-charcoal text-white hover:bg-charcoal active:translate-y-px dark:bg-[#e18463] dark:text-charcoal dark:hover:bg-[#eb9577]'
+                  : 'servicehub-dark-cta cursor-pointer bg-charcoal text-white hover:bg-charcoal active:translate-y-px dark:bg-brand-on-dark dark:text-charcoal dark:hover:bg-orange-400'
             }`}
           >
             {isLoading ? (
@@ -263,7 +262,7 @@ export default function SignupForm({
         <button
           type="button"
           onClick={toggleMode}
-          className="font-bold text-[#c86544] hover:text-[#aa5032] dark:text-orange-400 dark:hover:text-orange-300 ml-1.5 cursor-pointer focus:outline-none transition-colors"
+          className="font-bold text-brand-text hover:text-brand-action-hover dark:text-orange-400 dark:hover:text-orange-300 ml-1.5 cursor-pointer focus:outline-none transition-colors"
         >
           Log in
         </button>

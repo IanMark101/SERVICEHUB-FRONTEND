@@ -28,11 +28,10 @@ export default function SystemState({
   return (
     <main className="system-state-page" data-tone={tone}>
       <header className="system-state-header">
-        <Link href="/" className="system-state-brand" aria-label="ServiceHub Cordova home">
-          <Image src="/logo.svg?v=6" alt="" width={34} height={34} priority />
+        <Link href="/" className="system-state-brand" aria-label="ServiceHub home">
+          <Image src="/logo.svg?v=7" alt="" width={34} height={34} priority />
           <span>
             <strong>ServiceHub</strong>
-            <small>Cordova</small>
           </span>
         </Link>
         <Link href="/help" className="system-state-help-link">

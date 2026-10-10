@@ -1,8 +1,12 @@
+import type { LocationPoint } from '../lib/location';
 import { api } from '../lib/api/axios';
 
 type PaymentMethods = { cash: boolean; gcash: boolean };
 
 export interface ServicePayload {
+  serviceLocation?: LocationPoint;
+  coverageRadiusKm?: number | null;
+  transportationFee?: number | null;
   categoryId: string;
   title: string;
   description: string;

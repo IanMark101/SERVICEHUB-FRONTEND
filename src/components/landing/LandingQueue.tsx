@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { CircleDollarSign, Clock3, LockKeyhole, Play } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
 import ScrollReveal from './ScrollReveal';
 
 interface LandingQueueProps {
@@ -34,8 +33,6 @@ const queueStages = [
 ];
 
 export default function LandingQueue({ isDark }: LandingQueueProps) {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
     <section
       id="queue"
@@ -54,7 +51,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
           </p>
 
           <div className="mt-8 flex gap-3.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70">
-            <LockKeyhole className="mt-0.5 size-5 shrink-0 text-[#c86544]" />
+            <LockKeyhole className="mt-0.5 size-5 shrink-0 text-brand-text" />
             <div>
               <p className="text-xs font-bold text-[#0a0a0a] dark:text-white">
                 On-Site Cash Stays Outside the Queue
@@ -72,15 +69,14 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
             {queueStages.map((item, index) => {
               const Icon = item.icon;
               return (
-                <motion.div
+                <ScrollReveal
                   key={item.label}
-                  initial={false}
-                  whileInView={shouldReduceMotion ? { opacity: 1, x: 0 } : { opacity: [0.8, 1], x: [18, 0] }}
-                  viewport={{ once: false, amount: 0.7 }}
-                  transition={{ duration: 0.5, delay: 0.14 + index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  direction="right"
+                  amount={0.7}
+                  delay={0.14 + index * 0.1}
                   className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-charcoal/40"
                 >
-                  <div className="grid size-11 place-items-center rounded-xl bg-white text-[#c86544] shadow-xs dark:bg-charcoal dark:text-orange-400">
+                  <div className="grid size-11 place-items-center rounded-xl bg-white text-brand-text shadow-xs dark:bg-charcoal dark:text-orange-400">
                     <Icon size={20} />
                   </div>
                   <div>
@@ -99,13 +95,13 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
                   <span className="text-xs font-bold text-neutral-400 dark:text-zinc-500">
                     {item.step}
                   </span>
-                </motion.div>
+                </ScrollReveal>
               );
             })}
           </div>
 
           <div className="mt-6 border-t border-slate-100 pt-4 text-xs leading-relaxed text-neutral-600 dark:border-zinc-800 dark:text-zinc-400">
-            <a href="#workspaces" className="font-semibold text-[#c86544] underline underline-offset-4 hover:text-[#aa5032] dark:text-orange-300">Preview the workspaces</a> to see where you manage your bookings.
+            <a href="#workspaces" className="font-semibold text-brand-text   hover:text-brand-action-hover dark:text-orange-300">Preview the workspaces</a> to see where you manage your bookings.
           </div>
         </ScrollReveal>
       </div>

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
@@ -72,7 +72,7 @@ describe('Post Request submission', () => {
     expect(postJobRequest).not.toHaveBeenCalled();
     fireEvent.change(screen.getByRole('combobox', { name: 'Urgency' }), { target: { value: 'This Week' } });
     submitRequest();
-    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id', 'FIX KITCHEN FAUCET', 'category-cuid', 'This Week', 650, description, { cash: true, gcash: false }));
+    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id', 'FIX KITCHEN FAUCET', 'category-cuid', 'This Week', 650, description, { cash: true, gcash: false }, { jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, transportationFee: null }));
   });
 
   it('requires fresh category and payment choices for a legacy repost with retired/missing settings', () => {
@@ -92,7 +92,7 @@ describe('Post Request submission', () => {
     submitRequest();
 
     await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith(
-      'seeker-id', 'FIX KITCHEN FAUCET LEAK', 'category-cuid', 'Flexible Schedule', 500, description, { cash: true, gcash: true },
+      'seeker-id', 'FIX KITCHEN FAUCET LEAK', 'category-cuid', 'Flexible Schedule', 500, description, { cash: true, gcash: true }, { jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, transportationFee: null },
     ));
     expect(screen.queryByText(/Your request is live/)).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText('e.g. Need help fixing kitchen faucet leak')).toHaveValue('FIX KITCHEN FAUCET LEAK');
@@ -117,7 +117,7 @@ describe('Post Request submission', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: methods.cash ? /GCash/ : 'On-site Cash' }));
     submitRequest();
     await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith(
-      'seeker-id', 'FIX KITCHEN FAUCET LEAK', 'category-cuid', 'Flexible Schedule', 500, description, methods,
+      'seeker-id', 'FIX KITCHEN FAUCET LEAK', 'category-cuid', 'Flexible Schedule', 500, description, methods, { jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, transportationFee: null },
     ));
     expect(screen.getByRole('checkbox', { name: 'On-site Cash' })).toHaveProperty('checked', methods.cash);
     expect(screen.getByRole('checkbox', { name: /GCash/ })).toHaveProperty('checked', methods.gcash);
@@ -190,3 +190,7 @@ describe('Post Request submission', () => {
     }));
   });
 });
+
+// These regression tests supply an explicit location fixture; location interaction is tested separately.
+vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled }: { onChange: (point: { latitude:number; longitude:number; label:string }) => void; disabled?:boolean }) => <button type="button" data-testid="test-location" disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
+function render(...args: Parameters<typeof rtlRender>) { const view = rtlRender(...args); const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]'); if (choice) fireEvent.click(choice); return view; }

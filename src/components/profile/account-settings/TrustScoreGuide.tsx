@@ -41,7 +41,7 @@ export default function TrustScoreGuide({
 
       {isOpen && (
         <div className="space-y-4 text-xs leading-relaxed">
-          <p className={labelText}>Your Trust Score (0 to 100) reflects your reliability, transparency, and history in the Cordova marketplace. All accounts start at a baseline of 50.</p>
+          <p className={labelText}>Your Trust Score (0 to 100) reflects your reliability, transparency, and history in the ServiceHub marketplace. All accounts start at a baseline of 50.</p>
 
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             {bands.map((band) => (

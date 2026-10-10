@@ -80,8 +80,12 @@ export default function ParticlesComponent({ isDark, variant = "blue", className
       if (disposed || !ready || !inView || document.hidden || !host.clientWidth || !host.clientHeight) return;
       const mobile = host.clientWidth < 768;
       const animate = !motion.matches;
+      // Canvas libraries need resolved color values, rather than CSS var() strings.
+      const themeColors = getComputedStyle(host);
+      const brand = themeColors.getPropertyValue('--color-brand').trim();
+      const brandOnDark = themeColors.getPropertyValue('--color-brand-on-dark').trim();
       const colors = variant === "brand"
-        ? { particles: dark ? "#e4a18a" : "#c86544", lines: dark ? "#e4a18a" : "#c86544", accent: "#d49b86" }
+        ? { particles: dark ? brandOnDark : brand, lines: dark ? brandOnDark : brand, accent: themeColors.getPropertyValue('--color-orange-400').trim() }
         : dark
           ? { particles: "#00f5ff", lines: "#00d9ff", accent: "#0096c7" }
           : { particles: "#0277bd", lines: "#0288d1", accent: "#039be5" };

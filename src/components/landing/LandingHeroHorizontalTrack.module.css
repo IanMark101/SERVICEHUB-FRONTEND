@@ -50,8 +50,8 @@
   border-color: rgb(255 253 250 / 0.12);
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--color-orange-600, #c86544) 20%, var(--color-orange-700, #aa5032)),
-    var(--color-orange-700, #aa5032)
+    color-mix(in srgb, var(--color-orange-600, var(--color-brand-action)) 20%, var(--color-orange-700, var(--color-brand-action-hover))),
+    var(--color-orange-700, var(--color-brand-action-hover))
   );
   box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset, 0 34px 74px -34px rgb(40 35 29 / 0.3), 0 10px 26px -14px rgb(40 35 29 / 0.14);
 }

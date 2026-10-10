@@ -1,0 +1,47 @@
+/* ServiceHub orange. Edit this palette to rebrand every orange surface.
+   The reference orange is an accent; actions and text use readable shades. */
+@theme {
+  --color-brand: #ff6b00;
+  --color-brand-action: #c24c00;
+  --color-brand-action-hover: #a64000;
+  --color-brand-heading: #df5b00;
+  --color-brand-text: #b84700;
+  --color-brand-focus: #c24c00;
+  --color-brand-on-dark: #ff9a52;
+  --color-brand-soft: #fff4eb;
+  --color-brand-border: #ffc799;
+
+  --color-orange-50: var(--color-brand-soft);
+  --color-orange-100: #ffe5d0;
+  --color-orange-200: var(--color-brand-border);
+  --color-orange-300: #ffad66;
+  --color-orange-400: #ff9140;
+  --color-orange-500: var(--color-brand-action);
+  --color-orange-600: var(--color-brand-action);
+  --color-orange-700: #b84700;
+  --color-orange-800: #963a00;
+  --color-orange-900: #732c00;
+  --color-orange-950: #3c1700;
+
+  /* Existing utilities remain compatible with the shared palette. */
+  --color-claude-50: var(--color-orange-50);
+  --color-claude-100: var(--color-orange-100);
+  --color-claude-200: var(--color-orange-200);
+  --color-claude-300: var(--color-orange-300);
+  --color-claude-400: var(--color-orange-400);
+  --color-claude-500: var(--color-orange-500);
+  --color-claude-600: var(--color-orange-600);
+  --color-claude-700: var(--color-orange-700);
+  --color-claude-800: var(--color-orange-800);
+  --color-claude-900: var(--color-orange-900);
+  --color-seeker-light: var(--color-brand-soft);
+  --color-seeker-primary: var(--color-brand-action);
+  --color-seeker-navigation: var(--color-seeker-primary);
+  --color-seeker-hover: var(--color-brand-action-hover);
+}
+
+.dark {
+  --color-brand-text: var(--color-brand-on-dark);
+  --color-brand-heading: var(--color-brand);
+  --color-brand-focus: var(--color-orange-300);
+}

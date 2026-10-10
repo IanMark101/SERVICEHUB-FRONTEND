@@ -78,7 +78,7 @@ describe('Activity card actions with the new hierarchy', () => {
       progressEvents: [{ id: 'cancel', kind: 'CANCELED', actorRole: 'SEEKER', occurredAt: '2026-10-03T05:15:00.000Z' }] });
     if (role === 'provider') render(<ProviderActivityItem item={{ type: 'engagement', data: mapped }} model={providerModel({ getCategoryForEngagement: () => 'General' })} />);
     else render(<SeekerActivityItem engagement={mapped} model={seekerModel({ getCategoryForEngagement: () => 'General' })} />);
-    expect(screen.getByText('Electrical repair')).toHaveClass(role === 'provider' ? 'text-emerald-600' : 'text-orange-600');
+    expect(screen.getByText('Electrical repair')).toHaveClass(role === 'provider' ? 'text-emerald-600' : 'text-brand-text');
     expect(screen.queryByText('General')).not.toBeInTheDocument();
     expect(screen.getByText('45 min')).toBeInTheDocument();
     expect(screen.getByText('Booking details')).toBeInTheDocument();

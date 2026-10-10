@@ -137,12 +137,12 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                         <span className="inline-flex items-center gap-1 rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-orange-700 dark:text-orange-300">
                           Request
                         </span>
-                        <span className="text-lg font-black tabular-nums text-orange-600 dark:text-orange-400">
+                        <span className="text-lg font-black tabular-nums text-brand-text dark:text-orange-400">
                           ₱{request.budget}
                         </span>
                       </div>
                       <div>
-                        <h4 className="uppercase break-words [overflow-wrap:anywhere] text-base font-bold tracking-tight text-[color:var(--workspace-ink)] group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                        <h4 className="uppercase break-words [overflow-wrap:anywhere] text-base font-bold tracking-tight text-[color:var(--workspace-ink)] group-hover:text-brand-text dark:group-hover:text-orange-400 transition-colors">
                           {request.title}
                         </h4>
                         <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-[color:var(--workspace-muted)]">
@@ -238,12 +238,12 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                           <span className="inline-flex items-center gap-1 rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-orange-700 dark:text-orange-300">
                             Request
                           </span>
-                          <span className="text-lg font-black tabular-nums text-orange-600 dark:text-orange-400">
+                          <span className="text-lg font-black tabular-nums text-brand-text dark:text-orange-400">
                             ₱{request.budget}
                           </span>
                         </div>
                         <div>
-                          <h4 className="uppercase break-words [overflow-wrap:anywhere] text-base font-bold tracking-tight text-[color:var(--workspace-ink)] group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                          <h4 className="uppercase break-words [overflow-wrap:anywhere] text-base font-bold tracking-tight text-[color:var(--workspace-ink)] group-hover:text-brand-text dark:group-hover:text-orange-400 transition-colors">
                             {request.title}
                           </h4>
                           <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-[color:var(--workspace-muted)]">

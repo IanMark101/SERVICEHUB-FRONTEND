@@ -1,0 +1,51 @@
+.section { padding: clamp(56px, 7vw, 88px) 32px; border-bottom: 1px solid #e5e2de; color: #171716; }
+.container { max-width: 1024px; margin-inline: auto; }
+.headingGroup { text-align: center; }
+.headingGroup h2 { max-width: 25ch; margin-inline: auto; font-size: clamp(30px, 3.8vw, 46px); font-weight: 700; line-height: 1.16; letter-spacing: -.03em; text-wrap: balance; }
+.headingGroup p { max-width: 65ch; margin: 16px auto 0; color: #625e59; font-size: 16px; line-height: 1.65; }
+.frame { overflow: hidden; margin-top: 36px; border: 1px solid #e5e2de; border-radius: 16px; background: #fefdfc; }
+.table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; line-height: 1.6; }
+.facebookColumn { width: 150px; }
+.serviceHubColumn { width: 160px; }
+.table th, .table td { padding: 18px 24px; text-align: left; vertical-align: middle; }
+.table thead { border-bottom: 1px solid #e5e2de; background: #f5f3f0; }
+.table thead th { font-size: 13px; font-weight: 650; }
+.table .platform, .table td { text-align: center; }
+.platform span { display: block; margin-top: 3px; color: #625e59; font-size: 11px; font-weight: 400; }
+.table tbody tr + tr { border-top: 1px solid #ece9e5; }
+.table .serviceHub { background: color-mix(in srgb, var(--color-brand) 3%, #fefdfc); }
+.table thead .serviceHub { background: var(--color-brand-soft); color: var(--color-brand-text); }
+.table thead .serviceHub span { color: var(--color-orange-800); }
+.featureTitle { display: block; font-size: 14px; font-weight: 650; }
+.featureDetail { display: block; margin-top: 4px; color: #625e59; font-size: 12px; font-weight: 400; }
+.included, .manual { display: inline-grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; }
+.included { background: #e8f7f1; color: #047857; }
+.manual { color: #73716c; }
+.scope { max-width: 76ch; margin: 16px auto 0; color: #625e59; font-size: 12px; line-height: 1.65; text-align: center; }
+:global(.dark) .section { border-color: #353431; color: #f5f3ef; }
+:global(.dark) .headingGroup p, :global(.dark) .platform span, :global(.dark) .featureDetail, :global(.dark) .scope { color: #b6b1aa; }
+:global(.dark) .frame { border-color: #353431; background: var(--color-charcoal-surface, #1c1c1b); }
+:global(.dark) .table thead { border-color: #353431; background: #222220; }
+:global(.dark) .table tbody tr + tr { border-color: #353431; }
+:global(.dark) .table .serviceHub { background: color-mix(in srgb, var(--color-brand) 5%, var(--color-charcoal-surface, #1c1c1b)); }
+:global(.dark) .table thead .serviceHub, :global(.dark) .table thead .serviceHub span { color: var(--color-brand-on-dark); }
+:global(.dark) .included { background: #123c30; color: #6ee7b7; }
+:global(.dark) .manual { color: #b6b1aa; }
+@media (max-width: 767px) {
+  .section { padding: 48px 20px; }
+  .headingGroup h2 { font-size: 30px; }
+  .headingGroup p { font-size: 15px; }
+  .facebookColumn { width: 90px; }
+  .serviceHubColumn { width: 100px; }
+  .table th, .table td { padding: 16px 14px; }
+  .table thead th { font-size: 12px; }
+  .platform span { display: none; }
+  .featureTitle { font-size: 13px; }
+  .featureDetail { font-size: 11px; }
+}
+@media (max-width: 399px) {
+  .facebookColumn { width: 66px; }
+  .serviceHubColumn { width: 82px; }
+  .table th, .table td { padding-inline: 12px; }
+  .featureDetail { display: none; }
+}

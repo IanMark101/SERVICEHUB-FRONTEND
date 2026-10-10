@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowRight, MagnifyingGlass } from '@phosphor-icons/react';
 import HelpSearch from '../components/HelpSearch';
@@ -10,9 +9,8 @@ import { searchHelpArticles } from '../utils/helpSearch';
 import { SearchResult } from '../types/help.types';
 import { HELP_CATEGORIES } from '../data/categories';
 
-export default function HelpSearchPage() {
-  const searchParams = useSearchParams();
-  const rawQuery = searchParams.get('q') || '';
+export default function HelpSearchPage({ query }: { query: string }) {
+  const rawQuery = query;
   const results: SearchResult[] = rawQuery ? searchHelpArticles(rawQuery) : [];
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const filteredResults = selectedCategory === 'all'
@@ -24,9 +22,9 @@ export default function HelpSearchPage() {
       <HelpBreadcrumbs items={[{ label: 'Search help' }]} />
 
       <header className="relative max-w-5xl border-b border-black/10 pb-9 dark:border-white/10 sm:pb-11">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-14 -top-20 -z-10 h-72 w-[42rem] max-w-[90vw] rounded-full bg-[#d97757]/8 blur-[120px] dark:bg-[#c86544]/6" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-14 -top-20 -z-10 h-72 w-[42rem] max-w-[90vw] rounded-full bg-brand/8 blur-[120px] dark:bg-brand/6" />
         <div className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">
-          <MagnifyingGlass size={16} className="text-[#c86544] dark:text-[#e18463]" aria-hidden="true" />
+          <MagnifyingGlass size={16} className="text-brand-text dark:text-brand-on-dark" aria-hidden="true" />
           Search the Help Center
         </div>
         <h1 className="mt-6 max-w-[14ch] text-[clamp(2.5rem,4.8vw,5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-ink dark:text-white">
@@ -71,17 +69,17 @@ export default function HelpSearchPage() {
                 <Link
                   key={result.article.slug}
                   href={`/help/${result.article.category}/${result.article.slug}`}
-                  className="group grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-b border-black/8 py-6 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/10"
+                  className="group grid grid-cols-[minmax(0,1fr)_auto] gap-5 border-b border-black/8 py-6 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:border-white/10"
                 >
                   <span>
                     <span className="text-[11px] font-medium text-ink-subtle dark:text-white/48">
                       {result.category.shortTitle || result.category.title} / {result.article.readTimeMinutes} min read
                     </span>
-                    <span className="mt-2 block text-lg font-semibold leading-6 tracking-[-0.025em] text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">
+                    <span className="mt-2 block text-lg font-semibold leading-6 tracking-[-0.025em] text-ink transition-colors group-hover:text-brand-text dark:text-white dark:group-hover:text-brand-on-dark">
                       {result.article.title}
                     </span>
                     <span className="mt-2 block text-sm leading-6 text-ink-muted dark:text-white/58">{result.article.description}</span>
-                    <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#c86544] dark:text-[#e18463]">
+                    <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-brand-text dark:text-brand-on-dark">
                       Read guide
                       <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
                     </span>
@@ -108,10 +106,10 @@ function FilterButton({ active, children, onClick }: { active: boolean; children
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c86544] ${
+      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-focus ${
         active
           ? 'border-[#171716] bg-charcoal text-white dark:border-[#f5f4f2] dark:bg-[#f5f4f2] dark:text-charcoal'
-          : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:border-[#c86544]/40 hover:text-[#c86544] dark:border-white/12 dark:bg-charcoal dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]'
+          : 'border-black/10 bg-[#fffdfa] text-ink-muted hover:border-brand/40 hover:text-brand-text dark:border-white/12 dark:bg-charcoal dark:text-white/64 dark:hover:border-brand-on-dark/45 dark:hover:text-brand-on-dark'
       }`}
     >
       {children}
@@ -124,7 +122,7 @@ function EmptySearchState({ query }: { query: string }) {
     <div className="border-b border-black/8 py-12 dark:border-white/10">
       <p className="text-xl font-semibold tracking-[-0.025em] text-ink dark:text-white">No guides matched &quot;{query}&quot;.</p>
       <p className="mt-3 max-w-xl text-sm leading-6 text-ink-muted dark:text-white/58">Try a broader term such as verification, queue, payment hold, or trust score.</p>
-      <Link href="/help" className="mt-6 inline-flex items-center gap-2 text-xs font-semibold text-[#c86544] hover:text-[#aa5032] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-[#e18463]">
+      <Link href="/help" className="mt-6 inline-flex items-center gap-2 text-xs font-semibold text-brand-text hover:text-brand-action-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:text-brand-on-dark">
         Browse all collections
         <ArrowRight size={14} aria-hidden="true" />
       </Link>

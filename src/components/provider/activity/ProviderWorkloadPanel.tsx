@@ -76,7 +76,7 @@ export default function ProviderWorkloadPanel({ onOpen, onStart, startingBooking
             {current ? <>
               <p className="mt-2 font-bold text-ink dark:text-ink">{jobTitle(current)}</p>
               <p className="text-sm text-ink-muted dark:text-ink-secondary">{current.seeker.name} · {currentStatus}</p>
-              {currentId && <button type="button" onClick={() => onOpen(currentId)} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 hover:underline dark:text-emerald-400">Open booking <ArrowRight size={15} /></button>}
+              {currentId && <button type="button" onClick={() => onOpen(currentId)} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700  dark:text-emerald-400">Open booking <ArrowRight size={15} /></button>}
             </> : <p className="mt-2 text-sm text-ink-muted dark:text-ink-secondary">No job in progress.</p>}
           </div>
           <div className="rounded-xl bg-emerald-50/70 p-4 dark:bg-emerald-950/20">
@@ -85,7 +85,7 @@ export default function ProviderWorkloadPanel({ onOpen, onStart, startingBooking
               <p className="mt-2 font-bold text-ink dark:text-ink">{jobTitle(next.booking)}</p>
               <p className="text-sm text-ink-muted dark:text-ink-secondary">{next.booking.seeker.name} · Position #{next.position}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {next.bookingId && <button type="button" onClick={() => onOpen(next.bookingId!)} className="text-sm font-semibold text-emerald-800 hover:underline dark:text-emerald-300">Details</button>}
+                {next.bookingId && <button type="button" onClick={() => onOpen(next.bookingId!)} className="text-sm font-semibold text-emerald-800  dark:text-emerald-300">Details</button>}
                 {next.bookingId && <button type="button" disabled={!canStartNext || !!startingBookingId} onClick={() => onStart(next.bookingId!)} title={nextBlockedReason || undefined} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-ink-muted dark:disabled:bg-charcoal dark:disabled:text-ink-secondary">{startingBookingId === next.bookingId ? 'Starting…' : 'Start Job'}</button>}
               </div>
               {nextBlockedReason && <p className="mt-2 text-xs leading-5 text-amber-800 dark:text-amber-300">{nextBlockedReason}</p>}

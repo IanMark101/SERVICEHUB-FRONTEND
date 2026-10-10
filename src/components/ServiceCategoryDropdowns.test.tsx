@@ -1,4 +1,4 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../context/AppContext';
 import { useTransactionPermission } from '../hooks/useTransactionPermission';
@@ -50,7 +50,7 @@ describe('Seeker and Provider admin-managed categories', () => {
     expect(categoryOptions(seeker.container)).toEqual(expected);
     expect(categoryOptions(provider.container)).toEqual(expected);
 
-    // An Admin approval adds an active row to the shared /categories response.
+    // Admin creation adds an active row to the shared /categories response.
     activeCategories = [...activeCategories, { id: 'haircut-id', name: 'Haircut' }];
     seeker.rerender(<PostRequest />);
     provider.rerender(<OfferServices />);
@@ -109,8 +109,39 @@ describe('Seeker and Provider admin-managed categories', () => {
     fireEvent.submit(seeker.container.querySelector('form')!);
     fireEvent.submit(provider.container.querySelector('form')!);
     await waitFor(() => {
-      expect(postJobRequest).toHaveBeenCalledWith('resident-id', 'FIX KITCHEN FAUCET LEAK', 'plumbing-id', 'Flexible Schedule', 500, expect.any(String), expect.any(Object));
+      expect(postJobRequest).toHaveBeenCalledWith('resident-id', 'FIX KITCHEN FAUCET LEAK', 'plumbing-id', 'Flexible Schedule', 500, expect.any(String), expect.any(Object), expect.objectContaining({ jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' } }));
       expect(createServiceListing).toHaveBeenCalledWith('resident-id', '', 'plumbing-id', 500, '', expect.any(Object), expect.any(Object));
     });
   });
+
+  it('places Other Services last in both forms and submits its official fallback ID', async () => {
+    activeCategories = [{ id: 'fallback-id', name: 'Other Services' }, ...activeCategories, { id: 'haircut-id', name: 'Haircut' }];
+    postJobRequest.mockResolvedValue(true);
+    createServiceListing.mockResolvedValue({ success: true, data: { id: 'listing-id' } });
+    const seeker = render(<PostRequest />);
+    const provider = render(<OfferServices />);
+    const expected = [
+      { value: '', name: 'Select a category...' },
+      { value: 'plumbing-id', name: 'Plumbing' },
+      { value: 'haircut-id', name: 'Haircut' },
+      { value: 'fallback-id', name: 'Other Services' },
+    ];
+    expect(categoryOptions(seeker.container)).toEqual(expected);
+    expect(categoryOptions(provider.container)).toEqual(expected);
+    fireEvent.change(seeker.container.querySelector('select')!, { target: { value: 'fallback-id' } });
+    fireEvent.change(provider.container.querySelector('select')!, { target: { value: 'fallback-id' } });
+    fireEvent.change(seeker.container.querySelector('input[placeholder="e.g. Need help fixing kitchen faucet leak"]')!, { target: { value: 'Repair aquarium pump' } });
+    fireEvent.change(seeker.container.querySelector('textarea')!, { target: { value: 'The aquarium circulation pump needs inspection and repair.' } });
+    fireEvent.change(seeker.container.querySelector('#request-urgency')!, { target: { value: 'Flexible Schedule' } });
+    fireEvent.submit(seeker.container.querySelector('form')!);
+    fireEvent.submit(provider.container.querySelector('form')!);
+    await waitFor(() => {
+      expect(postJobRequest).toHaveBeenCalledWith('resident-id', 'REPAIR AQUARIUM PUMP', 'fallback-id', 'Flexible Schedule', 500, expect.any(String), expect.any(Object), expect.any(Object));
+      expect(createServiceListing).toHaveBeenCalledWith('resident-id', '', 'fallback-id', 500, '', expect.any(Object), expect.any(Object));
+    });
+  });
 });
+
+// These regression tests supply an explicit location fixture; location interaction is tested separately.
+vi.mock('./location/LocationField', () => ({ default: ({ onChange, disabled }: { onChange: (point: { latitude:number; longitude:number; label:string }) => void; disabled?:boolean }) => <button type="button" data-testid="test-location" disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
+function render(...args: Parameters<typeof rtlRender>) { const view = rtlRender(...args); const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]'); if (choice) fireEvent.click(choice); return view; }

@@ -49,7 +49,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
           </p>
           <Link
             href="/help"
-            className="mt-8 inline-flex items-center text-sm font-bold text-[#c86544] underline decoration-[#c86544]/30 underline-offset-4 hover:decoration-[#c86544] active:scale-[0.98]"
+            className="mt-8 inline-flex items-center text-sm font-bold text-brand-text     active:scale-[0.98]"
           >
             Open the Help Center
           </Link>
@@ -64,7 +64,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
                   <button
                     type="button"
                     onClick={() => setOpen(expanded ? null : index)}
-                    className="flex w-full items-center justify-between gap-6 py-4.5 text-left text-sm font-bold text-[#0a0a0a] transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:text-white dark:hover:text-orange-300"
+                    className="flex w-full items-center justify-between gap-6 py-4.5 text-left text-sm font-bold text-[#0a0a0a] transition-colors hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:text-white dark:hover:text-orange-300"
                     aria-expanded={expanded}
                     aria-controls={`faq-panel-${index}`}
                   >
@@ -72,7 +72,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
                     <ChevronDown
                       size={18}
                       className={`shrink-0 text-neutral-400 transition-transform duration-200 ${
-                        expanded ? 'rotate-180 text-[#c86544]' : ''
+                        expanded ? 'rotate-180 text-brand-text' : ''
                       }`}
                     />
                   </button>

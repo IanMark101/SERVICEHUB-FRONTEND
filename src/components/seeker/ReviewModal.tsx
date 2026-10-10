@@ -159,7 +159,7 @@ export default function ReviewModal({
                             : 'bg-emerald-50 border-emerald-200 text-emerald-700'
                           : isDark
                             ? 'bg-orange-500/15 border-orange-500/30 text-orange-400'
-                            : 'bg-orange-50 border-orange-200 text-orange-600'
+                            : 'bg-orange-50 border-orange-200 text-brand-text'
                         : isDark
                           ? 'bg-charcoal-inset border-neutral-800 text-ink-muted hover:bg-charcoal-hover'
                           : 'bg-slate-50 border-slate-200 text-ink-muted hover:bg-slate-100'

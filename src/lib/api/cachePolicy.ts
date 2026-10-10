@@ -25,6 +25,7 @@ export function getCachePolicy(path: string): CachePolicy | null {
   if (/\/(access|proofs|evidence|account-deletion|security|payments|payment-attempts)(\/|$)/.test(path)
     || /^\/verifications/.test(path)
     || /^\/admin\/bookings\/[^/]+\/messages$/.test(path)) return null;
+  if (path === '/services/nearby' || path === '/requests/nearby' || path.startsWith('/locations')) return null; // Search coordinates remain outside shared/persistent API caches.
   if (path === '/categories') return { tags: ['categories'], ttl: 300_000, persist: true, public: true };
   if (path.startsWith('/categories/')) return { tags: ['categories'], ttl: 30_000, persist: false, public: false };
   if (/^\/services(?:\/|$)/.test(path)) return { tags: ['services'], ttl: 20_000, persist: true, public: path !== '/services/mine' };

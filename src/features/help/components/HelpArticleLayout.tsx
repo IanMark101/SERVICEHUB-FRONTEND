@@ -59,7 +59,7 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
       info: {
         background: 'border-[#d9d3cc] bg-[#f5f4f2] dark:border-white/12 dark:bg-charcoal',
         icon: Info,
-        iconColor: 'text-[#c86544] dark:text-[#e18463]',
+        iconColor: 'text-brand-text dark:text-brand-on-dark',
         defaultTitle: 'Note',
       },
       warning: {
@@ -111,9 +111,9 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
       />
 
       <header className="relative max-w-5xl border-b border-black/10 pb-9 dark:border-white/10 sm:pb-11">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-20 -z-10 h-72 w-[42rem] max-w-[90vw] rounded-full bg-[#d97757]/8 blur-[120px] dark:bg-[#c86544]/6" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-20 -z-10 h-72 w-[42rem] max-w-[90vw] rounded-full bg-brand/8 blur-[120px] dark:bg-brand/6" />
         <div className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">
-          <BookOpen size={16} className="text-[#c86544] dark:text-[#e18463]" aria-hidden="true" />
+          <BookOpen size={16} className="text-brand-text dark:text-brand-on-dark" aria-hidden="true" />
           <span>{category?.title || 'Help guide'}</span>
         </div>
         <h1 className="mt-6 max-w-[20ch] text-[clamp(2.5rem,4.8vw,5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-ink dark:text-white">
@@ -128,7 +128,7 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
           <button
             type="button"
             onClick={handleCopyLink}
-            className="inline-flex items-center gap-2 font-semibold text-ink-muted transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:text-white/64 dark:hover:text-[#e18463]"
+            className="inline-flex items-center gap-2 font-semibold text-ink-muted transition-colors hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:text-white/64 dark:hover:text-brand-on-dark"
           >
             {copyState === 'copied' ? <Check size={16} aria-hidden="true" /> : <ShareNetwork size={16} aria-hidden="true" />}
             {shareLabel}
@@ -143,7 +143,7 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
               <p className="text-sm font-semibold text-ink dark:text-white">In this guide</p>
               <div className="mt-4 space-y-3">
                 {guideHeadings.map((heading) => (
-                  <a key={heading.id} href={`#${heading.id}`} className="block text-xs leading-5 text-ink-muted transition-colors hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#c86544] dark:text-white/56 dark:hover:text-[#e18463]">
+                  <a key={heading.id} href={`#${heading.id}`} className="block text-xs leading-5 text-ink-muted transition-colors hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-brand-focus dark:text-white/56 dark:hover:text-brand-on-dark">
                     {heading.label}
                   </a>
                 ))}
@@ -165,12 +165,12 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
                 <p key={paragraphIndex} className="text-sm leading-7 sm:text-base sm:leading-8">{paragraph}</p>
               ))}
               {section.bullets && (
-                <ul className="space-y-3 pl-5 text-sm leading-7 marker:text-[#c86544] dark:marker:text-[#e18463] sm:text-base sm:leading-8">
+                <ul className="space-y-3 pl-5 text-sm leading-7 marker:text-brand-text dark:marker:text-brand-on-dark sm:text-base sm:leading-8">
                   {section.bullets.map((bullet, bulletIndex) => <li key={bulletIndex}>{bullet}</li>)}
                 </ul>
               )}
               {section.steps && (
-                <ol className="space-y-3 pl-5 text-sm leading-7 marker:font-semibold marker:text-[#c86544] dark:marker:text-[#e18463] sm:text-base sm:leading-8">
+                <ol className="space-y-3 pl-5 text-sm leading-7 marker:font-semibold marker:text-brand-text dark:marker:text-brand-on-dark sm:text-base sm:leading-8">
                   {section.steps.map((step, stepIndex) => <li key={stepIndex}>{step}</li>)}
                 </ol>
               )}
@@ -198,15 +198,15 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
       {(prevArticle || nextArticle) && (
         <nav className="grid gap-4 border-y border-black/8 py-6 dark:border-white/10 sm:grid-cols-2" aria-label="Guide navigation">
           {prevArticle ? (
-            <Link href={`/help/${prevArticle.category}/${prevArticle.slug}`} className="group rounded-xl p-4 transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-charcoal">
+            <Link href={`/help/${prevArticle.category}/${prevArticle.slug}`} className="group rounded-xl p-4 transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:hover:bg-charcoal">
               <span className="flex items-center gap-2 text-xs font-medium text-ink-subtle dark:text-white/48"><ArrowLeft size={14} aria-hidden="true" />Previous guide</span>
-              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{prevArticle.title}</span>
+              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-brand-text dark:text-white dark:group-hover:text-brand-on-dark">{prevArticle.title}</span>
             </Link>
           ) : <div aria-hidden="true" />}
           {nextArticle ? (
-            <Link href={`/help/${nextArticle.category}/${nextArticle.slug}`} className="group rounded-xl p-4 text-right transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:hover:bg-charcoal">
+            <Link href={`/help/${nextArticle.category}/${nextArticle.slug}`} className="group rounded-xl p-4 text-right transition-colors hover:bg-[#fffdfa] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:hover:bg-charcoal">
               <span className="flex items-center justify-end gap-2 text-xs font-medium text-ink-subtle dark:text-white/48">Next guide<ArrowRight size={14} aria-hidden="true" /></span>
-              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{nextArticle.title}</span>
+              <span className="mt-2 block text-sm font-semibold text-ink transition-colors group-hover:text-brand-text dark:text-white dark:group-hover:text-brand-on-dark">{nextArticle.title}</span>
             </Link>
           ) : <div aria-hidden="true" />}
         </nav>
@@ -222,13 +222,13 @@ export default function HelpArticleLayout({ article, prevArticle, nextArticle }:
               <Link
                 key={relatedArticle.slug}
                 href={`/help/${relatedArticle.category}/${relatedArticle.slug}`}
-                className="group grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-black/8 py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/10"
+                className="group grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-black/8 py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:border-white/10"
               >
                 <span>
-                  <span className="block text-sm font-semibold text-ink transition-colors group-hover:text-[#c86544] dark:text-white dark:group-hover:text-[#e18463]">{relatedArticle.title}</span>
+                  <span className="block text-sm font-semibold text-ink transition-colors group-hover:text-brand-text dark:text-white dark:group-hover:text-brand-on-dark">{relatedArticle.title}</span>
                   <span className="mt-1.5 block text-xs leading-5 text-ink-muted dark:text-white/58">{relatedArticle.description}</span>
                 </span>
-                <ArrowRight size={16} className="mt-1 text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-[#c86544] dark:text-white/44 dark:group-hover:text-[#e18463]" aria-hidden="true" />
+                <ArrowRight size={16} className="mt-1 text-ink-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-brand-text dark:text-white/44 dark:group-hover:text-brand-on-dark" aria-hidden="true" />
               </Link>
             ))}
           </div>
@@ -243,7 +243,7 @@ function FeedbackButton({ children, label, onClick }: { children: React.ReactNod
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-[#fffdfa] px-4 py-2.5 text-xs font-medium text-ink-secondary transition-colors hover:border-[#c86544]/40 hover:text-[#c86544] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-charcoal dark:text-white/64 dark:hover:border-[#e18463]/45 dark:hover:text-[#e18463]"
+      className="inline-flex items-center gap-2 rounded-xl border border-black/10 bg-[#fffdfa] px-4 py-2.5 text-xs font-medium text-ink-secondary transition-colors hover:border-brand/40 hover:text-brand-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-focus dark:border-white/12 dark:bg-charcoal dark:text-white/64 dark:hover:border-brand-on-dark/45 dark:hover:text-brand-on-dark"
     >
       <span aria-hidden="true">{children}</span>
       {label}

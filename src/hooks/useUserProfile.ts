@@ -14,6 +14,7 @@ import { useToast } from '../components/ui/Toast';
 import { getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
 import type { JobEngagement } from '../types';
 import type { ProfileReviewContext, ProfileReviewStatsByContext } from '../types/reviews';
+import { profileUpdateSchema } from '../schema/profileValidation';
 
 interface ProfileReview {
   id: string;
@@ -152,12 +153,18 @@ export function useUserProfile({
       .then((res: { success: boolean; data: PublicProfile }) => {
         if (!active) return;
         if (!res.success || !res.data) throw new Error('Profile could not load.');
-          setProfileState({ userId, data: res.data, error: false });
+          // Public profiles omit private contact details. For the owner, keep
+          // the authenticated session's phone instead of replacing it with ''.
+          const loadedProfile = {
+            ...res.data,
+            ...(isOwnProfile ? { phone: res.data.phone ?? targetUser.phone ?? '' } : {}),
+          };
+          setProfileState({ userId, data: loadedProfile, error: false });
           setEditForm(prev => ({
             ...prev,
             name: res.data.name || '',
             bio: res.data.bio || '',
-            phone: res.data.phone || '',
+            phone: loadedProfile.phone || '',
             location: res.data.location || '',
             avatarUrl: res.data.avatarUrl || '',
             facebookUrl: res.data.facebookUrl || '',
@@ -194,7 +201,7 @@ export function useUserProfile({
       });
     }, 0);
     return () => { active = false; window.clearTimeout(timer); };
-  }, [targetUser?.id, isOwnProfile, setUser, cacheRevision]);
+  }, [targetUser?.id, targetUser?.phone, isOwnProfile, setUser, cacheRevision]);
 
   // Fetch AI Summary for Provider
   useEffect(() => {
@@ -293,7 +300,7 @@ export function useUserProfile({
   if (avatarUrl) completionScore += 15; else missingItems.push({ label: 'Profile Picture', key: 'avatar' });
   if (bio && bio.length > 10) completionScore += 20; else missingItems.push({ label: 'Bio / Description', key: 'bio' });
   if (phone) completionScore += 15; else missingItems.push({ label: 'Phone Number', key: 'phone' });
-  if (location) completionScore += 15; else missingItems.push({ label: 'Cordova Barangay Location', key: 'location' });
+  if (location) completionScore += 15; else missingItems.push({ label: 'City / municipality and barangay', key: 'location' });
   if (verStatus === 'APPROVED') completionScore += 25; else missingItems.push({ label: 'Residency Verification', key: 'verification' });
   if (completedJobs > 0 || providerServices.length > 0) completionScore += 10; else missingItems.push({ label: 'Active Listing or Booking', key: 'listing' });
 
@@ -322,9 +329,25 @@ export function useUserProfile({
   };
 
   const handleSaveProfile = async (confirmedPassword?: string) => {
-    const originalPhone = (profile?.phone || targetUser?.phone || '').trim();
-    const newPhone = (editForm.phone || '').trim();
-    const isPhoneChanging = newPhone !== '' && newPhone !== originalPhone;
+    if (!profile) {
+      toastError('Your profile has not loaded. Please try again before saving.');
+      return;
+    }
+    const changes: Parameters<typeof apiUpdateProfile>[0] = {};
+    for (const field of ['name', 'bio', 'phone', 'location', 'avatarUrl', 'facebookUrl', 'instagramUrl', 'websiteUrl'] as const) {
+      const value = editForm[field].trim();
+      if (value !== (profile[field] ?? '').trim()) changes[field] = value;
+    }
+    const validation = profileUpdateSchema.safeParse(changes);
+    if (!validation.success) {
+      toastError(validation.error.issues[0].message);
+      return;
+    }
+    if (Object.keys(validation.data).length === 0) {
+      toastSuccess('No profile changes to save.');
+      return;
+    }
+    const isPhoneChanging = validation.data.phone !== undefined;
 
     if (isPhoneChanging) {
       if (hasActiveEngagements) {
@@ -341,18 +364,18 @@ export function useUserProfile({
     setSaving(true);
     try {
       const res = await apiUpdateProfile({
-        name: editForm.name,
-        bio: editForm.bio,
-        phone: editForm.phone,
-        location: editForm.location,
-        avatarUrl: editForm.avatarUrl,
-        facebookUrl: editForm.facebookUrl,
-        instagramUrl: editForm.instagramUrl,
-        websiteUrl: editForm.websiteUrl,
-        ...(confirmedPassword ? { currentPassword: confirmedPassword } : {}),
+        ...validation.data,
+        ...(isPhoneChanging && confirmedPassword ? { currentPassword: confirmedPassword } : {}),
       });
       if (res.success) {
         setProfileState(current => ({ userId: targetUser.id, data: { ...(current.userId === targetUser.id ? current.data : null), ...res.data }, error: false }));
+        setEditForm(current => ({
+          ...current,
+          name: res.data.name ?? '', bio: res.data.bio ?? '',
+          phone: res.data.phone ?? '', location: res.data.location ?? '',
+          avatarUrl: res.data.avatarUrl ?? '', facebookUrl: res.data.facebookUrl ?? '',
+          instagramUrl: res.data.instagramUrl ?? '', websiteUrl: res.data.websiteUrl ?? '',
+        }));
         setPhonePasswordModalOpen(false);
         setPhonePasswordError(null);
         if (onProfileUpdated) {
@@ -362,6 +385,7 @@ export function useUserProfile({
             lastName: names.slice(1).join(' ') || '',
             bio: res.data.bio,
             phone: res.data.phone,
+            location: res.data.location,
             avatarUrl: res.data.avatarUrl,
           });
         }
@@ -406,7 +430,7 @@ export function useUserProfile({
     isDark ? 'bg-charcoal-inset border-neutral-800 text-[#f2efe9] placeholder-neutral-600' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400'
   } ${focusBorder} focus:outline-none focus:ring-1`;
 
-  const usernameHandle = `@${displayName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'cordova_user'}`;
+  const usernameHandle = `@${displayName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'servicehub_user'}`;
   const responseRate = accountRole === 'provider' ? '< 1 hr' : 'Within minutes';
 
   return {

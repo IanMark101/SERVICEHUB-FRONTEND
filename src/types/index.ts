@@ -1,3 +1,5 @@
+import type { LocationPoint } from '../lib/location';
+
 export interface Review {
   id: string;
   authorId: string;
@@ -36,6 +38,11 @@ export interface User {
 }
 
 export interface ServiceListing {
+  locationLabel?: string;
+  distanceKm?: number;
+  serviceLocation?: LocationPoint;
+  coverageRadiusKm?: number | null;
+  transportationFee?: number | null;
   id: string;
   providerId: string;
   providerName: string;
@@ -75,6 +82,10 @@ export interface PaymentMethods {
 }
 
 export interface JobRequest {
+  locationLabel?: string;
+  distanceKm?: number;
+  jobLocation?: LocationPoint;
+  transportationFee?: number | null;
   id: string;
   targetProviderId?: string | null;
   targetServiceId?: string | null;
@@ -141,6 +152,8 @@ export interface BookingProgressEvent {
 }
 
 export interface JobEngagement {
+  jobLocation?: LocationPoint;
+  transportationFee?: number | null;
   id: string;
   title: string;
   category?: string;
@@ -235,15 +248,6 @@ export interface Message {
   receiverId: string;
   text: string;
   createdAt: string;
-}
-
-export interface CategorySuggestion {
-  id: string;
-  name: string;
-  description: string;
-  suggestedBy: string; // Seeker name
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt?: string;
 }
 
 export interface UserReport {

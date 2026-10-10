@@ -18,11 +18,11 @@ const playfair = Playfair_Display({
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "ServiceHub Cordova",
-  description: "Hyperlocal service marketplace and queue management for Cordova, Cebu",
+  title: "ServiceHub",
+  description: "Find nearby services and work opportunities with location-based discovery and trusted booking management",
   icons: {
-    icon: [{ url: '/favicon.svg?v=6', type: 'image/svg+xml', sizes: 'any' }, { url: '/favicon.ico?v=6', sizes: 'any' }],
-    apple: '/logo.png?v=6',
+    icon: [{ url: '/favicon.svg?v=7', type: 'image/svg+xml', sizes: 'any' }, { url: '/favicon.ico?v=7', sizes: 'any' }],
+    apple: '/logo.png?v=7',
   },
 };
 

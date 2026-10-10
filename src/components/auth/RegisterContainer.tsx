@@ -59,8 +59,8 @@ export default function RegisterContainer({
     router.push('/login');
   };
 
-  const accentText = 'text-[#c86544] dark:text-orange-400';
-  const accentBg = 'bg-[#c86544] hover:bg-[#aa5032]';
+  const accentText = 'text-brand-text dark:text-orange-400';
+  const accentBg = 'bg-brand-action hover:bg-brand-action-hover';
 
   return (
     <AuthLayout theme={theme}>
@@ -86,7 +86,7 @@ export default function RegisterContainer({
           </button>
           <div className="flex items-center gap-2">
             <Image
-              src="/logo.svg?v=6"
+              src="/logo.svg?v=7"
               alt="ServiceHub Logo"
               width={26}
               height={26}

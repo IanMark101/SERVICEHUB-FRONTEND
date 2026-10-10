@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const cat = getCategoryBySlug(category);
 
   return {
-    title: cat ? `${cat.title} | ServiceHub Help Center` : 'Help Category | ServiceHub Cordova',
-    description: cat?.description || 'Browse documentation and guides by category on ServiceHub Cordova.',
+    title: cat ? `${cat.title} | ServiceHub Help Center` : 'Help Category | ServiceHub',
+    description: cat?.description || 'Browse documentation and guides by category on ServiceHub.',
   };
 }
 

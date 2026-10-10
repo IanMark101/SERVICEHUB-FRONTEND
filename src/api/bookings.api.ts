@@ -1,6 +1,8 @@
+import type { LocationPoint } from '../lib/location';
 import { api } from '../lib/api/axios';
 
 export async function apiBookDirect(data: {
+  jobLocation?: LocationPoint;
   serviceId: string;
   quantity?: number;
   schedule?: string;
@@ -10,7 +12,7 @@ export async function apiBookDirect(data: {
   return response.data;
 }
 
-export async function apiInitiatePayment(data: { serviceId?: string; offerId?: string; quantity?: number; paymentMethodType?: 'gcash' }) {
+export async function apiInitiatePayment(data: { retryPaymentIntentId?: string; jobLocation?: LocationPoint; serviceId?: string; offerId?: string; quantity?: number; paymentMethodType?: 'gcash' }) {
   const response = await api.post('/bookings/initiate-payment', data);
   return response.data;
 }

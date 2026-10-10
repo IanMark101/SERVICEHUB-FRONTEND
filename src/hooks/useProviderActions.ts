@@ -1,3 +1,4 @@
+import type { LocationPoint } from '../lib/location';
 import React from 'react';
 import {
   User,
@@ -58,6 +59,9 @@ export function useProviderActions({
     description: string,
     paymentMethods: { cash: boolean; gcash: boolean },
     options?: {
+      serviceLocation?: LocationPoint;
+      coverageRadiusKm?: number | null;
+      transportationFee?: number | null;
       serviceType?: ServiceListing['serviceType'];
       priceType?: ServiceListing['priceType'];
       estimatedDurationMins?: number;
@@ -72,6 +76,9 @@ export function useProviderActions({
           title,
           description,
           price,
+          ...(options?.serviceLocation && { serviceLocation: options.serviceLocation }),
+          ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
+          ...(options?.transportationFee !== undefined && { transportationFee: options.transportationFee }),
           serviceType: options?.serviceType || 'ONE_TIME',
           priceType: options?.priceType || 'FIXED',
           estimatedDurationMins: options?.estimatedDurationMins || 60,
@@ -84,6 +91,10 @@ export function useProviderActions({
             id: item.id,
             providerId,
             providerName: 'My Service',
+            serviceLocation: options?.serviceLocation,
+            locationLabel: options?.serviceLocation?.label,
+            coverageRadiusKm: options?.coverageRadiusKm,
+            transportationFee: options?.transportationFee,
             providerAvatar: '',
             title,
             category: item.category?.name || category,
@@ -126,6 +137,9 @@ export function useProviderActions({
     price: number,
     description: string,
     options?: {
+      serviceLocation?: LocationPoint;
+      coverageRadiusKm?: number | null;
+      transportationFee?: number | null;
       priceType?: ServiceListing['priceType'];
       serviceType?: ServiceListing['serviceType'];
       estimatedDurationMins?: number;
@@ -137,6 +151,9 @@ export function useProviderActions({
         title,
         price,
         description,
+        ...(options?.serviceLocation && { serviceLocation: options.serviceLocation }),
+        ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
+        ...(options?.transportationFee !== undefined && { transportationFee: options.transportationFee }),
         ...(options?.priceType ? { priceType: options.priceType } : {}),
         ...(options?.serviceType ? { serviceType: options.serviceType } : {}),
         ...(options?.estimatedDurationMins ? { estimatedDurationMins: options.estimatedDurationMins } : {}),
@@ -150,6 +167,9 @@ export function useProviderActions({
                   ...s,
                   status: res.data.status,
                   isPaused: !res.data.isAvailable,
+                  ...(options?.serviceLocation && { serviceLocation: options.serviceLocation, locationLabel: options.serviceLocation.label }),
+                  ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
+                  ...(options?.transportationFee !== undefined && { transportationFee: options.transportationFee }),
                   title,
                   price,
                   description,

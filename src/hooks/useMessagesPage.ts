@@ -70,6 +70,7 @@ export function useMessagesPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const selectedConvRef = useRef<Conversation | null>(null);
   const messageLoadIdRef = useRef(0);
+  const resolvedMessageBooking = useRef<string | null>(null);
 
   const conversations = conversationGroups.flatMap(group => group.bookings);
   const selectedGroup = conversationGroups.find(group => group.otherPartyId === selectedConv?.otherPartyId);
@@ -118,13 +119,14 @@ export function useMessagesPage() {
   // Load messages for chosen conversation
   const loadMessages = useCallback(async (bookingId: string) => {
     const loadId = ++messageLoadIdRef.current;
-    setLoading(true);
+    setLoading(resolvedMessageBooking.current !== bookingId);
     setError('');
     try {
       const res = await apiGetMessages(bookingId);
       if (loadId !== messageLoadIdRef.current) return;
       if (res.success) {
         setMessages(res.data || []);
+        resolvedMessageBooking.current = bookingId;
       } else {
         setError(res.error || 'Failed to load messages.');
       }
@@ -145,6 +147,7 @@ export function useMessagesPage() {
   const selectConversation = useCallback((conv: Conversation) => {
     shouldStickToBottomRef.current = true;
     setSelectedConv(conv);
+    resolvedMessageBooking.current = null;
     setMessages([]);
     setError('');
     loadMessages(conv.bookingId);

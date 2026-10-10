@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
@@ -33,6 +33,20 @@ describe('Offer Services moderation feedback', () => {
     expect(screen.queryByRole('option', { name: 'Custom' })).not.toBeInTheDocument();
   });
 
+  it('uses the selected coverage radius for both the map preview and the published listing', async () => {
+    createServiceListing.mockResolvedValue({ success:true });
+    render(<OfferServices/>);
+    fireEvent.change(screen.getByLabelText('Service coverage radius (optional)'), { target:{value:'5'} });
+    expect(screen.getByTestId('test-location')).toHaveAttribute('data-radius','5');
+    fireEvent.change(screen.getByPlaceholderText('e.g. Lawn Mowing and Edge Trimming'), { target:{value:'Kitchen pipe repair'} });
+    fireEvent.change(screen.getByPlaceholderText(/Describe what you will do/), { target:{value:'Repair the leaking pipe and clean up.'} });
+    fireEvent.change(screen.getAllByRole('combobox')[0], { target:{value:'category-cuid'} });
+    fireEvent.submit(screen.getByRole('button', { name:'Publish Listing' }).closest('form')!);
+    await screen.findByRole('button', { name:'Publish Listing' });
+    expect(createServiceListing).toHaveBeenCalledWith('provider-id','KITCHEN PIPE REPAIR','category-cuid',500,
+      'Repair the leaking pipe and clean up.',{ cash:true,gcash:true },expect.objectContaining({ coverageRadiusKm:5 }));
+  });
+
   it('shows a server moderation rejection beside the title without clearing the draft', async () => {
     createServiceListing.mockResolvedValue({ success: false, field: 'title', error: 'Remove hateful or abusive language before publishing.' });
     render(<OfferServices />);
@@ -52,3 +66,7 @@ describe('Offer Services moderation feedback', () => {
     );
   });
 });
+
+// These regression tests supply an explicit location fixture; location interaction is tested separately.
+vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled, radiusKm }: { onChange: (point: { latitude:number; longitude:number; label:string }) => void; disabled?:boolean; radiusKm?:number | null }) => <button type="button" data-testid="test-location" data-radius={radiusKm ?? ''} disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
+function render(...args: Parameters<typeof rtlRender>) { const view = rtlRender(...args); const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]'); if (choice) fireEvent.click(choice); return view; }

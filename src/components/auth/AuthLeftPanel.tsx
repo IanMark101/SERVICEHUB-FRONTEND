@@ -24,14 +24,14 @@ const accessPath = [
     detail: 'Explore public services before signing in',
     status: 'Open access',
     icon: Compass,
-    statusClass: 'text-[#c86544] dark:text-[#e18463]',
+    statusClass: 'text-brand-text dark:text-brand-on-dark',
   },
   {
     title: 'Verify',
     detail: 'Confirm residency before marketplace activity',
     status: 'Trust gate',
     icon: ShieldCheck,
-    statusClass: 'text-[#c86544] dark:text-[#e18463]',
+    statusClass: 'text-brand-text dark:text-brand-on-dark',
   },
   {
     title: 'Participate',
@@ -51,7 +51,7 @@ export default function AuthLeftPanel({
 
   return (
     <aside
-      aria-label="ServiceHub Cordova overview"
+      aria-label="ServiceHub overview"
       className="auth-overview relative hidden flex-shrink-0 bg-[#f5f4f2] p-5 text-ink lg:flex lg:w-1/2 dark:bg-charcoal dark:text-white xl:p-7"
     >
       <div className="auth-overview__card relative flex w-full flex-1 flex-col rounded-2xl border border-black/8 bg-[#fffdfa] shadow-[0_18px_48px_rgba(23,23,22,0.07)] dark:border-white/10 dark:bg-charcoal dark:shadow-none">
@@ -60,7 +60,7 @@ export default function AuthLeftPanel({
             <button
               type="button"
               onClick={onBackToHome}
-              className="grid size-10 cursor-pointer place-items-center rounded-xl border border-black/10 bg-[#f5f4f2] text-ink-muted transition-colors hover:border-black/20 hover:text-ink active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-charcoal dark:text-white/68 dark:hover:border-white/24 dark:hover:text-white"
+              className="grid size-10 cursor-pointer place-items-center rounded-xl border border-black/10 bg-[#f5f4f2] text-ink-muted transition-colors hover:border-black/20 hover:text-ink active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:border-white/12 dark:bg-charcoal dark:text-white/68 dark:hover:border-white/24 dark:hover:text-white"
               title="Back to Landing Page"
               aria-label="Back to Landing Page"
             >
@@ -69,8 +69,8 @@ export default function AuthLeftPanel({
 
             <div className="flex items-center gap-2.5">
               <Image
-                src="/logo.svg?v=6"
-                alt="ServiceHub Cordova"
+                src="/logo.svg?v=7"
+                alt="ServiceHub"
                 width={30}
                 height={30}
                 className="size-[30px] rounded-lg"
@@ -80,9 +80,6 @@ export default function AuthLeftPanel({
                 <span className="block text-xs font-semibold tracking-tight text-ink dark:text-white">
                   ServiceHub
                 </span>
-                <span className="mt-1 block text-[8px] font-bold uppercase tracking-[0.2em] text-[#c86544] dark:text-[#e18463]">
-                  Cordova
-                </span>
               </div>
             </div>
           </div>
@@ -90,7 +87,7 @@ export default function AuthLeftPanel({
           <button
             type="button"
             onClick={toggleTheme}
-            className="grid size-10 cursor-pointer place-items-center rounded-xl border border-black/10 bg-[#f5f4f2] text-ink-muted transition-colors hover:border-black/20 hover:text-ink active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] dark:border-white/12 dark:bg-charcoal dark:text-white/68 dark:hover:border-white/24 dark:hover:text-white"
+            className="grid size-10 cursor-pointer place-items-center rounded-xl border border-black/10 bg-[#f5f4f2] text-ink-muted transition-colors hover:border-black/20 hover:text-ink active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:border-white/12 dark:bg-charcoal dark:text-white/68 dark:hover:border-white/24 dark:hover:text-white"
             title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           >
@@ -111,9 +108,9 @@ export default function AuthLeftPanel({
               : 'Manage requests, listings, messages, and bookings under one verified local identity.'}
           </p>
 
-          <div className="auth-overview__badge mx-auto mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-[#d49b86]/55 bg-[#faf5f2] px-3 py-1.5 text-[11px] font-medium text-[#aa5032] dark:border-[#e18463]/35 dark:bg-[#e18463]/8 dark:text-[#e9a58c]">
+          <div className="auth-overview__badge mx-auto mt-6 inline-flex w-fit items-center gap-2 rounded-full border border-orange-400/55 bg-brand-soft px-3 py-1.5 text-[11px] font-medium text-brand-action-hover dark:border-brand-on-dark/35 dark:bg-brand-on-dark/8 dark:text-orange-300">
             <MapPin size={14} aria-hidden="true" />
-            <span>Built for Cordova, Cebu</span>
+            <span>Find services nearby</span>
           </div>
 
           <section aria-label="How ServiceHub access works" className="auth-overview__access mx-auto mt-5 w-full max-w-[33rem] rounded-2xl border border-black/8 bg-[#f5f4f2] px-5 shadow-[0_10px_28px_rgba(23,23,22,0.04)] dark:border-white/10 dark:bg-charcoal dark:shadow-none">
@@ -130,7 +127,7 @@ export default function AuthLeftPanel({
                   key={title}
                   className="auth-overview__access-row grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border-b border-black/8 py-3.5 last:border-b-0 dark:border-white/10"
                 >
-                  <span className="grid size-8 place-items-center rounded-lg bg-[#fffdfa] text-[#c86544] dark:bg-charcoal dark:text-[#e18463]">
+                  <span className="grid size-8 place-items-center rounded-lg bg-[#fffdfa] text-brand-text dark:bg-charcoal dark:text-brand-on-dark">
                     <Icon size={16} aria-hidden="true" />
                   </span>
                   <span className="min-w-0">
@@ -145,7 +142,7 @@ export default function AuthLeftPanel({
         </div>
 
         <footer className="auth-overview__footer grid shrink-0 grid-cols-2 gap-5 border-t border-black/8 px-5 py-4 text-[10px] leading-4 text-ink-subtle dark:border-white/10 dark:text-white/48 xl:px-7">
-          <span>Cordova, Cebu, Philippines</span>
+          <span>Nearby services across communities</span>
           <span className="text-right">Online payments use PayMongo Test Mode</span>
         </footer>
       </div>

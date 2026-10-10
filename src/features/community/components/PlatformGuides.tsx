@@ -9,7 +9,7 @@ interface PlatformGuidesProps {
 const guides = [
   {
     title: 'Residency verification',
-    description: 'Browsing stays open in Limited Mode. Verified email and approved Cordova residency unlock new marketplace transactions.',
+    description: 'Browsing stays open in Limited Mode. Verified email and approved identity and residency verification unlock new marketplace transactions.',
     href: '/help/verification/why-verification-is-required',
     icon: ShieldCheck,
   },
@@ -34,20 +34,20 @@ export default function PlatformGuides({ isDark = false }: PlatformGuidesProps) 
         <Link
           key={title}
           href={href}
-          className={`group flex items-start gap-2.5 sm:gap-3.5 py-3 sm:py-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] ${
+          className={`group flex items-start gap-2.5 sm:gap-3.5 py-3 sm:py-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus ${
             isDark ? 'text-neutral-200 hover:text-white' : 'text-ink hover:text-ink'
           }`}
         >
           <div className={`grid size-8 sm:size-9 shrink-0 place-items-center rounded-xl transition-colors ${
             isDark
               ? 'bg-orange-500/15 text-orange-400 group-hover:bg-orange-500/25'
-              : 'bg-orange-50 text-orange-600 group-hover:bg-orange-100'
+              : 'bg-orange-50 text-brand-text group-hover:bg-orange-100'
           }`}>
             <Icon size={17} weight="duotone" aria-hidden="true" />
           </div>
           <div className="min-w-0 flex-1">
             <span className={`block text-sm font-bold tracking-tight transition-colors ${
-              isDark ? 'group-hover:text-orange-400' : 'group-hover:text-orange-600'
+              isDark ? 'group-hover:text-orange-400' : 'group-hover:text-brand-text'
             }`}>
               {title}
             </span>

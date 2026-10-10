@@ -37,7 +37,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
       <div className="mx-auto max-w-7xl">
         <ScrollReveal className="max-w-3xl">
           <h2 className="max-w-[17ch] font-sans text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
-            See what is happening across ServiceHub Cordova.
+            See what is happening across ServiceHub.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-300">
             Follow local service activity in the Community Hub after signing in.
@@ -55,7 +55,7 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
                 hoverLift
                 className="rounded-2xl border border-white/10 bg-charcoal p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-colors hover:border-white/20 sm:p-8"
               >
-                <div className="grid size-11 place-items-center rounded-xl bg-[#c86544]/15 text-orange-300">
+                <div className="grid size-11 place-items-center rounded-xl bg-brand/15 text-orange-300">
                   <Icon size={22} />
                 </div>
                 <h3 className="mt-6 text-lg font-bold text-white">

@@ -169,8 +169,8 @@ export default function SteppedPodiumGraph({
                   {/* Provider Name */}
                   <span className={`mt-1.5 sm:mt-3 block font-black tracking-tight transition-colors truncate max-w-[100px] sm:max-w-none px-0.5 ${
                     isChampion
-                      ? 'text-[11.5px] sm:text-base md:text-lg group-hover:text-orange-600 dark:group-hover:text-orange-400'
-                      : 'text-[10.5px] sm:text-sm md:text-base group-hover:text-orange-600 dark:group-hover:text-orange-400'
+                      ? 'text-[11.5px] sm:text-base md:text-lg group-hover:text-brand-text dark:group-hover:text-orange-400'
+                      : 'text-[10.5px] sm:text-sm md:text-base group-hover:text-brand-text dark:group-hover:text-orange-400'
                   } ${isDark ? 'text-white' : 'text-ink'}`}>
                     {provider.name}
                     {provider.id === currentUserId ? ' (You)' : ''}
@@ -274,7 +274,7 @@ export default function SteppedPodiumGraph({
             className="flex w-full items-center justify-between gap-2 p-3.5 sm:p-5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 cursor-pointer"
           >
             <div className="flex min-w-0 items-center gap-2 sm:gap-2.5">
-              <Sparkle size={18} className="text-[#c86544] shrink-0" aria-hidden="true" />
+              <Sparkle size={18} className="text-brand-text shrink-0" aria-hidden="true" />
               <span className={`truncate text-xs sm:text-sm font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
                 More recognized providers (Ranks 4–{Math.min(10, providers.length)})
               </span>
@@ -295,7 +295,7 @@ export default function SteppedPodiumGraph({
                   key={provider.id}
                   onClick={() => onSelect(provider.id)}
                   aria-label={`View ranked provider ${provider.name}`}
-                  className="group flex w-full items-center gap-2.5 sm:gap-3 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544] cursor-pointer"
+                  className="group flex w-full items-center gap-2.5 sm:gap-3 py-3 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus cursor-pointer"
                 >
                   <span className="w-5 sm:w-6 shrink-0 text-center text-xs font-bold tabular-nums text-ink-subtle dark:text-ink-subtle">
                     #{provider.rank}
@@ -304,7 +304,7 @@ export default function SteppedPodiumGraph({
                     <ProviderAvatar provider={provider} rank={provider.rank} size="small" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className={`truncate text-xs sm:text-sm font-bold group-hover:text-orange-600 dark:group-hover:text-orange-400 ${
+                        <span className={`truncate text-xs sm:text-sm font-bold group-hover:text-brand-text dark:group-hover:text-orange-400 ${
                           isDark ? 'text-white' : 'text-ink'
                         }`}>
                           {provider.name}{provider.id === currentUserId ? ' (You)' : ''}
@@ -324,7 +324,7 @@ export default function SteppedPodiumGraph({
                       {provider.completedJobs} completed
                     </span>
                   </div>
-                  <ArrowUpRight size={14} className="shrink-0 text-ink-subtle group-hover:text-orange-600 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  <ArrowUpRight size={14} className="shrink-0 text-ink-subtle group-hover:text-brand-text transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </button>
               ))}
             </div>

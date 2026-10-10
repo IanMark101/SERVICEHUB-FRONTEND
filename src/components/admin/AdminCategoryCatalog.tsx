@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '../../hooks/useRefreshableLoad';
+import { isFallbackCategory } from '../../lib/category-catalog';
 import { invalidateApiCache } from '../../lib/api/responseCache';
 import { CheckCircle2, Loader2, Pencil, Power, RefreshCw, Tag } from "lucide-react";
 import { apiCreateAdminCategory, apiListAdminCategories, apiUpdateAdminCategory } from "../../api/admin.api";
@@ -32,29 +34,33 @@ interface EditState {
 export default function AdminCategoryCatalog({ isDark }: { isDark: boolean }) {
   const { success: toastSuccess, error: toastError } = useToast();
   const [categories, setCategories] = useState<ManagedCategory[]>([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
+  const { loading, beginLoad } = useRefreshableLoad(String(page));
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [edit, setEdit] = useState<EditState | null>(null);
   const [create, setCreate] = useState<{ name: string; reason: string } | null>(null);
 
   const fetchCategories = useCallback(async () => {
-    setLoading(true);
+    const request = beginLoad();
+    let succeeded = false;
     try {
       const response = await apiListAdminCategories({ page, limit: PAGE_SIZE });
+      if (!request.current()) return;
+      if (!response.success) throw new Error('The category catalog could not be loaded.');
       setCategories(response.data ?? []);
       setTotal(response.pagination?.total ?? 0);
       setTotalPages(Math.max(1, response.pagination?.totalPages ?? 1));
       setError("");
+      succeeded = true;
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, "The category catalog could not be loaded."));
+      if (request.current()) setError(getApiErrorMessage(requestError, "The category catalog could not be loaded."));
     } finally {
-      setLoading(false);
+      request.finish(succeeded);
     }
-  }, [page]);
+  }, [page, beginLoad]);
   useApiCacheRefresh(['admin', 'categories'], () => fetchCategories(), !saving);
 
   useEffect(() => {
@@ -155,7 +161,7 @@ export default function AdminCategoryCatalog({ isDark }: { isDark: boolean }) {
             <h4 className="flex items-center gap-2 text-sm font-extrabold"><Pencil className="h-4 w-4" /> Manage Category</h4>
             <div className="mt-4 space-y-4">
               <label className="block text-[11px] font-bold">Category name
-                <input value={edit.name} onChange={(event) => setEdit({ ...edit, name: event.target.value })} maxLength={80} className={`mt-1.5 w-full rounded-xl border p-3 text-xs outline-none focus:border-[var(--admin-accent)] ${isDark ? "border-neutral-700 bg-charcoal" : "border-slate-300 bg-slate-50"}`} />
+                <input value={edit.name} readOnly={isFallbackCategory(edit.category.name)} onChange={(event) => setEdit({ ...edit, name: event.target.value })} maxLength={80} className={`mt-1.5 w-full rounded-xl border p-3 text-xs outline-none focus:border-[var(--admin-accent)] ${isDark ? "border-neutral-700 bg-charcoal" : "border-slate-300 bg-slate-50"}`} />
               </label>
               <div className={`rounded-xl border p-3 ${isDark ? "border-neutral-700" : "border-slate-200"}`}>
                 <div className="flex items-center justify-between gap-4">
@@ -164,22 +170,23 @@ export default function AdminCategoryCatalog({ isDark }: { isDark: boolean }) {
                     type="button"
                     role="switch"
                     aria-checked={edit.isActive}
-                    disabled={edit.category.isActive && (edit.category.listingCount > 0 || edit.category.openRequestCount > 0)}
+                    disabled={isFallbackCategory(edit.category.name) || (edit.category.isActive && (edit.category.listingCount > 0 || edit.category.openRequestCount > 0))}
                     onClick={() => setEdit({ ...edit, isActive: !edit.isActive })}
                     className={`rounded-full p-2 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${edit.isActive ? "bg-emerald-600 text-white" : "bg-slate-200 text-ink-muted dark:bg-charcoal dark:text-ink-secondary"}`}
                     aria-label={edit.isActive ? "Deactivate category" : "Activate category"}
                   ><Power className="h-4 w-4" /></button>
                 </div>
               </div>
-              <label className="block text-[11px] font-bold">Reason for change
+              {isFallbackCategory(edit.category.name) && <p className="text-xs text-ink-muted">Other Services is the system fallback. Its name and active status are protected so members can always select it.</p>}
+              {!isFallbackCategory(edit.category.name) && <label className="block text-[11px] font-bold">Reason for change
                 <textarea value={edit.reason} onChange={(event) => setEdit({ ...edit, reason: event.target.value })} rows={3} maxLength={500} placeholder="Required for the administrator audit log" className={`mt-1.5 w-full rounded-xl border p-3 text-xs outline-none focus:border-[var(--admin-accent)] ${isDark ? "border-neutral-700 bg-charcoal" : "border-slate-300 bg-slate-50"}`} />
-              </label>
+              </label>}
             </div>
             <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => setEdit(null)} disabled={saving} className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-bold dark:border-neutral-700">Cancel</button>
-              <button type="button" onClick={saveCategory} disabled={saving || edit.name.trim().length < 3 || edit.reason.trim().length < 3} className="flex items-center gap-1.5 rounded-lg bg-[var(--admin-solid)] px-4 py-2 text-xs font-bold text-white hover:bg-[var(--admin-solid-hover)] disabled:opacity-50">
+              <button type="button" onClick={() => setEdit(null)} disabled={saving} className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-bold dark:border-neutral-700">{isFallbackCategory(edit.category.name) ? 'Close' : 'Cancel'}</button>
+              {!isFallbackCategory(edit.category.name) && <button type="button" onClick={saveCategory} disabled={saving || edit.name.trim().length < 3 || edit.reason.trim().length < 3} className="flex items-center gap-1.5 rounded-lg bg-[var(--admin-solid)] px-4 py-2 text-xs font-bold text-white hover:bg-[var(--admin-solid-hover)] disabled:opacity-50">
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} Save Changes
-              </button>
+              </button>}
             </div>
           </div>
         </div>

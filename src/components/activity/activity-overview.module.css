@@ -1,0 +1,63 @@
+.card {
+  container-type: inline-size;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'identity price'
+    'summary summary'
+    'actions actions';
+  align-items: start;
+  gap: 12px 20px;
+}
+
+.identity {
+  grid-area: identity;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.summary {
+  grid-area: summary;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+
+.price {
+  grid-area: price;
+  justify-self: end;
+}
+
+.actions {
+  grid-area: actions;
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  justify-self: end;
+  gap: 8px;
+}
+
+@container (min-width: 48rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto;
+    grid-template-areas:
+      'identity summary price'
+      'identity summary actions';
+    align-items: center;
+    gap: 8px 24px;
+  }
+
+  .price {
+    align-self: end;
+  }
+
+  .actions {
+    align-self: start;
+  }
+}

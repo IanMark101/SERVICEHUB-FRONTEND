@@ -28,7 +28,6 @@ function renderSeekerActions() {
     bids: [],
     setJobRequests,
     setBids,
-    setCategorySuggestions: vi.fn(),
     syncEngagements,
     setJobEngagements,
     syncBids,

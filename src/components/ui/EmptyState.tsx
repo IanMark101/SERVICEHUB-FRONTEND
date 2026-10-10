@@ -2,10 +2,12 @@ import React, { ReactNode } from 'react';
 import { Tray as Inbox } from '@phosphor-icons/react';
 
 interface EmptyStateProps {
+  className?: string;
   icon?: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
   actionLabel?: string;
+  actionClassName?: string;
   onAction?: () => void;
   secondaryActionLabel?: string;
   onSecondaryAction?: () => void;
@@ -14,10 +16,12 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({
+  className = '',
   icon: Icon = Inbox,
   title,
   description,
   actionLabel,
+  actionClassName = '',
   onAction,
   secondaryActionLabel,
   onSecondaryAction,
@@ -26,7 +30,7 @@ export default function EmptyState({
 }: EmptyStateProps) {
   const colorSchemes = {
     orange: {
-      iconBg: 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20 shadow-orange-500/10',
+      iconBg: 'bg-orange-500/10 text-brand-text dark:text-orange-400 border-orange-500/20 shadow-orange-500/10',
       btn: 'bg-orange-700 hover:bg-orange-800 text-white shadow-orange-500/20',
       glow: 'from-orange-500/5 via-transparent to-transparent',
     },
@@ -55,7 +59,7 @@ export default function EmptyState({
   const scheme = colorSchemes[accentColor] || colorSchemes.orange;
 
   return (
-    <div className="workspace-surface relative overflow-hidden rounded-[24px] border border-slate-200/90 dark:border-neutral-800/80 bg-white/70 dark:bg-charcoal-surface/70 p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-sm transition-all duration-200">
+    <div className={`workspace-surface relative overflow-hidden rounded-[24px] border border-slate-200/90 dark:border-neutral-800/80 bg-white/70 dark:bg-charcoal-surface/70 p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-4 shadow-sm transition-all duration-200 ${className}`}>
       {/* Background ambient radial glow */}
       <div className={`absolute inset-0 bg-radial-gradient ${scheme.glow} pointer-events-none opacity-60`} />
 
@@ -90,7 +94,7 @@ export default function EmptyState({
             <button
               type="button"
               onClick={onAction}
-              className={`min-h-11 whitespace-nowrap px-5 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 active:scale-95 shadow-md hover:shadow-lg flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--workspace-focus,var(--text-primary))] ${scheme.btn}`}
+              className={`min-h-11 whitespace-nowrap px-5 py-2.5 text-xs font-extrabold rounded-xl transition-all duration-200 active:scale-95 shadow-md hover:shadow-lg flex items-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--workspace-focus,var(--text-primary))] ${scheme.btn} ${actionClassName}`}
             >
               <span>{actionLabel}</span>
             </button>

@@ -9,10 +9,10 @@ export default function WelcomeStep({ isDark }: OnboardingStepProps) {
       <div className="space-y-2">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-ink-muted">Welcome</p>
         <h2 id="onboarding-title" className="text-2xl font-extrabold tracking-tight text-ink dark:text-white sm:text-3xl">
-          Welcome to ServiceHub Cordova
+          Welcome to ServiceHub
         </h2>
         <p id="onboarding-description" className="max-w-2xl text-sm leading-6 text-ink-muted dark:text-ink-muted">
-          ServiceHub connects Cordova residents with trusted local service providers through one community marketplace.
+          ServiceHub connects verified local members with trusted local service providers through one community marketplace.
         </p>
       </div>
 

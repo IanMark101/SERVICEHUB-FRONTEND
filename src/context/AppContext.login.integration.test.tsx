@@ -18,7 +18,7 @@ import GetStartedPage from '../app/get-started/page';
 const mocks = vi.hoisted(() => ({
   pathname: '/login',
   router: { replace: vi.fn(), push: vi.fn() },
-  sync: { clearPrivateData: vi.fn(), services: [], dbCategories: [], jobRequests: [], bids: [], jobEngagements: [], categorySuggestions: [] },
+  sync: { clearPrivateData: vi.fn(), services: [], dbCategories: [], jobRequests: [], bids: [], jobEngagements: [] },
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 vi.hoisted(() => {
@@ -465,7 +465,7 @@ describe('login/session integration through the real auth flow', () => {
       return underlying(config);
     };
     render(<AppProvider><LandingLayout><Home /></LandingLayout><SessionProbe /></AppProvider>);
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     for (const id of ['how-it-works', 'workspaces', 'queue', 'trust', 'community', 'faq']) {
       expect(document.getElementById(id)).toBeVisible();
     }
@@ -478,7 +478,7 @@ describe('login/session integration through the real auth flow', () => {
     await waitFor(() => expect(complete).toBeTypeOf('function'));
     await act(async () => { complete(); });
     await waitFor(() => expect(screen.getByLabelText('Session identity')).toHaveTextContent(`session-account:${role}`));
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Open workspace' })).toBeVisible();
     expect(screen.queryByRole('link', { name: 'Log in' })).not.toBeInTheDocument();
     expect(mocks.router.replace).not.toHaveBeenCalled();
@@ -499,7 +499,7 @@ describe('login/session integration through the real auth flow', () => {
 
     mocks.pathname = '/';
     workspace.rerender(<StrictMode><AppProvider><LandingLayout><Home /></LandingLayout><SessionProbe /></AppProvider></StrictMode>);
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(screen.getByLabelText('Session identity')).toHaveTextContent(`session-account:${role}`);
     expect(screen.getByRole('link', { name: 'Open workspace' })).toBeVisible();
     expect(mocks.router.replace).not.toHaveBeenCalled();
@@ -509,7 +509,7 @@ describe('login/session integration through the real auth flow', () => {
     workspace.unmount();
     clearAccessToken();
     const refreshed = render(<StrictMode><AppProvider><LandingLayout><Home /></LandingLayout><SessionProbe /></AppProvider></StrictMode>);
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(document.querySelector('.brand-loading')).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByLabelText('Session identity')).toHaveTextContent(`session-account:${role}`));
     expect(mocks.router.replace).not.toHaveBeenCalled();
@@ -534,7 +534,7 @@ describe('login/session integration through the real auth flow', () => {
     for (let visit = 0; visit < 2; visit++) {
       mocks.pathname = '/';
       view.rerender(<StrictMode><AppProvider><LandingLayout><Home /></LandingLayout></AppProvider></StrictMode>);
-      expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+      expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
       expect(document.querySelector('.brand-loading')).not.toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Open workspace' })).toHaveAttribute('href', path);
       mocks.pathname = path;

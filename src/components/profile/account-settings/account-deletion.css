@@ -10,7 +10,7 @@
 .account-deletion__intro p { max-width: 68ch; }
 .account-deletion__check-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 24px; }
 .account-deletion h3 { font-size: 14px; font-weight: 650; margin: 0; }
-.account-deletion__text-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 4px; color: var(--workspace-ink); font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; background: transparent; border: 0; cursor: pointer; }
+.account-deletion__text-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 4px; color: var(--workspace-ink); font-size: 14px; font-weight: 600; text-decoration: none; background: transparent; border: 0; cursor: pointer; }
 .account-deletion__checklist { list-style: none; padding: 0; margin: 8px 0 0; border-top: 1px solid var(--workspace-border); }
 .account-deletion__checklist > li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 12px; padding: 18px 0; border-bottom: 1px solid var(--workspace-border); }
 .account-deletion__checklist > li > svg { margin-top: 3px; }
@@ -23,7 +23,7 @@
 .account-deletion .is-pending h4 span { color: #92400e; }
 .dark .account-deletion .is-pending h4 span { color: #fcd34d; }
 .account-deletion__links { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 4px; }
-.account-deletion__links a { display: inline-flex; align-items: center; min-height: 44px; gap: 8px; color: var(--workspace-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.account-deletion__links a { display: inline-flex; align-items: center; min-height: 44px; gap: 8px; color: var(--workspace-ink); font-weight: 600; text-decoration: none; }
 .account-deletion__footer { margin-top: 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .account-deletion__footer p { max-width: 48ch; font-size: 14px; }
 .account-deletion__danger, .account-deletion__secondary { display: inline-flex; gap: 8px; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 10px; min-height: 44px; padding: 10px 16px; font-size: 14px; font-weight: 650; line-height: 1.4; cursor: pointer; }
@@ -34,7 +34,7 @@
 .account-deletion button:disabled, .account-deletion__dialog button:disabled { cursor: not-allowed; opacity: .5; }
 .account-deletion__error { color: #b91c1c !important; background: #fef2f2; border-radius: 8px; padding: 12px; margin-top: 16px; overflow-wrap: anywhere; }
 .dark .account-deletion__error { color: #fecaca !important; background: #3b2020; }
-.account-deletion__error button { display: block; min-height: 44px; text-decoration: underline; font-weight: 600; background: transparent; border: 0; }
+.account-deletion__error button { display: block; min-height: 44px; text-decoration: none; font-weight: 600; background: transparent; border: 0; }
 .account-deletion__loading { padding: 18px 0; color: var(--workspace-muted); }
 .account-deletion__loading div { background: var(--workspace-surface-muted); height: 18px; margin-top: 16px; border-radius: 4px; width: 85%; }
 .account-deletion__loading div:nth-child(2) { width: 60%; }
@@ -59,7 +59,7 @@
 .account-deletion__password > button { position: absolute; inset-inline-end: 2px; inset-block: 2px; width: 44px; background: transparent; border: 0; display: grid; place-items: center; cursor: pointer; border-radius: 6px; }
 .account-deletion__identity { overflow-wrap: anywhere; font-weight: 600; color: var(--workspace-ink) !important; }
 .account-deletion__hint { font-size: 14px; color: var(--workspace-muted); margin-top: 10px; }
-.account-deletion__hint a { text-decoration: underline; text-underline-offset: 4px; color: var(--workspace-ink); }
+.account-deletion__hint a { text-decoration: none; color: var(--workspace-ink); }
 .account-deletion__dialog-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--workspace-border); }
 .account-deletion__verified { display: flex; gap: 8px; align-items: flex-start; color: var(--workspace-ink); }
 .account-deletion__google { min-height: 44px; margin: 12px 0; }

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ServiceHub">
   <rect x="1" y="1" width="62" height="62" rx="14" fill="#171716"/>
   <path d="M45 18H28Q18 18 18 27Q18 34 30 34H34Q46 34 46 43Q46 51 36 51H19" fill="none" stroke="#fffdfa" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M45 18H36" fill="none" stroke="#c86544" stroke-width="7" stroke-linecap="round"/>
+  <path d="M45 18H36" fill="none" stroke="#ff6b00" stroke-width="7" stroke-linecap="round"/>
   <path d="M19 51H28" fill="none" stroke="#059669" stroke-width="7" stroke-linecap="round"/>
 </svg>

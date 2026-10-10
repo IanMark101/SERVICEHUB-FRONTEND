@@ -32,7 +32,7 @@ export default function CommunityHub() {
       {error && data && (
         <div role="status" className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-xs ${isDark ? 'border-amber-900/40 bg-amber-950/20 text-amber-300' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
           <span>Showing the latest loaded community data. Refresh was unsuccessful.</span>
-          <button type="button" onClick={refetch} className="font-bold underline underline-offset-2 cursor-pointer">Retry</button>
+          <button type="button" onClick={refetch} className="font-bold   cursor-pointer">Retry</button>
         </div>
       )}
 
@@ -58,7 +58,7 @@ export default function CommunityHub() {
       {/* Sticky Town Square Navigator */}
       <CommunitySectionNav isDark={isDark} />
 
-      {/* Stage 2: Highlighted Official Municipal Notices (First Thing Residents Look For) */}
+      {/* Stage 2: Highlighted Official Platform Notices (First Thing Residents Look For) */}
       <OfficialAnnouncements
         announcements={data?.announcements || []}
         loading={loading && !data}

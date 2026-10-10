@@ -28,8 +28,8 @@ const STYLES = `
   
   --bg-token: var(--color-charcoal);
   --fg-token: #f7f4ed;
-  --accent-orange: #c86544;
-  --accent-orange-light: #ea7a56;
+  --accent-orange: var(--color-brand-text);
+  --accent-orange-light: var(--color-brand-on-dark);
   --sub-text: rgba(161,161,170,1);
   
   --pill-bg-1: var(--color-charcoal);
@@ -60,8 +60,8 @@ const STYLES = `
 .cinematic-footer-wrapper.light-mode {
   --bg-token: var(--landing-surface, #faf9f6);
   --fg-token: #0a0a0a;
-  --accent-orange: #c86544;
-  --accent-orange-light: #ea7a56;
+  --accent-orange: var(--color-brand-text);
+  --accent-orange-light: var(--color-brand-on-dark);
   --sub-text: #78716c;
 
   --pill-bg-1: rgba(255,255,255,0.72);
@@ -73,7 +73,7 @@ const STYLES = `
 
   --pill-bg-1-hover: rgba(255,255,255,0.92);
   --pill-bg-2-hover: rgba(255,255,255,0.60);
-  --pill-border-hover: rgba(200,101,68,0.30);
+  --pill-border-hover: color-mix(in srgb, var(--color-brand) 30%, transparent);
   --pill-shadow-hover: rgba(0,0,0,0.10);
   --pill-highlight-hover: rgba(255,255,255,1);
   --bottom-bar-border: rgba(0,0,0,0.06);
@@ -94,8 +94,8 @@ const STYLES = `
 }
 
 @keyframes footer-heartbeat {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(200, 101, 68, 0.5)); }
-  15%, 45% { transform: scale(1.22); filter: drop-shadow(0 0 10px rgba(200, 101, 68, 0.85)); }
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-brand) 50%, transparent)); }
+  15%, 45% { transform: scale(1.22); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-brand) 85%, transparent)); }
   30% { transform: scale(1); }
 }
 
@@ -111,7 +111,7 @@ const STYLES = `
 .cinematic-footer-wrapper .footer-aurora {
   background: radial-gradient(
     circle at 50% 50%, 
-    rgba(200, 101, 68, 0.22) 0%, 
+    color-mix(in srgb, var(--color-brand) 22%, transparent) 0%,
     rgba(51, 65, 85, 0.18) 42%, 
     transparent 72%
   );
@@ -119,8 +119,8 @@ const STYLES = `
 .cinematic-footer-wrapper.light-mode .footer-aurora {
   background: radial-gradient(
     circle at 50% 50%, 
-    rgba(200, 101, 68, 0.10) 0%, 
-    rgba(217, 119, 87, 0.07) 42%, 
+    color-mix(in srgb, var(--color-brand) 10%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand) 7%, transparent) 42%,
     transparent 72%
   );
 }
@@ -149,13 +149,13 @@ const STYLES = `
 
 /* Giant Background Text Masking */
 .footer-giant-bg-text {
-  font-size: min(26vw, 24rem);
+  font-size: min(18vw, 18rem);
   line-height: 0.75;
   font-weight: 900;
   letter-spacing: -0.05em;
   color: transparent;
   -webkit-text-stroke: 1px color-mix(in oklch, var(--fg-token) 6%, transparent);
-  background: linear-gradient(180deg, color-mix(in oklch, var(--fg-token) 10%, transparent) 0%, transparent 65%);
+  background: linear-gradient(180deg, color-mix(in oklch, var(--fg-token) 10%, transparent) 0%,transparent 65%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -281,12 +281,12 @@ export interface CinematicFooterProps {
 
 export function CinematicFooter({
   isDark = true,
-  brandText = "CORDOVA",
-  headline = "Ready to get work done in Cordova?",
-  subheadline = "Connect with verified local specialists, join clear queues, and support local livelihood.",
+  brandText = "SERVICEHUB",
+  headline = "Ready to get work done?",
+  subheadline = "Book a service or post what you need. Keep your booking, conversation, and progress together.",
   marqueeItems,
   marqueeVariant = 'trust',
-  copyright = "© 2026 ServiceHub Cordova. Built for Cordova, Cebu.",
+  copyright = "© 2026 ServiceHub. All rights reserved.",
 }: CinematicFooterProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const giantTextRef = useRef<HTMLDivElement>(null);
@@ -380,10 +380,10 @@ export function CinematicFooter({
               ref={headingRef}
               className="text-[clamp(2rem,6.2vw,6rem)] lg:text-[clamp(2rem,min(6.2vw,10.5svh),6rem)] leading-[1.03] font-black footer-heading tracking-tighter mb-4 text-center w-full"
             >
-              {headline === "Ready to get work done in Cordova?" ? (
+              {headline === "Ready to get work done?" ? (
                 <>
-                  <span className="footer-heading-line">Ready to get work done</span>
-                  <span className="footer-heading-line">In Cordova?</span>
+                  <span className="footer-heading-line">Ready to get</span>
+                  <span className="footer-heading-line">Work Done?</span>
                 </>
               ) : <span className="footer-heading-line">{headline}</span>}
             </h2>
@@ -400,7 +400,7 @@ export function CinematicFooter({
                   className="footer-glass-pill px-7 sm:px-9 py-3.5 sm:py-4 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2.5 group"
                   style={{ color: 'var(--pill-text)' }}
                 >
-                  <Briefcase className="w-4 h-4 text-[#c86544] group-hover:scale-110 transition-transform" />
+                  <Briefcase className="w-4 h-4 text-brand-text group-hover:scale-110 transition-transform" />
                   <span>Find a Service</span>
                 </MagneticButton>
 
@@ -417,10 +417,10 @@ export function CinematicFooter({
                 <MagneticButton
                   as="a"
                   href="/register?role=provider"
-                  className="footer-glass-pill px-7 sm:px-9 py-3.5 sm:py-4 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2.5 group border-[#c86544]/40"
+                  className="footer-glass-pill px-7 sm:px-9 py-3.5 sm:py-4 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2.5 group border-brand/40"
                   style={{ color: 'var(--pill-text)' }}
                 >
-                  <UserCheck className="w-4 h-4 text-[#c86544]" />
+                  <UserCheck className="w-4 h-4 text-brand-text" />
                   <span>Offer Skilled Work</span>
                 </MagneticButton>
               </div>
@@ -460,7 +460,7 @@ export function CinematicFooter({
                   <div className="flex items-center gap-3">
                     <Image
                       src="/logo.svg?v=3"
-                      alt="ServiceHub Cordova"
+                      alt="ServiceHub"
                       width={40}
                       height={40}
                       className="size-10 rounded-xl"
@@ -470,10 +470,10 @@ export function CinematicFooter({
                         className="text-sm font-extrabold"
                         style={{ color: 'var(--badge-brand)' }}
                       >
-                        ServiceHub Cordova
+                        ServiceHub
                       </p>
-                      <p className="mt-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#c86544]">
-                        <MapPin size={12} /> Cordova, Cebu
+                      <p className="mt-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-text">
+                        <MapPin size={12} /> Nearby service marketplace
                       </p>
                     </div>
                   </div>
@@ -481,7 +481,7 @@ export function CinematicFooter({
                     className="mt-3 text-sm leading-relaxed"
                     style={{ color: 'var(--badge-text)' }}
                   >
-                    Local needs meet local skills across Cordova, Cebu.
+                    Find the right help or your next job. Search where it works for you and keep every service connection in one place.
                   </p>
                 </div>
 
@@ -504,7 +504,7 @@ export function CinematicFooter({
                       <a
                         key={link.href}
                         href={link.href}
-                        className="text-xs font-semibold transition-colors hover:text-[#c86544]"
+                        className="text-xs font-semibold transition-colors hover:text-brand-text"
                         style={{ color: 'var(--pill-text-secondary)' }}
                       >
                         {link.label}

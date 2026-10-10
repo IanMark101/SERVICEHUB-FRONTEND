@@ -108,7 +108,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
             <div key={request.id} className={`rounded-[20px] border p-4 sm:p-5 shadow-sm ${isDark ? 'border-neutral-850 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 space-y-1">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-orange-600 dark:text-orange-400">Existing listing inquiry · final price needed</span>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-text dark:text-orange-400">Existing listing inquiry · final price needed</span>
                   <h3 className="uppercase break-words [overflow-wrap:anywhere] text-sm font-extrabold">{request.title}</h3>
                   <p className="text-xs text-ink-muted dark:text-ink-muted">From {request.seekerName}</p>
                 </div>
@@ -124,7 +124,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
           {pendingRequests.map((je) => {
             const isVerified = je.seekerVerificationStatus === 'APPROVED';
             const trustScore = typeof je.seekerTrustScore === 'number' ? je.seekerTrustScore : 50;
-            const location = je.seekerLocation || 'Cordova, Cebu';
+            const location = je.seekerLocation || 'Location not provided';
 
             return (
               <div 

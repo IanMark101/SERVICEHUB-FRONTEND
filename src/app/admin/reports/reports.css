@@ -94,8 +94,8 @@
 .case-workroom-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(290px,380px); gap: 2rem; align-items: start; margin-top: 1.5rem; }
 .case-workroom-content { min-width: 0; }
 .case-tabs { display: flex; flex-wrap: wrap; gap: .3rem 1rem; border-bottom: 1px solid var(--workspace-border-strong); }
-.case-tabs button { min-height: 44px; border-bottom: 2px solid transparent; padding: .6rem 0; color: var(--workspace-muted); font-size: .8125rem; font-weight: 600; }
-.case-tabs button[aria-current] { color: var(--admin-accent); border-bottom-color: var(--admin-accent); }
+.case-tabs button { min-height: 44px; border: 0; border-radius: 7px; padding: .6rem .85rem; color: var(--workspace-muted); font-size: .8125rem; font-weight: 600; }
+.case-tabs button[aria-current] { color: var(--admin-accent); background: color-mix(in srgb, var(--admin-accent) 10%, var(--workspace-surface)); }
 .case-detail-section { padding: 1.5rem 0; border-bottom: 1px solid var(--workspace-border); }
 .case-detail-section > .case-muted { margin-top: .5rem; font-size: .8125rem; }
 .case-explanation { margin-top: .75rem !important; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.75; max-width: 70ch; }

@@ -18,7 +18,7 @@ export default function ProfilePageSkeleton({ isOwnProfile = false, displayName 
             <Skeleton className="h-5 w-32 rounded-full" />
           </div>
           <div className="mt-1.5 flex max-w-full flex-wrap justify-center gap-x-2 gap-y-1 text-xs sm:text-sm">
-            <div className="relative"><span className="invisible font-medium" aria-hidden="true">{location ? `${location}, Cordova` : 'Cordova, Cebu'}</span><div className="absolute inset-0"><Skeleton className="h-full w-full" /></div></div>
+            <div className="relative"><span className="invisible font-medium" aria-hidden="true">{location || 'Location not provided'}</span><div className="absolute inset-0"><Skeleton className="h-full w-full" /></div></div>
             <div className="relative"><span className="invisible font-semibold" aria-hidden="true">@{usernameHandle.replace(/^@/, '')}</span><div className="absolute inset-0"><Skeleton className="h-full w-full" /></div></div>
             <Skeleton className="hidden h-5 w-44 sm:block" />
           </div>

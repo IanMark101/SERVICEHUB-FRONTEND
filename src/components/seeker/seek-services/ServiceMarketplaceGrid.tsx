@@ -1,4 +1,6 @@
-"use client";
+'use client';
+
+import { formatDistance } from '../../../lib/location';
 
 import TrustScoreBadge from '../../ui/TrustScoreBadge';
 import MarketplaceRating from '../../ui/MarketplaceRating';
@@ -15,6 +17,8 @@ import {
 import type { ServiceListing } from '../../../types';
 import PaginationBar from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
+import MarketplaceEmptyState from '../../location/MarketplaceEmptyState';
+import type { MarketplaceLocation } from '../../../lib/location';
 import { ServiceListingSkeleton } from '../../ui/SkeletonCard';
 import { getServicePaymentMethods } from '../../../lib/paymentUtils';
 import type { Dispatch, SetStateAction } from 'react';
@@ -39,6 +43,10 @@ interface ServiceMarketplaceGridModel {
   setSearchQuery: Dispatch<SetStateAction<string>>;
   selectedCategory: string;
   setSelectedCategory: Dispatch<SetStateAction<string>>;
+  totalItems?: number;
+  searchLocation?: MarketplaceLocation | null;
+  onChangeLocation?: () => void;
+  onExpandRadius?: (radius:number) => void;
   filteredServices: ServiceListing[];
   paginatedServices: ServiceListing[];
   currentPage: number;
@@ -56,7 +64,6 @@ interface ServiceMarketplaceGridModel {
   handleBookListing: (listing: ServiceListing, method?: PaymentMethod) => void;
   handleJoinWaitlist: (listing: ServiceListing) => void;
   joiningWaitlistId: string | null;
-  setIsSuggestModalOpen: Dispatch<SetStateAction<boolean>>;
   prefetchProviderSummary: (listing: ServiceListing) => void;
 }
 
@@ -74,6 +81,10 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
     selectedCategory,
     setSelectedCategory,
     filteredServices,
+    totalItems = filteredServices.length,
+    searchLocation,
+    onChangeLocation,
+    onExpandRadius,
     paginatedServices,
     currentPage,
     totalPages,
@@ -88,7 +99,6 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
     handleBookListing,
     handleJoinWaitlist,
     joiningWaitlistId,
-    setIsSuggestModalOpen,
     prefetchProviderSummary
   } = model;
 
@@ -98,7 +108,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
     <>
       {servicesError && filteredServices.length > 0 && <div role="alert" className="workspace-surface rounded-xl border p-4 text-sm">
         Could not refresh services. Showing the last loaded listings.{' '}
-        <button type="button" className="underline" onClick={refreshServices}>Try again</button>
+        <button type="button" className="font-semibold" onClick={refreshServices}>Try again</button>
       </div>}
       {/* Provider Services Card Grid */}
       {isLoading ? (
@@ -107,51 +117,11 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
         <div role="alert"><EmptyState icon={Search} title="Services could not be loaded" description="Check your connection and try again." actionLabel="Try again" onAction={refreshServices} /></div>
       ) : filteredServices.length === 0 ? (
         <div className="space-y-4">
-          <EmptyState
-            icon={Search}
-            title="No Services Found"
-            description={
-              searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'
-                ? `No services matched your current filters ("${searchQuery || selectedCategory}"). Try adjusting your search keywords or clearing your category filters.`
-                : 'There are currently no active service listings published in Cordova. Check back soon or post a custom service request!'
-            }
-            actionLabel={searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all' ? 'Clear All Filters' : 'Post a Custom Request'}
-            onAction={() => {
-              if (searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all') {
-                setSearchQuery('');
-                setSelectedCategory('All Categories');
-                setActiveFilter('all');
-              } else {
-                router.push('/seeker/post-request');
-              }
-            }}
-            accentColor="orange"
-          />
-
-          {/* Contextual Category Suggestion Prompt */}
-          <div
-            className={`p-4 rounded-2xl border text-center flex flex-col sm:flex-row items-center justify-between gap-3 transition-colors ${
-              isDark
-                ? 'bg-charcoal-inset border-neutral-800 text-neutral-300'
-                : 'bg-slate-50 border-slate-200 text-ink-secondary'
-            }`}
-          >
-            <div className="text-left text-xs">
-              <span className="font-extrabold block text-ink dark:text-white">
-                Can&apos;t find what you&apos;re looking for?
-              </span>
-              <span className="text-[11px] text-ink-muted dark:text-ink-muted">
-                Suggest a new service category for Cordova, and we will source local providers.
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsSuggestModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs transition-all shadow-sm active:scale-95 flex-shrink-0 cursor-pointer"
-            >
-              + Suggest a Category
-            </button>
-          </div>
+          <MarketplaceEmptyState workspace="seeker" location={searchLocation || null} search={searchQuery} category={selectedCategory}
+            hasFilters={!!searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'}
+            onChangeLocation={onChangeLocation} onExpandRadius={onExpandRadius}
+            onClearFilters={() => { setSearchQuery(''); setSelectedCategory('All Categories'); setActiveFilter('all'); }}
+            onPostRequest={() => router.push('/seeker/post-request')}/>
         </div>
       ) : (
         <div className="space-y-6">
@@ -178,89 +148,19 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
               return (
                 <div
                   key={service.id}
+                  data-marketplace-card
+                  aria-label={service.title}
                   onClick={() => setPreviewListing(service)}
-                  className={`group relative min-w-0 rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col justify-between h-full cursor-pointer ${
+                  className={`marketplace-card group relative min-w-0 rounded-2xl p-4 sm:p-5 border transition-colors duration-200 flex flex-col justify-between h-full cursor-pointer ${
                     isDark
                       ? 'bg-charcoal-surface border-neutral-800 hover:border-neutral-700 hover:bg-charcoal-hover'
                       : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md shadow-xs'
                   }`}
                 >
-                  <div className="min-w-0 space-y-3">
-                    {/* Top Row: Provider Identity & Refined Rating */}
-                    <div className="flex items-center justify-between gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/profile/${encodeURIComponent(service.providerId)}`);
-                        }}
-                        disabled={!service.providerId}
-                        aria-label={`View ${service.providerName}'s profile`}
-                        className="group/author flex min-w-0 items-center gap-2.5 rounded-lg text-left transition-colors focus-visible:outline-2 focus-visible:outline-[#aa5032] disabled:cursor-default"
-                        title={`View ${service.providerName}'s profile`}
-                      >
-                        <UserAvatar
-                          src={service.providerAvatar}
-                          name={service.providerName || 'Provider'}
-                          alt=""
-                          size={36}
-                          role="provider"
-                          className="shrink-0 ring-1 ring-slate-200 dark:ring-neutral-700 transition-transform duration-200 group-hover/author:scale-105"
-                        />
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span
-                              className={`block truncate text-xs font-semibold leading-tight transition-colors duration-200 group-hover/author:text-orange-600 dark:group-hover/author:text-orange-400 ${
-                                isDark ? 'text-white' : 'text-ink'
-                              }`}
-                            >
-                              {service.providerName}
-                            </span>
-                            {isVerified && (
-                              <span title="Verified Provider" aria-label="Verified resident" className="inline-flex shrink-0 text-emerald-700 dark:text-emerald-400">
-                                <ShieldCheck
-                                  size={14}
-                                  weight="fill"
-                                  aria-hidden="true"
-                                />
-                              </span>
-                            )}
-                          </div>
-                          <span className="mt-1 block">{typeof trustScore === 'number' ? <TrustScoreBadge score={trustScore} /> : 'Cordova local'}</span>
-                        </div>
-                      </button>
-
-                      {/* Refined Rating & Report Action */}
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/profile/${encodeURIComponent(service.providerId)}?tab=reviews&reviewRole=provider`);
-                          }}
-                          disabled={!service.providerId}
-                          aria-label={`View reviews for ${service.providerName}`}
-                          className="shrink-0 transition-opacity hover:opacity-80"
-                          title="View provider reviews"
-                        >
-                          <MarketplaceRating rating={service.rating} reviewCount={service.reviewCount} context="provider" />
-                        </button>
-                        {!isOwned && (
-                          <ContentCaseAction
-                            caseType="REPORT"
-                            contentType="SERVICE_LISTING"
-                            resourceId={service.id}
-                            label="Report listing"
-                            variant="icon"
-                            isDark={isDark}
-                          />
-                        )}
-                      </div>
-                    </div>
-
+                  <div className="marketplace-card-body min-w-0">
                     {/* Category Tag & Live Queue Status — Calm Neutral Harmony */}
-                    <div className="flex items-center justify-between gap-2 pt-0.5">
-                      <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                      <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                         <span
                           className={`inline-block truncate max-w-[150px] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded border ${
                             isDark
@@ -311,23 +211,89 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                     {/* Title & Description with Vertical Word Wrapping */}
                     <div className="space-y-1">
                       <h3
-                        className={`uppercase font-semibold text-sm leading-snug line-clamp-1 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors break-words [overflow-wrap:anywhere] ${
+                        className={`uppercase font-semibold text-sm leading-snug line-clamp-1 group-hover:text-brand-text dark:group-hover:text-orange-400 transition-colors break-words [overflow-wrap:anywhere] ${
                           isDark ? 'text-white' : 'text-ink'
                         }`}
                       >
                         {service.title}
                       </h3>
-                      <p
-                        className={`text-xs line-clamp-2 leading-relaxed break-words [overflow-wrap:anywhere] ${
-                          isDark ? 'text-ink-subtle' : 'text-ink-muted'
-                        }`}
+
+                    </div>
+
+                    {/* Top Row: Provider Identity & Refined Rating */}
+                    <div className="marketplace-identity flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/profile/${encodeURIComponent(service.providerId)}`);
+                        }}
+                        disabled={!service.providerId}
+                        aria-label={`View ${service.providerName}'s profile`}
+                        className="group/author flex min-w-0 items-center gap-2.5 rounded-lg text-left transition-colors focus-visible:outline-2 focus-visible:outline-brand-action-hover disabled:cursor-default"
+                        title={`View ${service.providerName}'s profile`}
                       >
-                        {service.description}
-                      </p>
+                        <UserAvatar
+                          src={service.providerAvatar}
+                          name={service.providerName || 'Provider'}
+                          alt=""
+                          size={36}
+                          role="provider"
+                          className="shrink-0 ring-1 ring-slate-200 dark:ring-neutral-700 "
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span
+                              className={`block truncate text-xs font-semibold leading-tight transition-colors duration-200 group-hover/author:text-brand-text dark:group-hover/author:text-orange-400 ${
+                                isDark ? 'text-white' : 'text-ink'
+                              }`}
+                            >
+                              {service.providerName}
+                            </span>
+                            {isVerified && (
+                              <span title="Verified Provider" aria-label="Verified resident" className="inline-flex shrink-0 text-emerald-700 dark:text-emerald-400">
+                                <ShieldCheck
+                                  size={14}
+                                  weight="fill"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            )}
+                          </div>
+                          <span className="mt-1 block">{typeof trustScore === 'number' ? <TrustScoreBadge score={trustScore} /> : 'Community member'}</span>
+                        </div>
+                      </button>
+
+                      {/* Refined Rating & Report Action */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/profile/${encodeURIComponent(service.providerId)}?tab=reviews&reviewRole=provider`);
+                          }}
+                          disabled={!service.providerId}
+                          aria-label={`View reviews for ${service.providerName}`}
+                          className="shrink-0 transition-opacity hover:opacity-80"
+                          title="View provider reviews"
+                        >
+                          <MarketplaceRating rating={service.rating} reviewCount={service.reviewCount} context="provider" />
+                        </button>
+                        {!isOwned && (
+                          <ContentCaseAction
+                            caseType="REPORT"
+                            contentType="SERVICE_LISTING"
+                            resourceId={service.id}
+                            label="Report listing"
+                            variant="icon"
+                            isDark={isDark}
+                          />
+                        )}
+                      </div>
                     </div>
 
                     {/* Price Block & Duration */}
-                    <div className="pt-2 flex items-baseline justify-between border-t border-slate-100 dark:border-neutral-800">
+                    <div className="marketplace-value pt-2 flex items-baseline justify-between border-t border-slate-100 dark:border-neutral-800">
                       <div>
                         {priceUnavailable ? (
                           <span className={`text-xs font-medium ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>
@@ -368,6 +334,16 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                       ) : null}
                     </div>
 
+                      <p
+                        className={`text-xs line-clamp-2 leading-relaxed break-words [overflow-wrap:anywhere] ${
+                          isDark ? 'text-ink-subtle' : 'text-ink-muted'
+                        }`}
+                      >
+                        {service.description}
+                      </p>
+                    {service.locationLabel && <p className="flex flex-wrap items-center gap-1 text-xs text-ink-muted"><MapPin size={13} aria-hidden="true" />{service.locationLabel}{service.distanceKm != null && <span>· {formatDistance(service.distanceKm)}</span>}</p>}
+                    {!!service.transportationFee && <p className="text-xs text-ink-muted">+ ₱{service.transportationFee.toLocaleString()} transportation per booking</p>}
+
                     {/* Accepted Payment Methods — Unified Neutral Professional Badges */}
                     <div className="pt-1 space-y-1">
                       <p className={`text-[10px] font-medium uppercase tracking-wider ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
@@ -404,7 +380,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
 
                   {/* Action Buttons Row */}
                   <div
-                    className="mt-4 pt-3 border-t border-slate-100 dark:border-neutral-800 space-y-2"
+                    className="marketplace-card-actions mt-4 pt-3 border-t border-slate-100 dark:border-neutral-800 space-y-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {isOwned ? (
@@ -443,7 +419,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                         <button
                           type="button"
                           onClick={() => router.push(`/seeker/seeker-activity?tab=all&booking=${activeEngagement.id}`)}
-                          className="w-full bg-charcoal hover:bg-charcoal dark:bg-neutral-100 dark:hover:bg-white text-white dark:text-charcoal font-semibold text-xs py-2 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer"
+                          className="w-full bg-charcoal hover:bg-charcoal dark:bg-neutral-100 dark:hover:bg-white text-white dark:text-charcoal font-semibold text-xs py-2 rounded-xl transition-colors shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer"
                         >
                           <Clock className="w-3.5 h-3.5" />
                           <span>
@@ -494,7 +470,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                             onClick={() => handleBookListing(service, 'On-site Cash')}
                             onMouseEnter={() => prefetchProviderSummary(service)}
                             onFocus={() => prefetchProviderSummary(service)}
-                            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs py-2 rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
+                            className="flex-1 marketplace-primary text-white font-semibold text-xs py-2 rounded-xl transition-colors shadow-xs flex items-center justify-center space-x-1 cursor-pointer"
                           >
                             <MapPin className="w-3 h-3" />
                             <span>Direct Cash</span>
@@ -529,14 +505,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           title="View all details"
                         >
                           <Eye className="w-3.5 h-3.5 text-ink-subtle" />
-                          <span className="hidden sm:inline">Details</span>
+                          <span >Details</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => handleBookListing(service, cash ? 'On-site Cash' : 'GCash')}
                           onMouseEnter={() => prefetchProviderSummary(service)}
                           onFocus={() => prefetchProviderSummary(service)}
-                          className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs py-2 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center space-x-1.5 cursor-pointer"
+                          className="flex-1 marketplace-primary text-white font-semibold text-xs py-2 rounded-xl transition-colors shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer"
                         >
                           <MapPin className="w-3.5 h-3.5" />
                           <span>Book Service</span>
@@ -557,7 +533,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
             prevPage={prevPage}
             startIndex={startIndex}
             endIndex={endIndex}
-            totalItems={filteredServices.length}
+            totalItems={totalItems}
             variant="seeker"
           />
         </div>

@@ -3,6 +3,7 @@
 import FormSelect from '../../ui/FormSelect';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApiCacheRefresh } from '@/hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '@/hooks/useRefreshableLoad';
 import { invalidateApiCache } from '@/lib/api/responseCache';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { RefreshCw, Search, ShieldCheck } from 'lucide-react';
@@ -37,7 +38,7 @@ export default function ContentWorkspace() {
   const [cases, setCases] = useState<ContentCase[]>([]);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
+  const { loading, beginLoad } = useRefreshableLoad(JSON.stringify([page, type, view, querySearch, caseType]));
   const [error, setError] = useState('');
   const [detail, setDetail] = useState<ContentCaseDetail | ContentItem | null>(null);
   const [detailError, setDetailError] = useState('');
@@ -58,21 +59,24 @@ export default function ContentWorkspace() {
   }
   const load = useCallback(async () => {
     const sequence = ++listSequence.current;
-    setLoading(true); setError('');
+    const request = beginLoad();
+    let succeeded = false;
+    setError('');
     try {
       const query = { page, limit: pageSize, contentType: type, ...(view === 'content' ? { search: querySearch } : { caseType, status: view === 'history' ? 'RESOLVED' as const : 'OPEN' as const }) };
       if (view === 'content') {
         const response = await apiGetMarketplaceContent(query);
-        if (sequence !== listSequence.current) return;
+        if (sequence !== listSequence.current || !request.current()) return;
         setContent(response.data); setPagination(response.pagination);
       } else {
         const response = await apiGetContentCases(query);
-        if (sequence !== listSequence.current) return;
+        if (sequence !== listSequence.current || !request.current()) return;
         setCases(response.data); setPagination(response.pagination);
       }
-    } catch (cause) { if (sequence === listSequence.current) setError(getApiErrorMessage(cause, 'This view could not be loaded. Try Refresh.')); }
-    finally { if (sequence === listSequence.current) setLoading(false); }
-  }, [page, type, view, querySearch, caseType]);
+      succeeded = true;
+    } catch (cause) { if (sequence === listSequence.current && request.current()) setError(getApiErrorMessage(cause, 'This view could not be loaded. Try Refresh.')); }
+    finally { if (sequence === listSequence.current) request.finish(succeeded); }
+  }, [page, type, view, querySearch, caseType, beginLoad, setContent, setPagination, setCases]);
   const loadDetail = useCallback(async () => {
     const sequence = ++detailSequence.current;
     setDetail(null); setDetailError('');

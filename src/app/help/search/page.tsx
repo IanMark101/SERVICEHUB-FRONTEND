@@ -1,17 +1,16 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Metadata } from 'next';
 import HelpSearchPage from '@/features/help/pages/HelpSearchPage';
-import BrandLoading from '@/components/ui/BrandLoading';
 
 export const metadata: Metadata = {
-  title: 'Search Help & Documentation | ServiceHub Cordova',
-  description: 'Search guides and articles across ServiceHub Cordova.',
+  title: 'Search Help & Documentation | ServiceHub',
+  description: 'Search guides and articles across ServiceHub.',
 };
 
-export default function Page() {
-  return (
-    <Suspense fallback={<BrandLoading compact label="Searching help guides" />}>
-      <HelpSearchPage />
-    </Suspense>
-  );
+export default async function Page({ searchParams }: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
+  const { q } = await searchParams;
+  const query = Array.isArray(q) ? q[0] || '' : q || '';
+  return <HelpSearchPage query={query} />;
 }

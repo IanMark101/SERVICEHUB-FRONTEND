@@ -21,8 +21,7 @@ export interface CommunityStatsData {
 export interface RecentCategory {
   id: string;
   name: string;
-  description: string;
-  reviewedAt: string;
+  addedAt: string;
 }
 
 export interface RecentService {

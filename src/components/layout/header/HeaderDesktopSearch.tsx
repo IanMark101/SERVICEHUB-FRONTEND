@@ -113,7 +113,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
                             <span className={`text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                               result.role === 'provider'
                                 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                                : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20'
+                                : 'bg-orange-500/10 text-brand-text dark:text-orange-400 border border-orange-500/20'
                             }`}>
                               {result.role}
                             </span>
@@ -123,7 +123,7 @@ export default function HeaderDesktopSearch({ model }: { model: HeaderDesktopSea
                           ) : result.location ? (
                             <div className="flex items-center gap-1 text-[10px] text-ink-subtle dark:text-ink-subtle truncate">
                               <MapPin className="h-2.5 w-2.5 shrink-0" aria-hidden="true" />
-                              <span>{result.location}, Cordova</span>
+                              <span>{result.location}</span>
                             </div>
                           ) : null}
                           {result.bio && result.bio !== 'N/A' && (

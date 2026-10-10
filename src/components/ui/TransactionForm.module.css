@@ -16,10 +16,10 @@
   --form-border: #d8d3cd;
   --form-ink: #191919;
   --form-muted: #60605c;
-  --form-accent: var(--color-seeker-primary, #c86544);
-  --form-accent-hover: var(--color-seeker-hover, #aa5032);
-  --form-tint: var(--color-orange-50, #faf5f2);
-  --form-accent-ink: var(--color-orange-800, #8b3e25);
+  --form-accent: var(--color-seeker-primary, var(--color-brand-action));
+  --form-accent-hover: var(--color-seeker-hover, var(--color-brand-action-hover));
+  --form-tint: var(--color-orange-50, var(--color-brand-soft));
+  --form-accent-ink: var(--color-orange-800, var(--color-orange-800));
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -49,9 +49,9 @@
   --form-border: #525252;
   --form-ink: #f4f4f4;
   --form-muted: #bcbcbc;
-  --form-accent: #e18463;
-  --form-tint: rgb(200 101 68 / 14%);
-  --form-accent-ink: #f5b39a;
+  --form-accent: var(--color-brand-on-dark);
+  --form-tint: color-mix(in srgb, var(--color-brand) 14%, transparent);
+  --form-accent-ink: var(--color-orange-300);
 }
 
 .panel[data-theme='dark'][data-workspace='provider'] {
@@ -102,11 +102,11 @@
 .footer { display: flex; flex-shrink: 0; flex-direction: column; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--form-border); background: var(--form-surface); }
 .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--form-border); border-radius: 12px; font-size: 14px; line-height: 1.5; font-weight: 650; background: var(--form-surface); color: var(--form-ink); cursor: pointer; }
-.primary { background: var(--color-seeker-hover, #aa5032); border-color: transparent; color: white; }
+.primary { background: var(--color-seeker-primary, var(--color-brand-action)); border-color: transparent; color: white; }
 .panel[data-workspace='provider'] .primary { background: var(--color-provider-hover, #047857); }
 .button:not(:disabled):hover, .close:not(:disabled):hover { background: var(--form-tint); color: var(--form-accent-ink); }
-.primary:not(:disabled):hover { background: #8b3e25; color: white; }
-.panel[data-workspace='provider'] .primary:not(:disabled):hover { background: #065f46; }
+.primary:not(:disabled):hover { background: var(--color-seeker-primary, var(--color-brand-action)); color: white; filter: brightness(.94); }
+.panel[data-workspace='provider'] .primary:not(:disabled):hover { background: #065f46; filter: none; }
 .success { padding: 32px 24px; text-align: center; overflow-y: auto; }
 .success svg { display: block; margin: 0 auto 16px; color: var(--form-accent); }
 .success h4 { margin: 0 0 12px; font-size: 18px; }

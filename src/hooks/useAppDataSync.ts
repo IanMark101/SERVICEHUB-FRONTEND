@@ -1,17 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type {
-  Bid,
-  CategorySuggestion,
-  JobEngagement,
-  JobRequest,
-  Message,
-  Notification,
-  ServiceListing,
-  Transaction,
-  UserReport
-} from "../types";
+import type { Bid, JobEngagement, JobRequest, Message, Notification, ServiceListing, Transaction, UserReport } from "../types";
 import type { UserSession } from "../components/auth/LoginContainer";
 import { apiGetCategories } from "../api/categories.api";
 import { apiGetRequests } from "../api/requests.api";
@@ -59,6 +49,7 @@ export function useAppDataSync({
   const [services, setServices] = useState<ServiceListing[]>([]);
   const [servicesStatus, setServicesStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const serviceRequestVersion = useRef(0);
+  const servicesResolved = useRef(false);
   const [jobRequests, setJobRequests] = useState<JobRequest[]>([]);
   const [bids, setBids] = useState<Bid[]>([]);
   const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>([]);
@@ -66,6 +57,7 @@ export function useAppDataSync({
   const [offersStatus, setOffersStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engagementsStatus, setEngagementsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const engagementRequestVersion = useRef(0);
+  const engagementsResolved = useRef(false);
   const applyBookingAction = useCallback((result: BookingActionResult) => {
     // An older in-flight read must not undo a just-committed action. The cache
     // invalidation schedules one fresh read for the rest of the booking detail.
@@ -80,7 +72,6 @@ export function useAppDataSync({
   const [transactionTotalPages, setTransactionTotalPages] = useState(1);
   const [messages, setMessages] = useState<Message[]>([]);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
-  const [categorySuggestions, setCategorySuggestions] = useState<CategorySuggestion[]>([]);
   const [userReports, setUserReports] = useState<UserReport[]>([]);
   const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
   const isAdmin = user?.role === 'admin';
@@ -88,6 +79,7 @@ export function useAppDataSync({
 
   const clearPrivateData = useCallback(() => {
     engagementRequestVersion.current += 1;
+    engagementsResolved.current = false;
     setJobRequests([]);
     setBids([]);
     setJobEngagements([]);
@@ -102,7 +94,6 @@ export function useAppDataSync({
     setTransactionTotalPages(1);
     setMessages([]);
     setUnreadMessagesCount(0);
-    setCategorySuggestions([]);
     setUserReports([]);
   }, []);
   // ─── Live Data Sync Helpers ────────────────────────────────────
@@ -110,7 +101,7 @@ export function useAppDataSync({
 
   const syncPublicServices = useCallback(async () => {
     const version = ++serviceRequestVersion.current;
-    setServicesStatus('loading');
+    setServicesStatus(previous => servicesResolved.current ? previous : 'loading');
     const current = () => version === serviceRequestVersion.current;
     const loadMine = isAuthenticated && userModerationStatus !== 'BANNED' && !isAdmin;
     let owned: ServiceListing[] | undefined;
@@ -120,6 +111,7 @@ export function useAppDataSync({
       if (!res?.success || !Array.isArray(res.data)) throw new Error('Services could not be loaded');
       const listings: ServiceListing[] = res.data.map(mapServiceToListing);
       published = listings;
+      servicesResolved.current = true;
       setServices(previous => {
         const mine = owned ?? (loadMine ? previous.filter(service => service.providerId === user?.id) : []);
         const merged = new Map(listings.map(service => [service.id, service]));
@@ -146,6 +138,7 @@ export function useAppDataSync({
     if (!authLoading && !canLoadWorkspace) {
       const timer = window.setTimeout(() => {
         serviceRequestVersion.current++;
+        servicesResolved.current = false;
         setServices([]);
         setServicesStatus('loading');
       }, 0);
@@ -228,12 +221,13 @@ export function useAppDataSync({
       setEngagementsStatus('loading');
       return;
     }
-    // Keep existing bookings visible while refreshing; only the load status changes.
-    setEngagementsStatus('loading');
+    // A confirmed empty workspace also stays visible during revalidation.
+    setEngagementsStatus(previous => engagementsResolved.current ? previous : 'loading');
     try {
       const res = await apiGetMyEngagements();
       if (version !== engagementRequestVersion.current) return;
       if (res.success) {
+        engagementsResolved.current = true;
         const dbBookings = (res.data.bookings || []) as ApiBooking[];
         const dbCompleted = (res.data.completedServices || []) as ApiCompletedService[];
 
@@ -501,8 +495,6 @@ export function useAppDataSync({
     messages,
     setMessages,
     unreadMessagesCount,
-    categorySuggestions,
-    setCategorySuggestions,
     userReports,
     setUserReports,
     dbCategories,

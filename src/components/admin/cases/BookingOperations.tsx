@@ -4,6 +4,7 @@ import CaseSkeleton from './CaseSkeleton';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApiCacheRefresh } from '@/hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '@/hooks/useRefreshableLoad';
 import { apiCancelAdminBooking, apiGetAdminBookingMessages, apiListAdminBookings, apiListAdminPaymentAttempts, apiListPaymentReconciliation, apiResolveBannedParticipantBooking, apiRetryPaymentReconciliation } from '@/api/admin.api';
 import AdminPagination from '@/components/admin/AdminPagination';
 import ReasonModal from '@/components/ui/ReasonModal';
@@ -37,7 +38,7 @@ export default function BookingOperations({ userId }: { userId?: string }) {
   const [attemptPagination, setAttemptPagination] = useState({ total: 0, totalPages: 1 });
   const [reconciliationPagination, setReconciliationPagination] = useState({ total: 0, totalPages: 1 });
   const [errors, setErrors] = useState<Record<string,string>>({});
-  const [loading, setLoading] = useState(true);
+  const { loading, beginLoad } = useRefreshableLoad(JSON.stringify([page, attemptPage, reconciliationPage, userId, needsResolution]));
   const [action, setAction] = useState<Action | null>(null);
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -50,9 +51,9 @@ export default function BookingOperations({ userId }: { userId?: string }) {
   const invalidate = useCallback(() => { loadSequence.current++; }, []);
   const load = useCallback(async () => {
     const sequence = ++loadSequence.current;
-    setLoading(true);
+    const request = beginLoad();
     const results = await Promise.allSettled([apiListAdminBookings({ page, limit: 10, userId, needsResolution }), apiListAdminPaymentAttempts({ page: attemptPage, limit: 10 }), apiListPaymentReconciliation({ page: reconciliationPage, limit: 10 })]);
-    if (sequence !== loadSequence.current) return;
+    if (sequence !== loadSequence.current || !request.current()) return;
     const nextErrors: Record<string,string> = {};
     results.forEach((result,index) => {
       const key = ['bookings','attempts','reconciliation'][index];
@@ -61,8 +62,8 @@ export default function BookingOperations({ userId }: { userId?: string }) {
       if (index === 1) { setAttempts(result.value.data || []); setAttemptPagination(result.value.pagination); }
       if (index === 2) { setReconciliation(result.value.data || []); setReconciliationPagination(result.value.pagination); if (reconciliationPage > Math.max(1,result.value.pagination.totalPages)) setReconciliationPage(Math.max(1,result.value.pagination.totalPages)); }
     });
-    setErrors(nextErrors); setLoading(false);
-  }, [page,attemptPage,reconciliationPage,userId,needsResolution]);
+    setErrors(nextErrors); request.finish(results.every(result => result.status === 'fulfilled'));
+  }, [page,attemptPage,reconciliationPage,userId,needsResolution,beginLoad]);
   useApiCacheRefresh(['admin', 'bookings'], () => load(), !submitting);
   useEffect(() => { const timer = setTimeout(() => void load(), 0); return () => { clearTimeout(timer); invalidate(); }; }, [load, invalidate]);
   useEffect(() => { const socket = getSocket(); const refresh = () => { if (!submitting) void load(); }; socket?.on('ADMIN_MODERATION_CHANGED',refresh); return () => { socket?.off('ADMIN_MODERATION_CHANGED',refresh); }; }, [load,submitting]);

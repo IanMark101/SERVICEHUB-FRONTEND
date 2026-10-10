@@ -25,7 +25,7 @@ function renderListing(service: ServiceListing) {
     goToPage: vi.fn(), nextPage: vi.fn(), prevPage: vi.fn(), startIndex: 0, endIndex: 1,
     getProviderDetails: () => undefined, user: { id: 'seeker-1', role: 'seeker' },
     jobEngagements: [], canTransact: true, setBlockedModalOpen: vi.fn(), handleBookListing,
-    handleJoinWaitlist: vi.fn(), joiningWaitlistId: null, setIsSuggestModalOpen: vi.fn(),
+    handleJoinWaitlist: vi.fn(), joiningWaitlistId: null,
     prefetchProviderSummary: vi.fn(),
   } as unknown as React.ComponentProps<typeof ServiceMarketplaceGrid>['model'];
   render(<ServiceMarketplaceGrid model={model} />);

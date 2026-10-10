@@ -73,6 +73,7 @@ describe('booking review digest', () => {
     act(() => responseCache.invalidate(['summaries'], 'socket'));
     await screen.findByText('Loading completed-booking reviews…');
     expect(screen.queryByText('Old 5-star feedback.')).not.toBeInTheDocument();
+    await waitFor(() => expect(apiGetProviderSummary).toHaveBeenCalledTimes(2));
     await act(async () => resolveRefresh(response('Updated 3-star feedback.')));
     expect(await screen.findByText('Updated 3-star feedback.')).toBeInTheDocument();
     expect(apiGetProviderSummary).toHaveBeenLastCalledWith('provider', undefined, { force: true, waitForFresh: false });
@@ -95,9 +96,24 @@ describe('booking review digest', () => {
       .mockRejectedValueOnce(new Error('Network error')).mockResolvedValueOnce(response('Current provider feedback.'));
     render(<ReviewSummaryPanel subjectId="provider" context="provider" />);
     await screen.findByText('Old provider feedback.');
-    act(() => responseCache.invalidate(['summaries'], 'focus'));
+    act(() => responseCache.invalidate(['summaries'], 'socket'));
     fireEvent.click(await screen.findByRole('button', { name: 'Retry review summary' }));
     expect(screen.queryByText('Old provider feedback.')).not.toBeInTheDocument();
     expect(await screen.findByText('Current provider feedback.')).toBeInTheDocument();
+  });
+
+  it.each(['focus', 'online', 'reconnect'] as const)('keeps confirmed review feedback visible during %s and reports a failed revalidation', async reason => {
+    let reject!: (error: Error) => void;
+    vi.mocked(apiGetProviderSummary).mockResolvedValueOnce(response('Confirmed provider feedback.'))
+      .mockImplementationOnce(() => new Promise((_, no) => { reject = no; }));
+    render(<ReviewSummaryPanel subjectId="provider" context="provider" />);
+    await screen.findByText('Confirmed provider feedback.');
+    act(() => responseCache.invalidate(['summaries'], reason));
+    await waitFor(() => expect(apiGetProviderSummary).toHaveBeenCalledTimes(2));
+    expect(screen.getByText('Confirmed provider feedback.')).toBeInTheDocument();
+    expect(screen.queryByText('Loading completed-booking reviews…')).not.toBeInTheDocument();
+    await act(async () => reject(new Error('Network error')));
+    expect(await screen.findByRole('button', { name: 'Retry review summary' })).toBeInTheDocument();
+    expect(screen.getByText('Confirmed provider feedback.')).toBeInTheDocument();
   });
 });

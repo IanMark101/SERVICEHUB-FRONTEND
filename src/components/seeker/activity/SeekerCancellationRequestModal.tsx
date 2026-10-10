@@ -35,7 +35,7 @@ export default function SeekerCancellationRequestModal({
       <div className={`servicehub-dialog rounded-2xl max-w-lg w-full shadow-xl border animate-in zoom-in-95 duration-200 ${isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'}`}>
         <div className={`p-5 border-b flex justify-between items-center ${isDark ? 'border-neutral-850 bg-charcoal-inset/45' : 'border-slate-100 bg-slate-50/50'}`}>
           <h3 id="cancel-booking-title" className={`font-extrabold text-sm flex items-center space-x-1.5 ${isDark ? 'text-white' : 'text-ink'}`}>
-            <AlertCircle className="w-4 h-4 text-orange-500" />
+            <AlertCircle className="w-4 h-4 text-brand-text" />
             <span>{engagement.started ? 'Submit Cancellation Request' : 'Cancel Booking'}</span>
           </h3>
           <button type="button" aria-label="Close dialog" disabled={isSubmitting} onClick={onClose} className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-neutral-800 hover:bg-charcoal text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'}`}>

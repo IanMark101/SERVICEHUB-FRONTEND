@@ -31,7 +31,7 @@
 .servicehub-dialog button[data-dialog-action="danger"] { color: #fff; background: #b42318; }
 .servicehub-dialog button[data-dialog-action]:not(:disabled):hover { filter: brightness(.9); }
 .servicehub-dialog button:disabled { opacity: .6; cursor: not-allowed; }
-.servicehub-dialog button:focus-visible, .servicehub-dialog textarea:focus-visible { outline: 3px solid var(--workspace-focus, #aa5032); outline-offset: 3px; }
+.servicehub-dialog button:focus-visible, .servicehub-dialog textarea:focus-visible { outline: 3px solid var(--workspace-focus, var(--color-brand-action-hover)); outline-offset: 3px; }
 @media (max-width: 480px) {
   .servicehub-dialog__actions { flex-direction: column-reverse; }
   .servicehub-dialog__actions > button { width: 100%; }

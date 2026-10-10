@@ -15,10 +15,10 @@ export default function VerificationDecision({ verification }: VerificationDecis
   const Icon = approved ? CheckCircle2 : rejected ? XCircle : pending ? Clock : Shield;
   const title = approved ? 'Verification approved' : rejected ? 'Verification not approved' : pending ? 'Verification under review' : 'Verification not submitted';
   const description = approved
-    ? 'Your Cordova residency verification is approved.'
+    ? 'Your identity and residency verification is approved.'
     : rejected ? 'Read the reason below, correct the documents, and resubmit for review.'
     : pending ? 'Your documents are awaiting review. You do not need to submit them again.'
-    : 'Submit documents to verify your identity and Cordova residency.';
+    : 'Submit documents to verify your identity and residency.';
   const reviewedAt = verification?.reviewedAt ? new Date(verification.reviewedAt) : null;
   const validDate = reviewedAt && !Number.isNaN(reviewedAt.getTime());
   const message = verification?.adminNotes?.trim();

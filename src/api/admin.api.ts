@@ -157,16 +157,6 @@ export async function apiUpdateAdminCategory(
   return response.data;
 }
 
-export async function apiListCategorySuggestions(params?: { page?: number; limit?: number }) {
-  const response = await api.get('/admin/categories/suggestions', { params });
-  return response.data;
-}
-
-export async function apiResolveCategorySuggestion(id: string, approve: boolean, adminNotes?: string) {
-  const response = await api.patch(`/admin/categories/suggestions/${id}`, { approve, adminNotes });
-  return response.data;
-}
-
 export async function apiListReports(params?: { page?: number; limit?: number; userId?: string }) {
   const response = await api.get('/admin/reports', { params });
   return response.data;

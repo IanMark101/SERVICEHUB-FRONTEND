@@ -53,7 +53,7 @@ export default function CommunityStats({
       label: 'Verified Residents',
       value: stats.verifiedUsers.toLocaleString(),
       icon: ShieldCheck,
-      iconTone: isDark ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-50 text-orange-600',
+      iconTone: isDark ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-50 text-brand-text',
     },
     {
       label: 'Active Providers',

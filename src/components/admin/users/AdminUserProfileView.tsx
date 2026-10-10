@@ -6,6 +6,7 @@ import UserAvatar from '@/components/ui/UserAvatar';
 import AdminPagination from '@/components/admin/AdminPagination';
 import { apiGetAdminUserRecords } from '@/api/admin.api';
 import { getApiErrorMessage } from '@/lib/api/errors';
+import { useRefreshableLoad } from '@/hooks/useRefreshableLoad';
 import type { AdminUserProfileData, AdminUserRecordsResponse, UserRecordKind } from './types';
 import './admin-users.css';
 
@@ -22,18 +23,20 @@ export default function AdminUserProfileView({ data, backHref, onRefresh }: { da
   const [section, setSection] = useState<'account' | UserRecordKind>('account');
   const [page, setPage] = useState(1);
   const [records, setRecords] = useState<AdminUserRecordsResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, beginLoad } = useRefreshableLoad(section === 'account' ? null : JSON.stringify([user.id, section, page]));
   const [error, setError] = useState('');
   const generation = useRef(0);
   const invalidate = useCallback(() => { generation.current++; }, []);
   const load = useCallback(async (signal?: AbortSignal) => {
     if (section === 'account') return;
     const version = ++generation.current;
-    setLoading(true); setError('');
-    try { const result = await apiGetAdminUserRecords(user.id, section, page, signal); if (version === generation.current && !signal?.aborted) setRecords(result); }
-    catch (cause) { if (version === generation.current && !signal?.aborted) setError(getApiErrorMessage(cause, 'Could not load account history.')); }
-    finally { if (version === generation.current && !signal?.aborted) setLoading(false); }
-  }, [section, page, user.id]);
+    const request = beginLoad();
+    let succeeded = false;
+    setError('');
+    try { const result = await apiGetAdminUserRecords(user.id, section, page, signal); if (version === generation.current && request.current() && !signal?.aborted) { setRecords(result); succeeded = true; } }
+    catch (cause) { if (version === generation.current && request.current() && !signal?.aborted) setError(getApiErrorMessage(cause, 'Could not load account history.')); }
+    finally { if (version === generation.current && !signal?.aborted) request.finish(succeeded); }
+  }, [section, page, user.id, beginLoad]);
   useEffect(() => {
     const controller = new AbortController();
     const timer = window.setTimeout(() => void load(controller.signal), 0);
@@ -52,10 +55,10 @@ export default function AdminUserProfileView({ data, backHref, onRefresh }: { da
     <header className="au-panel">
       <div className="au-identity"><UserAvatar src={user.avatarUrl} name={user.name} size={64} role="admin" /><div className="min-w-0"><h1 className="au-heading">{user.name}</h1><p className="au-muted mt-1">{user.role === 'admin' ? 'Administrator account' : 'ServiceHub member'} · Joined {date(user.createdAt)}</p><div className="mt-3 flex flex-wrap gap-2"><span className="au-badge">{status}</span><span className="au-badge">Trust {user.trustScore}/100</span>{user.verificationStatus === 'APPROVED' && <span className="au-badge"><ShieldCheck size={14} />Verified resident</span>}</div></div></div>
       {user.bio && <p className="mt-5 max-w-[70ch] whitespace-pre-wrap text-sm leading-6">{user.bio}</p>}
-      <div className="mt-4 flex flex-wrap gap-4">{([['Facebook', user.facebookUrl], ['Instagram', user.instagramUrl], ['Website', user.websiteUrl]] as const).map(([name, value]) => { const href = externalLink(value); return href ? <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm underline underline-offset-4">{name}<ArrowUpRight size={14} /></a> : null; })}</div>
+      <div className="mt-4 flex flex-wrap gap-4">{([['Facebook', user.facebookUrl], ['Instagram', user.instagramUrl], ['Website', user.websiteUrl]] as const).map(([name, value]) => { const href = externalLink(value); return href ? <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm  ">{name}<ArrowUpRight size={14} /></a> : null; })}</div>
       <div className="au-rating-grid">{(['provider', 'seeker'] as const).map(context => <div key={context}><h2 className="text-sm font-semibold">As a {context}</h2><p className="au-muted mt-1">{context === 'provider' ? activity.completedAsProvider : activity.completedAsSeeker} completed bookings</p><p className="mt-2 flex items-center gap-1 text-sm"><Star size={15} className="text-amber-600" />{ratings[context].count ? `${ratings[context].average?.toFixed(1)}/5 · ${ratings[context].count} visible reviews` : 'No visible reviews yet'}</p></div>)}</div>
     </header>
-    <nav className="au-tabs" aria-label="User profile sections">{sections.map(item => <button key={item.id} type="button" aria-pressed={section === item.id} onClick={() => { generation.current++; setSection(item.id); setPage(1); setRecords(null); setError(''); setLoading(item.id !== 'account'); }}>{item.label}{item.id === 'services' ? ` (${activity.services})` : item.id === 'requests' ? ` (${activity.requests})` : item.id === 'bookings' ? ` (${activity.bookings})` : ''}</button>)}</nav>
+    <nav className="au-tabs" aria-label="User profile sections">{sections.map(item => <button key={item.id} type="button" aria-pressed={section === item.id} onClick={() => { if (item.id === section) return; generation.current++; setSection(item.id); setPage(1); setRecords(null); setError(''); }}>{item.label}{item.id === 'services' ? ` (${activity.services})` : item.id === 'requests' ? ` (${activity.requests})` : item.id === 'bookings' ? ` (${activity.bookings})` : ''}</button>)}</nav>
     <section className="au-panel" aria-label={sections.find(item => item.id === section)?.label} aria-busy={loading}>
       <h2 className="text-lg font-semibold">{sections.find(item => item.id === section)?.label}</h2>
       {section === 'account' ? <><p className="au-muted mt-1">Account information is available to authorized administrators.</p><dl className="au-facts">{facts.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value || 'Not recorded'}</dd></div>)}</dl><div className="mt-5 flex flex-wrap gap-3"><Link className="au-button" href={`/admin/reports?userId=${encodeURIComponent(user.id)}`}>Review disputes and payment obligations<ArrowUpRight size={15} /></Link>{user.moderationStatus === 'BANNED' && <Link className="au-button" href="/admin/ban-appeals">Review ban appeals<ArrowUpRight size={15} /></Link>}</div></>

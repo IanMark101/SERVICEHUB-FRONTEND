@@ -22,7 +22,7 @@ const pageNames: Record<string, string> = {
   'request-manager': 'Request Manager',
   'seeker-activity': 'Activity',
   'payment-return': 'GCash Payment',
-  'browse-services': 'Browse Jobs',
+  'browse-services': 'Browse Service Requests',
   'offer-services': 'Offer Services',
   'incoming-requests': 'Incoming Requests',
   'service-manager': 'Service Manager',
@@ -91,11 +91,11 @@ export default function Header({
   // Theme styling helpers based on active role
   const roleThemes = {
     seeker: {
-      accent: 'text-orange-600',
+      accent: 'text-brand-text',
       ring: 'focus:ring-orange-500 focus:border-orange-500',
       borderHover: 'hover:border-orange-500/50',
       badge: 'bg-orange-700 text-white',
-      badgeBg: 'bg-orange-50 text-orange-600 border-orange-100',
+      badgeBg: 'bg-orange-50 text-brand-text border-orange-100',
     },
     provider: {
       accent: 'text-emerald-600',
@@ -305,7 +305,7 @@ export default function Header({
             </button>
             <span className="h-5 w-px shrink-0 bg-[color:var(--workspace-border)]" aria-hidden="true" />
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-sm" aria-hidden="true">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-brand-text dark:text-orange-400 shadow-sm" aria-hidden="true">
                 <PageContextIcon size={18} weight="bold" />
               </span>
               <div className="min-w-0 leading-tight">
@@ -369,7 +369,7 @@ export default function Header({
               }}
               className={`grid size-9 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98] lg:hidden ${
                 isMobileSearchOpen
-                  ? isDark ? 'border-orange-500/30 bg-orange-500/10 text-orange-400' : 'border-orange-200 bg-orange-50 text-orange-600'
+                  ? isDark ? 'border-orange-500/30 bg-orange-500/10 text-orange-400' : 'border-orange-200 bg-orange-50 text-brand-text'
                   : ''
               }`}
               title="Search people"
@@ -551,7 +551,7 @@ export default function Header({
               }}
               className={`workspace-header-control grid size-9 place-items-center rounded-full transition-colors lg:hidden ${
                 isMobileSearchOpen
-                  ? isDark ? 'bg-[#c86544]/15 text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#aa5032]'
+                  ? isDark ? 'bg-brand/15 text-orange-300' : 'bg-orange-100 text-brand-action-hover'
                   : ''
               }`}
               title="Search people"

@@ -120,7 +120,7 @@ export default function SeekerLayout({ children }: { children: React.ReactNode }
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
                   isDark
                     ? 'bg-orange-950/20 text-orange-400 border-orange-900/30'
-                    : 'bg-orange-50 text-orange-600 border-orange-200'
+                    : 'bg-orange-50 text-brand-text border-orange-200'
                 }`}>
                   {pendingBidsCount} pending offers
                 </span>

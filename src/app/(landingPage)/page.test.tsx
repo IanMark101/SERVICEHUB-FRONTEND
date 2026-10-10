@@ -18,7 +18,7 @@ vi.mock('@/context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('@/components/landing/LandingPage', () => ({
   default: () => (
     <main>
-      <h1>ServiceHub Cordova</h1>
+      <h1>ServiceHub</h1>
       <GetStartedLink>Get started</GetStartedLink>
     </main>
   ),
@@ -32,7 +32,7 @@ describe('public landing route', () => {
 
   it('shows public content before session recovery finishes', () => {
     render(<LandingLayout><Home /></LandingLayout>);
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
     expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/get-started');
@@ -45,7 +45,7 @@ describe('public landing route', () => {
     vi.mocked(useApp).mockReturnValue({ authLoading: false, isAuthenticated: false, user: null } as ReturnType<typeof useApp>);
     rerender(<LandingLayout><Home /></LandingLayout>);
     expect(screen.getByRole('main')).toBe(main);
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
     expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/register');
@@ -62,14 +62,14 @@ describe('public landing route', () => {
     expect(screen.getByRole('main')).toBe(main);
     expect(replace).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', role === 'admin' ? '/admin/overview' : role === 'provider' ? '/provider/browse-services' : '/seeker/seek-services');
     unmount();
     push.mockClear();
     replace.mockClear();
     render(<LandingLayout><Home /></LandingLayout>);
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(replace).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
   });
@@ -77,7 +77,7 @@ describe('public landing route', () => {
   it('allows an email-unverified member to view the public page without opening a workspace', () => {
     vi.mocked(useApp).mockReturnValue({ authLoading: false, isAuthenticated: true, user: { id: 'account', role: 'seeker', emailVerified: false } } as ReturnType<typeof useApp>);
     render(<LandingLayout><Home /></LandingLayout>);
-    expect(screen.getByRole('heading', { name: 'ServiceHub Cordova' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(replace).not.toHaveBeenCalled();
     expect(push).not.toHaveBeenCalled();
   });

@@ -31,25 +31,25 @@
 }
 
 .heroBadge {
-  border-color: rgb(217 119 87 / 0.5);
-  background: var(--color-orange-50, #faf5f2);
-  color: #b3542e;
+  border-color: color-mix(in srgb, var(--color-brand) 50%, transparent);
+  background: var(--color-orange-50, var(--color-brand-soft));
+  color: var(--color-brand-text);
 }
 
-.heroBadge:hover { background: #f9f3ef; }
+.heroBadge:hover { background: var(--color-brand-soft); }
 
 :global(.dark) .heroBadge {
-  border-color: rgb(217 119 87 / 0.3);
-  background: rgb(61 22 11 / 0.4);
-  color: var(--color-orange-300, #dec0b3);
+  border-color: color-mix(in srgb, var(--color-brand) 30%, transparent);
+  background: color-mix(in srgb, var(--color-orange-950) 40%, transparent);
+  color: var(--color-orange-300, var(--color-orange-300));
 }
 
-:global(.dark) .heroBadge:hover { background: rgb(61 22 11 / 0.4); }
+:global(.dark) .heroBadge:hover { background: color-mix(in srgb, var(--color-orange-950) 40%, transparent); }
 
 .desktopPreview { display: none; }
 .horizontalShowcase { min-width: 0; }
 /* Keep the divider above the viewport when the copy is aligned below the header. */
-.heroSurface .heroGrid { padding-top: var(--landing-anchor-clearance, 8rem); }
+.heroSurface .heroGrid { padding-top: clamp(3.5rem, 6vw, 5rem); }
 
 /* The orbit needs the full two-column stage; narrower layouts get the lateral track. */
 @media (min-width: 1280px) {

@@ -92,7 +92,7 @@ export default function Sidebar({
       { id: 'seeker-activity', label: 'Activity', icon: TrendUp },
     ],
     provider: [
-      { id: 'browse-services', label: 'Browse Jobs', icon: Compass },
+      { id: 'browse-services', label: 'Browse Service Requests', icon: Compass },
       { id: 'offer-services', label: 'Offer Services', icon: PlusCircle },
       { id: 'incoming-requests', label: 'Incoming Requests', icon: Tray, badge: pendingRequestsCount || undefined },
       { id: 'service-manager', label: 'Service Manager', icon: Stack },
@@ -125,7 +125,7 @@ export default function Sidebar({
     {
       label: 'Marketplace & Updates',
       items: [
-        { id: 'categories', label: 'Category Suggestions', icon: Tag },
+        { id: 'categories', label: 'Categories', icon: Tag },
         { id: 'announcements', label: 'Announcements', icon: Megaphone },
       ],
     },
@@ -189,11 +189,10 @@ export default function Sidebar({
     <div data-workspace={currentRole} data-collapsed={!showLabels} className={isStandardWorkspace ? styles.panel : 'workspace-sidebar flex h-full min-h-0 flex-col rounded-[18px] border border-[#e6e2dc] bg-[#fffdfa] text-ink shadow-[0_14px_36px_-28px_rgba(23,23,22,0.3)] dark:border-white/10 dark:bg-charcoal-sidebar dark:text-white dark:shadow-[0_18px_40px_-22px_rgba(0,0,0,0.55)]'}>
       <div className={isStandardWorkspace ? styles.scroll : 'workspace-sidebar-scroll min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-4'}>
         <div className={isStandardWorkspace ? styles.brand : `flex items-center gap-2.5 ${showLabels ? 'px-1' : 'flex-col px-0'}`}>
-          <Image src="/logo.svg?v=6" alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl bg-white p-1" />
+          <Image src="/logo.svg?v=7" alt="" width={36} height={36} className="size-9 shrink-0 rounded-xl bg-white p-1" />
           {showLabels && (
             <div className={isStandardWorkspace ? styles.brandText : 'min-w-0 flex-1 leading-none'}>
               <span className={isStandardWorkspace ? styles.brandName : 'block truncate text-[13px] font-bold tracking-[-0.025em]'}>ServiceHub</span>
-              <span className={isStandardWorkspace ? styles.locality : 'mt-1 block text-[9px] font-semibold uppercase tracking-[0.18em] text-[#aa5032] dark:text-[#e9a58c]'}>Cordova</span>
             </div>
           )}
           {isMobileOpen ? (

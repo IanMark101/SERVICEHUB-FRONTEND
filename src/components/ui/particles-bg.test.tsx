@@ -28,6 +28,11 @@ beforeEach(() => {
   reduced = false;
   motionChange.clear();
   engine.mockClear();
+  vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+    getPropertyValue: (name: string) => ({
+      '--color-brand': '#ff6b00', '--color-brand-on-dark': '#ff9a52', '--color-orange-400': '#ff9140',
+    }[name] ?? ''),
+  } as CSSStyleDeclaration);
   runtime.particlesJS = engine;
   runtime.pJSDom = [];
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(1440);
@@ -57,7 +62,7 @@ describe('particle background lifecycle', () => {
     view.rerender(<StrictMode><ParticlesComponent variant="brand" isDark /></StrictMode>);
     await waitFor(() => expect(engine).toHaveBeenCalledTimes(2));
     expect(view.container.querySelectorAll('canvas')).toHaveLength(1);
-    expect((engine.mock.calls.at(-1) as unknown as [string, Config])[1].particles.color.value).toBe('#e4a18a');
+    expect((engine.mock.calls.at(-1) as unknown as [string, Config])[1].particles.color.value).toBe('#ff9a52');
     view.unmount();
     expect(runtime.pJSDom).toEqual([other]);
     expect(cancel).toHaveBeenCalledWith(7);

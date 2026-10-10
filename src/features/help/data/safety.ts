@@ -32,7 +32,7 @@ export const SAFETY_ARTICLES: HelpArticle[] = [
       {
         heading: 'How Admins Arbitrate Disputes',
         paragraphs: [
-          'When a report is filed, Municipal Administrators receive the complete case file: reporter info, accused info, booking details, and complete untampered chat logs.',
+          'When a report is filed, ServiceHub administrators receive the complete case file: reporter info, accused info, booking details, and complete untampered chat logs.',
         ],
         bullets: [
           'Warning: Formal caution recorded on the user\'s profile.',
@@ -45,7 +45,7 @@ export const SAFETY_ARTICLES: HelpArticle[] = [
   },
   {
     slug: 'safe-marketplace-tips',
-    title: 'Safe Marketplace Tips for Cordova Residents',
+    title: 'Safe Marketplace Tips for Local Members',
     category: 'safety',
     description: 'Best practices for safe home service visits, clear communication, and community security.',
     lastUpdated: 'August 2026',

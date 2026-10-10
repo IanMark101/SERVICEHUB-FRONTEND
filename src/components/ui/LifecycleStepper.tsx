@@ -86,7 +86,7 @@ export default function LifecycleStepper({
   // Accent color tokens
   const accentBorder = role === 'provider' ? 'border-emerald-500' : 'border-orange-500';
   const accentBg = role === 'provider' ? 'bg-emerald-600' : 'bg-orange-600';
-  const accentText = role === 'provider' ? 'text-emerald-500' : 'text-orange-500';
+  const accentText = role === 'provider' ? 'text-emerald-500' : 'text-brand-text';
   const accentPulse = role === 'provider' ? 'bg-emerald-500/20 ring-emerald-500/40' : 'bg-orange-500/20 ring-orange-500/40';
 
   const steps: StepConfig[] = [
@@ -194,7 +194,7 @@ export default function LifecycleStepper({
               Engagement Paused in Dispute
             </span>
             <span className="text-[10px] opacity-80">
-              Awaiting mediation by ServiceHub Cordova administrators
+              Awaiting mediation by ServiceHub administrators
             </span>
           </div>
         </div>
@@ -229,7 +229,7 @@ export default function LifecycleStepper({
           className={`absolute top-3.5 left-3 h-[2.5px] -translate-y-1/2 z-0 rounded-full transition-all duration-700 ease-out ${
             role === 'provider'
               ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]'
-              : 'bg-orange-500 shadow-[0_0_8px_rgba(217,119,87,0.4)]'
+              : 'bg-orange-500 shadow-[0_0_8px_color-mix(in_srgb,var(--color-brand)_40%,transparent)]'
           }`}
           style={{ width: `calc(${progressPercent}% * 0.94)` }}
         />

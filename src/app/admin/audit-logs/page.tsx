@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '../../../hooks/useRefreshableLoad';
+import { getApiErrorMessage } from '../../../lib/api/errors';
 import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { History, RefreshCw } from 'lucide-react';
 import { apiListAdminAuditLogs } from '../../../api/admin.api';
@@ -27,19 +29,27 @@ export default function AdminAuditLogsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { loading, beginLoad } = useRefreshableLoad(String(page));
 
   const load = useCallback(async () => {
-    setLoading(true);
+    const request = beginLoad();
+    let succeeded = false;
     try {
       const response = await apiListAdminAuditLogs({ page, limit: PAGE_SIZE });
+      if (!request.current()) return;
+      if (!response.success) throw new Error('Audit records could not be loaded.');
       setItems(response.data || []);
       setTotal(response.pagination?.total || 0);
       setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
+      setError('');
+      succeeded = true;
+    } catch (cause) {
+      if (request.current()) setError(getApiErrorMessage(cause, 'Audit records could not be loaded. Try Refresh.'));
     } finally {
-      setLoading(false);
+      request.finish(succeeded);
     }
-  }, [page]);
+  }, [page, beginLoad]);
   useApiCacheRefresh(['admin'], () => load());
 
   useEffect(() => {
@@ -58,6 +68,7 @@ export default function AdminAuditLogsPage() {
           <button type="button" onClick={() => { invalidateApiCache(['admin']); void load(); }} className="rounded-xl border px-3 py-2 text-xs font-bold"><RefreshCw className="mr-1 inline h-3.5 w-3.5" />Refresh</button>
         </div>
       </section>
+      {error && <p role="alert" className="rounded-xl border border-red-500/25 bg-red-500/10 p-4 text-xs text-red-600">{error}</p>}
       <section className={`overflow-hidden rounded-2xl border ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
         {loading ? <p className="p-8 text-center text-xs text-ink-muted">Loading audit records...</p> : items.length === 0 ? <p className="p-8 text-center text-xs text-ink-muted">No audit records found.</p> : (
           <div className="divide-y divide-slate-200 dark:divide-neutral-800">

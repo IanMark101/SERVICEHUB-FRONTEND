@@ -28,7 +28,7 @@ export default function CommunityEmptyState({
     >
       <div
         className={`flex size-9 items-center justify-center rounded-lg ${
-          isDark ? 'bg-charcoal text-[#e9a58c]' : 'bg-[#f5ebe6] text-[#c86544]'
+          isDark ? 'bg-charcoal text-orange-300' : 'bg-orange-100 text-brand-text'
         }`}
       >
         <Icon className="size-[18px] opacity-80" />
@@ -44,7 +44,7 @@ export default function CommunityEmptyState({
       {actionText && onAction && (
         <button
           onClick={onAction}
-          className="mt-1 cursor-pointer rounded-xl bg-charcoal px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c86544]"
+          className="mt-1 cursor-pointer rounded-xl bg-charcoal px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-charcoal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus"
         >
           {actionText}
         </button>

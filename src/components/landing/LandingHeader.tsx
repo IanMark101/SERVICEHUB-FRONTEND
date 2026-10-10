@@ -18,11 +18,9 @@ interface LandingHeaderProps {
 const NAV_LINKS = [
   { label: 'Why ServiceHub', href: '#problem' },
   { label: 'How it works', href: '#how-it-works' },
+  { label: 'Booking progress', href: '#booking-progress' },
   { label: 'Workspaces', href: '#workspaces' },
-  { label: 'Queue', href: '#queue' },
-  { label: 'Trust', href: '#trust' },
-  { label: 'Community', href: '#community' },
-  { label: 'Reviews', href: '#reviews' },
+  { label: 'Compare', href: '#comparison' },
   { label: 'FAQ', href: '#faq' },
 ];
 
@@ -89,10 +87,10 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
           <a
             href="#top"
             className={`${styles.brand} pointer-events-auto group flex shrink-0 items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-2 shadow-[0_6px_18px_-6px_rgba(15,15,15,0.18),0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-md transition-all hover:border-neutral-300 hover:bg-white hover:shadow-[0_12px_24px_-8px_rgba(15,15,15,0.22)] active:scale-[0.98] dark:border-white/10 dark:bg-charcoal/85`}
-            aria-label="ServiceHub Cordova home"
+            aria-label="ServiceHub home"
           >
             <Image
-              src="/logo.svg?v=6"
+              src="/logo.svg?v=7"
               alt=""
               width={30}
               height={30}
@@ -102,9 +100,6 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
             <div className={`${styles.wordmark} hidden pr-1 leading-none min-[380px]:block`}>
               <span className="block text-xs font-extrabold tracking-tight text-slate-900 dark:text-white">
                 ServiceHub
-              </span>
-              <span className="mt-0.5 block text-[8.5px] font-bold uppercase tracking-[0.2em] text-[#c86544]">
-                Cordova
               </span>
             </div>
           </a>
@@ -117,7 +112,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
                 <a
                   key={link.href}
                   href={link.href}
-                  className="rounded-full px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-charcoal/[0.04] hover:text-slate-950 dark:text-zinc-400 dark:hover:bg-charcoal dark:hover:text-white"
+                  className="inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-charcoal/[0.04] hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:text-zinc-400 dark:hover:bg-charcoal dark:hover:text-white"
                 >
                   {link.label}
                 </a>

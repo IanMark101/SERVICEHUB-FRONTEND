@@ -75,7 +75,7 @@ export default function useAuthForm({
       role: 'seeker' as 'seeker' | 'provider',
       bio: '',
       phone: '',
-      location: 'Alegria, Cordova',
+      location: '',
       avatarUrl: avatars[0],
     }
   });

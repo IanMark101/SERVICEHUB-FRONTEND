@@ -2,6 +2,7 @@
 import FormSelect from '../../../components/ui/FormSelect';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
+import { useRefreshableLoad } from '../../../hooks/useRefreshableLoad';
 import { invalidateApiCache } from '../../../lib/api/responseCache';
 import { useApp } from '../../../context/AppContext';
 import { apiListUsers, apiUpdateTrustScore, apiSuspendUser, apiBanUser, apiRestoreUser, apiRestorePostingPrivilege } from '../../../api/admin.api';
@@ -23,7 +24,6 @@ export default function AdminUsers() {
   const { success: toastSuccess, error: toastError } = useToast();
 
   const [users, setUsers] = useState<UserItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   
   // Search and filter states
@@ -76,10 +76,11 @@ export default function AdminUsers() {
     return () => clearTimeout(handler);
   }, [search, debouncedSearch]);
 
+  const { loading, beginLoad } = useRefreshableLoad(JSON.stringify([currentUser?.id, debouncedSearch, roleFilter, statusFilter, page, limit]));
   // Fetch users when parameters change
   const fetchUsers = useCallback(() => {
     const generation = ++fetchGeneration.current;
-    setLoading(true);
+    const request = beginLoad();
     apiListUsers({
       search: debouncedSearch || undefined,
       role: roleFilter || undefined,
@@ -88,7 +89,7 @@ export default function AdminUsers() {
       limit
     })
       .then(res => {
-        if (generation !== fetchGeneration.current) return;
+        if (generation !== fetchGeneration.current || !request.current()) return;
         if (res.success) {
           setUsers(res.data);
           setTotal(res.pagination.total);
@@ -97,14 +98,14 @@ export default function AdminUsers() {
         } else {
           setError("Failed to fetch users list.");
         }
-        setLoading(false);
+        request.finish(res.success);
       })
       .catch(err => {
-        if (generation !== fetchGeneration.current) return;
+        if (generation !== fetchGeneration.current || !request.current()) return;
         setError(err.message || "An error occurred.");
-        setLoading(false);
+        request.finish();
       });
-  }, [debouncedSearch, roleFilter, statusFilter, page, limit]);
+  }, [debouncedSearch, roleFilter, statusFilter, page, limit, beginLoad]);
 
   useApiCacheRefresh(['admin'], () => fetchUsers());
   useEffect(() => {
@@ -365,7 +366,7 @@ export default function AdminUsers() {
                     <button onClick={() => handleRestorePosting(u.id)} className="shrink-0 rounded-lg bg-amber-700 px-2.5 py-1.5 font-bold text-white">Restore posting</button>
                   </div>
                 )}
-                {u.moderationStatus === 'BANNED' && <Link href={`/admin/reports?userId=${encodeURIComponent(u.id)}`} className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800 underline dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">Review bookings, payments, and reports for this banned account</Link>}
+                {u.moderationStatus === 'BANNED' && <Link href={`/admin/reports?userId=${encodeURIComponent(u.id)}`} className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800  dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">Review bookings, payments, and reports for this banned account</Link>}
 
                 {/* Moderation Actions */}
                 <div className={`border-t pt-4 flex flex-wrap items-center justify-end gap-2 ${

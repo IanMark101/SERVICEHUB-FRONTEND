@@ -1,43 +1,27 @@
 @import "tailwindcss";
+@import "./brand.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "../components/ui/responsive.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme {
-  --color-orange-50: #faf5f2;
-  --color-orange-100: #f5ebe6;
-  --color-orange-200: #ecd9d0;
-  --color-orange-300: #dec0b3;
-  --color-orange-400: #d49b86;
-  --color-orange-500: #d97757;
-  --color-orange-600: #c86544;
-  --color-orange-700: #aa5032;
-  --color-orange-800: #8b3e25;
-  --color-orange-900: #6d2e1a;
-  --color-orange-950: #3d160b;
+/* Product-wide rule: text and text controls never use decorative underlines,
+   including hover/focus states, portals, rich content, and admin pages. */
+@layer base {
+  *, ::before, ::after {
+    text-decoration-line: none !important;
+  }
+}
 
-  --color-claude-50: #fdfbfa;
-  --color-claude-100: #f9f6f0;
-  --color-claude-200: #f1ebd9;
-  --color-claude-300: #e2d7be;
-  --color-claude-400: #d49b86;
-  --color-claude-500: #d97757;
-  --color-claude-600: #c86544;
-  --color-claude-700: #aa5032;
-  --color-claude-800: #8b3e25;
-  --color-claude-900: #6d2e1a;
+@theme {
   --color-claude-cream: #fbfaf7;
   --color-claude-paper: #f7f4ed;
-
-  --color-seeker-light: #faf5f2;
-  --color-seeker-primary: #c86544;
-  --color-seeker-hover: #aa5032;
 
   --color-provider-light: #ecfdf5;
   --color-provider-primary: #059669;
   --color-provider-hover: #047857;
+  --color-provider-navigation: #087e5f;
 
   --color-community-light: #f1f5f9;
   --color-community-primary: #334155;
@@ -292,20 +276,9 @@
   outline-color: var(--workspace-focus);
 }
 
-/* Claude Signature Terracotta/Coral Core Theme Tokens */
-:root {
-  --color-orange-50: #faf5f2 !important;
-  --color-orange-100: #f5ebe6 !important;
-  --color-orange-200: #ecd9d0 !important;
-  --color-orange-300: #dec0b3 !important;
-  --color-orange-400: #d49b86 !important;
-  --color-orange-500: #d97757 !important;
-  --color-orange-600: #c86544 !important;
-  --color-orange-700: #aa5032 !important;
-  --color-orange-800: #8b3e25 !important;
-  --color-orange-900: #6d2e1a !important;
-  --color-orange-950: #3d160b !important;
-}
+
+
+
 
 /* ── Industry-Standard Minimalist Floating Scrollbar (Apple / Linear / Stripe style) ── */
 *,
@@ -451,7 +424,7 @@ html.dark::-webkit-scrollbar-thumb:hover,
 }
 
 .glow-bubble-orange {
-  background: radial-gradient(circle, rgba(217, 119, 6, 0.22) 0%, rgba(180, 83, 9, 0.04) 50%, rgba(0, 0, 0, 0) 100%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-brand) 22%, transparent) 0%, color-mix(in srgb, var(--color-brand) 4%, transparent) 50%, transparent 100%);
   filter: blur(60px);
 }
 
@@ -620,6 +593,14 @@ h6 {
   --landing-transition-gap: clamp(1rem, 2vw, 1.5rem);
 }
 
+/* Keep the viewport as the landing page's scroll container. Hidden horizontal
+   overflow on body also computes vertical overflow to auto and traps sticky. */
+html:has(.landing-shell),
+body:has(.landing-shell) {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
 .landing-shell section[id],
 .landing-shell section[id] > div:first-child,
 .landing-shell [data-landing-anchor] {
@@ -703,7 +684,7 @@ h6 {
   --workspace-muted: var(--text-muted);
   --workspace-border: rgba(23, 23, 22, 0.08);
   --workspace-border-strong: rgba(23, 23, 22, 0.16);
-  --workspace-focus: #c86544;
+  --workspace-focus: var(--color-brand-focus);
   --workspace-header-bg: rgba(255, 253, 250, 0.85);
   --workspace-ease: cubic-bezier(0.16, 1, 0.3, 1);
   background: var(--workspace-canvas);
@@ -941,7 +922,7 @@ h6 {
 
 /* ServiceHub system states: route errors, access boundaries, and recovery UI. */
 .system-state-page {
-  --system-accent: #c86544;
+  --system-accent: var(--color-brand-text);
   --system-accent-soft: #f7ede8;
   min-height: 100dvh;
   display: grid;
@@ -999,12 +980,12 @@ h6 {
   font-size: 0.78rem;
   font-weight: 700;
   text-decoration: none;
-  text-underline-offset: 0.28rem;
+
 }
 
 .system-state-help-link:hover {
   color: var(--color-charcoal);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .dark .system-state-help-link {
@@ -1545,7 +1526,7 @@ h6 {
 }
 
 .brand-loading {
-  --brand-loading-accent: #c86544;
+  --brand-loading-accent: var(--color-brand);
   --brand-loading-canvas: #fffdfa;
   --brand-loading-base: #cfccc6;
   --brand-loading-reveal: var(--text-primary);
@@ -1638,7 +1619,7 @@ h6 {
   inset: 0 auto 0 0;
   width: 32%;
   border-radius: inherit;
-  background: var(--brand-loading-accent, #c86544);
+  background: var(--brand-loading-accent, var(--color-brand-action));
   animation: brand-loading-inline 1.4s cubic-bezier(0.76, 0, 0.24, 1) infinite alternate;
 }
 
@@ -1821,7 +1802,7 @@ h6 {
 }
 
 .workspace-tabs--seeker {
-  --workspace-tab-accent: #c86544;
+  --workspace-tab-accent: var(--color-brand-text);
 }
 
 .workspace-tabs--provider {
@@ -1913,7 +1894,7 @@ h6 {
 }
 
 .user-avatar--seeker {
-  --avatar-accent: #c86544;
+  --avatar-accent: var(--color-brand);
 }
 
 .user-avatar--provider {
@@ -2050,7 +2031,7 @@ h6 {
 }
 
 .workspace-profile-hero--seeker {
-  --workspace-profile-accent: #c86544;
+  --workspace-profile-accent: var(--color-brand-text);
 }
 
 .workspace-profile-hero--provider {
@@ -2064,7 +2045,7 @@ h6 {
 /* Dedicated account-level marketplace profile. It shares the authenticated
    product tokens without inheriting either workspace's sidebar composition. */
 .profile-page-shell {
-  --workspace-focus: #c86544;
+  --workspace-focus: var(--color-brand-focus);
   background: var(--workspace-canvas);
   color: var(--workspace-ink);
 }
@@ -2129,10 +2110,10 @@ h6 {
   font-size: 0.875rem;
   font-weight: 700;
   flex: 0 0 auto;
-  border-radius: 0;
+  border-radius: 10px;
   padding-inline: 1rem;
   color: var(--workspace-muted);
-  transition: color 150ms ease, box-shadow 150ms ease;
+  transition: color 150ms ease, background-color 150ms ease;
 }
 
 .marketplace-profile-tabs .workspace-tabs__item:hover {
@@ -2140,14 +2121,14 @@ h6 {
 }
 
 .marketplace-profile-tabs .workspace-tabs__item[aria-selected='true'] {
-  background: transparent;
+  background: color-mix(in srgb, var(--workspace-focus) 12%, var(--workspace-surface));
   color: var(--workspace-ink);
-  box-shadow: inset 0 -3px var(--workspace-focus);
+  box-shadow: none;
 }
 
 .dark .marketplace-profile-tabs .workspace-tabs__item[aria-selected='true'] {
   color: var(--workspace-ink);
-  box-shadow: inset 0 -3px var(--workspace-focus);
+  box-shadow: none;
 }
 
 .marketplace-profile-hero button {

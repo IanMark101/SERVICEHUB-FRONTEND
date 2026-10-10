@@ -36,7 +36,7 @@ export default function ContentCaseAction({
   const title = caseType === 'REPORT' ? 'Report public content' : 'Request an Admin review';
   const submitTone = caseType === 'REPORT'
     ? 'bg-red-700 text-white enabled:hover:bg-red-800 focus-visible:outline-red-700 disabled:bg-red-100 disabled:text-red-800 dark:disabled:bg-red-950/60 dark:disabled:text-red-300'
-    : 'bg-[#c86544] text-white enabled:hover:bg-[#aa5032] focus-visible:outline-[#c86544] disabled:opacity-50';
+    : 'bg-brand-action text-white enabled:hover:bg-brand-action-hover focus-visible:outline-brand-focus disabled:opacity-50';
   const close = () => { setOpen(false); setReason(''); };
   const send = async (event: FormEvent) => {
     event.preventDefault();
@@ -76,7 +76,7 @@ export default function ContentCaseAction({
         onClick={() => setOpen(true)}
         className={
           className ||
-          `rounded-lg px-2 py-1 text-xs font-semibold underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+          `rounded-lg px-2 py-1 text-xs font-semibold   focus-visible:outline-2 focus-visible:outline-offset-2 ${
             isDark ? 'text-neutral-300' : 'text-ink-muted'
           }`
         }

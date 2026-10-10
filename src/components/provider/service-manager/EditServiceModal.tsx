@@ -1,4 +1,9 @@
-"use client";
+'use client';
+
+import type { LocationPoint } from '../../../lib/location';
+import LocationField from '../../location/LocationField';
+import CoverageField from '../../location/CoverageField';
+import TransportationField from '../../location/TransportationField';
 
 import FormSelect from '../../ui/FormSelect';
 import React, { useEffect, type FormEvent } from 'react';
@@ -7,6 +12,9 @@ import type { ServiceListing } from '../../../types';
 import ListingTitleInput from '../../ui/ListingTitleInput';
 
 export interface EditServiceState {
+  serviceLocation?: LocationPoint | null;
+  coverageRadiusKm?: number | null;
+  transportationFee?: string;
   serviceId: string;
   title: string;
   price: number;
@@ -170,6 +178,10 @@ export default function EditServiceModal({
               </div>
             </div>
 
+            <CoverageField isDark={isDark} value={value.coverageRadiusKm} onChange={coverageRadiusKm => onChange({ ...value, coverageRadiusKm })} />
+            <LocationField label="Service operating base" workspace="provider" value={value.serviceLocation ?? null} radiusKm={value.coverageRadiusKm} onChange={serviceLocation => onChange({ ...value, serviceLocation })} />
+            {!value.serviceLocation && <p className="text-xs text-ink-muted">Add a location to include this older listing in nearby discovery.</p>}
+            <TransportationField isDark={isDark} value={value.transportationFee ?? ''} onChange={transportationFee => onChange({ ...value, transportationFee })} />
             <div>
               <label className={label}>Description</label>
               <textarea

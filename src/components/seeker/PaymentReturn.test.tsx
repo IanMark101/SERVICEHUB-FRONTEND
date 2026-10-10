@@ -55,7 +55,7 @@ describe('GCash payment return and recovery', () => {
     render(<PaymentReturn paymentIntentId="pi_old" />);
     fireEvent.click(await screen.findByRole('button', { name: 'Try GCash Again' }));
     await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/seeker/payment-return?payment_intent_id=pi_fresh'));
-    expect(apiInitiatePayment).toHaveBeenCalledWith({ serviceId: 'service-one', offerId: undefined, paymentMethodType: 'gcash' });
+    expect(apiInitiatePayment).toHaveBeenCalledWith({ serviceId: 'service-one', offerId: undefined, paymentMethodType: 'gcash', retryPaymentIntentId: 'pi_old' });
     expect(readGcashCheckout('seeker-one', 'pi_fresh')?.redirectUrl).toContain('src_fresh');
     expect(readGcashCheckout('seeker-one', 'pi_old')).toBeNull();
   });

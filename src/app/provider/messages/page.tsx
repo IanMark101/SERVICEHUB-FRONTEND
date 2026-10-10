@@ -114,7 +114,7 @@ export default function ProviderMessagesPage() {
                       className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
                         selectedConv.otherPartyRole === 'Provider'
                           ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25'
-                          : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/25'
+                          : 'bg-orange-500/10 text-brand-text dark:text-orange-400 border-orange-500/25'
                       }`}
                     >
                       {selectedConv.otherPartyRole}

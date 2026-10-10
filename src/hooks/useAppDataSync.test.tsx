@@ -51,6 +51,46 @@ describe('useAppDataSync initial marketplace loading', () => {
 
   afterEach(() => vi.useRealTimers());
 
+  it('keeps confirmed empty service and booking workspaces ready while tab-return requests are pending', async () => {
+    auth.token = 'test-token';
+    vi.mocked(apiBrowseServices).mockResolvedValueOnce({ success: true, data: [] });
+    vi.mocked(apiGetMyEngagements).mockResolvedValueOnce({ success: true, data: { bookings: [], completedServices: [] } });
+    const { result } = renderHook(() => useAppDataSync({ authLoading: false, isAuthenticated: true, user, toastSuccess, toastError }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(result.current.servicesStatus).toBe('ready');
+    expect(result.current.engagementsStatus).toBe('ready');
+    vi.mocked(apiBrowseServices).mockImplementationOnce(() => new Promise(() => {}));
+    vi.mocked(apiGetMyEngagements).mockImplementationOnce(() => new Promise(() => {}));
+    const serviceCalls = vi.mocked(apiBrowseServices).mock.calls.length;
+    const bookingCalls = vi.mocked(apiGetMyEngagements).mock.calls.length;
+    act(() => invalidateApiCache(['services', 'bookings'], 'focus'));
+    await act(async () => { await vi.advanceTimersByTimeAsync(200); });
+    expect(apiBrowseServices).toHaveBeenCalledTimes(serviceCalls + 1);
+    expect(apiGetMyEngagements).toHaveBeenCalledTimes(bookingCalls + 1);
+    expect(result.current.services).toEqual([]);
+    expect(result.current.jobEngagements).toEqual([]);
+    expect(result.current.servicesStatus).toBe('ready');
+    expect(result.current.engagementsStatus).toBe('ready');
+  });
+
+  it('does not regress to initial skeletons when retrying a failed background refresh', async () => {
+    auth.token = 'test-token';
+    vi.mocked(apiBrowseServices).mockResolvedValueOnce({ success: true, data: [] });
+    vi.mocked(apiGetMyEngagements).mockResolvedValueOnce({ success: true, data: { bookings: [], completedServices: [] } });
+    const { result } = renderHook(() => useAppDataSync({ authLoading: false, isAuthenticated: true, user, toastSuccess, toastError }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    vi.mocked(apiBrowseServices).mockRejectedValueOnce(new Error('Offline'));
+    vi.mocked(apiGetMyEngagements).mockRejectedValueOnce(new Error('Offline'));
+    await act(async () => { await Promise.all([result.current.syncPublicServices(), result.current.syncEngagements()]); });
+    expect(result.current.servicesStatus).toBe('error');
+    expect(result.current.engagementsStatus).toBe('error');
+    vi.mocked(apiBrowseServices).mockImplementationOnce(() => new Promise(() => {}));
+    vi.mocked(apiGetMyEngagements).mockImplementationOnce(() => new Promise(() => {}));
+    act(() => { void result.current.syncPublicServices(); void result.current.syncEngagements(); });
+    expect(result.current.servicesStatus).toBe('error');
+    expect(result.current.engagementsStatus).toBe('error');
+  });
+
   it.each(['browse-first', 'mine-first'])('merges public and private listings in either response order (%s)', async order => {
     let browse!: (value: unknown) => void;
     let mine!: (value: unknown) => void;

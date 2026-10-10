@@ -51,7 +51,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
           </h3>
           
           <p className={`text-xs leading-relaxed max-w-sm font-medium ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-            You may browse ServiceHub freely, but you must complete Cordova Residency Verification before participating in marketplace transactions.
+            You may browse ServiceHub freely, but you must complete Identity and Residency Verification before participating in marketplace transactions.
           </p>
         </div>
 
