@@ -1,0 +1,15 @@
+/* Keep desktop composition inside the tablet even on a narrow host page.
+   Product typography, navigation, cards, colors and spacing come from shared components. */
+.dashboard { display: grid; grid-template-columns: 272px minmax(0, 1fr); gap: 12px; padding: 12px; width: 1440px; min-height: 1000px; text-align: left; }
+.dashboard > aside { position: static; display: block; width: auto; height: auto; min-height: 0; transition: none; }
+.dashboard > :global(.workspace-stage) { min-width: 0; padding: 0; }
+.dashboard :global(.workspace-dashboard-header) { position: static; padding: 12px 32px; }
+.page { padding: 12px 32px 24px; }
+.dashboard :global(.marketplace-results-grid) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.dashboard :global(.workspace-header-role-mark) { display: grid; }
+.dashboard :global(.workspace-header-context) > button { display: none; }
+.dashboard :global(.workspace-header-toolbar) > button { display: grid; }
+.dashboard :global(.workspace-header-toolbar) > button[aria-label='Search people'] { display: none; }
+.dashboard :global(.workspace-header-toolbar) :global(.lg\:flex) { display: flex; }
+.dashboard :global(.workspace-header-toolbar) :global(.lg\:block) { display: block; }
+.dashboard :global(.workspace-header-toolbar) :global(.lg\:hidden) { display: none; }

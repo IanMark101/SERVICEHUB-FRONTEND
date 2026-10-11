@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BatteryFull, BookOpen, MapPin, Menu, Signal, Wifi } from 'lucide-react';
+import { ArrowRight, BatteryFull, BookOpen, LockKeyhole, MapPin, RotateCw, Signal, Wifi } from 'lucide-react';
 import ParticlesComponent from '@/components/ui/particles-bg';
 import styles from './LandingPresenterHero.module.css';
 import LandingActionLink from './LandingActionLink';
@@ -41,7 +41,7 @@ export default function LandingHero({ isDark }: LandingHeroProps) {
         </div>
         <div data-hero-entrance="scene" className={styles.scene}>
           <Image src="/images/hero-presenter-updated.png" alt="" width={1122} height={1402} sizes="(max-width: 767px) 260px, (max-width: 1023px) 335px, (max-width: 1199px) 42vw, 560px" preload className={styles.presenter} />
-          <figure className={styles.preview} aria-label="Illustrative service details preview">
+          <figure className={styles.preview} aria-label="ServiceHub mobile website showing example service details">
             <div className={styles.phone} aria-hidden="true">
               <span className={styles.volumeButtons} />
               <span className={styles.powerButton} />
@@ -52,7 +52,13 @@ export default function LandingHero({ isDark }: LandingHeroProps) {
                   <span className={styles.statusIcons}><Signal /><Wifi /><BatteryFull /></span>
                 </div>
                 <div className={styles.phoneWorkspace}>
-                  <div className={styles.workspaceBar}><span>ServiceHub</span><Menu /></div>
+                  <div className={styles.browserBar}>
+                    <div className={styles.browserAddress}>
+                      <LockKeyhole />
+                      <span>servicehubcordova.tech</span>
+                      <RotateCw />
+                    </div>
+                  </div>
                   <div className={styles.modalStage}>
                     <LandingServicePreview isDark={isDark} />
                   </div>

@@ -2,49 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-interface RecaptchaApi {
-  render(container: HTMLElement, options: {
-    sitekey: string; theme: 'light' | 'dark'; size: 'normal' | 'compact';
-    callback: (token: string) => void;
-    'expired-callback': () => void;
-    'error-callback': () => void;
-  }): number;
-  reset(widgetId: number): void;
-}
-declare global {
-  interface Window {
-    grecaptcha?: RecaptchaApi;
-    serviceHubRecaptchaReady?: () => void;
-  }
-}
-
-let sdkRequest: Promise<RecaptchaApi> | undefined;
-function loadRecaptcha(): Promise<RecaptchaApi> {
-  if (window.grecaptcha?.render) return Promise.resolve(window.grecaptcha);
-  if (sdkRequest) return sdkRequest;
-  sdkRequest = new Promise<RecaptchaApi>((resolve, reject) => {
-    const script = document.createElement('script');
-    const failed = () => {
-      window.clearTimeout(timeout);
-      script.remove();
-      sdkRequest = undefined;
-      reject(new Error('Security check could not load.'));
-    };
-    const timeout = window.setTimeout(failed, 10_000);
-    // Google requires the named onload callback to exist before its script loads.
-    window.serviceHubRecaptchaReady = () => {
-      if (!window.grecaptcha?.render) { failed(); return; }
-      window.clearTimeout(timeout);
-      resolve(window.grecaptcha);
-    };
-    script.src = 'https://www.google.com/recaptcha/api.js?onload=serviceHubRecaptchaReady&render=explicit';
-    script.async = true;
-    script.defer = true;
-    script.onerror = failed;
-    document.head.appendChild(script);
-  });
-  return sdkRequest;
-}
+import { loadRecaptcha, type RecaptchaApi } from './recaptcha-sdk';
 
 export default function RecaptchaCheckbox({ siteKey, isDark, resetKey, onToken }: {
   siteKey: string; isDark: boolean; resetKey: number; onToken: (token: string) => void;
@@ -99,10 +57,19 @@ export default function RecaptchaCheckbox({ siteKey, isDark, resetKey, onToken }
   }, [siteKey, isDark, attempt, size]);
 
   useEffect(() => {
+    let active = true;
+    let failed = false;
     if (widget.current) {
       try { widget.current.api.reset(widget.current.id); }
-      catch { callback.current(''); queueMicrotask(() => setStatus('error')); }
+      catch { failed = true; }
     }
+    queueMicrotask(() => {
+      if (!active) return;
+      callback.current('');
+      if (failed) setStatus('error');
+      else if (widget.current) setStatus('ready');
+    });
+    return () => { active = false; };
   }, [resetKey]);
 
   return (

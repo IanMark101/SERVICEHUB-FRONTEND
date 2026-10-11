@@ -35,7 +35,7 @@ export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardC
 
   const ctaTextColor = isProvider
     ? isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700'
-    : isDark ? 'text-orange-400 hover:text-orange-300' : 'text-brand-text hover:text-orange-700';
+    : isDark ? 'text-zinc-100 underline-offset-4 hover:underline [&_svg]:text-brand' : 'text-neutral-900 underline-offset-4 hover:underline [&_svg]:text-brand';
 
   return (
     <div className={`rounded-3xl border p-5 relative shadow-sm transition-all duration-200 ${

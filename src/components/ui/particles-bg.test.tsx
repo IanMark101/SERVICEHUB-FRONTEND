@@ -3,7 +3,10 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ParticlesComponent from './particles-bg';
 
-type Config = { particles: { move: { enable: boolean }; color: { value: string }; opacity: { anim: { enable: boolean } } } };
+type Config = {
+  particles: { move: { enable: boolean }; color: { value: string }; opacity: { anim: { enable: boolean } } };
+  interactivity: { events: { onhover: { enable: boolean }; onclick: { enable: boolean }; resize: boolean } };
+};
 type Instance = { pJS: {
   canvas: { el: HTMLCanvasElement; pxratio: number };
   particles: { array: unknown[] };
@@ -13,6 +16,7 @@ type Instance = { pJS: {
 const runtime = window as Window & { particlesJS?: (id: string, config: Config) => void; pJSDom?: Instance[] };
 let intersect: IntersectionObserverCallback;
 let reduced = false;
+let hover = true;
 const motionChange = new Set<EventListener>();
 const engine = vi.fn((id: string) => {
   const canvas = document.createElement('canvas');
@@ -26,6 +30,7 @@ const engine = vi.fn((id: string) => {
 
 beforeEach(() => {
   reduced = false;
+  hover = true;
   motionChange.clear();
   engine.mockClear();
   vi.spyOn(window, 'getComputedStyle').mockReturnValue({
@@ -43,8 +48,8 @@ beforeEach(() => {
     constructor(callback: IntersectionObserverCallback) { intersect = callback; }
     observe() {} disconnect() {}
   });
-  vi.stubGlobal('matchMedia', () => ({
-    get matches() { return reduced; },
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    get matches() { return query.includes('reduced-motion') ? reduced : hover; },
     addEventListener: (_: string, callback: EventListener) => motionChange.add(callback),
     removeEventListener: (_: string, callback: EventListener) => motionChange.delete(callback),
   }));
@@ -93,28 +98,44 @@ describe('particle background lifecycle', () => {
     view.unmount();
   });
 
-  it('tracks cursor coordinates and adds particles on background clicks while preserving controls', async () => {
+  it('keeps hover interaction without adding particles on clicks, while preserving controls', async () => {
     const navigate = vi.fn();
     const view = render(<section><ParticlesComponent variant="brand" /><a href="#next" onClick={navigate}>Explore</a></section>);
     await waitFor(() => expect(engine).toHaveBeenCalledTimes(1));
     const surface = view.container.querySelector('section')!;
     const instance = runtime.pJSDom![0];
+    const config = (engine.mock.calls.at(-1) as unknown as [string, Config])[1];
+    expect(config.particles.move.enable).toBe(true);
+    expect(config.interactivity.events.onhover.enable).toBe(true);
+    expect(config.interactivity.events.onclick.enable).toBe(false);
     fireEvent.mouseMove(surface, { clientX: 100, clientY: 150 });
+    fireEvent.click(surface, { clientX: 120, clientY: 160 });
     expect(instance.pJS.interactivity.mouse).toEqual({ pos_x: 200, pos_y: 300 });
     expect(instance.pJS.interactivity.status).toBe('mousemove');
-    fireEvent.click(surface, { clientX: 120, clientY: 160 });
-    expect(instance.pJS.fn.modes.pushParticles).toHaveBeenCalledWith(4, { pos_x: 240, pos_y: 320 });
+    expect(instance.pJS.fn.modes.pushParticles).not.toHaveBeenCalled();
     fireEvent.click(view.getByRole('link', { name: 'Explore' }));
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(instance.pJS.fn.modes.pushParticles).toHaveBeenCalledTimes(1);
-    instance.pJS.particles.array = Array(240).fill({});
-    fireEvent.click(surface, { clientX: 120, clientY: 160 });
-    expect(instance.pJS.fn.modes.pushParticles).toHaveBeenCalledTimes(1);
+    expect(instance.pJS.particles.array).toHaveLength(0);
     fireEvent.mouseLeave(surface);
     expect(instance.pJS.interactivity.status).toBe('mouseleave');
     view.unmount();
     fireEvent.click(surface, { clientX: 120, clientY: 160 });
-    expect(instance.pJS.fn.modes.pushParticles).toHaveBeenCalledTimes(1);
+    expect(instance.pJS.fn.modes.pushParticles).not.toHaveBeenCalled();
+  });
+
+  it('does not turn touch taps into hover or click effects', async () => {
+    hover = false;
+    const view = render(<section><ParticlesComponent variant="brand" /></section>);
+    await waitFor(() => expect(engine).toHaveBeenCalledTimes(1));
+    const config = (engine.mock.calls.at(-1) as unknown as [string, Config])[1];
+    expect(config.interactivity.events.onhover.enable).toBe(false);
+    expect(config.interactivity.events.onclick.enable).toBe(false);
+    const surface = view.container.querySelector('section')!;
+    fireEvent.mouseMove(surface, { clientX: 100, clientY: 100 });
+    fireEvent.click(surface, { clientX: 100, clientY: 100 });
+    expect(runtime.pJSDom![0].pJS.interactivity.status).toBe('mouseleave');
+    expect(runtime.pJSDom![0].pJS.fn.modes.pushParticles).not.toHaveBeenCalled();
+    view.unmount();
   });
 
   it('ignores pointer interaction with reduced motion', async () => {

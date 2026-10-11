@@ -11,17 +11,17 @@
 .badge { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; min-height: 44px; margin-bottom: 28px; padding: 5px 13px 5px 5px; border: 1px solid #dedbd6; border-radius: 999px; background: #fff; color: #48433d; font-size: 13px; line-height: 1.4; transition: border-color 160ms, background 160ms; }
 .badgeLabel { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 6px 10px; border-radius: 999px; background: #171716; color: #fff; font-size: 12px; font-weight: 600; }
 .badgeArrow { flex-shrink: 0; color: #737373; }
-.badge:hover { border-color: var(--color-brand-focus); background: #fffaf7; }
+.badge:hover { border-color: var(--color-brand-focus); background: var(--color-brand-soft); }
 .badge:focus-visible { outline: 2px solid var(--color-brand-focus); outline-offset: 5px; }
 .title { max-width: 11ch; font-size: clamp(54px, 5.8vw, 84px); font-weight: 600; line-height: 1.06; letter-spacing: -.03em; text-wrap: balance; }
 .tagline { margin-top: 22px; color: var(--color-brand-heading); font-family: var(--font-serif); font-size: 32px; line-height: 1.25; text-wrap: balance; }
 .description { max-width: 42ch; margin-top: 20px; color: #605c56; font-size: 18px; line-height: 1.55; }
 .helpBar { display: flex; align-items: center; justify-content: space-between; gap: 14px; max-width: 520px; min-height: 60px; margin-top: 14px; padding: 7px 8px 7px 18px; border: 1px solid #111111; border-radius: 15px; background: linear-gradient(180deg, rgb(255 255 255 / .04), transparent 70%), #111111; box-shadow: inset 0 1px 0 rgb(255 255 255 / .06), 0 4px 12px rgb(0 0 0 / .1); color: #fff; text-align: left; }
 .helpPrompt { display: flex; align-items: center; gap: 12px; font-size: 15px; line-height: 1.4; }
-.helpPrompt svg { flex-shrink: 0; color: var(--color-brand-on-dark); }
+.helpPrompt svg { flex-shrink: 0; color: var(--color-brand); }
 .helpLink { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; min-height: 44px; padding: 10px 14px; border-radius: 10px; background: linear-gradient(180deg, rgb(255 255 255 / .04), transparent), #222222; box-shadow: inset 0 1px 0 rgb(255 255 255 / .06); color: #fff; font-size: 13px; font-weight: 600; transition: background-color 160ms; }
 .helpLink:hover { background-color: #303030; }
-.helpLink:focus-visible { outline: 2px solid var(--color-brand-on-dark); outline-offset: 3px; }
+.helpLink:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 3px; }
 .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 30px; }
 .secondary { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 22px; border: 1px solid #dedbd6; border-radius: 9999px; background: #fff; font-size: 15px; font-weight: 600; color: #211e1a; box-shadow: 0 6px 16px -10px rgb(23 23 22 / 0.2); transition: background 160ms, border-color 160ms; }
 .secondary:hover { color: #0a0a0a; border-color: #c8c2b9; background: #faf9f7; }
@@ -42,8 +42,10 @@
 .statusIcons { display: flex; align-items: center; gap: 2px; }
 .statusIcons svg { width: clamp(9px, 3.8cqw, 12px); height: auto; stroke-width: 2.5; }
 .phoneWorkspace { position: relative; padding-bottom: 8px; background: #e6e2dc; }
-.workspaceBar { display: flex; align-items: center; justify-content: space-between; padding: 6px 5cqw; color: #58524a; font-size: clamp(9px, 3.5cqw, 11px); font-weight: 700; }
-.workspaceBar svg { width: 12px; height: 12px; }
+.browserBar { padding: 3px 3cqw 5px; }
+.browserAddress { display: grid; grid-template-columns: 10px minmax(0, 1fr) 10px; align-items: center; gap: 4px; height: 22px; padding-inline: 7px; border: 1px solid #dedbd6; border-radius: 7px; background: #fffdfa; color: #58524a; font-size: clamp(8px, 3.4cqw, 10px); line-height: 1; }
+.browserAddress span { overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.browserAddress svg { width: 10px; height: 10px; stroke-width: 1.75; }
 .modalStage { position: relative; padding: 0 3cqw; }
 .modalStage > div { border-radius: 14px; box-shadow: 0 8px 18px -10px rgb(23 23 22 / .45); }
 .homeBar { display: grid; place-items: center; height: 18px; }
@@ -52,14 +54,14 @@
 :global(.dark) .badge { border-color: #453e35; background: #1c1b19; color: #ded8d0; }
 :global(.dark) .badgeLabel { background: #f2efe9; color: #171716; }
 :global(.dark) .badgeArrow { color: #b3b3b3; }
-:global(.dark) .badge:hover { border-color: var(--color-brand-on-dark); background: #28231f; }
+:global(.dark) .badge:hover { border-color: var(--color-brand); background: color-mix(in srgb, var(--color-brand) 8%, var(--color-charcoal)); }
 :global(.dark) .description { color: #bdb6ad; }
 :global(.dark) .helpBar { border-color: #453e35; }
 :global(.dark) .secondary { color: #fff; border-color: #453e35; background: var(--color-charcoal); }
 :global(.dark) .secondary:hover { color: #fff; border-color: #675d50; background: var(--color-charcoal); }
 :global(.dark) .screen { background: var(--color-charcoal); color: #f5f1eb; }
 :global(.dark) .phoneWorkspace { background: var(--color-charcoal); }
-:global(.dark) .workspaceBar { color: #bdb6ad; }
+:global(.dark) .browserAddress { border-color: #453e35; background: #1c1b19; color: #ded8d0; }
 @media (min-width: 1600px) { .layout { min-height: 780px; } }
 @media (min-width: 1024px) and (max-width: 1199px) {
   .layout { gap: 40px; padding-inline: 56px 40px; }

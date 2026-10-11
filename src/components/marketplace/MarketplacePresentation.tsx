@@ -4,9 +4,10 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { installReferenceReveals } from './referenceReveals';
 import styles from './MarketplacePresentation.module.css';
 
-export default function MarketplacePresentation({ role, children }: { role: 'seeker' | 'provider'; children: ReactNode }) {
+export default function MarketplacePresentation({ role, children, readOnly = false }: { readOnly?: boolean; role: 'seeker' | 'provider'; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (readOnly) return;
     const root = ref.current;
     if (!root || typeof window.matchMedia !== 'function') return;
     let cleanupReveals: (() => void) | undefined;
@@ -32,6 +33,6 @@ export default function MarketplacePresentation({ role, children }: { role: 'see
       observer.disconnect();
       cleanupReveals?.();
     };
-  }, []);
+  }, [readOnly]);
   return <div ref={ref} data-marketplace-role={role} className={styles.presentation}>{children}</div>;
 }

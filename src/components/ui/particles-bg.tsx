@@ -2,13 +2,13 @@
 
 import { useEffect, useId, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { createParticleColorResolver } from "./particle-color";
 
 interface ParticleInstance {
   pJS: {
     canvas: { el: HTMLCanvasElement; pxratio: number };
-    particles: { array: unknown[] };
     interactivity: { mouse: { pos_x: number | null; pos_y: number | null }; status: string };
-    fn: { drawAnimFrame?: number; checkAnimFrame?: number; modes: { pushParticles: (count: number, position: { pos_x: number; pos_y: number }) => void } };
+    fn: { drawAnimFrame?: number; checkAnimFrame?: number };
     tmp: { checkAnimFrame?: number };
   };
 }
@@ -55,8 +55,10 @@ export default function ParticlesComponent({ isDark, variant = "blue", className
     if (!host) return;
     const runtime = window as ParticleWindow;
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     const html = document.documentElement;
     const surface = host.parentElement ?? host;
+    const toHex = createParticleColorResolver();
     let disposed = false;
     let ready = false;
     let inView = true;
@@ -80,12 +82,13 @@ export default function ParticlesComponent({ isDark, variant = "blue", className
       if (disposed || !ready || !inView || document.hidden || !host.clientWidth || !host.clientHeight) return;
       const mobile = host.clientWidth < 768;
       const animate = !motion.matches;
-      // Canvas libraries need resolved color values, rather than CSS var() strings.
+      // Resolving a custom property still leaves color-mix()/color() expressions.
+      // Normalize every engine color to hex, including missing-token fallbacks.
       const themeColors = getComputedStyle(host);
-      const brand = themeColors.getPropertyValue('--color-brand').trim();
-      const brandOnDark = themeColors.getPropertyValue('--color-brand-on-dark').trim();
+      const brand = toHex(themeColors.getPropertyValue('--color-brand'), '#ff6b00');
+      const brandOnDark = toHex(themeColors.getPropertyValue('--color-brand-on-dark'), brand);
       const colors = variant === "brand"
-        ? { particles: dark ? brandOnDark : brand, lines: dark ? brandOnDark : brand, accent: themeColors.getPropertyValue('--color-orange-400').trim() }
+        ? { particles: dark ? brandOnDark : brand, lines: dark ? brandOnDark : brand, accent: toHex(themeColors.getPropertyValue('--color-orange-400'), brand) }
         : dark
           ? { particles: "#00f5ff", lines: "#00d9ff", accent: "#0096c7" }
           : { particles: "#0277bd", lines: "#0288d1", accent: "#039be5" };
@@ -100,45 +103,41 @@ export default function ParticlesComponent({ isDark, variant = "blue", className
           line_linked: { enable: true, distance: 160, color: colors.lines, opacity: variant === "brand" ? 0.13 : 0.4, width: 1 },
           move: { enable: animate, speed: variant === "brand" ? 0.6 : 2, random: true, out_mode: "bounce" },
         },
-        // Surface listeners below feed canvas-local coordinates without blocking controls.
+        // Hover only: surface listeners feed canvas-local cursor coordinates.
+        // Click spawning is disabled, including the library's own click listener.
         // ResizeObserver replaces the library's unremovable window resize listener.
         interactivity: {
           detect_on: "canvas",
-          events: { onhover: { enable: animate, mode: "grab" }, onclick: { enable: animate, mode: "push" }, resize: false },
-          modes: { grab: { distance: 220, line_linked: { opacity: 0.8 } }, push: { particles_nb: 4 } },
+          events: { onhover: { enable: animate && pointer.matches, mode: "grab" }, onclick: { enable: false }, resize: false },
+          modes: { grab: { distance: 220, line_linked: { opacity: 0.8 } } },
         },
         retina_detect: true,
       });
       instance = runtime.pJSDom?.find((entry) => entry.pJS.canvas.el.parentElement === host);
     };
 
-    const pointAt = (event: MouseEvent) => {
-      if (!instance || motion.matches) return;
-      const bounds = host.getBoundingClientRect();
-      const x = event.clientX - bounds.left;
-      const y = event.clientY - bounds.top;
-      if (x < 0 || y < 0 || x > host.clientWidth || y > host.clientHeight) return;
-      const point = { pos_x: x * instance.pJS.canvas.pxratio, pos_y: y * instance.pJS.canvas.pxratio };
-      Object.assign(instance.pJS.interactivity.mouse, point);
-      instance.pJS.interactivity.status = "mousemove";
-      return point;
-    };
     const leave = () => {
       if (!instance) return;
       Object.assign(instance.pJS.interactivity.mouse, { pos_x: null, pos_y: null });
       instance.pJS.interactivity.status = "mouseleave";
     };
-    const push = (event: MouseEvent) => {
-      if (event.target instanceof Element && event.target.closest('a, button, input, select, textarea, label, summary, [role="button"]')) return;
-      const point = pointAt(event);
-      if (!point || !instance) return;
-      // Bound repeated clicks so the decorative effect cannot grow indefinitely.
-      const count = Math.min(4, Math.max(0, 240 - instance.pJS.particles.array.length));
-      if (count) instance.pJS.fn.modes.pushParticles(count, point);
+    const pointAt = (event: MouseEvent) => {
+      if (!instance || motion.matches || !pointer.matches) return;
+      const bounds = host.getBoundingClientRect();
+      const x = event.clientX - bounds.left;
+      const y = event.clientY - bounds.top;
+      if (x < 0 || y < 0 || x > host.clientWidth || y > host.clientHeight) {
+        leave();
+        return;
+      }
+      Object.assign(instance.pJS.interactivity.mouse, {
+        pos_x: x * instance.pJS.canvas.pxratio,
+        pos_y: y * instance.pJS.canvas.pxratio,
+      });
+      instance.pJS.interactivity.status = "mousemove";
     };
     surface.addEventListener("mousemove", pointAt, { passive: true });
     surface.addEventListener("mouseleave", leave);
-    surface.addEventListener("click", push);
 
     const resize = new ResizeObserver(() => {
       const nextDimensions = `${host.clientWidth}:${host.clientHeight}`;
@@ -162,6 +161,7 @@ export default function ParticlesComponent({ isDark, variant = "blue", className
     });
     if (isDark === undefined) theme.observe(html, { attributes: true, attributeFilter: ["class", "data-theme"] });
     motion.addEventListener("change", initParticles);
+    pointer.addEventListener("change", initParticles);
     document.addEventListener("visibilitychange", initParticles);
     void loadRuntime().then(() => {
       if (disposed) return;
@@ -175,11 +175,11 @@ export default function ParticlesComponent({ isDark, variant = "blue", className
       visibility.disconnect();
       theme.disconnect();
       motion.removeEventListener("change", initParticles);
+      pointer.removeEventListener("change", initParticles);
       document.removeEventListener("visibilitychange", initParticles);
       window.cancelAnimationFrame(resizeFrame);
       surface.removeEventListener("mousemove", pointAt);
       surface.removeEventListener("mouseleave", leave);
-      surface.removeEventListener("click", push);
       destroy();
     };
   }, [id, isDark, variant]);

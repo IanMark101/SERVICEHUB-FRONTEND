@@ -51,7 +51,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
           </p>
 
           <div className="mt-8 flex gap-3.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70">
-            <LockKeyhole className="mt-0.5 size-5 shrink-0 text-brand-text" />
+            <LockKeyhole className="mt-0.5 size-5 shrink-0 text-brand" />
             <div>
               <p className="text-xs font-bold text-[#0a0a0a] dark:text-white">
                 On-Site Cash Stays Outside the Queue
@@ -76,7 +76,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
                   delay={0.14 + index * 0.1}
                   className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-charcoal/40"
                 >
-                  <div className="grid size-11 place-items-center rounded-xl bg-white text-brand-text shadow-xs dark:bg-charcoal dark:text-orange-400">
+                  <div className="grid size-11 place-items-center rounded-xl bg-white text-brand shadow-xs dark:bg-charcoal">
                     <Icon size={20} />
                   </div>
                   <div>
@@ -101,7 +101,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
           </div>
 
           <div className="mt-6 border-t border-slate-100 pt-4 text-xs leading-relaxed text-neutral-600 dark:border-zinc-800 dark:text-zinc-400">
-            <a href="#workspaces" className="font-semibold text-brand-text   hover:text-brand-action-hover dark:text-orange-300">Preview the workspaces</a> to see where you manage your bookings.
+            <a href="#workspaces" className="font-semibold text-neutral-900 underline-offset-4 hover:underline dark:text-zinc-100">Preview the workspaces</a> to see where you manage your bookings.
           </div>
         </ScrollReveal>
       </div>

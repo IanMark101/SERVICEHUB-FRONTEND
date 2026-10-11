@@ -4,7 +4,6 @@ import type { ServiceListing } from '../../../types';
 import ServiceMarketplaceGrid from './ServiceMarketplaceGrid';
 
 vi.mock('../../moderation/ContentCaseAction', () => ({ default: () => null }));
-vi.mock('../../ui/PaginationBar', () => ({ default: () => null }));
 
 const listing: ServiceListing = {
   id: 'fixed-listing', providerId: 'provider-1', providerName: 'Ian', providerAvatar: '',

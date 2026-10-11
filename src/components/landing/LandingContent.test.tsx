@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import LandingFaq from './LandingFaq';
 import LandingHowItWorks from './LandingHowItWorks';
@@ -42,19 +42,34 @@ describe('landing information and disclosure controls', () => {
     expect(await screen.findByRole('heading', { name: 'Browse or post a request' })).toBeVisible();
   });
 
-  it('keeps distinct FAQ answers available, including the listing-specific offer exception', async () => {
+  it('answers eight practical discovery and account questions with accessible disclosure controls', async () => {
     render(<LandingFaq isDark={false} />);
-    expect(screen.getAllByRole('button')).toHaveLength(4);
-    const listingQuestion = screen.getByRole('button', { name: 'Do I need a service listing to send an offer?' });
-    fireEvent.click(listingQuestion);
-    expect(listingQuestion).toHaveAttribute('aria-expanded', 'true');
-    expect(await screen.findByText(/If the request is tied to a specific listing, your offer must use that listing/)).toBeVisible();
-    const paymentQuestion = screen.getByRole('button', { name: 'Does GCash send real money to a provider?' });
-    fireEvent.click(paymentQuestion);
-    expect(paymentQuestion).toHaveAttribute('aria-expanded', 'true');
-    expect(listingQuestion).toHaveAttribute('aria-expanded', 'false');
-    expect(await screen.findByText(/no real online payment or Provider payout takes place/)).toBeVisible();
-    fireEvent.click(paymentQuestion);
-    expect(paymentQuestion).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('heading', { name: 'Frequently asked questions.' })).toBeVisible();
+    expect(screen.getAllByRole('button')).toHaveLength(8);
+    const topics = [
+      { question: /How can a Seeker discover Providers/, answer: /Open Seek Services/ },
+      { question: /How can a Provider discover Seeker requests/, answer: /a request tied to a specific listing requires that matching listing/ },
+      { question: /How do I use the map/, answer: /select Apply location to update your results/ },
+      { question: /How does the discovery radius work/, answer: /1, 2, 5, 10, 15, 20 or 30 km/ },
+      { question: /which results appear first/, answer: /higher Provider Trust Scores breaking equal-distance ties/ },
+      { question: /What is Trust Score/, answer: /New accounts start at 50/ },
+      { question: /Do I need verification/, answer: /One approved account can use both workspaces/ },
+      { question: /follow a booking/, answer: /including when the Provider starts the job/ },
+    ];
+    let previous: HTMLElement | undefined;
+    for (const topic of topics) {
+      const question = screen.getByRole('button', { name: topic.question });
+      if (question.getAttribute('aria-expanded') !== 'true') fireEvent.click(question);
+      expect(question).toHaveAttribute('aria-expanded', 'true');
+      if (previous) expect(previous).toHaveAttribute('aria-expanded', 'false');
+      const answer = await screen.findByRole('region', { name: topic.question });
+      expect(answer.id).toBe(question.getAttribute('aria-controls'));
+      expect(within(answer).getByText(topic.answer)).toBeVisible();
+      previous = question;
+    }
+    fireEvent.click(previous!);
+    expect(previous).toHaveAttribute('aria-expanded', 'false');
+    await waitFor(() => expect(screen.queryByRole('region', { name: /follow a booking/ })).not.toBeInTheDocument());
+    expect(screen.getByRole('link', { name: 'Open the Help Center' })).toHaveAttribute('href', '/help');
   });
 });

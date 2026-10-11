@@ -66,13 +66,13 @@ test('normal refresh removes the original, retains the replacement, and tolerate
   } finally { dom.window.close(); }
 });
 
-function configFor(environment) {
+function configFor(environment, platform = process.platform) {
   const source = fs.readFileSync(path.join(projectRoot, 'next.config.ts'), 'utf8');
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   const moduleRef = { exports: {} };
   vm.runInNewContext(compiled, {
     module: moduleRef, exports: moduleRef.exports, require,
-    process: { env: { NODE_ENV: environment }, cwd: () => projectRoot },
+    process: { env: { NODE_ENV: environment }, platform, cwd: () => projectRoot },
   });
   return moduleRef.exports.default;
 }
@@ -96,4 +96,30 @@ test('webpack guard is scoped to the development browser CSS HMR module', () => 
 
 test('production retains the default bundler configuration', () => {
   assert.equal(configFor('production').webpack, undefined);
+});
+
+test('Windows development ignores protected drive entries without losing Next ignores or source updates', () => {
+  for (const isServer of [true, false]) {
+    const config = configFor('development', 'win32');
+    const webpackConfig = { module: { rules: [] }, watchOptions: { aggregateTimeout: 5, ignored: /[\\/]node_modules[\\/]/ } };
+    config.webpack(webpackConfig, { dev: true, isServer });
+    const ignored = webpackConfig.watchOptions.ignored;
+    for (const file of ['C:\\System Volume Information', 'C:\\swapfile.sys', 'C:\\pagefile.sys', 'C:\\hiberfil.sys', 'C:\\app\\node_modules\\react\\index.js']) {
+      assert.equal(ignored.test(file), true, file);
+    }
+    for (const file of ['C:\\app\\src\\components\\ui\\motion-footer.tsx', 'C:/app/src/app/globals.css']) {
+      assert.equal(ignored.test(file), false, file);
+    }
+    assert.equal(webpackConfig.watchOptions.aggregateTimeout, 5);
+  }
+});
+
+test('the Windows watcher workaround leaves Linux and non-development compilers alone', () => {
+  for (const [platform, dev] of [['linux', true], ['win32', false]]) {
+    const config = configFor('development', platform);
+    const ignored = /node_modules/;
+    const webpackConfig = { module: { rules: [] }, watchOptions: { ignored } };
+    config.webpack(webpackConfig, { dev, isServer: true });
+    assert.equal(webpackConfig.watchOptions.ignored, ignored);
+  }
 });

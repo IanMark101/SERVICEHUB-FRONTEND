@@ -30,6 +30,18 @@ const nextConfig: NextConfig = {
 // Keep this workaround out of production/Turbopack. The dev launcher uses Webpack.
 if (process.env.NODE_ENV === "development") {
   nextConfig.webpack = (config, { dev, isServer }) => {
+    if (dev && process.platform === "win32") {
+      // Module resolution can watch a drive ancestor. Skip protected Windows
+      // entries before Watchpack tries to stat them, keeping Next's ignores.
+      const protectedFiles = /[\\/](?:System Volume Information|(?:swapfile|pagefile|hiberfil)\.sys)(?:[\\/]|$)/i;
+      const existingIgnored = config.watchOptions?.ignored;
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: existingIgnored?.source
+          ? new RegExp(`${existingIgnored.source}|${protectedFiles.source}`, [...new Set(`${existingIgnored.flags}i`)].join(""))
+          : protectedFiles,
+      };
+    }
     if (dev && !isServer) {
       config.module.rules.push({
         test: /[\\/]next[\\/]dist[\\/]compiled[\\/]mini-css-extract-plugin[\\/]hmr[\\/]hotModuleReplacement\.js$/,

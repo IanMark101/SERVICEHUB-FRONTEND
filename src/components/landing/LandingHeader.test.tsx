@@ -33,7 +33,7 @@ describe('landing navigation session awareness', () => {
     expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/get-started');
     expect(screen.getByRole('link', { name: 'How it works' })).toHaveAttribute('href', '#how-it-works');
     expect(screen.getByRole('link', { name: 'Booking progress' })).toHaveAttribute('href', '#booking-progress');
-    expect(screen.getByRole('navigation', { name: 'Main navigation' }).querySelectorAll('a')).toHaveLength(6);
+    expect(screen.getByRole('navigation', { name: 'Main navigation' }).querySelectorAll('a')).toHaveLength(8);
     fireEvent.click(screen.getByRole('button', { name: 'Open navigation' }));
     expect(screen.getByRole('navigation', { name: 'Mobile navigation' })).toBeVisible();
     expect(screen.queryByText('Open ServiceHub')).not.toBeInTheDocument();
@@ -75,6 +75,8 @@ describe('landing navigation session awareness', () => {
   it.each([
     ['Compare', '#comparison'],
     ['Booking progress', '#booking-progress'],
+    ['Trust', '#trust'],
+    ['Community', '#community'],
   ])('links to %s from both menus and closes mobile navigation after choosing it', (label, href) => {
     render(<LandingHeader isDark={false} toggleTheme={vi.fn()} />);
     const desktop = screen.getByRole('navigation', { name: 'Main navigation' });

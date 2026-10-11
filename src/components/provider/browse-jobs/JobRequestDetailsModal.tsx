@@ -81,6 +81,16 @@ export default function JobRequestDetailsModal({
               </div>
               <button type="button" onClick={onClose} aria-label="Close modal" className={styles.close}><X size={20} /></button>
             </div>
+            <div className={styles.identity}>
+              <div className={styles.person}>
+                <UserAvatar src={request.seekerAvatar} name={request.seekerName || 'Service seeker'} alt={request.seekerName} size={48} role="seeker" />
+                <div className={styles.personText}>
+                  <div className={styles.personName}><span>{request.seekerName}</span><span className={styles.tag}>Service Seeker</span></div>
+                  <div className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1"><ShieldCheck size={14} /><span>Verified resident</span></div>
+                </div>
+              </div>
+              {request.seekerId && <button type="button" onClick={() => router.push(`/profile/${encodeURIComponent(request.seekerId)}`)} className={styles.secondary}>View Profile <ArrowRight size={14} /></button>}
+            </div>
             <h2 id="job-request-details-title" className={styles.title}>{request.title}</h2>
             <div className={styles.summary}>
               <div>
@@ -98,16 +108,6 @@ export default function JobRequestDetailsModal({
           </header>
 
           <div className={styles.body}>
-            <div className={styles.identity}>
-              <div className={styles.person}>
-                <UserAvatar src={request.seekerAvatar} name={request.seekerName || 'Service seeker'} alt={request.seekerName} size={48} role="seeker" />
-                <div className={styles.personText}>
-                  <div className={styles.personName}><span>{request.seekerName}</span><span className={styles.tag}>Service Seeker</span></div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1"><ShieldCheck size={14} /><span>Verified resident</span></div>
-                </div>
-              </div>
-              {request.seekerId && <button type="button" onClick={() => router.push(`/profile/${encodeURIComponent(request.seekerId)}`)} className={styles.secondary}>View Profile <ArrowRight size={14} /></button>}
-            </div>
             <section>
               <h3 className={styles.label}>About This Request</h3>
               <p className={styles.description}>{request.description}</p>

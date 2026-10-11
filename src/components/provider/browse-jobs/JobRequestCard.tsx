@@ -6,6 +6,7 @@ import { requestUrgencyRank } from '../../../lib/requestUrgency';
 import UserAvatar from '../../ui/UserAvatar';
 import TrustScoreBadge from '../../ui/TrustScoreBadge';
 import MarketplaceRating from '../../ui/MarketplaceRating';
+import ContentCaseTrigger from '../../moderation/ContentCaseTrigger';
 import ContentCaseAction from '../../moderation/ContentCaseAction';
 import { Banknote, Smartphone } from 'lucide-react';
 import { formatUrgencyDisplay } from './browseJobs.utils';
@@ -16,12 +17,13 @@ interface JobRequestCardProps {
   isOwned: boolean;
   offerState: 'accepted' | 'submitted' | null;
   isDark: boolean;
+  readOnly?: boolean;
   onProfile: (reviews?: boolean) => void;
   onDetails: () => void;
   onSendOffer: () => void;
 }
 
-export default function JobRequestCard({ request, proposalCount, isOwned, offerState, isDark, onProfile, onDetails, onSendOffer }: JobRequestCardProps) {
+export default function JobRequestCard({ request, proposalCount, isOwned, offerState, isDark, readOnly = false, onProfile, onDetails, onSendOffer }: JobRequestCardProps) {
   const methods = getRequestPaymentMethods(request);
   const urgency = requestUrgencyRank(request.urgency);
   return (
@@ -53,7 +55,7 @@ export default function JobRequestCard({ request, proposalCount, isOwned, offerS
             <button type="button" disabled={!request.seekerId} onClick={() => onProfile(true)} aria-label={`View service seeker reviews for ${request.seekerName}`} title="View seeker reviews" className="shrink-0 rounded transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700">
               <MarketplaceRating rating={request.seekerRating} reviewCount={request.seekerReviewCount} context="seeker" />
             </button>
-            {!isOwned && <ContentCaseAction caseType="REPORT" contentType="SERVICE_REQUEST" resourceId={request.id} label="Report request" variant="icon" isDark={isDark} />}
+            {!isOwned && (readOnly ? <ContentCaseTrigger label="Report request" variant="icon" isDark={isDark} /> : <ContentCaseAction caseType="REPORT" contentType="SERVICE_REQUEST" resourceId={request.id} label="Report request" variant="icon" isDark={isDark} />)}
           </div>
         </div>
         <div className="marketplace-value pt-2 flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-100 dark:border-neutral-800">

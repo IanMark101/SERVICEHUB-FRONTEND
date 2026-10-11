@@ -28,8 +28,8 @@ const STYLES = `
   
   --bg-token: var(--color-charcoal);
   --fg-token: #f7f4ed;
-  --accent-orange: var(--color-brand-text);
-  --accent-orange-light: var(--color-brand-on-dark);
+  --accent-orange: var(--color-brand);
+  --accent-orange-light: var(--color-brand);
   --sub-text: rgba(161,161,170,1);
   
   --pill-bg-1: var(--color-charcoal);
@@ -60,8 +60,8 @@ const STYLES = `
 .cinematic-footer-wrapper.light-mode {
   --bg-token: var(--landing-surface, #faf9f6);
   --fg-token: #0a0a0a;
-  --accent-orange: var(--color-brand-text);
-  --accent-orange-light: var(--color-brand-on-dark);
+  --accent-orange: var(--color-brand);
+  --accent-orange-light: var(--color-brand);
   --sub-text: #78716c;
 
   --pill-bg-1: rgba(255,255,255,0.72);
@@ -170,6 +170,11 @@ const STYLES = `
 }
 .footer-heading-line {
   display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-footer-breathe,
+  .animate-footer-heartbeat { animation: none; }
+  .footer-glass-pill { transition: none; }
 }
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .footer-heading-line {
@@ -297,46 +302,51 @@ export function CinematicFooter({
     if (typeof window === "undefined") return;
     if (!wrapperRef.current) return;
 
-    // React strict mode compatible GSAP context cleanup
-    const ctx = gsap.context(() => {
-      // Background Parallax
-      gsap.fromTo(
-        giantTextRef.current,
-        { y: "12vh", scale: 0.85, opacity: 0 },
-        {
-          y: "0vh",
-          scale: 1,
-          opacity: 1,
-          ease: "power1.out",
-          scrollTrigger: {
-            trigger: wrapperRef.current,
-            start: "top 85%",
-            end: "bottom bottom",
-            scrub: 1,
-          },
-        }
-      );
+    // Keep essential content visible even if scroll measurements become stale.
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const ctx = gsap.context(() => {
+        // Background Parallax
+        gsap.fromTo(
+          giantTextRef.current,
+          { y: "12vh", scale: 0.85, opacity: 0 },
+          {
+            y: "0vh",
+            scale: 1,
+            opacity: 1,
+            ease: "power1.out",
+            scrollTrigger: {
+              trigger: wrapperRef.current,
+              start: "top 85%",
+              end: "bottom bottom",
+              scrub: 1,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
 
-      // Staggered Content Reveal
-      gsap.fromTo(
-        [headingRef.current, linksRef.current],
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          stagger: 0.15,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: wrapperRef.current,
-            start: "top 45%",
-            end: "bottom bottom",
-            scrub: 1,
-          },
-        }
-      );
-    }, wrapperRef);
+        // Position-only entrance: scrolling never gates the heading or links.
+        gsap.fromTo(
+          [headingRef.current, linksRef.current],
+          { y: 24 },
+          {
+            y: 0,
+            duration: 0.7,
+            stagger: 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: wrapperRef.current,
+              start: "top bottom",
+              once: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      }, wrapperRef);
+      return () => ctx.revert();
+    });
 
-    return () => ctx.revert();
+    return () => media.revert();
   }, []);
 
   return (
@@ -355,7 +365,7 @@ export function CinematicFooter({
             isDark ? "bg-charcoal text-[#f7f4ed]" : "light-mode bg-[var(--landing-surface,#faf9f6)] text-[#1c1917]"
           )}
         >
-          {/* Shared interactive particle background, behind the footer controls. */}
+          {/* Shared hover-only particle background, behind the footer controls. */}
           <div className="footer-aurora absolute left-1/2 top-1/2 h-[65vh] w-[85vw] -translate-x-1/2 -translate-y-1/2 animate-footer-breathe rounded-[50%] blur-[90px] pointer-events-none z-0" />
           <ParticlesComponent isDark={isDark} variant="brand" className="z-0" />
 
@@ -400,7 +410,7 @@ export function CinematicFooter({
                   className="footer-glass-pill px-7 sm:px-9 py-3.5 sm:py-4 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2.5 group"
                   style={{ color: 'var(--pill-text)' }}
                 >
-                  <Briefcase className="w-4 h-4 text-brand-text group-hover:scale-110 transition-transform" />
+                  <Briefcase className="w-4 h-4 text-brand group-hover:scale-110 transition-transform" />
                   <span>Find a Service</span>
                 </MagneticButton>
 
@@ -420,7 +430,7 @@ export function CinematicFooter({
                   className="footer-glass-pill px-7 sm:px-9 py-3.5 sm:py-4 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2.5 group border-brand/40"
                   style={{ color: 'var(--pill-text)' }}
                 >
-                  <UserCheck className="w-4 h-4 text-brand-text" />
+                  <UserCheck className="w-4 h-4 text-brand" />
                   <span>Offer Skilled Work</span>
                 </MagneticButton>
               </div>
@@ -472,7 +482,7 @@ export function CinematicFooter({
                       >
                         ServiceHub
                       </p>
-                      <p className="mt-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-text">
+                      <p className="mt-1 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-600 dark:text-zinc-300 [&_svg]:text-brand">
                         <MapPin size={12} /> Nearby service marketplace
                       </p>
                     </div>
@@ -504,7 +514,7 @@ export function CinematicFooter({
                       <a
                         key={link.href}
                         href={link.href}
-                        className="text-xs font-semibold transition-colors hover:text-brand-text"
+                        className="text-xs font-semibold underline-offset-4 hover:underline"
                         style={{ color: 'var(--pill-text-secondary)' }}
                       >
                         {link.label}

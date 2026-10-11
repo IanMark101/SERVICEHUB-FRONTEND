@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Community Hub | ServiceHub',
+  title: 'Community Hub',
   description: 'See official updates, newly published services, and recognized local providers across ServiceHub.',
 };
 

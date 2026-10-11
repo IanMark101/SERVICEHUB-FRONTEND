@@ -21,6 +21,8 @@ const NAV_LINKS = [
   { label: 'Booking progress', href: '#booking-progress' },
   { label: 'Workspaces', href: '#workspaces' },
   { label: 'Compare', href: '#comparison' },
+  { label: 'Trust', href: '#trust' },
+  { label: 'Community', href: '#community' },
   { label: 'FAQ', href: '#faq' },
 ];
 
@@ -160,6 +162,7 @@ export default function LandingHeader({ isDark, toggleTheme }: LandingHeaderProp
         {mobileOpen && (
           <div
             id="mobile-navigation"
+            data-lenis-prevent
             className={`${styles.drawer} pointer-events-auto mx-auto mt-3 max-w-6xl rounded-2xl border border-black/[0.08] bg-white/95 p-4 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-charcoal/95 xl:hidden`}
           >
             <nav className="grid gap-1" aria-label="Mobile navigation">

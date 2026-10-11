@@ -31,12 +31,13 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
   return (
     <section
       id="community"
+      aria-labelledby="community-heading"
       data-theme={isDark ? 'dark' : 'light'}
       className="scroll-mt-20 border-b border-white/10 bg-charcoal px-5 py-20 text-zinc-100 sm:px-8 lg:px-10 lg:py-28"
     >
       <div className="mx-auto max-w-7xl">
         <ScrollReveal className="max-w-3xl">
-          <h2 className="max-w-[17ch] font-sans text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
+          <h2 id="community-heading" className="max-w-[17ch] font-sans text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
             See what is happening across ServiceHub.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-300">
@@ -55,8 +56,8 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
                 hoverLift
                 className="rounded-2xl border border-white/10 bg-charcoal p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-colors hover:border-white/20 sm:p-8"
               >
-                <div className="grid size-11 place-items-center rounded-xl bg-brand/15 text-orange-300">
-                  <Icon size={22} />
+                <div className="grid size-11 place-items-center rounded-xl bg-brand/8 text-brand-on-dark">
+                  <Icon size={22} aria-hidden="true" />
                 </div>
                 <h3 className="mt-6 text-lg font-bold text-white">
                   {item.title}
@@ -75,10 +76,10 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
           </p>
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-xs font-bold text-orange-300 transition-colors hover:text-orange-200 active:scale-[0.98]"
+            className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-zinc-100 underline-offset-4 hover:underline hover:decoration-brand-on-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-on-dark [&_svg]:text-brand-on-dark active:scale-[0.98]"
           >
             <span>Sign in to view the Community Hub</span>
-            <ArrowRight size={14} />
+            <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </ScrollReveal>
       </div>

@@ -1,11 +1,12 @@
 import React from 'react';
-import { Metadata } from 'next';
 import HelpHomePage from '@/features/help/pages/HelpHomePage';
+import { publicPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Help Center & Documentation | ServiceHub',
+export const metadata = publicPageMetadata({
+  title: 'Help Center & Guides',
   description: 'Learn how ServiceHub works: verification, Trust Scores, provider queues, bookings, and payments.',
-};
+  path: '/help',
+});
 
 export default function Page() {
   return <HelpHomePage />;

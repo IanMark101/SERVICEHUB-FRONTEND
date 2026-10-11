@@ -1,5 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+// This is a placeholder until the policy is finalized; inherit root noindex.
+export const metadata: Metadata = { title: 'Privacy Policy' };
 
 export default function PrivacyPage() {
   return (

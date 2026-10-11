@@ -33,15 +33,17 @@
 .heroBadge {
   border-color: color-mix(in srgb, var(--color-brand) 50%, transparent);
   background: var(--color-orange-50, var(--color-brand-soft));
-  color: var(--color-brand-text);
+  color: var(--color-charcoal);
 }
+
+.heroBadge svg { color: var(--color-brand); }
 
 .heroBadge:hover { background: var(--color-brand-soft); }
 
 :global(.dark) .heroBadge {
   border-color: color-mix(in srgb, var(--color-brand) 30%, transparent);
   background: color-mix(in srgb, var(--color-orange-950) 40%, transparent);
-  color: var(--color-orange-300, var(--color-orange-300));
+  color: white;
 }
 
 :global(.dark) .heroBadge:hover { background: color-mix(in srgb, var(--color-orange-950) 40%, transparent); }

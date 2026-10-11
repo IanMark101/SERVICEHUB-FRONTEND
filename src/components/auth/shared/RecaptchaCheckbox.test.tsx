@@ -48,6 +48,20 @@ describe('checkbox lifecycle', () => {
     expect(onToken).not.toHaveBeenCalled();
   });
 
+  it('clears its answer and stale expiry message when the parent requests a reset', async () => {
+    const view = render(<RecaptchaCheckbox {...props} />);
+    await waitFor(() => expect(renderWidget).toHaveBeenCalledOnce());
+    const callbacks = renderWidget.mock.calls[0][1];
+    act(() => callbacks.callback('verified-proof'));
+    act(() => callbacks['expired-callback']());
+    expect(screen.getByText(/The check expired/)).toBeVisible();
+    onToken.mockClear();
+    view.rerender(<RecaptchaCheckbox {...props} resetKey={1} />);
+    await waitFor(() => expect(screen.queryByText(/The check expired/)).not.toBeInTheDocument());
+    expect(onToken).toHaveBeenLastCalledWith('');
+    expect(reset).toHaveBeenCalledWith(12);
+  });
+
   it('does not render duplicate widgets during StrictMode effect replay', async () => {
     render(<StrictMode><RecaptchaCheckbox {...props} /></StrictMode>);
     await waitFor(() => expect(renderWidget).toHaveBeenCalledOnce());

@@ -6,6 +6,7 @@ import { ToastProvider } from "../components/ui/Toast";
 import "./globals.css";
 import "../components/ui/form-controls.css";
 import { cn } from "@/lib/utils";
+import { rootMetadata } from "@/lib/seo";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -17,14 +18,7 @@ const playfair = Playfair_Display({
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
-export const metadata: Metadata = {
-  title: "ServiceHub",
-  description: "Find nearby services and work opportunities with location-based discovery and trusted booking management",
-  icons: {
-    icon: [{ url: '/favicon.svg?v=7', type: 'image/svg+xml', sizes: 'any' }, { url: '/favicon.ico?v=7', sizes: 'any' }],
-    apple: '/logo.png?v=7',
-  },
-};
+export const metadata: Metadata = rootMetadata;
 
 export default function RootLayout({
   children,

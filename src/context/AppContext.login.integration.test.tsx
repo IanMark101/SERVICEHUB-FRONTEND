@@ -479,7 +479,7 @@ describe('login/session integration through the real auth flow', () => {
     await act(async () => { complete(); });
     await waitFor(() => expect(screen.getByLabelText('Session identity')).toHaveTextContent(`session-account:${role}`));
     expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
-    expect(screen.getByRole('link', { name: 'Open workspace' })).toBeVisible();
+    for (const link of screen.getAllByRole('link', { name: 'Open workspace' })) expect(link).toBeVisible();
     expect(screen.queryByRole('link', { name: 'Log in' })).not.toBeInTheDocument();
     expect(mocks.router.replace).not.toHaveBeenCalled();
     expect(mocks.router.push).not.toHaveBeenCalled();
@@ -501,7 +501,7 @@ describe('login/session integration through the real auth flow', () => {
     workspace.rerender(<StrictMode><AppProvider><LandingLayout><Home /></LandingLayout><SessionProbe /></AppProvider></StrictMode>);
     expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
     expect(screen.getByLabelText('Session identity')).toHaveTextContent(`session-account:${role}`);
-    expect(screen.getByRole('link', { name: 'Open workspace' })).toBeVisible();
+    for (const link of screen.getAllByRole('link', { name: 'Open workspace' })) expect(link).toBeVisible();
     expect(mocks.router.replace).not.toHaveBeenCalled();
     expect(mocks.router.push).not.toHaveBeenCalled();
     expect(transport.mock.calls.map(([config]) => config.url)).toEqual(['/auth/session', '/auth/me']);
@@ -518,7 +518,7 @@ describe('login/session integration through the real auth flow', () => {
     expect(localStorage.getItem('userSession')).toBeNull();
     expect(localStorage.getItem('servicehub:session-present')).toBe('true');
 
-    expect(screen.getByRole('link', { name: 'Open workspace' })).toHaveAttribute('href', path);
+    for (const link of screen.getAllByRole('link', { name: 'Open workspace' })) expect(link).toHaveAttribute('href', path);
     refreshed.unmount();
   });
 
@@ -536,7 +536,7 @@ describe('login/session integration through the real auth flow', () => {
       view.rerender(<StrictMode><AppProvider><LandingLayout><Home /></LandingLayout></AppProvider></StrictMode>);
       expect(screen.getByRole('heading', { name: 'ServiceHub' })).toBeVisible();
       expect(document.querySelector('.brand-loading')).not.toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Open workspace' })).toHaveAttribute('href', path);
+      for (const link of screen.getAllByRole('link', { name: 'Open workspace' })) expect(link).toHaveAttribute('href', path);
       mocks.pathname = path;
       view.rerender(<StrictMode><AppProvider><WorkspaceContent role={role} /></AppProvider></StrictMode>);
       expect(await screen.findByRole('heading', { name: heading })).toBeVisible();

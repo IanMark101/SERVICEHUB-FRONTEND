@@ -61,11 +61,16 @@ describe('landing content before hydration and viewport initialization', () => {
       expect(cta.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/login');
     }
     expect(container.querySelector('[data-preview-theme]')).toBeVisible();
+    const workspaces = within(container.querySelector('#workspaces')! as HTMLElement);
+    expect(workspaces.getByRole('tab', { name: 'Seeker Workspace' })).toHaveAttribute('aria-selected', 'true');
+    expect(workspaces.getByRole('tab', { name: 'Provider Workspace' })).toHaveAttribute('aria-selected', 'false');
+    expect(within(workspaces.getByRole('tabpanel', { name: 'Seeker Workspace' })).getByRole('img', { name: /^Seeker dashboard/ })).toBeVisible();
     expect(container.querySelector('.brand-loading')).not.toBeInTheDocument();
     const steps = within(main).getByRole('list', { name: 'Seeker service steps' });
     expect(within(steps).getAllByRole('listitem')).toHaveLength(3);
     expect(within(main).getByRole('region', { name: 'Example booking preview' })).toBeVisible();
     expect(within(main).getByRole('button', { name: 'Preview Start Job' })).toBeVisible();
+    expect(within(main).getByRole('progressbar', { name: 'Booking walkthrough progress' })).toHaveAttribute('aria-valuenow', '0');
     expect(container.querySelector('#queue')).toBeInTheDocument();
     expect(within(container.querySelector('#queue')! as HTMLElement).getByRole('link', { name: 'Payment and queue rules' })).toHaveAttribute('href', '/help/queue/how-the-queue-works');
     // Preserve all the existing sections while keeping detailed rules in their
@@ -83,6 +88,29 @@ describe('landing content before hydration and viewport initialization', () => {
     expect(within(comparisonTable).getAllByRole('cell', { name: 'Arranged manually through posts and messages' })).toHaveLength(5);
     expect(screen.getByRole('link', { name: 'Compare' })).toHaveAttribute('href', '#comparison');
     expect(screen.getByRole('link', { name: 'Booking progress' })).toHaveAttribute('href', '#booking-progress');
+    expect(screen.getByRole('link', { name: 'Trust' })).toHaveAttribute('href', '#trust');
+    expect(screen.getByRole('link', { name: 'Community' })).toHaveAttribute('href', '#community');
+    const community = within(main).getByRole('region', { name: 'See what is happening across ServiceHub.' });
+    expect(community).toHaveClass('bg-charcoal');
+    expect(community.parentElement).toBe(main);
+    expect(container.querySelectorAll('#community')).toHaveLength(1);
+    expect(within(community).getAllByRole('heading', { level: 3 })).toHaveLength(3);
+    const trust = within(container.querySelector('#trust')! as HTMLElement);
+    expect(trust.getAllByRole('heading', { level: 2 })).toHaveLength(1);
+    expect(trust.getByRole('heading', { name: 'Reviews follow completed service.', level: 3 })).toBeVisible();
+    expect(trust.getByRole('heading', { name: 'Conversations connected to the work', level: 3 })).toBeVisible();
+    expect(trust.getByRole('link', { name: 'Verification and messaging' })).toHaveAttribute('href', '/help/verification/why-verification-is-required');
+    expect(trust.getByRole('link', { name: 'How reviews work' })).toHaveAttribute('href', '/help/reviews/how-reviews-and-ratings-work');
+    expect(trust.getByRole('heading', { name: 'Verified participation', level: 3 })).toBeVisible();
+    expect(trust.getByText('Email and residency verification are required before requesting or offering services.')).toBeVisible();
+    expect(trust.getByText('Verification documents stay private to authorized reviewers.')).toBeVisible();
+    const reviewSteps = trust.getByRole('list', { name: 'How a booking becomes eligible for reviews' });
+    const reviewRows = within(reviewSteps).getAllByRole('listitem');
+    expect(reviewRows).toHaveLength(3);
+    expect(reviewRows[0]).toHaveTextContent('The Provider submits the work');
+    expect(reviewRows[0]).toHaveTextContent('Finished work awaits the Seeker’s confirmation.');
+    expect(reviewRows[1]).toHaveTextContent('The Seeker confirms the result');
+    expect(reviewRows[2]).toHaveTextContent('Both sides can leave a review');
     const tickers = container.querySelectorAll('[aria-label="ServiceHub highlights"]');
     expect(tickers).toHaveLength(2);
     expect(tickers[0]).toHaveTextContent('Aircon Service');

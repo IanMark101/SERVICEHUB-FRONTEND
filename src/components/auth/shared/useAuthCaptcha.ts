@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiGetCaptchaPolicy, type CaptchaPolicy } from '@/api/auth.api';
 import { getApiErrorBody } from '@/lib/api/errors';
 
@@ -11,8 +11,12 @@ export default function useAuthCaptcha(mode: AuthMode) {
   const [state, setState] = useState<PolicyState>({ mode, status: 'loading' });
   const [proof, setProof] = useState({ mode, token: '', resetKey: 0 });
   const request = useRef<AbortController | null>(null);
+  // Ignore a pending form's callbacks after the user moves to another form.
+  const scope = useMemo(() => Symbol(mode), [mode]);
+  const activeScope = useRef<symbol | null>(scope);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (forceLoginChallenge = false) => {
+    if (activeScope.current !== scope || mode === 'reset') return;
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
@@ -20,37 +24,42 @@ export default function useAuthCaptcha(mode: AuthMode) {
     setProof((current) => ({ mode, token: '', resetKey: current.resetKey + 1 }));
     try {
       const policy = await apiGetCaptchaPolicy(controller.signal);
-      if (!controller.signal.aborted) setState({ mode, status: 'ready', policy });
+      if (!controller.signal.aborted && activeScope.current === scope) setState({
+        mode, status: 'ready', policy: forceLoginChallenge && policy.enabled
+          ? { ...policy, loginRequired: true } : policy,
+      });
     } catch {
-      if (!controller.signal.aborted) setState({ mode, status: 'error' });
+      if (!controller.signal.aborted && activeScope.current === scope) setState({ mode, status: 'error' });
     }
-  }, [mode]);
+  }, [mode, scope]);
 
   useEffect(() => {
+    activeScope.current = scope;
     let active = true;
     queueMicrotask(() => { if (active && mode !== 'reset') void reload(); });
-    return () => { active = false; request.current?.abort(); };
-  }, [mode, reload]);
+    return () => { active = false; activeScope.current = null; request.current?.abort(); };
+  }, [mode, reload, scope]);
 
   const setToken = useCallback((token: string) => {
+    if (activeScope.current !== scope) return;
     setProof((current) => ({ mode, token, resetKey: current.resetKey }));
-  }, [mode]);
+  }, [mode, scope]);
   const reset = useCallback(() => {
+    if (activeScope.current !== scope) return;
     setProof((current) => ({ mode, token: '', resetKey: current.resetKey + 1 }));
-  }, [mode]);
+  }, [mode, scope]);
   const handleFailure = useCallback((error: unknown) => {
+    if (activeScope.current !== scope || mode === 'reset') return;
     const code = getApiErrorBody(error)?.code;
-    if (mode === 'login') {
-      if (code === 'CAPTCHA_REQUIRED' || code === 'CAPTCHA_UNAVAILABLE') {
-        setState((current) => current.policy
-          ? { mode, status: 'ready', policy: { ...current.policy, enabled: true, loginRequired: true } }
-          : { mode, status: 'error' });
-      } else {
-        // The server owns the failed-login count. Re-read its policy after a failure.
-        void reload();
-      }
+    if (code === 'CAPTCHA_REQUIRED' || code === 'CAPTCHA_UNAVAILABLE') {
+      // Refresh keys and enablement too: open signup/recovery forms may have
+      // loaded their settings before a backend configuration change.
+      void reload(mode === 'login');
+    } else if (mode === 'login') {
+      // The server owns the failed-login count. Re-read its policy after a failure.
+      void reload();
     }
-  }, [mode, reload]);
+  }, [mode, reload, scope]);
 
   const status = mode === 'reset' ? 'ready' : state.mode === mode ? state.status : 'loading';
   const policy = state.mode === mode ? state.policy : undefined;

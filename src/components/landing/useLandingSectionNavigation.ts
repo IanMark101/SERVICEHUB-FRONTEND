@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import type { MouseEvent } from 'react';
+import type { LandingScrollTo } from './useLandingSmoothScroll';
 
-export default function useLandingSectionNavigation() {
+export default function useLandingSectionNavigation(scrollTo?: LandingScrollTo) {
   const shellRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | null>(null);
 
@@ -18,7 +19,7 @@ export default function useLandingSectionNavigation() {
 
   const scrollToSection = useCallback((hash: string, behavior: ScrollBehavior, moveFocus = false) => {
     if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
-    // Let the mobile menu close before native scrolling. CSS owns the clearance.
+    // Let the mobile menu close before scrolling. CSS owns the clearance.
     frameRef.current = window.requestAnimationFrame(() => {
       frameRef.current = null;
       const section = findSection(hash);
@@ -28,13 +29,15 @@ export default function useLandingSectionNavigation() {
       const content = section.querySelector<HTMLElement>('[data-landing-anchor]')
         ?? section.firstElementChild;
       const target = section.id === 'top' || !(content instanceof HTMLElement) ? section : content;
-      target.scrollIntoView({ behavior, block: 'start' });
+      if (!scrollTo?.(target, { behavior, block: 'start' })) {
+        target.scrollIntoView({ behavior, block: 'start' });
+      }
       if (moveFocus) {
         section.tabIndex = -1;
         section.focus({ preventScroll: true });
       }
     });
-  }, [findSection]);
+  }, [findSection, scrollTo]);
 
   useEffect(() => {
     const restoreSection = () => scrollToSection(window.location.hash, 'auto');

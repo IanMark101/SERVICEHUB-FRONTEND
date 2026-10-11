@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { api, setAccessToken } from '../lib/api/axios';
-import { apiRecoverSession } from './auth.api';
+import { apiGetCaptchaPolicy, apiRecoverSession } from './auth.api';
 import { clearSessionHint, markSessionPresent } from '../lib/browserStorage';
 
 vi.mock('../lib/browserStorage', () => ({
@@ -23,6 +23,35 @@ function deferred<T>() {
 const signedIn = { data: { success: true, data: { authenticated: true, accessToken: 'verified-token' } } };
 const profile = { data: { success: true, data: { user: { id: 'account', role: 'user' } } } };
 const guest = { data: { success: true, data: { authenticated: false } } };
+
+describe('CAPTCHA policy transport', () => {
+  beforeEach(() => vi.resetAllMocks());
+
+  it('requests the backend public policy with cancellation and a bounded timeout', async () => {
+    const policy = { enabled: true, siteKey: 'public-site-key', loginRequired: true };
+    vi.mocked(api.get).mockResolvedValue({ data: { success: true, data: policy } });
+    const controller = new AbortController();
+    expect(await apiGetCaptchaPolicy(controller.signal)).toEqual(policy);
+    expect(api.get).toHaveBeenCalledWith('/auth/captcha-config', { signal: controller.signal, timeout: 10_000 });
+  });
+
+  it('accepts explicit disabled protection from the backend', async () => {
+    const policy = { enabled: false, siteKey: '', loginRequired: false };
+    vi.mocked(api.get).mockResolvedValue({ data: { success: true, data: policy } });
+    expect(await apiGetCaptchaPolicy()).toEqual(policy);
+  });
+
+  it.each([
+    { success: false, data: { enabled: false, siteKey: '', loginRequired: false } },
+    { success: true, data: { enabled: 'true', siteKey: 'public-key', loginRequired: false } },
+    { success: true, data: { enabled: true, siteKey: '', loginRequired: false } },
+    { success: true, data: { enabled: true, siteKey: 'public-key' } },
+    { success: true },
+  ])('rejects a malformed policy instead of treating it as disabled: %j', async payload => {
+    vi.mocked(api.get).mockResolvedValue({ data: payload });
+    await expect(apiGetCaptchaPolicy()).rejects.toThrow('Security verification settings could not load');
+  });
+});
 
 describe('bounded initial session recovery', () => {
   beforeEach(() => {

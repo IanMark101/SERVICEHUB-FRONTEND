@@ -1,6 +1,7 @@
 import MarketplacePresentation from '../marketplace/MarketplacePresentation';
 import { orderServiceCategories } from '../../lib/category-catalog';
 import useNearbyMarketplace from '../../hooks/useNearbyMarketplace';
+import MarketplaceSearchHeader from '../marketplace/MarketplaceSearchHeader';
 import MarketplaceLocationControl from '../location/MarketplaceLocationControl';
 import MarketplaceEmptyState from '../location/MarketplaceEmptyState';
 import MarketplaceResultsSummary from '../location/MarketplaceResultsSummary';
@@ -9,7 +10,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ServiceListing } from '../../types';
-import { MagnifyingGlass as Search } from '@phosphor-icons/react';
 import RequestServiceModal from './RequestServiceModal';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
@@ -176,51 +176,12 @@ export default function SeekServices() {
 
       <LimitedModeDashboardCard role="seeker" />
 
-      <div className="relative overflow-hidden rounded-2xl border border-black/[0.07] bg-gradient-to-b from-[#fffdfa] to-[#faf8f5] px-4 py-5 text-center shadow-[0_2px_12px_-4px_rgba(23,23,22,0.05)] transition-colors sm:px-8 sm:py-7 dark:border-white/[0.08] dark:bg-none dark:bg-charcoal-surface dark:shadow-none">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
-        <div className="relative z-10 mx-auto w-full max-w-2xl space-y-2">
-          <h2 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-ink dark:text-white sm:text-3xl">Find local experts for any task.</h2>
-          <p className="mx-auto max-w-md text-xs leading-relaxed text-ink-muted dark:text-ink-muted sm:text-sm">Browse provider services nearby, then narrow by service, category or availability.</p>
-          <form role="search" onSubmit={(event) => {
-            event.preventDefault();
-            nearby.submitSearch?.();
-            if (!nearby.location) { setLocationOpen(true); return; }
-            document.getElementById('service-results')?.scrollIntoView({
-              behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-              block: 'start',
-            });
-          }} className={`service-search-control mx-auto mt-4 flex w-full max-w-xl min-w-0 items-center rounded-xl border p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-brand/20 ${
-            isDark ? 'bg-charcoal-inset border-neutral-800' : 'bg-white border-black/10'
-          }`}>
-            <span className={`pl-3 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-              <Search className="w-4 h-4" />
-            </span>
-            <label htmlFor="service-search-query" className="sr-only">Search service listings</label>
-            <input
-              id="service-search-query"
-              type="text"
-              maxLength={100}
-              placeholder="What service are you looking for?"
-              value={searchQuery}
-              onChange={(e) => {
-                setLinkedServiceId(null);
-                setSearchQuery(e.target.value);
-              }}
-              className={`service-search-input min-w-0 flex-1 border-none bg-transparent px-3 py-2 text-sm focus:outline-none ${
-                isDark ? 'text-white placeholder:text-ink-muted' : 'text-ink placeholder:text-ink-muted'
-              }`}
-            />
-            <button
-              type="submit"
-              aria-controls="service-results"
-              className="workspace-primary-button flex-shrink-0 rounded-lg border px-3 py-2 text-xs font-bold transition-all sm:px-5"
-            >
-              Search
-            </button>
-          </form>
-          <MarketplaceLocationControl workspace="seeker" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation} />
-        </div>
-      </div>
+      <MarketplaceSearchHeader role="seeker" isDark={isDark} value={searchQuery} onQueryChange={query => { setLinkedServiceId(null); setSearchQuery(query); }} resultsId="service-results" locationControl={<MarketplaceLocationControl workspace="seeker" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation} />} onSubmit={(event) => {
+        event.preventDefault();
+        nearby.submitSearch?.();
+        if (!nearby.location) { setLocationOpen(true); return; }
+        document.getElementById('service-results')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      }} />
 
       <MarketplacePresentation role="seeker">
       <div role="group" aria-label="Quick service filters" className="marketplace-filter-row">

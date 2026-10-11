@@ -1,27 +1,29 @@
-/* ServiceHub orange. Edit this palette to rebrand every orange surface.
-   The reference orange is an accent; actions and text use readable shades. */
+/* ServiceHub orange: one source for actions, accents, tints and legacy utilities.
+   Text shades preserve the same hue while remaining readable on light surfaces. */
 @theme {
   --color-brand: #ff6b00;
-  --color-brand-action: #c24c00;
-  --color-brand-action-hover: #a64000;
-  --color-brand-heading: #df5b00;
-  --color-brand-text: #b84700;
-  --color-brand-focus: #c24c00;
-  --color-brand-on-dark: #ff9a52;
-  --color-brand-soft: #fff4eb;
-  --color-brand-border: #ffc799;
+  --color-brand-action: var(--color-brand);
+  --color-brand-action-hover: color-mix(in srgb, var(--color-brand) 92%, black);
+  --color-brand-action-active: color-mix(in srgb, var(--color-brand) 85%, black);
+  --color-brand-heading: var(--color-brand);
+  --color-brand-ink: color-mix(in srgb, var(--color-brand) 74%, black);
+  --color-brand-text: var(--color-brand-ink);
+  --color-brand-focus: var(--color-brand);
+  --color-brand-on-dark: color-mix(in srgb, var(--color-brand) 70%, white);
+  --color-brand-soft: color-mix(in srgb, var(--color-brand) 7%, white);
+  --color-brand-border: color-mix(in srgb, var(--color-brand) 35%, white);
 
   --color-orange-50: var(--color-brand-soft);
-  --color-orange-100: #ffe5d0;
+  --color-orange-100: color-mix(in srgb, var(--color-brand) 14%, white);
   --color-orange-200: var(--color-brand-border);
-  --color-orange-300: #ffad66;
-  --color-orange-400: #ff9140;
-  --color-orange-500: var(--color-brand-action);
-  --color-orange-600: var(--color-brand-action);
-  --color-orange-700: #b84700;
-  --color-orange-800: #963a00;
-  --color-orange-900: #732c00;
-  --color-orange-950: #3c1700;
+  --color-orange-300: color-mix(in srgb, var(--color-brand) 65%, white);
+  --color-orange-400: color-mix(in srgb, var(--color-brand) 85%, white);
+  --color-orange-500: var(--color-brand);
+  --color-orange-600: var(--color-brand-action-hover);
+  --color-orange-700: var(--color-brand-ink);
+  --color-orange-800: color-mix(in srgb, var(--color-brand) 62%, black);
+  --color-orange-900: color-mix(in srgb, var(--color-brand) 35%, black);
+  --color-orange-950: color-mix(in srgb, var(--color-brand) 18%, black);
 
   /* Existing utilities remain compatible with the shared palette. */
   --color-claude-50: var(--color-orange-50);

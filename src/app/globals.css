@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./brand.css";
 @import "tw-animate-css";
+@import "lenis/dist/lenis.css";
 @import "shadcn/tailwind.css";
 @import "../components/ui/responsive.css";
 
@@ -22,6 +23,13 @@
   --color-provider-primary: #059669;
   --color-provider-hover: #047857;
   --color-provider-navigation: #087e5f;
+
+  /* Product tones derive from the brand; landing colors keep their own ramp. */
+  --color-dashboard-action: color-mix(in srgb, var(--color-brand) 74%, black);
+  --color-dashboard-action-hover: color-mix(in srgb, var(--color-brand) 66%, black);
+  --color-dashboard-action-active: color-mix(in srgb, var(--color-brand) 60%, black);
+  --color-dashboard-soft: color-mix(in srgb, var(--color-brand) 5%, white);
+  --color-dashboard-border: color-mix(in srgb, var(--color-brand) 22%, white);
 
   --color-community-light: #f1f5f9;
   --color-community-primary: #334155;
@@ -676,6 +684,32 @@ body:has(.landing-shell) {
 
 /* Authenticated marketplace visual system. The workspace layout stays intact;
    these tokens align its surfaces and interactions with the landing page. */
+/* Scope the quieter palette to product UI, including its body portals.
+   A landing page can contain inert workspace previews; those must not retheme
+   the surrounding landing page or its separate phone illustration. */
+.workspace-shell,
+body:has(.workspace-shell):not(:has(.landing-shell)) {
+  --color-brand-action: var(--color-dashboard-action);
+  --color-brand-action-hover: var(--color-dashboard-action-hover);
+  --color-brand-action-active: var(--color-dashboard-action-active);
+  --color-brand-soft: var(--color-dashboard-soft);
+  --color-brand-border: var(--color-dashboard-border);
+  --color-orange-50: var(--color-dashboard-soft);
+  --color-orange-100: color-mix(in srgb, var(--color-brand) 10%, white);
+  --color-orange-200: var(--color-dashboard-border);
+  --color-orange-600: var(--color-dashboard-action);
+  --color-orange-700: var(--color-dashboard-action-hover);
+  --color-seeker-light: var(--color-dashboard-soft);
+  --color-seeker-primary: var(--color-dashboard-action);
+  --color-seeker-navigation: var(--color-dashboard-action);
+  --color-seeker-hover: var(--color-dashboard-action-hover);
+  --color-claude-50: var(--color-dashboard-soft);
+  --color-claude-100: var(--color-orange-100);
+  --color-claude-200: var(--color-dashboard-border);
+  --color-claude-600: var(--color-dashboard-action);
+  --color-claude-700: var(--color-dashboard-action-hover);
+}
+
 .workspace-shell {
   --workspace-canvas: #f7f6f3;
   --workspace-surface: #fffdfa;
@@ -684,7 +718,7 @@ body:has(.landing-shell) {
   --workspace-muted: var(--text-muted);
   --workspace-border: rgba(23, 23, 22, 0.08);
   --workspace-border-strong: rgba(23, 23, 22, 0.16);
-  --workspace-focus: var(--color-brand-focus);
+  --workspace-focus: var(--color-brand-text);
   --workspace-header-bg: rgba(255, 253, 250, 0.85);
   --workspace-ease: cubic-bezier(0.16, 1, 0.3, 1);
   background: var(--workspace-canvas);
@@ -852,11 +886,10 @@ body:has(.landing-shell) {
   border-bottom: none;
 }
 
-/* Carry the role wash behind both header and content so they read as one
-   continuous workspace rather than two stacked canvases. */
+/* A restrained role wash connects the header and content without a colored halo. */
 .workspace-stage {
   background:
-    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--workspace-focus) 5%, transparent), transparent 34rem),
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--workspace-focus) 2%, transparent), transparent 34rem),
     var(--workspace-canvas);
   background-attachment: local;
   background-repeat: no-repeat;
@@ -898,15 +931,15 @@ body:has(.landing-shell) {
 }
 
 .workspace-header-role-mark {
-  border: 1px solid color-mix(in srgb, var(--workspace-focus) 24%, transparent);
-  background: color-mix(in srgb, var(--workspace-focus) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--workspace-focus) 18%, transparent);
+  background: color-mix(in srgb, var(--workspace-focus) 5%, transparent);
   color: var(--workspace-focus);
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 58%, transparent);
 }
 
 .dark .workspace-header-role-mark {
-  border-color: color-mix(in srgb, var(--workspace-focus) 34%, transparent);
-  background: color-mix(in srgb, var(--workspace-focus) 16%, transparent);
+  border-color: color-mix(in srgb, var(--workspace-focus) 26%, transparent);
+  background: color-mix(in srgb, var(--workspace-focus) 10%, transparent);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
@@ -923,7 +956,7 @@ body:has(.landing-shell) {
 /* ServiceHub system states: route errors, access boundaries, and recovery UI. */
 .system-state-page {
   --system-accent: var(--color-brand-text);
-  --system-accent-soft: #f7ede8;
+  --system-accent-soft: var(--color-brand-soft);
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -2031,7 +2064,7 @@ body:has(.landing-shell) {
 }
 
 .workspace-profile-hero--seeker {
-  --workspace-profile-accent: var(--color-brand-text);
+  --workspace-profile-accent: var(--color-brand);
 }
 
 .workspace-profile-hero--provider {

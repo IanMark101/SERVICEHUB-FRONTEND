@@ -2,9 +2,10 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import useLandingSectionNavigation from './useLandingSectionNavigation';
+import type { LandingScrollTo } from './useLandingSmoothScroll';
 
-function NavigationFixture() {
-  const { shellRef, handleSectionClick } = useLandingSectionNavigation();
+function NavigationFixture({ scrollTo }: { scrollTo?: LandingScrollTo }) {
+  const { shellRef, handleSectionClick } = useLandingSectionNavigation(scrollTo);
   return (
     <div ref={shellRef} onClick={handleSectionClick}>
       <header style={{ top: 16 }}><div data-landing-header-bar /></header>
@@ -107,5 +108,24 @@ describe('landing section framing', () => {
     render(<NavigationFixture />);
     fireEvent.click(screen.getByRole('link', { name: 'Queue' }), { ctrlKey: true });
     expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('coordinates links and history with the active smoother while preserving focus and URLs', () => {
+    const scrollTo = vi.fn<LandingScrollTo>(() => true);
+    render(<NavigationFixture scrollTo={scrollTo} />);
+    fireEvent.click(screen.getByRole('link', { name: 'Reviews' }));
+    expect(scrollTo).toHaveBeenLastCalledWith(document.querySelector('#reviews > div'), { block: 'start', behavior: 'smooth' });
+    expect(document.activeElement).toBe(document.getElementById('reviews'));
+    expect(window.location.hash).toBe('#reviews');
+    window.history.replaceState(null, '', '/#queue');
+    fireEvent.popState(window);
+    expect(scrollTo).toHaveBeenLastCalledWith(document.querySelector('#queue > div'), { block: 'start', behavior: 'auto' });
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('falls back to native navigation when smoothing is disabled', () => {
+    render(<NavigationFixture scrollTo={() => false} />);
+    fireEvent.click(screen.getByRole('link', { name: 'Reviews' }));
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'start', behavior: 'smooth' });
   });
 });

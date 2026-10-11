@@ -1,0 +1,2 @@
+.viewport { position: relative; min-width: 0; width: 100%; aspect-ratio: 1440 / 1000; overflow: hidden; }
+.canvas { position: absolute; top: 0; left: 0; transform: scale(.5); transform-origin: top left; pointer-events: none; user-select: none; }

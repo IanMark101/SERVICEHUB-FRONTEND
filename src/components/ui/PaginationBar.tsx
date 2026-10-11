@@ -14,7 +14,7 @@ interface PaginationBarProps {
   variant?: 'seeker' | 'provider' | 'admin';
 }
 
-export default function PaginationBar({
+export function PaginationBarView({
   currentPage,
   totalPages,
   goToPage,
@@ -23,9 +23,9 @@ export default function PaginationBar({
   startIndex,
   endIndex,
   totalItems,
+  isDark,
   variant = 'seeker'
-}: PaginationBarProps) {
-  const { isDark } = useApp();
+}: PaginationBarProps & { isDark: boolean }) {
 
   if (totalItems === 0) return null;
 
@@ -141,4 +141,9 @@ export default function PaginationBar({
       </div>
     </div>
   );
+}
+
+export default function PaginationBar(props: PaginationBarProps) {
+  const { isDark } = useApp();
+  return <PaginationBarView {...props} isDark={isDark} />;
 }

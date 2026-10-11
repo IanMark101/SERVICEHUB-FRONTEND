@@ -15,7 +15,7 @@ import {
   DeviceMobile as Smartphone,
 } from '@phosphor-icons/react';
 import type { ServiceListing } from '../../../types';
-import PaginationBar from '../../ui/PaginationBar';
+import { PaginationBarView } from '../../ui/PaginationBar';
 import EmptyState from '../../ui/EmptyState';
 import MarketplaceEmptyState from '../../location/MarketplaceEmptyState';
 import type { MarketplaceLocation } from '../../../lib/location';
@@ -25,6 +25,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { JobEngagement, User } from '../../../types';
 import type { UserSession } from '../../auth/LoginContainer';
 import UserAvatar from '../../ui/UserAvatar';
+import ContentCaseTrigger from '../../moderation/ContentCaseTrigger';
 import ContentCaseAction from '../../moderation/ContentCaseAction';
 import ServiceDetailsModal from './ServiceDetailsModal';
 
@@ -67,7 +68,7 @@ interface ServiceMarketplaceGridModel {
   prefetchProviderSummary: (listing: ServiceListing) => void;
 }
 
-export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarketplaceGridModel }) {
+export default function ServiceMarketplaceGrid({ model, readOnly = false }: { model: ServiceMarketplaceGridModel; readOnly?: boolean }) {
   const {
     router,
     isDark,
@@ -280,14 +281,14 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
                           <MarketplaceRating rating={service.rating} reviewCount={service.reviewCount} context="provider" />
                         </button>
                         {!isOwned && (
-                          <ContentCaseAction
+                          (readOnly ? <ContentCaseTrigger label="Report listing" variant="icon" isDark={isDark} /> : <ContentCaseAction
                             caseType="REPORT"
                             contentType="SERVICE_LISTING"
                             resourceId={service.id}
                             label="Report listing"
                             variant="icon"
                             isDark={isDark}
-                          />
+                          />)
                         )}
                       </div>
                     </div>
@@ -525,7 +526,8 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
             })}
           </div>
 
-          <PaginationBar
+          <PaginationBarView
+            isDark={isDark}
             currentPage={currentPage}
             totalPages={totalPages}
             goToPage={goToPage}
@@ -540,7 +542,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
       )}
 
       {/* Service Details Inspection Modal */}
-      <ServiceDetailsModal
+      {!readOnly && <ServiceDetailsModal
         listing={previewListing}
         isOpen={!!previewListing}
         onClose={() => setPreviewListing(null)}
@@ -561,7 +563,7 @@ export default function ServiceMarketplaceGrid({ model }: { model: ServiceMarket
         isDark={isDark}
         router={router}
         prefetchProviderSummary={prefetchProviderSummary}
-      />
+      />}
     </>
   );
 }

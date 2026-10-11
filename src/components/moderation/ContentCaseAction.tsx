@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { Flag } from '@phosphor-icons/react';
+import ContentCaseTrigger from './ContentCaseTrigger';
 import { apiSubmitContentCase, type ContentCaseType, type ModeratedContentType } from '../../api/contentCases.api';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import { useToast } from '../ui/Toast';
@@ -53,37 +53,7 @@ export default function ContentCaseAction({
   const actionText = label || (caseType === 'REPORT' ? 'Report content' : 'Appeal decision');
 
   return <>
-    {variant === 'icon' ? (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        title={customTitle || actionText}
-        aria-label={customTitle || actionText}
-        className={
-          className ||
-          `p-1.5 rounded-lg transition-colors flex items-center justify-center cursor-pointer select-none ${
-            isDark
-              ? 'text-neutral-500 hover:text-red-400 hover:bg-charcoal'
-              : 'text-slate-400 hover:text-red-600 hover:bg-slate-100'
-          }`
-        }
-      >
-        <Flag className="w-3.5 h-3.5" weight="duotone" />
-      </button>
-    ) : (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={
-          className ||
-          `rounded-lg px-2 py-1 text-xs font-semibold   focus-visible:outline-2 focus-visible:outline-offset-2 ${
-            isDark ? 'text-neutral-300' : 'text-ink-muted'
-          }`
-        }
-      >
-        {actionText}
-      </button>
-    )}
+    <ContentCaseTrigger variant={variant} className={className} isDark={isDark} title={customTitle} label={actionText} onClick={() => setOpen(true)} />
     {open && typeof document !== 'undefined' && createPortal(<div ref={dialogRef} tabIndex={-1} className="fixed inset-0 z-[80] flex items-center justify-center bg-charcoal/70 p-4" role="presentation">
       <form onSubmit={send} role="dialog" aria-modal="true" aria-labelledby="content-case-title" aria-busy={sending} className={`servicehub-dialog w-full max-w-lg space-y-4 rounded-2xl border p-6 shadow-2xl ${isDark ? 'border-neutral-700 bg-charcoal-surface text-white' : 'border-slate-200 bg-white text-ink'}`}>
         <h2 id="content-case-title" className="text-lg font-bold">{title}</h2>

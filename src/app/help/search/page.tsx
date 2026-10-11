@@ -1,10 +1,12 @@
 import React from 'react';
 import { Metadata } from 'next';
 import HelpSearchPage from '@/features/help/pages/HelpSearchPage';
+import { PRIVATE_ROBOTS } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Search Help & Documentation | ServiceHub',
+  title: 'Search Help & Documentation',
   description: 'Search guides and articles across ServiceHub.',
+  robots: PRIVATE_ROBOTS,
 };
 
 export default async function Page({ searchParams }: {

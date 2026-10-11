@@ -61,7 +61,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
   const reduce = useReducedMotion();
   const flow = role === 'seeker' ? seekerFlow : providerFlow;
   const roleColor = role === 'seeker'
-    ? 'text-brand-text focus-visible:outline-brand-focus'
+    ? 'text-brand focus-visible:outline-brand-focus'
     : 'text-provider-hover dark:text-emerald-400 focus-visible:outline-provider-navigation';
 
   return (
@@ -81,7 +81,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
               const active = role === item;
               return (
                 <button key={item} type="button" onClick={() => setRole(item)} aria-pressed={active} aria-controls="service-journey" className={`relative min-h-11 rounded-lg px-4 py-2 text-xs font-bold capitalize transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 ${item === 'seeker' ? 'focus-visible:outline-brand-focus' : 'focus-visible:outline-provider-navigation'} ${active ? 'text-white' : 'text-neutral-600 hover:text-[#0a0a0a] dark:text-zinc-400 dark:hover:text-white'}`}>
-                  {active && <motion.span aria-hidden="true" layoutId="active-role-tab" className={`absolute inset-0 rounded-lg shadow-xs ${item === 'seeker' ? 'bg-seeker-primary' : 'bg-provider-navigation'}`} transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }} />}
+                  {active && <motion.span aria-hidden="true" layoutId="active-role-tab" className={`absolute inset-0 rounded-lg shadow-xs ${item === 'seeker' ? 'bg-brand' : 'bg-provider-navigation'}`} transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }} />}
                   <span className="relative z-10">{item === 'seeker' ? 'Seeking services' : 'Offering services'}</span>
                 </button>
               );
@@ -95,7 +95,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
             return (
               <li key={item.title} className="relative flex flex-col rounded-2xl border border-slate-200/90 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70 sm:p-8">
                 <div className="flex items-center justify-between">
-                  <span className={`grid size-12 place-items-center rounded-xl ${role === 'seeker' ? 'bg-seeker-light text-brand-text dark:bg-orange-950/40' : 'bg-provider-light text-provider-hover dark:bg-emerald-950/40 dark:text-emerald-400'}`}><Icon size={22} aria-hidden="true" /></span>
+                  <span className={`grid size-12 place-items-center rounded-xl ${role === 'seeker' ? 'bg-seeker-light text-brand dark:bg-orange-950/40' : 'bg-provider-light text-provider-hover dark:bg-emerald-950/40 dark:text-emerald-400'}`}><Icon size={22} aria-hidden="true" /></span>
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600 dark:bg-charcoal dark:text-zinc-400">0{index + 1}</span>
                 </div>
                 <p className="mt-7 text-xs font-bold text-neutral-500 dark:text-zinc-400">{item.step}</p>
@@ -108,7 +108,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
 
         <nav id="queue" aria-label="Service rules" className="mt-10 flex flex-wrap gap-x-8 gap-y-3.5 border-t border-slate-200/80 pt-6 text-xs font-semibold text-neutral-600 dark:border-zinc-800 dark:text-zinc-400">
           {helpLinks.map(({ href, label }) => (
-            <Link key={href} href={href} className={`group inline-flex min-h-11 items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 ${role === 'seeker' ? 'hover:text-brand-text focus-visible:outline-brand-focus' : 'hover:text-provider-hover dark:hover:text-emerald-400 focus-visible:outline-provider-navigation'}`}>
+            <Link key={href} href={href} className={`group inline-flex min-h-11 items-center gap-2 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 ${role === 'seeker' ? 'hover:text-neutral-900 dark:hover:text-white focus-visible:outline-brand-focus' : 'hover:text-provider-hover dark:hover:text-emerald-400 focus-visible:outline-provider-navigation'}`}>
               <ArrowDown size={16} className={roleColor} aria-hidden="true" />{label}
             </Link>
           ))}

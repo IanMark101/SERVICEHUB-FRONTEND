@@ -1,12 +1,13 @@
 .presentation {
-  --market-accent: var(--color-brand-focus);
+  --market-accent: var(--color-brand-text);
   --market-button: var(--color-seeker-primary, var(--color-brand-action));
   --market-button-hover: var(--color-seeker-hover);
-  --market-scrollbar: var(--color-seeker-navigation, var(--color-seeker-primary));
-  --market-scrollbar-interaction: color-mix(in srgb, var(--market-scrollbar) 94%, #000);
-  --market-tint: color-mix(in srgb, var(--market-accent) 7%, var(--workspace-surface, #fffdfa));
-  --market-label: var(--color-orange-900);
-  --market-border: color-mix(in srgb, var(--market-accent) 32%, var(--workspace-surface, #fffdfa));
+  --market-scrollbar: #8b8680;
+  --market-scrollbar-interaction: #68635d;
+  --market-scrollbar-track: #eeece9;
+  --market-tint: var(--color-seeker-light);
+  --market-label: var(--color-brand-text);
+  --market-border: var(--color-brand-border);
   min-width: 0;
   container-type: inline-size;
 }
@@ -14,7 +15,6 @@
   --market-accent: #059669;
   --market-button: var(--color-provider-hover, #047857);
   --market-button-hover: #065f46;
-  --market-scrollbar: var(--color-provider-navigation, #087e5f);
   --market-tint: #ecfdf5;
   --market-label: #047857;
   --market-border: #a7f3d0;
@@ -27,7 +27,7 @@
   min-width: 0; max-width: 100%; overflow-x: auto; overflow-y: hidden;
   overscroll-behavior-x: contain; overscroll-behavior-y: auto;
   padding: 8px 8px 12px; scroll-padding-inline: 8px;
-  scrollbar-width: thin; scrollbar-color: var(--market-scrollbar) var(--market-tint) !important;
+  scrollbar-width: thin; scrollbar-color: var(--market-scrollbar) var(--market-scrollbar-track) !important;
 }
 .presentation :global(.marketplace-category-row) > :global(.marketplace-chip) {
   flex: 0 0 auto; max-width: none; white-space: nowrap; overflow-wrap: normal;
@@ -36,7 +36,7 @@
 @supports selector(::-webkit-scrollbar) {
   .presentation :global(.marketplace-category-row) { scrollbar-width: auto; scrollbar-color: auto !important; }
   .presentation :global(.marketplace-category-row)::-webkit-scrollbar { height: 6px !important; }
-  .presentation :global(.marketplace-category-row)::-webkit-scrollbar-track { background: var(--market-tint) !important; border-radius: 999px; }
+  .presentation :global(.marketplace-category-row)::-webkit-scrollbar-track { background: var(--market-scrollbar-track) !important; border-radius: 999px; }
   .presentation :global(.marketplace-category-row)::-webkit-scrollbar-thumb { background: var(--market-scrollbar) !important; border-radius: 999px !important; }
   .presentation :global(.marketplace-category-row)::-webkit-scrollbar-thumb:hover,
   .presentation :global(.marketplace-category-row)::-webkit-scrollbar-thumb:active { background: var(--market-scrollbar-interaction) !important; }
@@ -69,7 +69,7 @@
 .presentation :global(.marketplace-card) :global(.text-\[10px\]), .presentation :global(.marketplace-card) :global(.text-\[11px\]) { font-size: 12px; }
 .presentation :global(.marketplace-results) :global(.overflow-x-auto) { flex-wrap: wrap; overflow-x: visible; gap: 6px; }
 .presentation :global(.marketplace-results) :global(.overflow-x-auto) > * { margin-left: 0; }
-:global(.dark) .presentation { --market-label: var(--color-brand-on-dark); --market-tint: color-mix(in srgb, var(--color-brand) 14.12%, transparent); --market-border: color-mix(in srgb, var(--color-brand) 40.00%, transparent); }
+:global(.dark) .presentation { --market-label: var(--color-brand-on-dark); --market-tint: color-mix(in srgb, var(--color-brand) 8%, transparent); --market-border: color-mix(in srgb, var(--color-brand) 26%, transparent); --market-scrollbar: #77736d; --market-scrollbar-interaction: #a6a09a; --market-scrollbar-track: #252423; }
 :global(.dark) .presentation[data-marketplace-role='provider'] { --market-label: #9be5c2; --market-tint: #05966924; --market-border: #05966966; }
 :global(.dark) .presentation :global(.marketplace-chip), :global(.dark) .presentation :global(.marketplace-card) { background: #0a0a0a; border-color: #424242; color: #b4b4b4; }
 :global(.dark) .presentation :global(.marketplace-chip[aria-pressed='true']) { border-color: var(--market-border); background: var(--market-tint); color: var(--market-label); }

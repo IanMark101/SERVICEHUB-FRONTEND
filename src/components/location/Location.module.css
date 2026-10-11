@@ -1,4 +1,4 @@
-.control { --location-accent:var(--color-brand-focus); --location-tint:color-mix(in srgb,var(--location-accent) 7%,var(--workspace-surface,#fffdfa)); --location-border:color-mix(in srgb,var(--location-accent) 32%,var(--workspace-surface,#fffdfa)); --location-icon:color-mix(in srgb,var(--location-accent) 16%,var(--workspace-surface,#fffdfa)); --location-action:var(--color-seeker-primary); display:flex; justify-content:center; min-width:0; max-width:32rem; margin:12px auto 0; }
+.control { --location-accent:var(--color-brand-text); --location-tint:var(--color-seeker-light); --location-border:var(--color-brand-border); --location-icon:var(--color-orange-100); --location-action:var(--color-seeker-primary); display:flex; justify-content:center; min-width:0; max-width:32rem; margin:12px auto 0; }
 .control[data-workspace='provider'] { --location-accent:var(--color-provider-hover,#047857); --location-tint:var(--color-provider-light,#ecfdf5); --location-border:#a7dfc8; --location-icon:#d8f1e6; --location-action:var(--color-provider-hover,#047857); }
 .trigger, .button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; border:1px solid #d6d1cc; border-radius:12px; font:inherit; font-size:14px; font-weight:600; cursor:pointer; background:#fffdfa; color:#242423; }
 .trigger { width:100%; justify-content:flex-start; text-align:left; min-width:0; max-width:100%; gap:12px; padding:10px 12px; border-color:var(--location-border); background:var(--location-tint); color:var(--text-primary,#242423); font-size:14px; transition:background-color 160ms ease,border-color 160ms ease; }
@@ -54,7 +54,7 @@
 .fieldGroup { min-width:0; }
 .fieldGroup > .hint { margin-top:6px; }
 :global(.dark) .panel, :global(.dark) .button:not(.primary) { background:#191a19; color:#f5f3f0; border-color:#454642; }
-:global(.dark) .control { --location-tint:color-mix(in srgb,var(--location-accent) 14%,#191a19); --location-border:color-mix(in srgb,var(--location-accent) 45%,#191a19); --location-icon:color-mix(in srgb,var(--location-accent) 24%,#191a19); }
+:global(.dark) .control { --location-tint:color-mix(in srgb,var(--color-brand) 8%,#191a19); --location-border:color-mix(in srgb,var(--location-accent) 26%,#191a19); --location-icon:color-mix(in srgb,var(--color-brand) 14%,#191a19); }
 :global(.dark) .control[data-workspace='provider'] { --location-accent:#9be5c2; --location-tint:#11251e; --location-border:#295742; --location-icon:#1b392c; }
 :global(.dark) .trigger { color:#f5f3f0; }
 :global(.dark) .field { background:#101110; border-color:#454642; color:#f5f3f0; }
