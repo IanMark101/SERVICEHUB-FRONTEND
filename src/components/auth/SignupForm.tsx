@@ -28,6 +28,7 @@ interface SignupFormProps {
   register: UseFormRegister<AuthFormValues>;
   setValue: UseFormSetValue<AuthFormValues>;
   isLoading?: boolean;
+  isCheckingEmail?: boolean;
 }
 
 export default function SignupForm({
@@ -50,6 +51,7 @@ export default function SignupForm({
   register,
   setValue,
   isLoading = false,
+  isCheckingEmail = false,
 }: SignupFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState<boolean>(false);
@@ -100,6 +102,7 @@ export default function SignupForm({
     .every((part) => part.trim().length > 0);
 
   const isNextDisabled = (step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid);
+  const busy = isLoading || isCheckingEmail;
 
   return (
     <div className="space-y-6">
@@ -196,6 +199,7 @@ export default function SignupForm({
             <button
               type="button"
               onClick={handlePrevStep}
+              disabled={busy}
               className="flex w-1/3 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-black/[0.08] bg-white py-3 text-xs font-bold text-ink-secondary shadow-xs transition-all hover:bg-slate-50 active:scale-[0.98] dark:border-white/10 dark:bg-charcoal/80 dark:text-ink"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -206,25 +210,28 @@ export default function SignupForm({
           <button
             type="submit"
             onClick={step < 3 ? (e) => { e.preventDefault(); handleNextStep(); } : undefined}
-            disabled={isLoading || (step < 3 ? isNextDisabled : captcha.blocked)}
-            aria-disabled={isLoading || (step < 3 ? isNextDisabled : captcha.blocked)}
+            disabled={busy || (step < 3 ? isNextDisabled : captcha.blocked)}
+            aria-disabled={busy || (step < 3 ? isNextDisabled : captcha.blocked)}
+            aria-busy={busy}
             aria-describedby={step === 1 && !formData.agreeTerms ? 'agreeTerms-help' : undefined}
             className={`flex flex-grow items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
-              isLoading
+              busy
                 ? 'servicehub-dark-cta cursor-wait bg-charcoal text-white dark:bg-brand-on-dark dark:text-charcoal'
                 : (step < 3 ? isNextDisabled : captcha.blocked)
                   ? 'bg-slate-200 dark:bg-charcoal text-ink-subtle dark:text-ink-subtle cursor-not-allowed shadow-none'
                   : 'servicehub-dark-cta cursor-pointer bg-charcoal text-white hover:bg-charcoal active:translate-y-px dark:bg-brand-on-dark dark:text-charcoal dark:hover:bg-orange-400'
             }`}
           >
-            {isLoading ? (
+            {isCheckingEmail ? (
+              <span className="relative z-10">Checking email...</span>
+            ) : isLoading ? (
               <span className="relative z-10">Creating account...</span>
             ) : (
               <span className="relative z-10">{step === 3 ? 'Complete Registration' : 'Next Step'}</span>
             )}
           </button>
         </div>
-        {isLoading && <div className="brand-loading__track mt-2" role="status" aria-label="Creating account"><span /></div>}
+        {busy && <div className="brand-loading__track mt-2" role="status" aria-label={isCheckingEmail ? 'Checking email' : 'Creating account'}><span /></div>}
       </form>
 
       {/* Google Login Component for Easy Registration */}
@@ -246,7 +253,7 @@ export default function SignupForm({
             onError={setError}
             isDark={isDark}
             mode="signup"
-            disabled={isLoading}
+            disabled={busy}
             step={step}
           />
           <p className="text-[10px] text-ink-subtle dark:text-ink-subtle text-center leading-relaxed px-1">

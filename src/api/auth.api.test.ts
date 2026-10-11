@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { api, setAccessToken } from '../lib/api/axios';
-import { apiGetCaptchaPolicy, apiRecoverSession } from './auth.api';
+import { api, publicApi, setAccessToken } from '../lib/api/axios';
+import { apiCheckRegistrationEmail, apiGetCaptchaPolicy, apiRecoverSession } from './auth.api';
 import { clearSessionHint, markSessionPresent } from '../lib/browserStorage';
 
 vi.mock('../lib/browserStorage', () => ({
@@ -10,6 +10,7 @@ vi.mock('../lib/browserStorage', () => ({
 
 vi.mock('../lib/api/axios', () => ({
   api: { post: vi.fn(), get: vi.fn() },
+  publicApi: { get: vi.fn(), post: vi.fn() },
   setAccessToken: vi.fn(),
   getSessionGeneration: () => 0,
 }));
@@ -29,15 +30,16 @@ describe('CAPTCHA policy transport', () => {
 
   it('requests the backend public policy with cancellation and a bounded timeout', async () => {
     const policy = { enabled: true, siteKey: 'public-site-key', loginRequired: true };
-    vi.mocked(api.get).mockResolvedValue({ data: { success: true, data: policy } });
+    vi.mocked(publicApi.get).mockResolvedValue({ data: { success: true, data: policy } });
     const controller = new AbortController();
     expect(await apiGetCaptchaPolicy(controller.signal)).toEqual(policy);
-    expect(api.get).toHaveBeenCalledWith('/auth/captcha-config', { signal: controller.signal, timeout: 10_000 });
+    expect(publicApi.get).toHaveBeenCalledWith('/auth/captcha-config', { signal: controller.signal, timeout: 10_000 });
+    expect(api.get).not.toHaveBeenCalled();
   });
 
   it('accepts explicit disabled protection from the backend', async () => {
     const policy = { enabled: false, siteKey: '', loginRequired: false };
-    vi.mocked(api.get).mockResolvedValue({ data: { success: true, data: policy } });
+    vi.mocked(publicApi.get).mockResolvedValue({ data: { success: true, data: policy } });
     expect(await apiGetCaptchaPolicy()).toEqual(policy);
   });
 
@@ -48,8 +50,25 @@ describe('CAPTCHA policy transport', () => {
     { success: true, data: { enabled: true, siteKey: 'public-key' } },
     { success: true },
   ])('rejects a malformed policy instead of treating it as disabled: %j', async payload => {
-    vi.mocked(api.get).mockResolvedValue({ data: payload });
+    vi.mocked(publicApi.get).mockResolvedValue({ data: payload });
     await expect(apiGetCaptchaPolicy()).rejects.toThrow('Security verification settings could not load');
+  });
+});
+
+describe('registration email transport', () => {
+  beforeEach(() => vi.resetAllMocks());
+
+  it.each([true, false])('returns explicit email availability: %s', async available => {
+    vi.mocked(publicApi.post).mockResolvedValue({ data: { success: true, data: { available } } });
+    const controller = new AbortController();
+    expect(await apiCheckRegistrationEmail('resident@example.com', controller.signal)).toBe(available);
+    expect(publicApi.post).toHaveBeenCalledWith('/auth/check-email', { email: 'resident@example.com' }, { signal: controller.signal, timeout: 10_000 });
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it.each([{ success: false, data: { available: true } }, { success: true, data: { available: 'true' } }, { success: true }])('rejects malformed availability instead of advancing signup: %j', async payload => {
+    vi.mocked(publicApi.post).mockResolvedValue({ data: payload });
+    await expect(apiCheckRegistrationEmail('resident@example.com')).rejects.toThrow('Could not check this email');
   });
 });
 

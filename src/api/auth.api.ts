@@ -1,4 +1,4 @@
-import { api, clearAccessToken, getSessionGeneration, setAccessToken } from '../lib/api/axios';
+import { api, publicApi, clearAccessToken, getSessionGeneration, setAccessToken } from '../lib/api/axios';
 import { clearSessionHint, markSessionPresent } from '../lib/browserStorage';
 import axios from 'axios';
 import type { AxiosRequestConfig } from 'axios';
@@ -25,7 +25,7 @@ export interface CaptchaPolicy {
 }
 
 export async function apiGetCaptchaPolicy(signal?: AbortSignal): Promise<CaptchaPolicy> {
-  const response = await api.get('/auth/captcha-config', { signal, timeout: 10_000 });
+  const response = await publicApi.get('/auth/captcha-config', { signal, timeout: 10_000 });
   const policy = response.data?.data;
   if (response.data?.success !== true || typeof policy?.enabled !== 'boolean' || typeof policy?.loginRequired !== 'boolean' || typeof policy?.siteKey !== 'string' || (policy.enabled && !policy.siteKey)) {
     throw new Error('Security verification settings could not load. Please retry.');
@@ -36,6 +36,15 @@ export async function apiGetCaptchaPolicy(signal?: AbortSignal): Promise<Captcha
 export async function apiRegister(data: RegisterPayload) {
   const response = await api.post('/auth/register', data);
   return response.data;
+}
+
+export async function apiCheckRegistrationEmail(email: string, signal?: AbortSignal): Promise<boolean> {
+  const response = await publicApi.post('/auth/check-email', { email }, { signal, timeout: 10_000 });
+  const available = response.data?.data?.available;
+  if (response.data?.success !== true || typeof available !== 'boolean') {
+    throw new Error('Could not check this email. Please try again.');
+  }
+  return available;
 }
 
 export async function apiLogin(data: { email: string; password: string; captchaToken?: string }) {

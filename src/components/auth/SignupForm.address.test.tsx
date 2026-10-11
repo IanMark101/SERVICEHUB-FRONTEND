@@ -5,6 +5,7 @@ import useAuthForm from '@/schema/auth/useAuthForm';
 
 vi.mock('./shared/GoogleSignInButton', () => ({ default: () => null }));
 vi.mock('./shared/useAuthCaptcha', () => ({ default: () => ({ status: 'ready', required: false, blocked: false }) }));
+vi.mock('@/api/auth.api', () => ({ apiCheckRegistrationEmail: vi.fn().mockResolvedValue(true) }));
 
 const onLoginSuccess = vi.fn();
 const setMode = vi.fn();
@@ -14,7 +15,7 @@ function Registration() {
   return <SignupForm {...model} isDark={false} accentText="" accentBg="" toggleMode={() => {}} />;
 }
 
-function openContactStep() {
+async function openContactStep() {
   render(<Registration />);
   for (const [label, value] of [
     ['First Name', 'Ana'], ['Last Name', 'Cruz'], ['Email', 'ana@example.com'],
@@ -22,12 +23,12 @@ function openContactStep() {
   ]) fireEvent.change(screen.getByLabelText(label, { exact: true }), { target: { value } });
   fireEvent.click(screen.getByRole('checkbox'));
   fireEvent.click(screen.getByRole('button', { name: 'Next Step' }));
-  fireEvent.change(screen.getByLabelText('Contact Number'), { target: { value: '9171234567' } });
+  fireEvent.change(await screen.findByLabelText('Contact Number'), { target: { value: '9171234567' } });
 }
 
 describe('registration address inputs', () => {
-  it('requires every separate address field and preserves them when going back', () => {
-    openContactStep();
+  it('requires every separate address field and preserves them when going back', async () => {
+    await openContactStep();
     const fields = [
       { label: 'Barangay', value: 'Babag 2', autoComplete: 'address-level3' },
       { label: 'City / Municipality', value: 'Lapu-Lapu City', autoComplete: 'address-level2' },
@@ -53,8 +54,8 @@ describe('registration address inputs', () => {
     expect(screen.getByRole('button', { name: 'Next Step' })).toBeEnabled();
   });
 
-  it('shows an inline error when the combined address exceeds the saved profile limit', () => {
-    openContactStep();
+  it('shows an inline error when the combined address exceeds the saved profile limit', async () => {
+    await openContactStep();
     fireEvent.change(screen.getByRole('textbox', { name: 'Barangay' }), { target: { value: 'B'.repeat(40) } });
     fireEvent.change(screen.getByRole('textbox', { name: 'City / Municipality' }), { target: { value: 'C'.repeat(30) } });
     fireEvent.change(screen.getByRole('textbox', { name: 'Province' }), { target: { value: 'P'.repeat(27) } });

@@ -14,6 +14,13 @@ export const api = axios.create({
   },
 });
 
+// Public auth settings and signup checks do not depend on account state.
+// Keep it outside token refresh, private cache scopes and session cancellation.
+export const publicApi = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: false,
+});
+
 // Keep the short-lived access token in memory. The long-lived refresh token is
 // an HttpOnly cookie, so injected browser scripts cannot copy either credential
 // from localStorage and reuse it outside this browser session.

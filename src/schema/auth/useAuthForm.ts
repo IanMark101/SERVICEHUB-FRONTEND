@@ -1,6 +1,6 @@
-import { useRef, useState, FormEvent } from 'react';
+import { useEffect, useRef, useState, FormEvent } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '@/api/auth.api';
+import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin, apiCheckRegistrationEmail } from '@/api/auth.api';
 import { UserSession } from '../../components/auth/LoginContainer';
 import { signupStep1Schema, signupStep2Schema, formatSignupAddress, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
 import { setAccessToken } from '@/lib/api/axios';
@@ -56,12 +56,17 @@ export default function useAuthForm({
   const [isRegisterSuccess, setIsRegisterSuccess] = useState<boolean>(false);
   const [registrationEmailSent, setRegistrationEmailSent] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const emailCheckRequest = useRef<AbortController | null>(null);
+  const focusEmailOnReturn = useRef(false);
   const recoveryBusy = useRef(false);
   const captcha = useAuthCaptcha(mode);
 
   const {
     register,
     setValue,
+    getValues,
+    setFocus,
     setError: setRHFError,
     clearErrors,
     control,
@@ -86,6 +91,20 @@ export default function useAuthForm({
 
   // All fields have concrete defaults above, so the watched object is complete.
   const formData = useWatch({ control }) as AuthFormValues;
+
+  useEffect(() => () => { emailCheckRequest.current?.abort(); }, [mode]);
+  useEffect(() => {
+    emailCheckRequest.current?.abort();
+    clearErrors('email');
+  }, [formData.email, clearErrors]);
+  useEffect(() => {
+    if (step === 1 && focusEmailOnReturn.current) {
+      focusEmailOnReturn.current = false;
+      setFocus('email');
+    }
+  }, [step, setFocus]);
+
+  const registeredEmailMessage = 'This email is already registered. Log in, or use Google sign-in if that is how you created your account.';
 
   const applyValidationIssues = (issues: ZodIssue[]) => {
     const invalidFields = new Set<string>();
@@ -112,7 +131,8 @@ export default function useAuthForm({
     setValue('avatarUrl', avatarUrl);
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
+    if (recoveryBusy.current || isLoading) return;
     clearErrors();
     setError('');
 
@@ -122,6 +142,36 @@ export default function useAuthForm({
         applyValidationIssues(result.error.issues);
         return;
       }
+      const email = result.data.email;
+      const controller = new AbortController();
+      emailCheckRequest.current = controller;
+      recoveryBusy.current = true;
+      setIsCheckingEmail(true);
+      try {
+        const available = await apiCheckRegistrationEmail(email, controller.signal);
+        if (controller.signal.aborted || getValues('email').trim() !== email) return;
+        if (!available) {
+          setRHFError('email', { type: 'registered', message: registeredEmailMessage }, { shouldFocus: true });
+          return;
+        }
+        const currentCredentials = signupStep1Schema.safeParse(getValues());
+        if (!currentCredentials.success) {
+          applyValidationIssues(currentCredentials.error.issues);
+          return;
+        }
+        setStep(2);
+      } catch (error: unknown) {
+        if (!controller.signal.aborted && getValues('email').trim() === email) {
+          setRHFError('email', { type: 'manual', message: getApiErrorMessage(error, 'Could not check this email. Please try again.') });
+        }
+      } finally {
+        if (emailCheckRequest.current === controller) {
+          emailCheckRequest.current = null;
+          recoveryBusy.current = false;
+          setIsCheckingEmail(false);
+        }
+      }
+      return;
     }
     if (step === 2) {
       const result = signupStep2Schema.safeParse(formData);
@@ -291,7 +341,7 @@ export default function useAuthForm({
         });
     } else {
       if (step < 3) {
-        handleNextStep();
+        void handleNextStep();
         return;
       }
       const contactResult = signupStep2Schema.safeParse(formData);
@@ -338,6 +388,12 @@ export default function useAuthForm({
         .catch((err: unknown) => {
           captcha.handleFailure(err);
           const body = getApiErrorBody(err);
+          if (body?.code === 'EMAIL_ALREADY_REGISTERED') {
+            focusEmailOnReturn.current = true;
+            setStep(1);
+            setRHFError('email', { type: 'registered', message: registeredEmailMessage });
+            return;
+          }
           const validationErrors = body?.errors;
           if (validationErrors && Array.isArray(validationErrors)) {
             setError(validationErrors.map((validationError) => validationError.message).filter(Boolean).join(', '));
@@ -385,6 +441,7 @@ export default function useAuthForm({
     handleGoogleSuccessResponse,
     handleSubmit,
     isLoading,
+    isCheckingEmail,
     setValue,
   };
 }
