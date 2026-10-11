@@ -30,6 +30,12 @@ interface SignupStepsModel {
   accentBg: string;
 }
 
+const addressFields = [
+  { name: 'barangay', label: 'Barangay', placeholder: 'e.g. Babag 2', autoComplete: 'address-level3' },
+  { name: 'cityMunicipality', label: 'City / Municipality', placeholder: 'e.g. Lapu-Lapu City', autoComplete: 'address-level2' },
+  { name: 'province', label: 'Province', placeholder: 'e.g. Cebu', autoComplete: 'address-level1' },
+] as const;
+
 function PhilippineFlag({ className = "w-5 h-3.5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 600 300" className={`rounded-[2px] shadow-xs object-cover flex-shrink-0 ${className}`}>
@@ -246,22 +252,41 @@ export default function SignupSteps({ model }: { model: SignupStepsModel }) {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="registration-location" className="block text-xs font-semibold text-ink-secondary dark:text-ink-secondary mb-1.5">
-                City / municipality and barangay
-              </label>
-              <input
-                id="registration-location"
-                autoComplete="address-level2"
-                placeholder="e.g. Marigondon, Lapu-Lapu City, Cebu"
-                maxLength={100}
-                {...register('location')}
-                className="w-full bg-slate-50/70 dark:bg-charcoal/60 border border-black/[0.08] dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink dark:text-white focus:bg-white dark:focus:bg-charcoal focus:outline-none focus:border-brand-focus focus:ring-2 focus:ring-brand/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20 transition-all"
-              />
-              <p className="text-[11px] text-ink-muted dark:text-ink-muted mt-2 leading-relaxed">
+            <fieldset className="min-w-0">
+              <legend className="sr-only">Address</legend>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {addressFields.map((field) => {
+                  const inputId = `registration-${field.name}`;
+                  const error = fieldErrors[field.name];
+                  return (
+                    <div key={field.name} className={`min-w-0 ${field.name === 'barangay' ? 'sm:col-span-2' : ''}`}>
+                      <label htmlFor={inputId} className="block text-xs font-semibold text-ink-secondary dark:text-ink-secondary mb-1.5">
+                        {field.label} <span aria-hidden="true" className="font-normal text-ink-muted">(required)</span>
+                      </label>
+                      <input
+                        id={inputId}
+                        autoComplete={field.autoComplete}
+                        placeholder={field.placeholder}
+                        required
+                        maxLength={100}
+                        aria-invalid={Boolean(error)}
+                        aria-describedby={error ? `${inputId}-error registration-address-help` : 'registration-address-help'}
+                        {...register(field.name)}
+                        className={`w-full bg-slate-50/70 dark:bg-charcoal/60 border rounded-xl px-3.5 py-2.5 text-base sm:text-sm text-ink dark:text-white focus:bg-white dark:focus:bg-charcoal focus:outline-none focus:ring-2 transition-all ${
+                          error
+                            ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20'
+                            : 'border-black/[0.08] dark:border-white/10 focus:border-brand-focus focus:ring-brand/15 dark:focus:border-orange-500 dark:focus:ring-orange-500/20'
+                        }`}
+                      />
+                      {error && <p id={`${inputId}-error`} role="alert" className="mt-1.5 text-xs text-rose-600 dark:text-rose-400">{error}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+              <p id="registration-address-help" className="text-[11px] text-ink-muted dark:text-ink-muted mt-2 leading-relaxed">
                 Your profile shows your general area. Choose a separate search location and radius in the marketplace. Identity and residency documents are reviewed privately.
               </p>
-            </div>
+            </fieldset>
           </div>
         )}
 

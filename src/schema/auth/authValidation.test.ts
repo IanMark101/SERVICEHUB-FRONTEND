@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { loginSchema, signupStep1Schema, signupStep2Schema } from './authValidation';
+import { formatSignupAddress, loginSchema, signupStep1Schema, signupStep2Schema } from './authValidation';
+
+const contact = { phone: '917 123 4567', barangay: 'Babag 2', cityMunicipality: 'Lapu-Lapu City', province: 'Cebu' };
 
 describe('authentication validation', () => {
   it('accepts a valid login and trims its email', () => {
@@ -43,7 +45,24 @@ describe('authentication validation', () => {
   });
 
   it('normalizes a valid Philippine mobile number', () => {
-    const result = signupStep2Schema.parse({ phone: '917 123 4567', location: 'Cordova' });
+    const result = signupStep2Schema.parse(contact);
     expect(result.phone).toBe('9171234567');
+  });
+
+  it.each(['barangay', 'cityMunicipality', 'province'] as const)('requires a nonblank %s', (field) => {
+    const result = signupStep2Schema.safeParse({ ...contact, [field]: '   ' });
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues.some((issue) => issue.path[0] === field)).toBe(true);
+  });
+
+  it('trims and joins all three address parts in profile order', () => {
+    const result = signupStep2Schema.parse({ ...contact, barangay: ' Babag 2 ', cityMunicipality: ' Lapu-Lapu City ', province: ' Cebu ' });
+    expect(formatSignupAddress(result)).toBe('Babag 2, Lapu-Lapu City, Cebu');
+  });
+
+  it('includes separators in the backend profile address length limit', () => {
+    const address = { ...contact, barangay: 'B'.repeat(40), cityMunicipality: 'C'.repeat(30), province: 'P'.repeat(26) };
+    expect(signupStep2Schema.safeParse(address).success).toBe(true);
+    expect(signupStep2Schema.safeParse({ ...address, province: 'P'.repeat(27) }).success).toBe(false);
   });
 });

@@ -96,7 +96,8 @@ export default function SignupForm({
     formData.agreeTerms === true;
 
   const isPhoneValid = (formData.phone?.replace(/\D/g, '') || '').length === 10;
-  const isStep2Valid = isPhoneValid && (formData.location?.trim().length > 0);
+  const isStep2Valid = isPhoneValid && [formData.barangay, formData.cityMunicipality, formData.province]
+    .every((part) => part.trim().length > 0);
 
   const isNextDisabled = (step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid);
 
@@ -154,12 +155,12 @@ export default function SignupForm({
       <div>
         <h2 className="font-sans text-3xl font-semibold leading-tight tracking-tight text-ink dark:text-white">
           {step === 1 && 'Create an Account'}
-          {step === 2 && 'Contact & Barangay'}
+          {step === 2 && 'Contact & Address'}
           {step === 3 && 'Profile Setup'}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-ink-muted dark:text-ink-muted">
           {step === 1 && 'Enter your personal information to get started with ServiceHub.'}
-          {step === 2 && 'Provide your mobile number and enter your city or municipality and barangay.'}
+          {step === 2 && 'Provide your mobile number, barangay, city or municipality, and province.'}
           {step === 3 && 'Choose your avatar and introduce yourself to the community.'}
         </p>
       </div>

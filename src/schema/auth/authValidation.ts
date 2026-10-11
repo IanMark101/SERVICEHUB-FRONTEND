@@ -34,6 +34,10 @@ export const signupStep1Schema = z.object({
   path: ['confirmPassword'],
 });
 
+export function formatSignupAddress(address: { barangay: string; cityMunicipality: string; province: string }) {
+  return [address.barangay, address.cityMunicipality, address.province].map((part) => part.trim()).join(', ');
+}
+
 // Step 2: Contact Info
 export const signupStep2Schema = z.object({
   phone: z.string()
@@ -43,7 +47,17 @@ export const signupStep2Schema = z.object({
     .refine((val) => /^(\+639|09|9)\d{9}$/.test(val), {
       message: 'Invalid Philippine mobile format (e.g. 917 123 4567)',
     }),
-  location: z.string().trim().min(1, 'Location is required').max(100, 'Use your general city and barangay, up to 100 characters'),
+  barangay: z.string().trim().min(1, 'Barangay is required').max(100, 'Barangay must be at most 100 characters'),
+  cityMunicipality: z.string().trim().min(1, 'City / municipality is required').max(100, 'City / municipality must be at most 100 characters'),
+  province: z.string().trim().min(1, 'Province is required').max(100, 'Province must be at most 100 characters'),
+}).superRefine((data, context) => {
+  if (formatSignupAddress(data).length > 100) {
+    context.addIssue({
+      code: 'custom',
+      path: ['province'],
+      message: 'Keep the combined barangay, city / municipality, and province within 100 characters.',
+    });
+  }
 });
 
 // Login Form

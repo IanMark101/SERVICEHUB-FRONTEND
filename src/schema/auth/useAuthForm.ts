@@ -2,7 +2,7 @@ import { useRef, useState, FormEvent } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { apiLogin, apiRegister, apiForgotPassword, apiResetPassword, apiGoogleLogin } from '@/api/auth.api';
 import { UserSession } from '../../components/auth/LoginContainer';
-import { signupStep1Schema, signupStep2Schema, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
+import { signupStep1Schema, signupStep2Schema, formatSignupAddress, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
 import { setAccessToken } from '@/lib/api/axios';
 import { markSessionPresent } from '@/lib/browserStorage';
 import { getApiErrorBody, getApiErrorMessage } from '@/lib/api/errors';
@@ -20,7 +20,9 @@ export interface AuthFormValues {
   role: 'seeker' | 'provider';
   bio: string;
   phone: string;
-  location: string;
+  barangay: string;
+  cityMunicipality: string;
+  province: string;
   avatarUrl: string;
 }
 
@@ -75,7 +77,9 @@ export default function useAuthForm({
       role: 'seeker' as 'seeker' | 'provider',
       bio: '',
       phone: '',
-      location: '',
+      barangay: '',
+      cityMunicipality: '',
+      province: '',
       avatarUrl: avatars[0],
     }
   });
@@ -290,6 +294,12 @@ export default function useAuthForm({
         handleNextStep();
         return;
       }
+      const contactResult = signupStep2Schema.safeParse(formData);
+      if (!contactResult.success) {
+        setStep(2);
+        applyValidationIssues(contactResult.error.issues);
+        return;
+      }
       if (captcha.blocked) { setError('Complete the security check before creating your account.'); return; }
 
       let phoneFormatted = formData.phone.trim();
@@ -308,7 +318,7 @@ export default function useAuthForm({
         email: formData.email,
         password: formData.password,
         phone: phoneFormatted,
-        location: formData.location,
+        location: formatSignupAddress(contactResult.data),
         bio: formData.bio,
         // Avatar uploads require an authenticated account. Do not send a local
         // data URL to the API during registration; the user can upload it after

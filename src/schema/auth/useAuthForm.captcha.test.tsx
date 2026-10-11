@@ -56,10 +56,28 @@ describe('authentication submits verified proofs', () => {
       result.current.setValue('firstName', 'John'); result.current.setValue('lastName', 'Seeker');
       result.current.setValue('email', 'seeker@example.com'); result.current.setValue('password', 'ValidPassword1!');
       result.current.setValue('phone', '9123456789');
+      result.current.setValue('barangay', ' Babag 2 ');
+      result.current.setValue('cityMunicipality', ' Lapu-Lapu City ');
+      result.current.setValue('province', ' Cebu ');
     });
     await act(async () => result.current.handleSubmit(submit()));
-    expect(apiRegister).toHaveBeenCalledWith(expect.objectContaining({ name: 'John Seeker', email: 'seeker@example.com', captchaToken: 'single-use-proof' }));
+    expect(apiRegister).toHaveBeenCalledWith(expect.objectContaining({ name: 'John Seeker', email: 'seeker@example.com', location: 'Babag 2, Lapu-Lapu City, Cebu', captchaToken: 'single-use-proof' }));
     expect(captcha.reset).toHaveBeenCalledOnce();
+  });
+
+  it('blocks final registration when a required address part is missing', async () => {
+    const { result } = renderHook(() => useAuthForm({ ...props, mode: 'signup' }));
+    act(() => {
+      result.current.setStep(3);
+      result.current.setValue('phone', '9123456789');
+      result.current.setValue('barangay', 'Babag 2');
+      result.current.setValue('cityMunicipality', 'Lapu-Lapu City');
+    });
+    await act(async () => result.current.handleSubmit(submit()));
+    expect(apiRegister).not.toHaveBeenCalled();
+    expect(result.current.step).toBe(2);
+    expect(result.current.fieldErrors.province).toBe('Province is required');
+    expect(captcha.reset).not.toHaveBeenCalled();
   });
 
   it('allows Google OAuth even when a password CAPTCHA is unsolved', async () => {
