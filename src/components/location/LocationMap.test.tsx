@@ -2,6 +2,10 @@ import { StrictMode, useState } from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import LocationMap from './LocationMap';
+import { addReadableMapLayer } from '../../lib/readableMapLayer';
+
+// Exercise Leaflet lifecycle here; vector labels/loading have separate coverage.
+vi.mock('../../lib/readableMapLayer', () => ({ addReadableMapLayer:vi.fn().mockResolvedValue(undefined) }));
 
 const point = { latitude: 10.3, longitude: 123.92, label: 'Cebu test area' };
 let resizeCallbacks: ResizeObserverCallback[] = [];
@@ -19,6 +23,7 @@ beforeAll(() => {
   });
 });
 beforeEach(() => {
+  vi.mocked(addReadableMapLayer).mockReset().mockResolvedValue(undefined);
   resizeCallbacks = [];
   vi.spyOn(Element.prototype, 'clientWidth', 'get').mockReturnValue(500);
   vi.spyOn(Element.prototype, 'clientHeight', 'get').mockReturnValue(300);
@@ -45,7 +50,9 @@ describe('location map lifecycle with real Leaflet', () => {
   it('ignores an already queued resize notification after closing the picker', async () => {
     const view = render(<StrictMode><LocationMap point={point} radiusKm={10} onChange={vi.fn()}/></StrictMode>);
     await screen.findByRole('button', { name: 'Zoom in' });
+    const signal = vi.mocked(addReadableMapLayer).mock.lastCall?.[1];
     view.unmount();
+    expect(signal?.aborted).toBe(true);
     expect(resizeCallbacks.length).toBeGreaterThan(0);
     for (const callback of resizeCallbacks) {
       expect(() => callback([], {} as ResizeObserver)).not.toThrow();

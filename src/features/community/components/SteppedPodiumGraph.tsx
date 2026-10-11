@@ -167,7 +167,7 @@ export default function SteppedPodiumGraph({
                   </div>
 
                   {/* Provider Name */}
-                  <span className={`mt-1.5 sm:mt-3 block font-black tracking-tight transition-colors truncate max-w-[100px] sm:max-w-none px-0.5 ${
+                  <span className={`mt-1.5 sm:mt-3 block font-black tracking-tight transition-colors truncate max-w-full px-0.5 ${
                     isChampion
                       ? 'text-[11.5px] sm:text-base md:text-lg group-hover:text-brand-text dark:group-hover:text-orange-400'
                       : 'text-[10.5px] sm:text-sm md:text-base group-hover:text-brand-text dark:group-hover:text-orange-400'
@@ -177,7 +177,7 @@ export default function SteppedPodiumGraph({
                   </span>
 
                   {/* Trade / Primary Service */}
-                  <span className="mt-0.5 truncate max-w-[100px] sm:max-w-none px-0.5 text-[9.5px] sm:text-xs font-medium text-ink-muted dark:text-ink-muted">
+                  <span className="mt-0.5 truncate max-w-full px-0.5 text-[9.5px] sm:text-xs font-medium text-ink-muted dark:text-ink-muted">
                     {provider.primaryService || 'Local service provider'}
                   </span>
 

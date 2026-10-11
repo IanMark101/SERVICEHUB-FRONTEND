@@ -28,12 +28,12 @@ export default function TrustScoreGuide({
 
   return (
     <div className={`${cardBg} space-y-4 rounded-2xl border p-5 sm:p-6`}>
-      <div className="flex items-center justify-between border-b border-[color:var(--workspace-border)] pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[color:var(--workspace-border)] pb-4">
         <div className="flex items-center gap-2">
           <ShieldCheck size={18} className={accentColor} />
           <h3 className={`text-base font-bold ${headingText}`}>How Trust Score Works</h3>
         </div>
-        <button type="button" onClick={onToggle} className={`flex min-h-9 items-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors hover:bg-[color:var(--workspace-surface-muted)] ${labelText}`}>
+        <button type="button" onClick={onToggle} className={`flex min-h-11 items-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors hover:bg-[color:var(--workspace-surface-muted)] ${labelText}`}>
           <span>{isOpen ? 'Hide Guide' : 'Show Guide'}</span>
           {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>

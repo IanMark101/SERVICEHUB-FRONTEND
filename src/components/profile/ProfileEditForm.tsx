@@ -93,7 +93,7 @@ export default function ProfileEditForm({
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
             <label className={`block text-xs font-bold ${labelText}`}>Philippine Mobile Number</label>
             {hasActiveEngagements && (
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full border border-amber-500/20">

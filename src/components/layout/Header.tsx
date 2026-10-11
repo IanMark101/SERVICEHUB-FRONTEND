@@ -288,7 +288,7 @@ export default function Header({
   if (accountPage || communityPage) {
     return (
       <header className={`profile-account-header sticky right-0 top-0 z-30 h-16 w-full font-sans transition-colors duration-200 backdrop-blur-md bg-[color:var(--workspace-header-bg)] border-b border-[color:var(--workspace-border)] ${isDark ? 'text-white' : 'text-ink'}`}>
-        <div className="mx-auto flex h-full w-full max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="profile-account-header__content mx-auto flex h-full w-full max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Left identity context */}
           <div className="flex min-w-0 items-center gap-3">
             <button

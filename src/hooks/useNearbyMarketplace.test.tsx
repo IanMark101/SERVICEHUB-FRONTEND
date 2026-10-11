@@ -14,6 +14,21 @@ const saved = (id='one', role='seeker') => localStorage.setItem(`servicehub:mark
 
 describe('nearby discovery refresh and privacy', () => {
   beforeEach(() => { localStorage.clear(); vi.clearAllMocks(); });
+  it.each(['seeker','provider'] as const)('%s persists and restores fractional search radii without rounding', async workspace => {
+    vi.mocked(api.get).mockResolvedValue({ data:{ success:true,data:{items:[],pagination:{page:1,limit:6,total:0,totalPages:1}} } });
+    const first = renderHook(() => useNearbyMarketplace(workspace,'one','','All Categories','all'));
+    await waitFor(() => expect(first.result.current.initializing).toBe(false));
+    for (const radiusKm of [0.5, 2.3, 30]) {
+      act(() => first.result.current.applyLocation({ ...location, radiusKm }));
+      await waitFor(() => expect(api.get).toHaveBeenLastCalledWith(workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({radiusKm})})));
+      expect(JSON.parse(localStorage.getItem(`servicehub:marketplace-location:one:${workspace}`)!).radiusKm).toBe(radiusKm);
+    }
+    act(() => first.result.current.applyLocation({ ...location, radiusKm:2.3 }));
+    first.unmount();
+    const reopened = renderHook(() => useNearbyMarketplace(workspace,'one','','All Categories','all'));
+    await waitFor(() => expect(reopened.result.current.location?.radiusKm).toBe(2.3));
+    await waitFor(() => expect(api.get).toHaveBeenLastCalledWith(workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({radiusKm:2.3})})));
+  });
   it('requires an explicit location and sends radius and filters to the server before paginating', async () => {
     vi.mocked(api.get).mockImplementation(async (_path, options) => reply('Near service', Number(options?.params.page || 1)));
     const { result,rerender }=renderHook(({category})=>useNearbyMarketplace('seeker','one','',category,'all'), { initialProps:{ category:'All Categories' } });

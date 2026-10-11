@@ -15,6 +15,50 @@ const initial = { point:{ latitude:10.3, longitude:123.9, label:'Cordova, Cebu' 
 
 describe('marketplace search location', () => {
   beforeEach(() => { vi.clearAllMocks(); });
+  it.each(['seeker', 'provider'] as const)('%s can apply the 0.5 km preset', workspace => {
+    const apply = vi.fn();
+    render(<MarketplaceLocationControl value={initial} workspace={workspace} onApply={apply}/>);
+    fireEvent.click(screen.getByRole('button', { name:/Cordova/ }));
+    fireEvent.change(screen.getByLabelText('Search radius'), { target:{ value:'0.5' } });
+    expect(screen.getByText('0.5 km circle')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name:'Apply location' }));
+    expect(apply).toHaveBeenCalledWith({ ...initial, radiusKm:0.5 });
+  });
+  it.each(['seeker', 'provider'] as const)('%s opens a saved custom radius and previews fractional changes', workspace => {
+    const apply = vi.fn();
+    render(<MarketplaceLocationControl value={{ ...initial, radiusKm:2.3 }} workspace={workspace} onApply={apply}/>);
+    fireEvent.click(screen.getByRole('button', { name:/Cordova/ }));
+    expect(screen.getByLabelText('Search radius')).toHaveValue('custom');
+    const input = screen.getByRole('spinbutton', { name:'Custom radius (km)' });
+    expect(input).toHaveValue(2.3);
+    expect(input).toHaveAttribute('min', '0.5');
+    expect(input).toHaveAttribute('max', '30');
+    expect(input).toHaveAttribute('step', '0.1');
+    fireEvent.change(input, { target:{ value:'1.7' } });
+    expect(screen.getByText('1.7 km circle')).toBeVisible();
+    expect(apply).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name:'Apply location' }));
+    expect(apply).toHaveBeenCalledWith({ ...initial, radiusKm:1.7 });
+  });
+  it.each(['', '0', '0.4', '-1', '30.1', '1.25', 'not a number'])('blocks invalid custom radius %j and recovers when a preset is chosen', value => {
+    const apply = vi.fn();
+    render(<MarketplaceLocationControl value={initial} workspace="seeker" onApply={apply}/>);
+    fireEvent.click(screen.getByRole('button', { name:/Cordova/ }));
+    fireEvent.change(screen.getByLabelText('Search radius'), { target:{ value:'custom' } });
+    const input = screen.getByRole('spinbutton', { name:'Custom radius (km)' });
+    fireEvent.change(input, { target:{ value } });
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('alert')).toBeVisible();
+    expect(screen.getByRole('button', { name:'Apply location' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name:'Apply location' }));
+    expect(apply).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Search radius'), { target:{ value:'5' } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+    expect(screen.getByText('5 km circle')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name:'Apply location' }));
+    expect(apply).toHaveBeenCalledWith({ ...initial, radiusKm:5 });
+  });
   it('keeps a changed pin and radius as a draft until Apply, and Cancel preserves the original', () => {
     const apply = vi.fn();
     render(<MarketplaceLocationControl value={initial} workspace="seeker" onApply={apply}/>);

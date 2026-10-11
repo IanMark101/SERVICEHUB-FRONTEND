@@ -170,14 +170,14 @@ export default function OfficialAnnouncements({
           </div>
 
           {/* Announcement Headline */}
-          <h3 className={`text-lg sm:text-2xl lg:text-[1.65rem] font-black tracking-tight leading-snug ${
+          <h3 className={`[overflow-wrap:anywhere] text-lg sm:text-2xl lg:text-[1.65rem] font-black tracking-tight leading-snug ${
             isDark ? 'text-white' : 'text-ink'
           }`}>
             {currentNotice.title}
           </h3>
 
           {/* Announcement Body */}
-          <p className={`text-xs sm:text-base leading-relaxed ${
+          <p className={`[overflow-wrap:anywhere] text-xs sm:text-base leading-relaxed ${
             isDark ? 'text-neutral-300' : 'text-ink-secondary'
           }`}>
             {currentNotice.body}

@@ -81,7 +81,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
   const innerBg = 'bg-[color:var(--workspace-surface-muted)] border-[color:var(--workspace-border)]';
   const labelText = 'text-[color:var(--workspace-muted)]';
   const headingText = 'text-[color:var(--workspace-ink)]';
-  const inputClass = 'workspace-form-control w-full px-3.5 py-2.5 text-sm font-medium';
+  const inputClass = 'workspace-form-control min-w-0 w-full px-3.5 py-2.5 text-base sm:text-sm font-medium';
 
   return (
     <div className={`max-w-5xl mx-auto space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
@@ -110,7 +110,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         <div className="space-y-3 text-xs">
           <div className="space-y-1.5">
             <label className={`block font-semibold ${labelText}`}>Email Address</label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
               <input
                 type="email"
                 value={email}
@@ -137,7 +137,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
 
       {/* 🌟 Profile & Social Presence Settings Card */}
       <section id="contact-information" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
-        <div className="flex items-center justify-between border-b border-[color:var(--workspace-border)] pb-4">
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-[color:var(--workspace-border)] pb-4">
           <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
             <Edit3 size={17} className={accentColor} /> Personal & Social Profile
           </h3>
@@ -159,7 +159,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <label className={`block font-semibold ${labelText}`}>Philippine Mobile Number</label>
               {hasActiveEngagements && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
@@ -248,7 +248,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={processingImage}
-                    className="workspace-primary-button inline-flex min-h-10 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-sm transition-colors disabled:opacity-60"
+                    className="workspace-primary-button inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-sm transition-colors disabled:opacity-60"
                   >
                     <Upload size={13} />
                     <span>{processingImage ? 'Optimizing...' : 'Upload New Photo'}</span>
@@ -258,7 +258,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
                     <button
                       type="button"
                       onClick={() => setEditForm((form) => ({ ...form, avatarUrl: '' }))}
-                      className="flex min-h-10 items-center gap-1 rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-3 py-2 text-xs font-bold text-[color:var(--workspace-muted)] transition-colors hover:border-rose-500/30 hover:text-rose-500"
+                      className="flex min-h-11 items-center gap-1 rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] px-3 py-2 text-xs font-bold text-[color:var(--workspace-muted)] transition-colors hover:border-rose-500/30 hover:text-rose-500"
                     >
                       <Trash2 size={13} />
                       <span>Reset</span>
@@ -322,7 +322,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             type="button"
             onClick={() => handleSaveProfile()}
             disabled={saving}
-            className="workspace-primary-button flex min-h-11 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
+            className="workspace-primary-button flex min-h-11 w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl px-5 text-sm font-semibold transition-colors shadow-sm disabled:opacity-50"
           >
             <Save size={14} />
             <span>{saving ? 'Saving Profile...' : 'Save Profile Changes'}</span>
@@ -345,7 +345,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         </h3>
 
         <div className="space-y-3 text-xs">
-          <div className="flex items-center justify-between py-2">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between py-2">
             <div>
               <div className={`font-bold ${headingText}`}>Appearance Theme</div>
               <div className={labelText}>Toggle between Light and Dark visual modes</div>
@@ -353,7 +353,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <button
               type="button"
               onClick={toggleTheme}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${innerBg} ${headingText}`}
+              className={`min-h-11 shrink-0 px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${innerBg} ${headingText}`}
             >
               {isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-ink-muted" />}
               <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>

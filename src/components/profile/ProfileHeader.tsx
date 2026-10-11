@@ -93,12 +93,12 @@ export default function ProfileHeader({
       <section className={`marketplace-profile-hero workspace-profile-hero--${roleTone} relative p-5 sm:p-6 sm:pb-5`} aria-labelledby="profile-name">
         {/* Sleek Pill Edit Profile Button */}
         {isOwnProfile && (
-          <div className="absolute top-4 right-4 sm:top-5 sm:right-6 z-10">
+          <div className="mb-4 flex justify-end sm:absolute sm:top-5 sm:right-6 sm:mb-0 z-10">
             <button
               type="button"
               onClick={() => setShowEdit((value) => !value)}
               aria-expanded={showEdit}
-              className="servicehub-dark-cta workspace-primary-button inline-flex min-h-8 sm:min-h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
+              className="servicehub-dark-cta workspace-primary-button inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
             >
               <Edit3 size={13} />
               <span>{showEdit ? 'Close editor' : 'Edit profile'}</span>
@@ -107,7 +107,7 @@ export default function ProfileHeader({
         )}
 
         {/* Centered Profile Hero Content */}
-        <div className="flex flex-col items-center text-center">
+        <div className="flex min-w-0 flex-col items-center text-center [overflow-wrap:anywhere]">
           {/* Framed Circular Avatar & Verification Badge */}
           <div className="relative shrink-0 mb-3 sm:mb-3.5">
             <div className="rounded-full p-1.5 ring-4 ring-[color:var(--workspace-border)] border-2 border-[color:var(--workspace-border-strong)] bg-[color:var(--workspace-surface)] shadow-md transition-transform duration-300 hover:scale-[1.02]">
@@ -129,7 +129,7 @@ export default function ProfileHeader({
           </div>
 
           {/* Member Name & Verification Badge */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
             <h1 id="profile-name" className={`break-words text-xl sm:text-2xl font-extrabold tracking-tight ${headingText}`}>
               {formattedName}
             </h1>
@@ -141,8 +141,8 @@ export default function ProfileHeader({
           </div>
 
           {/* Unified Location, Handle & Member Since Row */}
-          <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm ${labelText}`}>
-            <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
+          <div className={`mt-1.5 flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs sm:text-sm ${labelText}`}>
+            <span className="inline-flex min-w-0 max-w-full items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
               <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
               {location || 'Location not provided'}
             </span>
@@ -160,7 +160,7 @@ export default function ProfileHeader({
 
           {/* Bio */}
           {bio && (
-            <p className="mt-2 max-w-[56ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-ink)] font-normal">
+            <p className="mt-2 w-full max-w-[56ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-ink)] font-normal">
               {bio}
             </p>
           )}
@@ -227,12 +227,12 @@ export default function ProfileHeader({
   return (
     <section className={`workspace-profile-hero workspace-profile-hero--${roleTone} relative p-5 sm:p-6 sm:pb-5`} aria-labelledby="profile-name">
       {isOwnProfile && (
-        <div className="absolute top-4 right-4 sm:top-5 sm:right-6 z-10">
+        <div className="mb-4 flex justify-end sm:absolute sm:top-5 sm:right-6 sm:mb-0 z-10">
           <button
             type="button"
             onClick={() => setShowEdit((value) => !value)}
             aria-expanded={showEdit}
-            className="servicehub-dark-cta workspace-primary-button inline-flex min-h-8 sm:min-h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
+            className="servicehub-dark-cta workspace-primary-button inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-all active:scale-[0.98]"
           >
             <Edit3 size={13} />
             <span>{showEdit ? 'Close form' : 'Edit profile'}</span>
@@ -240,7 +240,7 @@ export default function ProfileHeader({
         </div>
       )}
 
-      <div className="flex flex-col items-center text-center">
+      <div className="flex min-w-0 flex-col items-center text-center [overflow-wrap:anywhere]">
         <div className="relative shrink-0 mb-3 sm:mb-3.5">
           <div className="rounded-full p-1.5 ring-4 ring-[color:var(--workspace-border)] border-2 border-[color:var(--workspace-border-strong)] bg-[color:var(--workspace-surface)] shadow-md transition-transform duration-300 hover:scale-[1.02]">
             <UserAvatar src={avatarUrl} name={displayName} alt={`${formattedName} profile picture`} size={160} role={roleTone} shape="circle" />
@@ -253,7 +253,7 @@ export default function ProfileHeader({
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
           <h1 id="profile-name" className={`break-words text-xl sm:text-2xl font-extrabold tracking-tight ${headingText}`}>
             {formattedName}
           </h1>
@@ -264,8 +264,8 @@ export default function ProfileHeader({
           )}
         </div>
 
-        <div className={`mt-1.5 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm ${labelText}`}>
-          <span className="inline-flex items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
+        <div className={`mt-1.5 flex max-w-full flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs sm:text-sm ${labelText}`}>
+          <span className="inline-flex min-w-0 max-w-full items-center gap-1 font-medium text-[color:var(--workspace-ink)]">
             <MapPin size={14} className="text-rose-500 fill-rose-500 shrink-0" />
             <span>{location || 'Location not provided'}</span>
           </span>
@@ -282,7 +282,7 @@ export default function ProfileHeader({
         </div>
 
         {bio && (
-          <p className="mt-2 max-w-[58ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-muted)]">
+          <p className="mt-2 w-full max-w-[58ch] text-xs sm:text-sm leading-relaxed text-[color:var(--workspace-muted)]">
             {bio}
           </p>
         )}
@@ -333,7 +333,7 @@ function SocialLink({ href, icon, label }: { href: string; icon: ReactNode; labe
       href={safeHref}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex min-h-6 items-center gap-1 rounded-full border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] px-2.5 py-0.5 text-[11px] font-medium text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
+      className="inline-flex min-h-11 sm:min-h-6 items-center gap-1 rounded-full border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] px-2.5 py-0.5 text-[11px] font-medium text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98]"
     >
       {icon}
       <span>{label}</span>

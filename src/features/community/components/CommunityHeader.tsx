@@ -87,7 +87,7 @@ export function CommunitySectionNav({ isDark = false }: CommunityHeaderProps) {
   return (
     <nav
       aria-label="Community sections"
-      className={`sticky top-14 sm:top-20 z-30 max-w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-2xl p-1 sm:p-1.5 backdrop-blur-md touch-pan-x transition-all ${
+      className={`community-section-nav sticky top-14 sm:top-20 z-30 max-w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden rounded-2xl p-1 sm:p-1.5 backdrop-blur-md touch-pan-x transition-all ${
         isDark ? 'bg-charcoal-inset/90 border border-neutral-800/80 shadow-lg' : 'bg-white/90 border border-slate-200/80 shadow-xs'
       }`}
     >
@@ -100,7 +100,7 @@ export function CommunitySectionNav({ isDark = false }: CommunityHeaderProps) {
               href={href}
               onClick={(e) => handleNavClick(e, href)}
               aria-current={active ? 'location' : undefined}
-              className={`inline-flex min-h-8.5 sm:min-h-9 shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus ${
+              className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-4 text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus ${
                 active
                   ? isDark
                     ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-xs'

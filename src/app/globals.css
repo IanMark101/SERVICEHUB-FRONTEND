@@ -2102,7 +2102,8 @@ body:has(.workspace-shell):not(:has(.landing-shell)) {
   top: 4rem;
   z-index: 20;
   display: flex;
-  justify-content: center;
+  justify-content: safe center;
+  max-width: 100%;
   align-items: center;
   gap: 1rem;
   padding: 0 1rem;
@@ -2175,10 +2176,68 @@ body:has(.workspace-shell):not(:has(.landing-shell)) {
   background: var(--workspace-surface);
 }
 
+.community-page-shell main section[id] {
+  scroll-margin-top: 10rem;
+}
+
+.profile-page-shell main section[id] {
+  scroll-margin-top: 9rem;
+}
+
 @media (max-width: 639px) {
   .profile-page-shell .workspace-section-nav {
     position: static;
     flex-wrap: wrap;
+  }
+
+  /* Account and community pages keep every utility reachable without
+     squeezing the page identity between five controls on narrow phones. */
+  .profile-account-header {
+    height: auto;
+  }
+
+  .profile-account-header__content {
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding-block: 0.5rem;
+  }
+
+  .profile-account-header__content > div:first-child {
+    min-height: 2.75rem;
+  }
+
+  .profile-account-header .workspace-header-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.25rem;
+  }
+
+  .profile-account-header button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  .community-page-shell .community-section-nav {
+    top: 7.5rem;
+  }
+
+  .community-page-shell main section[id] {
+    scroll-margin-top: 12rem;
+  }
+
+  .profile-page-shell main section[id] {
+    scroll-margin-top: 8rem;
+  }
+
+  .profile-account-header input {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+
+  .profile-page-shell .workspace-section-nav a {
+    min-height: 2.75rem;
   }
 }
 

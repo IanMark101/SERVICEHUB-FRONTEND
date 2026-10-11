@@ -5,7 +5,9 @@ import { createPortal } from 'react-dom';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import type { Map, Marker, Circle } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import type { LocationPoint } from '../../lib/location';
+import { addReadableMapLayer } from '../../lib/readableMapLayer';
 import styles from './Location.module.css';
 
 type MapProps = {
@@ -22,6 +24,7 @@ function MapCanvas({ point, radiusKm, onChange, accent = 'var(--color-brand-text
   useEffect(() => { current.current = { point, onChange }; }, [point, onChange]);
   useEffect(() => {
     let disposed = false;
+    const controller = new AbortController();
     let observer: ResizeObserver | undefined;
     let ownedMap: Map | null = null;
     void import('leaflet').then(L => {
@@ -29,13 +32,11 @@ function MapCanvas({ point, radiusKm, onChange, accent = 'var(--color-brand-text
       const initial = current.current.point;
       // Leaflet's delayed zoom completion can outlive a dialog/inline picker.
       // Use synchronous zooms so closing or remounting never targets removed panes.
-      const instance = L.map(container.current, { scrollWheelZoom: false, zoomAnimation: false, markerZoomAnimation: false });
+      const instance = L.map(container.current, { minZoom:1, maxZoom:19, scrollWheelZoom: false, zoomAnimation: false, markerZoomAnimation: false });
       ownedMap = instance;
       instance.setView(initial ? [initial.latitude, initial.longitude] : [10.3, 123.92], 12);
       map.current = instance;
-      L.tileLayer(process.env.NEXT_PUBLIC_MAP_TILE_URL || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: process.env.NEXT_PUBLIC_MAP_ATTRIBUTION || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors', maxZoom:19,
-      }).addTo(instance);
+      void addReadableMapLayer(instance, controller.signal).catch(() => { if (!disposed) setFailed(true); });
       const choose = (latitude: number, longitude: number) => current.current.onChange({
         ...current.current.point, latitude, longitude:L.latLng(latitude, longitude).wrap().lng,
         label: current.current.point?.label || 'Selected service area',
@@ -57,6 +58,7 @@ function MapCanvas({ point, radiusKm, onChange, accent = 'var(--color-brand-text
     }).catch(() => { if (!disposed) setFailed(true); });
     return () => {
       disposed = true;
+      controller.abort();
       observer?.disconnect();
       ownedMap?.remove();
       if (map.current === ownedMap) { map.current=null; marker.current=null; circle.current=null; }

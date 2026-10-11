@@ -65,17 +65,17 @@ export default function NewServicesSection({ services = [], isDark = false, onSe
                 <button
                   type="button"
                   onClick={() => onSelectService(service.id)}
-                  className={`block uppercase break-words [overflow-wrap:anywhere] text-left text-sm font-semibold leading-5 tracking-[-0.02em] transition-colors hover:text-brand-action-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:hover:text-orange-300 ${isDark ? 'text-white' : 'text-ink'}`}
+                  className={`block w-full min-w-0 whitespace-normal uppercase break-words [overflow-wrap:anywhere] text-left text-sm font-semibold leading-5 tracking-[-0.02em] transition-colors hover:text-brand-action-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:hover:text-orange-300 ${isDark ? 'text-white' : 'text-ink'}`}
                 >
                   {service.title}
                 </button>
-                <p className={`mt-1 text-xs leading-5 ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
+                <p className={`mt-1 text-xs leading-5 [overflow-wrap:anywhere] ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
                   {service.category?.name || 'Service'} by{' '}
                   <button
                     type="button"
                     onClick={() => onSelectProvider?.(service.provider.id)}
                     disabled={!onSelectProvider}
-                    className="font-semibold    transition-colors hover:text-brand-action-hover  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus  dark:hover:text-orange-300"
+                    className="max-w-full whitespace-normal font-semibold transition-colors hover:text-brand-action-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-focus dark:hover:text-orange-300"
                   >
                     {service.provider.name || 'Local provider'}
                   </button>

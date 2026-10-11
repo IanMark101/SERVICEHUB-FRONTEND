@@ -36,7 +36,7 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
   const hasBoth = userServices.length > 0 && userRequests.length > 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-w-0 [overflow-wrap:anywhere]">
       {/* 1. Marketplace Activity Section */}
       <section aria-labelledby="marketplace-activity-heading">
         <div className="pb-3 mb-6 border-b border-[color:var(--workspace-border)]">
@@ -101,8 +101,8 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                         </p>
                       </div>
                     </div>
-                    <div className="mt-5 flex items-center justify-between border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
-                      <span className="inline-flex items-center gap-1.5 font-semibold text-[color:var(--workspace-ink)]">
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
+                      <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 whitespace-normal font-semibold text-[color:var(--workspace-ink)]">
                         <Tag size={12} className="text-[color:var(--workspace-muted)]" />
                         {service.category}
                       </span>
@@ -150,8 +150,8 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                         </p>
                       </div>
                     </div>
-                    <div className="mt-5 flex items-center justify-between border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
-                      <span className="inline-flex items-center gap-1.5 font-semibold text-[color:var(--workspace-ink)]">
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
+                      <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 whitespace-normal font-semibold text-[color:var(--workspace-ink)]">
                         <Tag size={12} className="text-[color:var(--workspace-muted)]" />
                         {request.category}
                       </span>
@@ -201,8 +201,8 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                           </p>
                         </div>
                       </div>
-                      <div className="mt-5 flex items-center justify-between border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
-                        <span className="inline-flex items-center gap-1.5 font-semibold text-[color:var(--workspace-ink)]">
+                      <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
+                        <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 whitespace-normal font-semibold text-[color:var(--workspace-ink)]">
                           <Tag size={12} className="text-[color:var(--workspace-muted)]" />
                           {service.category}
                         </span>
@@ -251,8 +251,8 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                           </p>
                         </div>
                       </div>
-                      <div className="mt-5 flex items-center justify-between border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
-                        <span className="inline-flex items-center gap-1.5 font-semibold text-[color:var(--workspace-ink)]">
+                      <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-[color:var(--workspace-border)] pt-3 text-xs text-[color:var(--workspace-muted)]">
+                        <span className="inline-flex min-w-0 max-w-full items-center gap-1.5 whitespace-normal font-semibold text-[color:var(--workspace-ink)]">
                           <Tag size={12} className="text-[color:var(--workspace-muted)]" />
                           {request.category}
                         </span>
@@ -286,7 +286,7 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
             <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--workspace-muted)] block mb-1.5">
               About
             </span>
-            <p className="text-sm leading-relaxed text-[color:var(--workspace-ink)] whitespace-pre-line">
+                <p className="text-sm leading-relaxed text-[color:var(--workspace-ink)] whitespace-pre-line">
               {bio}
             </p>
           </div>
@@ -304,7 +304,7 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--workspace-muted)] block">
                   Languages
                 </span>
-                <p className="mt-0.5 text-sm font-semibold text-[color:var(--workspace-ink)] truncate">
+                <p className="mt-0.5 text-sm font-semibold text-[color:var(--workspace-ink)]">
                   {languages || 'English, Cebuano'}
                 </p>
               </div>
@@ -319,7 +319,7 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[color:var(--workspace-muted)] block">
                   Availability
                 </span>
-                <p className="mt-0.5 text-sm font-semibold text-[color:var(--workspace-ink)] truncate">
+                <p className="mt-0.5 text-sm font-semibold text-[color:var(--workspace-ink)]">
                   {availability || 'Contact for schedule'}
                 </p>
               </div>
@@ -339,7 +339,7 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                     effectiveCategories.map((category) => (
                       <span
                         key={category}
-                        className="inline-flex items-center gap-1 rounded-full border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] px-2.5 py-0.5 text-xs font-semibold text-[color:var(--workspace-ink)]"
+                        className="inline-flex max-w-full items-center gap-1 whitespace-normal rounded-full border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] px-2.5 py-0.5 text-xs font-semibold text-[color:var(--workspace-ink)]"
                       >
                         {category}
                       </span>
