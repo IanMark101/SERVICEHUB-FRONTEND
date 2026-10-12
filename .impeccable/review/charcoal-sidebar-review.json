@@ -1,0 +1,176 @@
+{
+  "records": [
+    {
+      "role": "seeker",
+      "theme": "light",
+      "width": 1440,
+      "actualTheme": "light",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(217, 103, 0)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 125.9000015258789,
+        "y": 7402.306251525879,
+        "width": 224.39999389648438,
+        "height": 975.3045654296875
+      }
+    },
+    {
+      "role": "provider",
+      "theme": "light",
+      "width": 1440,
+      "actualTheme": "light",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(4, 120, 87)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 125.9000015258789,
+        "y": 7402.306251525879,
+        "width": 224.39999389648438,
+        "height": 986.6483154296875
+      }
+    },
+    {
+      "role": "seeker",
+      "theme": "dark",
+      "width": 1440,
+      "actualTheme": "dark",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(217, 103, 0)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 125.9000015258789,
+        "y": 7402.306251525879,
+        "width": 224.39999389648438,
+        "height": 975.3045654296875
+      }
+    },
+    {
+      "role": "provider",
+      "theme": "dark",
+      "width": 1440,
+      "actualTheme": "dark",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(4, 120, 87)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 125.9000015258789,
+        "y": 7402.306251525879,
+        "width": 224.39999389648438,
+        "height": 986.6483154296875
+      }
+    },
+    {
+      "role": "seeker",
+      "theme": "light",
+      "width": 390,
+      "actualTheme": "light",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(217, 103, 0)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 21.33333396911621,
+        "y": 5834.145835876465,
+        "width": 211.55555725097656,
+        "height": 914.5694580078125
+      }
+    },
+    {
+      "role": "provider",
+      "theme": "light",
+      "width": 390,
+      "actualTheme": "light",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(4, 120, 87)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 21.33333396911621,
+        "y": 5834.145835876465,
+        "width": 211.55555725097656,
+        "height": 942.9584350585938
+      }
+    },
+    {
+      "role": "seeker",
+      "theme": "dark",
+      "width": 390,
+      "actualTheme": "dark",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(217, 103, 0)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 21.33333396911621,
+        "y": 5834.145835876465,
+        "width": 211.55555725097656,
+        "height": 914.5694580078125
+      }
+    },
+    {
+      "role": "provider",
+      "theme": "dark",
+      "width": 390,
+      "actualTheme": "dark",
+      "background": "rgb(10, 10, 10)",
+      "lighting": "radial-gradient(110% 28% at 50% 108%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0) 100%), none",
+      "ink": "rgb(255, 255, 255)",
+      "activeInk": "rgb(255, 255, 255)",
+      "activeBackground": "rgb(4, 120, 87)",
+      "switches": [
+        "rgb(255, 255, 255)",
+        "rgb(255, 255, 255)"
+      ],
+      "rect": {
+        "x": 21.33333396911621,
+        "y": 5834.145835876465,
+        "width": 211.55555725097656,
+        "height": 942.9584350585938
+      }
+    }
+  ],
+  "pageErrors": [
+    "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:1:3356)"
+  ],
+  "scope": "Shared SidebarView in existing public preview; no signed-in account access."
+}

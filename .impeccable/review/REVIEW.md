@@ -4,7 +4,15 @@ Date: 2026-10-12. Scope: public `#trust` / `#reviews`, `#community`, and standar
 
 Previous 28-capture disposition (historical for superseded palette/icons): **ship within the then-requested visual, content and tab scope**. The fresh independent finish reviewer opened all 28 final captures individually and found no material fixes. Trust follows the supplied split composition, with actions left and real tabs above one open-facts panel right. That version used orange/brown/cream Community styling and Provider of the Week. Both sidebar palettes are visually identical across light/dark themes, matching the brown/orange Seeker and forest/green Provider references before the latest white-label correction.
 
-## Latest correction - ship within requested scope
+## Charcoal sidebar restoration ? 2026-10-12
+
+Both standard workspace sidebars now share #0A0A0A charcoal, white labels, #C9C9C9 secondary text, neutral #1E1E1E controls / #292929 hover fills and subtle white lighting at the bottom. The lighting is a static radial gradient: ellipse 110% 28%, centered at 50% 108%, white at 8% alpha fading to transparent. Seeker orange #D96700 and Provider green #047857 selections remain, with white active and workspace-switch labels. No dark-theme overrides change these colors. Active badges are charcoal/white; Admin remains separate.
+
+The landing Workspaces tab container and expanded previews reuse SidebarView and inherit the same restoration. Verified on the production build using a clean headless Edge profile without account access: eight role/theme/width combinations at 1440px and 390px, with eight sidebar crops and eight Workspaces container captures. Computed background is rgb(10,10,10), active and both switch labels are white in every combination, and actual themes match the requested themes. Opened both contact sheets and checked all sixteen captures. See [sidebar matrix](charcoal-sidebar-contact.png), [Workspaces matrix](charcoal-workspaces-contact.png) and [measurements](charcoal-sidebar-review.json). These previews establish shared styling, not certification of signed-in mobile navigation or the full footer. The existing preview caption overlaps parts of expanded sidebar crops.
+
+Ten focused existing tests passed (WorkspaceDashboardPreview and LandingWorkspaces), the 107-page production build passed, and the scoped SidebarView detector returned no findings. An initial build encountered a temporary review-browser profile file lock; the profile was removed and the rerun passed. Existing anonymous landing hydration #418 was recorded again; no error-free runtime claim. The user-pinned white-on-Seeker-orange contrast exception remains unchanged. Community and Trust colors are unchanged by this restoration.
+
+## Previous white-label and landing correction - sidebar backgrounds superseded
 
 The user explicitly pins white sidebar active labels and white text on both workspace switch buttons in both states, roles and themes. Seeker retains #D96700 selections, now with #FFFFFF ink; Provider retains #047857/white. Active count badges use brown/forest with white ink. Sidebar background, control, shadow and avatar styling remains theme invariant.
 
