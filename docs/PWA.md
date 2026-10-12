@@ -31,6 +31,8 @@ Authenticated HTML, API/RSC responses, maps, sockets, bookings, messages, paymen
 
 Replacement workers wait. The app offers **Update now** and **Later**, telling users to save work before reloading. **Later** dismisses the notice; `/install` retains the update action. Updating explicitly activates the worker and reloads the current page. Other open tabs offer a reload rather than reloading automatically. Unsaved forms are not automatically persisted by this feature.
 
+The nonblocking update notice uses a consistent charcoal surface in both themes and 44px actions on desktop and phone. During activation it announces the pending reload, shows progress and disables duplicate clicks. If activation stalls, it restores the actions and shows retry guidance. Reduced-motion preferences disable the progress spinner and button transitions.
+
 The app checks for updates on registration and when a visible page reconnects or regains visibility, throttled to once per minute. Activation removes only obsolete caches beginning with `servicehub-pwa-`.
 
 ## Deployment

@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import PwaProvider from './PwaProvider';
 import InstallPage from './InstallPage';
@@ -81,6 +81,28 @@ describe('PWA installation and update UX', () => {
     renderPage(); act(() => { window.dispatchEvent(new Event('load')); });
     await waitFor(() => expect(screen.getByText(/Offline support couldn't be prepared/)).toBeVisible());
     expect(screen.getByRole('link', { name: 'Open ServiceHub' })).toHaveAttribute('href', '/dashboard');
+  });
+  it('shows update progress, prevents duplicate activation and offers retry after a stalled update',async()=>{
+    vi.stubEnv('NODE_ENV','production'); renderPage();
+    act(()=>window.dispatchEvent(new Event('load')));
+    const notice=await screen.findByRole('complementary',{name:'ServiceHub update'});
+    const prompt=within(notice);
+    expect(prompt.getByText('Save your work, then reload to get the latest version.')).toBeVisible();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    vi.useFakeTimers();
+    fireEvent.click(prompt.getByRole('button',{name:'Update now'}));
+    expect(prompt.getByRole('heading',{name:'Updating ServiceHub'})).toBeVisible();
+    expect(prompt.getByText('Applying the update. This page will reload.')).toBeVisible();
+    const pending=prompt.getByRole('button',{name:'Updating…'});
+    expect(pending).toBeDisabled();expect(pending).toHaveAttribute('aria-busy','true');
+    expect(prompt.getByRole('button',{name:'Later'})).toBeDisabled();
+    fireEvent.click(pending);
+    expect(worker.postMessage).toHaveBeenCalledTimes(1);
+    act(()=>vi.advanceTimersByTime(10_000));
+    expect(prompt.getByText("The update hasn't finished. Reconnect and try again.")).toBeVisible();
+    expect(prompt.getByRole('button',{name:'Update now'})).toBeEnabled();
+    fireEvent.click(prompt.getByRole('button',{name:'Update now'}));
+    expect(worker.postMessage).toHaveBeenCalledTimes(2);
   });
   it('removes install and registration observers after unmounting', async () => {
     vi.stubEnv('NODE_ENV', 'production');

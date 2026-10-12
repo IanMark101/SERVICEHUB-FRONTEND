@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ArrowClockwise, ArrowsClockwise, WarningCircle } from '@phosphor-icons/react';
 import styles from './Pwa.module.css';
 
 interface InstallPromptEvent extends Event {
@@ -181,12 +182,21 @@ export default function PwaProvider({ children }: { children: ReactNode }) {
     {children}
     {offline ? <aside className={styles.notice} aria-label="Connection status">
       <p role="status">You&apos;re offline. Reconnect to send messages or change bookings.</p>
-    </aside> : updateAvailable && !dismissed ? <aside className={styles.notice} aria-label="ServiceHub update">
-      <p role="status"><strong>A ServiceHub update is ready.</strong> Save your work before reloading.</p>
-      {updateMessage && <p role="status">{updateMessage}</p>}
-      <div className={styles.noticeActions}>
-        <button type="button" onClick={update} disabled={updating} aria-busy={updating}>{updating ? 'Updating…' : 'Update now'}</button>
-        <button type="button" onClick={() => setDismissed(true)} disabled={updating}>Later</button>
+    </aside> : updateAvailable && !dismissed ? <aside className={`${styles.notice} ${styles.updateNotice}`} aria-label="ServiceHub update">
+      <div className={styles.updateHeader}>
+        <span className={styles.updateIcon} aria-hidden="true"><ArrowsClockwise size={21} weight="regular" /></span>
+        <div className={styles.updateCopy} role="status" aria-atomic="true">
+          <h2>{updating ? 'Updating ServiceHub' : 'ServiceHub update ready'}</h2>
+          <p>{updating ? 'Applying the update. This page will reload.' : 'Save your work, then reload to get the latest version.'}</p>
+        </div>
+      </div>
+      {updateMessage && <p className={styles.updateFeedback} role="status"><WarningCircle size={17} aria-hidden="true" /><span>{updateMessage}</span></p>}
+      <div className={styles.updateActions}>
+        <button className={styles.updateNow} type="button" onClick={update} disabled={updating} aria-busy={updating}>
+          <ArrowClockwise size={17} className={updating ? styles.updatingIcon : undefined} aria-hidden="true" />
+          {updating ? 'Updating…' : 'Update now'}
+        </button>
+        <button className={styles.updateLater} type="button" onClick={() => setDismissed(true)} disabled={updating}>Later</button>
       </div>
     </aside> : null}
   </PwaContext.Provider>;
