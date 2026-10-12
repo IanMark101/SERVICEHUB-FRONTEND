@@ -1,10 +1,6 @@
 .hero { position: relative; isolation: isolate; overflow: hidden; background: var(--landing-surface, #fcfbfa); color: #171716; border-bottom: 1px solid rgb(23 23 22 / 0.07); }
-/* Pre-paint states prevent a visible -> hidden flash while React hydrates. */
-.hero [data-hero-entrance] { opacity: 0; animation: hero-visible-fallback 0s 1.5s forwards; }
-.hero [data-hero-entrance='badge'] { transform: translateY(-20px); }
-.hero [data-hero-entrance='heading'], .hero [data-hero-entrance='description'], .hero [data-hero-entrance='actions'] { transform: translateY(32px); }
-.hero [data-hero-entrance='scene'] { transform: translateX(48px); isolation: isolate; }
-@keyframes hero-visible-fallback { to { opacity: 1; transform: none; } }
+/* The finished hero remains readable before hydration or without scripts. */
+.hero [data-hero-entrance='scene'] { isolation: isolate; }
 /* eGov-style proportions: copy on the left, presenter and phone on the right. */
 .layout { display: grid; grid-template-areas: "copy scene"; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); align-items: center; gap: 48px; max-width: 1440px; min-height: min(100svh, 780px); margin-inline: auto; padding: 96px clamp(32px, 5vw, 72px) 0 clamp(48px, 7.5vw, 108px); }
 .copy { grid-area: copy; position: relative; z-index: 2; width: 100%; max-width: 600px; justify-self: start; margin-top: -28px; padding-block: 16px 36px; }

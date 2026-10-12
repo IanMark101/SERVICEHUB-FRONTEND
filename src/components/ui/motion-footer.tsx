@@ -337,7 +337,7 @@ export function CinematicFooter({
             scrollTrigger: {
               trigger: wrapperRef.current,
               start: "top bottom",
-              once: true,
+              toggleActions: "restart complete restart complete",
               invalidateOnRefresh: true,
             },
           }

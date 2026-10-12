@@ -8,13 +8,13 @@ Intent: Persuade for Community, Operate for sidebar. DESIGN_VARIANCE 5; MOTION_I
 
 The Community invitation keeps `#community` and its `/login` action. Its left column carries the two-tone heading, explanation and white pill action; the right column has three ruled rows: Official Community Updates, Recently Added Services and Provider of the Week. Weekly recognition replaces the former Local Provider Directory claim and follows the actual Community feature's trust score, completed work and client ratings wording. Source: `src/features/community/components/TopProviders.tsx`.
 
-The inset panel remains at most 1216px wide, with 24px corners, reducing to 20px on phones. Columns stack at 900px; 480px phone styles use tighter padding and a full-width sign-in action. Existing Geist type, control/navigation icons and reduced-motion-aware ScrollReveal remain. Repeated decorative icons are removed from Community feature rows and both landing workspace summaries' role labels, features and tips. No new imagery, statistics or testimonials were introduced.
+The inset panel remains at most 1216px wide, with 24px corners, reducing to 20px on phones. Columns stack at 900px; 480px phone styles use tighter padding and a full-width sign-in action. Existing Geist type, control/navigation icons and reduced-motion-aware ScrollReveal remain. Community lighting uses a static broad white glow from the lower left (ellipse 85% 85% at 12% 112%, 12% alpha) and a faint upper-right highlight (ellipse 65% 90% at 104% 0%, 6% alpha), each fading to transparent at 75%. Its panel entrance replays on viewport re-entry, with content visible by default. Repeated decorative icons are removed from Community feature rows and both landing workspace summaries' role labels, features and tips. No new imagery, statistics or testimonials were introduced.
 
 ## Current implementation
 
 | Surface | Colors and source-defined type |
 | --- | --- |
-| Community | Panel var(--color-charcoal), #0A0A0A; headline accent var(--color-brand), #FF6B00; body and row titles white; white CTA with charcoal ink. Outer canvas uses var(--landing-surface), #FCFBFA light / charcoal dark. Heading 34-52px, weight 750, line-height 1.08; supporting copy 15-16px; row titles 15-16px and copy 13-14px. |
+| Community | Panel var(--color-charcoal), #0A0A0A, with static broad neutral white lighting from the lower left (12% peak alpha) and a faint upper-right highlight (6% peak alpha); headline accent var(--color-brand), #FF6B00; body and row titles white; white CTA with charcoal ink. Outer canvas uses var(--landing-surface), #FCFBFA light / charcoal dark. Heading 34-52px, weight 750, line-height 1.08; supporting copy 15-16px; row titles 15-16px and copy 13-14px. |
 | Seeker sidebar | Charcoal ground #0A0A0A, subtle neutral bottom lighting, white ink and secondary #C9C9C9; orange selections #D96700 with white #FFFFFF ink. |
 | Provider sidebar | Charcoal ground #0A0A0A, subtle neutral bottom lighting, white ink and secondary #C9C9C9; green selections #047857 with white ink. |
 

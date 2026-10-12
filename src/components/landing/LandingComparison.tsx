@@ -35,7 +35,7 @@ export default function LandingComparison({ isDark }: { isDark: boolean }) {
             </thead>
             <tbody>
               {features.map((feature, index) => (
-                <motion.tr key={feature.title} initial={false} whileInView={reduce ? undefined : { opacity: [0.8, 1] }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
+                <motion.tr key={feature.title} initial={false} whileInView={reduce ? undefined : { opacity: [0.8, 1] }} viewport={{ once: false, amount: 0.2 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
                   <th scope="row"><span className={styles.featureTitle}>{feature.title}</span><span className={styles.featureDetail}>{feature.detail}</span></th>
                   <td><span className={styles.manual}><X size={18} aria-hidden="true" /><span className="sr-only">Arranged manually through posts and messages</span></span></td>
                   <td className={styles.serviceHub}><span className={styles.included}><Check size={18} strokeWidth={2.5} aria-hidden="true" /><span className="sr-only">Built into ServiceHub</span></span></td>

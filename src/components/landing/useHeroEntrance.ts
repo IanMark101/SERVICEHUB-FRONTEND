@@ -1,35 +1,49 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAnimate } from 'motion/react';
+import { inView, useAnimate, type AnimationPlaybackControlsWithThen } from 'motion/react';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 const entrance = [
-  { name: 'badge', transform: 'translateY(-20px)', duration: 0.5, delay: 0.05 },
-  { name: 'heading', transform: 'translateY(32px)', duration: 0.6, delay: 0.15 },
-  { name: 'description', transform: 'translateY(32px)', duration: 0.6, delay: 0.25 },
-  { name: 'actions', transform: 'translateY(32px)', duration: 0.6, delay: 0.35 },
-  { name: 'scene', transform: 'translateX(48px)', duration: 0.7, delay: 0 },
+  { name: 'badge', transform: 'translateY(-8px)', duration: 0.5, delay: 0 },
+  { name: 'heading', transform: 'translateY(16px)', duration: 0.6, delay: 0.08 },
+  { name: 'description', transform: 'translateY(14px)', duration: 0.6, delay: 0.16 },
+  { name: 'actions', transform: 'translateY(12px)', duration: 0.6, delay: 0.24 },
+  { name: 'scene', transform: 'translateX(24px)', duration: 0.7, delay: 0 },
 ] as const;
 
 export default function useHeroEntrance() {
   const [scope, animate] = useAnimate<HTMLElement>();
 
   useEffect(() => {
-    const first = scope.current?.querySelector<HTMLElement>('[data-hero-entrance]');
-    // CSS exposes the finished composition for reduced motion and after the
-    // no-script fallback. Never hide it again if hydration arrives late.
-    if (!first || window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      || window.getComputedStyle(first).opacity === '1') return;
-
-    const controls = entrance.filter(({ name }) => scope.current?.querySelector(`[data-hero-entrance="${name}"]`)).map(({ name, transform, duration, delay }) => animate(
-      `[data-hero-entrance="${name}"]`,
-      { opacity: [0, 1], transform: [transform, 'none'] },
-      { duration, delay, ease },
-    ));
-    return () => controls.forEach(control => control.stop());
-    // The scope and animate identities are stable. Theme/session rerenders
-    // and scroll changes cannot restart this mount-only entrance.
+    const element = scope.current;
+    if (!element) return;
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let controls: AnimationPlaybackControlsWithThen[] = [];
+    let stopObserving: (() => void) | undefined;
+    const observe = () => {
+      stopObserving?.();
+      controls.forEach(control => control.complete());
+      if (preference.matches) return;
+      stopObserving = inView(element, () => {
+        controls.forEach(control => control.stop());
+        controls = entrance.filter(({ name }) => element.querySelector(`[data-hero-entrance="${name}"]`)).map(({ name, transform, duration, delay }) => animate(
+          `[data-hero-entrance="${name}"]`,
+          { opacity: [0.85, 1], transform: [transform, 'none'] },
+          { duration, delay, ease },
+        ));
+        // Finish an interrupted entrance offscreen; re-entry starts it afresh.
+        return () => controls.forEach(control => control.complete());
+      }, { amount: 0.12 });
+    };
+    observe();
+    preference.addEventListener?.('change', observe);
+    return () => {
+      preference.removeEventListener?.('change', observe);
+      stopObserving?.();
+      controls.forEach(control => control.stop());
+    };
+    // Observe viewport boundaries rather than updating React on scroll ticks.
   }, [animate, scope]);
 
   return scope;

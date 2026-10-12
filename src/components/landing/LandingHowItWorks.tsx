@@ -93,7 +93,11 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
           {flow.map((item, index) => {
             const Icon = item.icon;
             return (
-              <li key={item.title} className="relative flex flex-col rounded-2xl border border-slate-200/90 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70 sm:p-8">
+              <motion.li key={item.title} data-scroll-reveal="up" initial={false}
+                whileInView={reduce ? undefined : { opacity: [0.85, 1], y: [20, 0] }}
+                viewport={{ once: false, amount: 0.15 }}
+                transition={{ duration: 0.6, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                className="relative flex flex-col rounded-2xl border border-slate-200/90 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70 sm:p-8">
                 <div className="flex items-center justify-between">
                   <span className={`grid size-12 place-items-center rounded-xl ${role === 'seeker' ? 'bg-seeker-light text-brand dark:bg-orange-950/40' : 'bg-provider-light text-provider-hover dark:bg-emerald-950/40 dark:text-emerald-400'}`}><Icon size={22} aria-hidden="true" /></span>
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600 dark:bg-charcoal dark:text-zinc-400">0{index + 1}</span>
@@ -101,7 +105,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
                 <p className="mt-7 text-xs font-bold text-neutral-500 dark:text-zinc-400">{item.step}</p>
                 <h3 className="mt-2 text-lg font-bold text-[#0a0a0a] dark:text-white">{item.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-zinc-400">{item.description}</p>
-              </li>
+              </motion.li>
             );
           })}
         </motion.ol>

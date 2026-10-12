@@ -5,6 +5,7 @@ import { ArrowRight, Pause, Play } from 'lucide-react';
 import { useReducedMotion } from 'motion/react';
 import LandingMarketplacePreview from './LandingMarketplacePreview';
 import LandingHeroHorizontalTrack from './LandingHeroHorizontalTrack';
+import ScrollReveal from './ScrollReveal';
 import styles from './LandingHeroResponsive.module.css';
 
 export default function LandingBenefits({ isDark }: { isDark: boolean }) {
@@ -14,6 +15,7 @@ export default function LandingBenefits({ isDark }: { isDark: boolean }) {
     <section id="problem" aria-labelledby="landing-benefits-title" className={`${styles.heroSurface} relative overflow-hidden border-b border-black/[0.06] dark:border-white/10`}>
       <div className={`${styles.heroGrid} relative z-10 mx-auto grid min-h-0 max-w-7xl items-center gap-10 px-5 py-14 sm:px-8 lg:min-h-[560px] lg:px-10 lg:py-16`}>
         <div data-landing-anchor className="relative z-10 max-w-xl">
+          <ScrollReveal>
           <h2 id="landing-benefits-title" className="text-4xl font-semibold leading-[1.1] tracking-tight text-[#0a0a0a] dark:text-white sm:text-5xl lg:text-[3.5rem]">Local help, with less guesswork.</h2>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-neutral-600 dark:text-zinc-300">Too much gets lost between a post and a conversation. Bring requests, offers, and booking progress together in one place.</p>
           <dl className="mt-8 space-y-5 text-sm leading-relaxed text-neutral-600 dark:text-zinc-300">
@@ -28,9 +30,10 @@ export default function LandingBenefits({ isDark }: { isDark: boolean }) {
               {reducedMotion ? 'Motion off' : paused ? 'Resume cards' : 'Pause cards'}
             </button>
           </div>
+          </ScrollReveal>
         </div>
         <div className={styles.desktopPreview}><LandingMarketplacePreview isDark={isDark} paused={paused} /></div>
-        <div className={styles.horizontalShowcase}><LandingHeroHorizontalTrack paused={paused} /></div>
+        <ScrollReveal className={styles.horizontalShowcase}><LandingHeroHorizontalTrack paused={paused} /></ScrollReveal>
       </div>
     </section>
   );

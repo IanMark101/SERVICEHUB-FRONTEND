@@ -4,6 +4,16 @@ Date: 2026-10-12. Scope: public `#trust` / `#reviews`, `#community`, and standar
 
 Previous 28-capture disposition (historical for superseded palette/icons): **ship within the then-requested visual, content and tab scope**. The fresh independent finish reviewer opened all 28 final captures individually and found no material fixes. Trust follows the supplied split composition, with actions left and real tabs above one open-facts panel right. That version used orange/brown/cream Community styling and Provider of the Week. Both sidebar palettes are visually identical across light/dark themes, matching the brown/orange Seeker and forest/green Provider references before the latest white-label correction.
 
+## Landing lighting and repeatable motion ? 2026-10-12
+
+The Community panel retains #0A0A0A / white / #FF6B00, with two static neutral lighting fields: a broad lower-left white glow (12% peak alpha) and a faint upper-right highlight (6%). Layout, feature claims and actions are unchanged.
+
+Added repeatable entrances to Benefits copy/mobile track, How It Works cards and the active Workspaces panel. Comparison rows now replay. Existing ScrollReveal sections already use once:false; Trust, Community, FAQ, CTA and Booking heading retain those entrances. Hero groups now observe entry/exit, use partial opacity and small movement from a visible CSS default, respond to reduced-motion preference changes and clean up observers/controls. Footer heading/actions use restart/complete entry and exit actions. The Booking walkthrough, tablet perspective, tickers and footer parallax keep their existing behavior.
+
+Validation: 29 tests passed across hero lifecycle, public server rendering, content controls, Workspaces and Booking Progress. Scoped ESLint and the 107-page production build passed. [Browser evidence](landing-motion-review.json) records eleven content targets with two entry runs each: 1440px and 390px in both themes replayed every target; 320px in both themes stayed stationary with reduced motion. No horizontal page overflow was measured. Six Community panel captures use viewport crops at 1440/390/320, both themes, with reduced motion for clean stills. The initial offscreen mobile crops were replaced after correcting the capture coordinates; no product layout change was needed. Existing anonymous landing React #418 remains recorded in the browser evidence, without an error-free runtime claim.
+
+The detector found the existing CTA charcoal text on pale-orange hover and two existing footer-font warnings. These unchanged colors/type remain outside this motion/lighting scope. No new dependencies, account access, database changes or deployment. Both master prompts are aligned.
+
 ## Charcoal sidebar restoration ? 2026-10-12
 
 Both standard workspace sidebars now share #0A0A0A charcoal, white labels, #C9C9C9 secondary text, neutral #1E1E1E controls / #292929 hover fills and subtle white lighting at the bottom. The lighting is a static radial gradient: ellipse 110% 28%, centered at 50% 108%, white at 8% alpha fading to transparent. Seeker orange #D96700 and Provider green #047857 selections remain, with white active and workspace-switch labels. No dark-theme overrides change these colors. Active badges are charcoal/white; Admin remains separate.

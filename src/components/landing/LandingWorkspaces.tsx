@@ -134,8 +134,11 @@ export default function LandingWorkspaces({ isDark }: { isDark: boolean }) {
               hidden={!isActive}
               data-role={tab}
               className={styles.panel}
+              data-scroll-reveal="up"
               initial={false}
               animate={isActive && !reduce ? { opacity: [0.8, 1], y: [4, 0] } : { opacity: 1, y: 0 }}
+              whileInView={reduce ? undefined : { opacity: [0.85, 1], y: [18, 0] }}
+              viewport={{ once: false, amount: 0.12 }}
               transition={{ duration: reduce ? 0 : 0.45, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className={styles.details}>
