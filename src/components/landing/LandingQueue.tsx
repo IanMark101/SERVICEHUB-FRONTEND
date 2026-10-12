@@ -72,8 +72,7 @@ export default function LandingQueue({ isDark }: LandingQueueProps) {
                 <ScrollReveal
                   key={item.label}
                   direction="right"
-                  amount={0.7}
-                  delay={0.14 + index * 0.1}
+                  scrollStart={0.14 + index * 0.1}
                   className="grid grid-cols-[44px_1fr_auto] items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4.5 dark:border-zinc-800/80 dark:bg-charcoal/40"
                 >
                   <div className="grid size-11 place-items-center rounded-xl bg-white text-brand shadow-xs dark:bg-charcoal">

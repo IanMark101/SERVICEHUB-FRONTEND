@@ -54,7 +54,7 @@ export default function LandingReviews({ isDark }: LandingReviewsProps) {
               <ScrollReveal
                 key={item.title}
                 direction="scale"
-                delay={index * 0.09}
+                scrollStart={index * 0.09}
                 hoverLift
                 className="relative rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.03)] transition-all hover:border-neutral-300 hover:shadow-md dark:border-zinc-800 dark:bg-charcoal/90 sm:p-7"
               >

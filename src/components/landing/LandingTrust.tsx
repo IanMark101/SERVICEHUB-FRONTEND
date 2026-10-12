@@ -80,7 +80,7 @@ export default function LandingTrust({ isDark }: { isDark: boolean }) {
   return (
     <section id="trust" className={styles.section} data-theme={isDark ? 'dark' : 'light'} aria-labelledby="trust-heading">
       <div className={styles.layout} data-landing-anchor>
-        <ScrollReveal className={styles.intro}>
+        <ScrollReveal className={styles.intro} direction="left" distance={64}>
           <h2 id="trust-heading" className={styles.heading}>Know who you&apos;re <span>working with.</span></h2>
           <p className={styles.copy}>Check verification, completed-service reviews and trust history before choosing who to work with.</p>
           <p className={styles.note}>A review shares an experience. Trust grows through verified participation and eligible completed work.</p>
@@ -89,7 +89,7 @@ export default function LandingTrust({ isDark }: { isDark: boolean }) {
             <Link className={styles.secondaryLink} href="/help/reviews/how-reviews-and-ratings-work">How reviews work <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
         </ScrollReveal>
-        <ScrollReveal>
+        <ScrollReveal direction="right" distance={64}>
           <section id="reviews" className={styles.explorer} aria-label="Verification, reviews and trust explained">
             <div className={styles.tabs} role="tablist" aria-label="Trust topics" data-landing-anchor>
               {topicKeys.map(topic => (

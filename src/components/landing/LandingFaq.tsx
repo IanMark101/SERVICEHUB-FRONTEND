@@ -57,7 +57,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
       className="scroll-mt-20 border-b border-black/[0.06] bg-transparent px-5 pt-16 pb-20 dark:border-white/10 sm:px-8 lg:px-10 lg:pb-28"
     >
       <div data-landing-anchor className="mx-auto grid w-full min-w-0 max-w-7xl gap-12 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-20">
-        <ScrollReveal>
+        <ScrollReveal direction="left" distance={64}>
           <h2 id="faq-heading" className="max-w-[15ch] font-sans text-3xl font-bold tracking-tight text-[#0a0a0a] dark:text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
             Frequently asked questions.
           </h2>
@@ -76,7 +76,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
           {faqs.map((item, index) => {
             const expanded = open === index;
             return (
-              <ScrollReveal key={item.q} className="py-2">
+              <ScrollReveal key={item.q} className="py-2" direction="right" distance={56}>
                 <h3>
                   <button
                     type="button"

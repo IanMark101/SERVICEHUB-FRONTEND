@@ -34,7 +34,7 @@ export default function LandingHero({ isDark }: LandingHeroProps) {
             <LandingActionLink size="hero">Get started</LandingActionLink>
             <a href="#workspaces" className={styles.secondary}>Explore the workspaces <ArrowRight size={16} aria-hidden="true" /></a>
           </div>
-          <div data-hero-entrance="actions" className={styles.helpBar}>
+          <div data-hero-entrance="support" className={styles.helpBar}>
             <span className={styles.helpPrompt}><BookOpen size={17} aria-hidden="true" />Need a hand getting started?</span>
             <Link href="/help" className={styles.helpLink}>Open Help Center <ArrowRight size={14} aria-hidden="true" /></Link>
           </div>

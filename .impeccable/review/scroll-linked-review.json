@@ -1,0 +1,6465 @@
+{
+  "implementation": "scroll-linked, entry from viewport bottom to midpoint; no timed entrance",
+  "contexts": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "reduced": false,
+      "label": "1440-light-motion",
+      "maximumOverflow": 0,
+      "records": [
+        {
+          "name": "how-heading",
+          "selector": "#how-it-works [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 978,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.587646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1149,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.2450561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1284,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.1983032226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1428,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1149,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.2450561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 978,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.587646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1428,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-1",
+          "selector": "#service-journey > li:first-child",
+          "samples": [
+            {
+              "scrollY": 1178,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 67.3196,
+              "scale": 1,
+              "top": 913.694580078125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 31.3834,
+              "scale": 1,
+              "top": 706.7583618164062,
+              "overflow": 0,
+              "capture": "scroll-linked-how-card-1-1440-entry.png"
+            },
+            {
+              "scrollY": 1484,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 9.10921,
+              "scale": 1,
+              "top": 549.4841918945312,
+              "overflow": 0,
+              "capture": "scroll-linked-how-card-1-1440-middle.png"
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0,
+              "capture": "scroll-linked-how-card-1-1440-settled.png"
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 31.3834,
+              "scale": 1,
+              "top": 706.7583618164062,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1178,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 67.3196,
+              "scale": 1,
+              "top": 913.694580078125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-3",
+          "selector": "#service-journey > li:last-child",
+          "samples": [
+            {
+              "scrollY": 1178,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 80,
+              "scale": 1,
+              "top": 926.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 39.7121,
+              "scale": 1,
+              "top": 715.0870361328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1484,
+              "opacity": 0.91355,
+              "x": 0,
+              "y": 11.5267,
+              "scale": 1,
+              "top": 551.9016723632812,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 39.7121,
+              "scale": 1,
+              "top": 715.0870361328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1178,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 80,
+              "scale": 1,
+              "top": 926.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-intro",
+          "selector": "#trust [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 8256,
+              "opacity": 0.495103,
+              "x": -53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8410,
+              "opacity": 0.740304,
+              "x": -27.7009,
+              "y": 0,
+              "scale": 1,
+              "top": 691.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8545,
+              "opacity": 0.913706,
+              "x": -9.20473,
+              "y": 0,
+              "scale": 1,
+              "top": 556.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8689,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 412.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8410,
+              "opacity": 0.740304,
+              "x": -27.7009,
+              "y": 0,
+              "scale": 1,
+              "top": 691.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8239,
+              "opacity": 0.465624,
+              "x": -57.0001,
+              "y": 0,
+              "scale": 1,
+              "top": 862.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8689,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 412.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-panel",
+          "selector": "#trust [data-scroll-motion=\"linked\"]:last-child",
+          "samples": [
+            {
+              "scrollY": 8256,
+              "opacity": 0.495103,
+              "x": 53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8427,
+              "opacity": 0.764625,
+              "x": 25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0,
+              "capture": "scroll-linked-trust-panel-1440-entry.png"
+            },
+            {
+              "scrollY": 8562,
+              "opacity": 0.931681,
+              "x": 7.28736,
+              "y": 0,
+              "scale": 1,
+              "top": 539.75,
+              "overflow": 0,
+              "capture": "scroll-linked-trust-panel-1440-middle.png"
+            },
+            {
+              "scrollY": 8706,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0,
+              "capture": "scroll-linked-trust-panel-1440-settled.png"
+            },
+            {
+              "scrollY": 8427,
+              "opacity": 0.764625,
+              "x": 25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8256,
+              "opacity": 0.495103,
+              "x": 53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8706,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-heading",
+          "selector": "#faq [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 9723,
+              "opacity": 0.495103,
+              "x": -53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9894,
+              "opacity": 0.764625,
+              "x": -25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10029,
+              "opacity": 0.931681,
+              "x": -7.28736,
+              "y": 0,
+              "scale": 1,
+              "top": 539.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10173,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9894,
+              "opacity": 0.764625,
+              "x": -25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9723,
+              "opacity": 0.495103,
+              "x": -53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10173,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-first",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-0)",
+          "samples": [
+            {
+              "scrollY": 9724,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9895,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0,
+              "capture": "scroll-linked-faq-first-1440-entry.png"
+            },
+            {
+              "scrollY": 10030,
+              "opacity": 0.931681,
+              "x": 6.37644,
+              "y": 0,
+              "scale": 1,
+              "top": 539.875,
+              "overflow": 0,
+              "capture": "scroll-linked-faq-first-1440-middle.png"
+            },
+            {
+              "scrollY": 10174,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0,
+              "capture": "scroll-linked-faq-first-1440-settled.png"
+            },
+            {
+              "scrollY": 9895,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9724,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10174,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-third",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-2)",
+          "samples": [
+            {
+              "scrollY": 9970,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10141,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10276,
+              "opacity": 0.931681,
+              "x": 6.37644,
+              "y": 0,
+              "scale": 1,
+              "top": 540.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10141,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9970,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-last",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-7)",
+          "samples": [
+            {
+              "scrollY": 10365,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10536,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10671,
+              "opacity": 0.931681,
+              "x": 6.37644,
+              "y": 0,
+              "scale": 1,
+              "top": 540.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10815,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10536,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10365,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10815,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "benefits",
+          "selector": "#problem [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 188,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.822021484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 359,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.4794311523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 494,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.4326782226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 638,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.234375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 359,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.4794311523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 188,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.822021484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 638,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.234375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "booking-heading",
+          "selector": "#booking-progress [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 1755,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.900146484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1926,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5575561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2061,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.5108032226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2205,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1926,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5575561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1755,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.900146484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2205,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "workspaces-heading",
+          "selector": "#workspaces [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 6072,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.212646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6243,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 702.8700561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6378,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 547.8233032226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6522,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6243,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 702.8700561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6072,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.212646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6522,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "comparison",
+          "selector": "#comparison [data-scroll-motion=\"linked\"]:has(table)",
+          "samples": [
+            {
+              "scrollY": 7505,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.868896484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7676,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5262451171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7811,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.4795532226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7955,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7676,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5262451171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7505,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.868896484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7955,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "community",
+          "selector": "#community [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 9049,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 907.009521484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9220,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.6668701171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9355,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.6201782226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9499,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.421875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9220,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.6668701171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9049,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 907.009521484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9499,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.421875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        }
+      ],
+      "wheel": {
+        "before": {
+          "scrollY": 1149,
+          "transform": "matrix(1, 0, 0, 1, 0, 28.245)"
+        },
+        "after": {
+          "scrollY": 1358,
+          "transform": "matrix(1, 0, 0, 1, 0, 0.796265)"
+        },
+        "moved": true
+      },
+      "keyboard": {
+        "selected": "true",
+        "focused": true,
+        "panelVisible": true,
+        "focusOpacity": "1",
+        "focusTransform": "none"
+      }
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "reduced": false,
+      "label": "1440-dark-motion",
+      "maximumOverflow": 0,
+      "records": [
+        {
+          "name": "how-heading",
+          "selector": "#how-it-works [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 978,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.587646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1149,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.2450561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1284,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.1983032226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1428,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1149,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.2450561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 978,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.587646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1428,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-1",
+          "selector": "#service-journey > li:first-child",
+          "samples": [
+            {
+              "scrollY": 1178,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 67.3196,
+              "scale": 1,
+              "top": 913.694580078125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 31.3834,
+              "scale": 1,
+              "top": 706.7583618164062,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1484,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 9.10921,
+              "scale": 1,
+              "top": 549.4841918945312,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 31.3834,
+              "scale": 1,
+              "top": 706.7583618164062,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1178,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 67.3196,
+              "scale": 1,
+              "top": 913.694580078125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-3",
+          "selector": "#service-journey > li:last-child",
+          "samples": [
+            {
+              "scrollY": 1178,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 80,
+              "scale": 1,
+              "top": 926.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 39.7121,
+              "scale": 1,
+              "top": 715.0870361328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1484,
+              "opacity": 0.91355,
+              "x": 0,
+              "y": 11.5267,
+              "scale": 1,
+              "top": 551.9016723632812,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1349,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 39.7121,
+              "scale": 1,
+              "top": 715.0870361328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1178,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 80,
+              "scale": 1,
+              "top": 926.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1628,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-intro",
+          "selector": "#trust [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 8256,
+              "opacity": 0.495103,
+              "x": -53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8410,
+              "opacity": 0.740304,
+              "x": -27.7009,
+              "y": 0,
+              "scale": 1,
+              "top": 691.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8545,
+              "opacity": 0.913706,
+              "x": -9.20473,
+              "y": 0,
+              "scale": 1,
+              "top": 556.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8689,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 412.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8410,
+              "opacity": 0.740304,
+              "x": -27.7009,
+              "y": 0,
+              "scale": 1,
+              "top": 691.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8239,
+              "opacity": 0.465624,
+              "x": -57.0001,
+              "y": 0,
+              "scale": 1,
+              "top": 862.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8689,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 412.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-panel",
+          "selector": "#trust [data-scroll-motion=\"linked\"]:last-child",
+          "samples": [
+            {
+              "scrollY": 8256,
+              "opacity": 0.495103,
+              "x": 53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8427,
+              "opacity": 0.764625,
+              "x": 25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8562,
+              "opacity": 0.931681,
+              "x": 7.28736,
+              "y": 0,
+              "scale": 1,
+              "top": 539.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8706,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8427,
+              "opacity": 0.764625,
+              "x": 25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8256,
+              "opacity": 0.495103,
+              "x": 53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8706,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-heading",
+          "selector": "#faq [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 9723,
+              "opacity": 0.495103,
+              "x": -53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9894,
+              "opacity": 0.764625,
+              "x": -25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10029,
+              "opacity": 0.931681,
+              "x": -7.28736,
+              "y": 0,
+              "scale": 1,
+              "top": 539.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10173,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9894,
+              "opacity": 0.764625,
+              "x": -25.1067,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9723,
+              "opacity": 0.495103,
+              "x": -53.8557,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10173,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-first",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-0)",
+          "samples": [
+            {
+              "scrollY": 9724,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9895,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10030,
+              "opacity": 0.931681,
+              "x": 6.37644,
+              "y": 0,
+              "scale": 1,
+              "top": 539.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10174,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9895,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 674.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9724,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 845.875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10174,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-third",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-2)",
+          "samples": [
+            {
+              "scrollY": 9970,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10141,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10276,
+              "opacity": 0.931681,
+              "x": 6.37644,
+              "y": 0,
+              "scale": 1,
+              "top": 540.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10141,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9970,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-last",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-7)",
+          "samples": [
+            {
+              "scrollY": 10365,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10536,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10671,
+              "opacity": 0.931681,
+              "x": 6.37644,
+              "y": 0,
+              "scale": 1,
+              "top": 540.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10815,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10536,
+              "opacity": 0.764625,
+              "x": 21.9684,
+              "y": 0,
+              "scale": 1,
+              "top": 675.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10365,
+              "opacity": 0.495103,
+              "x": 47.1237,
+              "y": 0,
+              "scale": 1,
+              "top": 846.125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10815,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "benefits",
+          "selector": "#problem [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 188,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.822021484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 359,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.4794311523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 494,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.4326782226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 638,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.234375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 359,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.4794311523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 188,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.822021484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 638,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.234375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "booking-heading",
+          "selector": "#booking-progress [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 1755,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.900146484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1926,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5575561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2061,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.5108032226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2205,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1926,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5575561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1755,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.900146484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2205,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "workspaces-heading",
+          "selector": "#workspaces [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 6072,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.212646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6243,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 702.8700561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6378,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 547.8233032226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6522,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6243,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 702.8700561523438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6072,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.212646484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6522,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "comparison",
+          "selector": "#comparison [data-scroll-motion=\"linked\"]:has(table)",
+          "samples": [
+            {
+              "scrollY": 7505,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.868896484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7676,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5262451171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7811,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.4795532226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7955,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7676,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.5262451171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7505,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 906.868896484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7955,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "community",
+          "selector": "#community [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 9049,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 907.009521484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9220,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.6668701171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9355,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 8.19828,
+              "scale": 1,
+              "top": 548.6201782226562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9499,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.421875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9220,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 28.245,
+              "scale": 1,
+              "top": 703.6668701171875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9049,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 60.5877,
+              "scale": 1,
+              "top": 907.009521484375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9499,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.421875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        }
+      ],
+      "wheel": {
+        "before": {
+          "scrollY": 1149,
+          "transform": "matrix(1, 0, 0, 1, 0, 28.245)"
+        },
+        "after": {
+          "scrollY": 1358,
+          "transform": "matrix(1, 0, 0, 1, 0, 0.796265)"
+        },
+        "moved": true
+      },
+      "keyboard": {
+        "selected": "true",
+        "focused": true,
+        "panelVisible": true,
+        "focusOpacity": "1",
+        "focusTransform": "none"
+      }
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "reduced": false,
+      "label": "390-light-motion",
+      "maximumOverflow": 0,
+      "records": [
+        {
+          "name": "how-heading",
+          "selector": "#how-it-works [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 1326,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1497,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1632,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.9186401367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1776,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1497,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1326,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1776,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-1",
+          "selector": "#service-journey > li:first-child",
+          "samples": [
+            {
+              "scrollY": 1632,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1803,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7831420898438,
+              "overflow": 0,
+              "capture": "scroll-linked-how-card-1-390-entry.png"
+            },
+            {
+              "scrollY": 1938,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.4186401367188,
+              "overflow": 0,
+              "capture": "scroll-linked-how-card-1-390-middle.png"
+            },
+            {
+              "scrollY": 2082,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.953125,
+              "overflow": 0,
+              "capture": "scroll-linked-how-card-1-390-settled.png"
+            },
+            {
+              "scrollY": 1803,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1632,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2082,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.953125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-3",
+          "selector": "#service-journey > li:last-child",
+          "samples": [
+            {
+              "scrollY": 2219,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 48,
+              "scale": 1,
+              "top": 893.515625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2390,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 23.8272,
+              "scale": 1,
+              "top": 698.3428344726562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2525,
+              "opacity": 0.91355,
+              "x": 0,
+              "y": 6.916,
+              "scale": 1,
+              "top": 546.431640625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2669,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.515625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2390,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 23.8272,
+              "scale": 1,
+              "top": 698.3428344726562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2219,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 48,
+              "scale": 1,
+              "top": 893.515625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2669,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.515625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-intro",
+          "selector": "#trust [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 6553,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6724,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6859,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.1217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7003,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6724,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6553,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7003,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-panel",
+          "selector": "#trust [data-scroll-motion=\"linked\"]:last-child",
+          "samples": [
+            {
+              "scrollY": 7001,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.4854736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7172,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9237670898438,
+              "overflow": 0,
+              "capture": "scroll-linked-trust-panel-390-entry.png"
+            },
+            {
+              "scrollY": 7307,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.5592651367188,
+              "overflow": 0,
+              "capture": "scroll-linked-trust-panel-390-middle.png"
+            },
+            {
+              "scrollY": 7451,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.09375,
+              "overflow": 0,
+              "capture": "scroll-linked-trust-panel-390-settled.png"
+            },
+            {
+              "scrollY": 7172,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9237670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7001,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.4854736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7451,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.09375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-heading",
+          "selector": "#faq [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 8809,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8980,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9115,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.6217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9259,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8980,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8809,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9259,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-first",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-0)",
+          "samples": [
+            {
+              "scrollY": 9101,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9272,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0,
+              "capture": "scroll-linked-faq-first-390-entry.png"
+            },
+            {
+              "scrollY": 9407,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.6217651367188,
+              "overflow": 0,
+              "capture": "scroll-linked-faq-first-390-middle.png"
+            },
+            {
+              "scrollY": 9551,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0,
+              "capture": "scroll-linked-faq-first-390-settled.png"
+            },
+            {
+              "scrollY": 9272,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9101,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9551,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-third",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-2)",
+          "samples": [
+            {
+              "scrollY": 9442,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0479736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9613,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9748,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.1217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9892,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9613,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9442,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0479736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9892,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-last",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-7)",
+          "samples": [
+            {
+              "scrollY": 9941,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10112,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10247,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.1217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10391,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10112,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9941,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10391,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "benefits",
+          "selector": "#problem [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 216,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3136596679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 387,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7518920898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 522,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.3873901367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 666,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.921875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 387,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7518920898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 216,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3136596679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 666,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.921875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "booking-heading",
+          "selector": "#booking-progress [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 2839,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3010,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3145,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.9186401367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3289,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3010,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2839,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3289,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "workspaces-heading",
+          "selector": "#workspaces [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 4504,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 885.9230346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4675,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.3612670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4810,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 544.9967651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4954,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.53125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4675,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.3612670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4504,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 885.9230346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4954,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.53125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "comparison",
+          "selector": "#comparison [data-scroll-motion=\"linked\"]:has(table)",
+          "samples": [
+            {
+              "scrollY": 5965,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7042846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6136,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.1425170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6271,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.7780151367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6415,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6136,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.1425170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5965,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7042846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6415,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "community",
+          "selector": "#community [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 7987,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7667846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8158,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2050170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8293,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.8405151367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8437,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8158,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2050170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7987,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7667846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8437,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        }
+      ],
+      "wheel": {
+        "before": {
+          "scrollY": 1497,
+          "transform": "matrix(1, 0, 0, 1, 0, 18.83)"
+        },
+        "after": {
+          "scrollY": 1706,
+          "transform": "matrix(1, 0, 0, 1, 0, 0.530843)"
+        },
+        "moved": true
+      },
+      "keyboard": {
+        "selected": "true",
+        "focused": true,
+        "panelVisible": true,
+        "focusOpacity": "1",
+        "focusTransform": "none"
+      }
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "reduced": false,
+      "label": "390-dark-motion",
+      "maximumOverflow": 0,
+      "records": [
+        {
+          "name": "how-heading",
+          "selector": "#how-it-works [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 1326,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1497,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1632,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.9186401367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1776,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1497,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1326,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1776,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-1",
+          "selector": "#service-journey > li:first-child",
+          "samples": [
+            {
+              "scrollY": 1632,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1803,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1938,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.4186401367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2082,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.953125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1803,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1632,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2082,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.953125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-3",
+          "selector": "#service-journey > li:last-child",
+          "samples": [
+            {
+              "scrollY": 2219,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 48,
+              "scale": 1,
+              "top": 893.515625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2390,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 23.8272,
+              "scale": 1,
+              "top": 698.3428344726562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2525,
+              "opacity": 0.91355,
+              "x": 0,
+              "y": 6.916,
+              "scale": 1,
+              "top": 546.431640625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2669,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.515625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2390,
+              "opacity": 0.70216,
+              "x": 0,
+              "y": 23.8272,
+              "scale": 1,
+              "top": 698.3428344726562,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2219,
+              "opacity": 0.4,
+              "x": 0,
+              "y": 48,
+              "scale": 1,
+              "top": 893.515625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2669,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.515625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-intro",
+          "selector": "#trust [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 6553,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6724,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6859,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.1217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7003,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6724,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6553,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7003,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-panel",
+          "selector": "#trust [data-scroll-motion=\"linked\"]:last-child",
+          "samples": [
+            {
+              "scrollY": 7001,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.4854736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7172,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9237670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7307,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.5592651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7451,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.09375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7172,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9237670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7001,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.4854736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7451,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.09375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-heading",
+          "selector": "#faq [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 8809,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8980,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9115,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.6217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9259,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8980,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8809,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9259,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-first",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-0)",
+          "samples": [
+            {
+              "scrollY": 9101,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9272,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9407,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.6217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9551,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9272,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.9862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9101,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.5480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9551,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.15625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-third",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-2)",
+          "samples": [
+            {
+              "scrollY": 9442,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0479736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9613,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9748,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.1217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9892,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9613,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9442,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0479736328125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9892,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-last",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-7)",
+          "samples": [
+            {
+              "scrollY": 9941,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10112,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10247,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.1217651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10391,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10112,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.4862670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9941,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.0480346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10391,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.65625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "benefits",
+          "selector": "#problem [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 216,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3136596679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 387,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7518920898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 522,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.3873901367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 666,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.921875,
+              "overflow": 0
+            },
+            {
+              "scrollY": 387,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.7518920898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 216,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.3136596679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 666,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.921875,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "booking-heading",
+          "selector": "#booking-progress [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 2839,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3010,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3145,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.9186401367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3289,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3010,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2831420898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2839,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.8449096679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3289,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.453125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "workspaces-heading",
+          "selector": "#workspaces [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 4504,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 885.9230346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4675,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.3612670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4810,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 544.9967651367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4954,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.53125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4675,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 693.3612670898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4504,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 885.9230346679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4954,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.53125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "comparison",
+          "selector": "#comparison [data-scroll-motion=\"linked\"]:has(table)",
+          "samples": [
+            {
+              "scrollY": 5965,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7042846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6136,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.1425170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6271,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.7780151367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6415,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6136,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.1425170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5965,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7042846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6415,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.3125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        },
+        {
+          "name": "community",
+          "selector": "#community [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 7987,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7667846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8158,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2050170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8293,
+              "opacity": 0.931681,
+              "x": 0,
+              "y": 5.46552,
+              "scale": 1,
+              "top": 545.8405151367188,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8437,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8158,
+              "opacity": 0.764625,
+              "x": 0,
+              "y": 18.83,
+              "scale": 1,
+              "top": 694.2050170898438,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7987,
+              "opacity": 0.495103,
+              "x": 0,
+              "y": 40.3918,
+              "scale": 1,
+              "top": 886.7667846679688,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8437,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": true,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": false,
+          "settledReadable": true
+        }
+      ],
+      "wheel": {
+        "before": {
+          "scrollY": 1497,
+          "transform": "matrix(1, 0, 0, 1, 0, 18.83)"
+        },
+        "after": {
+          "scrollY": 1706,
+          "transform": "matrix(1, 0, 0, 1, 0, 0.530843)"
+        },
+        "moved": true
+      },
+      "keyboard": {
+        "selected": "true",
+        "focused": true,
+        "panelVisible": true,
+        "focusOpacity": "1",
+        "focusTransform": "none"
+      }
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "reduced": true,
+      "label": "320-light-reduce",
+      "maximumOverflow": 0,
+      "records": [
+        {
+          "name": "how-heading",
+          "selector": "#how-it-works [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 1454,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1625,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1760,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1904,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1625,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1454,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1904,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.5625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-1",
+          "selector": "#service-journey > li:first-child",
+          "samples": [
+            {
+              "scrollY": 1763,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1934,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2069,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2213,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1934,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1763,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2213,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.0625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-3",
+          "selector": "#service-journey > li:last-child",
+          "samples": [
+            {
+              "scrollY": 2372,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2543,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2678,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2822,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2543,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2372,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2822,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-intro",
+          "selector": "#trust [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 7134,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7305,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7440,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7584,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7305,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7134,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7584,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.34375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-panel",
+          "selector": "#trust [data-scroll-motion=\"linked\"]:last-child",
+          "samples": [
+            {
+              "scrollY": 7645,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7816,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7951,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8095,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7816,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7645,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8095,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-heading",
+          "selector": "#faq [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 9735,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9906,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10041,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10185,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9906,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9735,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10185,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-first",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-0)",
+          "samples": [
+            {
+              "scrollY": 10053,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10224,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10359,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10503,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10224,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10053,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10503,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-third",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-2)",
+          "samples": [
+            {
+              "scrollY": 10465,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10636,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10771,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10915,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10636,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10465,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10915,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-last",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-7)",
+          "samples": [
+            {
+              "scrollY": 10990,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11161,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11296,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11440,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11161,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10990,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11440,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "benefits",
+          "selector": "#problem [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 249,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 555,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 699,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 249,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 699,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.78125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "booking-heading",
+          "selector": "#booking-progress [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 3037,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3208,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3343,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3487,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3208,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3037,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3487,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "workspaces-heading",
+          "selector": "#workspaces [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 4870,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5041,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5176,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5320,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5041,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4870,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5320,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "comparison",
+          "selector": "#comparison [data-scroll-motion=\"linked\"]:has(table)",
+          "samples": [
+            {
+              "scrollY": 6414,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6585,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6720,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6864,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6585,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6414,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6864,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "community",
+          "selector": "#community [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 8817,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8988,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9123,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9267,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8988,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8817,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9267,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.90625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        }
+      ],
+      "wheel": {
+        "before": {
+          "scrollY": 1625,
+          "transform": "none"
+        },
+        "after": {
+          "scrollY": 1845,
+          "transform": "none"
+        },
+        "moved": true
+      },
+      "keyboard": {
+        "selected": "true",
+        "focused": true,
+        "panelVisible": true,
+        "focusOpacity": "1",
+        "focusTransform": "none"
+      }
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "reduced": true,
+      "label": "320-dark-reduce",
+      "maximumOverflow": 0,
+      "records": [
+        {
+          "name": "how-heading",
+          "selector": "#how-it-works [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 1454,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1625,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1760,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1904,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1625,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1454,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.5625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1904,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.5625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-1",
+          "selector": "#service-journey > li:first-child",
+          "samples": [
+            {
+              "scrollY": 1763,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1934,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2069,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2213,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1934,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 1763,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.0625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2213,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.0625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "how-card-3",
+          "selector": "#service-journey > li:last-child",
+          "samples": [
+            {
+              "scrollY": 2372,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2543,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2678,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2822,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2543,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2372,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 2822,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-intro",
+          "selector": "#trust [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 7134,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7305,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7440,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7584,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7305,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7134,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.34375,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7584,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.34375,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "trust-panel",
+          "selector": "#trust [data-scroll-motion=\"linked\"]:last-child",
+          "samples": [
+            {
+              "scrollY": 7645,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7816,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7951,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8095,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7816,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 7645,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8095,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-heading",
+          "selector": "#faq [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 9735,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9906,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10041,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10185,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9906,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9735,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10185,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-first",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-0)",
+          "samples": [
+            {
+              "scrollY": 10053,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10224,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10359,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10503,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10224,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10053,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10503,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-third",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-2)",
+          "samples": [
+            {
+              "scrollY": 10465,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10636,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10771,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10915,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10636,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10465,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10915,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "faq-last",
+          "selector": "#faq [data-scroll-motion=\"linked\"]:has(#faq-question-7)",
+          "samples": [
+            {
+              "scrollY": 10990,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11161,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11296,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11440,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11161,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 10990,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 11440,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "benefits",
+          "selector": "#problem [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 249,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 555,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 699,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 420,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 249,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.78125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 699,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.78125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "booking-heading",
+          "selector": "#booking-progress [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 3037,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3208,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3343,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3487,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3208,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3037,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.75,
+              "overflow": 0
+            },
+            {
+              "scrollY": 3487,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.75,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "workspaces-heading",
+          "selector": "#workspaces [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 4870,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5041,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5176,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 540.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5320,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5041,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 675.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 4870,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 846.28125,
+              "overflow": 0
+            },
+            {
+              "scrollY": 5320,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 396.28125,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "comparison",
+          "selector": "#comparison [data-scroll-motion=\"linked\"]:has(table)",
+          "samples": [
+            {
+              "scrollY": 6414,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6585,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6720,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6864,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6585,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6414,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 6864,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        },
+        {
+          "name": "community",
+          "selector": "#community [data-scroll-motion=\"linked\"]",
+          "samples": [
+            {
+              "scrollY": 8817,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8988,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9123,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 539.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9267,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8988,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 674.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 8817,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 845.90625,
+              "overflow": 0
+            },
+            {
+              "scrollY": 9267,
+              "opacity": 1,
+              "x": 0,
+              "y": 0,
+              "scale": 1,
+              "top": 395.90625,
+              "overflow": 0
+            }
+          ],
+          "movesWithScroll": false,
+          "reverses": true,
+          "repeats": true,
+          "stationaryReduced": true,
+          "settledReadable": true
+        }
+      ],
+      "wheel": {
+        "before": {
+          "scrollY": 1625,
+          "transform": "none"
+        },
+        "after": {
+          "scrollY": 1845,
+          "transform": "none"
+        },
+        "moved": true
+      },
+      "keyboard": {
+        "selected": "true",
+        "focused": true,
+        "panelVisible": true,
+        "focusOpacity": "1",
+        "focusTransform": "none"
+      }
+    }
+  ],
+  "fixedPosition": {
+    "atRest": {
+      "transform": "matrix(1, 0, 0, 1, 0, 18.83)",
+      "y": 18.83,
+      "opacity": 0.764625
+    },
+    "later": {
+      "transform": "matrix(1, 0, 0, 1, 0, 18.83)",
+      "y": 18.83,
+      "opacity": 0.764625
+    }
+  },
+  "stopsWhenScrollStops": true,
+  "livePreference": {
+    "reduced": {
+      "matches": true,
+      "events": [
+        {
+          "matches": true,
+          "at": 3145.2999999970198
+        }
+      ],
+      "visibility": "visible",
+      "scrollY": 0,
+      "style": "none",
+      "opacity": "1"
+    },
+    "restored": {
+      "matches": false,
+      "events": [
+        {
+          "matches": true,
+          "at": 3145.2999999970198
+        },
+        {
+          "matches": false,
+          "at": 4682.29999999702
+        }
+      ],
+      "visibility": "visible",
+      "scrollY": 0,
+      "style": "matrix(1, 0, 0, 1, 0, 48)",
+      "opacity": "0.4"
+    },
+    "passed": true,
+    "note": "Confirmed after waiting for the asynchronous MediaQueryList change event; the original 120ms probe ran before event dispatch."
+  },
+  "pageErrors": [
+    "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:96986)\n    at sh (http://localhost:3107/_next/st",
+    "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/02rqz_5wmpdl7.js:31:96986)\n    at sh (http://localhost:3107/_next/st"
+  ],
+  "initialLivePreferenceProbe": {
+    "reduced": {
+      "transform": "matrix(1, 0, 0, 1, 0, 18.83)",
+      "y": 18.83,
+      "opacity": 0.764625
+    },
+    "restored": {
+      "transform": "matrix(1, 0, 0, 1, 0, 48)",
+      "y": 48,
+      "opacity": 0.4
+    },
+    "passed": false
+  }
+}

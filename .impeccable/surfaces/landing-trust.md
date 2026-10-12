@@ -28,4 +28,6 @@ Sources: `src/components/landing/LandingTrust.tsx` and `LandingTrust.module.css`
 
 ## Evidence and limits
 
+Current entrances follow the [landing motion contract](landing-motion.md): columns move inward on desktop and rise vertically on narrow screens, driven by scroll position. Keyboard focus settles the group, and reduced motion remains stationary. Existing tab semantics, Help routes, product truth and colors are unchanged by this motion refinement.
+
 [Review record](../review/REVIEW.md): the new 20-capture color/icon review returned ship after the fresh independent reviewer opened every capture individually, with no material fixes within the requested correction. The [measurement report](../review/color-icons-review.json) records zero element horizontal overflow. Twenty targeted tests, scoped ESLint, the 107-page production build and git diff check passed; QA server/runtime were cleaned up without package edits. The previous 28-capture report, 18 Trust crops covering all tabs at 1440/390/320px in both themes, ship verdict and tests/build results are historical for the superseded palette. Anonymous landing bootstrap React #418 was previously observed and remains unresolved/out of scope, with no claim that this correction introduced or fixed it. No pixel-match, AA contrast or error-free runtime certification is made.
