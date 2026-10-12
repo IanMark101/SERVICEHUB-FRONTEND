@@ -62,16 +62,13 @@
   background: radial-gradient(ellipse at 110% -10%, color-mix(in srgb, var(--workspace-accent) 32%, #0a0a0a), #0a0a0a 68%);
   color: #fffdfa;
 }
-.roleLabel { position: relative; display: flex; align-items: center; gap: 10px; color: var(--summary-highlight); font-size: 12px; font-weight: 650; }
-.roleMark { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 11px; background: var(--workspace-accent); color: white; }
+.roleLabel { position: relative; color: var(--summary-highlight); font-size: 12px; font-weight: 650; }
 .details h3 { position: relative; max-width: 17ch; margin-top: 16px; font-size: clamp(23px, 2.2vw, 28px); font-weight: 650; line-height: 1.2; letter-spacing: -.025em; text-wrap: balance; }
 .detailsIntro > p { position: relative; margin-top: 12px; color: #d2cdc6; font-size: 14px; line-height: 1.65; }
 .detailsBody { min-width: 0; overflow: hidden; margin: 0 6px 6px; padding: 18px 20px 0; border-radius: 14px; background: var(--lp-paper); color: var(--lp-ink); }
 .details ul { display: grid; gap: 12px; padding: 0; margin: 0; list-style: none; }
-.details li { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; line-height: 1.6; }
-.featureMark { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 11px; background: var(--workspace-soft); color: var(--workspace-accent); }
-.tip { display: flex; align-items: start; gap: 10px; margin: 16px -20px 0; padding: 14px 20px; background: color-mix(in srgb, var(--workspace-accent) 7%, var(--lp-paper)); color: var(--lp-muted); font-size: 12px; line-height: 1.65; }
-.tip svg { flex-shrink: 0; margin-top: 2px; color: var(--workspace-accent); }
+.details li { font-size: 13px; font-weight: 500; line-height: 1.6; }
+.tip { margin: 16px -20px 0; padding: 14px 20px; background: color-mix(in srgb, var(--workspace-accent) 7%, var(--lp-paper)); color: var(--lp-muted); font-size: 12px; line-height: 1.65; }
 .details ::selection { color: #fff; background: var(--workspace-accent); }
 
 .preview, .lightbox {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, Megaphone, Trophy } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 import styles from './LandingCommunity.module.css';
 
@@ -14,17 +14,14 @@ const items = [
   {
     title: 'Official Community Updates',
     copy: 'Read announcements and service updates shared by ServiceHub administrators.',
-    icon: Megaphone,
   },
   {
     title: 'Recently Added Services',
     copy: 'Discover published services that were recently added to the marketplace.',
-    icon: BadgeCheck,
   },
   {
     title: 'Provider of the Week',
     copy: 'See weekly provider recognition based on trust score, completed work, and client ratings.',
-    icon: Trophy,
   },
 ];
 
@@ -53,13 +50,11 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
           <div className={styles.features}>
             <p className={styles.featuresTitle}>Inside the Community Hub</p>
             <ul className={styles.featureList} aria-label="Community Hub features">
-              {items.map(item=>{
-                const Icon=item.icon;
-                return <li key={item.title} className={styles.feature}>
-                  <Icon className={styles.featureIcon} size={20} aria-hidden="true"/>
-                  <div><h3>{item.title}</h3><p>{item.copy}</p></div>
-                </li>;
-              })}
+              {items.map(item => (
+                <li key={item.title} className={styles.feature}>
+                  <h3>{item.title}</h3><p>{item.copy}</p>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

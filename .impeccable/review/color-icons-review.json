@@ -1,0 +1,332 @@
+{
+  "captures": [
+    "color-icons-community-light-1440.png",
+    "color-icons-trust-light-1440.png",
+    "color-icons-workspace-seeker-light-1440.png",
+    "color-icons-workspace-provider-light-1440.png",
+    "color-icons-community-light-320.png",
+    "color-icons-trust-light-320.png",
+    "color-icons-workspace-seeker-light-320.png",
+    "color-icons-workspace-provider-light-320.png",
+    "color-icons-sidebar-seeker-light.png",
+    "color-icons-sidebar-provider-light.png",
+    "color-icons-community-dark-1440.png",
+    "color-icons-trust-dark-1440.png",
+    "color-icons-workspace-seeker-dark-1440.png",
+    "color-icons-workspace-provider-dark-1440.png",
+    "color-icons-community-dark-320.png",
+    "color-icons-trust-dark-320.png",
+    "color-icons-workspace-seeker-dark-320.png",
+    "color-icons-workspace-provider-dark-320.png",
+    "color-icons-sidebar-seeker-dark.png",
+    "color-icons-sidebar-provider-dark.png"
+  ],
+  "checks": [
+    {
+      "name": "color-icons-community-light-1440.png",
+      "background": "rgb(252, 251, 250)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 1440,
+      "height": 695.84375,
+      "overflow": [],
+      "svgCount": 1
+    },
+    {
+      "name": "community-colors-light-1440",
+      "panel": "rgb(10, 10, 10)",
+      "accent": "rgb(255, 107, 0)",
+      "copy": "rgb(255, 255, 255)",
+      "featureIcons": 0
+    },
+    {
+      "name": "color-icons-trust-light-1440.png",
+      "background": "rgb(252, 251, 250)",
+      "ink": "rgb(10, 10, 10)",
+      "width": 1440,
+      "height": 803.28125,
+      "overflow": [],
+      "svgCount": 4
+    },
+    {
+      "name": "color-icons-workspace-seeker-light-1440.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(23, 23, 22)",
+      "width": 361.953125,
+      "height": 420.453125,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-workspace-provider-light-1440.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(23, 23, 22)",
+      "width": 361.953125,
+      "height": 420.453125,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-community-light-320.png",
+      "background": "rgb(252, 251, 250)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 320,
+      "height": 894.375,
+      "overflow": [],
+      "svgCount": 1
+    },
+    {
+      "name": "community-colors-light-320",
+      "panel": "rgb(10, 10, 10)",
+      "accent": "rgb(255, 107, 0)",
+      "copy": "rgb(255, 255, 255)",
+      "featureIcons": 0
+    },
+    {
+      "name": "color-icons-trust-light-320.png",
+      "background": "rgb(252, 251, 250)",
+      "ink": "rgb(10, 10, 10)",
+      "width": 320,
+      "height": 1640.5625,
+      "overflow": [],
+      "svgCount": 4
+    },
+    {
+      "name": "color-icons-workspace-seeker-light-320.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(23, 23, 22)",
+      "width": 280,
+      "height": 431.25,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-workspace-provider-light-320.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(23, 23, 22)",
+      "width": 280,
+      "height": 452.046875,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-sidebar-seeker-light.png",
+      "background": "rgb(48, 37, 28)",
+      "ink": "rgb(255, 241, 227)",
+      "width": 226.28887939453125,
+      "height": 978.5227661132812,
+      "overflow": [],
+      "svgCount": 13
+    },
+    {
+      "name": "sidebar-colors-seeker-light",
+      "background": "rgb(48, 37, 28)",
+      "active": [
+        {
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(217, 103, 0)"
+        }
+      ],
+      "workspaceButtons": [
+        {
+          "label": "Seeker",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "true"
+        },
+        {
+          "label": "Provider",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "false"
+        }
+      ]
+    },
+    {
+      "name": "color-icons-sidebar-provider-light.png",
+      "background": "rgb(23, 55, 45)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 226.28887939453125,
+      "height": 989.9619750976562,
+      "overflow": [],
+      "svgCount": 14
+    },
+    {
+      "name": "sidebar-colors-provider-light",
+      "background": "rgb(23, 55, 45)",
+      "active": [
+        {
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(4, 120, 87)"
+        }
+      ],
+      "workspaceButtons": [
+        {
+          "label": "Seeker",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "false"
+        },
+        {
+          "label": "Provider",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "true"
+        }
+      ]
+    },
+    {
+      "name": "color-icons-community-dark-1440.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 1440,
+      "height": 695.84375,
+      "overflow": [],
+      "svgCount": 1
+    },
+    {
+      "name": "community-colors-dark-1440",
+      "panel": "rgb(10, 10, 10)",
+      "accent": "rgb(255, 107, 0)",
+      "copy": "rgb(255, 255, 255)",
+      "featureIcons": 0
+    },
+    {
+      "name": "color-icons-trust-dark-1440.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 1440,
+      "height": 803.28125,
+      "overflow": [],
+      "svgCount": 4
+    },
+    {
+      "name": "color-icons-workspace-seeker-dark-1440.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(245, 243, 239)",
+      "width": 361.953125,
+      "height": 420.453125,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-workspace-provider-dark-1440.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(245, 243, 239)",
+      "width": 361.953125,
+      "height": 420.453125,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-community-dark-320.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 320,
+      "height": 894.375,
+      "overflow": [],
+      "svgCount": 1
+    },
+    {
+      "name": "community-colors-dark-320",
+      "panel": "rgb(10, 10, 10)",
+      "accent": "rgb(255, 107, 0)",
+      "copy": "rgb(255, 255, 255)",
+      "featureIcons": 0
+    },
+    {
+      "name": "color-icons-trust-dark-320.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 320,
+      "height": 1640.5625,
+      "overflow": [],
+      "svgCount": 4
+    },
+    {
+      "name": "color-icons-workspace-seeker-dark-320.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(245, 243, 239)",
+      "width": 280,
+      "height": 431.25,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-workspace-provider-dark-320.png",
+      "background": "rgb(10, 10, 10)",
+      "ink": "rgb(245, 243, 239)",
+      "width": 280,
+      "height": 452.046875,
+      "overflow": [],
+      "svgCount": 0
+    },
+    {
+      "name": "color-icons-sidebar-seeker-dark.png",
+      "background": "rgb(48, 37, 28)",
+      "ink": "rgb(255, 241, 227)",
+      "width": 226.28887939453125,
+      "height": 978.5227661132812,
+      "overflow": [],
+      "svgCount": 13
+    },
+    {
+      "name": "sidebar-colors-seeker-dark",
+      "background": "rgb(48, 37, 28)",
+      "active": [
+        {
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(217, 103, 0)"
+        }
+      ],
+      "workspaceButtons": [
+        {
+          "label": "Seeker",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "true"
+        },
+        {
+          "label": "Provider",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "false"
+        }
+      ]
+    },
+    {
+      "name": "color-icons-sidebar-provider-dark.png",
+      "background": "rgb(23, 55, 45)",
+      "ink": "rgb(255, 255, 255)",
+      "width": 226.28887939453125,
+      "height": 989.9619750976562,
+      "overflow": [],
+      "svgCount": 14
+    },
+    {
+      "name": "sidebar-colors-provider-dark",
+      "background": "rgb(23, 55, 45)",
+      "active": [
+        {
+          "color": "rgb(255, 255, 255)",
+          "background": "rgb(4, 120, 87)"
+        }
+      ],
+      "workspaceButtons": [
+        {
+          "label": "Seeker",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "false"
+        },
+        {
+          "label": "Provider",
+          "color": "rgb(255, 255, 255)",
+          "pressed": "true"
+        }
+      ]
+    }
+  ],
+  "pageErrors": [
+    {
+      "theme": "light",
+      "message": "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    },
+    {
+      "theme": "dark",
+      "message": "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    }
+  ]
+}

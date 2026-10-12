@@ -7,8 +7,7 @@
   --sidebar-hover: color-mix(in srgb, #fff1e3 16%, #30251c);
   --sidebar-active: #d96700;
   --sidebar-active-hover: #e87814;
-  /* Dark ink keeps the supplied orange readable at navigation text sizes. */
-  --sidebar-active-ink: #211810;
+  --sidebar-active-ink: #ffffff;
   --sidebar-badge: #fff1e3;
   --sidebar-badge-ink: #30251c;
   --sidebar-focus: #ffb37a;
@@ -67,8 +66,8 @@
 .switchSection { margin-top: 26px; }
 .sectionLabel { margin-bottom: 10px; padding-inline: 12px; color: var(--sidebar-muted); font-size: 10px; font-weight: 650; }
 .switcher { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid var(--sidebar-line); border-radius: 13px; background: var(--sidebar-control); }
-.switchButton { display: flex; min-height: 40px; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; background: transparent; color: var(--sidebar-muted); font-size: 12px; font-weight: 650; }
-.switchButton:hover { background: var(--sidebar-hover); color: var(--sidebar-ink); }
+.switchButton { display: flex; min-height: 40px; align-items: center; justify-content: center; gap: 6px; border-radius: 10px; background: transparent; color: #ffffff; font-size: 12px; font-weight: 650; }
+.switchButton:hover { background: var(--sidebar-hover); color: #ffffff; }
 .switchButton[aria-pressed='true'] { background: var(--sidebar-active); color: var(--sidebar-active-ink); }
 .switchButton[aria-pressed='true']:hover { background: var(--sidebar-active-hover); }
 .navigation { margin-top: 26px; }
@@ -81,7 +80,7 @@
 .itemLabel { min-width: 0; flex: 1; }
 .activeDot { flex-shrink: 0; width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: currentColor; }
 .badge { flex-shrink: 0; min-width: 22px; padding: 2px 6px; border-radius: 10px; background: var(--sidebar-badge); color: var(--sidebar-badge-ink); font-size: 10px; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
-.item[aria-current='page'] .badge { background: var(--sidebar-active-ink); color: var(--sidebar-active); }
+.item[aria-current='page'] .badge { background: var(--sidebar-surface); color: #ffffff; }
 .unreadDot { position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--sidebar-focus); }
 .connect { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--sidebar-line); }
 .footer { flex-shrink: 0; padding: 12px 14px 14px; border-top: 1px solid var(--sidebar-line); }

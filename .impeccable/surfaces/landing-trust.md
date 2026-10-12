@@ -1,6 +1,6 @@
 # Landing Trust and Reviews
 
-Status: finished scoped extension, 2026-10-12. Authority: `SCOPED_EXISTING_ALLOWED`; retain the ServiceHub system. Direction: [TRUST_DIRECTION.md](../review/TRUST_DIRECTION.md). The supplied Taste Skill split reference is a conversation image; this is a structural adaptation, not a pixel match or new global identity.
+Status: latest explicit color correction, 2026-10-12; new independent visual review returned ship; 20 targeted tests, scoped ESLint, 107-page production build and git diff check passed. Authority: `SCOPED_EXISTING_ALLOWED`; retain the ServiceHub system. Direction: [COLOR_ICONS_DIRECTION.md](../review/COLOR_ICONS_DIRECTION.md). The supplied Taste Skill split reference is a conversation image; this is a structural adaptation, not a pixel match or new global identity.
 
 ## Composition and interaction
 
@@ -14,12 +14,11 @@ The layout is at most 1216px wide, with .9fr/1.1fr columns, stacking at 900px. F
 
 | Role | Light | Dark |
 | --- | --- | --- |
-| Canvas / panel | #FAF9F7 / #FFFFFF | #211A14 / #30251C |
-| Main / secondary ink | #30251C / #68503E | #FFF1E3 / #E4C6AA |
-| Headline/link emphasis | #BD4F00 | #FFB37A |
-| Rules / soft hover | #E7D6C7 / #FFF1E3 | #76543B / #473425 |
+| Canvas / panel | Existing landing white-surface tokens | Existing landing charcoal/white surface tokens |
+| Body ink | Black | White |
+| Brand emphasis / filled controls | Existing var(--color-brand), #FF6B00 | Existing var(--color-brand), #FF6B00 |
 
-Filled primary actions and selected tabs use accessible #BD4F00 with white ink in both themes, hovering to #A94300. The panel uses borders and tonal separation rather than the former gray card, role glow or timeline treatment. These are scoped surface values, not replacement tokens for the entire application.
+The latest user correction reuses the landing palette from `src/app/brand.css` and `globals.css`, including charcoal #0A0A0A, white and brand orange. Custom brown/cream/pale-orange surface colors are superseded. The split, tabs, panel, copy and routes remain. White labels on public #FF6B00 are approximately 2.84:1, below 4.5:1 for normal text; this user-pinned pairing is not documented as an AA contrast pass.
 
 ## Product truth
 
@@ -29,4 +28,4 @@ Sources: `src/components/landing/LandingTrust.tsx` and `LandingTrust.module.css`
 
 ## Evidence and limits
 
-[Final review](../review/REVIEW.md): 18 Trust crops cover all three tabs at 1440/390/320px in both themes. The full 28-capture independent review returned ship with no material fixes within the requested visual/content/tab scope. Targeted tests, scoped lint and the 107-page production build passed. The anonymous landing bootstrap still records React #418; cause is unresolved, with no claim that this work introduced or fixed it. No pixel-match or error-free runtime certification is made. Earlier Trust layout descriptions and captures are historical.
+[Review record](../review/REVIEW.md): the new 20-capture color/icon review returned ship after the fresh independent reviewer opened every capture individually, with no material fixes within the requested correction. The [measurement report](../review/color-icons-review.json) records zero element horizontal overflow. Twenty targeted tests, scoped ESLint, the 107-page production build and git diff check passed; QA server/runtime were cleaned up without package edits. The previous 28-capture report, 18 Trust crops covering all tabs at 1440/390/320px in both themes, ship verdict and tests/build results are historical for the superseded palette. Anonymous landing bootstrap React #418 was previously observed and remains unresolved/out of scope, with no claim that this correction introduced or fixed it. No pixel-match, AA contrast or error-free runtime certification is made.

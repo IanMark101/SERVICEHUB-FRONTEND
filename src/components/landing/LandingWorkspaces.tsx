@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import WorkspaceDashboardPreview from './WorkspaceDashboardPreview';
-import { BriefcaseBusiness, ClipboardList, Handshake, ListChecks, MapPin, Maximize2, Search, SlidersHorizontal, WalletCards, X } from 'lucide-react';
+import { BriefcaseBusiness, Maximize2, Search, X } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import ScrollReveal from './ScrollReveal';
@@ -16,9 +16,9 @@ const workspaces = {
     heading: 'Find help or post what you need.',
     description: 'Keep nearby services, incoming offers and your booking activity together in the Seeker workspace.',
     features: [
-      { icon: Search, text: 'Browse nearby services' },
-      { icon: ClipboardList, text: 'Post requests and compare offers' },
-      { icon: ListChecks, text: 'Follow bookings and confirm completion' },
+      'Browse nearby services',
+      'Post requests and compare offers',
+      'Follow bookings and confirm completion',
     ],
     tip: 'Choose your search location and radius to find services near you.',
   },
@@ -28,9 +28,9 @@ const workspaces = {
     heading: 'Offer services and manage your work.',
     description: 'Keep your service listings, Seeker requests and booking activity together in the Provider workspace.',
     features: [
-      { icon: BriefcaseBusiness, text: 'Publish and manage service listings' },
-      { icon: Handshake, text: 'Browse Service Requests and send offers' },
-      { icon: WalletCards, text: 'Track completed bookings and recorded earnings' },
+      'Publish and manage service listings',
+      'Browse Service Requests and send offers',
+      'Track completed bookings and recorded earnings',
     ],
     tip: 'Update pricing, payment options and availability in Service Manager.',
   },
@@ -125,7 +125,6 @@ export default function LandingWorkspaces({ isDark }: { isDark: boolean }) {
           const workspace = workspaces[tab];
           const Icon = workspace.icon;
           const isActive = activeTab === tab;
-          const TipIcon = tab === 'seeker' ? MapPin : SlidersHorizontal;
           return (
             <motion.div
               key={tab}
@@ -141,17 +140,15 @@ export default function LandingWorkspaces({ isDark }: { isDark: boolean }) {
             >
               <div className={styles.details}>
                 <div className={styles.detailsIntro}>
-                  <span className={styles.roleLabel}><span className={styles.roleMark}><Icon size={19} aria-hidden="true" /></span>{workspace.label} workspace</span>
+                  <span className={styles.roleLabel}>{workspace.label} workspace</span>
                   <h3>{workspace.heading}</h3>
                   <p>{workspace.description}</p>
                 </div>
                 <div className={styles.detailsBody}>
                   <ul aria-label={workspace.label + ' workspace features'}>
-                    {workspace.features.map(({ icon: FeatureIcon, text }) => (
-                      <li key={text}><span className={styles.featureMark}><FeatureIcon size={18} aria-hidden="true" /></span><span>{text}</span></li>
-                    ))}
+                    {workspace.features.map(text => <li key={text}>{text}</li>)}
                   </ul>
-                  <p className={styles.tip}><TipIcon size={18} aria-hidden="true" /><span>{workspace.tip}</span></p>
+                  <p className={styles.tip}>{workspace.tip}</p>
                 </div>
               </div>
 

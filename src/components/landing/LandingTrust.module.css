@@ -1,11 +1,11 @@
 .section {
-  --trust-canvas: #faf9f7;
+  --trust-canvas: var(--landing-surface, #fcfbfa);
   --trust-paper: #ffffff;
-  --trust-ink: #30251c;
-  --trust-muted: #68503e;
-  --trust-accent: #bd4f00;
-  --trust-soft: #fff1e3;
-  --trust-line: #e7d6c7;
+  --trust-ink: var(--color-charcoal, #0a0a0a);
+  --trust-muted: var(--trust-ink);
+  --trust-accent: var(--color-brand, #ff6b00);
+  --trust-soft: var(--color-brand-soft);
+  --trust-line: color-mix(in srgb, var(--trust-ink) 15%, var(--trust-paper));
   padding: clamp(56px, 7vw, 96px) 32px;
   background: var(--trust-canvas);
   color: var(--trust-ink);
@@ -13,13 +13,10 @@
 }
 
 .section[data-theme='dark'] {
-  --trust-canvas: #211a14;
-  --trust-paper: #30251c;
-  --trust-ink: #fff1e3;
-  --trust-muted: #e4c6aa;
-  --trust-accent: #ffb37a;
-  --trust-soft: #473425;
-  --trust-line: #76543b;
+  --trust-canvas: var(--color-charcoal, #0a0a0a);
+  --trust-paper: var(--color-charcoal-surface, #0a0a0a);
+  --trust-ink: #ffffff;
+  --trust-soft: color-mix(in srgb, var(--trust-accent) 10%, var(--trust-paper));
 }
 
 .layout { max-width: 1216px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(40px, 5.5vw, 80px); align-items: start; }
@@ -31,8 +28,8 @@
 .note { max-width: 48ch; margin-top: 24px; padding-block: 18px; border-block: 1px solid var(--trust-line); font-size: 14px; line-height: 1.65; color: var(--trust-muted); }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 .primaryLink, .secondaryLink { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; padding: 12px 18px; border-radius: 999px; font-size: 13px; line-height: 1.5; font-weight: 650; text-decoration: none; transition: background-color 160ms ease; }
-.primaryLink { background: #bd4f00; color: #ffffff; }
-.primaryLink:hover { background: #a94300; }
+.primaryLink { background: var(--color-brand-action); color: #ffffff; }
+.primaryLink:hover { background: var(--color-brand-action-hover); }
 .secondaryLink { color: var(--trust-ink); border: 1px solid var(--trust-line); background: var(--trust-paper); }
 .secondaryLink:hover { background: var(--trust-soft); }
 .actions svg { flex-shrink: 0; }
@@ -40,8 +37,8 @@
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
 .tab { min-height: 44px; padding: 10px 18px; border: 1px solid var(--trust-line); border-radius: 999px; background: var(--trust-paper); color: var(--trust-muted); font-size: 14px; font-weight: 600; line-height: 1.5; cursor: pointer; transition: background-color 160ms ease, color 160ms ease; }
 .tab:hover { background: var(--trust-soft); color: var(--trust-ink); }
-.tab[aria-selected='true'] { background: #bd4f00; border-color: #bd4f00; color: #ffffff; }
-.tab[aria-selected='true']:hover { background: #a94300; border-color: #a94300; }
+.tab[aria-selected='true'] { background: var(--color-brand-action); border-color: var(--color-brand-action); color: #ffffff; }
+.tab[aria-selected='true']:hover { background: var(--color-brand-action-hover); border-color: var(--color-brand-action-hover); }
 .content { padding: clamp(24px, 2.7vw, 36px); border: 1px solid var(--trust-line); border-radius: 16px; background: var(--trust-paper); }
 .topicPanel { min-height: 325px; }
 .topicPanel[hidden] { display: none; }
@@ -52,7 +49,7 @@
 .panelFooter { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--trust-line); }
 .privacy { display: flex; align-items: start; gap: 8px; color: var(--trust-muted); font-size: 12px; line-height: 1.6; }
 .privacy svg { flex-shrink: 0; margin-top: 2px; color: var(--trust-accent); }
-.guideLink { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 8px; color: var(--trust-accent); font-size: 13px; font-weight: 650; text-underline-offset: 4px; }
+.guideLink { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 8px; color: var(--color-brand-text); font-size: 13px; font-weight: 650; text-underline-offset: 4px; }
 .guideLink:hover { text-decoration: underline; }
 .section a:focus-visible, .tab:focus-visible, .topicPanel:focus-visible { outline: 2px solid var(--trust-accent); outline-offset: 4px; }
 .section ::selection { background: var(--trust-accent); color: var(--trust-canvas); }

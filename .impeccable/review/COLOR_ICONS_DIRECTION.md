@@ -1,0 +1,12 @@
+# Latest user correction: white text, landing palette and fewer icons
+
+This explicitly supersedes the earlier Trust/Community palette and Seeker active-ink decisions in TRUST_DIRECTION.md. Incumbent scoped extension, code-led, no global identity change. Original references are conversation images only. Keep existing composition, copy, tabs, routes and behavior.
+
+- Sidebar: white active navigation labels/icons and white text/icons on both workspace buttons in both roles, including inactive and hover states. Seeker brown #30251C / orange #D96700; Provider forest #17372D / green #047857 stay. Colors remain independent of dark mode. Active badges use dark role backgrounds and white ink.
+- Landing: reuse existing brand.css/globals.css tokens, not sidebar colors. Community panel is --color-charcoal #0A0A0A with white text and --color-brand #FF6B00 headline emphasis; white/charcoal CTA. Outer canvas is --landing-surface #FCFBFA or charcoal. Trust likewise uses charcoal/white surfaces and text, original brand orange, and existing brand text/action/hover/soft tokens. No brown, cream, or invented pale-orange emphasis in either redesigned landing section.
+- Remove repeated decorative icons from both workspace-summary role labels, feature rows and tips, and from Community feature rows. Preserve useful icons in controls, navigation and real product previews. Preserve all real text.
+- Reference layout: original Trust split/tab panel and Community split/ruled rows remain. Workspace summary is quieter and more compact with text-only features. Test desktop1440 and mobile320, both roles/themes; inspect real shared SidebarView colors from the existing expanded public product preview. Sidebar captures establish palette, not complete signed-in/mobile/footer layout.
+
+User-pinned color tradeoff: white on #D96700 is about3.565:1 and white on original #FF6B00 about2.84:1, below4.5 for small text. Do not silently substitute black ink or a new orange again. Record this honestly; do not claim an AA contrast pass. Provider white/green contrast passes. This explicit user direction overrides the generic skill contrast floor for these pinned combinations.
+
+All public feature claims and Trust policy remain unchanged. No account/database access or deployment. No PRODUCT.md/DESIGN.md/QUALITY BAR/comp/seed is supplied or needed under SCOPED_EXISTING_ALLOWED. Earlier anonymous landing React#418 and unchanged sidebar width-transition warning remain disclosed separately; no error-free runtime claim.
