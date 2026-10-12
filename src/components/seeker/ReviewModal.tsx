@@ -61,6 +61,10 @@ export default function ReviewModal({
       setError("Please select a rating.");
       return;
     }
+    if (rating <= 2 && comment.trim().length < 10) {
+      setError('Explain a 1- or 2-star rating in at least 10 characters.');
+      return;
+    }
     setError('');
     setSubmitting(true);
     try {
@@ -104,7 +108,7 @@ export default function ReviewModal({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
           {error && (
-            <div className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 p-3 rounded-xl font-medium">
+            <div role="alert" className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 p-3 rounded-xl font-medium">
               {error}
             </div>
           )}
@@ -176,9 +180,13 @@ export default function ReviewModal({
           {/* Text Area */}
           <div className="space-y-1.5">
             <label className={`text-xs font-semibold block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-              Describe your experience (optional)
+              Describe your experience {rating > 0 && rating <= 2 ? '(required, at least 10 characters)' : '(optional)'}
             </label>
             <textarea
+              aria-label="Describe your experience"
+              required={rating > 0 && rating <= 2}
+              minLength={rating > 0 && rating <= 2 ? 10 : undefined}
+              maxLength={2000}
               rows={3}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -195,6 +203,7 @@ export default function ReviewModal({
           </div>
 
           {/* Submit */}
+          <p className="text-xs leading-5">Your rating reflects your experience. It does not add or deduct Trust Score points.</p>
           <button
             type="submit"
             disabled={submitting}

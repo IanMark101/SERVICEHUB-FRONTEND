@@ -13,7 +13,7 @@ it('keeps user inspection and moderation available without administrator promoti
   render(<AdminUsers />);
   await screen.findByText('Alex Reyes');
   expect(screen.getByRole('link', { name: 'View profile' })).toHaveAttribute('href', expect.stringContaining('/admin/users/member-1?returnTo='));
-  expect(screen.getByRole('button', { name: 'Set Trust' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Correct Trust' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Suspend' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Ban' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /Make Admin|Promote/i })).not.toBeInTheDocument();

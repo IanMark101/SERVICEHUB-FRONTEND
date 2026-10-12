@@ -91,10 +91,12 @@ describe('landing content before hydration and viewport initialization', () => {
     expect(screen.getByRole('link', { name: 'Trust' })).toHaveAttribute('href', '#trust');
     expect(screen.getByRole('link', { name: 'Community' })).toHaveAttribute('href', '#community');
     const community = within(main).getByRole('region', { name: 'See what is happening across ServiceHub.' });
-    expect(community).toHaveClass('bg-charcoal');
+    expect(community).toHaveAttribute('data-theme',isDark?'dark':'light');
     expect(community.parentElement).toBe(main);
     expect(container.querySelectorAll('#community')).toHaveLength(1);
     expect(within(community).getAllByRole('heading', { level: 3 })).toHaveLength(3);
+    expect(within(community).getByRole('list',{name:'Community Hub features'}).children).toHaveLength(3);
+    expect(within(community).getByRole('link',{name:'Sign in to view the Community Hub'})).toHaveAttribute('href','/login');
     const trust = within(container.querySelector('#trust')! as HTMLElement);
     expect(trust.getAllByRole('heading', { level: 2 })).toHaveLength(1);
     expect(trust.getByRole('heading', { name: 'Reviews follow completed service.', level: 3 })).toBeVisible();

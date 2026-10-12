@@ -692,11 +692,13 @@ body:has(.workspace-shell):not(:has(.landing-shell)) {
   --color-brand-action: var(--color-dashboard-action);
   --color-brand-action-hover: var(--color-dashboard-action-hover);
   --color-brand-action-active: var(--color-dashboard-action-active);
+  --color-brand-focus: var(--color-dashboard-action);
   --color-brand-soft: var(--color-dashboard-soft);
   --color-brand-border: var(--color-dashboard-border);
   --color-orange-50: var(--color-dashboard-soft);
   --color-orange-100: color-mix(in srgb, var(--color-brand) 10%, white);
   --color-orange-200: var(--color-dashboard-border);
+  --color-orange-500: var(--color-dashboard-action);
   --color-orange-600: var(--color-dashboard-action);
   --color-orange-700: var(--color-dashboard-action-hover);
   --color-seeker-light: var(--color-dashboard-soft);
@@ -706,6 +708,7 @@ body:has(.workspace-shell):not(:has(.landing-shell)) {
   --color-claude-50: var(--color-dashboard-soft);
   --color-claude-100: var(--color-orange-100);
   --color-claude-200: var(--color-dashboard-border);
+  --color-claude-500: var(--color-dashboard-action);
   --color-claude-600: var(--color-dashboard-action);
   --color-claude-700: var(--color-dashboard-action-hover);
 }

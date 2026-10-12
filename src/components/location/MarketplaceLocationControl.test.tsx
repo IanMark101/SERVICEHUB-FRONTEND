@@ -8,8 +8,9 @@ import type { LocationPoint } from '../../lib/location';
 
 vi.mock('../../lib/api/axios', () => ({ api: { get: vi.fn() } }));
 // Leaflet needs real browser layout. Keep all location/search/dialog behavior real here.
-vi.mock('next/dynamic', () => ({ default: () => function Map({ point, radiusKm, onChange }: { point:LocationPoint|null; radiusKm:number; onChange:(p:LocationPoint)=>void }) {
-  return <div aria-label="Test map"><output>{radiusKm} km circle</output><button type="button" onClick={() => onChange({ ...point, latitude:10.31, longitude:123.91, label:'Lapu-Lapu City, Cebu' })}>Choose map pin</button></div>;
+vi.mock('next/dynamic', () => ({ default: () => function Map({ point, candidate, onCandidateChange, radiusKm, onChange }: { point:LocationPoint|null;candidate:LocationPoint|null;onCandidateChange:(p:LocationPoint|null)=>void; radiusKm:number; onChange:(p:LocationPoint)=>void }) {
+  return <div aria-label="Test map"><output>{radiusKm} km circle</output><button type="button" onClick={() => onCandidateChange({ ...point, latitude:10.31, longitude:123.91, label:'Lapu-Lapu City, Cebu' })}>Choose map pin</button>
+    {candidate && <><button type="button" onClick={()=>{onChange(candidate);onCandidateChange(null);}}>Confirm pin</button><button type="button" onClick={()=>onCandidateChange(null)}>Keep current location</button></>}</div>;
 } }));
 const initial = { point:{ latitude:10.3, longitude:123.9, label:'Cordova, Cebu' }, radiusKm:10 };
 
@@ -68,6 +69,7 @@ describe('marketplace search location', () => {
     fireEvent.click(screen.getByRole('button', { name:'Choose map pin' }));
     expect(screen.getByText('5 km circle')).toBeVisible();
     expect(apply).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name:'Apply location' })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name:'Cancel' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name:/Cordova/ }));
@@ -75,6 +77,7 @@ describe('marketplace search location', () => {
     expect(screen.getByLabelText('Search area name')).toHaveValue('Cordova, Cebu');
     fireEvent.change(screen.getByLabelText('Search radius'), { target:{ value:'15' } });
     fireEvent.click(screen.getByRole('button', { name:'Choose map pin' }));
+    fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));
     fireEvent.click(screen.getByRole('button', { name:'Apply location' }));
     expect(apply).toHaveBeenCalledWith({ point:{ latitude:10.31, longitude:123.91, label:'Lapu-Lapu City, Cebu' }, radiusKm:15 });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -92,6 +95,8 @@ describe('marketplace search location', () => {
     fireEvent.click(screen.getByRole('button', { name:'Search' }));
     fireEvent.click(await screen.findByRole('button', { name:'Cordova, Cebu' }));
     expect(api.get).toHaveBeenCalledWith('/locations/search', expect.objectContaining({ params:{ q:'Cordova' } }));
+    expect(screen.getByRole('button', { name:'Apply location' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));
     expect(screen.getByRole('button', { name:'Apply location' })).toBeEnabled();
     vi.unstubAllGlobals();
   });
@@ -103,6 +108,7 @@ describe('marketplace search location', () => {
     fireEvent.click(screen.getByRole('button', { name:'Use my device location' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Search a place or select a pin');
     fireEvent.click(screen.getByRole('button', { name:'Choose map pin' }));
+    fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));
     expect(screen.getByRole('button', { name:'Apply location' })).toBeEnabled();
     fireEvent.keyDown(screen.getByRole('dialog'), { key:'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -115,6 +121,7 @@ describe('marketplace search location', () => {
     const details = document.querySelector('details')!;
     details.open = true; fireEvent(details, new Event('toggle'));
     fireEvent.click(await screen.findByRole('button', { name:'Choose map pin' }));
+    fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));
     fireEvent.change(screen.getByLabelText('Private address / directions (optional)'), { target:{ value:'Unit 7, private directions' } });
     expect(api.get).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Area name shown to other users')).toHaveValue('Lapu-Lapu City, Cebu');

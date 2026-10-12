@@ -5,8 +5,9 @@ import LocationEditor from './LocationEditor';
 import type { LocationPoint } from '../../lib/location';
 
 vi.mock('../../lib/api/axios', () => ({ api:{get:vi.fn()} }));
-vi.mock('next/dynamic', () => ({ default:() => function Map({onChange}:{onChange:(point:LocationPoint)=>void}) {
-  return <button onClick={() => onChange({latitude:10.3,longitude:123.9,label:'Chosen map pin'})}>Choose map pin</button>;
+vi.mock('next/dynamic', () => ({ default:() => function Map({onChange,candidate,onCandidateChange}:{onChange:(point:LocationPoint)=>void;candidate:LocationPoint|null;onCandidateChange:(point:LocationPoint|null)=>void}) {
+  return <><button onClick={() => onCandidateChange({latitude:10.3,longitude:123.9,label:'Chosen map pin'})}>Choose map pin</button>
+    {candidate && <button onClick={()=>{onChange(candidate);onCandidateChange(null);}}>Use this location</button>}</>;
 } }));
 
 const position = {coords:{latitude:10.31,longitude:123.91}} as GeolocationPosition;
@@ -39,6 +40,8 @@ describe('device-location recovery', () => {
     expect(gps).toHaveBeenCalledTimes(2);
     expect(gps).toHaveBeenLastCalledWith(expect.any(Function),expect.any(Function),{timeout:10000,maximumAge:0,enableHighAccuracy:false});
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(onChange).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(screen.getByLabelText('Area name shown to other users')).toHaveValue('My device location');
     expect(onChange).toHaveBeenCalledWith({latitude:10.31,longitude:123.91,label:'My device location'});
   });
@@ -58,6 +61,8 @@ describe('device-location recovery', () => {
     gps.mockImplementationOnce(success => success(position));
     fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
     act(() => oldSuccess({coords:{latitude:11,longitude:124}} as GeolocationPosition));
+    expect(onChange).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenLastCalledWith({latitude:10.31,longitude:123.91,label:'My device location'});
     expect(vi.getTimerCount()).toBe(0);
@@ -75,6 +80,7 @@ describe('device-location recovery', () => {
     act(() => oldError?.(failure(1)));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     act(() => gps.mock.calls[1][0](position));
+    fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
@@ -84,6 +90,8 @@ describe('device-location recovery', () => {
     fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
     fireEvent.click(screen.getByRole('button', {name:'Choose map pin'}));
     act(() => gps.mock.calls[0][0](position));
+    expect(onChange).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(screen.getByLabelText('Area name shown to other users')).toHaveValue('Chosen map pin');
     expect(screen.getByRole('button', {name:'Use my device location'})).toBeEnabled();
@@ -108,6 +116,7 @@ describe('device-location recovery', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('could not start');
     fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(screen.getByLabelText('Area name shown to other users')).toHaveValue('My device location');
   });
 });

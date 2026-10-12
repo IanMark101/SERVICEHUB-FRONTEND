@@ -83,11 +83,14 @@ describe('location map lifecycle with real Leaflet', () => {
     const view = render(<LocationMap point={null} onChange={change}/>);
     await screen.findByRole('button', { name: 'Zoom in' });
     fireEvent.keyPress(screen.getByRole('region'), { key: 'Enter', charCode: 13 });
-    expect(change).toHaveBeenCalledWith(expect.objectContaining({ label: 'Selected service area' }));
+    expect(change).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
+    expect(change).toHaveBeenCalledWith(expect.objectContaining({ label: 'Selected map location' }));
     view.rerender(<LocationMap point={{ ...point, label: 'Updated area' }} radiusKm={5} onChange={change}/>);
     await waitFor(() => expect(view.container.querySelector('.leaflet-marker-icon')).toHaveStyle({ opacity: '1' }));
     fireEvent.keyPress(screen.getByRole('region'), { key: 'Enter', charCode: 13 });
-    expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ label: 'Updated area' }));
+    fireEvent.click(screen.getByRole('button',{name:'Switch location'}));
+    expect(change).toHaveBeenLastCalledWith(expect.objectContaining({ label: 'Selected map location' }));
   });
 
   it('keeps the same map and selected location when expanded and restored', async () => {
@@ -106,7 +109,9 @@ describe('location map lifecycle with real Leaflet', () => {
     expect(document.body.style.overflow).toBe('hidden');
     await within(expanded).findByRole('button', { name:'Zoom in' });
     fireEvent.keyPress(within(expanded).getByRole('region'), { key:'Enter', charCode:13 });
-    expect(change.mock.lastCall?.[0]).toMatchObject({ label:point.label, latitude:point.latitude });
+    expect(change).not.toHaveBeenCalled();
+    fireEvent.click(within(expanded).getByRole('button',{name:'Switch location'}));
+    expect(change.mock.lastCall?.[0]).toMatchObject({ label:'Selected map location', latitude:point.latitude });
     expect(change.mock.lastCall?.[0].longitude).toBeCloseTo(point.longitude,8);
     fireEvent.click(screen.getByRole('button', { name:'Exit full screen' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -167,5 +172,83 @@ describe('location map lifecycle with real Leaflet', () => {
     await waitFor(() => expect(circles.every(circle => circle.getLatLng().lat===moved.latitude && circle.getLatLng().lng===moved.longitude)).toBe(true));
     view.rerender(<LocationMap {...props} point={moved}/>);
     await waitFor(() => expect(circles.every(circle => circle.getRadius()===0)).toBe(true));
+  });
+
+  it('lets users discard a new pin and preserves a pending selection across fullscreen changes',async()=>{
+    const change=vi.fn();
+    const view=render(<LocationMap point={point} onChange={change}/>);
+    await screen.findByRole('button',{name:'Zoom in'});
+    fireEvent.click(screen.getByRole('region'),{clientX:150,clientY:120});
+    expect(screen.getByRole('region',{name:'Confirm location'})).toHaveTextContent('Switch to this location?');
+    expect(change).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Keep current location'}));
+    expect(screen.queryByRole('region',{name:'Confirm location'})).not.toBeInTheDocument();
+    expect(screen.getByRole('region')).toHaveFocus();
+    fireEvent.click(screen.getByRole('region'),{clientX:170,clientY:140});
+    fireEvent.click(screen.getByRole('button',{name:'Expand map to full screen'}));
+    const expanded=screen.getByRole('dialog');
+    expect(within(expanded).getByRole('region',{name:'Confirm location'})).toBeInTheDocument();
+    fireEvent.click(within(expanded).getByRole('button',{name:'Exit full screen'}));
+    expect(screen.getByRole('region',{name:'Confirm location'})).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Switch location'}));
+    expect(change).toHaveBeenCalledTimes(1);
+    view.unmount();
+  });
+
+  it('zooms with Ctrl or Command plus wheel while leaving normal scrolling and selection alone',async()=>{
+    const L=await import('leaflet');
+    const zoom=vi.spyOn(L.Map.prototype,'setZoomAround');
+    const change=vi.fn();
+    const view=render(<LocationMap point={point} onChange={change}/>);
+    await screen.findByRole('button',{name:'Zoom in'});
+    const region=screen.getByRole('region');
+    const normal=new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaY:100});
+    fireEvent(region,normal);
+    expect(normal.defaultPrevented).toBe(false);
+    expect(zoom).not.toHaveBeenCalled();
+    for(const key of ['ctrlKey','metaKey']) {
+      const event=new WheelEvent('wheel',{bubbles:true,cancelable:true,deltaY:-100,[key]:true});
+      fireEvent(region,event);
+      expect(event.defaultPrevented).toBe(true);
+      await act(async()=>{await new Promise(resolve=>setTimeout(resolve,60));});
+    }
+    expect(zoom).toHaveBeenCalledTimes(2);
+    expect(change).not.toHaveBeenCalled();
+    fireEvent.wheel(region,{ctrlKey:true,deltaY:-100});
+    view.unmount();
+    await act(async()=>{await new Promise(resolve=>setTimeout(resolve,60));});
+    expect(zoom).toHaveBeenCalledTimes(2);
+  });
+
+  it('Escape discards a pending pin before closing a full-screen map or its enclosing dialog',async()=>{
+    const parentKey=vi.fn(),change=vi.fn();
+    render(<div onKeyDown={parentKey}><LocationMap point={point} onChange={change}/></div>);
+    await screen.findByRole('button',{name:'Zoom in'});
+    fireEvent.click(screen.getByRole('button',{name:'Expand map to full screen'}));
+    const expanded=screen.getByRole('dialog');
+    await within(expanded).findByRole('button',{name:'Zoom in'});
+    fireEvent.keyPress(within(expanded).getByRole('region'),{key:'Enter',charCode:13});
+    fireEvent.keyDown(within(expanded).getByRole('button',{name:'Switch location'}),{key:'Escape'});
+    expect(screen.getByRole('dialog')).toBe(expanded);
+    expect(screen.queryByRole('region',{name:'Confirm location'})).not.toBeInTheDocument();
+    expect(within(expanded).getByRole('region')).toHaveFocus();
+    expect(parentKey).not.toHaveBeenCalled();expect(change).not.toHaveBeenCalled();
+  });
+
+  it('groups public areas, safely renders titles, and opens results without moving the search pin',async()=>{
+    const select=vi.fn(),change=vi.fn();
+    const area={latitude:10.3,longitude:123.92,approximate:true as const};
+    const pins=[{id:'a',title:'<img src=x onerror=alert(1)>',label:'Cordova',area},{id:'b',title:'Plumbing',label:'Cordova',area}];
+    const view=render(<LocationMap point={point} radiusKm={.5} results={pins} onChange={change} onResultSelect={select}/>);
+    const group=await screen.findByTitle('2 matches in this area');
+    fireEvent.click(group);
+    await screen.findByText(pins[0].title);
+    expect(view.container.querySelector('img[src="x"]')).not.toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button',{name:'Show in list'})[0]);
+    expect(select).toHaveBeenCalledWith('a');
+    expect(change).not.toHaveBeenCalled();
+    expect(screen.queryByRole('region',{name:'Confirm location'})).not.toBeInTheDocument();
+    view.rerender(<LocationMap point={point} radiusKm={.5} results={[]} onChange={change}/>);
+    await waitFor(()=>expect(screen.queryByTitle('2 matches in this area')).not.toBeInTheDocument());
   });
 });

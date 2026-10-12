@@ -19,7 +19,7 @@ vi.mock('../moderation/ContentCaseAction', () => ({ default:() => null }));
 // The existing booking form/lifecycle has its own integration coverage. Check
 // that discovery still selects the same listing through its normal entry point.
 vi.mock('../seeker/RequestServiceModal', () => ({ default:({ listing }:{listing:{id:string}}) => <div role="dialog">Booking listing {listing.id}</div> }));
-vi.mock('next/dynamic', () => ({ default:() => function Map() { return <div aria-label="Test map"/>; } }));
+vi.mock('next/dynamic', () => ({ default:() => function Map({results}:{results?:Array<{id:string}>}) { return <div aria-label="Test map">{results && <output data-testid="map-results">{results.map(pin=>pin.id).join(',')}</output>}</div>; } }));
 
 const location = { point:{ latitude:10.3, longitude:123.9, label:'Cordova, Cebu' }, radiusKm:10 };
 const aircon = (km:number) => ({ id:`aircon-${km}`, providerId:'provider', provider:{id:'provider',name:'Juan'}, seekerId:'seeker', seeker:{id:'seeker',name:'Client'},
@@ -44,8 +44,24 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
       const items = params.radiusKm === 1 || params.filter === 'rated' || params.filter === 'urgent' ? []
         : params.radiusKm === 2 ? (narrowed ? [aircon(2)] : [plumbing, aircon(2)])
         : narrowed ? [aircon(2), aircon(7)] : [plumbing, aircon(2), aircon(7)];
-      return { data:{success:true,data:{ items:items.map(item => ({...item,status:String(path).startsWith('/requests') ? 'OPEN' : 'ACTIVE'})),pagination:{page:1,limit:6,total:items.length,totalPages:1} }} };
+      return { data:{success:true,data:{ items:items.map(item => ({...item,status:String(path).startsWith('/requests') ? 'OPEN' : 'ACTIVE'})),mapPins:items.map(item=>({id:item.id,title:item.title,label:item.locationLabel,area:{latitude:10.3,longitude:123.9,approximate:true}})),pagination:{page:1,limit:6,total:items.length,totalPages:1} }} };
     });
+  });
+
+  it.each(['seeker','provider'] as const)('%s updates map markers with the same radius and category as its results',async workspace=>{
+    localStorage.setItem(`servicehub:marketplace-location:member:${workspace}`,JSON.stringify(location));
+    render(workspace==='seeker'?<SeekServices/>:<BrowseJobs/>);
+    await screen.findByText('Plumbing service');
+    fireEvent.click(screen.getByRole('button',{name:'Show nearby map'}));
+    expect(screen.getByTestId('map-results')).toHaveTextContent('plumbing,aircon-2,aircon-7');
+    fireEvent.click(screen.getByRole('button',{name:'Aircon Repair'}));
+    await waitFor(()=>expect(screen.getByTestId('map-results')).toHaveTextContent('aircon-2,aircon-7'));
+    expect(screen.getByTestId('map-results')).not.toHaveTextContent('plumbing');
+    fireEvent.click(screen.getByRole('button',{name:/Location: Cordova/}));
+    fireEvent.change(screen.getByLabelText('Search radius'),{target:{value:'1'}});
+    fireEvent.click(screen.getByRole('button',{name:'Apply location'}));
+    await waitFor(()=>expect(screen.getByTestId('map-results')).toBeEmptyDOMElement());
+    expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
   });
 
   it.each(['seeker','provider'] as const)('%s waits for results and shows the full matching total rather than the page size', async workspace => {

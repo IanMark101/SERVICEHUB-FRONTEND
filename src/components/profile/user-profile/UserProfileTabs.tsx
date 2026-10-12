@@ -286,6 +286,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
           reviewStats={reviewStats}
           initialReviews={reviews.map((r) => ({
             id: r.id,
+            response: r.response,
             authorName: r.author?.name || r.authorName || 'Booking participant',
             authorAvatar: r.author?.avatarUrl || r.authorAvatar,
             rating: r.rating,
@@ -306,7 +307,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
       )}
 
       {/* TAB 3: TRUST HISTORY (Explains how Trust Score was earned) */}
-      {activeTab === 'trust' && <TrustHistorySection events={trustHistory} loading={trustHistoryLoading} error={trustHistoryError} onRetry={retryTrustHistory} score={trustScore} band={trustBand} isDark={isDark} />}
+      {activeTab === 'trust' && <TrustHistorySection events={trustHistory} loading={trustHistoryLoading} error={trustHistoryError} onRetry={retryTrustHistory} score={trustScore} band={trustBand} isDark={isDark} isOwnProfile={isOwnProfile} />}
 
       {/* TAB 4: VERIFICATION (Residency Verification) */}
       {activeTab === 'verification' && (

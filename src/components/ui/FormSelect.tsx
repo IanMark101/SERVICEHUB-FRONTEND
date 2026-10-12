@@ -64,7 +64,7 @@ export default function FormSelect({ children, className = '', ref, tone, compac
       if (!selectRef.current?.parentElement?.contains(event.target as Node) && !menuRef.current?.contains(event.target as Node)) setMenu(null);
     }
     function reposition(event: Event) {
-      if (menuRef.current?.contains(event.target as Node)) return;
+      if (event.target instanceof Node && menuRef.current?.contains(event.target)) return;
       const select = selectRef.current;
       if (select) setMenu(current => current ? { ...current, style: placement(select) } : null);
     }

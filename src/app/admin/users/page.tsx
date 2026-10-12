@@ -14,6 +14,7 @@ import Link from 'next/link';
 import AdminUserModals from '../../../components/admin/users/AdminUserModals';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import type { AdminUserItem } from '../../../components/admin/users/types';
+import { apiTrustCorrections } from '../../../api/trust.api';
 
 type UserItem = AdminUserItem;
 
@@ -42,7 +43,15 @@ export default function AdminUsers() {
 
   // Overlay states
   const [editingTrustUser, setEditingTrustUser] = useState<UserItem | null>(null);
-  const [trustDelta, setTrustDelta] = useState<number>(0);
+  const [trustEventId, setTrustEventId] = useState('');
+  const [trustEvents, setTrustEvents] = useState<{ id: string; delta: number; reason: string }[]>([]);
+  useEffect(() => {
+    let alive = true;
+    if (editingTrustUser) void apiTrustCorrections(editingTrustUser.id).then(result => {
+      if (alive) setTrustEvents(result.data);
+    }).catch(() => { if (alive) toastError('Unable to load trust events', 'Close this form and try again.'); });
+    return () => { alive = false; };
+  }, [editingTrustUser, toastError]);
   const [trustReason, setTrustReason] = useState<string>('');
   const [trustPassword, setTrustPassword] = useState<string>('');
   const trustOperation = useRef<{ key: string; payload: string } | null>(null);
@@ -115,18 +124,17 @@ export default function AdminUsers() {
 
   const handleUpdateTrust = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingTrustUser || !trustReason.trim() || trustDelta === 0 || !trustPassword) return;
-    const payload = JSON.stringify([editingTrustUser.id, trustDelta, trustReason.trim()]);
+    if (!editingTrustUser || trustReason.trim().length < 20 || !trustEventId || !trustPassword) return;
+    const payload = JSON.stringify([editingTrustUser.id, trustEventId, trustReason.trim()]);
     if (!trustOperation.current || trustOperation.current.payload !== payload) {
       trustOperation.current = { key: crypto.randomUUID(), payload };
     }
     try {
-      const res = await apiUpdateTrustScore(editingTrustUser.id, trustDelta, trustReason.trim(), trustPassword, trustOperation.current.key);
+      const res = await apiUpdateTrustScore(editingTrustUser.id, trustEventId, trustReason.trim(), trustPassword, trustOperation.current.key);
       if (res.success) {
-        const sign = trustDelta > 0 ? '+' : '';
-        toastSuccess("Trust Updated", `Applied ${sign}${trustDelta} pts to ${editingTrustUser.name}. New score updates shortly.`);
+        toastSuccess('Trust corrected', 'The selected event was reversed and the correction recorded.');
         setEditingTrustUser(null);
-        setTrustDelta(0);
+        setTrustEventId('');
         setTrustReason('');
         setTrustPassword('');
         trustOperation.current = null;
@@ -384,13 +392,14 @@ export default function AdminUsers() {
                       <button
                         onClick={() => {
                           setEditingTrustUser(u);
-                          setTrustDelta(0);
+                          setTrustEventId('');
+                          setTrustEvents([]);
                           setTrustReason('');
                         }}
                         className="flex items-center space-x-1 rounded-lg border border-[var(--admin-border)] bg-[var(--admin-soft)] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-active)]"
                       >
                         <Award className="w-3.5 h-3.5" />
-                        <span>Set Trust</span>
+                        <span>Correct Trust</span>
                       </button>
                       <button
                         onClick={() => setSuspendingUser(u)}
@@ -441,8 +450,9 @@ export default function AdminUsers() {
           isDark,
           editingTrustUser,
           closeTrustModal,
-          trustDelta,
-          setTrustDelta,
+          trustEventId,
+          setTrustEventId,
+          trustEvents,
           trustReason,
           setTrustReason,
           trustPassword,

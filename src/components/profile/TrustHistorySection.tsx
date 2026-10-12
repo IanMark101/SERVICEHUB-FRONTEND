@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Award } from 'lucide-react';
 import type { getTrustBand } from './ProfileHeader';
+import { TrustCaseForm, TrustCasesPanel } from './TrustCaseControls';
 
 export interface TrustHistoryEvent {
   id: string;
@@ -9,6 +10,7 @@ export interface TrustHistoryEvent {
   scoreBefore: number;
   scoreAfter: number;
   createdAt: string;
+  appealable?: boolean;
 }
 
 interface Props {
@@ -19,9 +21,10 @@ interface Props {
   score: number;
   band: ReturnType<typeof getTrustBand>;
   isDark: boolean;
+  isOwnProfile?: boolean;
 }
 
-export default function TrustHistorySection({ events, loading, error, onRetry, score, band, isDark }: Props) {
+export default function TrustHistorySection({ events, loading, error, onRetry, score, band, isDark, isOwnProfile = false }: Props) {
   const muted = isDark ? 'text-neutral-300' : 'text-slate-600';
   return (
     <section aria-labelledby="trust-history-heading" className={`rounded-2xl border p-5 sm:p-6 ${isDark ? 'bg-charcoal-surface border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
@@ -64,6 +67,7 @@ export default function TrustHistorySection({ events, loading, error, onRetry, s
                   <span aria-label={`${event.delta > 0 ? '+' : ''}${event.delta} trust points`} className={`inline-flex min-h-10 min-w-12 shrink-0 items-center justify-center rounded-xl px-2 text-sm font-bold tabular-nums ${tone}`}>{event.delta > 0 ? '+' : ''}{event.delta}</span>
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <h3 className="break-words text-sm font-semibold leading-6 [overflow-wrap:anywhere]">{event.reason}</h3>
+                    {isOwnProfile && event.appealable && <TrustCaseForm trustEventId={event.id} />}
                     <p className={`text-sm tabular-nums ${muted}`}>Score: {event.scoreBefore} → {event.scoreAfter}</p>
                     <time dateTime={event.createdAt} className={`block text-xs leading-5 ${muted}`}>{new Date(event.createdAt).toLocaleString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} · Philippine time</time>
                   </div>
@@ -74,9 +78,10 @@ export default function TrustHistorySection({ events, loading, error, onRetry, s
         )}
       </div>
       <div className={`border-t pt-4 ${isDark ? 'border-neutral-800' : 'border-slate-200'}`}>
-        <p className={`text-sm leading-6 ${muted}`}>Trust scores reflect verification, completed bookings, reviews, and confirmed account actions.</p>
+        <p className={`text-sm leading-6 ${muted}`}>Trust scores reflect approved verification, eligible completed bookings, and documented admin findings. Star ratings do not change trust points. Older review events remain in history; a policy adjustment removes their effect.</p>
         <Link href="/help/trust-reputation/what-is-trust-score" className={`mt-2 inline-flex min-h-11 items-center text-sm font-semibold   focus-visible:outline-2 focus-visible:outline-offset-2 ${isDark ? 'text-orange-300' : 'text-orange-800'}`}>How trust scores work</Link>
       </div>
+      {isOwnProfile && <div className="mt-5"><TrustCasesPanel /></div>}
     </section>
   );
 }

@@ -9,14 +9,16 @@ import type { LocationPoint } from '../../lib/location';
 import styles from './Location.module.css';
 
 const Map = dynamic(() => import('./LocationMap'), { ssr:false, loading:() => <div className={styles.mapLoading}>Loading map…</div> });
-export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'Area name shown to other users' }: {
+export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'Area name shown to other users', onPendingChange }: {
   value:LocationPoint | null; onChange:(point:LocationPoint) => void; radiusKm?:number; accent?:string; disabled?:boolean; label?:string;
+  onPendingChange?:(pending:boolean)=>void;
 }) {
   const id = useId();
   const [query, setQuery] = useState(value?.label || '');
   const [results, setResults] = useState<LocationPoint[]>([]);
   const [operation, setOperation] = useState<'search' | 'location' | null>(null);
   const [error, setError] = useState('');
+  const [candidate,setCandidate]=useState<LocationPoint|null>(null);
   const request = useRef(0);
   const locationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const busy = operation !== null;
@@ -31,6 +33,11 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     cancelRequest();
     setError(''); setResults([]); setQuery(point.label);
     onChange(point);
+  };
+  const proposePoint=(point:LocationPoint|null)=>{
+    if(disabled)return;
+    cancelRequest();setError('');setResults([]);
+    setCandidate(point);onPendingChange?.(Boolean(point));
   };
   const search = async () => {
     if (query.trim().length < 3 || busy || disabled) return;
@@ -61,7 +68,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
       locationTimer.current = null;
       setOperation(null);
       setError(message);
-      if (point) { setQuery(point.label); onChange(point); }
+      if (point) proposePoint(point);
     };
     const timedOut = 'Device location timed out. Check that device location and browser location permission are on, then try again. You can also search a place or select a pin.';
     // Browser timeouts can exclude time waiting for permission or an enabled
@@ -87,12 +94,12 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
       <button type="button" className={styles.button} disabled={disabled || busy || query.trim().length<3} onClick={() => void search()}><Search size={16}/>{operation === 'search' ? 'Searching…' : 'Search'}</button>
     </div>
     <p id={`${id}-hint`} className={styles.hint}>Search general areas only. Keep house numbers and private addresses out of place search. Search uses OpenStreetMap.</p>
-    {results.length>0 && <div className={styles.results} aria-label="Matching places">{results.map((p,i) => <button type="button" className={styles.result} key={`${p.latitude}-${p.longitude}-${i}`} onClick={() => selectPoint(p)}><MapPin size={16}/>{p.label}</button>)}</div>}
+    {results.length>0 && <div className={styles.results} aria-label="Matching places">{results.map((p,i) => <button type="button" className={styles.result} key={`${p.latitude}-${p.longitude}-${i}`} onClick={() => proposePoint(p)}><MapPin size={16}/>{p.label}</button>)}</div>}
     <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my device location'}</button>
     {operation === 'location' && <div className={styles.selected}><p role="status" className={styles.hint}>Allow location in your browser. You can cancel and retry after turning on device location.</p><button type="button" className={styles.button} onClick={cancelRequest}>Cancel location request</button></div>}
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
-    <p className={styles.hint}>Select a place, click the map, or drag the pin. Distance is measured in a straight line, so travel routes may be longer.</p>
-    <Map point={value} radiusKm={radiusKm} onChange={selectPoint} accent={accent}/>
-    {value && <label><span className={styles.label}>{label}</span><input className={styles.field} value={value.label} maxLength={160} disabled={disabled} onChange={e => onChange({ ...value, label:e.target.value })}/></label>}
+    <p className={styles.hint}>Click the map, drag the pin, or find a place above. Review the new pin, then confirm. Panning and zooming keep your selection unchanged.</p>
+    <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}/>
+    {value && <label><span className={styles.label}>{label}</span><input className={styles.field} value={value.label} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => onChange({ ...value, label:e.target.value })}/></label>}
   </div>;
 }

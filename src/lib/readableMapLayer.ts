@@ -3,7 +3,7 @@ import type { Map } from 'leaflet';
 import type { StyleSpecification } from 'maplibre-gl';
 import { englishMapStyle } from './englishMapStyle';
 
-export const DEFAULT_MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+export const DEFAULT_MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
 const attribution = '<a href="https://openfreemap.org/">OpenFreeMap</a> &copy; <a href="https://www.openmaptiles.org/">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 export async function addReadableMapLayer(map: Map, signal: AbortSignal): Promise<void> {

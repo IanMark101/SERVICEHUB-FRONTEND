@@ -23,10 +23,13 @@ export const GETTING_STARTED_ARTICLES: HelpArticle[] = [
         heading: 'Choose a search area and radius',
         steps: [
           'Open Change location in Seek Services or Browse Service Requests. Search a city or barangay, use device location, or select a map pin.',
-          'Choose 1, 2, 5, 10, 15, 20, or 30 km. The circle previews the search area.',
+          'Review the new pin and select Use this location or Switch location. Keep current location cancels a proposed change.',
+          'Choose a preset or custom radius between 0.5 and 30 km, in increments of 0.1 km. The circle previews the search area.',
           'Select Apply location. Only eligible services or requests inside that radius appear. Changing the draft or selecting Cancel keeps your current results.',
         ],
         paragraphs: [
+          'Select Show nearby map to see matching provider service areas in Seek Services, or open job areas in Browse Service Requests. The map follows the same radius and filters as the list. Markers show approximate areas; select a marker and Show in list to find its listing or request.',
+          'Hold Ctrl (Command on Mac) while scrolling to zoom around your pointer. You can also use the zoom buttons or pinch on a phone. Panning and zooming keep your chosen location unchanged. Back to selected location returns to your pin; full screen gives you more room.',
           'Profile area, marketplace search location, actual job location, and listing coverage are separate. Search preferences are saved per account and workspace on this device. Discovery cards show general areas and approximate distances; exact job pins and private directions are shared with booking participants.',
           'Distance is straight-line distance, not driving time. Water crossings, bridges, roads, and travel charges may affect a real trip. Search a wider area or choose a different center when no results appear.',
           'Older records without coordinates stay in their owner’s manager and booking history. Owners can add a location in Edit to include an open listing or request in nearby discovery.',
@@ -115,7 +118,7 @@ export const GETTING_STARTED_ARTICLES: HelpArticle[] = [
       {
         heading: 'Starting Trust Score',
         paragraphs: [
-          'Every brand new account starts with a baseline Trust Score of 50 out of 100. This score reflects a clean slate and increases as you complete jobs, earn positive reviews, and verify your residency.',
+          'Every new account starts at a neutral Trust Score of 50 out of 100. Approved verification and eligible completed bookings can add points. Star ratings reflect satisfaction and do not change Trust Score.',
         ],
         callout: {
           type: 'important',

@@ -1,0 +1,46 @@
+[
+  {
+    "role": "seeker",
+    "theme": "light",
+    "background": "rgb(217, 103, 0)",
+    "ink": "rgb(33, 24, 16)",
+    "activeBackground": "rgb(255, 241, 227)",
+    "activeInk": "rgb(48, 37, 28)",
+    "errors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "role": "provider",
+    "theme": "light",
+    "background": "rgb(4, 120, 87)",
+    "ink": "rgb(255, 255, 255)",
+    "activeBackground": "rgb(230, 244, 237)",
+    "activeInk": "rgb(23, 55, 45)",
+    "errors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "role": "seeker",
+    "theme": "dark",
+    "background": "rgb(217, 103, 0)",
+    "ink": "rgb(33, 24, 16)",
+    "activeBackground": "rgb(255, 241, 227)",
+    "activeInk": "rgb(48, 37, 28)",
+    "errors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  },
+  {
+    "role": "provider",
+    "theme": "dark",
+    "background": "rgb(4, 120, 87)",
+    "ink": "rgb(255, 255, 255)",
+    "activeBackground": "rgb(230, 244, 237)",
+    "activeInk": "rgb(23, 55, 45)",
+    "errors": [
+      "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    ]
+  }
+]

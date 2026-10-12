@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, BadgeCheck, Megaphone, UsersRound } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
+import styles from './LandingCommunity.module.css';
 
 interface LandingCommunityProps {
   isDark: boolean;
@@ -33,56 +34,36 @@ export default function LandingCommunity({ isDark }: LandingCommunityProps) {
       id="community"
       aria-labelledby="community-heading"
       data-theme={isDark ? 'dark' : 'light'}
-      className="scroll-mt-20 border-b border-white/10 bg-charcoal px-5 py-20 text-zinc-100 sm:px-8 lg:px-10 lg:py-28"
+      className={`${styles.section} scroll-mt-20`}
     >
-      <div className="mx-auto max-w-7xl">
-        <ScrollReveal className="max-w-3xl">
-          <h2 id="community-heading" className="max-w-[17ch] font-sans text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl lg:leading-[1.12]">
-            See what is happening across ServiceHub.
-          </h2>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-300">
-            Follow local service activity in the Community Hub after signing in.
-          </p>
-        </ScrollReveal>
-
-        <div className="mt-12 grid gap-6 md:grid-cols-3 lg:grid-cols-[1.15fr_1fr_1fr]">
-          {items.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <ScrollReveal
-                key={item.title}
-                direction="scale"
-                delay={index * 0.09}
-                hoverLift
-                className="rounded-2xl border border-white/10 bg-charcoal p-7 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.85)] transition-colors hover:border-white/20 sm:p-8"
-              >
-                <div className="grid size-11 place-items-center rounded-xl bg-brand/8 text-brand-on-dark">
-                  <Icon size={22} aria-hidden="true" />
-                </div>
-                <h3 className="mt-6 text-lg font-bold text-white">
-                  {item.title}
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-zinc-400">
-                  {item.copy}
-                </p>
-              </ScrollReveal>
-            );
-          })}
+      <ScrollReveal className={styles.panel}>
+        <div className={styles.composition}>
+          <div className={styles.intro}>
+            <h2 id="community-heading" className={styles.heading}>
+              See what is happening <span>across ServiceHub.</span>
+            </h2>
+            <p className={styles.copy}>Follow local service activity in the Community Hub after signing in.</p>
+            <div className={styles.actions}>
+              <Link href="/login" className={styles.signIn}>
+                <span>Sign in to view the Community Hub</span>
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+          <div className={styles.features}>
+            <p className={styles.featuresTitle}>Inside the Community Hub</p>
+            <ul className={styles.featureList} aria-label="Community Hub features">
+              {items.map(item=>{
+                const Icon=item.icon;
+                return <li key={item.title} className={styles.feature}>
+                  <Icon className={styles.featureIcon} size={20} aria-hidden="true"/>
+                  <div><h3>{item.title}</h3><p>{item.copy}</p></div>
+                </li>;
+              })}
+            </ul>
+          </div>
         </div>
-
-        <ScrollReveal className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-zinc-400">
-            Sign in to explore ServiceHub updates and local service activity.
-          </p>
-          <Link
-            href="/login"
-            className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-zinc-100 underline-offset-4 hover:underline hover:decoration-brand-on-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-on-dark [&_svg]:text-brand-on-dark active:scale-[0.98]"
-          >
-            <span>Sign in to view the Community Hub</span>
-            <ArrowRight size={14} aria-hidden="true" />
-          </Link>
-        </ScrollReveal>
-      </div>
+      </ScrollReveal>
     </section>
   );
 }

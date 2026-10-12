@@ -3,13 +3,16 @@
 import { Ban } from 'lucide-react';
 import type { Dispatch, FormEvent, SetStateAction } from 'react';
 import type { AdminUserItem as UserItem } from './types';
+import FormSelect from '../../ui/FormSelect';
+import useDialogFocus from '../../../hooks/useDialogFocus';
 
 interface AdminUserModalsModel {
   isDark: boolean;
   editingTrustUser: UserItem | null;
   closeTrustModal: () => void;
-  trustDelta: number;
-  setTrustDelta: Dispatch<SetStateAction<number>>;
+  trustEventId: string;
+  setTrustEventId: Dispatch<SetStateAction<string>>;
+  trustEvents: { id: string; delta: number; reason: string }[];
   trustReason: string;
   setTrustReason: Dispatch<SetStateAction<string>>;
   trustPassword: string;
@@ -42,8 +45,9 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
     isDark,
     editingTrustUser,
     closeTrustModal,
-    trustDelta,
-    setTrustDelta,
+    trustEventId,
+    setTrustEventId,
+    trustEvents,
     trustReason,
     setTrustReason,
     trustPassword,
@@ -70,47 +74,38 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
     restoreBusy,
     handleRestore
   } = model;
+  const trustDialog = useDialogFocus(!!editingTrustUser, false, closeTrustModal);
 
   return (
     <>
-      {/* Set Trust Score Overlay */}
+      {/* Recorded trust-event correction */}
       {editingTrustUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div ref={trustDialog} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="trust-correction-title" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className={`viewport-dialog-scroll rounded-[24px] max-w-sm w-full overflow-hidden shadow-2xl border ${
             isDark ? 'bg-charcoal-surface border-neutral-800/80 text-white' : 'bg-white border-slate-200 text-ink'
           }`}>
             <form onSubmit={handleUpdateTrust} className="p-5 space-y-4">
-              <h4 className="font-extrabold text-sm">Adjust Trust Score</h4>
+              <h4 id="trust-correction-title" className="font-extrabold text-sm">Correct a Recorded Trust Event</h4>
               <p className="text-[10px] text-ink-subtle">
-                Apply a trust point adjustment for <strong>{editingTrustUser.name}</strong>. Current score: <strong className="text-[var(--admin-accent)]">{editingTrustUser.trustScore}</strong>/100.
+                Correct a recorded event for <strong>{editingTrustUser.name}</strong>. Current score: <strong className="text-[var(--admin-accent)]">{editingTrustUser.trustScore}</strong>/100.
               </p>
               <div className="space-y-3">
                 <div>
-                  <label className="text-[9px] font-bold text-ink-subtle uppercase block mb-1">Adjustment Delta (e.g. -10, +5)</label>
-                  <input
-                    type="number"
-                    min="-100"
-                    max="100"
-                    required
-                    value={trustDelta}
-                    onChange={(e) => setTrustDelta(parseInt(e.target.value) || 0)}
-                    className={`w-full rounded-xl p-3 border outline-none text-xs leading-relaxed ${
-                      isDark ? 'bg-charcoal-inset border-neutral-800/80 text-white' : 'bg-slate-50 border-slate-300'
-                    }`}
-                  />
-                  {trustDelta !== 0 && (
-                    <p className="text-[10px] mt-1 font-semibold">
-                      New score: <strong className={trustDelta > 0 ? 'text-emerald-500' : 'text-red-500'}>
-                        {Math.min(100, Math.max(0, editingTrustUser.trustScore + trustDelta))}
-                      </strong>
-                    </p>
-                  )}
+                  <label htmlFor="trust-original-event" className="mb-1 block text-sm font-semibold">Original event to correct</label>
+                  <FormSelect id="trust-original-event" tone="admin" required value={trustEventId} onChange={event => setTrustEventId(event.target.value)} className={`w-full min-w-0 rounded-lg border p-3 text-base ${isDark ? 'bg-charcoal-inset text-white' : 'bg-slate-50 text-ink'}`}>
+                    <option value="">Select a recorded event</option>
+                    {trustEvents.map(event => <option key={event.id} value={event.id}>{event.delta > 0 ? '+' : ''}{event.delta}: {event.reason}</option>)}
+                  </FormSelect>
+                  <p className="mt-2 text-xs leading-5">Reverse the original event once, with a documented reason. Baseline, review points and policy transitions cannot be changed here.</p>
                 </div>
                 <div>
-                  <label className="text-[9px] font-bold text-ink-subtle uppercase block mb-1">Reason (required)</label>
+                  <label htmlFor="trust-correction-reason" className="block mb-1 text-sm font-semibold">Reason (at least 20 characters)</label>
                   <textarea
+                    id="trust-correction-reason"
                     required
-                    placeholder="Admin reason for this trust adjustment..."
+                    minLength={20}
+                    maxLength={500}
+                    placeholder="Explain the original error and supporting evidence..."
                     value={trustReason}
                     onChange={(e) => setTrustReason(e.target.value)}
                     rows={3}
@@ -138,16 +133,16 @@ export default function AdminUserModals({ model }: { model: AdminUserModalsModel
                 <button
                   type="button"
                   onClick={closeTrustModal}
-                  className={`px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
+                  className={`min-h-11 px-4 py-2 border rounded-xl text-xs font-bold ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover' : 'border-slate-200 hover:bg-slate-100'}`}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={!trustReason.trim() || trustDelta === 0 || !trustPassword}
-                  className="px-4 py-2 bg-[var(--admin-solid)] hover:bg-[var(--admin-solid-hover)] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold cursor-pointer"
+                  disabled={trustReason.trim().length < 20 || !trustEventId || !trustPassword}
+                  className="min-h-11 px-4 py-2 bg-[var(--admin-solid)] hover:bg-[var(--admin-solid-hover)] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold cursor-pointer"
                 >
-                  Apply Adjustment
+                  Record Correction
                 </button>
               </div>
             </form>

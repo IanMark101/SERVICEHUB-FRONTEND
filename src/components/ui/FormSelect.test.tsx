@@ -83,6 +83,17 @@ describe('shared form select preserves native form contracts', () => {
     fireEvent.click(select); fireEvent.mouseDown(document.body); expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     expect(change).not.toHaveBeenCalled();
   });
+  it('repositions an open popup when a window resize has a non-Node event target', () => {
+    render(<Controlled />);
+    const select = screen.getByRole('combobox');
+    const bounds = vi.spyOn(select, 'getBoundingClientRect').mockReturnValue(new DOMRect(24, 100, 240, 44));
+    fireEvent.click(select);
+    expect(screen.getByRole('listbox')).toHaveStyle({ left: '24px', width: '240px' });
+    bounds.mockReturnValue(new DOMRect(40, 120, 200, 44));
+    fireEvent(window, new Event('resize'));
+    expect(screen.getByRole('listbox')).toHaveStyle({ left: '40px', width: '200px' });
+    expect(select).toHaveFocus();
+  });
   it('cannot choose an option removed or disabled while the menu is open', () => {
     const change = vi.fn(); const { rerender } = render(<FormSelect value="" onChange={change}>{options}</FormSelect>);
     fireEvent.click(screen.getByRole('combobox'));

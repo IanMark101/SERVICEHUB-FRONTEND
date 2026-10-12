@@ -7,9 +7,10 @@ import { useApiCacheRefresh } from './useApiCacheRefresh';
 import { mapServiceToListing, mapRequestToJobRequest } from '../context/mappers';
 import { parseMarketplaceLocation, type MarketplaceLocation } from '../lib/location';
 import type { ServiceListing, JobRequest } from '../types';
+import { parseMapPins, type MarketplaceMapPin } from '../lib/marketplace-map';
 
 type Pagination = { page:number; limit:number; total:number; totalPages:number };
-type Result = { key:string; items:Array<ServiceListing|JobRequest>; pagination:Pagination; error:string; loading:boolean; resolved:boolean };
+type Result = { key:string; items:Array<ServiceListing|JobRequest>; mapPins:MarketplaceMapPin[]; pagination:Pagination; error:string; loading:boolean; resolved:boolean };
 const empty = { page:1, limit:6, total:0, totalPages:1 };
 export default function useNearbyMarketplace(workspace:'seeker'|'provider', userId:string | undefined, search:string, category:string, filter:string) {
   const storageKey = `servicehub:marketplace-location:${userId || 'guest'}:${workspace}`;
@@ -20,7 +21,7 @@ export default function useNearbyMarketplace(workspace:'seeker'|'provider', user
   const [debouncedSearch,setDebouncedSearch]=useState(normalizedSearch);
   const [pageState,setPageState]=useState({ criteria:'', page:1 });
   const [revision,setRevision]=useState(0);
-  const [result,setResult]=useState<Result>({ key:'',items:[],pagination:empty,error:'',loading:false,resolved:false });
+  const [result,setResult]=useState<Result>({ key:'',items:[],mapPins:[],pagination:empty,error:'',loading:false,resolved:false });
   useEffect(() => {
     let active = true;
     let value:MarketplaceLocation|null=null;
@@ -55,14 +56,14 @@ export default function useNearbyMarketplace(workspace:'seeker'|'provider', user
     const controller=new AbortController();let active=true;
     // An empty successful response is loaded data too. Revalidation should
     // preserve that state, not replace it with first-load skeletons on focus.
-    queueMicrotask(()=>{if(active)setResult(current=>({ key,items:current.key===key ? current.items : [],pagination:current.key===key ? current.pagination : empty,resolved:current.key===key && current.resolved,error:'',loading:true }));});
+    queueMicrotask(()=>{if(active)setResult(current=>({ key,items:current.key===key ? current.items : [],mapPins:current.key===key ? current.mapPins : [],pagination:current.key===key ? current.pagination : empty,resolved:current.key===key && current.resolved,error:'',loading:true }));});
     void api.get(workspace==='seeker' ? '/services/nearby' : '/requests/nearby',{ params,signal:controller.signal,timeout:15000,apiCache:'no-store' }).then(response=>{
       if(!active)return;
       const data=response.data.data;
       if(!response.data.success || !Array.isArray(data?.items))throw new Error('Nearby results could not be loaded.');
       const items=workspace==='seeker' ? data.items.map(mapServiceToListing) : data.items.map(mapRequestToJobRequest);
-      setResult({ key,items,pagination:data.pagination,error:'',loading:false,resolved:true });
-    }).catch(error=>{if(active)setResult(current=>({key,items:current.key===key ? current.items : [],pagination:current.key===key ? current.pagination : empty,resolved:current.key===key && current.resolved,error:getApiErrorMessage(error,'Nearby results could not load. Try again.'),loading:false}));});
+      setResult({ key,items,mapPins:parseMapPins(data.mapPins),pagination:data.pagination,error:'',loading:false,resolved:true });
+    }).catch(error=>{if(active)setResult(current=>({key,items:current.key===key ? current.items : [],mapPins:current.key===key ? current.mapPins : [],pagination:current.key===key ? current.pagination : empty,resolved:current.key===key && current.resolved,error:getApiErrorMessage(error,'Nearby results could not load. Try again.'),loading:false}));});
     return()=>{active=false;controller.abort();};
   },[key,params,userId,workspace,revision,searchPending]);
   useEffect(()=>{
@@ -81,7 +82,7 @@ export default function useNearbyMarketplace(workspace:'seeker'|'provider', user
   const pagination=current ? result.pagination : empty;
   const goToPage=(next:number)=>setPageState({criteria,page:Math.max(1,Math.min(next,pagination.totalPages))});
   return {
-    location,applyLocation,refresh,submitSearch,initializing,items:current ? result.items : [],
+    location,applyLocation,refresh,submitSearch,initializing,items:current ? result.items : [],mapPins:current ? result.mapPins : [],
     error:current && !result.resolved ? result.error : '',
     refreshError:current && result.resolved ? result.error : '',
     loading:initializing || (!!location && (!current || (!result.resolved && result.loading))),

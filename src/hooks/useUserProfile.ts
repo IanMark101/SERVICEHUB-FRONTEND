@@ -17,6 +17,7 @@ import type { ProfileReviewContext, ProfileReviewStatsByContext } from '../types
 import { profileUpdateSchema } from '../schema/profileValidation';
 
 interface ProfileReview {
+  response?: string;
   id: string;
   rating: number;
   text?: string;

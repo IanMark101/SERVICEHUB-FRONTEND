@@ -3,6 +3,7 @@
 import { Loader2, MessageSquareText, X } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import useDialogFocus from '../../hooks/useDialogFocus';
+import type { ReactNode } from 'react';
 import './dialog.css';
 
 interface ReasonModalProps {
@@ -22,6 +23,7 @@ interface ReasonModalProps {
   minLength?: number;
   isSubmitting?: boolean;
   variant?: 'primary' | 'danger';
+  children?: ReactNode;
 }
 
 export default function ReasonModal({
@@ -41,6 +43,7 @@ export default function ReasonModal({
   minLength = 3,
   isSubmitting = false,
   variant = 'primary',
+  children,
 }: ReasonModalProps) {
   const { isDark } = useApp();
   const dialogRef = useDialogFocus(isOpen, isSubmitting, onClose);
@@ -73,6 +76,7 @@ export default function ReasonModal({
           </button>
         </div>
 
+        {children}
         <label htmlFor="reason-modal-value" className="mt-5 block text-xs font-bold">{label}</label>
         <textarea
           id="reason-modal-value"

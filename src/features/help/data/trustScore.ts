@@ -5,8 +5,8 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
     slug: 'what-is-trust-score',
     title: 'What is Trust Score?',
     category: 'trust-reputation',
-    description: 'Understand ServiceHub’s 0-100 reputation metric and how it protects community members.',
-    lastUpdated: 'August 2026',
+    description: 'Understand the reliability score, star ratings, and verification badge as separate measures.',
+    lastUpdated: 'October 2026',
     readTimeMinutes: 3,
     popular: true,
     keywords: ['trust score', 'reputation', 'score', 'audit log', 'trust rating', 'points'],
@@ -15,8 +15,8 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'A Living Measure of Reliability',
         paragraphs: [
-          'Trust Score is a transparent 0-to-100 rating assigned to every ServiceHub user (both Seekers and Providers). It represents your track record of reliability, punctuality, fair transactions, and community standing.',
-          'Instead of static star ratings that can be easily manipulated, the Trust Score is calculated dynamically from real, verifiable marketplace actions.',
+          'Trust Score is a 0-to-100 record of approved verification, eligible completed bookings, and documented administrator findings. Your Seeker and Provider workspaces share one score. Every account starts at a neutral baseline of 50.',
+          'Star ratings describe satisfaction and do not change Trust Score. The verification badge indicates approved identity and residency documents. None of these measures guarantees workmanship or safety; consider them together with reviews and booking details.',
         ],
       },
       {
@@ -40,7 +40,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
     title: 'How Trust Score Increases and Decreases',
     category: 'trust-reputation',
     description: 'A complete breakdown of all actions that award or deduct Trust Score points on the platform.',
-    lastUpdated: 'August 2026',
+    lastUpdated: 'October 2026',
     readTimeMinutes: 3,
     popular: true,
     keywords: ['trust points', 'gain trust', 'lose trust', 'deduction', 'penalty', '5 star review'],
@@ -49,23 +49,23 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'Ways to Gain Trust Points (+)',
         bullets: [
-          'Your first approved identity and residency verification increases your score once.',
-          'As a provider, completing work that the seeker confirms increases your score. An admin can also confirm completion after reviewing a case.',
-          'Receiving a positive review for completed work can increase your score, whether you were the seeker or provider.',
+          'Your first approved identity and residency verification adds 5 points once.',
+          'An eligible completed booking adds 3 points to each eligible Seeker and Provider. Both identities must be approved, completion and payment settlement must be recorded, and no booking complaint can remain unresolved. A participant with an uncorrected fault penalty for that booking receives no reward.',
+          'Only one completed booking between the same two accounts can earn points in a rolling 30-day period, including when they exchange workspace roles. Repeat bookings and reviews remain available.',
           'Payments, accepting bookings, and starting work do not award extra trust points by themselves.',
         ],
       },
       {
         heading: 'Actions that Deduct Trust Points (-)',
         bullets: [
-          'An admin finding that you were at fault for cancelling started work can lower your score. Mutual cancellations and cancellations before work starts do not.',
-          'Receiving a low review rating for completed work can lower your score.',
-          'An admin can deduct trust after confirming a report against you. Filing a report does not penalize either participant by itself.',
+          'An admin-confirmed finding of fault for cancelling started work deducts 5 points. Mutual cancellations and cancellations before work starts do not.',
+          'A documented finding of serious misconduct with a trust deduction selected deducts 10 points. Admin must explain the violated rule and supporting evidence. A cancellation and report cannot stack trust penalties for the same booking and participant.',
+          'Any star rating, including 1 or 5 stars, changes review feedback only. Filing a report or appeal does not change trust points.',
           'A listing that needs revision does not lower your trust score.',
         ],
         example: {
           title: 'Example: Positive Reputation Growth',
-          description: 'Juan starts with a score of 50. His first residency approval, confirmed completed jobs, and positive reviews from service seekers increase his score. His Trust History shows each recorded change.',
+          description: 'Juan starts at 50, receives his first approved verification (+5), and completes an eligible booking (+3), reaching 58. A subsequent 1-star or 5-star review leaves his Trust Score at 58. His star average changes separately.',
         },
       },
     ],
@@ -75,7 +75,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
     title: 'Viewing Your Trust Score History & Audit Trail',
     category: 'trust-reputation',
     description: 'Learn how to inspect the permanent, immutable log of every point gain and penalty on your account.',
-    lastUpdated: 'August 2026',
+    lastUpdated: 'October 2026',
     readTimeMinutes: 2,
     keywords: ['trust history', 'audit log', 'history tab', 'reasons', 'timeline'],
     relatedArticleSlugs: ['what-is-trust-score', 'how-trust-score-changes'],
@@ -93,9 +93,32 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
         callout: {
           type: 'tip',
           title: 'Public vs. Private History',
-          text: 'Other users can see your overall Trust Score and verified badge on your public profile, but detailed line-item reasons remain private to you and platform administrators.',
+          text: 'Other users can see your score and a sanitized history of event types. Private admin explanations and case details are limited to authorized participants and administrators.',
         },
       },
+    ],
+  },
+  {
+    slug: 'appealing-trust-penalties', title: 'Appealing a Trust Penalty', category: 'trust-reputation',
+    description: 'Challenge a documented finding and follow its decision without changing your score automatically.',
+    lastUpdated: 'October 2026', readTimeMinutes: 3,
+    keywords: ['appeal', 'penalty', 'unfair', 'correction', 'evidence'],
+    relatedArticleSlugs: ['viewing-trust-history', 'how-trust-score-changes', 'how-reviews-and-ratings-work'],
+    sections: [
+      { heading: 'Submit an appeal', steps: [
+        'Open your User Profile and choose Trust History.',
+        'Find an uncorrected report or cancellation penalty and select Appeal trust penalty.',
+        'Explain the disputed finding in at least 20 characters and identify relevant booking messages or evidence. Do not include passwords or identity documents.',
+        'Follow the case under Review disputes and trust appeals in the same tab.',
+      ] },
+      { heading: 'What the decision means', paragraphs: [
+        'An appeal does not automatically hide a review or restore trust. If upheld, the original recorded deduction is reversed once, within the 0-to-100 boundaries. If rejected, the finding remains. The decision is recorded with a reason.',
+        'Another active administrator must review an appeal against the original administrator’s finding when one is available. If only that administrator is available, the same-administrator decision is explicitly audit logged. One case is allowed per original penalty.',
+        'Administrators can correct an eligible recorded event with a documented reason and password confirmation. They cannot enter arbitrary rewards or deductions through the correction form.',
+      ] },
+      { heading: 'Existing accounts', paragraphs: [
+        'The new policy keeps old events visible and records a policy adjustment removing earlier review-based points and duplicate booking penalties. Historical completion rewards remain recognized; the new mutual reward and 30-day limit apply to new eligibility decisions.',
+      ] },
     ],
   },
 ];

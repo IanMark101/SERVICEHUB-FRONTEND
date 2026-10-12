@@ -5,6 +5,7 @@ import MarketplaceSearchHeader from '../marketplace/MarketplaceSearchHeader';
 import MarketplaceLocationControl from '../location/MarketplaceLocationControl';
 import MarketplaceEmptyState from '../location/MarketplaceEmptyState';
 import MarketplaceResultsSummary from '../location/MarketplaceResultsSummary';
+import MarketplaceMap from '../location/MarketplaceMap';
 import ServiceDetailsModal from './seek-services/ServiceDetailsModal';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -210,6 +211,11 @@ export default function SeekServices() {
         Could not refresh services. Showing the last loaded results.{' '}
         <button type="button" className="font-semibold" onClick={nearby.refresh}>Try again</button>
       </div>}
+      <MarketplaceMap workspace="seeker" location={nearby.location} pins={nearby.mapPins} loading={nearby.loading} error={nearby.error || nearby.refreshError} onApply={nearby.applyLocation} onShowResult={id=>{
+        const index=nearby.mapPins?.findIndex(pin=>pin.id===id) ?? -1;
+        if(index>=0)nearby.goToPage(Math.floor(index/6)+1);
+        document.getElementById('service-results')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+      }}/>
       {!nearby.location && !nearby.initializing ? <MarketplaceEmptyState workspace="seeker" location={null} search={searchQuery} category={selectedCategory} hasFilters={!!searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'} onChangeLocation={() => setLocationOpen(true)} onClearFilters={clearFilters} onPostRequest={() => router.push('/seeker/post-request')}/> : <ServiceMarketplaceGrid
         model={{
           router,

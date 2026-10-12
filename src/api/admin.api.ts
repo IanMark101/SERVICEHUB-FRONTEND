@@ -16,8 +16,8 @@ export async function apiListAdminReviews(params?: { page?: number; limit?: numb
   return response.data;
 }
 
-export async function apiModerateReview(id: string, action: 'hide' | 'restore', reason: string) {
-  const response = await api.patch(`/admin/reviews/${id}/moderation`, { action, reason });
+export async function apiModerateReview(id: string, action: 'hide' | 'restore', reason: string, violation?: string) {
+  const response = await api.patch(`/admin/reviews/${id}/moderation`, { action, reason, violation });
   return response.data;
 }
 
@@ -58,8 +58,8 @@ export async function apiGetBanAppealSummary() {
   return (await api.get<{ data: { pending: number } }>('/admin/ban-appeals/summary')).data;
 }
 
-export async function apiUpdateTrustScore(userId: string, delta: number, reason: string, currentPassword: string, operationId: string) {
-  const response = await api.patch(`/admin/users/${userId}/trust`, { delta, reason, currentPassword, operationId });
+export async function apiUpdateTrustScore(userId: string, eventId: string, reason: string, currentPassword: string, operationId: string) {
+  const response = await api.patch(`/admin/users/${userId}/trust`, { eventId, reason, currentPassword, operationId });
   return response.data;
 }
 

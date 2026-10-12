@@ -5,6 +5,7 @@ import MarketplaceSearchHeader from '../marketplace/MarketplaceSearchHeader';
 import MarketplaceLocationControl from '../location/MarketplaceLocationControl';
 import MarketplaceEmptyState from '../location/MarketplaceEmptyState';
 import MarketplaceResultsSummary from '../location/MarketplaceResultsSummary';
+import MarketplaceMap from '../location/MarketplaceMap';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
@@ -195,6 +196,11 @@ export default function BrowseJobs({
         Could not refresh requests. Showing the last loaded results.{' '}
         <button type="button" className="font-semibold" onClick={nearby.refresh}>Try again</button>
       </div>}
+      <MarketplaceMap workspace="provider" location={nearby.location} pins={nearby.mapPins} loading={nearby.loading} error={nearby.error || nearby.refreshError} onApply={nearby.applyLocation} onShowResult={id=>{
+        const index=nearby.mapPins?.findIndex(pin=>pin.id===id) ?? -1;
+        if(index>=0)nearby.goToPage(Math.floor(index/6)+1);
+        document.getElementById('job-request-results')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+      }}/>
       {!nearby.location && !nearby.initializing ? <MarketplaceEmptyState workspace="provider" location={null} search={searchQuery} category={selectedCategory} hasFilters={!!searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'} onChangeLocation={() => setLocationOpen(true)} onClearFilters={clearFilters}/> : nearby.error ? <div role="alert"><EmptyState icon={Search} title="Requests could not be loaded" description={nearby.error} actionLabel="Try again" onAction={nearby.refresh} accentColor="emerald" /></div> : isLoading ? (
         <JobRequestSkeleton count={6} />
       ) : sortedRequests.length === 0 ? (

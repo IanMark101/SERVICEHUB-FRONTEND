@@ -20,6 +20,7 @@
 }
 .workspace-shell, .admin-workspace { --form-accent: var(--workspace-focus); }
 /* Body portals inherit the active route's tone without depending on auth state. */
+.workspace-shell--seeker, body:has(.workspace-shell--seeker):not(:has(.landing-shell)) { --form-accent: var(--color-seeker-primary); }
 body:has(.workspace-shell--provider) { --form-accent: #059669; }
 body:has(.admin-workspace) { --form-accent: #ae3333; }
 .dark body:has(.admin-workspace) { --form-accent: #f2605c; }

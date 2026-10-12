@@ -7,8 +7,9 @@ function createModel(overrides: Record<string, unknown> = {}) {
     isDark: false,
     editingTrustUser: null,
     closeTrustModal: vi.fn(),
-    trustDelta: 0,
-    setTrustDelta: vi.fn(),
+    trustEventId: '',
+    setTrustEventId: vi.fn(),
+    trustEvents: [],
     trustReason: '',
     setTrustReason: vi.fn(),
     trustPassword: '',
@@ -39,18 +40,18 @@ function createModel(overrides: Record<string, unknown> = {}) {
 }
 
 describe('AdminUserModals', () => {
-  it('requires a non-zero trust adjustment and a reason', () => {
+  it('requires an original trust event and a documented correction reason', () => {
     const model = createModel({
       editingTrustUser: { name: 'Test User', trustScore: 80 },
     });
     render(<AdminUserModals model={model} />);
-    expect(screen.getByRole('button', { name: 'Apply Adjustment' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Record Correction' })).toBeDisabled();
   });
 
   it('requires the current admin password for a trust adjustment', () => {
-    const model = createModel({ editingTrustUser: { name: 'Test User', trustScore: 80 }, trustDelta: -5, trustReason: 'Documented correction' });
+    const model = createModel({ editingTrustUser: { name: 'Test User', trustScore: 80 }, trustEventId: 'event-1', trustReason: 'Documented correction based on the booking evidence' });
     render(<AdminUserModals model={model} />);
-    expect(screen.getByRole('button', { name: 'Apply Adjustment' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Record Correction' })).toBeDisabled();
     fireEvent.change(screen.getByLabelText('Current administrator password'), { target: { value: 'secret' } });
     expect(model.setTrustPassword).toHaveBeenCalledWith('secret');
   });

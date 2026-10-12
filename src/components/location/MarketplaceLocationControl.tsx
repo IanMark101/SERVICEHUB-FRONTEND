@@ -17,6 +17,7 @@ function LocationDialog({ value, workspace, onClose, onApply }: {
   const radiusHintId = useId();
   const radiusErrorId = useId();
   const [point,setPoint] = useState<LocationPoint | null>(value?.point || null);
+  const [pending,setPending]=useState(false);
   const initialRadius = value?.radiusKm ?? 10;
   const [radiusChoice,setRadiusChoice] = useState(SEARCH_RADII.some(km => km === initialRadius) ? String(initialRadius) : 'custom');
   const [customRadius,setCustomRadius] = useState(String(initialRadius));
@@ -25,7 +26,7 @@ function LocationDialog({ value, workspace, onClose, onApply }: {
   const radius = radiusResult.success ? radiusResult.data : undefined;
   const radiusError = radiusResult.success ? '' : !radiusDraft.trim() ? 'Enter a custom radius.' : radiusResult.error.issues[0].message;
   const ref = useDialogFocus(true,false,onClose,'dialog');
-  const valid = LocationSchema.safeParse(point).success && radiusResult.success;
+  const valid = !pending && LocationSchema.safeParse(point).success && radiusResult.success;
   const accent = workspace==='provider' ? '#059669' : 'var(--color-brand-text)';
   return <div className={styles.overlay} data-form-tone={workspace} style={{ '--location-accent':accent, '--location-button': workspace === 'provider' ? 'var(--color-provider-hover, #047857)' : 'var(--color-seeker-primary, var(--color-brand-text))' } as React.CSSProperties} onClick={event => { if(event.target===event.currentTarget)onClose(); }}>
     <div className={styles.panel} data-marketplace-dialog role="dialog" aria-modal="true" aria-labelledby={title} tabIndex={-1} ref={ref}>
@@ -46,7 +47,7 @@ function LocationDialog({ value, workspace, onClose, onApply }: {
           <input id={radiusInputId} className={`${styles.field} ${styles.radiusInput}`} type="number" inputMode="decimal" min={SEARCH_RADIUS_MIN_KM} max={SEARCH_RADIUS_MAX_KM} step={SEARCH_RADIUS_STEP_KM} required value={customRadius} placeholder="e.g. 2.5" aria-invalid={Boolean(radiusError)} aria-describedby={`${radiusHintId}${radiusError ? ` ${radiusErrorId}` : ''}`} onChange={event => setCustomRadius(event.target.value)}/>
           {radiusError && <p id={radiusErrorId} role="alert" className={styles.error}>{radiusError}</p>}
         </div>}
-        <LocationEditor value={point} onChange={setPoint} radiusKm={radius} accent={accent} label="Search area name"/>
+        <LocationEditor value={point} onChange={setPoint} radiusKm={radius} accent={accent} label="Search area name" onPendingChange={setPending}/>
       </div>
       <footer className={styles.footer}><button className={styles.button} type="button" onClick={onClose}>Cancel</button><button className={`${styles.button} ${styles.primary}`} type="button" disabled={!valid} onClick={() => { if(point && valid && radiusResult.success)onApply({ point:{ latitude:point.latitude, longitude:point.longitude, label:point.label },radiusKm:radiusResult.data }); }}>Apply location</button></footer>
     </div>
