@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import LandingFaq from './LandingFaq';
 import LandingHowItWorks from './LandingHowItWorks';
+import LandingTrust from './LandingTrust';
 
 describe('landing information and disclosure controls', () => {
   beforeAll(() => {
@@ -71,5 +72,52 @@ describe('landing information and disclosure controls', () => {
     expect(previous).toHaveAttribute('aria-expanded', 'false');
     await waitFor(() => expect(screen.queryByRole('region', { name: /follow a booking/ })).not.toBeInTheDocument());
     expect(screen.getByRole('link', { name: 'Open the Help Center' })).toHaveAttribute('href', '/help');
+  });
+
+  it('lets visitors explore reviews and evidence-based trust with keyboard tabs', () => {
+    render(<LandingTrust isDark={false} />);
+    const overview = screen.getByRole('tab', { name: 'Overview' });
+    const reviews = screen.getByRole('tab', { name: 'Reviews' });
+    const score = screen.getByRole('tab', { name: 'Trust score' });
+    expect(screen.getByRole('tabpanel', { name: 'Overview' })).toBeVisible();
+    expect(screen.queryByRole('tabpanel', { name: 'Reviews' })).not.toBeInTheDocument();
+    fireEvent.keyDown(overview, { key: 'ArrowRight' });
+    expect(reviews).toHaveFocus();
+    expect(reviews).toHaveAttribute('aria-selected', 'true');
+    const reviewPanel = within(screen.getByRole('tabpanel', { name: 'Reviews' }));
+    const reviewRows = within(reviewPanel.getByRole('list')).getAllByRole('listitem');
+    expect(reviewRows[0]).toHaveTextContent('The Provider submits the work');
+    expect(reviewRows[1]).toHaveTextContent('The Seeker confirms the result');
+    expect(reviewRows[2]).toHaveTextContent('Both sides can leave a review');
+    expect(reviewRows[2]).toHaveTextContent('separately from Trust Score');
+    expect(reviewPanel.getByRole('heading', { name: 'Responses and disputes' })).toBeVisible();
+    fireEvent.keyDown(reviews, { key: 'End' });
+    expect(score).toHaveFocus();
+    const scorePanel = within(screen.getByRole('tabpanel', { name: 'Trust score' }));
+    expect(scorePanel.getByText(/Every account starts at 50/)).toBeVisible();
+    expect(scorePanel.getByText(/first approved verification earns 5 points, once per account/)).toBeVisible();
+    expect(scorePanel.getByText(/Each eligible participant earns 3 points/)).toBeVisible();
+    expect(scorePanel.getByText(/rolling 30-day period, including when roles are switched/)).toBeVisible();
+    expect(scorePanel.getByText(/after work starts deducts 5 points; serious misconduct deducts 10/)).toBeVisible();
+    fireEvent.keyDown(score, { key: 'ArrowRight' });
+    expect(overview).toHaveFocus();
+    fireEvent.keyDown(overview, { key: 'ArrowLeft' });
+    expect(score).toHaveFocus();
+    fireEvent.keyDown(score, { key: 'Home' });
+    expect(overview).toHaveFocus();
+    fireEvent.click(reviews);
+    expect(reviews).toHaveAttribute('aria-selected', 'true');
+    expect(overview).toHaveAttribute('tabindex', '-1');
+    expect(screen.getByRole('link', { name: 'Read the trust score rules' })).toHaveAttribute('href', '/help/trust-reputation/how-trust-score-changes');
+  });
+
+  it('opens the review explanation for an existing reviews anchor', () => {
+    window.history.replaceState(null, '', '/#reviews');
+    const { unmount } = render(<LandingTrust isDark />);
+    expect(screen.getByRole('tab', { name: 'Reviews' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel', { name: 'Reviews' })).toBeVisible();
+    expect(document.querySelector('#reviews')).toBeInTheDocument();
+    unmount();
+    window.history.replaceState(null, '', '/');
   });
 });

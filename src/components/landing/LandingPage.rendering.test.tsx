@@ -97,6 +97,9 @@ describe('landing content before hydration and viewport initialization', () => {
     expect(within(community).getAllByRole('heading', { level: 3 })).toHaveLength(3);
     expect(within(community).getByRole('list',{name:'Community Hub features'}).children).toHaveLength(3);
     expect(within(community).getByRole('link',{name:'Sign in to view the Community Hub'})).toHaveAttribute('href','/login');
+    expect(within(community).getByRole('heading', { name: 'Provider of the Week' })).toBeVisible();
+    expect(within(community).queryByText('Local Provider Directory')).not.toBeInTheDocument();
+    expect(within(community).queryByText(/Browse public provider profiles/)).not.toBeInTheDocument();
     const trust = within(container.querySelector('#trust')! as HTMLElement);
     expect(trust.getAllByRole('heading', { level: 2 })).toHaveLength(1);
     expect(trust.getByRole('heading', { name: 'Reviews follow completed service.', level: 3 })).toBeVisible();
@@ -106,13 +109,9 @@ describe('landing content before hydration and viewport initialization', () => {
     expect(trust.getByRole('heading', { name: 'Verified participation', level: 3 })).toBeVisible();
     expect(trust.getByText('Email and residency verification are required before requesting or offering services.')).toBeVisible();
     expect(trust.getByText('Verification documents stay private to authorized reviewers.')).toBeVisible();
-    const reviewSteps = trust.getByRole('list', { name: 'How a booking becomes eligible for reviews' });
-    const reviewRows = within(reviewSteps).getAllByRole('listitem');
-    expect(reviewRows).toHaveLength(3);
-    expect(reviewRows[0]).toHaveTextContent('The Provider submits the work');
-    expect(reviewRows[0]).toHaveTextContent('Finished work awaits the Seeker’s confirmation.');
-    expect(reviewRows[1]).toHaveTextContent('The Seeker confirms the result');
-    expect(reviewRows[2]).toHaveTextContent('Both sides can leave a review');
+    expect(trust.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
+    expect(trust.getByRole('tabpanel', { name: 'Overview' })).toBeVisible();
+    expect(trust.getByText('Reviews describe the service experience. A low star rating alone does not reduce Trust Score.')).toBeVisible();
     const tickers = container.querySelectorAll('[aria-label="ServiceHub highlights"]');
     expect(tickers).toHaveLength(2);
     expect(tickers[0]).toHaveTextContent('Aircon Service');

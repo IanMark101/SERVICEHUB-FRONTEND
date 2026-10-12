@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, Megaphone, UsersRound } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Megaphone, Trophy } from 'lucide-react';
 import ScrollReveal from './ScrollReveal';
 import styles from './LandingCommunity.module.css';
 
@@ -22,9 +22,9 @@ const items = [
     icon: BadgeCheck,
   },
   {
-    title: 'Local Provider Directory',
-    copy: 'Browse public provider profiles and see their active services, ratings, and trust information.',
-    icon: UsersRound,
+    title: 'Provider of the Week',
+    copy: 'See weekly provider recognition based on trust score, completed work, and client ratings.',
+    icon: Trophy,
   },
 ];
 

@@ -1,0 +1,5128 @@
+{
+  "captures": [
+    "trust-reference-light-1440-overview.png",
+    "trust-reference-light-1440-reviews.png",
+    "trust-reference-light-1440-score.png",
+    "community-brand-light-1440.png",
+    "trust-reference-light-390-overview.png",
+    "trust-reference-light-390-reviews.png",
+    "trust-reference-light-390-score.png",
+    "community-brand-light-390.png",
+    "trust-reference-light-320-overview.png",
+    "trust-reference-light-320-reviews.png",
+    "trust-reference-light-320-score.png",
+    "community-brand-light-320.png",
+    "sidebar-reference-seeker-light.png",
+    "sidebar-reference-provider-light.png",
+    "trust-reference-dark-1440-overview.png",
+    "trust-reference-dark-1440-reviews.png",
+    "trust-reference-dark-1440-score.png",
+    "community-brand-dark-1440.png",
+    "trust-reference-dark-390-overview.png",
+    "trust-reference-dark-390-reviews.png",
+    "trust-reference-dark-390-score.png",
+    "community-brand-dark-390.png",
+    "trust-reference-dark-320-overview.png",
+    "trust-reference-dark-320-reviews.png",
+    "trust-reference-dark-320-score.png",
+    "community-brand-dark-320.png",
+    "sidebar-reference-seeker-dark.png",
+    "sidebar-reference-provider-dark.png"
+  ],
+  "pageErrors": [
+    {
+      "theme": "light",
+      "message": "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    },
+    {
+      "theme": "dark",
+      "message": "Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    }
+  ],
+  "checks": [
+    {
+      "name": "trust-reference-light-1440-overview.png",
+      "width": 1440,
+      "height": 803.28125,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verified participation",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Email and residency verification are required before requesting or offering services.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Conversations connected to the work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Booking chat opens after acceptance, keeping task discussions with the service agreement.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews follow completed service.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "The Provider submits the work. The Seeker confirms completion before either side can revie",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Ratings and trust are separate",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Reviews describe the service experience. A low star rating alone does not reduce Trust Sco",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Documented decisions",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Trust penalties require documented findings. Members can view their history and appeal a p",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "One account, shared trust",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Your Seeker and Provider workspaces use the same verification and Trust Score.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-1440-reviews.png",
+      "width": 1440,
+      "height": 775.1875,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "The Provider submits the work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Finished work awaits the Seeker’s confirmation.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "The Seeker confirms the result",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Completion is recorded with the booking.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Both sides can leave a review",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Feedback contributes to the member’s star rating, separately from Trust Score.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Responses and disputes",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Members can respond publicly to a review or dispute it for administrator review.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-1440-score.png",
+      "width": 1440,
+      "height": 803.28125,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "A neutral starting point",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Every account starts at 50. Trust Score stays between 0 and 100.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Approved verification: +5",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Your first approved verification earns 5 points, once per account.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Eligible completed booking: +3",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Each eligible participant earns 3 points after a completed booking is settled.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "A limit on repeat rewards",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "One completion per account pair earns points in a rolling 30-day period, including when ro",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Evidence before deductions",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Documented at-fault cancellation after work starts deducts 5 points; serious misconduct de",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "A way to challenge a decision",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "View the reason in Trust History and appeal a penalty. Star ratings never add or deduct tr",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "community-brand-light-1440.png",
+      "width": 1440,
+      "height": 695.84375,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "See what is happening across ServiceHub.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "across ServiceHub.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 8.514900040457453
+        },
+        {
+          "text": "Follow local service activity in the Community Hub after signing in.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "14px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "14px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Inside the Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Official Community Updates",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Read announcements and service updates shared by ServiceHub administrators.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Recently Added Services",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Discover published services that were recently added to the marketplace.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Provider of the Week",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "See weekly provider recognition based on trust score, completed work, and client ratings.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-390-overview.png",
+      "width": 390,
+      "height": 1394.125,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verified participation",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Email and residency verification are required before requesting or offering services.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Conversations connected to the work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Booking chat opens after acceptance, keeping task discussions with the service agreement.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews follow completed service.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "The Provider submits the work. The Seeker confirms completion before either side can revie",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Ratings and trust are separate",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Reviews describe the service experience. A low star rating alone does not reduce Trust Sco",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Documented decisions",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Trust penalties require documented findings. Members can view their history and appeal a p",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "One account, shared trust",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Your Seeker and Provider workspaces use the same verification and Trust Score.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-390-reviews.png",
+      "width": 390,
+      "height": 1101.875,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "The Provider submits the work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Finished work awaits the Seeker’s confirmation.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "The Seeker confirms the result",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Completion is recorded with the booking.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Both sides can leave a review",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Feedback contributes to the member’s star rating, separately from Trust Score.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Responses and disputes",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Members can respond publicly to a review or dispute it for administrator review.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-390-score.png",
+      "width": 390,
+      "height": 1440.3125,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "A neutral starting point",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Every account starts at 50. Trust Score stays between 0 and 100.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Approved verification: +5",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Your first approved verification earns 5 points, once per account.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Eligible completed booking: +3",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Each eligible participant earns 3 points after a completed booking is settled.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "A limit on repeat rewards",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "One completion per account pair earns points in a rolling 30-day period, including when ro",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Evidence before deductions",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Documented at-fault cancellation after work starts deducts 5 points; serious misconduct de",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "A way to challenge a decision",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "View the reason in Trust History and appeal a penalty. Star ratings never add or deduct tr",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "community-brand-light-390.png",
+      "width": 390,
+      "height": 819.21875,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "See what is happening across ServiceHub.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "across ServiceHub.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 8.514900040457453
+        },
+        {
+          "text": "Follow local service activity in the Community Hub after signing in.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Inside the Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Official Community Updates",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Read announcements and service updates shared by ServiceHub administrators.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Recently Added Services",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Discover published services that were recently added to the marketplace.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Provider of the Week",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "See weekly provider recognition based on trust score, completed work, and client ratings.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-320-overview.png",
+      "width": 320,
+      "height": 1640.5625,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verified participation",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Email and residency verification are required before requesting or offering services.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Conversations connected to the work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Booking chat opens after acceptance, keeping task discussions with the service agreement.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews follow completed service.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "The Provider submits the work. The Seeker confirms completion before either side can revie",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Ratings and trust are separate",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Reviews describe the service experience. A low star rating alone does not reduce Trust Sco",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Documented decisions",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Trust penalties require documented findings. Members can view their history and appeal a p",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "One account, shared trust",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Your Seeker and Provider workspaces use the same verification and Trust Score.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-320-reviews.png",
+      "width": 320,
+      "height": 1281.71875,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "The Provider submits the work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Finished work awaits the Seeker’s confirmation.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "The Seeker confirms the result",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Completion is recorded with the booking.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Both sides can leave a review",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Feedback contributes to the member’s star rating, separately from Trust Score.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Responses and disputes",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Members can respond publicly to a review or dispute it for administrator review.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-light-320-score.png",
+      "width": 320,
+      "height": 1573.96875,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 14.18418333407545
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 4.6607714145640955
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(250,249,247,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.113593481484575
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "A neutral starting point",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Every account starts at 50. Trust Score stays between 0 and 100.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Approved verification: +5",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Your first approved verification earns 5 points, once per account.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Eligible completed booking: +3",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Each eligible participant earns 3 points after a completed booking is settled.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "A limit on repeat rewards",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "One completion per account pair earns points in a rolling 30-day period, including when ro",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Evidence before deductions",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "Documented at-fault cancellation after work starts deducts 5 points; serious misconduct de",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "A way to challenge a decision",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 14.924621166938763
+        },
+        {
+          "text": "View the reason in Trust History and appeal a penalty. Star ratings never add or deduct tr",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(104,80,62,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 7.4849348281976695
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(189,79,0,1)",
+          "background": "rgba(255,255,255,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        }
+      ]
+    },
+    {
+      "name": "community-brand-light-320.png",
+      "width": 320,
+      "height": 915.8125,
+      "overflow": [],
+      "background": "rgb(250, 249, 247)",
+      "text": [
+        {
+          "text": "See what is happening across ServiceHub.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "across ServiceHub.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 8.514900040457453
+        },
+        {
+          "text": "Follow local service activity in the Community Hub after signing in.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Inside the Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Official Community Updates",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Read announcements and service updates shared by ServiceHub administrators.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Recently Added Services",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Discover published services that were recently added to the marketplace.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Provider of the Week",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "See weekly provider recognition based on trust score, completed work, and client ratings.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        }
+      ]
+    },
+    {
+      "name": "sidebar-reference-seeker-light.png",
+      "width": 226.28887939453125,
+      "height": 978.5227661132812,
+      "overflow": [],
+      "background": "rgb(48, 37, 28)",
+      "text": [
+        {
+          "text": "ServiceHub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Switch workspace",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Seeker",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Provider",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(69,57,48,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 6.888395811072932
+        },
+        {
+          "text": "Workspace",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Seek Services",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Seek Services",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Post Request",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Post Request",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Offers Received",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Offers Received",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Request Manager",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Request Manager",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Connect",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "ARAlex Reyesseeker",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "AR",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "AR",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "9.28px",
+          "weight": "750",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Alex Reyes",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "seeker",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        }
+      ],
+      "active": {
+        "background": "rgb(217, 103, 0)",
+        "color": "rgb(33, 24, 16)"
+      }
+    },
+    {
+      "name": "sidebar-reference-provider-light.png",
+      "width": 226.28887939453125,
+      "height": 989.9619750976562,
+      "overflow": [],
+      "background": "rgb(23, 55, 45)",
+      "text": [
+        {
+          "text": "ServiceHub",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "14px",
+          "weight": "750",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Switch workspace",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Seeker",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(44,74,64,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 8.575127119549443
+        },
+        {
+          "text": "Provider",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Workspace",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Browse Service Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Browse Service Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Offer Services",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Offer Services",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Incoming Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Incoming Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Service Manager",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Service Manager",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Payment Records",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Payment Records",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Connect",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "ARAlex Reyesprovider",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "AR",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "AR",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "9.28px",
+          "weight": "750",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Alex Reyes",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "12px",
+          "weight": "650",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "provider",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "400",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        }
+      ],
+      "active": {
+        "background": "rgb(4, 120, 87)",
+        "color": "rgb(255, 255, 255)"
+      }
+    },
+    {
+      "name": "keyboard-light",
+      "reviewsSelected": "true",
+      "focused": "trust-tab-reviews"
+    },
+    {
+      "name": "trust-reference-dark-1440-overview.png",
+      "width": 1440,
+      "height": 803.28125,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verified participation",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Email and residency verification are required before requesting or offering services.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Conversations connected to the work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Booking chat opens after acceptance, keeping task discussions with the service agreement.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews follow completed service.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "The Provider submits the work. The Seeker confirms completion before either side can revie",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Ratings and trust are separate",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Reviews describe the service experience. A low star rating alone does not reduce Trust Sco",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Documented decisions",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Trust penalties require documented findings. Members can view their history and appeal a p",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "One account, shared trust",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Your Seeker and Provider workspaces use the same verification and Trust Score.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-1440-reviews.png",
+      "width": 1440,
+      "height": 775.1875,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "The Provider submits the work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Finished work awaits the Seeker’s confirmation.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "The Seeker confirms the result",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Completion is recorded with the booking.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Both sides can leave a review",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Feedback contributes to the member’s star rating, separately from Trust Score.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Responses and disputes",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Members can respond publicly to a review or dispute it for administrator review.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-1440-score.png",
+      "width": 1440,
+      "height": 803.28125,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "14px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "A neutral starting point",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Every account starts at 50. Trust Score stays between 0 and 100.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Approved verification: +5",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Your first approved verification earns 5 points, once per account.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Eligible completed booking: +3",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Each eligible participant earns 3 points after a completed booking is settled.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "A limit on repeat rewards",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "One completion per account pair earns points in a rolling 30-day period, including when ro",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Evidence before deductions",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Documented at-fault cancellation after work starts deducts 5 points; serious misconduct de",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "A way to challenge a decision",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "View the reason in Trust History and appeal a penalty. Star ratings never add or deduct tr",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "community-brand-dark-1440.png",
+      "width": 1440,
+      "height": 695.84375,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "See what is happening across ServiceHub.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "across ServiceHub.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "52px",
+          "weight": "750",
+          "contrast": 8.514900040457453
+        },
+        {
+          "text": "Follow local service activity in the Community Hub after signing in.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "14px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "14px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Inside the Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Official Community Updates",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Read announcements and service updates shared by ServiceHub administrators.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Recently Added Services",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Discover published services that were recently added to the marketplace.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Provider of the Week",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "See weekly provider recognition based on trust score, completed work, and client ratings.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-390-overview.png",
+      "width": 390,
+      "height": 1394.125,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verified participation",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Email and residency verification are required before requesting or offering services.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Conversations connected to the work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Booking chat opens after acceptance, keeping task discussions with the service agreement.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews follow completed service.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "The Provider submits the work. The Seeker confirms completion before either side can revie",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Ratings and trust are separate",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Reviews describe the service experience. A low star rating alone does not reduce Trust Sco",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Documented decisions",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Trust penalties require documented findings. Members can view their history and appeal a p",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "One account, shared trust",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Your Seeker and Provider workspaces use the same verification and Trust Score.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-390-reviews.png",
+      "width": 390,
+      "height": 1101.875,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "The Provider submits the work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Finished work awaits the Seeker’s confirmation.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "The Seeker confirms the result",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Completion is recorded with the booking.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Both sides can leave a review",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Feedback contributes to the member’s star rating, separately from Trust Score.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Responses and disputes",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Members can respond publicly to a review or dispute it for administrator review.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-390-score.png",
+      "width": 390,
+      "height": 1440.3125,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "A neutral starting point",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Every account starts at 50. Trust Score stays between 0 and 100.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Approved verification: +5",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Your first approved verification earns 5 points, once per account.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Eligible completed booking: +3",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Each eligible participant earns 3 points after a completed booking is settled.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "A limit on repeat rewards",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "One completion per account pair earns points in a rolling 30-day period, including when ro",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Evidence before deductions",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Documented at-fault cancellation after work starts deducts 5 points; serious misconduct de",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "A way to challenge a decision",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "View the reason in Trust History and appeal a penalty. Star ratings never add or deduct tr",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "community-brand-dark-390.png",
+      "width": 390,
+      "height": 819.21875,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "See what is happening across ServiceHub.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "across ServiceHub.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 8.514900040457453
+        },
+        {
+          "text": "Follow local service activity in the Community Hub after signing in.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Inside the Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Official Community Updates",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Read announcements and service updates shared by ServiceHub administrators.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Recently Added Services",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Discover published services that were recently added to the marketplace.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Provider of the Week",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "See weekly provider recognition based on trust score, completed work, and client ratings.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-320-overview.png",
+      "width": 320,
+      "height": 1640.5625,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verified participation",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Email and residency verification are required before requesting or offering services.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Conversations connected to the work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Booking chat opens after acceptance, keeping task discussions with the service agreement.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews follow completed service.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "The Provider submits the work. The Seeker confirms completion before either side can revie",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Ratings and trust are separate",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Reviews describe the service experience. A low star rating alone does not reduce Trust Sco",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Documented decisions",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Trust penalties require documented findings. Members can view their history and appeal a p",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "One account, shared trust",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Your Seeker and Provider workspaces use the same verification and Trust Score.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-320-reviews.png",
+      "width": 320,
+      "height": 1281.71875,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "The Provider submits the work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Finished work awaits the Seeker’s confirmation.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "The Seeker confirms the result",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Completion is recorded with the booking.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Both sides can leave a review",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Feedback contributes to the member’s star rating, separately from Trust Score.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Responses and disputes",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Members can respond publicly to a review or dispute it for administrator review.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "trust-reference-dark-320-score.png",
+      "width": 320,
+      "height": 1573.96875,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "Know who you're working with.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 15.495239098942735
+        },
+        {
+          "text": "working with.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "36px",
+          "weight": "750",
+          "contrast": 9.800258068345958
+        },
+        {
+          "text": "Check verification, completed-service reviews and trust history before choosing who to wor",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "A review shares an experience. Trust grows through verified participation and eligible com",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(33,26,20,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 10.598455871308266
+        },
+        {
+          "text": "Verification and messaging",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(189,79,0,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 4.90407139203834
+        },
+        {
+          "text": "How reviews work",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Overview",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Reviews",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Trust score",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(169,67,0,1)",
+          "size": "13px",
+          "weight": "600",
+          "contrast": 6.017424462228686
+        },
+        {
+          "text": "A neutral starting point",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Every account starts at 50. Trust Score stays between 0 and 100.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Approved verification: +5",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Your first approved verification earns 5 points, once per account.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Eligible completed booking: +3",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Each eligible participant earns 3 points after a completed booking is settled.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "A limit on repeat rewards",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "One completion per account pair earns points in a rolling 30-day period, including when ro",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Evidence before deductions",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Documented at-fault cancellation after work starts deducts 5 points; serious misconduct de",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "A way to challenge a decision",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "View the reason in Trust History and appeal a penalty. Star ratings never add or deduct tr",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Verification documents stay private to authorized reviewers.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Read the trust score rules",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 8.514900040457453
+        }
+      ]
+    },
+    {
+      "name": "community-brand-dark-320.png",
+      "width": 320,
+      "height": 915.8125,
+      "overflow": [],
+      "background": "rgb(33, 26, 20)",
+      "text": [
+        {
+          "text": "See what is happening across ServiceHub.",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "across ServiceHub.",
+          "color": "rgba(255,179,122,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "34px",
+          "weight": "750",
+          "contrast": 8.514900040457453
+        },
+        {
+          "text": "Follow local service activity in the Community Hub after signing in.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign in to view the Community Hub",
+          "color": "rgba(48,37,28,1)",
+          "background": "rgba(255,241,227,1)",
+          "size": "13px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Inside the Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Official Community Updates",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Read announcements and service updates shared by ServiceHub administrators.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Recently Added Services",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Discover published services that were recently added to the marketplace.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Provider of the Week",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "15px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "See weekly provider recognition based on trust score, completed work, and client ratings.",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "13px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        }
+      ]
+    },
+    {
+      "name": "sidebar-reference-seeker-dark.png",
+      "width": 226.28887939453125,
+      "height": 978.5227661132812,
+      "overflow": [],
+      "background": "rgb(48, 37, 28)",
+      "text": [
+        {
+          "text": "ServiceHub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "14px",
+          "weight": "750",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Switch workspace",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Seeker",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Provider",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(69,57,48,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 6.888395811072932
+        },
+        {
+          "text": "Workspace",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Seek Services",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Seek Services",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Post Request",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Post Request",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Offers Received",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Offers Received",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Request Manager",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Request Manager",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Connect",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "ARAlex Reyesseeker",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "AR",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "AR",
+          "color": "rgba(33,24,16,1)",
+          "background": "rgba(217,103,0,1)",
+          "size": "9.28px",
+          "weight": "750",
+          "contrast": 4.897265269345686
+        },
+        {
+          "text": "Alex Reyes",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "12px",
+          "weight": "650",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "seeker",
+          "color": "rgba(228,198,170,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "10px",
+          "weight": "400",
+          "contrast": 9.208409788602678
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,241,227,1)",
+          "background": "rgba(48,37,28,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 13.462952823318222
+        }
+      ],
+      "active": {
+        "background": "rgb(217, 103, 0)",
+        "color": "rgb(33, 24, 16)"
+      }
+    },
+    {
+      "name": "sidebar-reference-provider-dark.png",
+      "width": 226.28887939453125,
+      "height": 989.9619750976562,
+      "overflow": [],
+      "background": "rgb(23, 55, 45)",
+      "text": [
+        {
+          "text": "ServiceHub",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "14px",
+          "weight": "750",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Switch workspace",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Seeker",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(44,74,64,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 8.575127119549443
+        },
+        {
+          "text": "Provider",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Workspace",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Browse Service Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Browse Service Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "700",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Offer Services",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Offer Services",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Incoming Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Incoming Requests",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Service Manager",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Service Manager",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Activity",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Payment Records",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Payment Records",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Connect",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "650",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Community Hub",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Messages",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Help Center",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "ARAlex Reyesprovider",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "AR",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "AR",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(4,120,87,1)",
+          "size": "9.28px",
+          "weight": "750",
+          "contrast": 5.483924052498799
+        },
+        {
+          "text": "Alex Reyes",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "12px",
+          "weight": "650",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "provider",
+          "color": "rgba(230,244,237,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "10px",
+          "weight": "400",
+          "contrast": 11.431246874092365
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        },
+        {
+          "text": "Sign Out",
+          "color": "rgba(255,255,255,1)",
+          "background": "rgba(23,55,45,1)",
+          "size": "16px",
+          "weight": "400",
+          "contrast": 12.956570048586528
+        }
+      ],
+      "active": {
+        "background": "rgb(4, 120, 87)",
+        "color": "rgb(255, 255, 255)"
+      }
+    },
+    {
+      "name": "keyboard-dark",
+      "reviewsSelected": "true",
+      "focused": "trust-tab-reviews"
+    }
+  ],
+  "blockedExternal": [
+    "https://fonts.googleapis.com/css2",
+    "https://fonts.googleapis.com/css2",
+    "https://fonts.googleapis.com/css2",
+    "https://fonts.googleapis.com/css2"
+  ]
+}
