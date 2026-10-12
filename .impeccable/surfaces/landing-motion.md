@@ -9,10 +9,12 @@ Mode: **Persuade**. This is a motion refinement of the incumbent ServiceHub land
 - Below 900px, sideways directions become vertical with a maximum 48px displacement. At the reading position, transform is neutral and opacity is 1. The server/no-script state is fully visible. Focused groups remain stationary; live reduced-motion preference changes immediately settle or restore the current position.
 - The hero follows [eGovPH](https://e.gov.ph/), inspected on 2026-10-12: badge drops 20px over 0.5s; copy rises 32px over 0.6s with 100ms stagger; presenter/phone arrive together from 48px to the right over 0.7s with a 0.3s delay. The easing is `[0.22, 1, 0.36, 1]`. ServiceHub's Help Center row occupies the last supporting slot. This is a timed entrance that replays on viewport re-entry, distinct from the scroll-linked section groups.
 - Existing particle background, Booking timeline, tablet perspective, role/tab/accordion feedback and footer choreography keep their established behavior. The sticky Booking track has no newly transformed ancestor.
-- Reduced motion keeps the hero and scroll groups stationary. Hero server output remains visible until a live entrance starts, and interrupted hero entrances complete on exit rather than leaving hidden content.
+- Reduced motion keeps the hero and scroll groups stationary. The hero's server markup starts its CSS entrance at first paint, including the hidden state during each stagger delay. Hydration observes the existing sequence without restarting it, eliminating the earlier visible-then-hidden flash. CSS finishes the entrance even with unavailable JavaScript. Viewport exit removes the animation to restore the readable final state; re-entry reapplies it. Section groups retain their fully visible server fallback.
 
 Sources: `src/components/landing/useScrollEntrance.ts`, `ScrollReveal.tsx`, `useHeroEntrance.ts`, `LandingHero.tsx`, `LandingHowItWorks.tsx`, `LandingTrust.tsx`, `LandingFaq.tsx`.
 
 ## Evidence
 
 See [review record](../review/REVIEW.md), [scroll measurements](../review/scroll-linked-review.json) and [hero measurements](../review/hero-egov-review.json). These describe current motion; the earlier 0.68s partial-opacity reveal report is historical. The eGov public JavaScript was inspected for timing, without retaining third-party source or copying its assets/claims into ServiceHub.
+
+The first-paint correction is verified in [hero first-paint measurements](../review/hero-first-paint-review.json): cold loads, delayed hydration, both themes at desktop/phone widths, reduced motion and JavaScript disabled. The earlier hero measurements describe the superseded JavaScript entrance implementation; its visual timing is preserved in CSS.

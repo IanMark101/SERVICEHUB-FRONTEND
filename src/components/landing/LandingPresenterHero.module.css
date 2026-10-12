@@ -1,5 +1,19 @@
 .hero { position: relative; isolation: isolate; overflow: hidden; background: var(--landing-surface, #fcfbfa); color: #171716; border-bottom: 1px solid rgb(23 23 22 / 0.07); }
-/* The finished hero remains readable before hydration or without scripts. */
+/* Start at first paint, including each stagger's delay. Hydration only observes
+   re-entry; it never hides already-painted content to start another entrance.
+   CSS alone finishes the sequence even when scripts are unavailable. */
+.hero[data-hero-motion='enter'] [data-hero-entrance] {
+  animation: heroEntrance var(--hero-duration, .6s) cubic-bezier(.22, 1, .36, 1) var(--hero-delay, .15s) both;
+}
+.hero [data-hero-entrance='badge'] { --hero-from: translateY(-20px); --hero-duration: .5s; --hero-delay: .05s; }
+.hero [data-hero-entrance='description'] { --hero-delay: .25s; }
+.hero [data-hero-entrance='actions'] { --hero-delay: .35s; }
+.hero [data-hero-entrance='support'] { --hero-delay: .45s; }
+.hero [data-hero-entrance='scene'] { --hero-from: translateX(48px); --hero-duration: .7s; --hero-delay: .3s; }
+@keyframes heroEntrance {
+  from { opacity: 0; transform: var(--hero-from, translateY(32px)); }
+  to { opacity: 1; transform: none; }
+}
 .hero [data-hero-entrance='scene'] { isolation: isolate; }
 /* eGov-style proportions: copy on the left, presenter and phone on the right. */
 .layout { display: grid; grid-template-areas: "copy scene"; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); align-items: center; gap: 48px; max-width: 1440px; min-height: min(100svh, 780px); margin-inline: auto; padding: 96px clamp(32px, 5vw, 72px) 0 clamp(48px, 7.5vw, 108px); }
@@ -105,6 +119,6 @@
   .preview { transform: scale(.52); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero [data-hero-entrance] { opacity: 1 !important; transform: none !important; animation: none; }
+  .hero[data-hero-motion] [data-hero-entrance] { opacity: 1 !important; transform: none !important; animation: none; }
   .badge, .secondary, .helpLink { transition: none; }
 }
