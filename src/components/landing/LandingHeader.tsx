@@ -18,8 +18,8 @@ interface LandingHeaderProps {
 const NAV_LINKS = [
   { label: 'Why ServiceHub', href: '#problem' },
   { label: 'How it works', href: '#how-it-works' },
-  { label: 'Booking progress', href: '#booking-progress' },
   { label: 'Workspaces', href: '#workspaces' },
+  { label: 'Booking progress', href: '#booking-progress' },
   { label: 'Compare', href: '#comparison' },
   { label: 'Trust', href: '#trust' },
   { label: 'Community', href: '#community' },

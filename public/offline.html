@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="robots" content="noindex">
+  <title>You're offline | ServiceHub</title>
+  <style>
+    :root { color-scheme: light; --surface: #fcfbfa; --ink: #0a0a0a; --muted: #48433d; --line: #dedbd6; }
+    @media (prefers-color-scheme: dark) { :root { color-scheme: dark; --surface: #0a0a0a; --ink: #ffffff; --muted: #ded8d0; --line: #453e35; } }
+    :root[data-theme='dark'] { color-scheme: dark; --surface: #0a0a0a; --ink: #ffffff; --muted: #ded8d0; --line: #453e35; }
+    :root[data-theme='light'] { color-scheme: light; --surface: #fcfbfa; --ink: #0a0a0a; --muted: #48433d; --line: #dedbd6; }
+    * { box-sizing: border-box; } body { margin: 0; background: var(--surface); color: var(--ink); font-family: system-ui, sans-serif; }
+    ::selection { background: #ff6b0040; } header { display: flex; align-items: center; gap: 12px; max-width: 1200px; margin: auto; padding: 24px; font-weight: 700; }
+    header img { border-radius: 10px; } main { min-height: calc(100dvh - 88px); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 24px; width: min(100%, 760px); margin: auto; padding: 48px 24px 100px; }
+    h1 { margin: 0; font-size: clamp(36px, 6vw, 60px); line-height: 1.08; letter-spacing: -.03em; } p { margin: 0; max-width: 55ch; color: var(--muted); font-size: 17px; line-height: 1.65; }
+    button { cursor: pointer; min-height: 48px; padding: 12px 24px; border: 0; border-radius: 999px; background: var(--ink); color: var(--surface); font: inherit; font-weight: 650; }
+    button:hover { opacity: .85; } button:focus-visible { outline: 3px solid #ff6b00; outline-offset: 5px; } .note { border-top: 1px solid var(--line); padding-top: 24px; font-size: 14px; }
+  </style>
+  <script>try { var theme = localStorage.getItem('theme'); if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme; } catch (e) {}</script>
+</head>
+<body>
+  <header><img src="/pwa/icon-192.png" alt="" width="36" height="36">ServiceHub</header>
+  <main>
+    <h1>You're offline.</h1>
+    <p id="connection-status" role="status">Reconnect to continue where you left off.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+    <p class="note">Booking, payments, messages and current availability need an internet connection. This screen doesn't show saved account information or submit changes.</p>
+  </main>
+  <script>
+    addEventListener('online', function () { document.getElementById('connection-status').textContent = 'Your device is connected. Try again to continue.'; });
+    addEventListener('offline', function () { document.getElementById('connection-status').textContent = 'Reconnect to continue where you left off.'; });
+  </script>
+</body>
+</html>

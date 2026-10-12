@@ -1,0 +1,1475 @@
+{
+  "fixtureOnly": true,
+  "evidence": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "hero": {
+        "width": 254.265625,
+        "height": 488.625,
+        "ratio": 1.9217108093160449,
+        "J": true,
+        "title": "LAPTOP REPAIR SERVICES",
+        "button": [
+          "color(srgb 0.74 0.31051 0)"
+        ],
+        "overflow": false,
+        "compactHeight": "620px",
+        "inert": true
+      },
+      "initial": {
+        "maps": 0,
+        "standalone": false
+      },
+      "modal": {
+        "maps": 1,
+        "markers": [
+          "rgb(4, 120, 87)",
+          "rgb(4, 120, 87)"
+        ],
+        "overflow": false,
+        "circle": true,
+        "radius": 2
+      },
+      "preview": "Outside-radius laptop service\n\nApproximate area · Exact location stays private\n\nPublic service area\n\nJohn Sample\n\nView listing\n×",
+      "applied": {
+        "point": {
+          "latitude": 10.25,
+          "longitude": 123.95,
+          "label": "Cordova, Cebu"
+        },
+        "radiusKm": 2
+      },
+      "fullScreen": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "hero": {
+        "width": 254.265625,
+        "height": 488.609375,
+        "ratio": 1.9216493578319915,
+        "J": true,
+        "title": "LAPTOP REPAIR SERVICES",
+        "button": [
+          "color(srgb 0.74 0.31051 0)"
+        ],
+        "overflow": false,
+        "compactHeight": "620px",
+        "inert": true
+      },
+      "initial": {
+        "maps": 0,
+        "standalone": false
+      },
+      "modal": {
+        "maps": 1,
+        "markers": [
+          "rgb(4, 120, 87)",
+          "rgb(4, 120, 87)"
+        ],
+        "overflow": false,
+        "circle": true,
+        "radius": 2
+      },
+      "preview": "Outside-radius laptop service\n\nApproximate area · Exact location stays private\n\nPublic service area\n\nJohn Sample\n\nView listing\n×",
+      "applied": {
+        "point": {
+          "latitude": 10.25,
+          "longitude": 123.95,
+          "label": "Cordova, Cebu"
+        },
+        "radiusKm": 2
+      },
+      "fullScreen": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "hero": {
+        "width": 145.60000610351562,
+        "height": 278.4425048828125,
+        "ratio": 1.912379761061626,
+        "J": true,
+        "title": "LAPTOP REPAIR SERVICES",
+        "button": [
+          "color(srgb 0.74 0.31051 0)"
+        ],
+        "overflow": false,
+        "compactHeight": "620px",
+        "inert": true
+      },
+      "initial": {
+        "maps": 0,
+        "standalone": false
+      },
+      "modal": {
+        "maps": 1,
+        "markers": [
+          "rgb(4, 120, 87)",
+          "rgb(4, 120, 87)"
+        ],
+        "overflow": false,
+        "circle": true,
+        "radius": 2
+      },
+      "preview": "Outside-radius laptop service\n\nApproximate area · Exact location stays private\n\nPublic service area\n\nJohn Sample\n\nView listing\n×",
+      "applied": {
+        "point": {
+          "latitude": 10.25,
+          "longitude": 123.95,
+          "label": "Cordova, Cebu"
+        },
+        "radiusKm": 2
+      },
+      "fullScreen": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "hero": {
+        "width": 145.60000610351562,
+        "height": 278.4425048828125,
+        "ratio": 1.912379761061626,
+        "J": true,
+        "title": "LAPTOP REPAIR SERVICES",
+        "button": [
+          "color(srgb 0.74 0.31051 0)"
+        ],
+        "overflow": false,
+        "compactHeight": "620px",
+        "inert": true
+      },
+      "initial": {
+        "maps": 0,
+        "standalone": false
+      },
+      "modal": {
+        "maps": 1,
+        "markers": [
+          "rgb(4, 120, 87)",
+          "rgb(4, 120, 87)"
+        ],
+        "overflow": false,
+        "circle": true,
+        "radius": 2
+      },
+      "preview": "Outside-radius laptop service\n\nApproximate area · Exact location stays private\n\nPublic service area\n\nJohn Sample\n\nView listing\n×",
+      "applied": {
+        "point": {
+          "latitude": 10.25,
+          "longitude": 123.95,
+          "label": "Cordova, Cebu"
+        },
+        "radiusKm": 2
+      },
+      "fullScreen": true
+    }
+  ],
+  "issues": [
+    {
+      "exceptionId": 1,
+      "text": "Uncaught",
+      "lineNumber": 30,
+      "columnNumber": 45737,
+      "scriptId": "8",
+      "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+      "stackTrace": {
+        "callFrames": [
+          {
+            "functionName": "rJ",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 45737
+          },
+          {
+            "functionName": "id",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 96985
+          },
+          {
+            "functionName": "sh",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 137814
+          },
+          {
+            "functionName": "",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132693
+          },
+          {
+            "functionName": "sr",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132794
+          },
+          {
+            "functionName": "sq",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 159375
+          },
+          {
+            "functionName": "O",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 0,
+            "columnNumber": 3355
+          }
+        ]
+      },
+      "exception": {
+        "type": "object",
+        "subtype": "error",
+        "className": "Error",
+        "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+        "objectId": "1885328638865452671.1.1",
+        "preview": {
+          "type": "object",
+          "subtype": "error",
+          "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+          "overflow": false,
+          "properties": [
+            {
+              "name": "stack",
+              "type": "string",
+              "value": "Error: Minified React error #418; visit https://re…3107/_next/static/chunks/12_klrswvucgr.js:1:3356)"
+            },
+            {
+              "name": "message",
+              "type": "string",
+              "value": "Minified React error #418; visit https://react.dev… for full errors and additional helpful warnings."
+            }
+          ]
+        }
+      },
+      "executionContextId": 1
+    },
+    {
+      "exceptionId": 2,
+      "text": "Uncaught",
+      "lineNumber": 30,
+      "columnNumber": 45737,
+      "scriptId": "8",
+      "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+      "stackTrace": {
+        "callFrames": [
+          {
+            "functionName": "rJ",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 45737
+          },
+          {
+            "functionName": "id",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 96985
+          },
+          {
+            "functionName": "sh",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 137814
+          },
+          {
+            "functionName": "",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132693
+          },
+          {
+            "functionName": "sr",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132794
+          },
+          {
+            "functionName": "sq",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 159375
+          },
+          {
+            "functionName": "O",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 0,
+            "columnNumber": 3355
+          }
+        ]
+      },
+      "exception": {
+        "type": "object",
+        "subtype": "error",
+        "className": "Error",
+        "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+        "objectId": "1885328638865452671.3.1",
+        "preview": {
+          "type": "object",
+          "subtype": "error",
+          "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+          "overflow": false,
+          "properties": [
+            {
+              "name": "stack",
+              "type": "string",
+              "value": "Error: Minified React error #418; visit https://re…3107/_next/static/chunks/12_klrswvucgr.js:1:3356)"
+            },
+            {
+              "name": "message",
+              "type": "string",
+              "value": "Minified React error #418; visit https://react.dev… for full errors and additional helpful warnings."
+            }
+          ]
+        }
+      },
+      "executionContextId": 3
+    },
+    {
+      "exceptionId": 3,
+      "text": "Uncaught",
+      "lineNumber": 30,
+      "columnNumber": 45737,
+      "scriptId": "8",
+      "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+      "stackTrace": {
+        "callFrames": [
+          {
+            "functionName": "rJ",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 45737
+          },
+          {
+            "functionName": "id",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 96985
+          },
+          {
+            "functionName": "sh",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 137814
+          },
+          {
+            "functionName": "",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132693
+          },
+          {
+            "functionName": "sr",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132794
+          },
+          {
+            "functionName": "sq",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 159375
+          },
+          {
+            "functionName": "O",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 0,
+            "columnNumber": 3355
+          }
+        ]
+      },
+      "exception": {
+        "type": "object",
+        "subtype": "error",
+        "className": "Error",
+        "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+        "objectId": "1885328638865452671.5.1",
+        "preview": {
+          "type": "object",
+          "subtype": "error",
+          "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+          "overflow": false,
+          "properties": [
+            {
+              "name": "stack",
+              "type": "string",
+              "value": "Error: Minified React error #418; visit https://re…3107/_next/static/chunks/12_klrswvucgr.js:1:3356)"
+            },
+            {
+              "name": "message",
+              "type": "string",
+              "value": "Minified React error #418; visit https://react.dev… for full errors and additional helpful warnings."
+            }
+          ]
+        }
+      },
+      "executionContextId": 5
+    },
+    {
+      "exceptionId": 4,
+      "text": "Uncaught",
+      "lineNumber": 30,
+      "columnNumber": 45737,
+      "scriptId": "8",
+      "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+      "stackTrace": {
+        "callFrames": [
+          {
+            "functionName": "rJ",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 45737
+          },
+          {
+            "functionName": "id",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 96985
+          },
+          {
+            "functionName": "sh",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 137814
+          },
+          {
+            "functionName": "",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132693
+          },
+          {
+            "functionName": "sr",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 132794
+          },
+          {
+            "functionName": "sq",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 30,
+            "columnNumber": 159375
+          },
+          {
+            "functionName": "O",
+            "scriptId": "8",
+            "url": "http://localhost:3107/_next/static/chunks/12_klrswvucgr.js",
+            "lineNumber": 0,
+            "columnNumber": 3355
+          }
+        ]
+      },
+      "exception": {
+        "type": "object",
+        "subtype": "error",
+        "className": "Error",
+        "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+        "objectId": "1885328638865452671.7.1",
+        "preview": {
+          "type": "object",
+          "subtype": "error",
+          "description": "Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at rJ (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:45738)\n    at id (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:96986)\n    at sh (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:137815)\n    at http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132694\n    at sr (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:132795)\n    at sq (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:31:159376)\n    at MessagePort.O (http://localhost:3107/_next/static/chunks/12_klrswvucgr.js:1:3356)",
+          "overflow": false,
+          "properties": [
+            {
+              "name": "stack",
+              "type": "string",
+              "value": "Error: Minified React error #418; visit https://re…3107/_next/static/chunks/12_klrswvucgr.js:1:3356)"
+            },
+            {
+              "name": "message",
+              "type": "string",
+              "value": "Minified React error #418; visit https://react.dev… for full errors and additional helpful warnings."
+            }
+          ]
+        }
+      },
+      "executionContextId": 7
+    }
+  ],
+  "requests": [
+    {
+      "path": "/auth/session",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/auth/session",
+      "method": "POST",
+      "params": {}
+    },
+    {
+      "path": "/categories",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/services",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/services/mine",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/requests",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/offers/received",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/categories",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/services",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/services/mine",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/requests",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/offers/received",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250059117301806",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250059117301806",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "123.85574340820312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "124.04388427734375",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "123.85574340820312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "124.04388427734375",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250059117301806",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/auth/session",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/auth/session",
+      "method": "POST",
+      "params": {}
+    },
+    {
+      "path": "/offers/received",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/offers/received",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250059117301806",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250059117301806",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "123.85574340820312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "124.04388427734375",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "123.85574340820312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250046067298129",
+        "longitude": "124.04388427734375",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250059117301806",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/auth/session",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/auth/session",
+      "method": "POST",
+      "params": {}
+    },
+    {
+      "path": "/offers/received",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/offers/received",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250057436692686",
+        "longitude": "123.95015716552734",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250057436692686",
+        "longitude": "123.95015716552734",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "123.83377075195312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "124.06723022460938",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "123.83377075195312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "124.06723022460938",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250057436692686",
+        "longitude": "123.95015716552734",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/auth/session",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/auth/session",
+      "method": "POST",
+      "params": {}
+    },
+    {
+      "path": "/services",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/services/mine",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/services",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/services/mine",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/requests",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/offers/received",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "OPTIONS",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "OPTIONS",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/requests",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/offers/received",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/offers/mine",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/bookings/my-engagements",
+      "method": "GET",
+      "params": {}
+    },
+    {
+      "path": "/notifications",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/transactions",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/messages/conversations",
+      "method": "GET",
+      "params": {
+        "page": "1",
+        "limit": "20"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.25",
+        "longitude": "123.95",
+        "radiusKm": "2",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250057436692686",
+        "longitude": "123.95015716552734",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250057436692686",
+        "longitude": "123.95015716552734",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "123.83377075195312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "124.06723022460938",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "123.83377075195312",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250019177662589",
+        "longitude": "124.06723022460938",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250057436692686",
+        "longitude": "123.95015716552734",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "OPTIONS",
+      "params": {
+        "latitude": "10.250048730115363",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    },
+    {
+      "path": "/services/nearby",
+      "method": "GET",
+      "params": {
+        "latitude": "10.250048730115363",
+        "longitude": "123.94998550415039",
+        "radiusKm": "30",
+        "page": "1",
+        "limit": "6",
+        "search": "",
+        "category": "All Categories",
+        "filter": "all"
+      }
+    }
+  ]
+}

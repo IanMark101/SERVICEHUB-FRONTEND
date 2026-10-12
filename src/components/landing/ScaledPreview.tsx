@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import styles from './ScaledPreview.module.css';
 
 /** Fit real UI into a device without changing the product's text or spacing. */
@@ -27,6 +27,6 @@ export default function ScaledPreview({ width, label, className = '', children }
     return () => observer.disconnect();
   }, [width]);
   return <div ref={viewport} className={`${styles.viewport} ${className}`} role="img" aria-label={label}>
-    <div ref={canvas} className={styles.canvas} style={{ width }} inert aria-hidden="true">{children}</div>
+    <div ref={canvas} className={styles.canvas} style={{ width, '--scaled-preview-width':`${width}px` } as CSSProperties} inert aria-hidden="true">{children}</div>
   </div>;
 }

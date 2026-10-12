@@ -27,6 +27,7 @@ import {
   Megaphone,
   Sun,
   Moon,
+  DownloadSimple,
 } from '@phosphor-icons/react';
 import type { UserSession } from '../auth/LoginContainer';
 import UserAvatar from '../ui/UserAvatar';
@@ -249,6 +250,10 @@ export default function SidebarView({
           <nav aria-label="Community and messages" className={styles.connect}>
             {showLabels && <p className={styles.sectionLabel}>Connect</p>}
             <div className={styles.menu}>{sharedMenu.map(renderMenuItem)}</div>
+            {!preview && <Link href="/install" onClick={() => setIsMobileOpen(false)} aria-label={showLabels ? undefined : 'Install app'} title={showLabels ? undefined : 'Install app'} className={styles.item}>
+              <DownloadSimple size={18} aria-hidden="true" />
+              {showLabels && <span className={styles.itemLabel}>Install app</span>}
+            </Link>}
           </nav>
         )}
       </div>

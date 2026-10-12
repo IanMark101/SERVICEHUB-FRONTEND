@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "build": "next build",
-    "start": "next start",
+    "prebuild": "node scripts/build-pwa.mjs",
+    "build": "node scripts/next.mjs build",
+    "start": "node scripts/next.mjs start",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"

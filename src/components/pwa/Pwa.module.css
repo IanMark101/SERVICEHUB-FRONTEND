@@ -1,0 +1,13 @@
+.notice { position: fixed; z-index: 95; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); width: min(360px, calc(100vw - 32px)); padding: 20px; border-radius: 16px; background: #0a0a0a; color: #fff; box-shadow: 0 8px 30px rgb(0 0 0 / .22); font-size: 14px; line-height: 1.6; }
+.notice p { margin: 0; } .notice strong { display: block; }
+.noticeActions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.noticeActions button { min-height: 44px; padding: 10px 16px; border-radius: 999px; background: #fff; color: #0a0a0a; font-weight: 650; cursor: pointer; }
+.noticeActions button + button { background: #292929; color: #fff; }
+.noticeActions button:hover { opacity: .85; }
+.noticeActions button:focus-visible { outline: 2px solid #ff6b00; outline-offset: 4px; }
+.noticeActions button:disabled { opacity: .6; cursor: wait; }
+.guide { display: grid; gap: 20px; max-width: 65ch; }
+.guide h2 { font-size: 18px; font-weight: 650; }
+.guide p { margin-top: 8px; }
+.guide ol { list-style: decimal; padding-left: 22px; margin-top: 12px; }
+.guide li { padding-left: 4px; margin-bottom: 10px; }

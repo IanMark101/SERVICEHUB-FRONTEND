@@ -7,14 +7,12 @@ import ParticlesComponent from '@/components/ui/particles-bg';
 import styles from './LandingPresenterHero.module.css';
 import LandingActionLink from './LandingActionLink';
 import LandingServicePreview from './LandingServicePreview';
-import useHeroEntrance from './useHeroEntrance';
 
 interface LandingHeroProps { isDark: boolean; }
 
 export default function LandingHero({ isDark }: LandingHeroProps) {
-  const entranceScope = useHeroEntrance();
   return (
-    <section ref={entranceScope} id="top" className={styles.hero} data-hero-motion="enter" data-theme={isDark ? 'dark' : 'light'} aria-labelledby="landing-hero-title">
+    <section id="top" className={styles.hero} data-hero-motion="enter" data-theme={isDark ? 'dark' : 'light'} aria-labelledby="landing-hero-title">
       <ParticlesComponent isDark={isDark} variant="brand" />
       <div className={styles.layout}>
         <div className={styles.copy}>

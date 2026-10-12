@@ -5,12 +5,15 @@ import { createPortal } from 'react-dom';
 import { MapPin, PencilSimple, X } from '@phosphor-icons/react';
 import { LocationSchema, SearchRadiusSchema, SEARCH_RADII, SEARCH_RADIUS_MIN_KM, SEARCH_RADIUS_MAX_KM, SEARCH_RADIUS_STEP_KM, type MarketplaceLocation, type LocationPoint } from '../../lib/location';
 import useDialogFocus from '../../hooks/useDialogFocus';
+import useProviderMapListings, { type ProviderMapFilters } from '../../hooks/useProviderMapListings';
+import type { MarketplaceMapViewport } from '../../lib/marketplace-map';
 import LocationEditor from './LocationEditor';
 import FormSelect from '../ui/FormSelect';
 import styles from './Location.module.css';
 
-function LocationDialog({ value, workspace, onClose, onApply }: {
+function LocationDialog({ value, workspace, onClose, onApply, providerMap, onViewListing }: {
   value:MarketplaceLocation | null; workspace:'seeker'|'provider'; onClose:() => void; onApply:(value:MarketplaceLocation) => void;
+  providerMap?:ProviderMapFilters; onViewListing?:(id:string)=>void;
 }) {
   const title = useId();
   const radiusInputId = useId();
@@ -18,6 +21,8 @@ function LocationDialog({ value, workspace, onClose, onApply }: {
   const radiusErrorId = useId();
   const [point,setPoint] = useState<LocationPoint | null>(value?.point || null);
   const [pending,setPending]=useState(false);
+  const [viewport,setViewport]=useState<MarketplaceMapViewport|null>(null);
+  const mapListings=useProviderMapListings(viewport,workspace==='seeker' ? providerMap : undefined);
   const initialRadius = value?.radiusKm ?? 10;
   const [radiusChoice,setRadiusChoice] = useState(SEARCH_RADII.some(km => km === initialRadius) ? String(initialRadius) : 'custom');
   const [customRadius,setCustomRadius] = useState(String(initialRadius));
@@ -47,16 +52,25 @@ function LocationDialog({ value, workspace, onClose, onApply }: {
           <input id={radiusInputId} className={`${styles.field} ${styles.radiusInput}`} type="number" inputMode="decimal" min={SEARCH_RADIUS_MIN_KM} max={SEARCH_RADIUS_MAX_KM} step={SEARCH_RADIUS_STEP_KM} required value={customRadius} placeholder="e.g. 2.5" aria-invalid={Boolean(radiusError)} aria-describedby={`${radiusHintId}${radiusError ? ` ${radiusErrorId}` : ''}`} onChange={event => setCustomRadius(event.target.value)}/>
           {radiusError && <p id={radiusErrorId} role="alert" className={styles.error}>{radiusError}</p>}
         </div>}
-        <LocationEditor value={point} onChange={setPoint} radiusKm={radius} accent={accent} label="Search area name" onPendingChange={setPending}/>
+        {providerMap && workspace==='seeker' && <div className={styles.hint}>
+          <p>Orange: your search location and radius. Green: provider service areas, including outside the circle. Markers are approximate; exact locations stay private.</p>
+          <p role="status">{mapListings.error || (mapListings.loading ? 'Loading provider listings…' : mapListings.resolved ? `${mapListings.pins.length} provider listing${mapListings.pins.length===1 ? '' : 's'} loaded for this map.` : '')}</p>
+          {mapListings.limited && <p>Zoom in to load providers across the visible area.</p>}
+          {mapListings.error && <button className={styles.button} type="button" onClick={mapListings.retry}>Retry provider listings</button>}
+        </div>}
+        <LocationEditor value={point} onChange={setPoint} radiusKm={radius} accent={accent} label="Search area name" onPendingChange={setPending}
+          mapResults={providerMap && workspace==='seeker' ? mapListings.pins : undefined} onViewportChange={providerMap && workspace==='seeker' ? setViewport : undefined}
+          onResultSelect={id=>{ onClose();onViewListing?.(id); }}/>
       </div>
       <footer className={styles.footer}><button className={styles.button} type="button" onClick={onClose}>Cancel</button><button className={`${styles.button} ${styles.primary}`} type="button" disabled={!valid} onClick={() => { if(point && valid && radiusResult.success)onApply({ point:{ latitude:point.latitude, longitude:point.longitude, label:point.label },radiusKm:radiusResult.data }); }}>Apply location</button></footer>
     </div>
   </div>;
 }
 
-export default function MarketplaceLocationControl({ value, workspace, onApply, open: controlledOpen, onOpenChange }: {
+export default function MarketplaceLocationControl({ value, workspace, onApply, open: controlledOpen, onOpenChange, providerMap, onViewListing }: {
   value:MarketplaceLocation | null; workspace:'seeker'|'provider'; onApply:(value:MarketplaceLocation) => void;
   open?:boolean; onOpenChange?:(open:boolean) => void;
+  providerMap?:ProviderMapFilters; onViewListing?:(id:string)=>void;
 }) {
   const [localOpen,setLocalOpen]=useState(false);
   const open = controlledOpen ?? localOpen;
@@ -75,6 +89,6 @@ export default function MarketplaceLocationControl({ value, workspace, onApply, 
       </span>
       <span className={styles.changeAction}>{value ? 'Change' : 'Choose'}<PencilSimple size={14} aria-hidden="true"/></span>
     </button>
-    {open && createPortal(<LocationDialog value={value} workspace={workspace} onClose={() => setOpen(false)} onApply={next=>{onApply(next);setOpen(false);}}/>, document.body)}
+    {open && createPortal(<LocationDialog value={value} workspace={workspace} providerMap={providerMap} onViewListing={onViewListing} onClose={() => setOpen(false)} onApply={next=>{onApply(next);setOpen(false);}}/>, document.body)}
   </div>;
 }

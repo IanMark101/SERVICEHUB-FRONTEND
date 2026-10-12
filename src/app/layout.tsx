@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Geist } from "next/font/google";
 import Script from "next/script";
 import { AppProvider } from "../context/AppContext";
@@ -7,6 +7,7 @@ import "./globals.css";
 import "../components/ui/form-controls.css";
 import { cn } from "@/lib/utils";
 import { rootMetadata } from "@/lib/seo";
+import PwaProvider from "@/components/pwa/PwaProvider";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -19,6 +20,7 @@ const playfair = Playfair_Display({
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = rootMetadata;
+export const viewport: Viewport = { themeColor: '#0a0a0a' };
 
 export default function RootLayout({
   children,
@@ -49,9 +51,11 @@ export default function RootLayout({
           `}
         </Script>
         <ToastProvider>
-          <AppProvider>
-            {children}
-          </AppProvider>
+          <PwaProvider>
+            <AppProvider>
+              {children}
+            </AppProvider>
+          </PwaProvider>
         </ToastProvider>
       </body>
     </html>

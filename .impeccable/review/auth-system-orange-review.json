@@ -1,0 +1,389 @@
+{
+  "samples": [
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "color(srgb 1 0.97098 0.95)",
+        "border": "oklab(0.619857 0.0870161 0.111184 / 0.55)",
+        "caret": "color(srgb 0.66 0.276941 0)",
+        "color": "color(srgb 0.66 0.276941 0)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(255, 253, 250)",
+        "border": "color(srgb 0.74 0.31051 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(10, 10, 10)",
+        "shadow": "color(srgb 0.74 0.31051 0 / 0.18) 0px 0px 0px 3px"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "lab(90.952 -0.0000596046 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "color(srgb 0.74 0.31051 0)",
+        "shadow": "none"
+      },
+      "scrollWidth": 1280,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "light",
+      "width": 1280,
+      "label": "login-desktop-light"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "oklab(0.682227 0.0677671 0.0970676 / 0.08)",
+        "border": "oklab(0.682227 0.0677671 0.0970676 / 0.35)",
+        "caret": "color(srgb 0.831 0.551831 0.35)",
+        "color": "color(srgb 0.831 0.551831 0.35)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(10, 10, 10)",
+        "border": "color(srgb 0.74 0.31051 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(255, 255, 255)",
+        "shadow": "color(srgb 0.74 0.31051 0 / 0.18) 0px 0px 0px 3px"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "lab(100 0 0 / 0.1)",
+        "caret": "color(srgb 0.779 0.413933 0.15)",
+        "color": "color(srgb 0.779 0.413933 0.15)",
+        "shadow": "none"
+      },
+      "scrollWidth": 1280,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "dark",
+      "width": 1280,
+      "label": "login-desktop-dark"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "oklab(0.682227 0.0677671 0.0970676 / 0.08)",
+        "border": "oklab(0.682227 0.0677671 0.0970676 / 0.35)",
+        "caret": "color(srgb 0.831 0.551831 0.35)",
+        "color": "color(srgb 0.831 0.551831 0.35)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(10, 10, 10)",
+        "border": "color(srgb 0.74 0.31051 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(255, 255, 255)",
+        "shadow": "color(srgb 0.74 0.31051 0 / 0.18) 0px 0px 0px 3px"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "lab(100 0 0 / 0.1)",
+        "caret": "color(srgb 0.779 0.413933 0.15)",
+        "color": "color(srgb 0.779 0.413933 0.15)",
+        "shadow": "none"
+      },
+      "scrollWidth": 390,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "dark",
+      "width": 390,
+      "label": "login-mobile-dark"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "oklab(0.682227 0.0677671 0.0970676 / 0.08)",
+        "border": "oklab(0.682227 0.0677671 0.0970676 / 0.35)",
+        "caret": "color(srgb 0.831 0.551831 0.35)",
+        "color": "color(srgb 0.831 0.551831 0.35)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(10, 10, 10)",
+        "border": "color(srgb 0.74 0.31051 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(255, 255, 255)",
+        "shadow": "color(srgb 0.74 0.31051 0 / 0.18) 0px 0px 0px 3px"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": null,
+      "scrollWidth": 380,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "dark",
+      "width": 380,
+      "label": "register-mobile-dark"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "color(srgb 1 0.97098 0.95)",
+        "border": "oklab(0.619857 0.0870161 0.111184 / 0.55)",
+        "caret": "color(srgb 0.66 0.276941 0)",
+        "color": "color(srgb 0.66 0.276941 0)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(255, 253, 250)",
+        "border": "color(srgb 0.74 0.31051 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(10, 10, 10)",
+        "shadow": "color(srgb 0.74 0.31051 0 / 0.18) 0px 0px 0px 3px"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": null,
+      "scrollWidth": 380,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "light",
+      "width": 380,
+      "label": "register-mobile-light"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "color(srgb 1 0.97098 0.95)",
+        "border": "oklab(0.619857 0.0870161 0.111184 / 0.55)",
+        "caret": "color(srgb 0.66 0.276941 0)",
+        "color": "color(srgb 0.66 0.276941 0)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(255, 253, 250)",
+        "border": "color(srgb 0.74 0.31051 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(10, 10, 10)",
+        "shadow": "color(srgb 0.74 0.31051 0 / 0.18) 0px 0px 0px 3px"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": null,
+      "scrollWidth": 1270,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "light",
+      "width": 1270,
+      "label": "register-desktop-light"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "oklab(0.682227 0.0677671 0.0970676 / 0.08)",
+        "border": "oklab(0.682227 0.0677671 0.0970676 / 0.35)",
+        "caret": "color(srgb 0.831 0.551831 0.35)",
+        "color": "color(srgb 0.831 0.551831 0.35)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(10, 10, 10)",
+        "border": "rgb(102, 102, 102)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(255, 255, 255)",
+        "shadow": "none"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": null,
+      "scrollWidth": 1270,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "dark",
+      "width": 1270,
+      "label": "register-desktop-dark"
+    },
+    {
+      "action": "#ff6b00",
+      "badge": null,
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 65%, white)",
+      "brand": "#ff6b00",
+      "field": {
+        "background": "rgb(10, 10, 10)",
+        "border": "rgba(0, 0, 0, 0)",
+        "caret": "color(srgb 1 0.593726 0.3)",
+        "color": "rgb(255, 255, 255)",
+        "shadow": "none"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 65%, white)",
+      "link": null,
+      "scrollWidth": 1270,
+      "shell": "landing-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "dark",
+      "width": 1270,
+      "label": "landing-desktop-dark-after-auth-navigation"
+    },
+    {
+      "action": "#ff6b00",
+      "badge": null,
+      "bodyFormAccent": "#ff6b00",
+      "brand": "#ff6b00",
+      "field": {
+        "background": "color(srgb 0.0392157 0.0392157 0.0392157 / 0.04)",
+        "border": "rgba(0, 0, 0, 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(10, 10, 10)",
+        "shadow": "none"
+      },
+      "formAccent": "#ff6b00",
+      "link": null,
+      "scrollWidth": 1270,
+      "shell": "landing-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "light",
+      "width": 1270,
+      "label": "landing-desktop-light"
+    },
+    {
+      "action": "#ff6b00",
+      "badge": null,
+      "bodyFormAccent": "#ff6b00",
+      "brand": "#ff6b00",
+      "field": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "rgb(10, 10, 10)",
+        "caret": "rgb(255, 107, 0)",
+        "color": "rgb(10, 10, 10)",
+        "shadow": "none"
+      },
+      "formAccent": "#ff6b00",
+      "link": null,
+      "scrollWidth": 1270,
+      "shell": "help-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "light",
+      "width": 1270,
+      "label": "help-desktop-light"
+    },
+    {
+      "action": "#ff6b00",
+      "badge": null,
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 65%, white)",
+      "brand": "#ff6b00",
+      "field": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "rgb(255, 255, 255)",
+        "caret": "color(srgb 1 0.622745 0.35)",
+        "color": "rgb(255, 255, 255)",
+        "shadow": "none"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 65%, white)",
+      "link": null,
+      "scrollWidth": 380,
+      "shell": "help-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "dark",
+      "width": 380,
+      "label": "help-mobile-dark"
+    },
+    {
+      "action": "#ff6b00",
+      "badge": null,
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 65%, white)",
+      "brand": "#ff6b00",
+      "field": {
+        "background": "oklab(0.144787 0.00000661612 0.00000289828 / 0.04)",
+        "border": "rgba(0, 0, 0, 0)",
+        "caret": "color(srgb 1 0.593726 0.3)",
+        "color": "rgb(255, 255, 255)",
+        "shadow": "none"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 65%, white)",
+      "link": null,
+      "scrollWidth": 380,
+      "shell": "landing-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "dark",
+      "width": 380,
+      "label": "landing-mobile-dark"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "color(srgb 1 0.97098 0.95)",
+        "border": "oklab(0.619857 0.0870161 0.111184 / 0.55)",
+        "caret": "color(srgb 0.66 0.276941 0)",
+        "color": "color(srgb 0.66 0.276941 0)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(255, 253, 250)",
+        "border": "color(srgb 0.74 0.31051 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(10, 10, 10)",
+        "shadow": "color(srgb 0.74 0.31051 0 / 0.18) 0px 0px 0px 3px"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "lab(90.952 -0.0000596046 0)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "color(srgb 0.74 0.31051 0)",
+        "shadow": "none"
+      },
+      "scrollWidth": 390,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "light",
+      "width": 390,
+      "label": "login-mobile-light"
+    },
+    {
+      "action": "color-mix(in srgb, #ff6b00 74%, black)",
+      "badge": {
+        "background": "color(srgb 1 0.97098 0.95)",
+        "border": "oklab(0.619857 0.0870161 0.111184 / 0.55)",
+        "caret": "color(srgb 0.66 0.276941 0)",
+        "color": "color(srgb 0.66 0.276941 0)",
+        "shadow": "none"
+      },
+      "bodyFormAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "brand": "color-mix(in srgb, #ff6b00 74%, black)",
+      "field": {
+        "background": "rgb(255, 253, 250)",
+        "border": "rgb(222, 219, 213)",
+        "caret": "color(srgb 0.74 0.31051 0)",
+        "color": "rgb(10, 10, 10)",
+        "shadow": "none"
+      },
+      "formAccent": "color-mix(in srgb, #ff6b00 74%, black)",
+      "link": null,
+      "scrollWidth": 1280,
+      "shell": "auth-shell",
+      "system": "color-mix(in srgb, #ff6b00 74%, black)",
+      "theme": "light",
+      "width": 1280,
+      "label": "password-recovery-desktop-light"
+    }
+  ],
+  "contrast": {
+    "systemOnLight": 4.83,
+    "hoverOnLightBadge": 5.59,
+    "darkTextOnCharcoal": 5.18,
+    "darkBadgeOnCharcoal": 7.29,
+    "whiteOnSystemAction": 4.91,
+    "focusOnCharcoal": 4.03
+  },
+  "checks": {
+    "authUsesSystem": true,
+    "publicPreservesBright": true,
+    "noHorizontalOverflow": true
+  }
+}

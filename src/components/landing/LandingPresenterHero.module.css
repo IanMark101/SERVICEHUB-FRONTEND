@@ -1,7 +1,6 @@
 .hero { position: relative; isolation: isolate; overflow: hidden; background: var(--landing-surface, #fcfbfa); color: #171716; border-bottom: 1px solid rgb(23 23 22 / 0.07); }
-/* Start at first paint, including each stagger's delay. Hydration only observes
-   re-entry; it never hides already-painted content to start another entrance.
-   CSS alone finishes the sequence even when scripts are unavailable. */
+/* Play once at first paint, including each stagger's delay. CSS alone finishes
+   the entrance; hydration and scrolling never restart it. */
 .hero[data-hero-motion='enter'] [data-hero-entrance] {
   animation: heroEntrance var(--hero-duration, .6s) cubic-bezier(.22, 1, .36, 1) var(--hero-delay, .15s) both;
 }
@@ -21,7 +20,6 @@
 .badge { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; min-height: 44px; margin-bottom: 28px; padding: 5px 13px 5px 5px; border: 1px solid #dedbd6; border-radius: 999px; background: #fff; color: #48433d; font-size: 13px; line-height: 1.4; transition: border-color 160ms, background 160ms; }
 .badgeLabel { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 6px 10px; border-radius: 999px; background: #171716; color: #fff; font-size: 12px; font-weight: 600; }
 .badgeArrow { flex-shrink: 0; color: #737373; }
-.badge:hover { border-color: var(--color-brand-focus); background: var(--color-brand-soft); }
 .badge:focus-visible { outline: 2px solid var(--color-brand-focus); outline-offset: 5px; }
 .title { max-width: 11ch; font-size: clamp(54px, 5.8vw, 84px); font-weight: 600; line-height: 1.06; letter-spacing: -.03em; text-wrap: balance; }
 .tagline { margin-top: 22px; color: var(--color-brand-heading); font-family: var(--font-serif); font-size: 32px; line-height: 1.25; text-wrap: balance; }
@@ -64,7 +62,6 @@
 :global(.dark) .badge { border-color: #453e35; background: #1c1b19; color: #ded8d0; }
 :global(.dark) .badgeLabel { background: #f2efe9; color: #171716; }
 :global(.dark) .badgeArrow { color: #b3b3b3; }
-:global(.dark) .badge:hover { border-color: var(--color-brand); background: color-mix(in srgb, var(--color-brand) 8%, var(--color-charcoal)); }
 :global(.dark) .description { color: #bdb6ad; }
 :global(.dark) .helpBar { border-color: #453e35; }
 :global(.dark) .secondary { color: #fff; border-color: #453e35; background: var(--color-charcoal); }

@@ -71,7 +71,7 @@ describe('session recovery with an interactive public landing page', () => {
     expect(localStorage.getItem('servicehub:session-present')).toBe('true');
   });
 
-  it.each(['/', '/get-started', '/login', '/register', '/reset-password', '/help', '/privacy', '/terms'])('makes no session request for a new visitor at %s', async path => {
+  it.each(['/', '/get-started', '/install', '/login', '/register', '/reset-password', '/help', '/privacy', '/terms'])('makes no session request for a new visitor at %s', async path => {
     mocks.pathname = path;
     localStorage.clear();
     vi.mocked(apiRecoverSession).mockResolvedValue({ success: false, data: { user: null } });
@@ -116,6 +116,15 @@ describe('session recovery with an interactive public landing page', () => {
     await act(async () => { reject(new Error('Session recovery timed out')); });
     expect(screen.getByRole('heading', { name: 'Answers for every step.' })).toBeVisible();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('keeps installation available when a hinted session cannot be recovered', async () => {
+    mocks.pathname = '/install';
+    vi.mocked(apiRecoverSession).mockRejectedValue(new Error('Session recovery timed out'));
+    render(<AppProvider><h1>Install ServiceHub</h1></AppProvider>);
+    await waitFor(() => expect(apiRecoverSession).toHaveBeenCalledOnce());
+    expect(screen.getByRole('heading', { name: 'Install ServiceHub' })).toBeVisible();
+    expect(screen.queryByText('Connection interrupted')).not.toBeInTheDocument();
   });
 
   it('keeps a recovery failure distinct from a confirmed sign-out and supports retry', async () => {

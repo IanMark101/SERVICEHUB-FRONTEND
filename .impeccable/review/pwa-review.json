@@ -1,0 +1,505 @@
+{
+  "date": "2026-10-12",
+  "contexts": [
+    {
+      "config": {
+        "width": 1440,
+        "dark": false
+      },
+      "state": {
+        "title": "Install ServiceHub | ServiceHub",
+        "heading": "Keep ServiceHub a tap away.",
+        "theme": "light",
+        "overflow": false,
+        "buttons": [
+          {
+            "label": "Install ServiceHub",
+            "height": 44
+          }
+        ],
+        "message": "ServiceHub\nHelp center\nAPP\nKeep ServiceHub a tap away.\n\nInstall ServiceHub for home-screen access to both your Seeker and Provider workspaces.\n\nInstall ServiceHub\nOpen ServiceHub\nOn iPhone or iPad\nOpen ServiceHub in Safari and open the Share menu.\nChoose Add to Home Screen. You may need to open More to find it.\nIf shown, keep Open as Web App enabled, then tap Add.\nOn Android or a computer\n\nUse Install ServiceHub above when available. Otherwise, look in your browser menu or address bar for Install app or Add to Home screen. Available options depend on your browser.\n\nBooking, payments, messages and current availability need an internet connection. If the connection drops, ServiceHub shows an offline screen and does not submit changes in the background."
+      },
+      "installability": {
+        "installabilityErrors": []
+      },
+      "manifest": {
+        "url": "http://localhost:3107/manifest.webmanifest",
+        "errors": [],
+        "data": {
+          "id": "/",
+          "name": "ServiceHub",
+          "short_name": "ServiceHub",
+          "description": "Find local services and manage your Seeker and Provider workspaces.",
+          "start_url": "/",
+          "scope": "/",
+          "display": "standalone",
+          "lang": "en",
+          "background_color": "#0a0a0a",
+          "theme_color": "#0a0a0a",
+          "icons": [
+            {
+              "src": "/pwa/icon-192.png",
+              "sizes": "192x192",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/icon-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/maskable-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "maskable"
+            }
+          ],
+          "shortcuts": [
+            {
+              "name": "Seeker workspace",
+              "short_name": "Seeker",
+              "url": "/seeker/seek-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            },
+            {
+              "name": "Provider workspace",
+              "short_name": "Provider",
+              "url": "/provider/browse-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "caches": [
+        {
+          "name": "servicehub-pwa-d91c0c47-7f27-4222-8ac0-a9f12ae58815",
+          "urls": [
+            "http://localhost:3107/offline.html",
+            "http://localhost:3107/pwa/icon-192.png",
+            "http://localhost:3107/pwa/icon-512.png",
+            "http://localhost:3107/pwa/maskable-512.png",
+            "http://localhost:3107/pwa/apple-touch-icon.png"
+          ]
+        }
+      ],
+      "errors": [],
+      "passed": true
+    },
+    {
+      "config": {
+        "width": 1440,
+        "dark": true
+      },
+      "state": {
+        "title": "Install ServiceHub | ServiceHub",
+        "heading": "Keep ServiceHub a tap away.",
+        "theme": "dark",
+        "overflow": false,
+        "buttons": [
+          {
+            "label": "Install ServiceHub",
+            "height": 44
+          }
+        ],
+        "message": "ServiceHub\nHelp center\nAPP\nKeep ServiceHub a tap away.\n\nInstall ServiceHub for home-screen access to both your Seeker and Provider workspaces.\n\nInstall ServiceHub\nOpen ServiceHub\nOn iPhone or iPad\nOpen ServiceHub in Safari and open the Share menu.\nChoose Add to Home Screen. You may need to open More to find it.\nIf shown, keep Open as Web App enabled, then tap Add.\nOn Android or a computer\n\nUse Install ServiceHub above when available. Otherwise, look in your browser menu or address bar for Install app or Add to Home screen. Available options depend on your browser.\n\nBooking, payments, messages and current availability need an internet connection. If the connection drops, ServiceHub shows an offline screen and does not submit changes in the background."
+      },
+      "installability": {
+        "installabilityErrors": []
+      },
+      "manifest": {
+        "url": "http://localhost:3107/manifest.webmanifest",
+        "errors": [],
+        "data": {
+          "id": "/",
+          "name": "ServiceHub",
+          "short_name": "ServiceHub",
+          "description": "Find local services and manage your Seeker and Provider workspaces.",
+          "start_url": "/",
+          "scope": "/",
+          "display": "standalone",
+          "lang": "en",
+          "background_color": "#0a0a0a",
+          "theme_color": "#0a0a0a",
+          "icons": [
+            {
+              "src": "/pwa/icon-192.png",
+              "sizes": "192x192",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/icon-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/maskable-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "maskable"
+            }
+          ],
+          "shortcuts": [
+            {
+              "name": "Seeker workspace",
+              "short_name": "Seeker",
+              "url": "/seeker/seek-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            },
+            {
+              "name": "Provider workspace",
+              "short_name": "Provider",
+              "url": "/provider/browse-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "caches": [
+        {
+          "name": "servicehub-pwa-d91c0c47-7f27-4222-8ac0-a9f12ae58815",
+          "urls": [
+            "http://localhost:3107/offline.html",
+            "http://localhost:3107/pwa/icon-192.png",
+            "http://localhost:3107/pwa/icon-512.png",
+            "http://localhost:3107/pwa/maskable-512.png",
+            "http://localhost:3107/pwa/apple-touch-icon.png"
+          ]
+        }
+      ],
+      "errors": [],
+      "passed": true
+    },
+    {
+      "config": {
+        "width": 390,
+        "dark": false
+      },
+      "state": {
+        "title": "Install ServiceHub | ServiceHub",
+        "heading": "Keep ServiceHub a tap away.",
+        "theme": "light",
+        "overflow": false,
+        "buttons": [
+          {
+            "label": "Install ServiceHub",
+            "height": 44
+          }
+        ],
+        "message": "ServiceHub\nHelp center\nAPP\nKeep ServiceHub a tap away.\n\nInstall ServiceHub for home-screen access to both your Seeker and Provider workspaces.\n\nInstall ServiceHub\nOpen ServiceHub\nOn iPhone or iPad\nOpen ServiceHub in Safari and open the Share menu.\nChoose Add to Home Screen. You may need to open More to find it.\nIf shown, keep Open as Web App enabled, then tap Add.\nOn Android or a computer\n\nUse Install ServiceHub above when available. Otherwise, look in your browser menu or address bar for Install app or Add to Home screen. Available options depend on your browser.\n\nBooking, payments, messages and current availability need an internet connection. If the connection drops, ServiceHub shows an offline screen and does not submit changes in the background."
+      },
+      "installability": {
+        "installabilityErrors": []
+      },
+      "manifest": {
+        "url": "http://localhost:3107/manifest.webmanifest",
+        "errors": [],
+        "data": {
+          "id": "/",
+          "name": "ServiceHub",
+          "short_name": "ServiceHub",
+          "description": "Find local services and manage your Seeker and Provider workspaces.",
+          "start_url": "/",
+          "scope": "/",
+          "display": "standalone",
+          "lang": "en",
+          "background_color": "#0a0a0a",
+          "theme_color": "#0a0a0a",
+          "icons": [
+            {
+              "src": "/pwa/icon-192.png",
+              "sizes": "192x192",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/icon-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/maskable-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "maskable"
+            }
+          ],
+          "shortcuts": [
+            {
+              "name": "Seeker workspace",
+              "short_name": "Seeker",
+              "url": "/seeker/seek-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            },
+            {
+              "name": "Provider workspace",
+              "short_name": "Provider",
+              "url": "/provider/browse-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "caches": [
+        {
+          "name": "servicehub-pwa-d91c0c47-7f27-4222-8ac0-a9f12ae58815",
+          "urls": [
+            "http://localhost:3107/offline.html",
+            "http://localhost:3107/pwa/icon-192.png",
+            "http://localhost:3107/pwa/icon-512.png",
+            "http://localhost:3107/pwa/maskable-512.png",
+            "http://localhost:3107/pwa/apple-touch-icon.png"
+          ]
+        }
+      ],
+      "errors": [],
+      "passed": true
+    },
+    {
+      "config": {
+        "width": 390,
+        "dark": true
+      },
+      "state": {
+        "title": "Install ServiceHub | ServiceHub",
+        "heading": "Keep ServiceHub a tap away.",
+        "theme": "dark",
+        "overflow": false,
+        "buttons": [
+          {
+            "label": "Install ServiceHub",
+            "height": 44
+          }
+        ],
+        "message": "ServiceHub\nHelp center\nAPP\nKeep ServiceHub a tap away.\n\nInstall ServiceHub for home-screen access to both your Seeker and Provider workspaces.\n\nInstall ServiceHub\nOpen ServiceHub\nOn iPhone or iPad\nOpen ServiceHub in Safari and open the Share menu.\nChoose Add to Home Screen. You may need to open More to find it.\nIf shown, keep Open as Web App enabled, then tap Add.\nOn Android or a computer\n\nUse Install ServiceHub above when available. Otherwise, look in your browser menu or address bar for Install app or Add to Home screen. Available options depend on your browser.\n\nBooking, payments, messages and current availability need an internet connection. If the connection drops, ServiceHub shows an offline screen and does not submit changes in the background."
+      },
+      "installability": {
+        "installabilityErrors": []
+      },
+      "manifest": {
+        "url": "http://localhost:3107/manifest.webmanifest",
+        "errors": [],
+        "data": {
+          "id": "/",
+          "name": "ServiceHub",
+          "short_name": "ServiceHub",
+          "description": "Find local services and manage your Seeker and Provider workspaces.",
+          "start_url": "/",
+          "scope": "/",
+          "display": "standalone",
+          "lang": "en",
+          "background_color": "#0a0a0a",
+          "theme_color": "#0a0a0a",
+          "icons": [
+            {
+              "src": "/pwa/icon-192.png",
+              "sizes": "192x192",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/icon-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "any"
+            },
+            {
+              "src": "/pwa/maskable-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "maskable"
+            }
+          ],
+          "shortcuts": [
+            {
+              "name": "Seeker workspace",
+              "short_name": "Seeker",
+              "url": "/seeker/seek-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            },
+            {
+              "name": "Provider workspace",
+              "short_name": "Provider",
+              "url": "/provider/browse-services",
+              "icons": [
+                {
+                  "src": "/pwa/icon-192.png",
+                  "sizes": "192x192"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "caches": [
+        {
+          "name": "servicehub-pwa-d91c0c47-7f27-4222-8ac0-a9f12ae58815",
+          "urls": [
+            "http://localhost:3107/offline.html",
+            "http://localhost:3107/pwa/icon-192.png",
+            "http://localhost:3107/pwa/icon-512.png",
+            "http://localhost:3107/pwa/maskable-512.png",
+            "http://localhost:3107/pwa/apple-touch-icon.png"
+          ]
+        }
+      ],
+      "errors": [],
+      "passed": true
+    }
+  ],
+  "offline": [
+    {
+      "config": {
+        "width": 1440,
+        "dark": false,
+        "path": "/seeker/request-manager"
+      },
+      "state": {
+        "title": "You're offline | ServiceHub",
+        "heading": "You're offline.",
+        "theme": "light",
+        "overflow": false,
+        "buttons": [
+          {
+            "label": "Try again",
+            "height": 48
+          }
+        ],
+        "message": "ServiceHub\nYou're offline.\n\nReconnect to continue where you left off.\n\nTry again\n\nBooking, payments, messages and current availability need an internet connection. This screen doesn't show saved account information or submit changes."
+      },
+      "path": "/seeker/request-manager",
+      "mutation": {
+        "rejected": true
+      },
+      "cached": [
+        [
+          "http://localhost:3107/offline.html",
+          "http://localhost:3107/pwa/icon-192.png",
+          "http://localhost:3107/pwa/icon-512.png",
+          "http://localhost:3107/pwa/maskable-512.png",
+          "http://localhost:3107/pwa/apple-touch-icon.png"
+        ]
+      ],
+      "passed": true
+    },
+    {
+      "config": {
+        "width": 390,
+        "dark": true,
+        "path": "/provider/messages"
+      },
+      "state": {
+        "title": "You're offline | ServiceHub",
+        "heading": "You're offline.",
+        "theme": "dark",
+        "overflow": false,
+        "buttons": [
+          {
+            "label": "Try again",
+            "height": 48
+          }
+        ],
+        "message": "ServiceHub\nYou're offline.\n\nReconnect to continue where you left off.\n\nTry again\n\nBooking, payments, messages and current availability need an internet connection. This screen doesn't show saved account information or submit changes."
+      },
+      "path": "/provider/messages",
+      "mutation": {
+        "rejected": true
+      },
+      "cached": [
+        [
+          "http://localhost:3107/offline.html",
+          "http://localhost:3107/pwa/icon-192.png",
+          "http://localhost:3107/pwa/icon-512.png",
+          "http://localhost:3107/pwa/maskable-512.png",
+          "http://localhost:3107/pwa/apple-touch-icon.png"
+        ]
+      ],
+      "passed": true
+    }
+  ],
+  "update": {
+    "loadsBefore": 8,
+    "loadsWhileWaiting": 8,
+    "later": {
+      "hidden": true,
+      "loads": 8,
+      "retainedAction": true
+    },
+    "loadsAfter": 9,
+    "pathAfter": "/install",
+    "passed": true
+  },
+  "headers": {
+    "worker": {
+      "accept-ranges": "bytes",
+      "cache-control": "no-cache, no-store, must-revalidate",
+      "connection": "keep-alive",
+      "content-encoding": "gzip",
+      "content-security-policy": "default-src 'self'; script-src 'self'; connect-src 'self'",
+      "content-type": "application/javascript; charset=utf-8",
+      "cross-origin-opener-policy": "same-origin-allow-popups",
+      "date": "Mon, 12 Oct 2026 07:19:12 GMT",
+      "etag": "W/\"80d-1a12efaccf6\"",
+      "keep-alive": "timeout=5",
+      "last-modified": "Mon, 12 Oct 2026 07:19:10 GMT",
+      "service-worker-allowed": "/",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding"
+    },
+    "offline": {
+      "accept-ranges": "bytes",
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-encoding": "gzip",
+      "content-type": "text/html; charset=UTF-8",
+      "cross-origin-opener-policy": "same-origin-allow-popups",
+      "date": "Mon, 12 Oct 2026 07:19:12 GMT",
+      "etag": "W/\"b6b-1a12ee28cd0\"",
+      "keep-alive": "timeout=5",
+      "last-modified": "Mon, 12 Oct 2026 06:52:41 GMT",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-robots-tag": "noindex"
+    }
+  },
+  "passed": true
+}

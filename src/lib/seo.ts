@@ -32,6 +32,7 @@ export const rootMetadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: SITE_NAME },
   // Public routes explicitly opt in below; account and workspace routes inherit
   // noindex without moving their existing client-side authentication guards.
   robots: PRIVATE_ROBOTS,
@@ -39,7 +40,7 @@ export const rootMetadata: Metadata = {
   twitter: { card: 'summary_large_image', images: [socialImage] },
   icons: {
     icon: [{ url: '/favicon.svg?v=7', type: 'image/svg+xml', sizes: 'any' }, { url: '/favicon.ico?v=7', sizes: 'any' }],
-    apple: '/logo.png?v=7',
+    apple: [{ url: '/pwa/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 

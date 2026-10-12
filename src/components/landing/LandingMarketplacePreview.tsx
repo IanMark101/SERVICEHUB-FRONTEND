@@ -86,7 +86,7 @@ export default function LandingMarketplacePreview({ isDark, paused = false }: La
     return () => document.removeEventListener('visibilitychange', updateVisibility);
   }, []);
 
-  return <motion.div ref={orbitRef} initial={false} whileInView={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: [0.8, 1], y: [14, 0] }} viewport={{ once: false, amount: 0.18 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className={`${styles.orbit} mx-auto w-full max-w-[42rem]`} data-preview-theme={isDark ? 'dark' : 'light'} data-running={isInView && pageVisible && !shouldReduceMotion && !paused ? 'true' : 'false'}>
+  return <motion.div ref={orbitRef} initial={false} whileInView={shouldReduceMotion ? undefined : { opacity: [0.8, 1], y: [14, 0] }} viewport={{ once: true, amount: 0.15 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className={`${styles.orbit} mx-auto w-full max-w-[42rem]`} data-preview-theme={isDark ? 'dark' : 'light'} data-running={isInView && pageVisible && !shouldReduceMotion && !paused ? 'true' : 'false'}>
     <style>{orbitKeyframes}</style>
     <p className="sr-only">Compare offers, follow agreed work, and build trust through completed services.</p>
     <div className={styles.orbitScene} aria-hidden="true">{ORBIT_CARDS.map((card) => <OrbitCard key={`${card.kind}-${card.slot}`} {...card} />)}</div>

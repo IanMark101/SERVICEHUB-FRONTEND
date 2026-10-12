@@ -1,0 +1,20 @@
+.entrance {
+  --entrance-x: 0px;
+  --entrance-y: var(--entrance-distance, 72px);
+  --entrance-scale: 1;
+}
+/* Wait for the first viewport entry. The active state never resets on exit. */
+.entrance[data-entrance-active='true'] {
+  animation: entrance .6s cubic-bezier(.16, 1, .3, 1) var(--entrance-delay, 0s) backwards;
+}
+.entrance[data-entrance-direction='left'] { --entrance-x: calc(-1 * var(--entrance-distance, 72px)); --entrance-y: 0px; }
+.entrance[data-entrance-direction='right'] { --entrance-x: var(--entrance-distance, 72px); --entrance-y: 0px; }
+.entrance[data-entrance-direction='scale'] { --entrance-scale: .96; }
+@keyframes entrance {
+  from { opacity: .4; transform: translate3d(var(--entrance-x), var(--entrance-y), 0) scale(var(--entrance-scale)); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 899px) {
+  .entrance, .entrance[data-entrance-direction] { --entrance-x: 0px; --entrance-y: min(var(--entrance-distance, 72px), 48px); }
+}
+@media (prefers-reduced-motion: reduce) { .entrance[data-entrance-active='true'] { animation: none; } }

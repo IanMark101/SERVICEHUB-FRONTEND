@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-12",
+  "terminalPath": "C:\\Users\\SERVICEHUB-CORDOVA\\fullstack\\servicehub-frontend",
+  "nativePath": "C:\\Users\\SERVICEHUB-CORDOVA\\fullstack\\SERVICEHUB-FRONTEND",
+  "buildId": "9ldeKZNwQ6Xm7sY4ecggk",
+  "launch": "npm start -- -p 3107",
+  "results": [
+    {
+      "path": "/help/trust-reputation",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/help/services/pausing-and-managing-service-availability",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/help/getting-started/what-is-servicehub",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/provider",
+      "status": 200,
+      "passed": true,
+      "location": null,
+      "initialStatusExpectation": 307,
+      "redirectDigest": "NEXT_REDIRECT;replace;/provider/browse-services;307;\\\"}\\n18:\\\"$c:props:children:props:children:1:props:serverProvidedParams:params\\\"\\n1e:[[\\\"$\\\",\\\"meta\\\",\\\"0\\\","
+    },
+    {
+      "path": "/install",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/manifest.webmanifest",
+      "status": 200,
+      "passed": true,
+      "name": "ServiceHub",
+      "display": "standalone"
+    },
+    {
+      "path": "/sw.js",
+      "status": 200,
+      "passed": true,
+      "contentType": "application/javascript; charset=utf-8",
+      "cacheControl": "no-cache, no-store, must-revalidate",
+      "scope": "/"
+    },
+    {
+      "path": "/offline.html",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "path": "/pwa/icon-512.png",
+      "status": 200,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

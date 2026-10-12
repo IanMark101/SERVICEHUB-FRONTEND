@@ -1,7 +1,6 @@
 'use client';
 
 import { Check, X } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
 import ScrollReveal from './ScrollReveal';
 import styles from './LandingComparison.module.css';
 
@@ -14,7 +13,6 @@ const features = [
 ];
 
 export default function LandingComparison({ isDark }: { isDark: boolean }) {
-  const reduce = useReducedMotion();
   return (
     <section id="comparison" aria-labelledby="comparison-heading" data-theme={isDark ? 'dark' : 'light'} className={styles.section}>
       <div className={styles.container} data-landing-anchor>
@@ -34,12 +32,12 @@ export default function LandingComparison({ isDark }: { isDark: boolean }) {
               </tr>
             </thead>
             <tbody>
-              {features.map((feature, index) => (
-                <motion.tr key={feature.title} initial={false} whileInView={reduce ? undefined : { opacity: [0.8, 1] }} viewport={{ once: false, amount: 0.2 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
+              {features.map(feature => (
+                <tr key={feature.title}>
                   <th scope="row"><span className={styles.featureTitle}>{feature.title}</span><span className={styles.featureDetail}>{feature.detail}</span></th>
                   <td><span className={styles.manual}><X size={18} aria-hidden="true" /><span className="sr-only">Arranged manually through posts and messages</span></span></td>
                   <td className={styles.serviceHub}><span className={styles.included}><Check size={18} strokeWidth={2.5} aria-hidden="true" /><span className="sr-only">Built into ServiceHub</span></span></td>
-                </motion.tr>
+                </tr>
               ))}
             </tbody>
           </table>

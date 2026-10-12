@@ -1,3 +1,40 @@
+/* Auth belongs to the product palette. Keep the brighter public orange on
+   the landing page and Help Center; all auth flows share this scoped ramp. */
+.auth-shell {
+  --color-brand: var(--color-dashboard-action);
+  --color-brand-action: var(--color-dashboard-action);
+  --color-brand-action-hover: var(--color-dashboard-action-hover);
+  --color-brand-action-active: var(--color-dashboard-action-active);
+  --color-brand-heading: var(--color-dashboard-action);
+  --color-brand-ink: var(--color-dashboard-action);
+  --color-brand-text: var(--color-dashboard-action);
+  --color-brand-focus: var(--color-dashboard-action);
+  --color-brand-on-dark: color-mix(in srgb, var(--color-dashboard-action) 70%, white);
+  --color-brand-soft: var(--color-dashboard-soft);
+  --color-brand-border: var(--color-dashboard-border);
+  --color-orange-50: var(--color-brand-soft);
+  --color-orange-100: color-mix(in srgb, var(--color-dashboard-action) 10%, white);
+  --color-orange-200: var(--color-brand-border);
+  --color-orange-300: color-mix(in srgb, var(--color-dashboard-action) 65%, white);
+  --color-orange-400: color-mix(in srgb, var(--color-dashboard-action) 85%, white);
+  --color-orange-500: var(--color-dashboard-action);
+  --color-orange-600: var(--color-dashboard-action-hover);
+  --color-orange-700: var(--color-dashboard-action-hover);
+  --color-orange-800: color-mix(in srgb, var(--color-dashboard-action) 80%, black);
+  --color-orange-900: color-mix(in srgb, var(--color-dashboard-action) 45%, black);
+  --color-orange-950: color-mix(in srgb, var(--color-dashboard-action) 25%, black);
+  --form-accent: var(--color-dashboard-action);
+}
+
+.dark .auth-shell {
+  --color-brand-text: var(--color-brand-on-dark);
+}
+
+/* Shared select menus render in body portals outside the auth shell. */
+body:has(.auth-shell) {
+  --form-accent: var(--color-dashboard-action);
+}
+
 /* The long form owns document scrolling; the overview has its own viewport.
    At unusually short heights its content can scroll instead of being clipped. */
 @media (min-width: 1024px) {

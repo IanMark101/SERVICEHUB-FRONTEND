@@ -55,6 +55,11 @@
 .mapPopup strong { font-size:14px; line-height:1.5; }
 .mapPopup > div + div { border-top:1px solid #dedbd5; padding-top:10px; }
 .mapPopup .button { font-size:13px; }
+/* Keep the Seeker's provider preview compact despite Leaflet's paragraph margins. */
+.mapPopup.providerPopup { gap:6px; max-height:180px; }
+.mapPopup.providerPopup p { margin:0; }
+.mapPopup.providerPopup > div { display:grid; gap:4px; }
+.mapPopup.providerPopup .button { justify-self:start; margin-top:4px; }
 .discoveryMap { margin:0 0 20px; min-width:0; }
 .mapDisclosure { display:flex; align-items:center; gap:8px; min-height:44px; padding:8px 0; background:transparent; color:var(--form-text,var(--text-primary,#242423)); font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
 .mapDisclosure:focus-visible { outline:2px solid var(--form-accent,var(--color-brand-focus)); outline-offset:4px; border-radius:4px; }

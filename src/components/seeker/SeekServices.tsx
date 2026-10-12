@@ -5,7 +5,6 @@ import MarketplaceSearchHeader from '../marketplace/MarketplaceSearchHeader';
 import MarketplaceLocationControl from '../location/MarketplaceLocationControl';
 import MarketplaceEmptyState from '../location/MarketplaceEmptyState';
 import MarketplaceResultsSummary from '../location/MarketplaceResultsSummary';
-import MarketplaceMap from '../location/MarketplaceMap';
 import ServiceDetailsModal from './seek-services/ServiceDetailsModal';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -21,6 +20,8 @@ import { useToast } from '../ui/Toast';
 import { apiGetProviderSummary } from '../../api/ai.api';
 import ServiceMarketplaceGrid from './seek-services/ServiceMarketplaceGrid';
 import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
+import { apiGetServiceById } from '../../api/services.api';
+import { mapServiceToListing } from '../../context/mappers';
 
 export default function SeekServices() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function SeekServices() {
   const [locationOpen, setLocationOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
   const [linkedServiceId, setLinkedServiceId] = useState<string | null>(null);
+  const [mapListing,setMapListing] = useState<ServiceListing|null>(null);
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
   const [joiningWaitlistId, setJoiningWaitlistId] = useState<string | null>(null);
@@ -154,6 +156,16 @@ export default function SeekServices() {
 
   // Explicit links open details; they never replace the filtered nearby feed.
   const linkedService = linkedServiceId ? services.find(service => service.id === linkedServiceId && service.status === 'ACTIVE' && !service.isPaused) : undefined;
+  const detailsListing = mapListing || linkedService;
+  const showMapListing = async (id:string) => {
+    const existing = services.find(service => service.id===id && service.status==='ACTIVE' && !service.isPaused);
+    if (existing) { setMapListing(existing);return; }
+    try {
+      const response = await apiGetServiceById(id);
+      if (!response.success || !response.data) throw new Error('This listing is no longer available.');
+      setMapListing(mapServiceToListing(response.data));
+    } catch (error) { toastError(getApiErrorMessage(error,'This listing could not be opened. Please try again.')); }
+  };
   const filteredServices = nearby.items as ServiceListing[];
   const paginatedServices = filteredServices;
   const { currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex } = nearby;
@@ -177,7 +189,8 @@ export default function SeekServices() {
 
       <LimitedModeDashboardCard role="seeker" />
 
-      <MarketplaceSearchHeader role="seeker" isDark={isDark} value={searchQuery} onQueryChange={query => { setLinkedServiceId(null); setSearchQuery(query); }} resultsId="service-results" locationControl={<MarketplaceLocationControl workspace="seeker" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation} />} onSubmit={(event) => {
+      <MarketplaceSearchHeader role="seeker" isDark={isDark} value={searchQuery} onQueryChange={query => { setLinkedServiceId(null); setSearchQuery(query); }} resultsId="service-results" locationControl={<MarketplaceLocationControl workspace="seeker" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation}
+        providerMap={{ search:searchQuery,category:selectedCategory,filter:activeFilter }} onViewListing={id=>{void showMapListing(id);}} />} onSubmit={(event) => {
         event.preventDefault();
         nearby.submitSearch?.();
         if (!nearby.location) { setLocationOpen(true); return; }
@@ -211,11 +224,6 @@ export default function SeekServices() {
         Could not refresh services. Showing the last loaded results.{' '}
         <button type="button" className="font-semibold" onClick={nearby.refresh}>Try again</button>
       </div>}
-      <MarketplaceMap workspace="seeker" location={nearby.location} pins={nearby.mapPins} loading={nearby.loading} error={nearby.error || nearby.refreshError} onApply={nearby.applyLocation} onShowResult={id=>{
-        const index=nearby.mapPins?.findIndex(pin=>pin.id===id) ?? -1;
-        if(index>=0)nearby.goToPage(Math.floor(index/6)+1);
-        document.getElementById('service-results')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
-      }}/>
       {!nearby.location && !nearby.initializing ? <MarketplaceEmptyState workspace="seeker" location={null} search={searchQuery} category={selectedCategory} hasFilters={!!searchQuery || selectedCategory !== 'All Categories' || activeFilter !== 'all'} onChangeLocation={() => setLocationOpen(true)} onClearFilters={clearFilters} onPostRequest={() => router.push('/seeker/post-request')}/> : <ServiceMarketplaceGrid
         model={{
           router,
@@ -256,7 +264,7 @@ export default function SeekServices() {
       </div>
       </MarketplacePresentation>
 
-      <ServiceDetailsModal listing={linkedService || null} isOpen={!!linkedService} onClose={() => setLinkedServiceId(null)} onBookListing={(listing, method) => { setLinkedServiceId(null); handleBookListing(listing, method); }} onJoinWaitlist={handleJoinWaitlist} joiningWaitlistId={joiningWaitlistId} isOwned={linkedService?.providerId === user?.id} activeEngagement={jobEngagements.find(engagement => engagement.serviceId === linkedService?.id && engagement.seekerId === user?.id && ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(engagement.status))} isDark={isDark} router={router} prefetchProviderSummary={prefetchProviderSummary}/>
+      <ServiceDetailsModal listing={detailsListing || null} isOpen={!!detailsListing} onClose={() => {setLinkedServiceId(null);setMapListing(null);}} onBookListing={(listing, method) => { setLinkedServiceId(null);setMapListing(null); handleBookListing(listing, method); }} onJoinWaitlist={handleJoinWaitlist} joiningWaitlistId={joiningWaitlistId} isOwned={detailsListing?.providerId === user?.id} activeEngagement={jobEngagements.find(engagement => engagement.serviceId === detailsListing?.id && engagement.seekerId === user?.id && ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(engagement.status))} isDark={isDark} router={router} prefetchProviderSummary={prefetchProviderSummary}/>
 
       {/* Direct Booking Modal trigger */}
       {selectedListing && (

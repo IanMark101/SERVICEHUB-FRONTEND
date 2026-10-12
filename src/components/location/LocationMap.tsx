@@ -8,24 +8,34 @@ import 'leaflet/dist/leaflet.css';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { LocationPoint } from '../../lib/location';
 import { addReadableMapLayer } from '../../lib/readableMapLayer';
-import { mapAreaAnchor, type MarketplaceMapPin } from '../../lib/marketplace-map';
+import { mapAreaAnchor, type MarketplaceMapPin, type MarketplaceMapViewport } from '../../lib/marketplace-map';
 import styles from './Location.module.css';
 
 type MapProps = {
   point: LocationPoint | null; radiusKm?: number; onChange: (point: LocationPoint) => void; accent?: string;
   candidate?:LocationPoint | null; onCandidateChange?:(point:LocationPoint | null)=>void;
   disabled?:boolean; results?:MarketplaceMapPin[]; onResultSelect?:(id:string)=>void;
+  resultPlacement?:'within-radius'|'area'; resultAccent?:string; resultActionLabel?:string;
+  onViewportChange?:(viewport:MarketplaceMapViewport)=>void;
 };
 
-function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color-brand-text)', disabled=false, results, onResultSelect }: MapProps) {
+function mapViewport(instance:Map):MarketplaceMapViewport {
+  const bounds=instance.getBounds(),center=instance.getCenter();
+  return {center:{latitude:center.lat,longitude:center.wrap().lng},
+    bounds:{north:bounds.getNorth(),south:bounds.getSouth(),east:bounds.getEast(),west:bounds.getWest()}};
+}
+
+function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color-brand-text)', disabled=false, results, onResultSelect,
+  resultPlacement='within-radius', resultAccent, resultActionLabel='Show in list', onViewportChange }: MapProps) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<Map | null>(null);
   const marker = useRef<Marker | null>(null);
   const circle = useRef<Circle | null>(null);
   const pendingMarker = useRef<Marker | null>(null);
-  const current = useRef({ point, onChange, disabled, onResultSelect });
+  const current = useRef({ point, onChange, disabled, onResultSelect, onViewportChange });
   const [failed, setFailed] = useState(false);
-  useEffect(() => { current.current = { point, onChange, disabled, onResultSelect }; }, [point, onChange, disabled, onResultSelect]);
+  useEffect(() => { current.current = { point, onChange, disabled, onResultSelect, onViewportChange }; }, [point, onChange, disabled, onResultSelect, onViewportChange]);
+  useEffect(()=>{if(map.current)onViewportChange?.(mapViewport(map.current));},[onViewportChange]);
   useEffect(() => {
     let disposed = false;
     const controller = new AbortController();
@@ -41,6 +51,15 @@ function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color
       ownedMap = instance;
       instance.setView(initial ? [initial.latitude, initial.longitude] : [10.3, 123.92], 12);
       map.current = instance;
+      let popupPanning=false;
+      instance.on('autopanstart',()=>{popupPanning=true;});
+      const reportViewport = () => {
+        // Opening a preview may pan Leaflet to fit it; keep that preview open.
+        if (popupPanning) { popupPanning=false;return; }
+        current.current.onViewportChange?.(mapViewport(instance));
+      };
+      instance.on('moveend',reportViewport);
+      reportViewport();
       const element=container.current;
       let wheelTimer:ReturnType<typeof setTimeout> | undefined;
       let wheelDelta=0;
@@ -65,7 +84,7 @@ function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color
         label: 'Selected map location',
       }); };
       const pin = L.marker(initial ? [initial.latitude, initial.longitude] : instance.getCenter(), {
-        draggable:!disabled, opacity:initial ? 1 : 0,
+        draggable:!disabled, opacity:initial ? 1 : 0, zIndexOffset:1000,
         title:'Selected location. Drag to move.', alt:'Selected location',
         // The 44×48 hit area contains a 32×40 pin; its tip is at [22,42].
         // Anchor the tip to the coordinate, which is also the circle's center.
@@ -129,7 +148,7 @@ function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color
     let stopped=false;
     let layer:import('leaflet').LayerGroup | undefined;
     void import('leaflet').then(L => {
-      if (stopped || !map.current || !point || !radiusKm || !results) return;
+      if (stopped || !map.current || !results || (resultPlacement==='within-radius' && (!point || !radiusKm))) return;
       layer=L.layerGroup().addTo(map.current);
       const groups=new globalThis.Map<string,MarketplaceMapPin[]>();
       for (const result of results) {
@@ -137,25 +156,26 @@ function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color
         groups.set(key,[...(groups.get(key)||[]),result]);
       }
       for (const group of groups.values()) {
-        const position=mapAreaAnchor(group[0].area,{point,radiusKm});
-        const content=document.createElement('div'); content.className=styles.mapPopup;
+        const position=resultPlacement==='area' ? group[0].area : mapAreaAnchor(group[0].area,{point:point!,radiusKm:radiusKm!});
+        const content=document.createElement('div'); content.className=`${styles.mapPopup}${resultPlacement==='area' ? ` ${styles.providerPopup}` : ''}`;
         const heading=document.createElement('strong'); heading.textContent=group.length===1 ? group[0].title : `${group.length} matches in this area`; content.append(heading);
         const note=document.createElement('p'); note.textContent='Approximate area · Exact location stays private'; content.append(note);
         for (const result of group) {
           const row=document.createElement('div');
           if (group.length>1) { const title=document.createElement('span'); title.textContent=result.title; row.append(title); }
           const label=document.createElement('p'); label.textContent=result.label; row.append(label);
-          const action=document.createElement('button'); action.type='button'; action.textContent='Show in list'; action.className=styles.button;
+          if (result.providerName) { const provider=document.createElement('p'); provider.textContent=result.providerName; row.append(provider); }
+          const action=document.createElement('button'); action.type='button'; action.textContent=resultActionLabel; action.className=styles.button;
           action.addEventListener('click',()=>current.current.onResultSelect?.(result.id)); row.append(action); content.append(row);
         }
         L.marker([position.latitude,position.longitude], {
           bubblingMouseEvents:false, title:group.length===1 ? group[0].title : `${group.length} matches in this area`,
-          icon:L.divIcon({ className:'', html:`<span class="${styles.resultPin}" style="--location-accent:${accent}">${group.length>1 ? group.length : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4zM8 9V5h8v4M9 14h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>'}</span>`,iconSize:[44,44],iconAnchor:[22,22] }),
+          icon:L.divIcon({ className:'', html:`<span class="${styles.resultPin}" data-map-result style="--location-accent:${resultAccent || accent}">${group.length>1 ? group.length : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4zM8 9V5h8v4M9 14h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>'}</span>`,iconSize:[44,44],iconAnchor:[22,22] }),
         }).bindPopup(content,{maxWidth:300,minWidth:180}).addTo(layer);
       }
     }).catch(() => {});
     return()=>{stopped=true;layer?.remove();};
-  },[results,point,radiusKm,accent,disabled]);
+  },[results,point,radiusKm,accent,disabled,resultPlacement,resultAccent,resultActionLabel]);
   return <>{failed && <p role="alert" className={styles.error}>The map could not load. Choose a place from the search results instead.</p>}
     <div ref={container} className={styles.map} role="region" aria-label="Location selection map. Use arrow keys to pan and Enter to preview the center, then confirm your location." />
     <span className={styles.mapGestureHint}>Ctrl + scroll to zoom · Pinch on mobile</span>
@@ -248,7 +268,7 @@ export default function LocationMap(props:MapProps) {
   const canvasProps={...props,candidate,onChange:(next:LocationPoint)=>propose(next)};
   const close = useCallback(() => setExpanded(false), []);
   return <div className={styles.mapFrame}>
-    <div className={styles.canvasFrame}><MapCanvas {...canvasProps}/></div>
+    <div className={styles.canvasFrame}><MapCanvas {...canvasProps} onViewportChange={expanded ? undefined : props.onViewportChange}/></div>
     {!expanded && confirmation}
     <button ref={expandButton} type="button" className={`${styles.button} ${styles.mapToggle}`}
       onClick={() => {

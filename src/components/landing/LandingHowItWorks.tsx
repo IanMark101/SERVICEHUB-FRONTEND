@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import { ArrowDown, BriefcaseBusiness, CheckCircle2, MessageSquare, Search, UserRoundSearch, WalletCards } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion, useInView, useReducedMotion } from 'motion/react';
 import ScrollReveal from './ScrollReveal';
-import { useScrollEntrance } from './useScrollEntrance';
+import entranceStyles from './LandingEntrance.module.css';
 
 type Role = 'seeker' | 'provider';
 
@@ -58,11 +58,13 @@ const helpLinks = [
 ];
 
 function JourneyCard({ item, index, role }: { item: typeof seekerFlow[number]; index: number; role: Role }) {
-  const entrance = useScrollEntrance<HTMLLIElement>({ start: index * 0.08, distance: 80 });
+  const ref = useRef<HTMLLIElement>(null);
+  const hasEntered = useInView(ref, { once: true, amount: 0.15 });
   const Icon = item.icon;
   return (
-    <motion.li {...entrance} data-scroll-reveal="up" data-scroll-motion="linked" initial={false}
-      className="relative flex flex-col rounded-2xl border border-slate-200/90 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70 sm:p-8">
+    <li ref={ref} data-entrance-active={hasEntered ? 'true' : 'false'}
+      style={{ '--entrance-delay':`${index * 0.08}s`, '--entrance-distance':'80px' } as CSSProperties}
+      className={`${entranceStyles.entrance} relative flex flex-col rounded-2xl border border-slate-200/90 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-charcoal/70 sm:p-8`}>
       <div className="flex items-center justify-between">
         <span className={`grid size-12 place-items-center rounded-xl ${role === 'seeker' ? 'bg-seeker-light text-brand dark:bg-orange-950/40' : 'bg-provider-light text-provider-hover dark:bg-emerald-950/40 dark:text-emerald-400'}`}><Icon size={22} aria-hidden="true" /></span>
         <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-neutral-600 dark:bg-charcoal dark:text-zinc-400">0{index + 1}</span>
@@ -70,7 +72,7 @@ function JourneyCard({ item, index, role }: { item: typeof seekerFlow[number]; i
       <p className="mt-7 text-xs font-bold text-neutral-500 dark:text-zinc-400">{item.step}</p>
       <h3 className="mt-2 text-lg font-bold text-[#0a0a0a] dark:text-white">{item.title}</h3>
       <p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-zinc-400">{item.description}</p>
-    </motion.li>
+    </li>
   );
 }
 
@@ -107,9 +109,9 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
           </div>
         </ScrollReveal>
 
-        <motion.ol id="service-journey" key={role} aria-label={role === 'seeker' ? 'Seeker service steps' : 'Provider service steps'} data-role={role} initial={false} animate={reduce ? undefined : { opacity: [0.85, 1] }} transition={{ duration: .25 }} className="mt-12 grid list-none gap-6 p-0 md:grid-cols-3">
-          {flow.map((item, index) => <JourneyCard key={item.title} item={item} index={index} role={role} />)}
-        </motion.ol>
+        <ol id="service-journey" aria-label={role === 'seeker' ? 'Seeker service steps' : 'Provider service steps'} data-role={role} className="mt-12 grid list-none gap-6 p-0 md:grid-cols-3">
+          {flow.map((item, index) => <JourneyCard key={index} item={item} index={index} role={role} />)}
+        </ol>
 
         <nav id="queue" aria-label="Service rules" className="mt-10 flex flex-wrap gap-x-8 gap-y-3.5 border-t border-slate-200/80 pt-6 text-xs font-semibold text-neutral-600 dark:border-zinc-800 dark:text-zinc-400">
           {helpLinks.map(({ href, label }) => (

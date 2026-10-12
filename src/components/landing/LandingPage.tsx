@@ -6,8 +6,8 @@ import LandingHero from './LandingHero';
 import LandingTicker from './LandingTicker';
 import LandingBenefits from './LandingBenefits';
 import LandingHowItWorks from './LandingHowItWorks';
-import LandingBookingProgress from './LandingBookingProgress';
 import LandingWorkspaces from './LandingWorkspaces';
+import LandingBookingProgress from './LandingBookingProgress';
 import LandingTrust from './LandingTrust';
 import LandingCommunity from './LandingCommunity';
 import LandingComparison from './LandingComparison';
@@ -53,8 +53,8 @@ export default function LandingPage() {
           <LandingTicker isDark={isDark} variant="services" className="landing-hero-strip" />
           <LandingBenefits isDark={isDark} />
           <LandingHowItWorks isDark={isDark} />
-          <LandingBookingProgress isDark={isDark} />
           <LandingWorkspaces isDark={isDark} />
+          <LandingBookingProgress isDark={isDark} />
           <LandingComparison isDark={isDark} />
           <LandingTrust isDark={isDark} />
           <LandingCommunity isDark={isDark} />

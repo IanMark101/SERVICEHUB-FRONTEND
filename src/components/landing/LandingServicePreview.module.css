@@ -1,5 +1,10 @@
 /* Current panel markup and mobile styles come from ServiceDetailsPanel. */
 .device {
-  --service-preview-height: 650px;
-  aspect-ratio: 400 / 650;
+  --service-preview-height: 620px;
+  --color-brand-action: var(--color-dashboard-action);
+  --color-brand-action-hover: var(--color-dashboard-action-hover);
+  --color-brand-focus: var(--color-dashboard-action);
+  --color-brand-soft: var(--color-dashboard-soft);
+  --color-brand-border: var(--color-dashboard-border);
+  aspect-ratio: 360 / 620;
 }

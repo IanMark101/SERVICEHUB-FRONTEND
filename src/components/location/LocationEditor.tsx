@@ -6,12 +6,15 @@ import { MapPin, LocateFixed, Search } from 'lucide-react';
 import { api } from '../../lib/api/axios';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import type { LocationPoint } from '../../lib/location';
+import type { MarketplaceMapPin, MarketplaceMapViewport } from '../../lib/marketplace-map';
 import styles from './Location.module.css';
 
 const Map = dynamic(() => import('./LocationMap'), { ssr:false, loading:() => <div className={styles.mapLoading}>Loading map…</div> });
-export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'Area name shown to other users', onPendingChange }: {
+export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'Area name shown to other users', onPendingChange,
+  mapResults, onResultSelect, onViewportChange }: {
   value:LocationPoint | null; onChange:(point:LocationPoint) => void; radiusKm?:number; accent?:string; disabled?:boolean; label?:string;
   onPendingChange?:(pending:boolean)=>void;
+  mapResults?:MarketplaceMapPin[]; onResultSelect?:(id:string)=>void; onViewportChange?:(viewport:MarketplaceMapViewport)=>void;
 }) {
   const id = useId();
   const [query, setQuery] = useState(value?.label || '');
@@ -99,7 +102,8 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     {operation === 'location' && <div className={styles.selected}><p role="status" className={styles.hint}>Allow location in your browser. You can cancel and retry after turning on device location.</p><button type="button" className={styles.button} onClick={cancelRequest}>Cancel location request</button></div>}
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
     <p className={styles.hint}>Click the map, drag the pin, or find a place above. Review the new pin, then confirm. Panning and zooming keep your selection unchanged.</p>
-    <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}/>
+    <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}
+      results={mapResults} resultPlacement="area" resultAccent="#047857" resultActionLabel="View listing" onResultSelect={onResultSelect} onViewportChange={onViewportChange}/>
     {value && <label><span className={styles.label}>{label}</span><input className={styles.field} value={value.label} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => onChange({ ...value, label:e.target.value })}/></label>}
   </div>;
 }

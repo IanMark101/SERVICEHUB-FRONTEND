@@ -9,7 +9,7 @@ const { push, submitBid } = vi.hoisted(() => ({ push:vi.fn(), submitBid:vi.fn() 
 vi.mock('next/navigation', () => ({ useRouter:() => ({ push }) }));
 vi.mock('../../context/AppContext', () => ({ useApp:vi.fn() }));
 vi.mock('../../lib/api/axios', () => ({ api:{ get:vi.fn() } }));
-vi.mock('../../api/services.api', () => ({ apiGetMyServices:vi.fn().mockResolvedValue({ success:true, data:[] }) }));
+vi.mock('../../api/services.api', () => ({ apiGetMyServices:vi.fn().mockResolvedValue({ success:true, data:[] }),apiGetServiceById:vi.fn(async () => ({success:true,data:aircon(7)})) }));
 vi.mock('../../api/ai.api', () => ({ apiGetProviderSummary:vi.fn(), getCachedSeekerSummary:() => undefined, apiGetSeekerSummary:vi.fn().mockResolvedValue({ success:true, data:{ summary:null, source:'empty' } }) }));
 vi.mock('../../lib/socket', () => ({ joinServiceRoom:vi.fn() }));
 vi.mock('../../hooks/useTransactionPermission', () => ({ useTransactionPermission:() => ({ canTransact:true }) }));
@@ -19,7 +19,12 @@ vi.mock('../moderation/ContentCaseAction', () => ({ default:() => null }));
 // The existing booking form/lifecycle has its own integration coverage. Check
 // that discovery still selects the same listing through its normal entry point.
 vi.mock('../seeker/RequestServiceModal', () => ({ default:({ listing }:{listing:{id:string}}) => <div role="dialog">Booking listing {listing.id}</div> }));
-vi.mock('next/dynamic', () => ({ default:() => function Map({results}:{results?:Array<{id:string}>}) { return <div aria-label="Test map">{results && <output data-testid="map-results">{results.map(pin=>pin.id).join(',')}</output>}</div>; } }));
+vi.mock('next/dynamic', () => ({ default:() => function Map({results,onViewportChange,onResultSelect}:{results?:Array<{id:string}>;onViewportChange?:(view:unknown)=>void;onResultSelect?:(id:string)=>void}) {
+  return <div aria-label="Test map">{results && <output data-testid="map-results">{results.map(pin=>pin.id).join(',')}</output>}
+    {onViewportChange && <button type="button" onClick={()=>onViewportChange({center:{latitude:10.3,longitude:123.9},bounds:{north:10.32,south:10.28,east:123.92,west:123.88}})}>Load provider markers</button>}
+    {onViewportChange && results?.map(pin=><button type="button" key={pin.id} onClick={()=>onResultSelect?.(pin.id)}>View map listing {pin.id}</button>)}
+  </div>;
+} }));
 
 const location = { point:{ latitude:10.3, longitude:123.9, label:'Cordova, Cebu' }, radiusKm:10 };
 const aircon = (km:number) => ({ id:`aircon-${km}`, providerId:'provider', provider:{id:'provider',name:'Juan'}, seekerId:'seeker', seeker:{id:'seeker',name:'Client'},
@@ -48,9 +53,10 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     });
   });
 
-  it.each(['seeker','provider'] as const)('%s updates map markers with the same radius and category as its results',async workspace=>{
+  it('Provider updates map markers with the same radius and category as its results',async()=>{
+    const workspace='provider';
     localStorage.setItem(`servicehub:marketplace-location:member:${workspace}`,JSON.stringify(location));
-    render(workspace==='seeker'?<SeekServices/>:<BrowseJobs/>);
+    render(<BrowseJobs/>);
     await screen.findByText('Plumbing service');
     fireEvent.click(screen.getByRole('button',{name:'Show nearby map'}));
     expect(screen.getByTestId('map-results')).toHaveTextContent('plumbing,aircon-2,aircon-7');
@@ -61,6 +67,30 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     fireEvent.change(screen.getByLabelText('Search radius'),{target:{value:'1'}});
     fireEvent.click(screen.getByRole('button',{name:'Apply location'}));
     await waitFor(()=>expect(screen.getByTestId('map-results')).toBeEmptyDOMElement());
+    expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
+  });
+
+  it('uses only the Seeker location modal map, loads outside-radius listings and opens details without applying its draft',async()=>{
+    const saved={...location,radiusKm:2};
+    localStorage.setItem('servicehub:marketplace-location:member:seeker',JSON.stringify(saved));
+    render(<SeekServices/>);
+    await screen.findByText('Aircon Repair 2');
+    expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button',{name:'Show nearby map'})).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Test map')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:/Location: Cordova/}));
+    expect(screen.getAllByLabelText('Test map')).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button',{name:'Load provider markers'}));
+    await waitFor(()=>expect(screen.getByTestId('map-results')).toHaveTextContent('aircon-7'));
+    expect(api.get).toHaveBeenLastCalledWith('/services/nearby',expect.objectContaining({params:expect.objectContaining({radiusKm:30,filter:'all',category:'All Categories'})}));
+    fireEvent.change(screen.getByLabelText('Search radius'),{target:{value:'1'}});
+    expect(screen.getByTestId('map-results')).toHaveTextContent('aircon-7');
+    fireEvent.click(screen.getByRole('button',{name:'View map listing aircon-7'}));
+    await screen.findByRole('dialog',{name:'Aircon Repair 7'});
+    expect(screen.queryByRole('dialog',{name:'Change search location'})).not.toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem('servicehub:marketplace-location:member:seeker')!)).toEqual(saved);
+    fireEvent.click(screen.getByRole('button',{name:'Close service details'}));
+    expect(screen.getByText('Aircon Repair 2')).toBeVisible();
     expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
   });
 

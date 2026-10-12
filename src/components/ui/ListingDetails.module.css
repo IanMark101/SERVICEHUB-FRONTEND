@@ -177,17 +177,24 @@
 @media (max-width: 359px) { .facts { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { .panel :is(.primary, .secondary, .notify, .report) { transition: none; transform: none; } }
 
-/* Phone illustrations use exactly the current mobile panel layout. */
-.panel[data-layout="compact"] .header { padding: 20px 20px 16px; }
-.panel[data-layout="compact"] .summary { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 16px; }
-.panel[data-layout="compact"] .price { font-size: 26px; }
-.panel[data-layout="compact"] .body { padding: 0 20px 24px; }
-.panel[data-layout="compact"] .body > * + * { margin-top: 20px; }
-.panel[data-layout="compact"] .identity { margin-bottom: 16px; padding-block: 0 16px; }
-.panel[data-layout="compact"] .person { flex-basis: 190px; }
-.panel[data-layout="compact"] .footer { padding: 12px 26px 12px 20px; gap: 4px; }
+/* Inert phone illustrations reuse the live panel with tighter mobile spacing. */
+.panel[data-layout="compact"] .header { padding: 16px 16px 12px; }
+.panel[data-layout="compact"] .topbar { margin-bottom: 8px; }
+.panel[data-layout="compact"] .title { font-size: 21px; }
+.panel[data-layout="compact"] .summary { grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 12px; padding: 12px; }
+.panel[data-layout="compact"] .geography { gap: 4px; }
+.panel[data-layout="compact"] .price { font-size: 24px; }
+.panel[data-layout="compact"] .body { padding: 0 16px 16px; }
+.panel[data-layout="compact"] .body > * + * { margin-top: 14px; }
+.panel[data-layout="compact"] .description { margin-top: 6px; font-size: 13px; line-height: 1.55; }
+.panel[data-layout="compact"] .info { gap: 14px; }
+.panel[data-layout="compact"] .identity { margin-bottom: 12px; padding-block: 0 12px; gap: 8px; }
+.panel[data-layout="compact"] .person { flex-basis: 100%; }
+.panel[data-layout="compact"] .person > :first-child { width: 44px; height: 44px; }
+.panel[data-layout="compact"] :is(.primary, .secondary, .notify) { min-height: 38px; padding: 8px 12px; }
+.panel[data-layout="compact"] .footer { padding: 10px 22px 10px 16px; gap: 4px; }
 .panel[data-layout="compact"] .actions { width: 100%; }
 .panel[data-layout="compact"] .primary { flex: 1; }
 .panel[data-layout="compact"] .report { order: 1; }
-/* Model a 400px mobile viewport: the current panel keeps its actions below scrollable content. */
+/* The current panel keeps its actions below scrollable content. */
 .panel[data-layout="compact"] { max-height: var(--service-preview-height, 800px); border-radius: 16px; }

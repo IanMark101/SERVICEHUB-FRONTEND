@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion, useReducedMotion } from "motion/react";
 import { Briefcase, MapPin, UserCheck, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LandingTicker, { type TickerVariant } from "@/components/landing/LandingTicker";
@@ -295,14 +296,21 @@ export function CinematicFooter({
 }: CinematicFooterProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const giantTextRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const linksRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
+  // Observe the content itself: cached footer offsets can become stale as the
+  // landing page lays out. Default/server content stays visible before entry.
+  const entrance = {
+    initial: false as const,
+    whileInView: shouldReduceMotion ? undefined : { opacity: [0.25, 1], y: [48, 0] },
+    viewport: { once: false, amount: 0.15 },
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!wrapperRef.current) return;
 
-    // Keep essential content visible even if scroll measurements become stale.
+    // Scroll progress only drives the decorative wordmark.
     const media = gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)', () => {
       const ctx = gsap.context(() => {
@@ -320,24 +328,6 @@ export function CinematicFooter({
               start: "top 85%",
               end: "bottom bottom",
               scrub: 1,
-              invalidateOnRefresh: true,
-            },
-          }
-        );
-
-        // Position-only entrance: scrolling never gates the heading or links.
-        gsap.fromTo(
-          [headingRef.current, linksRef.current],
-          { y: 24 },
-          {
-            y: 0,
-            duration: 0.7,
-            stagger: 0.15,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: wrapperRef.current,
-              start: "top bottom",
-              toggleActions: "restart complete restart complete",
               invalidateOnRefresh: true,
             },
           }
@@ -386,8 +376,8 @@ export function CinematicFooter({
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pt-24 sm:pt-36 pb-12 lg:pt-[clamp(3.5rem,calc(100svh-39.5rem-3.5vw),6rem)] lg:pb-6 w-full max-w-6xl mx-auto">
 
 
-            <h2
-              ref={headingRef}
+            <motion.h2
+              {...entrance}
               className="text-[clamp(2rem,6.2vw,6rem)] lg:text-[clamp(2rem,min(6.2vw,10.5svh),6rem)] leading-[1.03] font-black footer-heading tracking-tighter mb-4 text-center w-full"
             >
               {headline === "Ready to get work done?" ? (
@@ -396,13 +386,13 @@ export function CinematicFooter({
                   <span className="footer-heading-line">Work Done?</span>
                 </>
               ) : <span className="footer-heading-line">{headline}</span>}
-            </h2>
-            <p className="text-xs sm:text-sm md:text-base text-center max-w-xl lg:max-w-3xl mb-12 lg:mb-6" style={{ color: 'var(--sub-text)' }}>
+            </motion.h2>
+            <motion.p {...entrance} className="text-xs sm:text-sm md:text-base text-center max-w-xl lg:max-w-3xl mb-12 lg:mb-6" style={{ color: 'var(--sub-text)' }}>
               {subheadline}
-            </p>
+            </motion.p>
 
             {/* Interactive Magnetic Action Pills */}
-            <div ref={linksRef} className="flex flex-col items-center gap-5 w-full">
+            <motion.div {...entrance} className="flex flex-col items-center gap-5 w-full">
               <div className="flex flex-wrap justify-center gap-3 sm:gap-4 w-full">
                 <MagneticButton
                   as="a"
@@ -449,11 +439,12 @@ export function CinematicFooter({
                   </MagneticButton>
                 ))}
               </nav>
-            </div>
+            </motion.div>
           </div>
 
           {/* 3. Full Footer Content Bar */}
-          <div
+          <motion.div
+            {...entrance}
             className="relative z-20 w-full shrink-0"
             style={{
               borderColor: 'var(--bottom-bar-border)',
@@ -508,6 +499,7 @@ export function CinematicFooter({
                       { label: 'Trust ledger', href: '#trust' },
                       { label: 'Community Hub', href: '#community' },
                       { label: 'Help Center', href: '/help' },
+                      { label: 'Install app', href: '/install' },
                       { label: 'Terms', href: '/terms' },
                       { label: 'Privacy', href: '/privacy' },
                     ].map((link) => (
@@ -537,7 +529,7 @@ export function CinematicFooter({
 
               </div>
             </div>
-          </div>
+          </motion.div>
         </footer>
       </div>
     </>

@@ -47,6 +47,36 @@ afterAll(() => {
 });
 
 describe('location map lifecycle with real Leaflet', () => {
+  it('keeps green provider markers at their public areas outside the orange radius and opens a preview without choosing a location',async()=>{
+    const L=await import('leaflet');
+    const popup=vi.spyOn(L.Marker.prototype,'bindPopup');
+    const radiusUpdate=vi.spyOn(L.Circle.prototype,'setRadius');
+    const change=vi.fn(),select=vi.fn(),viewport=vi.fn();
+    const outside={id:'outside',title:'Laptop repairs',label:'Public service area',providerName:'John',area:{latitude:10.4,longitude:123.92,approximate:true as const}};
+    const view=render(<LocationMap point={point} radiusKm={2} onChange={change} accent="#bd4f00" results={[outside]}
+      resultPlacement="area" resultAccent="#047857" resultActionLabel="View listing" onResultSelect={select} onViewportChange={viewport}/>);
+    await waitFor(()=>expect(popup).toHaveBeenCalled());
+    const providerMarker=popup.mock.instances[0] as unknown as import('leaflet').Marker;
+    expect(providerMarker.getLatLng()).toMatchObject({lat:outside.area.latitude,lng:outside.area.longitude});
+    expect(providerMarker.getElement()?.querySelector('[data-map-result]')).toHaveStyle({'--location-accent':'#047857'});
+    const circle=radiusUpdate.mock.instances[0] as unknown as import('leaflet').Circle;
+    expect(circle.getRadius()).toBe(2000);
+    expect(circle.getLatLng()).toMatchObject({lat:point.latitude,lng:point.longitude});
+    act(()=>{providerMarker.openPopup();});
+    expect(screen.getByText('Laptop repairs')).toBeVisible();
+    expect(screen.getByText('John')).toBeVisible();
+    fireEvent.click(screen.getByRole('button',{name:'View listing'}));
+    expect(select).toHaveBeenCalledWith('outside');
+    expect(change).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button',{name:'Switch location'})).not.toBeInTheDocument();
+    expect(viewport).toHaveBeenCalled();
+    view.rerender(<LocationMap point={point} radiusKm={1} onChange={change} accent="#bd4f00" results={[outside]}
+      resultPlacement="area" resultAccent="#047857" resultActionLabel="View listing" onResultSelect={select} onViewportChange={viewport}/>);
+    await waitFor(()=>expect(circle.getRadius()).toBe(1000));
+    const updatedMarker=popup.mock.instances.at(-1) as unknown as import('leaflet').Marker;
+    expect(updatedMarker.getLatLng()).toMatchObject({lat:outside.area.latitude,lng:outside.area.longitude});
+    expect(change).not.toHaveBeenCalled();
+  });
   it('ignores an already queued resize notification after closing the picker', async () => {
     const view = render(<StrictMode><LocationMap point={point} radiusKm={10} onChange={vi.fn()}/></StrictMode>);
     await screen.findByRole('button', { name: 'Zoom in' });

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import WorkspaceDashboardPreview from './WorkspaceDashboardPreview';
 import LandingServicePreview from './LandingServicePreview';
@@ -30,15 +30,21 @@ describe('current UI previews on the public landing page', () => {
     expect(document.body.style.overflow).not.toBe('hidden');
   });
 
-  it('uses the current mobile details panel, including coverage, queue and payment context', () => {
+  it('uses the current mobile details panel with the J avatar and direct-cash scheduling context', () => {
     const { container } = render(<LandingServicePreview isDark />);
     const preview = screen.getByRole('img', { name: /Current mobile service details/ });
     const panel = preview.querySelector('[data-layout="compact"]');
     expect(panel).toHaveAttribute('data-theme', 'dark');
-    expect(preview.textContent).toContain('Service coverage: 10 km');
-    expect(preview.textContent).toContain('GCash bookings only');
+    expect(preview.textContent).toContain('Service coverage: 5 km');
+    expect(preview.textContent).toContain('Scheduling');
+    expect(preview.textContent).not.toContain('GCash bookings only');
     expect(preview.textContent).toContain('settled in person upon completion');
-    expect(preview.textContent).toContain('Maya Santos');
+    expect(preview.textContent).toContain('John Sefuesca');
+    expect(preview.textContent).toContain('LAPTOP REPAIR SERVICES');
+    expect(preview.textContent).toContain('₱1,500');
+    expect(preview.textContent).toContain('₱75 transportation');
+    expect(within(preview).getByText('J')).toBeInTheDocument();
+    expect(preview.querySelector('img')).toBeNull();
     expect(container.querySelector('[role="dialog"]')).toBeNull();
     expect(preview.querySelector('[inert]')).not.toBeNull();
     expect(document.body.style.overflow).not.toBe('hidden');
