@@ -22,7 +22,7 @@ export default function MarketplaceMap({ workspace, location, pins=[], loading, 
     </button>
     {open && <div id={id} className={styles.discoveryMapBody}>
       <p className={styles.hint}>{loading ? 'Updating map results…' : error ? 'Map results are unavailable. Retry the search below.' : `${pins.length} matching ${workspace==='seeker'?'service':'job'}${pins.length===1?'':'s'} within ${location.radiusKm} km.`} Markers show approximate {workspace==='seeker'?'service bases':'job areas'}; exact locations stay private.</p>
-      <LocationMap point={location.point} radiusKm={location.radiusKm} results={loading||error?[]:pins} accent={workspace==='provider'?'#047857':'var(--color-seeker-primary)'}
+      <LocationMap point={location.point} radiusKm={location.radiusKm} results={pins} accent={workspace==='provider'?'#047857':'var(--color-seeker-primary)'}
         onChange={point=>onApply({...location,point})} onResultSelect={id=>{setOpen(false);onShowResult(id);}}/>
       <p className={styles.hint}>The circle uses your search radius. Matches outside it stay hidden. Click a new place and confirm to move your search; zooming alone keeps the same results. Distances are straight-line estimates.</p>
     </div>}

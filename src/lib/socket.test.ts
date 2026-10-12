@@ -11,7 +11,7 @@ function fixture() {
   const handlers = new Map<string, Listener>();
   const managerHandlers = new Map<string, Listener>();
   return {
-    connected: false, auth: {}, connect: vi.fn(), disconnect: vi.fn(), onAny: vi.fn(),
+    connected: false, auth: {}, connect: vi.fn(), disconnect: vi.fn(), onAny: vi.fn<(listener:(event:string,payload:unknown)=>void)=>void>(),
     on: vi.fn((name: string, callback: Listener) => handlers.set(name, callback)), removeAllListeners: vi.fn(() => handlers.clear()),
     io: { on: vi.fn((name: string, callback: Listener) => managerHandlers.set(name, callback)), removeAllListeners: vi.fn(() => managerHandlers.clear()) },
     fire: (name: string, ...args: unknown[]) => handlers.get(name)?.(...args),
@@ -29,6 +29,16 @@ beforeEach(() => {
 afterEach(() => { disconnectSocket(); vi.restoreAllMocks(); vi.unstubAllEnvs(); });
 
 describe('live update connection recovery', () => {
+  it.each([
+    ['SERVICE_LISTING_TOGGLED',{id:'service',isAvailable:false},'services'],
+    ['SERVICE_LISTING_DELETED',{id:'service'},'services'],
+    ['SERVICE_REQUEST_UPDATED',{id:'request',status:'CANCELED'},'requests'],
+    ['SERVICE_REQUEST_DELETED',{id:'request'},'requests'],
+  ])('invalidates discovery data when %s arrives', (event,payload,resource) => {
+    connectSocket('token');
+    current.onAny.mock.calls[0][0](event,payload);
+    expect(mocks.invalidate).toHaveBeenCalledWith(expect.arrayContaining([resource]),'socket');
+  });
   it('preserves API hostnames and reverse-proxy prefixes when constructing the socket endpoint', () => {
     expect(getSocketEndpoint('https://api.servicehub.example/api')).toEqual({ url: 'https://api.servicehub.example', path: '/socket.io' });
     expect(getSocketEndpoint('https://servicehub.example/backend/api/')).toEqual({ url: 'https://servicehub.example', path: '/backend/socket.io' });

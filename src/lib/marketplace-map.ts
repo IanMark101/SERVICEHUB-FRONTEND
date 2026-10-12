@@ -41,6 +41,22 @@ export function providerMapQueries(view:MarketplaceMapViewport) {
   return { centers,limited:false };
 }
 
+/** Recheck previously discovered areas too, even after they leave the viewport. */
+export function providerMapRefreshCenters(centers:MarketplaceMapViewport['center'][], pins:MarketplaceMapPin[]) {
+  const next = [...centers];
+  for (const { area } of pins) {
+    // Leave room for the public area's rounding: its exact position stays private.
+    if (!next.some(center => mapDistanceKm(center,area) < 28)) next.push({ latitude:area.latitude,longitude:area.longitude });
+  }
+  return next;
+}
+
+function mapDistanceKm(a:MarketplaceMapViewport['center'], b:MarketplaceMapViewport['center']) {
+  const rad = Math.PI / 180;
+  const hav = Math.sin((b.latitude-a.latitude)*rad/2)**2 + Math.cos(a.latitude*rad)*Math.cos(b.latitude*rad)*Math.sin((b.longitude-a.longitude)*rad/2)**2;
+  return 2 * 6371.0088 * Math.asin(Math.sqrt(Math.min(1,Math.max(0,hav))));
+}
+
 /** Draw a public area inside the search circle, using only its coarse grid center. */
 export function mapAreaAnchor(area:MarketplaceMapPin['area'], location:MarketplaceLocation) {
   const rad = Math.PI / 180;

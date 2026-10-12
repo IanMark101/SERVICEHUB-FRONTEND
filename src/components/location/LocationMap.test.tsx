@@ -3,9 +3,13 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import LocationMap from './LocationMap';
 import { addReadableMapLayer } from '../../lib/readableMapLayer';
+import { api } from '../../lib/api/axios';
+import useProviderMapListings from '../../hooks/useProviderMapListings';
+import type { MarketplaceMapViewport } from '../../lib/marketplace-map';
 
 // Exercise Leaflet lifecycle here; vector labels/loading have separate coverage.
 vi.mock('../../lib/readableMapLayer', () => ({ addReadableMapLayer:vi.fn().mockResolvedValue(undefined) }));
+vi.mock('../../lib/api/axios',()=>({api:{get:vi.fn()}}));
 
 const point = { latitude: 10.3, longitude: 123.92, label: 'Cebu test area' };
 let resizeCallbacks: ResizeObserverCallback[] = [];
@@ -47,6 +51,35 @@ afterAll(() => {
 });
 
 describe('location map lifecycle with real Leaflet', () => {
+  it('keeps the same green marker DOM during zoom refreshes and an empty response',async()=>{
+    const pin={id:'stable-provider',title:'Stable provider service',label:'Public area',area:{latitude:10.301,longitude:123.921,approximate:true}};
+    vi.mocked(api.get).mockReset();
+    let finish:((value:unknown)=>void)|undefined;
+    vi.mocked(api.get).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
+    vi.mocked(api.get).mockResolvedValueOnce({data:{success:true,data:{mapPins:[pin],items:[]}}});
+    const change=vi.fn();
+    function Picker() {
+      const [viewport,setViewport]=useState<MarketplaceMapViewport|null>(null);
+      const listings=useProviderMapListings(viewport,{search:'',category:'All Categories',filter:'all'});
+      return <LocationMap point={point} radiusKm={2} onChange={change} accent="#bd4f00" results={listings.pins}
+        resultPlacement="area" resultAccent="#047857" onViewportChange={setViewport}/>;
+    }
+    const view=render(<Picker/>);
+    await waitFor(()=>expect(view.container.querySelector('[data-map-result]')).not.toBeNull());
+    const original=view.container.querySelector('[data-map-result]');
+    const originalCalls=vi.mocked(api.get).mock.calls.length;
+    // Off-center wheel zoom changes the viewport query as well as the scale.
+    fireEvent.wheel(screen.getByRole('region'),{ctrlKey:true,deltaY:-100,clientX:150,clientY:80});
+    await waitFor(()=>expect(api.get).toHaveBeenCalledTimes(originalCalls+1));
+    expect(finish).toBeTypeOf('function');
+    expect(view.container.querySelector('[data-map-result]')).toBe(original);
+    await act(async()=>{finish?.({data:{success:true,data:{mapPins:[],items:[]}}});});
+    expect(view.container.querySelector('[data-map-result]')).toBe(original);
+    fireEvent.click(screen.getByRole('button',{name:'Zoom out'}));
+    expect(view.container.querySelector('[data-map-result]')).toBe(original);
+    expect(original).toHaveStyle({'--location-accent':'#047857'});
+    expect(change).not.toHaveBeenCalled();
+  });
   it('keeps green provider markers at their public areas outside the orange radius and opens a preview without choosing a location',async()=>{
     const L=await import('leaflet');
     const popup=vi.spyOn(L.Marker.prototype,'bindPopup');

@@ -4,6 +4,8 @@ import SeekServices from '../seeker/SeekServices';
 import BrowseJobs from '../provider/BrowseJobs';
 import { api } from '../../lib/api/axios';
 import { useApp } from '../../context/AppContext';
+import { responseCache } from '../../lib/api/responseCache';
+import { socketResources } from '../../lib/api/cachePolicy';
 
 const { push, submitBid } = vi.hoisted(() => ({ push:vi.fn(), submitBid:vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter:() => ({ push }) }));
@@ -53,6 +55,30 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     });
   });
 
+  it.each(['seeker','provider'] as const)('%s removes unavailable and deleted listing markers after live events without moving the search area',async workspace=>{
+    localStorage.setItem(`servicehub:marketplace-location:member:${workspace}`,JSON.stringify(location));
+    let listings=[aircon(2),aircon(7)];
+    vi.mocked(api.get).mockImplementation(async()=>({data:{success:true,data:{items:listings.map(item=>({...item,status:workspace==='seeker'?'ACTIVE':'OPEN'})),
+      mapPins:listings.map(item=>({id:item.id,title:item.title,label:item.locationLabel,area:{latitude:10.3,longitude:123.9,approximate:true}})),
+      pagination:{page:1,limit:6,total:listings.length,totalPages:1}}}}));
+    render(workspace==='seeker'?<SeekServices/>:<BrowseJobs/>);
+    await screen.findByText('Aircon Repair 2');
+    if(workspace==='seeker') {
+      fireEvent.click(screen.getByRole('button',{name:/Location: Cordova/}));
+      fireEvent.click(screen.getByRole('button',{name:'Load provider markers'}));
+    } else fireEvent.click(screen.getByRole('button',{name:'Show nearby map'}));
+    await waitFor(()=>expect(screen.getByTestId('map-results')).toHaveTextContent('aircon-2,aircon-7'));
+    listings=[aircon(7)];
+    const event=workspace==='seeker'?'SERVICE_LISTING_TOGGLED':'SERVICE_REQUEST_UPDATED';
+    act(()=>responseCache.invalidate(socketResources(event,{id:'aircon-2',isAvailable:false,status:'CANCELED'}),'socket'));
+    await waitFor(()=>expect(screen.getByTestId('map-results')).not.toHaveTextContent('aircon-2'));
+    expect(screen.getByTestId('map-results')).toHaveTextContent('aircon-7');
+    listings=[];
+    act(()=>responseCache.invalidate(socketResources(workspace==='seeker'?'SERVICE_LISTING_DELETED':'SERVICE_REQUEST_DELETED',{id:'aircon-7'}),'socket'));
+    await waitFor(()=>expect(screen.getByTestId('map-results')).toBeEmptyDOMElement());
+    expect(JSON.parse(localStorage.getItem(`servicehub:marketplace-location:member:${workspace}`)!)).toEqual(location);
+  });
+
   it('Provider updates map markers with the same radius and category as its results',async()=>{
     const workspace='provider';
     localStorage.setItem(`servicehub:marketplace-location:member:${workspace}`,JSON.stringify(location));
@@ -68,6 +94,21 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     fireEvent.click(screen.getByRole('button',{name:'Apply location'}));
     await waitFor(()=>expect(screen.getByTestId('map-results')).toBeEmptyDOMElement());
     expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
+  });
+
+  it('Provider keeps confirmed request markers through a failed live refresh, then removes stale markers on recovery',async()=>{
+    localStorage.setItem('servicehub:marketplace-location:member:provider',JSON.stringify(location));
+    render(<BrowseJobs/>);
+    await screen.findByText('Plumbing service');
+    fireEvent.click(screen.getByRole('button',{name:'Show nearby map'}));
+    expect(screen.getByTestId('map-results')).toHaveTextContent('plumbing,aircon-2,aircon-7');
+    vi.mocked(api.get).mockRejectedValueOnce(new Error('Offline'));
+    act(()=>responseCache.invalidate(['requests'],'socket'));
+    await screen.findByText('Map results are unavailable. Retry the search below.',{exact:false});
+    expect(screen.getByTestId('map-results')).toHaveTextContent('plumbing,aircon-2,aircon-7');
+    vi.mocked(api.get).mockResolvedValue({data:{success:true,data:{items:[],mapPins:[],pagination:{page:1,limit:6,total:0,totalPages:1}}}});
+    act(()=>responseCache.invalidate(['requests'],'reconnect'));
+    await waitFor(()=>expect(screen.getByTestId('map-results')).toBeEmptyDOMElement());
   });
 
   it('uses only the Seeker location modal map, loads outside-radius listings and opens details without applying its draft',async()=>{
