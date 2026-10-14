@@ -29,6 +29,17 @@ describe('listing photo presentation', () => {
     fireEvent.keyDown(screen.getByRole('button', { name: 'Next photo' }), { key: 'ArrowRight' });
     expect(screen.getByText(`Photo 1 of ${count}`)).toBeInTheDocument();
   });
+  it('keeps managed gallery controls working after a photo fails and the list changes', () => {
+    const view=render(<ListingPhotoGallery photos={photos} title="Laptop repair" presentation="managed" />);
+    fireEvent.error(screen.getByRole('img', {name:'Laptop repair — photo 1 of 3'}));
+    expect(screen.getByText(/Photo unavailable/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Next photo'}));
+    expect(screen.getByRole('img', {name:'Laptop repair — photo 2 of 3'})).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Show photo 3'}));
+    view.rerender(<ListingPhotoGallery photos={photos.slice(0,1)} title="Laptop repair" presentation="managed" />);
+    expect(screen.getByText('Photo 1 of 1')).toBeInTheDocument();
+    expect(screen.queryByRole('button',{name:'Next photo'})).not.toBeInTheDocument();
+  });
   it('uses only one listing image on a request card with three uploaded photos', () => {
     render(<JobRequestCard request={{ id: 'request', title: 'Laptop repair', category: 'Electrical Repair', seekerId: 'seeker', seekerName: 'Sample User', seekerAvatar: '', description: 'My laptop is broken.', budget: 500, urgency: 'This Week', status: 'OPEN', createdAt: '', photos }} proposalCount={0} isOwned={false} offerState={null} isDark={false} onProfile={noop} onDetails={noop} onSendOffer={noop} />);
     const card = screen.getByRole('article', { name: 'Laptop repair' });

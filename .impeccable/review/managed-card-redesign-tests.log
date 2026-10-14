@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/components/provider/ManagedServiceCard.test.tsx (3 tests) 384ms
+ ✓ src/components/ui/ListingPhotos.test.tsx (9 tests) 484ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  20:00:08
+   Duration  14.72s (transform 774ms, setup 2.75s, collect 18.04s, tests 868ms, environment 4.99s, prepare 1.32s)
+

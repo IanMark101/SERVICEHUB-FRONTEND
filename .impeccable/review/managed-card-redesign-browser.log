@@ -1,0 +1,204 @@
+{
+  "passed": true,
+  "captures": 15,
+  "results": [
+    {
+      "name": "default",
+      "width": 1440,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 556.34375,
+        "cardWidth": 1078,
+        "cardScroll": 1078,
+        "stageHeight": 225,
+        "imageHeight": 225,
+        "imageNaturalWidth": 1198,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "second-photo",
+      "width": 1440,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 556.34375,
+        "cardWidth": 1078,
+        "cardScroll": 1078,
+        "stageHeight": 225,
+        "imageHeight": 225,
+        "imageNaturalWidth": 1536,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "default",
+      "width": 1440,
+      "theme": "dark",
+      "dimensions": {
+        "cardHeight": 556.34375,
+        "cardWidth": 1078,
+        "cardScroll": 1078,
+        "stageHeight": 225,
+        "imageHeight": 225,
+        "imageNaturalWidth": 1198,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "second-photo",
+      "width": 1440,
+      "theme": "dark",
+      "dimensions": {
+        "cardHeight": 556.34375,
+        "cardWidth": 1078,
+        "cardScroll": 1078,
+        "stageHeight": 225,
+        "imageHeight": 225,
+        "imageNaturalWidth": 1536,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "default",
+      "width": 1175,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 579.4375,
+        "cardWidth": 813,
+        "cardScroll": 813,
+        "stageHeight": 225,
+        "imageHeight": 225,
+        "imageNaturalWidth": 1198,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "second-photo",
+      "width": 1175,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 579.4375,
+        "cardWidth": 813,
+        "cardScroll": 813,
+        "stageHeight": 225,
+        "imageHeight": 225,
+        "imageNaturalWidth": 1536,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "default",
+      "width": 768,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 1043.9375,
+        "cardWidth": 406,
+        "cardScroll": 406,
+        "stageHeight": 268.5,
+        "imageHeight": 268.5,
+        "imageNaturalWidth": 1198,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "second-photo",
+      "width": 768,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 1043.9375,
+        "cardWidth": 406,
+        "cardScroll": 406,
+        "stageHeight": 268.5,
+        "imageHeight": 268.5,
+        "imageNaturalWidth": 1536,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "controls",
+      "width": 768,
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "name": "default",
+      "width": 390,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 1022.4375,
+        "cardWidth": 356,
+        "cardScroll": 356,
+        "stageHeight": 240,
+        "imageHeight": 240,
+        "imageNaturalWidth": 1198,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "second-photo",
+      "width": 390,
+      "theme": "light",
+      "dimensions": {
+        "cardHeight": 1022.4375,
+        "cardWidth": 356,
+        "cardScroll": 356,
+        "stageHeight": 240,
+        "imageHeight": 240,
+        "imageNaturalWidth": 1536,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "controls",
+      "width": 390,
+      "theme": "light",
+      "errors": []
+    },
+    {
+      "name": "default",
+      "width": 390,
+      "theme": "dark",
+      "dimensions": {
+        "cardHeight": 1022.4375,
+        "cardWidth": 356,
+        "cardScroll": 356,
+        "stageHeight": 240,
+        "imageHeight": 240,
+        "imageNaturalWidth": 1198,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "second-photo",
+      "width": 390,
+      "theme": "dark",
+      "dimensions": {
+        "cardHeight": 1022.4375,
+        "cardWidth": 356,
+        "cardScroll": 356,
+        "stageHeight": 240,
+        "imageHeight": 240,
+        "imageNaturalWidth": 1536,
+        "pageOverflow": false
+      },
+      "errors": []
+    },
+    {
+      "name": "controls",
+      "width": 390,
+      "theme": "dark",
+      "errors": []
+    }
+  ]
+}
