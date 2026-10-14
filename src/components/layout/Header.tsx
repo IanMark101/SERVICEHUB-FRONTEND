@@ -76,13 +76,13 @@ export default function Header({
   const userSearchRef = useRef<HTMLDivElement | null>(null);
 
   // Bind to App Context
-  const { notifications, markNotificationsRead, isDark, toggleTheme, unreadMessagesCount, users, services, jobRequests, hasMoreNotifications, loadMoreNotifications } = useApp();
+  const { notifications, markNotificationsRead, unreadNotificationsCount, isDark, toggleTheme, unreadMessagesCount, users, services, jobRequests, hasMoreNotifications, loadMoreNotifications } = useApp();
   const { navigateToVerification } = useTransactionPermission();
 
   // Use the real authenticated user ID directly from session
   const userId = user?.id || '';
   const userNotifications = notifications.filter(n => n.userId === userId);
-  const unreadCount = userNotifications.filter(n => !n.read).length;
+  const unreadCount = unreadNotificationsCount ?? userNotifications.filter(n => !n.read).length;
   const pageName = pageNames[activeTab] || activeTab.replaceAll('-', ' ');
   const PageContextIcon = communityPage
     ? UsersThree
@@ -283,9 +283,9 @@ export default function Header({
     setShowProfileMenu(false);
   };
 
-  const handleNotificationClick = (link?: string | null, title?: string) => {
+  const handleNotificationClick = (link?: string | null, title?: string, notificationId?: string) => {
     setShowNotifications(false);
-    markNotificationsRead(userId);
+    if (notificationId) markNotificationsRead(userId, notificationId);
     const targetRoute = resolveNotificationLink(link, currentRole, userId, title);
     if (!targetRoute) return;
 

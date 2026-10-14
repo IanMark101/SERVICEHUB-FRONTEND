@@ -5,7 +5,7 @@ export async function apiGetNotifications(page = 1, limit = 20) {
   return response.data;
 }
 
-export async function apiMarkNotificationsRead() {
-  const response = await api.patch('/notifications/read-all');
+export async function apiMarkNotificationsRead(notificationId?: string) {
+  const response = await api.patch(notificationId ? `/notifications/${encodeURIComponent(notificationId)}/read` : '/notifications/read-all');
   return response.data;
 }

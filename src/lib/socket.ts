@@ -51,7 +51,9 @@ export function connectSocket(token: string): Socket | null {
   let warnedAboutOutage = false;
 
   socket.on("connect", () => {
-    if (hasConnected) invalidateApiCache(undefined, 'reconnect');
+    // The first HTTP snapshot can precede joining the authenticated user room.
+    // Reconcile alerts created during that gap as well as reconnect gaps.
+    invalidateApiCache(hasConnected ? undefined : ['notifications'], 'reconnect');
     hasConnected = true;
     warnedAboutOutage = false;
     if (process.env.NODE_ENV === 'development') console.log("[Socket.io] Connected:", socket?.id);

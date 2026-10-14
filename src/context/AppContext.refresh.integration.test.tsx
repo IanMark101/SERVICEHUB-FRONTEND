@@ -93,9 +93,8 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
 
   it('does not show an empty marketplace while browsing takes longer than 450ms, or wait for private listings', async () => {
     let resolveBrowse!: () => void;
-    let resolveMine!: () => void;
     handler = config => config.url === '/services/nearby' ? new Promise(resolve => { resolveBrowse = () => resolve(defaults(config)); })
-      : config.url === '/services/mine' ? new Promise(resolve => { resolveMine = () => resolve(defaults(config)); }) : Promise.resolve(defaults(config));
+      : Promise.resolve(defaults(config));
     mount();
     await waitFor(() => expect(resolveBrowse).toBeTypeOf('function'));
     await act(async () => { await new Promise(resolve => setTimeout(resolve, 650)); });
@@ -105,7 +104,7 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
     await act(async () => { resolveBrowse(); });
     await screen.findByText(listing.title);
     expect(screen.getByText('seeker:ready')).toBeVisible();
-    await act(async () => { resolveMine(); });
+    expect(calls).not.toContain('/services/mine');
   });
 
   it('shows a retryable listing error without signing out, and preserves cards on a failed later refresh', async () => {

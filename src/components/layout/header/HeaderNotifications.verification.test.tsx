@@ -11,6 +11,6 @@ describe('Verification notification actions', () => {
     }]} unreadCount={1} badgeClass="bg-orange-500" onToggle={vi.fn()} onClose={vi.fn()}
       onNotificationClick={open} onMarkAllRead={vi.fn()} hasMore={false} onLoadMore={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: /View verification decision/ }));
-    expect(open).toHaveBeenCalledWith('/seeker/user-profile?id=resident', title);
+    expect(open).toHaveBeenCalledWith('/seeker/user-profile?id=resident', title, 'notice');
   });
 });

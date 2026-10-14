@@ -245,6 +245,7 @@ export interface Transaction {
 
 export interface Notification {
   id: string;
+  createdAt?: string;
   userId: string;
   title: string;
   desc: string;

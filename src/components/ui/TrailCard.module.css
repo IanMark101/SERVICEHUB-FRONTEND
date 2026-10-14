@@ -19,6 +19,7 @@
 .card[data-theme='dark'] .placeholderIcon { background:color-mix(in srgb,var(--placeholder-accent) 12%,var(--card,#0a0a0a)); box-shadow:0 7px 16px -8px rgba(0,0,0,.6); }
 .heading { min-width:0; position:absolute; bottom:0; inset-inline:0; padding:16px; }
 .header[data-photo='true'] .heading { color:#fff; }
+.header[data-photo='true'] .heading h3 { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.45); }
 .heading h3 { margin:5px 0 0; font-size:17px; font-weight:650; line-height:1.3; letter-spacing:-.015em; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; overflow-wrap:anywhere; }
 .heading p { margin:5px 0 0; font-size:12px; line-height:1.4; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
 .category { display:block; font-size:11px; line-height:1.4; font-weight:500; }

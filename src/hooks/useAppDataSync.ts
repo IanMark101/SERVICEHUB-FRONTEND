@@ -66,6 +66,15 @@ export function useAppDataSync({
   }, []);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const notificationRequestVersion = useRef(0);
+  const pendingNotificationRefresh = useRef<number | null>(null);
+  const pendingNotificationPage = useRef<number | null>(null);
+  const notificationOwner = user?.id;
+  const invalidateNotificationReads = useCallback(() => {
+    notificationRequestVersion.current++;
+    pendingNotificationRefresh.current = pendingNotificationPage.current = null;
+  }, []);
+  const [notificationCounts, setNotificationCounts] = useState({ owner: '', unread: 0 });
   const [notificationPage, setNotificationPage] = useState(1);
   const [notificationTotalPages, setNotificationTotalPages] = useState(1);
   const [transactionPage, setTransactionPage] = useState(1);
@@ -78,6 +87,8 @@ export function useAppDataSync({
   const canLoadWorkspace = isAuthenticated && user?.moderationStatus !== 'BANNED' && (isAdmin || user?.emailVerified === true);
 
   const clearPrivateData = useCallback(() => {
+    notificationRequestVersion.current++;
+    pendingNotificationRefresh.current = pendingNotificationPage.current = null;
     engagementRequestVersion.current += 1;
     engagementsResolved.current = false;
     setJobRequests([]);
@@ -88,6 +99,7 @@ export function useAppDataSync({
     setEngagementsStatus('loading');
     setTransactions([]);
     setNotifications([]);
+    setNotificationCounts({ owner: '', unread: 0 });
     setNotificationPage(1);
     setNotificationTotalPages(1);
     setTransactionPage(1);
@@ -95,6 +107,19 @@ export function useAppDataSync({
     setMessages([]);
     setUnreadMessagesCount(0);
     setUserReports([]);
+  }, []);
+  useEffect(() => {
+    // Responses from the previous account must not populate the new account.
+    return invalidateNotificationReads;
+  }, [notificationOwner, invalidateNotificationReads]);
+
+  const applyNotificationRead = useCallback((userId: string, notificationId?: string, unread?: number, readBefore?: string) => {
+    notificationRequestVersion.current++;
+    pendingNotificationRefresh.current = pendingNotificationPage.current = null;
+    setNotifications(current => current.map(item => item.userId === userId && (!notificationId || item.id === notificationId) && (!readBefore || !item.createdAt || item.createdAt <= readBefore) ? { ...item, read: true } : item));
+    setNotificationCounts(current => current.owner !== userId ? current : { ...current,
+      unread: typeof unread === 'number' ? unread : notificationId ? Math.max(0, current.unread - 1) : 0,
+    });
   }, []);
   // ─── Live Data Sync Helpers ────────────────────────────────────
   const syncPublicServices = useCallback(async () => {
@@ -243,22 +268,35 @@ export function useAppDataSync({
 
   const syncNotifications = useCallback(async (page = 1, append = false) => {
     const token = getAccessToken();
-    if (!token) {
+    if (!token || !notificationOwner) {
       setNotifications([]);
       return;
     }
+    if (append && (pendingNotificationRefresh.current !== null || pendingNotificationPage.current !== null)) return;
+    const version = append ? notificationRequestVersion.current : ++notificationRequestVersion.current;
+    if (append) pendingNotificationPage.current = version;
+    else { pendingNotificationRefresh.current = version; pendingNotificationPage.current = null; }
     try {
       const res = await apiGetNotifications(page, 20);
-      if (res.success && Array.isArray(res.data)) {
+      if (version === notificationRequestVersion.current && res.success && Array.isArray(res.data)) {
         const mapped: Notification[] = res.data.map(mapDbNotification);
-        setNotifications((current) => append ? [...current, ...mapped.filter((item) => !current.some((existing) => existing.id === item.id))] : mapped);
+        setNotifications(current => {
+          const owned = current.filter(item => item.userId === notificationOwner);
+          const merged = new Map(owned.map(item => [item.id, item]));
+          mapped.forEach(item => merged.set(item.id, item));
+          return [...merged.values()].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '') || b.id.localeCompare(a.id));
+        });
+        setNotificationCounts({ owner: notificationOwner, unread: typeof res.pagination?.unread === 'number' ? res.pagination.unread : mapped.filter(item => !item.read).length });
         setNotificationPage(page);
         setNotificationTotalPages(Math.max(1, res.pagination?.totalPages || 1));
       }
     } catch {
-      // ignore
+      // Keep saved alerts visible; live updates and the existing poll retry.
+    } finally {
+      if (pendingNotificationRefresh.current === version) pendingNotificationRefresh.current = null;
+      if (pendingNotificationPage.current === version) pendingNotificationPage.current = null;
     }
-  }, []);
+  }, [notificationOwner]);
 
   const syncUnreadMessages = useCallback(async () => {
     const token = getAccessToken();
@@ -440,6 +478,9 @@ export function useAppDataSync({
     // socket.ts invalidates resources before feature handlers run. The cache
     // subscriptions above coalesce all data reloads into one path per resource.
     const accountUpdated = () => window.dispatchEvent(new Event('servicehub_account_updated'));
+    const notificationsRead = (receipt: { userId: string; notificationId?: string; unread: number; readBefore?: string }) => {
+      if (receipt.userId === user.id) applyNotificationRead(user.id, receipt.notificationId, receipt.unread, receipt.readBefore);
+    };
     const queueUpdated = (data: { serviceId: string; delta: number; currentSize?: number }) => {
       setServices(prev => prev.map(service => {
         if (service.id !== data.serviceId) return service;
@@ -448,12 +489,14 @@ export function useAppDataSync({
       }));
     };
     sock.on('accountStatusChanged', accountUpdated);
+    sock.on('notifications_read', notificationsRead);
     sock.on('queue_update', queueUpdated);
     return () => {
       sock.off('accountStatusChanged', accountUpdated);
+      sock.off('notifications_read', notificationsRead);
       sock.off('queue_update', queueUpdated);
     };
-  }, [authLoading, canLoadWorkspace, user?.id]);
+  }, [authLoading, canLoadWorkspace, user?.id, applyNotificationRead]);
 
   // An email-unverified session may authenticate but may not join workspace feeds.
   useEffect(() => {
@@ -492,6 +535,8 @@ export function useAppDataSync({
     setTransactions,
     notifications,
     setNotifications,
+    applyNotificationRead,
+    unreadNotificationsCount: notificationCounts.owner === user?.id ? notificationCounts.unread : null,
     messages,
     setMessages,
     unreadMessagesCount,

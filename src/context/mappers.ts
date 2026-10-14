@@ -319,6 +319,7 @@ export function mapDbNotification(n: ApiNotification): Notification {
 
   return {
     id: n.id,
+    createdAt: n.createdAt,
     userId: n.userId,
     title: copy.title,
     desc: copy.description,

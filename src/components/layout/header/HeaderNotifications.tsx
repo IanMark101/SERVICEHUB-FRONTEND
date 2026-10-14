@@ -19,7 +19,7 @@ interface HeaderNotificationsProps {
   badgeClass: string;
   onToggle: () => void;
   onClose: () => void;
-  onNotificationClick: (link?: string | null, title?: string) => void;
+  onNotificationClick: (link?: string | null, title?: string, notificationId?: string) => void;
   onMarkAllRead: () => void;
   hasMore: boolean;
   onLoadMore: () => void;
@@ -149,11 +149,11 @@ export default function HeaderNotifications({
             </div>
             <div className={`min-h-24 flex-1 overflow-y-auto overscroll-contain divide-y ${isDark ? 'divide-neutral-800/80' : 'divide-slate-100'}`}>
               {filtered.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[color:var(--workspace-muted)]">{filter === 'All' ? 'No notifications yet.' : `No ${filter.toLowerCase()} notifications.`}</div>
+                <div className="p-8 text-center text-xs text-[color:var(--workspace-muted)]">{filter === 'Unread' && unreadCount > 0 && hasMore ? 'Your unread alerts are in older pages. Load older to view them.' : hasMore ? `No ${filter.toLowerCase()} alerts in the loaded pages. Load older to check more.` : filter === 'All' ? 'No notifications yet.' : `No ${filter.toLowerCase()} notifications.`}</div>
               ) : visibleNotifications.map((notification) => {
                 const Icon = getNotificationIcon(notification.title);
                 return (
-                  <button type="button" key={notification.id} onClick={() => onNotificationClick(notification.link, notification.title)} className={`w-full px-4 py-3 cursor-pointer flex space-x-3 text-left transition-colors ${isDark ? 'hover:bg-charcoal/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-charcoal/35' : 'bg-slate-50') : ''}`}>
+                  <button type="button" key={notification.id} onClick={() => onNotificationClick(notification.link, notification.title, notification.id)} className={`w-full px-4 py-3 cursor-pointer flex space-x-3 text-left transition-colors ${isDark ? 'hover:bg-charcoal/45' : 'hover:bg-slate-50'} ${!notification.read ? (isDark ? 'bg-charcoal/35' : 'bg-slate-50') : ''}`}>
                     <div className="rounded-lg bg-[var(--feedback-soft)] text-[var(--feedback-accent)] h-8 w-8 flex-shrink-0 flex items-center justify-center">
                       <Icon className="w-4 h-4" />
                     </div>

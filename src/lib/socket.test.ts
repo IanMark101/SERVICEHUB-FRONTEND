@@ -29,6 +29,14 @@ beforeEach(() => {
 afterEach(() => { disconnectSocket(); vi.restoreAllMocks(); vi.unstubAllEnvs(); });
 
 describe('live update connection recovery', () => {
+  it('reconciles alerts missed before the first authenticated room subscription', () => {
+    connectSocket('token'); current.fire('connect');
+    expect(mocks.invalidate).toHaveBeenCalledWith(['notifications'], 'reconnect');
+  });
+  it('refreshes read receipts only in the notification feed', () => {
+    connectSocket('token'); current.onAny.mock.calls[0][0]('notifications_read', { userId:'reader', notificationId:'notice', unread:2 });
+    expect(mocks.invalidate).toHaveBeenCalledWith(['notifications'], 'socket');
+  });
   it.each([
     ['SERVICE_LISTING_TOGGLED',{id:'service',isAvailable:false},'services'],
     ['SERVICE_LISTING_DELETED',{id:'service'},'services'],

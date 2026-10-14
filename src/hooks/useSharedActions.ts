@@ -1,8 +1,7 @@
 import React from 'react';
 import {
   JobEngagement,
-  Message,
-  Notification
+  Message
 } from '../types';
 import { apiSendMessage } from '../api/messages.api';
 import { apiMarkNotificationsRead } from '../api/notifications.api';
@@ -12,13 +11,13 @@ import { getApiErrorStatus } from '../lib/api/errors';
 interface SharedActionsDeps {
   jobEngagements: JobEngagement[];
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-  setNotifications: React.Dispatch<React.SetStateAction<Notification[]>>;
+  applyNotificationRead: (userId: string, notificationId?: string, unread?: number, readBefore?: string) => void;
 }
 
 export function useSharedActions({
   jobEngagements,
   setMessages,
-  setNotifications
+  applyNotificationRead
 }: SharedActionsDeps) {
 
   const sendMessage = async (senderId: string, receiverId: string, text: string) => {
@@ -43,15 +42,17 @@ export function useSharedActions({
     }
   };
 
-  const markNotificationsRead = async (userId: string) => {
+  const markNotificationsRead = async (userId: string, notificationId?: string) => {
     try {
       // Skip API call if no auth token is available (e.g. during role switch transitions)
       const token = getAccessToken();
       if (!token) return;
 
-      const res = await apiMarkNotificationsRead();
+      const res = await apiMarkNotificationsRead(notificationId);
       if (res.success) {
-        setNotifications(prev => prev.map(n => n.userId === userId ? { ...n, read: true } : n));
+        // A request completed after sign-out or account switching is stale.
+        if (getAccessToken() !== token) return;
+        applyNotificationRead(userId, notificationId, res.data?.unread, res.data?.readBefore);
         return;
       }
     } catch (err: unknown) {

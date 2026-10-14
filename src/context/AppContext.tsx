@@ -113,7 +113,8 @@ interface AppContextType {
 
   // Shared actions
   sendMessage: (senderId: string, receiverId: string, text: string) => void;
-  markNotificationsRead: (userId: string) => void;
+  markNotificationsRead: (userId: string, notificationId?: string) => void;
+  unreadNotificationsCount: number | null;
   isDark: boolean;
   toggleTheme: () => void;
   refreshEngagements: () => Promise<void>;
@@ -204,6 +205,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTransactions,
     notifications,
     setNotifications,
+    applyNotificationRead,
+    unreadNotificationsCount,
     messages,
     setMessages,
     unreadMessagesCount,
@@ -482,7 +485,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const sharedActions = useSharedActions({
     jobEngagements,
     setMessages,
-    setNotifications
+    applyNotificationRead
   });
 
   const refreshServices = useCallback(() => {
@@ -526,6 +529,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       authError,
       retrySession,
       unreadMessagesCount,
+      unreadNotificationsCount,
       syncUnreadMessages,
       loadMoreNotifications,
       hasMoreNotifications,
