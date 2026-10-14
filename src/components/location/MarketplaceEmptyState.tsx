@@ -1,4 +1,4 @@
-import { MagnifyingGlass as Search } from '@phosphor-icons/react';
+import { Toolbox, ClipboardText, MapPinArea } from '@phosphor-icons/react';
 import { nextSearchRadius, type MarketplaceLocation } from '../../lib/location';
 import EmptyState from '../ui/EmptyState';
 import styles from './MarketplaceEmptyState.module.css';
@@ -12,7 +12,7 @@ export default function MarketplaceEmptyState({ workspace, location, hasFilters,
   const primaryAction = isPostAction ? onPostRequest : onChangeLocation;
   return <EmptyState
     className={styles.card}
-    icon={Search}
+    icon={!location ? MapPinArea : workspace === 'seeker' ? Toolbox : ClipboardText}
     title={!location ? 'Choose your search location' : workspace === 'seeker' ? 'No Services Found' : 'No Open Service Requests'}
     description={!location
       ? `Set a search location and radius to find ${workspace === 'seeker' ? 'services' : 'work'} nearby.`

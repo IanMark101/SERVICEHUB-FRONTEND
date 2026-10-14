@@ -6,6 +6,7 @@ import './feedback.css';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
+export type ToastTone = 'seeker' | 'provider';
 
 export interface Toast {
   id: string;
@@ -13,12 +14,13 @@ export interface Toast {
   title: string;
   message?: string;
   duration?: number;
+  tone?: ToastTone;
 }
 
 interface ToastContextType {
   toasts: Toast[];
   toast: (type: ToastType, title: string, message?: string, duration?: number) => void;
-  success: (title: string, message?: string) => void;
+  success: (title: string, message?: string, tone?: ToastTone) => void;
   error: (title: string, message?: string) => void;
   warning: (title: string, message?: string) => void;
   info: (title: string, message?: string) => void;
@@ -45,9 +47,10 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
 
   return (
     <div
-      role="alert"
+      role={toast.type === 'error' ? 'alert' : 'status'}
       data-feedback-kind={toast.type}
-      aria-live="polite"
+      data-feedback-tone={toast.tone}
+      aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
       className="servicehub-toast flex w-full min-w-0 items-start gap-3 p-4 rounded-2xl border backdrop-blur-xl relative overflow-hidden transition-all duration-200 select-none shadow-lg"
       style={{
         animation: 'toast-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1)',
@@ -66,7 +69,8 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
       </div>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="bg-transparent border-0 cursor-pointer p-1 text-ink-subtle hover:text-ink-secondary dark:text-ink-subtle dark:hover:text-ink flex-shrink-0 flex items-center justify-center rounded-lg transition-colors duration-150 active:scale-90"
+        type="button"
+        className="bg-transparent border-0 cursor-pointer -my-2 -mr-2 min-h-11 min-w-11 text-ink-muted hover:text-ink-secondary dark:hover:text-ink flex-shrink-0 flex items-center justify-center rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
         aria-label="Dismiss toast"
       >
         <X size={14} />
@@ -140,16 +144,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const toast = useCallback((type: ToastType, title: string, message?: string, duration = 4500) => {
+  const toast = useCallback((type: ToastType, title: string, message?: string, duration = 4500, tone?: ToastTone) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const newToast: Toast = { id, type, title, message, duration };
+    const newToast: Toast = { id, type, title, message, duration, tone };
     setToasts((prev) => [...prev.slice(-4), newToast]); // keep max 5
 
     const timer = setTimeout(() => dismiss(id), duration);
     timers.current.set(id, timer);
   }, [dismiss]);
 
-  const success = useCallback((title: string, message?: string) => toast('success', title, message), [toast]);
+  const success = useCallback((title: string, message?: string, tone?: ToastTone) => toast('success', title, message, 4500, tone), [toast]);
   const error = useCallback((title: string, message?: string) => toast('error', title, message), [toast]);
   const warning = useCallback((title: string, message?: string) => toast('warning', title, message), [toast]);
   const info = useCallback((title: string, message?: string) => toast('info', title, message), [toast]);

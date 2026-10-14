@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ArrowRight, Pause, Play } from 'lucide-react';
-import { useReducedMotion } from 'motion/react';
+import useHydratedReducedMotion from '@/hooks/useHydratedReducedMotion';
 import LandingMarketplacePreview from './LandingMarketplacePreview';
 import LandingHeroHorizontalTrack from './LandingHeroHorizontalTrack';
 import ScrollReveal from './ScrollReveal';
@@ -10,7 +10,7 @@ import styles from './LandingHeroResponsive.module.css';
 
 export default function LandingBenefits({ isDark }: { isDark: boolean }) {
   const [paused, setPaused] = useState(false);
-  const reducedMotion = useReducedMotion();
+  const reducedMotion = useHydratedReducedMotion();
   return (
     <section id="problem" aria-labelledby="landing-benefits-title" className={`${styles.heroSurface} relative overflow-hidden border-b border-black/[0.06] dark:border-white/10`}>
       <div className={`${styles.heroGrid} relative z-10 mx-auto grid min-h-0 max-w-7xl items-center gap-10 px-5 py-14 sm:px-8 lg:min-h-[560px] lg:px-10 lg:py-16`}>

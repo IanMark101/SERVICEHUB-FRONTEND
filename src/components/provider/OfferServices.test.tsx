@@ -1,72 +1,214 @@
-import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
+import type { ListingPhoto } from '../../lib/listingPhotos';
 import OfferServices from './OfferServices';
 
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
+vi.mock('../../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () => ({ gcashNumber: null })), apiSaveGCashNumber: vi.fn() }));
 vi.mock('../../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled, radiusKm }: { onChange: (point: { latitude: number; longitude: number; label: string }) => void; disabled?: boolean; radiusKm?: number | null }) => <button type="button" data-testid="test-location" data-radius={radiusKm ?? ''} disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
+let finishUpload = () => {};
+vi.mock('../ui/ListingPhotoUploader', () => ({ default: ({ value, onChange, onBusyChange }: { value: ListingPhoto[]; onChange: (photos: ListingPhoto[]) => void; onBusyChange: (busy: boolean) => void }) => <div><p>{value.length} uploaded photos</p><button type="button" onClick={() => onChange([{ id: 'photo-1', url: 'https://example.test/laptop.jpg', width: 640, height: 480 }])}>Add test photo</button><button type="button" onClick={() => { onBusyChange(true); finishUpload = () => onBusyChange(false); }}>Start upload</button></div> }));
 
 const createServiceListing = vi.fn();
+const toastError = vi.fn();
+const description = 'I will repair the leaking kitchen pipe and clean up.';
+function next() { fireEvent.click(screen.getByRole('button', { name: /^(Next|Review service)$/ })); }
+function fillDetails() {
+  fireEvent.change(screen.getByRole('textbox', { name: 'Service name' }), { target: { value: 'Kitchen pipe repair' } });
+  fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: description } });
+  fireEvent.change(screen.getByRole('combobox', { name: 'Service category' }), { target: { value: 'category-cuid' } });
+}
+function toPrice() {
+  fillDetails(); next();
+  fireEvent.click(screen.getByTestId('test-location'));
+  fireEvent.change(screen.getByRole('combobox', { name: 'How far will you travel? (required)' }), { target: { value: '5' } });
+  next();
+}
+function toReview() { toPrice(); next(); next(); }
 
-describe('Offer Services moderation feedback', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(useApp).mockReturnValue({
-      user: { id: 'provider-id', phone: '09123456789' }, createServiceListing, isDark: false,
-      dbCategories: [{ id: 'category-cuid', name: 'Plumbing' }],
-    } as unknown as ReturnType<typeof useApp>);
-    vi.mocked(useTransactionPermission).mockReturnValue({ canTransact: true, navigateToVerification: vi.fn() } as unknown as ReturnType<typeof useTransactionPermission>);
-    vi.mocked(useToast).mockReturnValue({ error: vi.fn(), success: vi.fn() } as unknown as ReturnType<typeof useToast>);
-  });
-
-  it('offers only pricing that shows a definite amount before booking', () => {
-    render(<OfferServices />);
-    expect(screen.getByRole('option', { name: 'Fixed Price' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Per Hour' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Per Day' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Per Project' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Starts At' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'Custom' })).not.toBeInTheDocument();
-  });
-
-  it('uses the selected coverage radius for both the map preview and the published listing', async () => {
-    createServiceListing.mockResolvedValue({ success:true });
-    render(<OfferServices/>);
-    fireEvent.change(screen.getByLabelText('Service coverage radius (optional)'), { target:{value:'5'} });
-    expect(screen.getByTestId('test-location')).toHaveAttribute('data-radius','5');
-    fireEvent.change(screen.getByPlaceholderText('e.g. Lawn Mowing and Edge Trimming'), { target:{value:'Kitchen pipe repair'} });
-    fireEvent.change(screen.getByPlaceholderText(/Describe what you will do/), { target:{value:'Repair the leaking pipe and clean up.'} });
-    fireEvent.change(screen.getAllByRole('combobox')[0], { target:{value:'category-cuid'} });
-    fireEvent.submit(screen.getByRole('button', { name:'Publish Listing' }).closest('form')!);
-    await screen.findByRole('button', { name:'Publish Listing' });
-    expect(createServiceListing).toHaveBeenCalledWith('provider-id','KITCHEN PIPE REPAIR','category-cuid',500,
-      'Repair the leaking pipe and clean up.',{ cash:true,gcash:true },expect.objectContaining({ coverageRadiusKm:5 }));
-  });
-
-  it('shows a server moderation rejection beside the title without clearing the draft', async () => {
-    createServiceListing.mockResolvedValue({ success: false, field: 'title', error: 'Remove hateful or abusive language before publishing.' });
-    render(<OfferServices />);
-    const titleField = screen.getByPlaceholderText('e.g. Lawn Mowing and Edge Trimming');
-    fireEvent.change(titleField, { target: { value: 'Kitchen pipe repair' } });
-    fireEvent.change(screen.getByPlaceholderText(/Describe what you will do/), { target: { value: 'I will repair the leaking kitchen pipe and clean up.' } });
-    fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'category-cuid' } });
-    fireEvent.submit(screen.getByRole('button', { name: 'Publish Listing' }).closest('form')!);
-
-    expect(await screen.findByText(/Remove hateful or abusive language before publishing/)).toBeInTheDocument();
-    expect(titleField).toHaveAttribute('aria-invalid', 'true');
-    expect(titleField).toHaveValue('KITCHEN PIPE REPAIR');
-    expect(createServiceListing).toHaveBeenCalledWith(
-      'provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500,
-      'I will repair the leaking kitchen pipe and clean up.',
-      { cash: true, gcash: true }, expect.any(Object),
-    );
-  });
+beforeEach(() => {
+  vi.clearAllMocks();
+  createServiceListing.mockResolvedValue({ success: false });
+  vi.mocked(useApp).mockReturnValue({ user: { id: 'provider-id', phone: '09123456789' }, createServiceListing, isDark: false, dbCategories: [{ id: 'category-cuid', name: 'Plumbing' }] } as unknown as ReturnType<typeof useApp>);
+  vi.mocked(useTransactionPermission).mockReturnValue({ canTransact: true, navigateToVerification: vi.fn() } as unknown as ReturnType<typeof useTransactionPermission>);
+  vi.mocked(useToast).mockReturnValue({ error: toastError, success: vi.fn() } as unknown as ReturnType<typeof useToast>);
 });
 
-// These regression tests supply an explicit location fixture; location interaction is tested separately.
-vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled, radiusKm }: { onChange: (point: { latitude:number; longitude:number; label:string }) => void; disabled?:boolean; radiusKm?:number | null }) => <button type="button" data-testid="test-location" data-radius={radiusKm ?? ''} disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
-function render(...args: Parameters<typeof rtlRender>) { const view = rtlRender(...args); const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]'); if (choice) fireEvent.click(choice); return view; }
+it('keeps public map sharing opt-in and includes the choice in publication', async () => {
+  render(<OfferServices />); fillDetails(); next();
+  fireEvent.click(screen.getByTestId('test-location'));
+  const consent=screen.getByRole('checkbox', { name:/Show this exact pin on the public map/ });
+  expect(consent).not.toBeChecked(); fireEvent.click(consent); expect(consent).toBeChecked();
+  fireEvent.change(screen.getByRole('combobox', { name:'How far will you travel? (required)' }), { target:{ value:'5' } });
+  next(); next(); next();
+  fireEvent.click(screen.getByRole('button', { name:'Publish service' }));
+  await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String),expect.any(String),expect.any(String),expect.any(Number),expect.any(String),expect.any(Object),expect.objectContaining({publicMapPin:true})));
+});
+
+describe('Offer Services wizard', () => {
+  it('lets providers publish by agreement without an amount or separate travel fee and retains a fixed-price draft', async () => {
+    render(<OfferServices />); toPrice();
+    fireEvent.change(screen.getByLabelText('Service price (₱)'), { target: { value: '2500' } });
+    fireEvent.change(screen.getByLabelText('How do you charge?'), { target: { value: 'BY_AGREEMENT' } });
+    expect(screen.queryByLabelText('Service price (₱)')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Travel fee/)).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('How do you charge?'), { target: { value: 'FIXED' } });
+    expect(screen.getByLabelText('Service price (₱)')).toHaveValue(2500);
+    fireEvent.change(screen.getByLabelText('How do you charge?'), { target: { value: 'BY_AGREEMENT' } });
+    next(); next();
+    expect(screen.getAllByText('Price by agreement').some(element => element.tagName !== 'OPTION')).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 2500, description, expect.any(Object), expect.objectContaining({ priceType: 'BY_AGREEMENT', transportationFee: null })));
+  });
+  it('shows only Details, keeps provider tone and validates before Next or Enter', () => {
+    render(<OfferServices />);
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    expect(screen.getByRole('progressbar').parentElement).toHaveAttribute('data-workspace', 'provider');
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Publish service' })).not.toBeInTheDocument();
+    fireEvent.submit(screen.getByRole('form', { name: 'Create a service listing' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('10–100 characters');
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveAttribute('aria-invalid', 'true');
+    expect(createServiceListing).not.toHaveBeenCalled();
+  });
+  it('offers only pricing that shows a definite amount before booking', () => {
+    render(<OfferServices />); toPrice();
+    for (const name of ['Fixed Price', 'Per Hour', 'Per Day', 'Per Project']) expect(screen.getByRole('option', { name })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Starts At' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'Custom' })).not.toBeInTheDocument();
+    expect(createServiceListing).not.toHaveBeenCalled();
+  });
+  it('requires explicit travel coverage and accepts an area without a venue address', async () => {
+    render(<OfferServices />); fillDetails(); next(); next();
+    expect(toastError).toHaveBeenCalledWith('Choose your service area', expect.stringContaining('No shop or home address'));
+    fireEvent.click(screen.getByTestId('test-location')); next();
+    expect(createServiceListing).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose how far you will travel');
+    fireEvent.change(screen.getByRole('combobox', { name: 'How far will you travel? (required)' }), { target: { value: '10' } });
+    next(); next(); next();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+    expect(createServiceListing).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500, description, { cash: true, gcash: true }, expect.objectContaining({ serviceLocationMode: 'PROVIDER_VISITS', serviceLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, coverageRadiusKm: 10, venueAddress: null })));
+  });
+  it.each(['The seeker comes to you', 'Either option'])('requires a venue for %s and preserves its conditional payload', async choice => {
+    render(<OfferServices />); toPrice();
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    fireEvent.click(screen.getByRole('radio', { name: new RegExp(choice) })); next();
+    expect(createServiceListing).not.toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalledWith('Choose where seekers can visit you', expect.any(String));
+    if (choice === 'The seeker comes to you') expect(screen.queryByLabelText('How far will you travel? (required)')).not.toBeInTheDocument();
+    else expect(screen.getByRole('combobox', { name: 'How far will you travel? (required)' })).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('test-location'));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Address or directions for the seeker (optional)' }), { target: { value: 'Shop beside the barangay hall' } });
+    next(); next(); next();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: choice === 'Either option' ? 'BOTH' : 'SEEKER_VISITS', coverageRadiusKm: choice === 'Either option' ? 5 : null, venueAddress: 'Shop beside the barangay hall', transportationFee: null })));
+  });
+  it('uses the same coverage radius for map preview and publication, and resets only on success', async () => {
+    createServiceListing.mockResolvedValue({ success: true });
+    render(<OfferServices />); toPrice();
+    expect(screen.getByTestId('test-location')).toHaveAttribute('data-radius', '5');
+    next(); next();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    await waitFor(() => expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0'));
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveValue('');
+    expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500, description, { cash: true, gcash: true }, expect.objectContaining({ coverageRadiusKm: 5 }));
+  });
+  it('returns server moderation rejection to Details without losing the draft', async () => {
+    createServiceListing.mockResolvedValue({ success: false, field: 'title', error: 'Remove hateful or abusive language before publishing.' });
+    render(<OfferServices />); toReview();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    expect(await screen.findByText(/Remove hateful or abusive language before publishing/)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveValue('KITCHEN PIPE REPAIR');
+    expect(createServiceListing).toHaveBeenCalledTimes(1);
+  });
+  it('preserves photos and all pricing/payment choices through review edits', async () => {
+    render(<OfferServices />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add test photo' })); toPrice();
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Service price (₱)' }), { target: { value: '900' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'How do you charge?' }), { target: { value: 'PER_HOUR' } });
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' }), { target: { value: '45' } });
+    fireEvent.change(screen.getByRole('spinbutton', { name: /Your travel fee/ }), { target: { value: '75.50' } });
+    next(); fireEvent.click(screen.getByRole('checkbox', { name: /GCash/ })); next();
+    expect(screen.getByText('1 photo added')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit service details' }));
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveValue('KITCHEN PIPE REPAIR');
+    expect(screen.getByText('1 uploaded photos')).toBeVisible(); next(); next();
+    expect(screen.getByRole('spinbutton', { name: 'Service price (₱)' })).toHaveValue(900);
+    expect(screen.getByRole('combobox', { name: 'How do you charge?' })).toHaveValue('PER_HOUR'); next();
+    expect(screen.getByRole('checkbox', { name: /GCash/ })).not.toBeChecked(); next();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 900, description, { cash: true, gcash: false }, expect.objectContaining({ photoIds: ['photo-1'], priceType: 'PER_HOUR', estimatedDurationMins: 45, transportationFee: 75.5 })));
+  });
+  it('honors the existing native price and duration bounds before Payment', () => {
+    render(<OfferServices />); toPrice();
+    for (const price of ['49', '50001', '500.5']) {
+      fireEvent.change(screen.getByRole('spinbutton', { name: 'Service price (₱)' }), { target: { value: price } }); next();
+      expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
+    }
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Service price (₱)' }), { target: { value: '500' } });
+    for (const duration of ['14', '481', '17']) {
+      fireEvent.change(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' }), { target: { value: duration } }); next();
+      expect(screen.getByRole('alert')).toHaveTextContent('15–480 minutes');
+    }
+    expect(createServiceListing).not.toHaveBeenCalled();
+  });
+  it('requires a payment choice before Review', () => {
+    render(<OfferServices />); toPrice(); next();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Cash in person' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /GCash/ })); next();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '75');
+    expect(screen.queryByRole('button', { name: 'Publish service' })).not.toBeInTheDocument();
+    expect(createServiceListing).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Cash in person' })); next();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+  });
+  it('blocks navigation while photos upload', () => {
+    render(<OfferServices />); fillDetails();
+    fireEvent.click(screen.getByRole('button', { name: 'Start upload' }));
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    act(() => finishUpload()); next();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '25');
+  });
+  it('preserves verification restrictions on navigation', () => {
+    vi.mocked(useTransactionPermission).mockReturnValue({ canTransact: false, navigateToVerification: vi.fn() } as unknown as ReturnType<typeof useTransactionPermission>);
+    render(<OfferServices />);
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toBeDisabled();
+  });
+  it('revalidates categories before final publication', () => {
+    const view = render(<OfferServices />); toReview();
+    vi.mocked(useApp).mockReturnValue({ ...useApp(), dbCategories: [] }); view.rerender(<OfferServices />);
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    expect(createServiceListing).not.toHaveBeenCalled();
+  });
+  it('prevents duplicate publishes while the existing create call is pending', async () => {
+    let resolve!: (value: { success: boolean }) => void;
+    createServiceListing.mockReturnValue(new Promise(done => { resolve = done; }));
+    render(<OfferServices />); toReview();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    fireEvent.submit(screen.getByRole('form', { name: 'Create a service listing' }));
+    expect(createServiceListing).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
+    await act(async () => resolve({ success: false }));
+    expect(screen.getByRole('button', { name: 'Publish service' })).toBeEnabled();
+  });
+  it('retains the review and releases the controls if creation throws', async () => {
+    createServiceListing.mockRejectedValue(new Error('Service unavailable'));
+    render(<OfferServices />); toReview();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith('Could not publish your service', 'Service unavailable'));
+    expect(screen.getByRole('button', { name: 'Publish service' })).toBeEnabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Edit service details' }));
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveValue('KITCHEN PIPE REPAIR');
+  });
+});

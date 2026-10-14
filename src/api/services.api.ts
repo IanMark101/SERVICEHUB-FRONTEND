@@ -1,10 +1,15 @@
+import type { ServiceLocationMode } from '../lib/serviceArrangement';
 import type { LocationPoint } from '../lib/location';
 import { api } from '../lib/api/axios';
 
 type PaymentMethods = { cash: boolean; gcash: boolean };
 
 export interface ServicePayload {
+  publicMapPin?: boolean;
+  photoIds?: string[];
   serviceLocation?: LocationPoint;
+  serviceLocationMode?: ServiceLocationMode;
+  venueAddress?: string | null;
   coverageRadiusKm?: number | null;
   transportationFee?: number | null;
   categoryId: string;
@@ -24,7 +29,7 @@ export async function apiBrowseServices(params?: { categoryId?: string; search?:
 }
 
 export async function apiGetServiceById(id: string) {
-  const response = await api.get(`/services/${id}`);
+  const response = await api.get(`/services/${encodeURIComponent(id)}`, { apiCache: 'no-store' });
   return response.data;
 }
 

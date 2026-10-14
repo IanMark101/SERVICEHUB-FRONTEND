@@ -10,6 +10,7 @@
     "start": "node scripts/next.mjs start",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:dev-runtime": "node --test scripts/runtime/dev-runtime.test.mjs scripts/plugins/atomic-dev-manifests.test.mjs scripts/loaders/safe-css-hmr.test.mjs",
     "test:watch": "vitest"
   },
   "dependencies": {

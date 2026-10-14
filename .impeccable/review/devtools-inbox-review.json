@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-13",
+  "scope": "Reported private API 401s, map worker numeric warnings, development PWA install notice, and both inbox empty states",
+  "environment": "Actual InboxState/LocationMap components in an isolated sample preview; live OpenFreeMap style and tiles. Browser logs retained old preview setup errors, but no new numeric map warning occurred during rendering and zooming. No credentials or user submissions.",
+  "measurements": {
+    "desktopWidthPx": 1280,
+    "desktopPanelWidthPx": 680,
+    "desktopEmptyHeightPx": [185, 162],
+    "phoneWidthPx": 390,
+    "phoneEmptyHeightPx": [211, 189],
+    "horizontalOverflow": false,
+    "actionHeightPx": 44,
+    "phoneErrorIcon": "rgb(252, 165, 165)"
+  },
+  "checks": [
+    "Concurrent expired-token feeds share preflight recovery; no expired private feed is dispatched.",
+    "Refused replay clears local authorization and redirects the mounted workspace to sign-in.",
+    "Late 401s reuse a replaced token, logout cancels pending recovery, transient 503 preserves the session.",
+    "Map numeric filters exclude missing/null/string properties while keeping valid numeric boundary and label selection.",
+    "No reported number/null worker warning during the live map zoom check.",
+    "Development does not defer native install prompts; production install remains user initiated.",
+    "Confirmed empty inboxes have bounded width, distinct workspace icons and one working next-action link.",
+    "A seeker without an open request gets Post a request only after request loading succeeds.",
+    "Error and loading states remain separate from confirmed emptiness; failure uses a red warning and retry.",
+    "All 210 distinct targeted frontend tests passed across the affected auth, cache, sync, socket, PWA, map, inbox and admin suites.",
+    "TypeScript and diff whitespace checks passed in both projects; changed frontend lint passed. One final UI detector returned no findings."
+  ],
+  "screenshots": ["inbox-refinement-desktop-light.png", "inbox-refinement-phone-dark.png", "map-worker-warning-check.png"]
+}

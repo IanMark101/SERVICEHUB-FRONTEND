@@ -12,7 +12,7 @@ vi.mock('next/navigation', () => ({
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('./activity/ProviderActivityList', () => ({ default: ({ model }: { model: { openItemId: string | null } }) => <div data-testid="activity-view">{model.openItemId ?? 'overview'}</div> }));
-vi.mock('./activity/ProviderWorkloadPanel', () => ({ default: () => null }));
+vi.mock('./activity/ProviderWorkloadPanel', () => ({ default: () => <div data-testid="work-queue-panel">Work queue</div> }));
 vi.mock('./activity/ProviderCancellationDeclineModal', () => ({ default: () => null }));
 vi.mock('../activity/SafetyReportModal', () => ({ default: () => null }));
 vi.mock('../ui/ReasonModal', () => ({ default: () => null }));
@@ -38,6 +38,11 @@ function setEngagements(jobEngagements: unknown[]) {
 }
 
 describe('Provider Activity deep-link tab selection', () => {
+  it('keeps Activity available without rendering the transferred Work Queue panel', () => {
+    setEngagements([]); vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as ReturnType<typeof useSearchParams>);
+    render(<ProviderActivity />); expect(screen.getByTestId('activity-view')).toBeVisible();
+    expect(screen.queryByTestId('work-queue-panel')).not.toBeInTheDocument();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     HTMLElement.prototype.scrollIntoView = vi.fn();

@@ -77,6 +77,12 @@ describe('Admin case decisions', () => {
     await screen.findByText('No messages have been sent in this booking.');
     expect(apiGetAdminBookingMessages).toHaveBeenCalledWith(safetyCase.booking.id);
   });
+  it('does not offer a suspension that would weaken an existing ban', () => {
+    mount({ ...safetyCase, allowedPenalties: ['none', 'warn', 'trust_deduct'] });
+    fireEvent.click(screen.getByRole('radio', { name: /supported safety finding/ }));
+    expect(screen.getByRole('option', { name: 'Suspend for 7 days' })).toBeDisabled();
+    expect(screen.getByRole('option', { name: 'Ban account' })).toBeDisabled();
+  });
   it('completion escalations expose the cooldown path without account penalties', () => {
     mount(escalationCase);
     fireEvent.click(screen.getByRole('radio', { name: /Keep awaiting confirmation/ }));

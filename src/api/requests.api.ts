@@ -1,9 +1,18 @@
+import type { ServiceLocationMode } from '../lib/serviceArrangement';
 import type { LocationPoint } from '../lib/location';
 import { api } from '../lib/api/axios';
 import type { PaymentMethods } from '../types';
 import type { RequestUrgency } from '../lib/requestUrgency';
+import type { BookingLocationMode } from '../lib/serviceArrangement';
 
-export async function apiCreateRequest(data: { jobLocation?: LocationPoint; transportationFee?: number | null; categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency: RequestUrgency; paymentMethods: PaymentMethods }) {
+export async function apiCreateListingInquiry(data: { serviceId: string; message: string; serviceLocationMode: BookingLocationMode; jobLocation?: LocationPoint; photoIds?: string[] }) {
+  return (await api.post('/requests/listing-inquiry', data)).data;
+}
+export async function apiDeclineListingInquiry(id: string) {
+  return (await api.post(`/requests/${encodeURIComponent(id)}/decline-inquiry`)).data;
+}
+
+export async function apiCreateRequest(data: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null; categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency: RequestUrgency; paymentMethods: PaymentMethods }) {
   const response = await api.post('/requests', { ...data, title: data.title.trim().toUpperCase() });
   return response.data;
 }
@@ -13,13 +22,19 @@ export async function apiGetRequests(params?: { categoryId?: string }) {
   return response.data;
 }
 
+export async function apiGetRequestById(id: string) {
+  const response = await api.get(`/requests/${encodeURIComponent(id)}`, { apiCache: 'no-store' });
+  return response.data;
+}
+
 export async function apiGetMyRequests() {
   const response = await api.get('/requests/mine');
   return response.data;
 }
 
 export interface RequestRepostTemplate {
-  jobLocation?: LocationPoint;
+  photos?: import('../lib/listingPhotos').ListingPhoto[];
+  jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode;
   transportationFee?: number | null;
   title: string;
   description: string;
@@ -35,7 +50,9 @@ export async function apiGetRequestRepostTemplate(id: string): Promise<{ success
 }
 
 type RequestUpdate = Partial<{
+  photoIds: string[];
   jobLocation: LocationPoint;
+  serviceLocationMode?: ServiceLocationMode;
   transportationFee: number | null;
   title: string;
   description: string;

@@ -4,10 +4,11 @@ import FormSelect from '../../ui/FormSelect';
 import TrustScoreBadge from '../../ui/TrustScoreBadge';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowSquareOut, ChatCircle, FileImage, Warning } from '@phosphor-icons/react';
-import { apiAccessReportEvidence, apiGetAdminBookingMessages } from '@/api/admin.api';
+import { apiAccessReportEvidence } from '@/api/admin.api';
 import { getApiErrorMessage } from '@/lib/api/errors';
 import { CASE_TYPES, CONCERNS, DECISIONS, PENALTIES, caseStatusLabel, dateLabel, money, stateLabel } from './labels';
-import type { CancellationFault, CaseMessage, CaseParty, ModerationCase, Penalty } from './types';
+import type { CancellationFault, CaseParty, ModerationCase, Penalty } from './types';
+import BookingConversation from '../BookingConversation';
 import { InspectionFacts, InspectionPanel, InspectionTabs, InspectionText, inspectionStyles as styles } from '../InspectionLayout';
 
 export default function CaseWorkroom({ item, onBack, onResolve, submitting, error }: {
@@ -26,9 +27,7 @@ export default function CaseWorkroom({ item, onBack, onResolve, submitting, erro
   const [notes, setNotes] = useState(item.resolutionOperation?.notes || '');
   const [review, setReview] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
-  const [messages, setMessages] = useState<CaseMessage[] | null>(null);
-  const [messageError, setMessageError] = useState('');
-  const [messageLoading, setMessageLoading] = useState(false);
+  const [messagesOpened, setMessagesOpened] = useState(false);
   const [evidenceError, setEvidenceError] = useState('');
   const [evidenceLoading, setEvidenceLoading] = useState(false);
   const active = ['PENDING', 'UNDER_REVIEW'].includes(item.status);
@@ -38,7 +37,7 @@ export default function CaseWorkroom({ item, onBack, onResolve, submitting, erro
   const blocked = financial && !!item.otherBlockingCases && !locked;
   const cancellationApproval = item.type === 'CANCELLATION_ESCALATION' && outcome === 'approve_cancellation';
   const findingMinimum = penalty === 'trust_deduct' || (cancellationApproval && cancellationFault && cancellationFault !== 'none') ? 20 : 3;
-  const valid = !!outcome && item.allowedOutcomes.includes(outcome) && notes.trim().length >= findingMinimum && notes.trim().length <= 2000 && !blocked && (!cancellationApproval || cancellationFault !== '');
+  const valid = !!outcome && item.allowedOutcomes.includes(outcome) && notes.trim().length >= findingMinimum && notes.trim().length <= 2000 && !blocked && (!cancellationApproval || cancellationFault !== '') && (!canPenalize || locked || !item.allowedPenalties || item.allowedPenalties.includes(penalty));
   const faultName = cancellationFault === 'provider' ? item.booking.provider.name : cancellationFault === 'seeker' ? item.booking.seeker.name : '';
   const consequence = cancellationApproval && cancellationFault && cancellationFault !== 'none'
     ? `${faultName} is found at fault for ending started work. Only this participant’s trust score will decrease.`
@@ -50,12 +49,6 @@ export default function CaseWorkroom({ item, onBack, onResolve, submitting, erro
 
   useEffect(() => { heading.current?.focus(); }, []);
   useEffect(() => { if (review) confirmationHeading.current?.focus(); }, [review]);
-  async function loadMessages() {
-    setMessageLoading(true); setMessageError('');
-    try { const response = await apiGetAdminBookingMessages(item.booking.id); setMessages(response.data?.messages || []); }
-    catch (cause) { setMessageError(getApiErrorMessage(cause, 'Messages could not be loaded. Try again.')); }
-    finally { setMessageLoading(false); }
-  }
   async function openEvidence() {
     const preview = window.open('about:blank', '_blank');
     if (preview) preview.opener = null;
@@ -67,7 +60,7 @@ export default function CaseWorkroom({ item, onBack, onResolve, submitting, erro
     } catch (cause) { preview?.close(); setEvidenceError(getApiErrorMessage(cause, 'Evidence could not be opened. Try again.')); }
     finally { setEvidenceLoading(false); }
   }
-  function chooseTab(value: string) { setTab(value); if (value === 'messages' && messages === null && !messageLoading) void loadMessages(); }
+  function chooseTab(value: string) { setTab(value); if (value === 'messages') setMessagesOpened(true); }
   function person(party: CaseParty, role: string) {
     return <div className={styles.person} key={party.id}><h4>{role}</h4><strong>{party.name}</strong><InspectionFacts facts={[
       { label: 'Account status', value: stateLabel(party.moderationStatus) }, { label: 'Residency verification', value: stateLabel(party.verificationStatus) },
@@ -75,12 +68,13 @@ export default function CaseWorkroom({ item, onBack, onResolve, submitting, erro
     ]} /><a href={`/admin/users?search=${encodeURIComponent(party.name)}`} className="case-button">Find account <ArrowSquareOut size={14} aria-hidden /></a></div>;
   }
   const savedOutcome = item.status === 'DISMISSED' ? 'dismiss' : item.resolutionOperation?.requestedOutcome === 'ADMIN_APPROVE' ? 'approve_cancellation' : item.resolutionOperation?.requestedOutcome === 'ADMIN_DENY' ? 'deny_cancellation' : item.resolutionOperation?.requestedOutcome || item.resolution;
-  const savedPenalty = item.resolutionOperation?.requestedPenalty;
+  const savedPenalty = item.appliedPenalty || item.resolutionOperation?.requestedPenalty;
   const recordedDecision = <InspectionPanel title="Recorded decision" className={styles.result}>
     <InspectionFacts facts={[
       { label: 'Case outcome', value: savedOutcome ? DECISIONS[savedOutcome]?.title || stateLabel(savedOutcome) : 'Resolved (outcome not recorded separately)' },
       { label: 'Account consequence', value: savedPenalty && savedPenalty in PENALTIES ? PENALTIES[savedPenalty as Penalty] : savedPenalty?.startsWith('cancellation_fault_') ? `Cancellation fault: ${savedPenalty.endsWith('seeker') ? 'service seeker' : 'service provider'}` : 'Not recorded separately' },
     ]} />
+    {item.penaltyNote && <p className="case-notice">{item.penaltyNote}</p>}
     <div className={styles.resultReason}><h4>Admin explanation</h4><InspectionText text={item.decisionExplanation || item.resolutionOperation?.notes || 'No written decision explanation was recorded.'} /></div>
     {item.resolvedAt && <p className={styles.resultTime}>Closed {dateLabel(item.resolvedAt)}</p>}
   </InspectionPanel>;
@@ -122,7 +116,7 @@ export default function CaseWorkroom({ item, onBack, onResolve, submitting, erro
             { label: 'Provider queue', value: item.booking.queue ? `${stateLabel(item.booking.queue.status)} / position ${item.booking.queue.position}` : item.booking.paymentMethod === 'On-site Cash' ? 'Direct cash arrangement' : 'No queue position recorded' },
           ]} /><p className={styles.identifiers}>Booking ID: {item.booking.id}</p></InspectionPanel>
         </div>}
-        {tab === 'messages' && <InspectionPanel title="Booking conversation"><p className={styles.muted}>Only messages from this booking are shown. Access is audit logged.</p>{messageLoading ? <div className="case-loading" role="status">Loading booking messages…</div> : messageError ? <div className="case-error" role="alert">{messageError}<button className="case-button" onClick={() => void loadMessages()}>Retry messages</button></div> : messages?.length ? <ol className="case-messages">{messages.map(message => <li key={message.id}><div className="case-message-meta"><strong>{message.isSystem ? 'ServiceHub' : message.sender?.name || (message.senderId === item.booking.seeker.id ? item.booking.seeker.name : message.senderId === item.booking.provider.id ? item.booking.provider.name : 'Booking participant')}</strong><time dateTime={message.createdAt}>{dateLabel(message.createdAt)}</time></div><InspectionText text={message.content} label="message" /></li>)}</ol> : <p className="case-empty-small">No messages have been sent in this booking.</p>}</InspectionPanel>}
+        {messagesOpened && <div hidden={tab !== 'messages'}><InspectionPanel title="Booking conversation"><BookingConversation key={item.booking.id} bookingId={item.booking.id} /></InspectionPanel></div>}
         {tab === 'evidence' && <InspectionPanel title="Submitted evidence">{item.hasPrivateEvidence ? <><p className={styles.muted}>Private attachment. Opening it is audit logged and the access link expires after five minutes.</p><button className="case-button mt-4" disabled={evidenceLoading} onClick={() => void openEvidence()}>{evidenceLoading ? 'Opening evidence…' : 'Open private evidence'}<ArrowSquareOut size={18} aria-hidden /></button></> : item.evidenceUrl ? <a className="case-button" href={item.evidenceUrl} target="_blank" rel="noopener noreferrer">Open submitted attachment <ArrowSquareOut size={18} aria-hidden /></a> : <p className="case-empty-small">No separate attachment was submitted. Review the explanation and booking conversation before deciding.</p>}{evidenceError && <p className="case-error" role="alert">{evidenceError}</p>}</InspectionPanel>}
         {tab === 'history' && <InspectionPanel title="Case history"><ol className={styles.history}><li><div className={styles.historyLine}><strong>Case submitted</strong><time>{dateLabel(item.createdAt)}</time></div><p className={styles.muted}>Submitted by {item.reporter.name}</p></li>{[...(item.history || [])].reverse().map(entry => <li key={entry.id}><div className={styles.historyLine}><strong>{stateLabel(entry.action)}</strong><time>{dateLabel(entry.createdAt)}</time></div>{entry.actor && <p className={styles.muted}>Admin: {entry.actor.name}</p>}{entry.reason && <InspectionText text={entry.reason} />}</li>)}</ol>{(item.history?.length || 0) >= 30 && <a href="/admin/audit-logs" className="case-button">View earlier actions in the audit log</a>}<p className={styles.identifiers}>Case ID: {item.id}</p></InspectionPanel>}
       </div>
@@ -132,7 +126,7 @@ export default function CaseWorkroom({ item, onBack, onResolve, submitting, erro
           {item.resolutionOperation?.lastError && <p className="case-error">Previous attempt: {item.resolutionOperation.lastError}</p>}
           {!item.allowedOutcomes.length ? <p className="case-error">No valid decision is available. The case or booking may have changed; refresh it before continuing.</p> : <form onSubmit={event => { event.preventDefault(); if (valid) { setReview(true); setAcknowledged(false); } }}>
             <fieldset disabled={submitting || review} hidden={review} className="case-decision-fields"><legend>Choose a case outcome</legend>{item.allowedOutcomes.map(value => <label key={value} className={`case-choice ${outcome === value ? 'case-choice-selected' : ''}`}><input type="radio" name="outcome" value={value} checked={outcome === value} disabled={locked && value !== item.allowedOutcomes[0]} onChange={() => { setOutcome(value); if (value === 'dismiss') setPenalty('none'); }} /><span><strong>{DECISIONS[value]?.title || stateLabel(value)}</strong><span>{DECISIONS[value]?.description || 'Resume the previously recorded decision.'}</span></span></label>)}
-              {canPenalize && <label className="case-field">Account consequence for {item.reportedUser?.name}<FormSelect value={penalty} disabled={locked} onChange={event => setPenalty(event.target.value as Penalty)}>{Object.entries(PENALTIES).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</FormSelect><small>Apply a penalty only when the evidence establishes that this participant was at fault.</small></label>}
+              {canPenalize && <label className="case-field">Account consequence for {item.reportedUser?.name}<FormSelect value={penalty} disabled={locked} onChange={event => setPenalty(event.target.value as Penalty)}>{Object.entries(PENALTIES).map(([value,label]) => <option key={value} value={value} disabled={!locked && !!item.allowedPenalties && !item.allowedPenalties.includes(value as Penalty)}>{label}</option>)}</FormSelect><small>Apply a penalty only when evidence confirms fault. Unavailable options reflect the account’s current restrictions.</small></label>}
               {cancellationApproval && <label className="case-field">Who was at fault? <span className="case-muted">(required)</span><FormSelect value={cancellationFault} disabled={locked} onChange={event => setCancellationFault(event.target.value as CancellationFault)}><option value="">Choose a finding</option><option value="none">No one found at fault</option><option value="seeker" disabled={item.booking.started === false}>Service seeker: {item.booking.seeker.name}</option><option value="provider" disabled={item.booking.started === false}>Service provider: {item.booking.provider.name}</option></FormSelect><small>{item.booking.started === false ? 'No cancellation penalty applies before work starts.' : 'Choose a participant only when the evidence establishes fault. A mutual cancellation does not lower either score.'}</small></label>}
               {penalty === 'ban' && <p className="case-notice">This account immediately loses normal access. Its remaining bookings stay recorded and need Admin handling. The user retains the ban-appeal path.</p>}
               {penalty === 'suspend' && <p className="case-notice">Resolve the provider’s unstarted bookings before suspension. Existing history and obligations remain recorded.</p>}

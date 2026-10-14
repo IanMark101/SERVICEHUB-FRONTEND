@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState, type CSSProperties } from 'react';
-import { motion, useInView, useReducedMotion } from 'motion/react';
+import { motion, useInView } from 'motion/react';
+import useHydratedReducedMotion from '@/hooks/useHydratedReducedMotion';
 import { AcceptedBookingFace, MessagesFace, MarketplaceConnectionFace } from './LandingHeroCardFaces';
 import styles from './LandingMarketplacePreview.module.css';
 
@@ -74,7 +75,7 @@ function OrbitCard({ kind, role, slot }: OrbitCardDefinition) {
 }
 
 export default function LandingMarketplacePreview({ isDark, paused = false }: LandingMarketplacePreviewProps) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useHydratedReducedMotion();
   const orbitRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(orbitRef, { margin: '200px 0px', initial: true });
   const [pageVisible, setPageVisible] = useState(true);

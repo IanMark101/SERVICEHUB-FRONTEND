@@ -1,12 +1,13 @@
 import { Flag } from '@phosphor-icons/react';
 
-export default function ContentCaseTrigger({ variant = 'link', className = '', isDark = false, title: customTitle, label: actionText, onClick }: {
-  variant?: 'link' | 'icon'; className?: string; isDark?: boolean; title?: string; label: string; onClick?: () => void;
+export default function ContentCaseTrigger({ variant = 'link', className = '', isDark = false, title: customTitle, label: actionText, onClick, disabled }: {
+  variant?: 'link' | 'icon' | 'button'; className?: string; isDark?: boolean; title?: string; label: string; onClick?: () => void; disabled?: boolean;
 }) {
   return (variant === 'icon' ? (
       <button
         type="button"
         onClick={onClick}
+        disabled={disabled}
         title={customTitle || actionText}
         aria-label={customTitle || actionText}
         className={
@@ -24,6 +25,8 @@ export default function ContentCaseTrigger({ variant = 'link', className = '', i
       <button
         type="button"
         onClick={onClick}
+        disabled={disabled}
+        title={customTitle || actionText}
         className={
           className ||
           `rounded-lg px-2 py-1 text-xs font-semibold   focus-visible:outline-2 focus-visible:outline-offset-2 ${
@@ -31,7 +34,7 @@ export default function ContentCaseTrigger({ variant = 'link', className = '', i
           }`
         }
       >
-        {actionText}
+        {variant === 'button' && <Flag size={18} aria-hidden="true" />}{actionText}
       </button>
     ));
 }

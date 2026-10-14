@@ -1,3 +1,4 @@
+import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
 import { LocationSchema } from '../lib/location';
 import {
   ServiceListing,
@@ -12,7 +13,7 @@ import { notificationCopy } from '../lib/notificationCopy';
 
 const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200';
 
-interface ApiLocation { latitude?: number | null; longitude?: number | null; locationLabel?: string | null; privateAddress?: string | null; distanceKm?: number; transportationFee?: number | string | null }
+interface ApiLocation { serviceLocationMode?: ServiceLocationMode; latitude?: number | null; longitude?: number | null; locationLabel?: string | null; privateAddress?: string | null; distanceKm?: number; transportationFee?: number | string | null }
 function recordPoint(value: ApiLocation) {
   const parsed = LocationSchema.safeParse({ latitude:value.latitude, longitude:value.longitude, label:value.locationLabel, address:value.privateAddress ?? undefined });
   return parsed.success ? parsed.data : undefined;
@@ -20,13 +21,13 @@ function recordPoint(value: ApiLocation) {
 interface ApiReview { rating?: number }
 interface ApiUser { id?: string; name?: string; avatarUrl?: string | null; trustScore?: number; verificationStatus?: string; location?: string; reviewsReceived?: ApiReview[]; clientRating?: number; clientReviewCount?: number }
 interface ApiCategory { name?: string }
-interface ApiService extends ApiLocation { coverageRadiusKm?: number | null; id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; providerWaitingCount?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
+interface ApiService extends ApiLocation { publicMapPin?: boolean; photos?: ServiceListing['photos']; venueAddress?: string | null; coverageRadiusKm?: number | null; id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; providerWaitingCount?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
 interface ApiBookingService { title?: string; category?: ApiCategory; estimatedDurationMins?: number; price?: number | string; priceType?: ServiceListing['priceType'] }
 interface ApiDirectRequest { agreedPrice?: number | string; quantity?: number; message?: string; schedule?: string; service?: ApiBookingService }
-interface ApiOffer { id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; estimatedDuration?: number; availability?: string; message?: string; status?: string; decisionReason?: Bid['decisionReason']; decisionAt?: string | null; createdAt?: string; request?: { title?: string; targetServiceId?: string | null; status?: string; seekerId?: string; seeker?: ApiUser; category?: ApiCategory | string; paymentMethods?: JobRequest['paymentMethods']; preferredPaymentMethod?: JobRequest['preferredPaymentMethod'] } }
-export interface ApiBooking { jobLocation?: unknown; transportationFee?: number | string | null; id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: ApiBookingService; estimatedDurationMins?: number | null; offer?: ApiOffer; directRequest?: ApiDirectRequest; agreedAmount?: number | string | null; queue?: { status?: string; position?: number; estimatedWait?: number; paymentStatus?: string } | null; paymentMethod?: string; paymentStatus?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests']; progressEvents?: JobEngagement['progressEvents'] }
+interface ApiOffer { serviceLocationMode?: BookingLocationMode; venueLabel?: string; id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; estimatedDuration?: number; availability?: string; message?: string; status?: string; decisionReason?: Bid['decisionReason']; decisionAt?: string | null; createdAt?: string; request?: { title?: string; targetServiceId?: string | null; status?: string; seekerId?: string; seeker?: ApiUser; category?: ApiCategory | string; paymentMethods?: JobRequest['paymentMethods']; preferredPaymentMethod?: JobRequest['preferredPaymentMethod'] } }
+export interface ApiBooking { serviceLocationMode?: BookingLocationMode | null; jobLocation?: unknown; transportationFee?: number | string | null; id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: ApiBookingService; estimatedDurationMins?: number | null; offer?: ApiOffer; directRequest?: ApiDirectRequest; agreedAmount?: number | string | null; queue?: { status?: string; position?: number; estimatedWait?: number; paymentStatus?: string } | null; paymentMethod?: string; paymentStatus?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests']; progressEvents?: JobEngagement['progressEvents'] }
 export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; paymentStatus?: string; completedAt?: string; reviews?: JobEngagement['reviews'] }
-interface ApiRequest extends ApiLocation { offersCount?: number; id: string; seekerId?: string; seeker?: ApiUser; targetProviderId?: string | null; targetServiceId?: string | null; preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null; paymentMethods?: JobRequest['paymentMethods']; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: { status?: string; booking?: { status?: string } | null }[]; canArchive?: boolean; archivedAt?: string | null; canDelete?: boolean; deleteBlockedReason?: string | null }
+interface ApiRequest extends ApiLocation { photos?: JobRequest['photos']; offersCount?: number; id: string; seekerId?: string; seeker?: ApiUser; targetProviderId?: string | null; targetServiceId?: string | null; preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null; paymentMethods?: JobRequest['paymentMethods']; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: { status?: string; booking?: { status?: string } | null }[]; canArchive?: boolean; archivedAt?: string | null; canDelete?: boolean; deleteBlockedReason?: string | null }
 interface ApiNotification { id: string; userId: string; title: string; body: string; createdAt: string; isRead: boolean; link?: string | null }
 interface ApiTransaction { id: string; relatedBookingId?: string; walletOwnerId: string; amount: number | string; description?: string; createdAt?: string }
 
@@ -39,6 +40,7 @@ function bookingMetadata(booking?: ApiBooking) {
     estimatedDurationMins: booking?.estimatedDurationMins ?? booking?.offer?.estimatedDuration
       ?? booking?.service?.estimatedDurationMins ?? booking?.directRequest?.service?.estimatedDurationMins,
     jobLocation: point.success ? point.data : undefined,
+    serviceLocationMode: booking?.serviceLocationMode ?? 'PROVIDER_VISITS',
     transportationFee: booking?.transportationFee == null ? undefined : Number(booking.transportationFee),
     providerAvailability: booking?.offer?.availability,
     preferredSchedule: booking?.directRequest?.schedule || '',
@@ -178,9 +180,13 @@ export function mapServiceToListing(item: ApiService): ServiceListing {
 
   return {
     id: item.id,
+    photos: item.photos ?? [],
     locationLabel: item.locationLabel || undefined,
     distanceKm: item.distanceKm,
     serviceLocation: recordPoint(item),
+    publicMapPin: item.publicMapPin ?? false,
+    serviceLocationMode: item.serviceLocationMode ?? 'PROVIDER_VISITS',
+    venueAddress: item.venueAddress,
     coverageRadiusKm: item.coverageRadiusKm,
     transportationFee: item.transportationFee == null ? undefined : Number(item.transportationFee),
     providerId: item.providerId || item.provider?.id || '',
@@ -220,9 +226,11 @@ export function mapServiceToListing(item: ApiService): ServiceListing {
 export function mapRequestToJobRequest(r: ApiRequest): JobRequest {
   return {
     id: r.id,
+    photos: r.photos ?? [],
     locationLabel: r.locationLabel || undefined,
     distanceKm: r.distanceKm,
     jobLocation: recordPoint(r),
+    serviceLocationMode: r.serviceLocationMode ?? 'PROVIDER_VISITS',
     transportationFee: r.transportationFee == null ? undefined : Number(r.transportationFee),
     targetProviderId: r.targetServiceId ? r.targetProviderId : null,
     targetServiceId: r.targetServiceId,
@@ -270,8 +278,11 @@ export function mapOfferToBid(o: ApiOffer): Bid {
     seekerTrustScore: o.request?.seeker?.trustScore,
     providerId: o.providerId || o.provider?.id || '',
     serviceId: o.serviceId,
+    serviceLocationMode: o.serviceLocationMode ?? 'PROVIDER_VISITS',
+    venueLabel: o.venueLabel,
     requestPaymentMethods: o.request?.paymentMethods,
     requestPreferredPaymentMethod: o.request?.preferredPaymentMethod,
+    requestTargetServiceId: o.request?.targetServiceId,
     estimatedDuration: o.estimatedDuration,
     availability: o.availability,
     requestStatus: o.request?.status,

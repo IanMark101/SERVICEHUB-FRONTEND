@@ -3,6 +3,7 @@
 import { Briefcase, Clock, Globe, Sparkles, Tag } from 'lucide-react';
 import type { useUserProfile } from '../../hooks/useUserProfile';
 import { formatRequestUrgency } from '../../lib/requestUrgency';
+import { listingPriceLabel } from '../../lib/listingPricing';
 
 type ProfileModel = ReturnType<typeof useUserProfile>;
 
@@ -89,7 +90,7 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                           Service
                         </span>
                         <span className="text-lg font-black tabular-nums text-[color:var(--workspace-ink)]">
-                          ₱{service.price}
+                          {listingPriceLabel(service)}
                         </span>
                       </div>
                       <div>
@@ -189,7 +190,7 @@ export default function MarketplaceProfileOverview({ model }: { model: ProfileMo
                             Service
                           </span>
                           <span className="text-lg font-black tabular-nums text-[color:var(--workspace-ink)]">
-                            ₱{service.price}
+                            {listingPriceLabel(service)}
                           </span>
                         </div>
                         <div>

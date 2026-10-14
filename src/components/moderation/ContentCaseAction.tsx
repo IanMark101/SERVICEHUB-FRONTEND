@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import ContentCaseTrigger from './ContentCaseTrigger';
 import { apiSubmitContentCase, type ContentCaseType, type ModeratedContentType } from '../../api/contentCases.api';
@@ -24,7 +24,7 @@ export default function ContentCaseAction({
   resourceId?: string;
   label?: string;
   isDark?: boolean;
-  variant?: 'link' | 'icon';
+  variant?: 'link' | 'icon' | 'button';
   className?: string;
   title?: string;
 }) {
@@ -32,6 +32,10 @@ export default function ContentCaseAction({
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [sending, setSending] = useState(false);
+  const pending = useRef(false);
+  const actionKey = `${caseType}:${contentType}:${resourceId || ''}`;
+  const [submittedKey, setSubmittedKey] = useState('');
+  const submitted = submittedKey === actionKey;
   const dialogRef = useDialogFocus(open, sending, () => { setOpen(false); setReason(''); });
   const title = caseType === 'REPORT' ? 'Report public content' : 'Request an Admin review';
   const submitTone = caseType === 'REPORT'
@@ -40,20 +44,22 @@ export default function ContentCaseAction({
   const close = () => { setOpen(false); setReason(''); };
   const send = async (event: FormEvent) => {
     event.preventDefault();
-    if (sending || reason.trim().length < 10) return;
+    if (pending.current || submitted || reason.trim().length < 10) return;
+    pending.current = true;
     setSending(true);
     try {
       await apiSubmitContentCase({ caseType, contentType, ...(resourceId ? { resourceId } : {}), reason: reason.trim() });
+      setSubmittedKey(actionKey);
       success(caseType === 'REPORT' ? 'Report sent' : 'Appeal sent', 'An Admin will review your explanation. This does not automatically change publication status.');
       close();
     } catch (error) { toastError('Could not submit', getApiErrorMessage(error, 'Please try again.')); }
-    finally { setSending(false); }
+    finally { pending.current = false; setSending(false); }
   };
 
   const actionText = label || (caseType === 'REPORT' ? 'Report content' : 'Appeal decision');
 
   return <>
-    <ContentCaseTrigger variant={variant} className={className} isDark={isDark} title={customTitle} label={actionText} onClick={() => setOpen(true)} />
+    <ContentCaseTrigger variant={variant} className={className} isDark={isDark} title={submitted ? 'Already submitted for Admin review' : customTitle} label={submitted ? caseType === 'REPORT' ? 'Report sent' : 'Appeal sent' : actionText} disabled={submitted} onClick={() => setOpen(true)} />
     {open && typeof document !== 'undefined' && createPortal(<div ref={dialogRef} tabIndex={-1} className="fixed inset-0 z-[80] flex items-center justify-center bg-charcoal/70 p-4" role="presentation">
       <form onSubmit={send} role="dialog" aria-modal="true" aria-labelledby="content-case-title" aria-busy={sending} className={`servicehub-dialog w-full max-w-lg space-y-4 rounded-2xl border p-6 shadow-2xl ${isDark ? 'border-neutral-700 bg-charcoal-surface text-white' : 'border-slate-200 bg-white text-ink'}`}>
         <h2 id="content-case-title" className="text-lg font-bold">{title}</h2>

@@ -1,13 +1,14 @@
 import { api } from '../lib/api/axios';
 import type { AdminUserProfileData, AdminUserRecordsResponse, UserRecordKind } from '../components/admin/users/types';
+import type { AuditHistoryResponse, AuditKind } from '../components/admin/audit/types';
 
 export async function apiGetAdminOverview() {
   const response = await api.get('/admin/overview');
   return response.data;
 }
 
-export async function apiListAdminAuditLogs(params?: { page?: number; limit?: number; action?: string }) {
-  const response = await api.get('/admin/audit-logs', { params });
+export async function apiListAdminAuditLogs(params?: { page?: number; limit?: number; action?: string; kind?: AuditKind; search?: string; from?: string; to?: string }) {
+  const response = await api.get<AuditHistoryResponse>('/admin/audit-logs', { params, apiCache: 'no-store' });
   return response.data;
 }
 
@@ -219,8 +220,8 @@ export async function apiListAdminPaymentAttempts(params?: { page?: number; limi
   return response.data;
 }
 
-export async function apiGetAdminBookingMessages(bookingId: string) {
-  const response = await api.get(`/admin/bookings/${bookingId}/messages`);
+export async function apiGetAdminBookingMessages(bookingId: string, params?: { before?: string; limit?: number }) {
+  const response = await api.get(`/admin/bookings/${bookingId}/messages`, { params });
   return response.data;
 }
 

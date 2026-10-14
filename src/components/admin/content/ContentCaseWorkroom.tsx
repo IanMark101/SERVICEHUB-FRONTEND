@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowUpRight, ShieldAlert } from 'lucide-react';
 import { apiDecideContentCase, type ContentCaseDetail, type ContentDecision, type ContentPenalty } from '@/api/contentWorkspace.api';
 import { getApiErrorMessage } from '@/lib/api/errors';
+import ListingPhotoGallery from '@/components/ui/ListingPhotoGallery';
 import { ContentFacts, accountStateLabel, contentStateLabel, contentDate, contentTypeLabel } from './ContentFacts';
 import { InspectionFacts, InspectionPanel, InspectionTabs, InspectionText, inspectionStyles as styles } from '../InspectionLayout';
 
@@ -38,7 +39,8 @@ export default function ContentCaseWorkroom({ item, onBack, onReload, onSaved }:
   const valid = !!decision && item.allowedDecisions.includes(decision) && notes.trim().length >= 10 && notes.trim().length <= 1000 && (penalty !== 'suspend' || days >= 1 && days <= 30 && !item.obligations.unstartedProviderBookings);
   const hasObligations = item.obligations.bookings || item.obligations.heldPayments || item.obligations.pendingPayments;
   const snapshotChanged = !!snapshot && !!item.content && (['title', 'description', 'category', 'price', 'priceType', 'budgetMin', 'budgetMax', 'urgency'] as const)
-    .some(field => snapshot[field] !== item.content![field]);
+    .some(field => snapshot[field] !== item.content![field]) || !!snapshot && !!item.content && snapshot.photos !== undefined && JSON.stringify(snapshot.photos.map(photo => [photo.id, photo.url])) !== JSON.stringify((item.content.photos || []).map(photo => [photo.id, photo.url]));
+  const currentPhotosOnly = !!snapshot && snapshot.photos === undefined && !!item.content?.photos?.length;
   const resolved = item.status === 'RESOLVED';
   const contentActionLabels = { KEEP: 'Visibility unchanged', REMOVE: 'Removed from marketplace', RESTORE: 'Content restored', KEEP_REMOVED: 'Remains removed', GUIDANCE: 'Guidance sent' };
   const recordedOutcome = <InspectionPanel title="Recorded outcome" className={styles.result}>
@@ -99,8 +101,8 @@ export default function ContentCaseWorkroom({ item, onBack, onReload, onSaved }:
         {tab === 'outcome' && resolved && recordedOutcome}
         {tab === 'content' && <InspectionPanel title={snapshot ? 'Original content at submission' : 'Current content'}>
           {!snapshot && <p className="cw-muted">An original copy was not saved for this older case.</p>}
-          {snapshot || item.content ? <><InspectionText text={(snapshot || item.content)!.description} label="content" /><ContentFacts item={(snapshot || item.content)!} /></> : <p className="cw-prose cw-muted">No saved listing or request is available. Review the explanation and send guidance; publishing or penalizing an account is unavailable here.</p>}
-          {snapshotChanged && <details className={styles.disclosure}><summary>View current version (changed since submission)</summary><h4>{item.content?.title}</h4><InspectionText text={item.content!.description} label="current content" /><ContentFacts item={item.content!} /></details>}
+          {snapshot || item.content ? <><ListingPhotoGallery photos={(snapshot || item.content)!.photos} title={(snapshot || item.content)!.title} />{snapshot && snapshot.photos === undefined && <p className="cw-muted">Photos were not saved with this older report.</p>}<InspectionText text={(snapshot || item.content)!.description} label="content" /><ContentFacts item={(snapshot || item.content)!} /></> : <p className="cw-prose cw-muted">No saved listing or request is available. Review the explanation and send guidance; publishing or penalizing an account is unavailable here.</p>}
+          {(snapshotChanged || currentPhotosOnly) && <details className={styles.disclosure}><summary>{snapshotChanged ? 'View current version (changed since submission)' : 'View current photos (original photos were not saved)'}</summary><h4>{item.content?.title}</h4><ListingPhotoGallery photos={item.content!.photos} title={item.content!.title} /><InspectionText text={item.content!.description} label="current content" /><ContentFacts item={item.content!} /></details>}
           {item.content && <InspectionFacts facts={[{ label: 'Current marketplace visibility', value: item.content.visibility }]} />}
           {item.content?.adminNotes && <div className={styles.resultReason}><h4>Latest content moderation reason</h4><InspectionText text={item.content.adminNotes} /></div>}
         </InspectionPanel>}

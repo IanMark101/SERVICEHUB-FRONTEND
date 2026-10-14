@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Geist } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import { AppProvider } from "../context/AppContext";
 import { ToastProvider } from "../components/ui/Toast";
@@ -9,15 +9,22 @@ import { cn } from "@/lib/utils";
 import { rootMetadata } from "@/lib/seo";
 import PwaProvider from "@/components/pwa/PwaProvider";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
+// Keep the original typefaces available when Google font fetching is offline.
+const playfair = localFont({
+  src: "../../public/fonts/playfair/playfair-display-normal-variable-latin.woff2",
   variable: "--font-serif",
-  weight: ["400", "500", "600", "700"],
+  weight: "400 700",
   display: "swap",
   preload: false,
+  adjustFontFallback: "Times New Roman",
 });
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = localFont({
+  src: "../../public/fonts/geist/geist-normal-variable-latin.woff2",
+  variable: "--font-sans",
+  weight: "100 900",
+  display: "swap",
+});
 
 export const metadata: Metadata = rootMetadata;
 export const viewport: Viewport = { themeColor: '#0a0a0a' };

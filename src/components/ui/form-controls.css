@@ -2,6 +2,8 @@
    Important declarations replace the old utility/inline field chrome. */
 :root {
   --form-accent: var(--color-brand-focus);
+  --form-focus-saturation: 55%;
+  --form-focus-ring-strength: 10%;
   --form-surface: #fffdfa;
   --form-border: #dedbd5;
   --form-border-hover: #b8b3aa;
@@ -27,6 +29,15 @@ body:has(.admin-workspace) { --form-accent: #ae3333; }
 [data-form-tone="seeker"] { --form-accent: var(--color-brand-focus); }
 [data-form-tone="provider"] { --form-accent: #059669; }
 [data-form-tone="admin"] { --form-accent: var(--admin-accent, #ae3333); }
+/* Orange fields use a muted border; retain the existing semantic focus tones. */
+body:has(.workspace-shell--provider), body:has(.admin-workspace), [data-form-tone="provider"], [data-form-tone="admin"], [data-workspace="provider"] {
+  --form-focus-saturation: 100%;
+  --form-focus-ring-strength: 18%;
+}
+[data-form-tone="seeker"], [data-workspace="seeker"] {
+  --form-focus-saturation: 55%;
+  --form-focus-ring-strength: 10%;
+}
 
 :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not([type="color"]):not([type="submit"]):not([type="button"]):not(.service-search-input):not(.workspace-header-control), textarea, select.form-select__control):not([data-form-unstyled]) {
   min-height: 44px;
@@ -41,9 +52,9 @@ body:has(.admin-workspace) { --form-accent: #ae3333; }
 }
 :is(input, textarea, select.form-select__control):not(:is([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], .service-search-input, .workspace-header-control, [data-form-unstyled])):not(:disabled):hover { border-color: var(--form-border-hover) !important; }
 :is(input, textarea, select.form-select__control):not(:is([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], .service-search-input, .workspace-header-control, [data-form-unstyled])):not(:disabled):focus {
-  border-color: var(--form-accent) !important;
+  border-color: color-mix(in srgb, var(--form-accent) var(--form-focus-saturation), var(--text-muted)) !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) var(--form-focus-ring-strength), transparent) !important;
 }
 :is(input, textarea, select.form-select__control):not(:is([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], .service-search-input, .workspace-header-control, [data-form-unstyled]))::placeholder { color: var(--text-muted) !important; opacity: 1; }
 :is(input, textarea, select.form-select__control)[aria-invalid="true"]:not(:disabled):not([data-form-unstyled]) { border-color: var(--form-invalid) !important; }
@@ -57,10 +68,10 @@ input:is([type="checkbox"], [type="radio"]):focus-visible { outline: 2px solid v
 /* Compound search fields keep their existing wrapper and a single focus ring. */
 .service-search-input, .service-search-input:focus { outline: none !important; box-shadow: none !important; }
 .workspace-header-control:focus { outline: none !important; border-color: var(--form-accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important; }
-.service-search-control:focus-within { border-color: var(--form-accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important; }
+.service-search-control:focus-within { border-color: color-mix(in srgb, var(--form-accent) var(--form-focus-saturation), var(--text-muted)) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) var(--form-focus-ring-strength), transparent) !important; }
 .form-control-group { min-height: 44px; border: 1px solid var(--form-border) !important; border-radius: 12px !important; background: var(--form-surface) !important; transition: border-color 150ms ease, box-shadow 150ms ease; }
 .form-control-group:hover { border-color: var(--form-border-hover) !important; }
-.form-control-group:focus-within { border-color: var(--form-accent) !important; outline: none !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) 18%, transparent) !important; }
+.form-control-group:focus-within { border-color: color-mix(in srgb, var(--form-accent) var(--form-focus-saturation), var(--text-muted)) !important; outline: none !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-accent) var(--form-focus-ring-strength), transparent) !important; }
 .form-control-group input[data-form-unstyled] { min-width: 0; border: 0 !important; background: transparent !important; outline: none !important; box-shadow: none !important; color: var(--text-primary); caret-color: var(--form-accent); }
 
 .form-select { position: relative; display: block; width: 100%; min-width: 0; }

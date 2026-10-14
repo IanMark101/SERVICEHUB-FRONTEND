@@ -1,0 +1,988 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/components/seeker/IncomingOffers.test.tsx (13 tests) 1531ms
+   ✓ payment selected when requesting a listing > keeps both payment choices and allows closing without accepting  429ms
+   ✓ payment selected when requesting a listing > renders each provider's saved availability and preserves it after refreshed API mapping  369ms
+ ✓ src/components/provider/browse-jobs/ProposalModal.test.tsx (3 tests) 711ms
+   ✓ provider offer service arrangement > requires a venue for a custom seeker-visit offer and sends that private pin  556ms
+ ✓ src/components/ui/ListingPhotos.test.tsx (8 tests) 1014ms
+   ✓ listing photo presentation > makes all 2 uploaded photos reachable only inside Details  322ms
+ ❯ src/components/seeker/seek-services/ServiceMarketplaceGrid.test.tsx (9 tests | 2 failed) 1035ms
+   ✓ Seek Services listing booking entry point > shows only the cover on the card and exposes all three photos through Details  619ms
+   ✓ Seek Services listing booking entry point > shows the same zero rating format for an unreviewed provider and opens provider reviews 75ms
+   ✓ Seek Services listing booking entry point > preserves the actual rating and count for reviewed providers 31ms
+   ✓ Seek Services listing booking entry point > opens direct booking for a FIXED listing instead of redirecting to Post Request 55ms
+   ✓ Seek Services listing booking entry point > opens the listing booking modal for PER_HOUR 78ms
+   ✓ Seek Services listing booking entry point > opens the listing booking modal for PER_DAY 50ms
+   ✓ Seek Services listing booking entry point > opens the listing booking modal for PER_PROJECT 40ms
+   × Seek Services listing booking entry point > does not offer booking for an older STARTS_AT listing 59ms
+     → Unable to find an element with the text: Quote required. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"marketplace-results-grid"[39m
+      [36m>[39m
+        [36m<article[39m
+          [33maria-label[39m=[32m"House Cleaning"[39m
+          [33mclass[39m=[32m"_card_379067"[39m
+          [33mdata-marketplace-card[39m=[32m"true"[39m
+          [33mdata-theme[39m=[32m"light"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"_header_379067"[39m
+            [33mdata-photo[39m=[32m"false"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_cover_379067"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-label[39m=[32m"No photo added"[39m
+                [33mclass[39m=[32m"_placeholder_379067"[39m
+                [33mrole[39m=[32m"img"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"_placeholderMark_379067"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"_placeholderIcon_379067"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mheight[39m=[32m"30"[39m
+                    [33mviewBox[39m=[32m"0 0 256 256"[39m
+                    [33mwidth[39m=[32m"30"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M216,42H40A14,14,0,0,0,26,56V200a14,14,0,0,0,14,14h64a6,6,0,0,0,5.69-4.1l15.12-45.36,37.42-15a6,6,0,0,0,3.34-3.34l15-37.42L225.9,93.69A6,6,0,0,0,230,88V56A14,14,0,0,0,216,42ZM117.77,154.43a6,6,0,0,0-3.46,3.67L99.68,202H40a2,2,0,0,1-2-2V171.17l52.58-52.58a2,2,0,0,1,2.83,0L126,151.15ZM218,83.68,174.1,98.31a6,6,0,0,0-3.67,3.46l-15.05,37.61L138.1,146.3l-36.2-36.2a14,14,0,0,0-19.8,0L38,154.2V56a2,2,0,0,1,2-2H216a2,2,0,0,1,2,2Zm9.51,33.18a6,6,0,0,0-5.41-.82L198.3,124a6,6,0,0,0-3.67,3.47L180,164l-36.56,14.63A6,6,0,0,0,140,182.3L132,206.1a6,6,0,0,0,5.69,7.9H216a14,14,0,0,0,14-14V121.73A6,6,0,0,0,227.51,116.86ZM218,200a2,2,0,0,1-2,2H146.06l4.42-13.26,36.37-14.55a6,6,0,0,0,3.34-3.34l14.55-36.37L218,130.06Z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_heading_379067"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"_category_379067"[39m
+              [36m>[39m
+                [0mHouse Cleaning[0m
+              [36m</span>[39m
+              [36m<h3>[39m
+                [0mHouse Cleaning[0m
+              [36m</h3>[39m
+            [36m</div>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_body_379067"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_identity_379067"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"View Ian's profile"[39m
+                [33mclass[39m=[32m"_person_379067"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-label[39m=[32m"Ian avatar"[39m
+                  [33mclass[39m=[32m"user-avatar user-avatar--provider user-avatar--circle "[39m
+                  [33mrole[39m=[32m"img"[39m
+                  [33mstyle[39m=[32m"--avatar-size: 32px;"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"user-avatar__initials"[39m
+                  [36m>[39m
+                    [0mI[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+                [36m<div>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_name_379067"[39m
+                  [36m>[39m
+                    [0mIan[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_reputation_379067"[39m
+                  [36m/>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"View reviews for Ian"[39m
+                [33mclass[39m=[32m"_person_379067"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-label[39m=[32m"No reviews yet as a service provider"[39m
+                  [33mclass[39m=[32m"inline-flex shrink-0 items-center gap-1 text-xs text-ink-secondary"[39m
+                  [33mrole[39m=[32m"img"[39m
+                  [33mtitle[39m=[32m"No reviews yet as a service provider"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"shrink-0 text-amber-500"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mviewBox[39m=[32m"0 0 256 256"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-semibold tabular-nums text-ink"[39m
+                  [36m>[39m
+                    [0m0.0[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[11px] tabular-nums text-ink-subtle"[39m
+                  [36m>[39m
+                    [0m([0m
+                    [0m0[0m
+                    [0m)[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<dl[39m
+              [33mclass[39m=[32m"_stats_379067"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<dt>[39m
+                  [0mPrice[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mPrice unavailable[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<dt>[39m
+                  [0mDistance[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mNot set[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<dt>[39m
+                  [0mTime needed[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mAsk provider[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+            [36m</dl>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"_line_379067"[39m
+            [36m>[39m
+              [0mProvider visits the seeker[0m
+            [36m</p>[39m
+            [36m<div[39m
+              [33maria-label[39m=[32m"Accepted payment methods"[39m
+              [33mclass[39m=[32m"_line_379067"[39m
+            [36m>[39m
+              [36m<span>[39m
+                [0mCash in person[0m
+              [36m</span>[39m
+              [0m · [0m
+              [36m<span>[39m
+                [0mGCash (test mode)[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_status_379067"[39m
+              [33mdata-full[39m=[32m"false"[39m
+            [36m>[39m
+              [0mAvailable[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_actions_379067"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mView Details & Request Quote[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-label[39m=[32m"Listing actions"[39m
+              [33mclass[39m=[32m"_tools_9b5382"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Save listing"[39m
+                [33maria-pressed[39m=[32m"false"[39m
+                [33mclass[39m=[32m"_button_9b5382"[39m
+                [33mdisabled[39m=[32m""[39m
+                [33mtitle[39m=[32m"Saved status is loading or unavailable"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mfill[39m=[32m"currentColor"[39m
+                  [33mheight[39m=[32m"18"[39m
+                  [33mviewBox[39m=[32m"0 0 256 256"[39m
+                  [33mwidth[39m=[32m"18"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [0mSave[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"min-w-0 flex flex-col sm:flex-row sm:flex-wrap items-center justify-between gap-4 p-4 rounded-[24px] border transition-colors duration-200 select-none bg-white border-slate-200 text-ink-muted"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-xs font-semibold"[39m
+        [36m>[39m
+          [0mShowing [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-extrabold text-ink"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</span>[39m
+          [0m to[0m
+          [0m [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-extrabold text-ink"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</span>[39m
+          [0m of[0m
+          [0m [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-extrabold text-ink"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</span>[39m
+          [0m results[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-w-0 flex max-w-full items-center space-x-1.5 overflow-x-auto pb-1"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center border-slate-200 bg-white text-ink-muted hover:bg-slate-50"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtitle[39m=[32m"Previous Page"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-3.5 h-3.5"[39m
+              [33mfill[39m=[32m"currentColor"[39m
+              [33mheight[39m=[32m"1em"[39m
+              [33mviewBox[39m=[32m"0 0 256 256"[39m
+              [33mwidth[39m=[32m"1em"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"shrink-0 w-8 h-8 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center cursor-pointer bg-orange-600 text-white border-orange-600 hover:bg-orange-700"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center border-slate-200 bg-white text-ink-muted hover:bg-slate-50"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtitle[39m=[32m"Next Page"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-3.5 h-3.5"[39m
+              [33mfill[39m=[32m"currentColor"[39m
+              [33mheight[39m=[32m"1em"[39m
+              [33mviewBox[39m=[32m"0 0 256 256"[39m
+              [33mwidth[39m=[32m"1em"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+   × Seek Services listing booking entry point > does not offer booking for an older CUSTOM listing 25ms
+     → Unable to find an element with the text: Quote required. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-6"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"marketplace-results-grid"[39m
+      [36m>[39m
+        [36m<article[39m
+          [33maria-label[39m=[32m"House Cleaning"[39m
+          [33mclass[39m=[32m"_card_379067"[39m
+          [33mdata-marketplace-card[39m=[32m"true"[39m
+          [33mdata-theme[39m=[32m"light"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"_header_379067"[39m
+            [33mdata-photo[39m=[32m"false"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_cover_379067"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-label[39m=[32m"No photo added"[39m
+                [33mclass[39m=[32m"_placeholder_379067"[39m
+                [33mrole[39m=[32m"img"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"_placeholderMark_379067"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"_placeholderIcon_379067"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mheight[39m=[32m"30"[39m
+                    [33mviewBox[39m=[32m"0 0 256 256"[39m
+                    [33mwidth[39m=[32m"30"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M216,42H40A14,14,0,0,0,26,56V200a14,14,0,0,0,14,14h64a6,6,0,0,0,5.69-4.1l15.12-45.36,37.42-15a6,6,0,0,0,3.34-3.34l15-37.42L225.9,93.69A6,6,0,0,0,230,88V56A14,14,0,0,0,216,42ZM117.77,154.43a6,6,0,0,0-3.46,3.67L99.68,202H40a2,2,0,0,1-2-2V171.17l52.58-52.58a2,2,0,0,1,2.83,0L126,151.15ZM218,83.68,174.1,98.31a6,6,0,0,0-3.67,3.46l-15.05,37.61L138.1,146.3l-36.2-36.2a14,14,0,0,0-19.8,0L38,154.2V56a2,2,0,0,1,2-2H216a2,2,0,0,1,2,2Zm9.51,33.18a6,6,0,0,0-5.41-.82L198.3,124a6,6,0,0,0-3.67,3.47L180,164l-36.56,14.63A6,6,0,0,0,140,182.3L132,206.1a6,6,0,0,0,5.69,7.9H216a14,14,0,0,0,14-14V121.73A6,6,0,0,0,227.51,116.86ZM218,200a2,2,0,0,1-2,2H146.06l4.42-13.26,36.37-14.55a6,6,0,0,0,3.34-3.34l14.55-36.37L218,130.06Z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                [36m</span>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_heading_379067"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"_category_379067"[39m
+              [36m>[39m
+                [0mHouse Cleaning[0m
+              [36m</span>[39m
+              [36m<h3>[39m
+                [0mHouse Cleaning[0m
+              [36m</h3>[39m
+            [36m</div>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_body_379067"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_identity_379067"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"View Ian's profile"[39m
+                [33mclass[39m=[32m"_person_379067"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-label[39m=[32m"Ian avatar"[39m
+                  [33mclass[39m=[32m"user-avatar user-avatar--provider user-avatar--circle "[39m
+                  [33mrole[39m=[32m"img"[39m
+                  [33mstyle[39m=[32m"--avatar-size: 32px;"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"user-avatar__initials"[39m
+                  [36m>[39m
+                    [0mI[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+                [36m<div>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_name_379067"[39m
+                  [36m>[39m
+                    [0mIan[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_reputation_379067"[39m
+                  [36m/>[39m
+                [36m</div>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"View reviews for Ian"[39m
+                [33mclass[39m=[32m"_person_379067"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33maria-label[39m=[32m"No reviews yet as a service provider"[39m
+                  [33mclass[39m=[32m"inline-flex shrink-0 items-center gap-1 text-xs text-ink-secondary"[39m
+                  [33mrole[39m=[32m"img"[39m
+                  [33mtitle[39m=[32m"No reviews yet as a service provider"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"shrink-0 text-amber-500"[39m
+                    [33mfill[39m=[32m"currentColor"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mviewBox[39m=[32m"0 0 256 256"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-semibold tabular-nums text-ink"[39m
+                  [36m>[39m
+                    [0m0.0[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[11px] tabular-nums text-ink-subtle"[39m
+                  [36m>[39m
+                    [0m([0m
+                    [0m0[0m
+                    [0m)[0m
+                  [36m</span>[39m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<dl[39m
+              [33mclass[39m=[32m"_stats_379067"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<dt>[39m
+                  [0mPrice[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mPrice unavailable[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<dt>[39m
+                  [0mDistance[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mNot set[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div>[39m
+                [36m<dt>[39m
+                  [0mTime needed[0m
+                [36m</dt>[39m
+                [36m<dd>[39m
+                  [0mAsk provider[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+            [36m</dl>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"_line_379067"[39m
+            [36m>[39m
+              [0mProvider visits the seeker[0m
+            [36m</p>[39m
+            [36m<div[39m
+              [33maria-label[39m=[32m"Accepted payment methods"[39m
+              [33mclass[39m=[32m"_line_379067"[39m
+            [36m>[39m
+              [36m<span>[39m
+                [0mCash in person[0m
+              [36m</span>[39m
+              [0m · [0m
+              [36m<span>[39m
+                [0mGCash (test mode)[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"_status_379067"[39m
+              [33mdata-full[39m=[32m"false"[39m
+            [36m>[39m
+              [0mAvailable[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_actions_379067"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mView Details & Request Quote[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-label[39m=[32m"Listing actions"[39m
+              [33mclass[39m=[32m"_tools_9b5382"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Save listing"[39m
+                [33maria-pressed[39m=[32m"false"[39m
+                [33mclass[39m=[32m"_button_9b5382"[39m
+                [33mdisabled[39m=[32m""[39m
+                [33mtitle[39m=[32m"Saved status is loading or unavailable"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                  [33mfill[39m=[32m"currentColor"[39m
+                  [33mheight[39m=[32m"18"[39m
+                  [33mviewBox[39m=[32m"0 0 256 256"[39m
+                  [33mwidth[39m=[32m"18"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [0mSave[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"min-w-0 flex flex-col sm:flex-row sm:flex-wrap items-center justify-between gap-4 p-4 rounded-[24px] border transition-colors duration-200 select-none bg-white border-slate-200 text-ink-muted"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"text-xs font-semibold"[39m
+        [36m>[39m
+          [0mShowing [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-extrabold text-ink"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</span>[39m
+          [0m to[0m
+          [0m [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-extrabold text-ink"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</span>[39m
+          [0m of[0m
+          [0m [0m
+          [36m<span[39m
+            [33mclass[39m=[32m"font-extrabold text-ink"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</span>[39m
+          [0m results[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"min-w-0 flex max-w-full items-center space-x-1.5 overflow-x-auto pb-1"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center border-slate-200 bg-white text-ink-muted hover:bg-slate-50"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtitle[39m=[32m"Previous Page"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-3.5 h-3.5"[39m
+              [33mfill[39m=[32m"currentColor"[39m
+              [33mheight[39m=[32m"1em"[39m
+              [33mviewBox[39m=[32m"0 0 256 256"[39m
+              [33mwidth[39m=[32m"1em"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"shrink-0 w-8 h-8 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center cursor-pointer bg-orange-600 text-white border-orange-600 hover:bg-orange-700"[39m
+          [36m>[39m
+            [0m1[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center border-slate-200 bg-white text-ink-muted hover:bg-slate-50"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtitle[39m=[32m"Next Page"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"w-3.5 h-3.5"[39m
+              [33mfill[39m=[32m"currentColor"[39m
+              [33mheight[39m=[32m"1em"[39m
+              [33mviewBox[39m=[32m"0 0 256 256"[39m
+              [33mwidth[39m=[32m"1em"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ✓ src/components/seeker/RequestServiceModal.test.tsx (11 tests) 4057ms
+   ✓ direct listing booking payment choices > offers only cash and books the listing without a ServiceRequest  806ms
+   ✓ direct listing booking payment choices > offers only GCash for a GCash-only listing  335ms
+   ✓ direct listing booking payment choices > books a provider venue without a seeker pin or a provider travel fee  351ms
+   ✓ direct listing booking payment choices > switches a flexible listing between job-site and venue booking without losing the pin  688ms
+   ✓ direct listing booking payment choices > books an hourly listing directly with the chosen duration and payment method  390ms
+   ✓ direct listing booking payment choices > passes the selected GCash method and quantity into direct checkout  320ms
+   ✓ direct listing booking payment choices > keeps the request form and description when checkout initiation fails  307ms
+ ✓ src/components/provider/IncomingRequests.test.tsx (6 tests) 548ms
+ ✓ src/components/seeker/RequestFormWizard.test.tsx (15 tests) 5970ms
+   ✓ Post Request wizard > shows only the current fields and blocks an empty step, including Enter submission  595ms
+   ✓ Post Request wizard > preserves details, photos, location and budget when going Back and editing from Review  1569ms
+   ✓ Post Request wizard > requires a job location and validates the budget before showing Payment  514ms
+   ✓ Post Request wizard > revalidates a retired category at final submission instead of sending the stale draft  514ms
+   ✓ Request Service wizard > preserves schedule, metered quantity and payment when returning from Review  359ms
+   ✓ Request Service wizard > switches between arrangements without losing the job location and omits it for venue booking  635ms
+   ✓ Request Service wizard > keeps the Review step and draft on a server error  319ms
+ ✓ src/components/provider/OfferServices.test.tsx (15 tests) 8579ms
+   ✓ Offer Services wizard > shows only Details, keeps provider tone and validates before Next or Enter  637ms
+   ✓ Offer Services wizard > offers only pricing that shows a definite amount before booking  675ms
+   ✓ Offer Services wizard > requires explicit travel coverage and accepts an area without a venue address  1098ms
+   ✓ Offer Services wizard > requires a venue for The seeker comes to you and preserves its conditional payload  916ms
+   ✓ Offer Services wizard > requires a venue for Either option and preserves its conditional payload  807ms
+   ✓ Offer Services wizard > uses the same coverage radius for map preview and publication, and resets only on success  493ms
+   ✓ Offer Services wizard > returns server moderation rejection to Details without losing the draft  587ms
+   ✓ Offer Services wizard > preserves photos and all pricing/payment choices through review edits  1016ms
+   ✓ Offer Services wizard > honors the existing native price and duration bounds before Payment  614ms
+   ✓ Offer Services wizard > requires a payment choice before Review  408ms
+   ✓ Offer Services wizard > revalidates categories before final publication  327ms
+   ✓ Offer Services wizard > prevents duplicate publishes while the existing create call is pending  375ms
+   ✓ Offer Services wizard > retains the review and releases the controls if creation throws  360ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/seeker/seek-services/ServiceMarketplaceGrid.test.tsx > Seek Services listing booking entry point > does not offer booking for an older STARTS_AT listing
+ FAIL  src/components/seeker/seek-services/ServiceMarketplaceGrid.test.tsx > Seek Services listing booking entry point > does not offer booking for an older CUSTOM listing
+TestingLibraryElementError: Unable to find an element with the text: Quote required. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="space-y-6"
+    >
+      <div
+        class="marketplace-results-grid"
+      >
+        <article
+          aria-label="House Cleaning"
+          class="_card_379067"
+          data-marketplace-card="true"
+          data-theme="light"
+        >
+          <header
+            class="_header_379067"
+            data-photo="false"
+          >
+            <div
+              class="_cover_379067"
+            >
+              <div
+                aria-label="No photo added"
+                class="_placeholder_379067"
+                role="img"
+              >
+                <span
+                  class="_placeholderMark_379067"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="_placeholderIcon_379067"
+                    fill="currentColor"
+                    height="30"
+                    viewBox="0 0 256 256"
+                    width="30"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M216,42H40A14,14,0,0,0,26,56V200a14,14,0,0,0,14,14h64a6,6,0,0,0,5.69-4.1l15.12-45.36,37.42-15a6,6,0,0,0,3.34-3.34l15-37.42L225.9,93.69A6,6,0,0,0,230,88V56A14,14,0,0,0,216,42ZM117.77,154.43a6,6,0,0,0-3.46,3.67L99.68,202H40a2,2,0,0,1-2-2V171.17l52.58-52.58a2,2,0,0,1,2.83,0L126,151.15ZM218,83.68,174.1,98.31a6,6,0,0,0-3.67,3.46l-15.05,37.61L138.1,146.3l-36.2-36.2a14,14,0,0,0-19.8,0L38,154.2V56a2,2,0,0,1,2-2H216a2,2,0,0,1,2,2Zm9.51,33.18a6,6,0,0,0-5.41-.82L198.3,124a6,6,0,0,0-3.67,3.47L180,164l-36.56,14.63A6,6,0,0,0,140,182.3L132,206.1a6,6,0,0,0,5.69,7.9H216a14,14,0,0,0,14-14V121.73A6,6,0,0,0,227.51,116.86ZM218,200a2,2,0,0,1-2,2H146.06l4.42-13.26,36.37-14.55a6,6,0,0,0,3.34-3.34l14.55-36.37L218,130.06Z"
+                    />
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <div
+              class="_heading_379067"
+            >
+              <span
+                class="_category_379067"
+              >
+                House Cleaning
+              </span>
+              <h3>
+                House Cleaning
+              </h3>
+            </div>
+          </header>
+          <div
+            class="_body_379067"
+          >
+            <div
+              class="_identity_379067"
+            >
+              <button
+                aria-label="View Ian's profile"
+                class="_person_379067"
+                type="button"
+              >
+                <span
+                  aria-label="Ian avatar"
+                  class="user-avatar user-avatar--provider user-avatar--circle "
+                  role="img"
+                  style="--avatar-size: 32px;"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="user-avatar__initials"
+                  >
+                    I
+                  </span>
+                </span>
+                <div>
+                  <span
+                    class="_name_379067"
+                  >
+                    Ian
+                  </span>
+                  <span
+                    class="_reputation_379067"
+                  />
+                </div>
+              </button>
+              <button
+                aria-label="View reviews for Ian"
+                class="_person_379067"
+                type="button"
+              >
+                <span
+                  aria-label="No reviews yet as a service provider"
+                  class="inline-flex shrink-0 items-center gap-1 text-xs text-ink-secondary"
+                  role="img"
+                  title="No reviews yet as a service provider"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="shrink-0 text-amber-500"
+                    fill="currentColor"
+                    height="14"
+                    viewBox="0 0 256 256"
+                    width="14"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"
+                    />
+                  </svg>
+                  <span
+                    class="font-semibold tabular-nums text-ink"
+                  >
+                    0.0
+                  </span>
+                  <span
+                    class="text-[11px] tabular-nums text-ink-subtle"
+                  >
+                    (
+                    0
+                    )
+                  </span>
+                </span>
+              </button>
+            </div>
+            <dl
+              class="_stats_379067"
+            >
+              <div>
+                <dt>
+                  Price
+                </dt>
+                <dd>
+                  Price unavailable
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  Distance
+                </dt>
+                <dd>
+                  Not set
+                </dd>
+              </div>
+              <div>
+                <dt>
+                  Time needed
+                </dt>
+                <dd>
+                  Ask provider
+                </dd>
+              </div>
+            </dl>
+            <p
+              class="_line_379067"
+            >
+              Provider visits the seeker
+            </p>
+            <div
+              aria-label="Accepted payment methods"
+              class="_line_379067"
+            >
+              <span>
+                Cash in person
+              </span>
+               · 
+              <span>
+                GCash (test mode)
+              </span>
+            </div>
+            <span
+              class="_status_379067"
+              data-full="false"
+            >
+              Available
+            </span>
+            <div
+              class="_actions_379067"
+            >
+              <button
+                type="button"
+              >
+                View Details & Request Quote
+              </button>
+            </div>
+            <div
+              aria-label="Listing actions"
+              class="_tools_9b5382"
+            >
+              <button
+                aria-label="Save listing"
+                aria-pressed="false"
+                class="_button_9b5382"
+                disabled=""
+                title="Saved status is loading or unavailable"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  height="18"
+                  viewBox="0 0 256 256"
+                  width="18"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M184,32H72A16,16,0,0,0,56,48V224a8,8,0,0,0,12.24,6.78L128,193.43l59.77,37.35A8,8,0,0,0,200,224V48A16,16,0,0,0,184,32Zm0,177.57-51.77-32.35a8,8,0,0,0-8.48,0L72,209.57V48H184Z"
+                  />
+                </svg>
+                Save
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div
+        class="min-w-0 flex flex-col sm:flex-row sm:flex-wrap items-center justify-between gap-4 p-4 rounded-[24px] border transition-colors duration-200 select-none bg-white border-slate-200 text-ink-muted"
+      >
+        <div
+          class="text-xs font-semibold"
+        >
+          Showing 
+          <span
+            class="font-extrabold text-ink"
+          >
+            1
+          </span>
+           to
+           
+          <span
+            class="font-extrabold text-ink"
+          >
+            1
+          </span>
+           of
+           
+          <span
+            class="font-extrabold text-ink"
+          >
+            1
+          </span>
+           results
+        </div>
+        <div
+          class="min-w-0 flex max-w-full items-center space-x-1.5 overflow-x-auto pb-1"
+        >
+          <button
+            class="shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center border-slate-200 bg-white text-ink-muted hover:bg-slate-50"
+            disabled=""
+            title="Previous Page"
+          >
+            <svg
+              class="w-3.5 h-3.5"
+              fill="currentColor"
+              height="1em"
+              viewBox="0 0 256 256"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"
+              />
+            </svg>
+          </button>
+          <button
+            class="shrink-0 w-8 h-8 rounded-xl border text-xs font-extrabold transition-all flex items-center justify-center cursor-pointer bg-orange-600 text-white border-orange-600 hover:bg-orange-700"
+          >
+            1
+          </button>
+          <button
+            class="shrink-0 p-2 border rounded-xl transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center border-slate-200 bg-white text-ink-muted hover:bg-slate-50"
+            disabled=""
+            title="Next Page"
+          >
+            <svg
+              class="w-3.5 h-3.5"
+              fill="currentColor"
+              height="1em"
+              viewBox="0 0 256 256"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/seeker/seek-services/ServiceMarketplaceGrid.test.tsx:81:19
+     79|   it.each(['STARTS_AT', 'CUSTOM'] as const)('does not offer booking fo…
+     80|     const { handleBookListing } = renderListing({ ...listing, priceTyp…
+     81|     expect(screen.getByText('Quote required')).toBeInTheDocument();
+       |                   ^
+     82|     expect(screen.queryByRole('button', { name: 'Book Service' })).not…
+     83|     expect(handleBookListing).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  2 failed | 78 passed (80)
+   Start at  14:02:53
+   Duration  31.75s (transform 14.83s, setup 11.08s, collect 124.13s, tests 23.44s, environment 21.24s, prepare 3.94s)
+

@@ -17,6 +17,8 @@ On Windows, use the npm commands above. Their `scripts/next.mjs` launcher resolv
 
 The service worker registers only in production on a secure origin. `localhost` is suitable for local testing; a deployed site needs HTTPS. `npm run dev` deliberately does not register a worker, avoiding development assets being controlled by a new development worker. If the same origin already has a production worker, use a separate browser profile or unregister it in DevTools before development.
 
+On Windows, `npm run dev` also preloads a guard for Next's bundled Watchpack so configured ignores apply before initial filesystem scans. Webpack publishes generated development JSON manifests through temporary files and rename, preventing requests from reading a truncated manifest during compilation. These guards are limited to Windows development; restarting `npm run dev` is required after changing the preload. Run `npm run test:dev-runtime` to verify the watcher, manifest publication and CSS HMR regressions. Review the Watchpack transform when upgrading Next.js; it fails explicitly if the installed scan implementation changes.
+
 Installation choices depend on the browser and device. Chromium installability checks are not evidence of an actual operating-system installation or an iOS device test.
 
 ## Offline behavior

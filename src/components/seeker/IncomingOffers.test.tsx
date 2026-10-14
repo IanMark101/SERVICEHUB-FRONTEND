@@ -11,6 +11,27 @@ vi.mock('../ui/TransactionBlockedModal', () => ({ default: () => null }));
 vi.mock('../ui/PaginationBar', () => ({ default: () => null }));
 
 describe('payment selected when requesting a listing', () => {
+  it.each(['On-site Cash', 'GCash'])('shows the final total and included work before a listing proposal is approved with %s', async method => {
+    const acceptBid = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(useApp).mockReturnValue({ isDark: false, users: [], services: [], jobRequests: [], acceptBid, declineBid: vi.fn(), bids: [{ id: 'price', requestId: 'private', seekerId: 'seeker-1', requestTitle: 'Laptop repair', requestTargetServiceId: 'service-1', requestPaymentMethods: { cash: true, gcash: true }, status: 'pending', providerId: 'provider-1', providerName: 'Ian', price: 1250, message: 'Charging port repair including labor, parts and travel.', createdAt: '2026-10-14' }] } as unknown as ReturnType<typeof useApp>);
+    render(<IncomingOffers currentUserId="seeker-1" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Accept Offer' }));
+    expect(screen.getByRole('dialog', { name: 'Confirm price & booking' })).toHaveTextContent('Final total₱1,250');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Charging port repair including labor, parts and travel.');
+    expect(acceptBid).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: method }));
+    await waitFor(() => expect(acceptBid).toHaveBeenCalledWith('price', method));
+    expect(acceptBid).toHaveBeenCalledTimes(1);
+  });
+  it.each([false, true])('shows the restored empty message with open request=%s', open => {
+    vi.mocked(useApp).mockReturnValue({ isDark: false, users: [], services: [], bids: [],
+      offersStatus: 'ready', requestsStatus: 'ready', jobRequests: open
+        ? [{ id: 'open-request', seekerId: 'seeker-1', status: 'OPEN' }] : [] } as unknown as ReturnType<typeof useApp>);
+    render(<IncomingOffers currentUserId="seeker-1" />);
+    expect(screen.getByRole('heading', { name: 'No Offers Received' })).toBeVisible();
+    expect(screen.getByText('When providers send offers for your service requests, they will appear here.')).toBeVisible();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
   it('keeps both payment choices and allows closing without accepting', async () => {
     const acceptBid = vi.fn().mockResolvedValue(undefined);
     vi.mocked(useApp).mockReturnValue({
@@ -86,7 +107,7 @@ describe('payment selected when requesting a listing', () => {
     } as unknown as ReturnType<typeof useApp>);
     render(<IncomingOffers currentUserId="seeker-1" />);
     expect(screen.getByRole('status')).toHaveTextContent('Loading offers received');
-    expect(screen.queryByText('No Incoming Proposals Yet')).not.toBeInTheDocument();
+    expect(screen.queryByText('No Offers Received')).not.toBeInTheDocument();
   });
 
   it('shows a newly received offer before the general request list loads', () => {

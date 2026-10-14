@@ -13,6 +13,7 @@ interface NewServicesSectionProps {
 }
 
 function formatPrice(service: RecentService) {
+  if (service.priceType === 'BY_AGREEMENT') return 'Price by agreement';
   if (service.priceType === 'CUSTOM' || service.priceType === 'STARTS_AT' || service.price === null) return 'Price unavailable';
   const rawPrice = typeof service.price === 'number' ? service.price : parseFloat(service.price as string) || 0;
   const formatted = `₱${rawPrice.toLocaleString()}`;

@@ -1,3 +1,4 @@
+import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
 import type { LocationPoint } from '../lib/location';
 import React from 'react';
 import {
@@ -59,7 +60,11 @@ export function useProviderActions({
     description: string,
     paymentMethods: { cash: boolean; gcash: boolean },
     options?: {
+      photoIds?: string[];
+      publicMapPin?: boolean;
       serviceLocation?: LocationPoint;
+      serviceLocationMode?: ServiceLocationMode;
+      venueAddress?: string | null;
       coverageRadiusKm?: number | null;
       transportationFee?: number | null;
       serviceType?: ServiceListing['serviceType'];
@@ -72,11 +77,15 @@ export function useProviderActions({
       const catId = dbCategories.find(c => c.id === category)?.id;
       if (catId) {
         const res = await apiCreateService({
+          publicMapPin: options?.publicMapPin ?? false,
+          ...(options?.photoIds !== undefined && { photoIds: options.photoIds }),
           categoryId: catId,
           title,
           description,
-          price,
+          price: options?.priceType === 'BY_AGREEMENT' ? null : price,
           ...(options?.serviceLocation && { serviceLocation: options.serviceLocation }),
+        ...(options?.serviceLocationMode && { serviceLocationMode: options.serviceLocationMode }),
+        ...(options?.venueAddress !== undefined && { venueAddress: options.venueAddress }),
           ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
           ...(options?.transportationFee !== undefined && { transportationFee: options.transportationFee }),
           serviceType: options?.serviceType || 'ONE_TIME',
@@ -89,17 +98,21 @@ export function useProviderActions({
           const item = res.data;
           const newListing: ServiceListing = {
             id: item.id,
+            photos: item.photos ?? [],
             providerId,
             providerName: 'My Service',
             serviceLocation: options?.serviceLocation,
+            publicMapPin: item.publicMapPin ?? false,
             locationLabel: options?.serviceLocation?.label,
             coverageRadiusKm: options?.coverageRadiusKm,
             transportationFee: options?.transportationFee,
+            serviceLocationMode: options?.serviceLocationMode ?? 'PROVIDER_VISITS',
+            venueAddress: options?.venueAddress,
             providerAvatar: '',
             title,
             category: item.category?.name || category,
             description,
-            price,
+            price: item.priceType === 'BY_AGREEMENT' || options?.priceType === 'BY_AGREEMENT' ? 0 : price,
             serviceType: item.serviceType || options?.serviceType || 'ONE_TIME',
             priceType: item.priceType || options?.priceType || 'FIXED',
             estimatedDurationMins: item.estimatedDurationMins || options?.estimatedDurationMins || 60,
@@ -125,7 +138,7 @@ export function useProviderActions({
       }
     } catch (err: unknown) {
       const body = getApiErrorBody(err);
-      const errorMsg = body?.errors?.[0]?.message || getApiErrorMessage(err, 'Failed to create listing');
+      const errorMsg = getApiErrorMessage(err, 'We couldn’t create your listing. Please try again.');
       toastError(body?.code === 'CONTENT_REVISION_REQUIRED' ? 'Check your service details' : 'Failed to create listing', errorMsg);
       return { success: false, error: errorMsg, field: body?.code === 'CONTENT_REVISION_REQUIRED' ? body.field : undefined };
     }
@@ -137,7 +150,11 @@ export function useProviderActions({
     price: number,
     description: string,
     options?: {
+      photoIds?: string[];
+      publicMapPin?: boolean;
       serviceLocation?: LocationPoint;
+      serviceLocationMode?: ServiceLocationMode;
+      venueAddress?: string | null;
       coverageRadiusKm?: number | null;
       transportationFee?: number | null;
       priceType?: ServiceListing['priceType'];
@@ -148,10 +165,14 @@ export function useProviderActions({
   ) => {
     try {
       const res = await apiUpdateService(serviceId, {
+        ...(options?.publicMapPin !== undefined && { publicMapPin: options.publicMapPin }),
+        ...(options?.photoIds !== undefined && { photoIds: options.photoIds }),
         title,
-        price,
+        price: options?.priceType === 'BY_AGREEMENT' ? null : price,
         description,
         ...(options?.serviceLocation && { serviceLocation: options.serviceLocation }),
+        ...(options?.serviceLocationMode && { serviceLocationMode: options.serviceLocationMode }),
+        ...(options?.venueAddress !== undefined && { venueAddress: options.venueAddress }),
         ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
         ...(options?.transportationFee !== undefined && { transportationFee: options.transportationFee }),
         ...(options?.priceType ? { priceType: options.priceType } : {}),
@@ -165,13 +186,17 @@ export function useProviderActions({
             s.id === serviceId
               ? {
                   ...s,
+                  photos: res.data.photos ?? s.photos ?? [],
+                  publicMapPin: res.data.publicMapPin ?? s.publicMapPin ?? false,
                   status: res.data.status,
                   isPaused: !res.data.isAvailable,
                   ...(options?.serviceLocation && { serviceLocation: options.serviceLocation, locationLabel: options.serviceLocation.label }),
+                  ...(options?.serviceLocationMode && { serviceLocationMode: options.serviceLocationMode }),
+                  ...(options?.venueAddress !== undefined && { venueAddress: options.venueAddress }),
                   ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
                   ...(options?.transportationFee !== undefined && { transportationFee: options.transportationFee }),
                   title,
-                  price,
+                  price: options?.priceType === 'BY_AGREEMENT' ? 0 : price,
                   description,
                   ...(options?.priceType ? { priceType: options.priceType } : {}),
                   ...(options?.serviceType ? { serviceType: options.serviceType } : {}),
@@ -212,7 +237,7 @@ export function useProviderActions({
     }
   };
 
-  const submitBid = async (requestId: string, providerId: string, serviceId: string | undefined, price: number, estimatedDuration: number, message: string, availability?: string): Promise<boolean> => {
+  const submitBid = async (requestId: string, providerId: string, serviceId: string | undefined, price: number, estimatedDuration: number, message: string, availability?: string, arrangement?: { serviceLocationMode: BookingLocationMode; providerVenue?: LocationPoint }): Promise<boolean> => {
     const key = `${providerId}:${requestId}`;
     if (submissions.current.has(key)) return false;
     submissions.current.add(key);
@@ -229,6 +254,7 @@ export function useProviderActions({
         estimatedDuration,
         message,
         ...(availability ? { availability } : {}),
+        ...arrangement,
       });
       if (res.success) {
         recordConfirmedOffer(res.data);
@@ -245,6 +271,8 @@ export function useProviderActions({
           const response = await apiGetMyOffers();
           const offer = response?.success && Array.isArray(response.data) ? response.data.find((item: Parameters<typeof mapOfferToBid>[0]) => item.requestId === requestId && item.providerId === providerId && item.status === 'PENDING'
             && (item.serviceId || null) === (serviceId || null) && Number(item.offeredPrice) === price && item.estimatedDuration === estimatedDuration
+            && (item.serviceLocationMode ?? 'PROVIDER_VISITS') === (arrangement?.serviceLocationMode ?? 'PROVIDER_VISITS')
+            && (!arrangement?.providerVenue || item.venueLabel === arrangement.providerVenue.label)
             && (item.message || '') === message.trim() && (item.availability || '') === (availability || '').trim()) : undefined;
           if (offer) { recordConfirmedOffer(offer); return true; }
         } catch { /* Retain the draft if confirmation is unavailable. */ }

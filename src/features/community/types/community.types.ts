@@ -29,7 +29,7 @@ export interface RecentService {
   title: string;
   description: string;
   price: string | number | null;
-  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
+  priceType: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM' | 'BY_AGREEMENT';
   publishedAt: string;
   category: {
     id: string;

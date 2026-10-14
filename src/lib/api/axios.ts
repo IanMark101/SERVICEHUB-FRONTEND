@@ -50,12 +50,37 @@ function retrySettingsAfterProfileChange(config: InternalAxiosRequestConfig) {
   return api.request(config);
 }
 
-function tokenSubject(token: string): string | null {
+function tokenClaims(token: string): { sub?: unknown; exp?: unknown } | null {
   try {
     const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const subject = JSON.parse(atob(payload)).sub;
-    return typeof subject === 'string' ? subject : null;
+    return JSON.parse(atob(payload));
   } catch { return null; }
+}
+
+function tokenSubject(token: string): string | null {
+  const subject = tokenClaims(token)?.sub;
+  return typeof subject === 'string' ? subject : null;
+}
+
+// Decoding a JWT only schedules recovery; the server still verifies its signature
+// and session. Refresh before dispatch so idle tabs do not send a burst of 401s.
+function tokenNeedsRefresh(token: string): boolean {
+  const expires = tokenClaims(token)?.exp;
+  return typeof expires === 'number' && Number.isFinite(expires) && expires * 1000 <= Date.now() + 30_000;
+}
+
+const SESSION_ENTRY_PATHS = new Set([
+  '/auth/login', '/auth/google-login', '/auth/register', '/auth/session', '/auth/refresh', '/auth/logout',
+]);
+function requiresSession(path: string): boolean {
+  return /^\/(?:admin|notifications|messages|offers|bookings|transactions)(?:\/|$)/.test(path)
+    || ['/auth/me', '/auth/security', '/services/mine', '/requests'].includes(path);
+}
+
+function expireSession(): void {
+  clearAccessToken();
+  clearSessionHint();
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
 }
 
 export function getAccessToken(): string | null {
@@ -93,10 +118,17 @@ export function clearAccessToken(): void {
 
 // Attach access token to every outgoing request
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
+    const generation = sessionGeneration;
+    const path = apiPath(config.url);
+    let token = getAccessToken();
+    if (token && !SESSION_ENTRY_PATHS.has(path) && tokenNeedsRefresh(token)) {
+      token = await refreshAccessTokenOnce();
+    }
+    if (generation !== sessionGeneration) throw new axios.CanceledError('Session changed before loading data');
+    if (!token && requiresSession(path)) throw new axios.CanceledError('Sign in to load this workspace');
     requestGenerations.set(config, sessionGeneration);
     requestCacheGenerations.set(config, responseCache.generation);
-    const token = getAccessToken();
     requestAccountIds.set(config, responseCache.accountId || (token ? tokenSubject(token) : null));
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -129,9 +161,7 @@ export function refreshAccessTokenOnce(): Promise<string> {
     const response = await axios.post(`${API_BASE_URL}${endpoint}`, {}, { withCredentials: true });
     if (generation !== sessionGeneration) throw new axios.CanceledError('Session changed during token refresh');
     if (anotherTabRotated && response.data?.data?.authenticated === false) {
-      clearAccessToken();
-      clearSessionHint();
-      if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
+      expireSession();
       throw new Error('Browser session is no longer active');
     }
     const token = response.data?.data?.accessToken || response.data?.accessToken;
@@ -147,10 +177,8 @@ export function refreshAccessTokenOnce(): Promise<string> {
     ? navigator.locks.request(REFRESH_LOCK, rotate) as unknown as Promise<string>
     : rotate();
   const pending = coordinated.catch((error: unknown) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      clearAccessToken();
-      clearSessionHint();
-      if (typeof window !== 'undefined') window.dispatchEvent(new Event('auth_session_expired'));
+    if (generation === sessionGeneration && axios.isAxiosError(error) && error.response?.status === 401) {
+      expireSession();
     }
     throw error;
   }).finally(() => { if (refreshPromise === pending) refreshPromise = null; });
@@ -231,6 +259,13 @@ api.interceptors.response.use(
       }
     }
 
+    if (error.response?.status === 401 && originalRequest._retry) {
+      // A freshly recovered credential was also refused. Leaving it in memory
+      // would keep notification polling and route changes repeating this cycle.
+      expireSession();
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       const hadToken = !!getAccessToken();
       const hadAuthHeader = !!originalRequest.headers?.Authorization;
@@ -242,7 +277,12 @@ api.interceptors.response.use(
 
       originalRequest._retry = true;
       try {
-        const token = await refreshAccessTokenOnce();
+        const currentToken = getAccessToken();
+        const usedAuthorization = originalRequest.headers?.Authorization;
+        // A late 401 may belong to the token another concurrent request already
+        // replaced. Replay with that token instead of rotating the cookie twice.
+        const token = currentToken && usedAuthorization !== `Bearer ${currentToken}`
+          ? currentToken : await refreshAccessTokenOnce();
         originalRequest.headers.Authorization = `Bearer ${token}`;
         return api(originalRequest);
       } catch (refreshError) {

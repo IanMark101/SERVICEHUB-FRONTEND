@@ -12,6 +12,7 @@ export interface ModerationCase {
     queue?: { status: string; position: number } | null; messageCount: number };
   cancellation?: { id: string; reason: string; response?: string | null; status: string; resolutionOutcome?: string | null } | null;
   hasPrivateEvidence: boolean; evidenceUrl?: string | null; allowedOutcomes: string[];
+  allowedPenalties?: Penalty[]; appliedPenalty?: Penalty; penaltyNote?: string | null;
   resolutionOperation?: { status: string; stage: string; requestedOutcome: string; requestedPenalty?: string | null; notes?: string; lastError?: string | null } | null;
   decisionExplanation?: string | null; resolution?: string | null; otherBlockingCases?: number;
   history?: { id: string; action: string; reason?: string | null; createdAt: string; actor?: { name: string } | null }[];

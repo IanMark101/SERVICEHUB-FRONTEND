@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef } from "react";
-import { useScroll, useTransform, useReducedMotion, motion, type MotionValue, type UseScrollOptions } from "motion/react";
+import { useScroll, useTransform, motion, type MotionValue, type UseScrollOptions } from "motion/react";
+import useHydratedReducedMotion from '@/hooks/useHydratedReducedMotion';
 import { cn } from "@/lib/utils";
 
 // Restored Aceternity CLI component from repository history (f85d87c^).
@@ -24,7 +25,7 @@ export const ContainerScroll = ({
   offset?: UseScrollOptions["offset"];
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
+  const reduce = useHydratedReducedMotion();
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset,

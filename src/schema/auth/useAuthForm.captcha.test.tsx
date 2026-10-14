@@ -87,4 +87,35 @@ describe('authentication submits verified proofs', () => {
     expect(apiGoogleLogin).toHaveBeenCalledWith('google-id-token');
     expect(captcha.reset).not.toHaveBeenCalled();
   });
+
+  it('shows a readable service failure instead of blaming the password or exposing server details', async () => {
+    vi.mocked(apiLogin).mockRejectedValue({ isAxiosError: true, response: { status: 500, data: { error: 'Invalid prisma.user.findUnique() in C:\\server\\auth.ts' } } });
+    const { result } = renderHook(() => useAuthForm({ ...props, mode: 'login' }));
+    act(() => { result.current.setValue('email', 'seeker@example.com'); result.current.setValue('password', 'ValidPassword1!'); });
+    await act(async () => result.current.handleSubmit(submit()));
+    expect(result.current.error).toBe('We couldn’t sign you in. Please try again.');
+  });
+
+  it('translates a non-throwing Google sign-in failure', async () => {
+    vi.mocked(apiGoogleLogin).mockResolvedValue({ success: false, error: 'Validation failed' });
+    const { result } = renderHook(() => useAuthForm({ ...props, mode: 'login' }));
+    await act(async () => result.current.handleGoogleSuccessResponse('google-id-token'));
+    expect(result.current.error).toBe('Some details are missing or need changing. Check the form and try again.');
+  });
+
+  it('translates registration validation details while keeping the entered account information', async () => {
+    vi.mocked(apiRegister).mockRejectedValue({ isAxiosError: true, response: { status: 400, data: { errors: [{ message: 'Invalid input: expected string, received undefined' }] } } });
+    const { result } = renderHook(() => useAuthForm({ ...props, mode: 'signup' }));
+    act(() => {
+      result.current.setStep(3);
+      result.current.setValue('firstName', 'Ana'); result.current.setValue('lastName', 'Cruz');
+      result.current.setValue('email', 'resident@example.com'); result.current.setValue('password', 'ValidPassword1!');
+      result.current.setValue('phone', '9123456789'); result.current.setValue('barangay', 'Babag');
+      result.current.setValue('cityMunicipality', 'Lapu-Lapu City'); result.current.setValue('province', 'Cebu');
+    });
+    await act(async () => result.current.handleSubmit(submit()));
+    expect(result.current.error).toBe('Some details are missing or need changing. Check the form and try again.');
+    expect(result.current.formData.firstName).toBe('Ana');
+    expect(result.current.formData.email).toBe('resident@example.com');
+  });
 });

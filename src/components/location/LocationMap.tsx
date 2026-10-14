@@ -159,7 +159,7 @@ function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color
         const position=resultPlacement==='area' ? group[0].area : mapAreaAnchor(group[0].area,{point:point!,radiusKm:radiusKm!});
         const content=document.createElement('div'); content.className=`${styles.mapPopup}${resultPlacement==='area' ? ` ${styles.providerPopup}` : ''}`;
         const heading=document.createElement('strong'); heading.textContent=group.length===1 ? group[0].title : `${group.length} matches in this area`; content.append(heading);
-        const note=document.createElement('p'); note.textContent='Approximate area · Exact location stays private'; content.append(note);
+        const note=document.createElement('p'); note.textContent=group.every(item => !item.area.approximate) ? 'Exact public pin · Shared by the provider' : group.every(item => item.area.approximate) ? 'Approximate area · Exact location stays private' : 'Public listings · Pin visibility is set by each provider'; content.append(note);
         for (const result of group) {
           const row=document.createElement('div');
           if (group.length>1) { const title=document.createElement('span'); title.textContent=result.title; row.append(title); }
@@ -168,10 +168,24 @@ function MapCanvas({ point, candidate, radiusKm, onChange, accent = 'var(--color
           const action=document.createElement('button'); action.type='button'; action.textContent=resultActionLabel; action.className=styles.button;
           action.addEventListener('click',()=>current.current.onResultSelect?.(result.id)); row.append(action); content.append(row);
         }
-        L.marker([position.latitude,position.longitude], {
+        const resultMarker = L.marker([position.latitude,position.longitude], {
+          // A chosen search center can coincide with a public listing. Keep
+          // the provider action reachable without changing either coordinate.
+          zIndexOffset:1100,
           bubblingMouseEvents:false, title:group.length===1 ? group[0].title : `${group.length} matches in this area`,
           icon:L.divIcon({ className:'', html:`<span class="${styles.resultPin}" data-map-result style="--location-accent:${resultAccent || accent}">${group.length>1 ? group.length : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4zM8 9V5h8v4M9 14h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>'}</span>`,iconSize:[44,44],iconAnchor:[22,22] }),
         }).bindPopup(content,{maxWidth:300,minWidth:180}).addTo(layer);
+        const iconElement=resultMarker.getElement();
+        if (iconElement) {
+          // Handle the icon itself, before Leaflet's delegated map click. A
+          // scrollable dialog or nested SVG must never turn this into a pin edit.
+          L.DomEvent.disableClickPropagation(iconElement);
+          L.DomEvent.on(iconElement,'click',event=>{ L.DomEvent.stop(event); resultMarker.openPopup(); });
+          L.DomEvent.on(iconElement,'keydown',event=>{
+            const key=(event as KeyboardEvent).key;
+            if (key==='Enter' || key===' ') { L.DomEvent.stop(event); resultMarker.openPopup(); }
+          });
+        }
       }
     }).catch(() => {});
     return()=>{stopped=true;layer?.remove();};

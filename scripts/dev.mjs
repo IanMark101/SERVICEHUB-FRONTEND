@@ -10,7 +10,8 @@ const projectRoot = realpathSync.native(resolve(dirname(fileURLToPath(import.met
 process.chdir(projectRoot);
 const require = createRequire(resolve(projectRoot, 'package.json'));
 const nextCli = realpathSync.native(require.resolve('next/dist/bin/next'));
-const child = spawn(process.execPath, [nextCli, 'dev', '--webpack', projectRoot, ...process.argv.slice(2)], {
+const preloads = process.platform === 'win32' ? ['--require', resolve(projectRoot, 'scripts/runtime/dev-preload.cjs')] : [];
+const child = spawn(process.execPath, [...preloads, nextCli, 'dev', '--webpack', projectRoot, ...process.argv.slice(2)], {
   cwd: projectRoot,
   stdio: 'inherit',
   env: { ...process.env, PWD: projectRoot },

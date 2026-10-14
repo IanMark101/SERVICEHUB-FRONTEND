@@ -51,6 +51,18 @@ afterAll(() => {
 });
 
 describe('location map lifecycle with real Leaflet', () => {
+  it('opens overlapping provider markers by mouse and keyboard without selecting a new location',async()=>{
+    const change=vi.fn();
+    const pin={id:'public-provider',title:'Public laptop service',label:'Public workshop',area:{latitude:point.latitude,longitude:point.longitude,approximate:false}};
+    const view=render(<LocationMap point={point} radiusKm={2} onChange={change} results={[pin]} resultPlacement="area" />);
+    await waitFor(()=>expect(view.container.querySelector('[data-map-result]')).not.toBeNull());
+    const icon=view.container.querySelector('[data-map-result]')!.closest('.leaflet-marker-icon')!;
+    fireEvent.click(icon.querySelector('svg')!);
+    expect(screen.getByText('Exact public pin · Shared by the provider')).toBeInTheDocument();
+    expect(change).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button',{name:'Switch location'})).not.toBeInTheDocument();
+    fireEvent.keyDown(icon,{key:'Enter'}); expect(change).not.toHaveBeenCalled();
+  });
   it('keeps the same green marker DOM during zoom refreshes and an empty response',async()=>{
     const pin={id:'stable-provider',title:'Stable provider service',label:'Public area',area:{latitude:10.301,longitude:123.921,approximate:true}};
     vi.mocked(api.get).mockReset();

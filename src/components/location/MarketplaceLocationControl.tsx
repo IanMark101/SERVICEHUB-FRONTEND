@@ -6,14 +6,15 @@ import { MapPin, PencilSimple, X } from '@phosphor-icons/react';
 import { LocationSchema, SearchRadiusSchema, SEARCH_RADII, SEARCH_RADIUS_MIN_KM, SEARCH_RADIUS_MAX_KM, SEARCH_RADIUS_STEP_KM, type MarketplaceLocation, type LocationPoint } from '../../lib/location';
 import useDialogFocus from '../../hooks/useDialogFocus';
 import useProviderMapListings, { type ProviderMapFilters } from '../../hooks/useProviderMapListings';
-import type { MarketplaceMapViewport } from '../../lib/marketplace-map';
+import type { MarketplaceMapPin, MarketplaceMapViewport } from '../../lib/marketplace-map';
 import LocationEditor from './LocationEditor';
 import FormSelect from '../ui/FormSelect';
 import styles from './Location.module.css';
 
-function LocationDialog({ value, workspace, onClose, onApply, providerMap, onViewListing }: {
+function LocationDialog({ value, workspace, onClose, onApply, providerMap, initialPins, onViewListing }: {
   value:MarketplaceLocation | null; workspace:'seeker'|'provider'; onClose:() => void; onApply:(value:MarketplaceLocation) => void;
   providerMap?:ProviderMapFilters; onViewListing?:(id:string)=>void;
+  initialPins?:MarketplaceMapPin[];
 }) {
   const title = useId();
   const radiusInputId = useId();
@@ -22,7 +23,7 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, onVie
   const [point,setPoint] = useState<LocationPoint | null>(value?.point || null);
   const [pending,setPending]=useState(false);
   const [viewport,setViewport]=useState<MarketplaceMapViewport|null>(null);
-  const mapListings=useProviderMapListings(viewport,workspace==='seeker' ? providerMap : undefined);
+  const mapListings=useProviderMapListings(viewport,workspace==='seeker' ? providerMap : undefined, initialPins);
   const initialRadius = value?.radiusKm ?? 10;
   const [radiusChoice,setRadiusChoice] = useState(SEARCH_RADII.some(km => km === initialRadius) ? String(initialRadius) : 'custom');
   const [customRadius,setCustomRadius] = useState(String(initialRadius));
@@ -37,7 +38,7 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, onVie
     <div className={styles.panel} data-marketplace-dialog role="dialog" aria-modal="true" aria-labelledby={title} tabIndex={-1} ref={ref}>
       <header className={styles.header}><h2 id={title}>Change search location</h2><button className={styles.close} type="button" aria-label="Close location dialog" onClick={onClose}><X size={20}/></button></header>
       <div className={styles.body}>
-        <p className={styles.hint}>Choose a location and search radius. The circle previews the area used to find nearby {workspace==='seeker' ? 'service bases' : 'job locations'}. Your search, category and quick filters stay applied.</p>
+        <p className={styles.hint}>Choose a location and search radius. The circle previews the area used to find nearby {workspace==='seeker' ? 'service areas' : 'request areas'}. Your search, category and quick filters stay applied.</p>
         <p className={styles.hint}>{workspace === 'seeker' ? 'This changes browsing only. Coverage is checked against your actual job location when booking.' : 'This changes browsing only. It does not change a listing’s service coverage.'}</p>
         <div className={styles.fieldGroup}>
           <label><span className={styles.label}>Search radius</span><FormSelect tone={workspace} className={styles.field} value={radiusChoice} aria-describedby={radiusHintId} onChange={event => {
@@ -53,7 +54,7 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, onVie
           {radiusError && <p id={radiusErrorId} role="alert" className={styles.error}>{radiusError}</p>}
         </div>}
         {providerMap && workspace==='seeker' && <div className={styles.hint}>
-          <p>Orange: your search location and radius. Green: provider service areas, including outside the circle. Markers are approximate; exact locations stay private.</p>
+          <p>Orange: your search location and radius. Green: provider listings, including outside the circle. Exact pins are shared by the provider; other pins show approximate areas.</p>
           <p role="status">{mapListings.error || (mapListings.loading ? 'Loading provider listings…' : mapListings.resolved ? `${mapListings.pins.length} provider listing${mapListings.pins.length===1 ? '' : 's'} loaded for this map.` : '')}</p>
           {mapListings.limited && <p>Zoom in to load providers across the visible area.</p>}
           {mapListings.error && <button className={styles.button} type="button" onClick={mapListings.retry}>Retry provider listings</button>}
@@ -67,10 +68,11 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, onVie
   </div>;
 }
 
-export default function MarketplaceLocationControl({ value, workspace, onApply, open: controlledOpen, onOpenChange, providerMap, onViewListing }: {
+export default function MarketplaceLocationControl({ value, workspace, onApply, open: controlledOpen, onOpenChange, providerMap, initialPins, onViewListing }: {
   value:MarketplaceLocation | null; workspace:'seeker'|'provider'; onApply:(value:MarketplaceLocation) => void;
   open?:boolean; onOpenChange?:(open:boolean) => void;
   providerMap?:ProviderMapFilters; onViewListing?:(id:string)=>void;
+  initialPins?:MarketplaceMapPin[];
 }) {
   const [localOpen,setLocalOpen]=useState(false);
   const open = controlledOpen ?? localOpen;
@@ -89,6 +91,6 @@ export default function MarketplaceLocationControl({ value, workspace, onApply, 
       </span>
       <span className={styles.changeAction}>{value ? 'Change' : 'Choose'}<PencilSimple size={14} aria-hidden="true"/></span>
     </button>
-    {open && createPortal(<LocationDialog value={value} workspace={workspace} providerMap={providerMap} onViewListing={onViewListing} onClose={() => setOpen(false)} onApply={next=>{onApply(next);setOpen(false);}}/>, document.body)}
+    {open && createPortal(<LocationDialog value={value} workspace={workspace} providerMap={providerMap} initialPins={initialPins} onViewListing={onViewListing} onClose={() => setOpen(false)} onApply={next=>{onApply(next);setOpen(false);}}/>, document.body)}
   </div>;
 }

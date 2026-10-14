@@ -2,6 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { AlertTriangle, Edit3, X, Save, Camera, Upload, Trash2, Lock } from 'lucide-react';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
+import { getApiErrorMessage } from '../../lib/api/errors';
 import UserAvatar from '../ui/UserAvatar';
 
 interface ProfileEditFormValue {
@@ -63,7 +64,7 @@ export default function ProfileEditForm({
       const cdnUrl = await uploadAvatarToCloudinary(file);
       setEditForm((form) => ({ ...form, avatarUrl: cdnUrl }));
     } catch (err: unknown) {
-      setUploadError(err instanceof Error ? err.message : 'Failed to process and upload image');
+      setUploadError(getApiErrorMessage(err, 'We couldn’t upload your profile photo. Please try again or choose another photo.'));
     } finally {
       setProcessingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

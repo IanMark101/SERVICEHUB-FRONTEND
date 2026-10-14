@@ -268,10 +268,10 @@ MagneticButton.displayName = "MagneticButton";
 // 3. SERVICEHUB FOOTER
 // -------------------------------------------------------------------------
 const SERVICE_CATEGORY_SHORTCUTS = [
-  { label: "House Cleaning", category: "House Cleaning" },
-  { label: "Electrical Repair", category: "Electrical Repair" },
-  { label: "Aircon Service", category: "Aircon Service" },
-  { label: "Carpentry", category: "Carpentry & Woodwork" },
+  { label: "Home Cleaning", category: "Home & Office Cleaning" },
+  { label: "Electrical Repairs", category: "Electrical Wiring & Repairs" },
+  { label: "Aircon Service", category: "Aircon Cleaning & Repair" },
+  { label: "Carpentry", category: "Carpentry & Furniture Repair" },
   { label: "Plumbing", category: "Plumbing" },
 ];
 

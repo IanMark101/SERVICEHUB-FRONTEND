@@ -13,12 +13,21 @@ const response={data:{success:true,data:{mapPins:[pin],items:[{id:'outside',prov
 
 describe('provider markers in the location modal',()=>{
   beforeEach(()=>{vi.mocked(api.get).mockReset();});
-  it('queries the map area rather than a selected radius, respects filters and uses only public approximate pins',async()=>{
+  it('shows already loaded pins while the viewport or network is still pending', async () => {
+    vi.mocked(api.get).mockImplementation(() => new Promise(() => {}));
+    const {result,rerender}=renderHook(({view}) => useProviderMapListings(view,filters,[pin]), { initialProps:{ view:null as typeof viewport | null } });
+    expect(result.current.pins).toEqual([pin]);
+    rerender({ view:viewport });
+    expect(result.current.pins).toEqual([pin]);
+    await waitFor(() => expect(api.get).toHaveBeenCalled());
+    expect(result.current.pins).toEqual([pin]);
+  });
+  it('queries the map area rather than a selected radius and respects public pin visibility and filters',async()=>{
     vi.mocked(api.get).mockResolvedValue({data:{success:true,data:{...response.data.data,mapPins:[pin,{...pin,id:'exact',area:{...pin.area,approximate:false}}]}}});
     const {result,rerender}=renderHook(({enabled})=>useProviderMapListings(viewport,enabled ? {...filters} : undefined),{initialProps:{enabled:true}});
     await waitFor(()=>expect(result.current.resolved).toBe(true));
     expect(api.get).toHaveBeenCalledWith('/services/nearby',expect.objectContaining({params:expect.objectContaining({radiusKm:30,search:'repair laptop',category:'Electrical Repair',filter:'rated'})}));
-    expect(result.current.pins).toEqual([{...pin,providerName:'John'}]);
+    expect(result.current.pins).toEqual([{...pin,providerName:'John'}, {...pin,id:'exact',area:{...pin.area,approximate:false}}]);
     rerender({enabled:true});
     await act(async()=>{await new Promise(resolve=>setTimeout(resolve,300));});
     expect(api.get).toHaveBeenCalledTimes(1);

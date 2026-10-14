@@ -11,6 +11,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('../../api/services.api', () => ({ apiGetMyServices: vi.fn() }));
+vi.mock('../../api/savedListings.api', () => ({ apiGetSavedStatus: vi.fn().mockResolvedValue([]), apiSetListingSaved: vi.fn() }));
 vi.mock('../../api/ai.api', () => ({
   getCachedSeekerSummary: () => undefined,
   apiGetSeekerSummary: vi.fn().mockResolvedValue({ success: true, data: { summary: null, source: 'empty' } }),
@@ -54,7 +55,7 @@ describe('Browse Service Requests offer eligibility', () => {
     expect(screen.getByLabelText('Service listing (optional)')).toHaveValue('');
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
     fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
-    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', undefined, 350, 60, 'I can repair the pipe tomorrow.', undefined));
+    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', undefined, 350, 60, 'I can repair the pipe tomorrow.', undefined, { serviceLocationMode: 'PROVIDER_VISITS' }));
   });
 
   it('does not require a paused listing to respond', async () => {
@@ -86,7 +87,7 @@ describe('Browse Service Requests offer eligibility', () => {
     fireEvent.change(screen.getByLabelText('Service listing (optional)'), { target: { value: 'listing-id' } });
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
     fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
-    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', 'listing-id', 500, 60, 'I can repair the pipe tomorrow.', undefined));
+    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', 'listing-id', 500, 60, 'I can repair the pipe tomorrow.', undefined, { serviceLocationMode: 'PROVIDER_VISITS' }));
     await waitFor(() => expect(screen.queryByLabelText('Service listing (optional)')).not.toBeInTheDocument());
   });
 
@@ -111,7 +112,7 @@ describe('Browse Service Requests offer eligibility', () => {
     fireEvent.change(screen.getByLabelText('Expected duration (minutes)'), { target: { value: '90' } });
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
     fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
-    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', 'second-listing-id', 500, 90, 'I can repair the pipe tomorrow.', undefined));
+    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', 'second-listing-id', 500, 90, 'I can repair the pipe tomorrow.', undefined, { serviceLocationMode: 'PROVIDER_VISITS' }));
   });
 
   it('keeps offer creation available when listings cannot be loaded', async () => {
@@ -131,7 +132,7 @@ describe('Browse Service Requests offer eligibility', () => {
     fireEvent.change(screen.getByLabelText('Availability (optional)'), { target: { value: 'Saturday morning' } });
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'Repair the door.' } });
     fireEvent.submit(screen.getByRole('dialog').querySelector('form')!);
-    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', undefined, 350, 60, 'Repair the door.', 'Saturday morning'));
+    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', undefined, 350, 60, 'Repair the door.', 'Saturday morning', { serviceLocationMode: 'PROVIDER_VISITS' }));
   });
 
   it.each(['provider-id', 'another-provider-id', 'seeker-id'])('shows the same public job to %s despite obsolete targeting', async (viewerId) => {
@@ -195,7 +196,7 @@ describe('Browse Service Requests offer eligibility', () => {
 
 });
 
-vi.mock('../../hooks/useNearbyMarketplace', () => ({ default: (_workspace: string, _id: string, search: string, category: string, filter: string) => {
+vi.mock('../../hooks/useNearbyMarketplace', () => ({ default: function useNearbyMarketplaceFixture(_workspace: string, _id: string, search: string, category: string, filter: string) {
   const requests = useApp().jobRequests.filter(request => ['OPEN', 'open'].includes(request.status) && (!request.targetServiceId || [request.targetProviderId, request.seekerId].includes(_id)) && (category==='All Categories' || request.category===category) && (!search || (request.title+' '+request.description+' '+request.seekerName).toLowerCase().includes(search.toLowerCase())) && (filter!=='high-budget' || request.budget>=500) && (filter!=='few-offers' || (request.offersCount ?? 0)<=1));
   return { location: { point: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, radiusKm: 10 }, applyLocation: vi.fn(), refresh: vi.fn(), items: requests, loading: false, error:'',totalItems:requests.length,currentPage:1,totalPages:1,startIndex:0,endIndex:requests.length,goToPage:vi.fn(),nextPage:vi.fn(),prevPage:vi.fn() };
 } }));

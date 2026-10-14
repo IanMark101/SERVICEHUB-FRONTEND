@@ -28,6 +28,8 @@ const pageNames: Record<string, string> = {
   'incoming-requests': 'Incoming Requests',
   'service-manager': 'Service Manager',
   'provider-activity': 'Activity',
+  'work-queue': 'Work Queue',
+  saved: 'Saved',
   'transaction-history': 'Payment Records',
   messages: 'Messages',
   'community-hub': 'Community Hub',
@@ -139,7 +141,9 @@ export default function Header({
         try {
           const res = await apiSearchUsers({ search: query, page: 1, limit: 6 });
           if (res && res.success && Array.isArray(res.data)) {
-            const results = (res.data as AppUser[]).map(normalizeUserSearchName);
+            const results = (res.data as AppUser[])
+              .filter(candidate => ['user', 'seeker', 'provider'].includes(candidate.role))
+              .map(candidate => normalizeUserSearchName({ ...candidate, email: '', phone: '' }));
             setUserSearchResults(results);
             setShowUserSearchResults(results.length > 0);
             setUserSearchLoading(false);
@@ -154,6 +158,11 @@ export default function Header({
       }
 
       const normalizedQuery = query.toLowerCase();
+      // A listing-derived candidate must not reintroduce a known staff account
+      // by assigning it a provider/seeker label in this fallback.
+      const excludedAccountIds = new Set(users
+        .filter(candidate => !['user', 'seeker', 'provider'].includes(candidate.role))
+        .map(candidate => candidate.id));
       const userCandidates = [
         ...users,
         ...services.map((service) => ({
@@ -197,18 +206,20 @@ export default function Header({
       ];
 
       const filtered = userCandidates
+        .filter((u) => ['user', 'seeker', 'provider'].includes(u.role))
+        .filter((u) => !excludedAccountIds.has(u.id))
         .filter((u) => u.id !== userId)
         .filter((u) => {
           const fullName = `${u.firstName} ${u.lastName}`.trim().toLowerCase();
           return (
             fullName.includes(normalizedQuery) ||
-            (u.email || '').toLowerCase().includes(normalizedQuery) ||
             u.role.toLowerCase().includes(normalizedQuery) ||
             (u.bio || '').toLowerCase().includes(normalizedQuery)
           );
         })
         .filter((u, index, self) => self.findIndex((item) => item.id === u.id) === index)
-          .slice(0, 6);
+        .slice(0, 6)
+        .map(candidate => ({ ...candidate, email: '', phone: '' }));
 
         setUserSearchResults(filtered);
         setShowUserSearchResults(filtered.length > 0);
@@ -287,10 +298,10 @@ export default function Header({
 
   if (accountPage || communityPage) {
     return (
-      <header className={`profile-account-header sticky right-0 top-0 z-30 h-16 w-full font-sans transition-colors duration-200 backdrop-blur-md bg-[color:var(--workspace-header-bg)] border-b border-[color:var(--workspace-border)] ${isDark ? 'text-white' : 'text-ink'}`}>
+      <header className={`profile-account-header ${accountPage ? 'profile-account-header--floating' : ''} sticky right-0 top-0 z-30 h-16 w-full font-sans transition-colors duration-200 backdrop-blur-md bg-[color:var(--workspace-header-bg)] border-b border-[color:var(--workspace-border)] ${isDark ? 'text-white' : 'text-ink'}`}>
         <div className="profile-account-header__content mx-auto flex h-full w-full max-w-[1240px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           {/* Left identity context */}
-          <div className="flex min-w-0 items-center gap-3">
+          <div className={`${accountPage ? 'workspace-header-card workspace-header-context workspace-header-context--account' : ''} flex min-w-0 items-center gap-3`}>
             <button
               type="button"
               aria-label="Return to workspace"
@@ -300,7 +311,7 @@ export default function Header({
                 const workspaceRole = storedRole === 'provider' || storedRole === 'seeker' ? storedRole : currentRole;
                 router.push(`/${workspaceRole}`);
               }}
-              className="group grid size-9 shrink-0 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)]"
+              className="workspace-account-back group grid size-9 shrink-0 place-items-center rounded-xl border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface-muted)] text-[color:var(--workspace-muted)] transition-all hover:border-[color:var(--workspace-border-strong)] hover:bg-[color:var(--workspace-surface)] hover:text-[color:var(--workspace-ink)] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--workspace-focus)]"
             >
               <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" weight="bold" aria-hidden="true" />
             </button>
@@ -341,7 +352,7 @@ export default function Header({
           </div>
 
           {/* Right utility toolbar */}
-          <div className="workspace-header-actions flex min-w-0 shrink-0 items-center gap-2">
+          <div className={`${accountPage ? 'workspace-header-toolbar' : ''} workspace-header-actions flex min-w-0 shrink-0 items-center gap-2`}>
             <HeaderDesktopSearch
               model={{
                 userSearchRef,

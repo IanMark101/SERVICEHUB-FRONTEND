@@ -1,5 +1,5 @@
 import MarketplacePresentation from '../marketplace/MarketplacePresentation';
-import { orderServiceCategories } from '../../lib/category-catalog';
+import { orderServiceCategories, resolveServiceCategoryName } from '../../lib/category-catalog';
 import useNearbyMarketplace from '../../hooks/useNearbyMarketplace';
 import MarketplaceSearchHeader from '../marketplace/MarketplaceSearchHeader';
 import MarketplaceLocationControl from '../location/MarketplaceLocationControl';
@@ -30,7 +30,8 @@ export default function SeekServices() {
   const { success: toastSuccess, error: toastError, info: toastInfo } = useToast();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [locationOpen, setLocationOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  const [selectedCategoryInput, setSelectedCategory] = useState<string>('All Categories');
+  const selectedCategory = resolveServiceCategoryName(dbCategories, selectedCategoryInput);
   const [linkedServiceId, setLinkedServiceId] = useState<string | null>(null);
   const [mapListing,setMapListing] = useState<ServiceListing|null>(null);
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
@@ -156,7 +157,17 @@ export default function SeekServices() {
 
   // Explicit links open details; they never replace the filtered nearby feed.
   const linkedService = linkedServiceId ? services.find(service => service.id === linkedServiceId && service.status === 'ACTIVE' && !service.isPaused) : undefined;
-  const detailsListing = mapListing || linkedService;
+  const [linkedDetail, setLinkedDetail] = useState<{ id: string; listing: ServiceListing | null; error: string } | null>(null);
+  useEffect(() => {
+    if (!linkedServiceId) return;
+    let active = true;
+    void apiGetServiceById(linkedServiceId).then(response => {
+      if (active) setLinkedDetail({ id: linkedServiceId, listing: mapServiceToListing(response.data), error: '' });
+    }).catch(error => { if (active) setLinkedDetail({ id: linkedServiceId, listing: null, error: getApiErrorMessage(error, 'This listing is no longer available.') }); });
+    return () => { active = false; };
+  }, [linkedServiceId]);
+  const resolvedLinked = linkedDetail?.id === linkedServiceId ? linkedDetail : null;
+  const detailsListing = mapListing || (resolvedLinked ? resolvedLinked.listing : linkedService);
   const showMapListing = async (id:string) => {
     const existing = services.find(service => service.id===id && service.status==='ACTIVE' && !service.isPaused);
     if (existing) { setMapListing(existing);return; }
@@ -188,9 +199,10 @@ export default function SeekServices() {
     <div className={`workspace-page space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       <LimitedModeDashboardCard role="seeker" />
+      {resolvedLinked?.error && <p role="alert" className="workspace-surface rounded-xl border p-4 text-sm">{resolvedLinked.error}</p>}
 
       <MarketplaceSearchHeader role="seeker" isDark={isDark} value={searchQuery} onQueryChange={query => { setLinkedServiceId(null); setSearchQuery(query); }} resultsId="service-results" locationControl={<MarketplaceLocationControl workspace="seeker" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation}
-        providerMap={{ search:searchQuery,category:selectedCategory,filter:activeFilter }} onViewListing={id=>{void showMapListing(id);}} />} onSubmit={(event) => {
+        providerMap={{ search:searchQuery,category:selectedCategory,filter:activeFilter }} initialPins={nearby.mapPins} onViewListing={id=>{void showMapListing(id);}} />} onSubmit={(event) => {
         event.preventDefault();
         nearby.submitSearch?.();
         if (!nearby.location) { setLocationOpen(true); return; }

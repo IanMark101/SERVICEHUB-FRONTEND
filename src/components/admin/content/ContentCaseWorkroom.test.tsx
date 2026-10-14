@@ -10,6 +10,13 @@ function chooseRemoval() {
   fireEvent.change(screen.getByLabelText(/Decision explanation/), { target: { value: notes } });
 }
 describe('Content case decision safety', () => {
+  it('shows original reported photos and discloses a changed current photo set', () => {
+    const photo = { id: 'original', url: '/images/hero-presenter-casual.png', width: 800, height: 800 };
+    render(<ContentCaseWorkroom item={{ ...fixtureCase, contentSnapshot: { ...fixtureCase.contentSnapshot!, photos: [photo] }, content: { ...fixtureCase.content!, photos: [{ ...photo, id: 'replacement', url: '/images/model.png' }] } }} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Reported content' }));
+    expect(screen.getAllByRole('img', { name: /photo 1 of 1/ })[0]).toHaveAttribute('src', expect.stringContaining(photo.url));
+    expect(screen.getByText('View current version (changed since submission)')).toBeInTheDocument();
+  });
   beforeEach(() => vi.clearAllMocks());
   it('requires impact review and acknowledgement, targets the owner, and blocks repeated submissions', async () => {
     const onSaved = vi.fn(); let resolve!: () => void;

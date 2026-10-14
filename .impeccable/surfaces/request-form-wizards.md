@@ -1,0 +1,17 @@
+# Listing and Request Service wizards
+
+Mode: preserve. Read `design-taste-frontend` before editing. Its wizard mechanics are explicitly out of scope, so use existing ServiceHub form controls and validators, with the skill's preservation, contrast, responsive and restrained-motion guidance. No new UI dependencies.
+
+Design read: everyday marketplace users need clear, sequential decisions in the existing orange and neutral language. DESIGN_VARIANCE 3, MOTION_INTENSITY 2, VISUAL_DENSITY 4. Keep the existing typography, 12–16px corners and 44–48px controls. Unrelated navigation, header, landing and global styles are unchanged.
+
+- Post Request: Details, Location, Budget, Payment, Review. Existing title/category/description/photos, arrangements and conditional location, timing/budget/travel allowance and payment choices remain in their original order.
+- Offer Services: Details, Location, Price, Payment, Review. Reuses the same wizard with provider green progress. The original title/description, optional photos, area/venue and coverage, pricing, duration, travel fee and payment fields retain their IDs and publication payload. Existing native constraints are checked before Next, including whole-peso prices and five-minute duration increments. Server moderation errors return to Details, retaining the draft.
+- Request Service booking dialog: Details, Location, Payment, Review. Existing description, arrangements, job location/provider venue, cash schedule proposal, metered quantity and supported payments are retained. Provider feedback and the listing summary remain available.
+- One shared progress/step/review component. Inactive steps are hidden, not unmounted, to preserve state, map selection and uploads. Hidden inputs do not use browser-wide validation; the existing conditions validate each step and all steps again before the unchanged submission calls. The Post Request budget retains its native input's existing whole-peso step requirement.
+- Progress measures the completed input sections: 0% initially, 100% when ready for Review. It does not claim that the server has accepted a request or confirmed payment.
+- Back and Edit return to the original inputs. Next never posts or initiates checkout. Upload/submission and account restrictions still disable controls. Errors remain visible; server content errors return to the details step.
+- Focus moves to the new step, with live step announcements. The thin orange progress fill uses transform animation; short step transitions are disabled by reduced-motion preference. Both themes use existing tokens.
+
+Backend branch `feature/request-form-wizards` was created from local `development` in `C:/Users/SERVICEHUB-CORDOVA/fullstack/.worktrees/SERVICEHUB-BACKEND-form-wizards`; the original modified backend checkout is preserved. This UI change needs no backend code or database migration.
+
+Verification logs and intercepted browser fixtures are retained in `.wizard-*.log`, `.provider-wizard-*.log`, `.impeccable/review/request-form-wizards-review.json` and `.impeccable/review/provider-wizard-review.json`. The provider follow-up passed 54 provider/seeker wizard tests, targeted lint and production build; browser fixtures passed at desktop, tablet and phone widths in both themes, with the correct provider color, preserved drafts/payloads and no overflow or page errors. They are bounded component/UI evidence, not live payment or production acceptance.

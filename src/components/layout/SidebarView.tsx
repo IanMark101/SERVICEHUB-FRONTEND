@@ -28,6 +28,8 @@ import {
   Sun,
   Moon,
   DownloadSimple,
+  BookmarkSimple,
+  ListNumbers,
 } from '@phosphor-icons/react';
 import type { UserSession } from '../auth/LoginContainer';
 import UserAvatar from '../ui/UserAvatar';
@@ -83,6 +85,7 @@ export default function SidebarView({
       { id: 'post-request', label: 'Post Request', icon: PlusCircle },
       { id: 'incoming-offers', label: 'Offers Received', icon: Tray, badge: pendingBidsCount || undefined },
       { id: 'request-manager', label: 'Request Manager', icon: Stack },
+      { id: 'saved', label: 'Saved', icon: BookmarkSimple },
       { id: 'seeker-activity', label: 'Activity', icon: TrendUp },
     ],
     provider: [
@@ -90,7 +93,9 @@ export default function SidebarView({
       { id: 'offer-services', label: 'Offer Services', icon: PlusCircle },
       { id: 'incoming-requests', label: 'Incoming Requests', icon: Tray, badge: pendingRequestsCount || undefined },
       { id: 'service-manager', label: 'Service Manager', icon: Stack },
+      { id: 'saved', label: 'Saved', icon: BookmarkSimple },
       { id: 'provider-activity', label: 'Activity', icon: TrendUp },
+      { id: 'work-queue', label: 'Work Queue', icon: ListNumbers },
       { id: 'transaction-history', label: 'Payment Records', icon: ClockCounterClockwise },
     ],
   };

@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/features/community/components/NewServicesSection.test.tsx (3 tests) 180ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  15:30:32
+   Duration  7.61s (transform 119ms, setup 359ms, collect 5.58s, tests 180ms, environment 937ms, prepare 124ms)
+

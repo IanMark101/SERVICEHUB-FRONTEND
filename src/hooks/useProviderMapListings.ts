@@ -20,13 +20,13 @@ function mergePins(previous:MarketplaceMapPin[], loaded:MarketplaceMapPin[], rep
 }
 
 /** Public area markers for the location dialog only; never changes the marketplace feed. */
-export default function useProviderMapListings(viewport:MarketplaceMapViewport | null, filters?:ProviderMapFilters) {
+export default function useProviderMapListings(viewport:MarketplaceMapViewport | null, filters?:ProviderMapFilters, initialPins:MarketplaceMapPin[] = emptyPins) {
   const queries = useMemo(() => viewport ? providerMapQueries(viewport) : { centers:[],limited:false },[viewport]);
   const criteriaKey = JSON.stringify(filters ?? null);
   const queryKey = JSON.stringify({ centers:queries.centers,filters });
   const query = useMemo(() => JSON.parse(queryKey) as { centers:Array<{latitude:number;longitude:number}>;filters?:ProviderMapFilters },[queryKey]);
   const [revision,setRevision] = useState(0);
-  const [result,setResult] = useState<MapResult>({ key:'',criteriaKey:'',pins:emptyPins,loading:false,error:'',resolved:false,validatedRevision:0 });
+  const [result,setResult] = useState<MapResult>({ key:'',criteriaKey,pins:initialPins,loading:false,error:'',resolved:false,validatedRevision:0 });
   const latestResult = useRef(result);
   useEffect(() => { latestResult.current=result; },[result]);
   const retry = useCallback(() => setRevision(value => value + 1),[]);
@@ -67,6 +67,10 @@ export default function useProviderMapListings(viewport:MarketplaceMapViewport |
               pins.set(pin.id,{ ...pin,...(typeof item?.provider?.name==='string' ? { providerName:item.provider.name } : {}) });
             }
           }
+          // Publish each completed batch. Wide maps should not wait for every
+          // discovery window before showing their first available markers.
+          if (active && !revalidate) setResult(current => ({ ...current, key:queryKey, criteriaKey,
+            pins:mergePins(current.criteriaKey===criteriaKey ? current.pins : emptyPins,[...pins.values()]) }));
         }
         // Zoom discovers more areas; live refreshes authoritatively replace them
         // so disabled/deleted listings cannot linger outside the current viewport.
@@ -78,7 +82,7 @@ export default function useProviderMapListings(viewport:MarketplaceMapViewport |
         if (active) setResult(current => ({ ...current,key:queryKey,criteriaKey,pins:current.criteriaKey===criteriaKey ? current.pins : emptyPins,
           loading:false,error:getApiErrorMessage(error,'Provider map listings could not load. Try again.'),resolved:false }));
       });
-    },250);
+    },known.key ? 250 : 0);
     return () => { active=false;window.clearTimeout(timer);controller.abort(); };
   },[queryKey,query,criteriaKey,revision]);
   const current = result.key===queryKey;

@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-13",
+  "scope": "Restore the supplied full-width centered empty inbox reference on Provider Incoming Requests and Seeker Offers Received.",
+  "implementation": "Shared InboxState empty styling: 210px minimum height, 24px corners, centered 48px inbox tile, 14px title and short 12px description. No empty-inbox action button. Provider green and Seeker orange; dark theme supported.",
+  "verification": {
+    "tests": "All 19 IncomingRequests and IncomingOffers tests passed, including loading/error distinctions and existing response/payment behavior.",
+    "eslint": "Passed changed UI and test files with zero warnings.",
+    "browser": "Rendered both real inbox components with loaded empty sample data. Desktop panel measured 1100px wide and 210px high; 390px phone panel measured 366px wide and 210px high. No horizontal overflow. Both role accents verified. The Seeker error retained an alert role, red warning and retry button. Browser logs contained no warnings/errors."
+  },
+  "screenshots": [
+    "inbox-restored-provider-desktop-light.png",
+    "inbox-restored-seeker-desktop-light.png",
+    "inbox-restored-provider-phone-dark.png",
+    "inbox-restored-seeker-phone-dark.png",
+    "inbox-restored-seeker-phone-dark-error.png"
+  ],
+  "limitations": "Temporary local review used sample context with no-op publishing and retry, not an authenticated live account. Review files/server/tab were removed and viewport reset."
+}

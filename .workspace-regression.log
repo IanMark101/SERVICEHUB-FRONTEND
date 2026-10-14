@@ -1,0 +1,21 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/lib/api/bookingInvalidation.test.ts (15 tests) 30ms
+ ✓ src/lib/api/cacheRuntime.test.ts (1 test) 21ms
+ ✓ src/lib/api/responseCache.test.ts (9 tests) 119ms
+ ✓ src/components/landing/LandingMarketplacePreview.test.tsx (2 tests) 210ms
+stderr | src/components/landing/LandingMarketplacePreview.lifecycle.test.tsx > landing animation navigation lifecycle > pauses both responsive card layouts without resetting their elements, then resumes
+React does not recognize the `whileHover` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `whilehover` instead. If you accidentally passed it from a parent component, remove it from the DOM element.
+
+ ✓ src/components/landing/LandingMarketplacePreview.lifecycle.test.tsx (9 tests) 846ms
+   ✓ landing animation navigation lifecycle > pauses both responsive card layouts without resetting their elements, then resumes  321ms
+ ✓ src/components/seeker/seek-services/ServiceMarketplaceGrid.test.tsx (9 tests) 638ms
+   ✓ Seek Services listing booking entry point > shows only the cover on the card and exposes all three photos through Details  371ms
+ ✓ src/components/landing/WorkspaceDashboardPreview.test.tsx (6 tests) 616ms
+
+ Test Files  7 passed (7)
+      Tests  51 passed (51)
+   Start at  04:24:27
+   Duration  16.63s (transform 3.09s, setup 6.40s, collect 47.30s, tests 2.48s, environment 14.11s, prepare 3.05s)
+

@@ -1,3 +1,4 @@
+import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
 import type { LocationPoint } from '../lib/location';
 import React from 'react';
 import type { BookingActionResult } from '../lib/bookingActionUpdate';
@@ -13,9 +14,10 @@ import {
 } from '../api/bookings.api';
 import { apiRejectOffer } from '../api/offers.api';
 import { useToast } from '../components/ui/Toast';
-import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus } from '../lib/api/errors';
+import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus, getUserFacingErrorMessage } from '../lib/api/errors';
 import { isPayMongoCheckoutUrl, navigateGcashWindow, prepareGcashWindow, rememberGcashCheckout, type PendingGcashCheckout } from '../lib/paymentCheckout';
 import { normalizeOfferStatus } from '../lib/offerStatus';
+import { mapRequestToJobRequest } from '../context/mappers';
 
 interface SeekerActionsDeps {
   users: User[];
@@ -52,13 +54,14 @@ export function useSeekerActions({
 }: SeekerActionsDeps) {
   const { success, error: toastError, info } = useToast();
 
-  const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>, jobLocation?: LocationPoint) => {
+  const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>, jobLocation?: LocationPoint, serviceLocationMode?: BookingLocationMode) => {
     const popup = prepareGcashWindow();
     try {
       const response = await apiInitiatePayment({
         serviceId: context.serviceId, offerId: context.offerId,
         quantity: context.quantity, paymentMethodType: 'gcash',
         ...(jobLocation && { jobLocation }),
+        ...(serviceLocationMode && { serviceLocationMode }),
       });
       if (!response.success || !response.data?.paymentIntentId) throw new Error(response.error || 'GCash checkout could not be started.');
       if (response.data.redirectUrl && !isPayMongoCheckoutUrl(response.data.redirectUrl)) throw new Error('The payment checkout link is unavailable. Please try again.');
@@ -83,7 +86,7 @@ export function useSeekerActions({
     budget: number,
     description: string,
     paymentMethods = { cash: true, gcash: true },
-    locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }
+    locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }
   ) => {
     try {
       const catId = dbCategories.find(c => c.id === category)?.id;
@@ -103,26 +106,28 @@ export function useSeekerActions({
           success('Request posted', 'Providers can now see your request.');
           return true;
         }
-        toastError('Failed to post request', res.error || 'Unable to post the request.');
+        toastError('Failed to post request', getUserFacingErrorMessage(res.error, 'We couldn’t post your request. Please try again.'));
       } else {
         toastError('Category Error', 'Please select a valid service category.');
       }
     } catch (err: unknown) {
       const body = getApiErrorBody(err);
-      const validationIssue = body?.errors?.[0]?.message;
-      const message = validationIssue || getApiErrorMessage(err, 'Unable to post the request.');
+      const message = getApiErrorMessage(err, 'We couldn’t post your request. Please try again.');
       toastError(body?.code === 'CONTENT_REVISION_REQUIRED' ? 'Please revise your request' : 'Failed to post request', message);
       if (body?.code === 'CONTENT_REVISION_REQUIRED') return { success: false as const, error: message, field: body.field };
     }
     return false;
   };
 
-  const editJobRequest = async (requestId: string, title: string, budget: number, description: string, urgency?: RequestUrgency, locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }): Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null> => {
+  const editJobRequest = async (requestId: string, title: string, budget: number, description: string, urgency?: RequestUrgency, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }): Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null> => {
     try {
       const res = await apiUpdateRequest(requestId, { title, budgetMin: budget, budgetMax: budget, description, ...locationOptions, ...(urgency !== undefined && { urgency }) });
       if (res.success) {
+        const savedLocation = res.data?.serviceLocationMode ? mapRequestToJobRequest(res.data) : undefined;
         const updated = {
+          ...(res.data?.photos && { photos: res.data.photos }),
           ...locationOptions,
+          ...(savedLocation && { serviceLocationMode: savedLocation.serviceLocationMode, jobLocation: savedLocation.jobLocation, transportationFee: savedLocation.transportationFee }),
           title: res.data?.title ?? title.trim().toUpperCase(),
           budget: Number(res.data?.budgetMax ?? res.data?.budgetMin ?? budget),
           description: res.data?.description ?? description,
@@ -200,7 +205,8 @@ export function useSeekerActions({
     description: string,
     paymentMethod: 'GCash' | 'On-site Cash',
     quantity = 1,
-    jobLocation?: LocationPoint
+    jobLocation?: LocationPoint,
+    serviceLocationMode?: BookingLocationMode
   ) => {
     try {
       if (paymentMethod === 'On-site Cash') {
@@ -208,6 +214,7 @@ export function useSeekerActions({
           serviceId,
           quantity,
           ...(jobLocation && { jobLocation }),
+          ...(serviceLocationMode && { serviceLocationMode }),
           schedule: 'Immediate',
           message: description,
         });
@@ -217,7 +224,7 @@ export function useSeekerActions({
         }
       } else {
         const service = services.find(entry => entry.id === serviceId);
-        return await startGcashCheckout({ seekerId, serviceId, quantity, title: service?.title, providerName: service?.providerName }, jobLocation);
+        return await startGcashCheckout({ seekerId, serviceId, quantity, title: service?.title, providerName: service?.providerName }, jobLocation, serviceLocationMode);
       }
     } catch (err: unknown) {
       toastError('Booking Failed', getApiErrorMessage(err, 'Unable to create the booking.'));

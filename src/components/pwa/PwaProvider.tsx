@@ -47,6 +47,9 @@ export default function PwaProvider({ children }: { children: ReactNode }) {
     const standalone = window.matchMedia('(display-mode: standalone)');
     const syncInstalled = () => setInstalled(standalone.matches || Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
     const receivePrompt = (event: Event) => {
+      // Development has no ServiceHub worker. Leave Chrome's native install
+      // behavior alone instead of deferring a prompt for a development build.
+      if (process.env.NODE_ENV !== 'production') return;
       event.preventDefault();
       prompt.current = event as InstallPromptEvent;
       setCanInstall(true);

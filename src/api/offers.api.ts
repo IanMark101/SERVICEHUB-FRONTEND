@@ -1,6 +1,8 @@
+import type { BookingLocationMode } from '../lib/serviceArrangement';
+import type { LocationPoint } from '../lib/location';
 import { api } from '../lib/api/axios';
 
-export async function apiSubmitOffer(data: { requestId: string; serviceId?: string; offeredPrice: number; estimatedDuration: number; availability?: string; message?: string }) {
+export async function apiSubmitOffer(data: { requestId: string; serviceLocationMode?: BookingLocationMode; providerVenue?: LocationPoint; serviceId?: string; offeredPrice: number; estimatedDuration: number; availability?: string; message?: string }) {
   const response = await api.post('/offers', data);
   return response.data;
 }

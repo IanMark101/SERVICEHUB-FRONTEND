@@ -1,0 +1,323 @@
+[
+  {
+    "name": "inquiry",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 1078,
+          "scroll": 1078
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "inquiry-photos",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 1078,
+          "scroll": 1078
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "manager",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 1078,
+          "scroll": 1078
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "manager-photos",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 1078,
+          "scroll": 1078
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "seeker-save",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 342,
+          "scroll": 342
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "story": "map",
+    "width": 1440,
+    "theme": "light",
+    "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Change search location' }).getByText('Exact public pin · Shared by the provider', { exact: true }) to be visible\u001b[22m\n",
+    "pageErrors": []
+  },
+  {
+    "name": "location-autofill-consent",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "provider-save",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 342,
+          "scroll": 342
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "inquiry",
+    "width": 768,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 406,
+          "scroll": 406
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "inquiry-photos",
+    "width": 768,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 406,
+          "scroll": 406
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "manager",
+    "width": 768,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 406,
+          "scroll": 406
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "manager-photos",
+    "width": 768,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 406,
+          "scroll": 406
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "seeker-save",
+    "width": 768,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 406,
+          "scroll": 406
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "story": "map",
+    "width": 768,
+    "theme": "light",
+    "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Change search location' }).getByText('Exact public pin · Shared by the provider', { exact: true }) to be visible\u001b[22m\n",
+    "pageErrors": []
+  },
+  {
+    "name": "location-autofill-consent",
+    "width": 768,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "provider-save",
+    "width": 768,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 406,
+          "scroll": 406
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "inquiry",
+    "width": 390,
+    "theme": "dark",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 356,
+          "scroll": 356
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "inquiry-photos",
+    "width": 390,
+    "theme": "dark",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 356,
+          "scroll": 356
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "manager",
+    "width": 390,
+    "theme": "dark",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 356,
+          "scroll": 356
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "manager-photos",
+    "width": 390,
+    "theme": "dark",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 356,
+          "scroll": 356
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "seeker-save",
+    "width": 390,
+    "theme": "dark",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 356,
+          "scroll": 356
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "story": "map",
+    "width": 390,
+    "theme": "dark",
+    "error": "locator.waitFor: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Change search location' }).getByText('Exact public pin · Shared by the provider', { exact: true }) to be visible\u001b[22m\n",
+    "pageErrors": []
+  },
+  {
+    "name": "location-autofill-consent",
+    "width": 390,
+    "theme": "dark",
+    "overflow": {
+      "page": false,
+      "cards": [],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "provider-save",
+    "width": 390,
+    "theme": "dark",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 356,
+          "scroll": 356
+        }
+      ],
+      "dialogs": []
+    }
+  }
+]

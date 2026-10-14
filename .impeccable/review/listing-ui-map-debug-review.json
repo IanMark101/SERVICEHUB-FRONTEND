@@ -1,0 +1,52 @@
+[
+  {
+    "name": "seeker-save",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 342,
+          "scroll": 342
+        }
+      ],
+      "dialogs": []
+    }
+  },
+  {
+    "name": "map",
+    "width": 1440,
+    "theme": "light",
+    "overflow": {
+      "page": false,
+      "cards": [
+        {
+          "width": 342,
+          "scroll": 342
+        }
+      ],
+      "dialogs": [
+        {
+          "width": 600,
+          "scroll": 600
+        }
+      ]
+    }
+  },
+  {
+    "name": "cached-marker-timing",
+    "width": 1440,
+    "theme": "light",
+    "markerDelay": 433,
+    "discoveryCalls": 5,
+    "discoveryFinished": false,
+    "coords": {
+      "center": {
+        "x": 280,
+        "y": 190
+      },
+      "transform": "translate3d(279px, 139px, 0px)"
+    }
+  }
+]

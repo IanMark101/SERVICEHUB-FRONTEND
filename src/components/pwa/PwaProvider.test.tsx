@@ -46,6 +46,7 @@ describe('PWA installation and update UX', () => {
     expect(container.register).not.toHaveBeenCalled();
   });
   it('opens the native prompt only on request and confirms the appinstalled event', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
     renderPage(); const event = offerInstall();
     expect(event.defaultPrevented).toBe(true); expect(event.prompt).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Install ServiceHub' }));
@@ -54,9 +55,18 @@ describe('PWA installation and update UX', () => {
     expect(screen.getByRole('heading', { name: 'ServiceHub is ready on your device.' })).toBeVisible();
   });
   it.each([['dismissed', false], ['accepted', true]] as const)('handles installation %s / error=%s', async (outcome, fail) => {
+    vi.stubEnv('NODE_ENV', 'production');
     renderPage(); offerInstall(outcome, fail);
     fireEvent.click(screen.getByRole('button', { name: 'Install ServiceHub' }));
     await waitFor(() => expect(screen.getByText(fail ? /Installation couldn't be opened/ : /Installation cancelled/)).toBeVisible());
+  });
+  it('leaves development install events to the browser without cancelling the banner', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    renderPage(); const event = offerInstall();
+    expect(event.defaultPrevented).toBe(false);
+    expect(event.prompt).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'Install ServiceHub' })).not.toBeInTheDocument();
+    expect(container.register).not.toHaveBeenCalled();
   });
   it('recognizes standalone mode and announces connection loss', () => {
     standalone.matches = true; renderPage();

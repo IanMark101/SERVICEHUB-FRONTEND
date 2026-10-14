@@ -4,6 +4,8 @@ import type { ServiceListing } from '../../../types';
 import ServiceMarketplaceGrid from './ServiceMarketplaceGrid';
 
 vi.mock('../../moderation/ContentCaseAction', () => ({ default: () => null }));
+vi.mock('../../ui/Toast', () => ({ useToast: () => ({ success: vi.fn(), error: vi.fn() }) }));
+vi.mock('../../../api/savedListings.api', () => ({ apiGetSavedStatus: vi.fn().mockResolvedValue([]), apiSetListingSaved: vi.fn() }));
 
 const listing: ServiceListing = {
   id: 'fixed-listing', providerId: 'provider-1', providerName: 'Ian', providerAvatar: '',
@@ -32,6 +34,25 @@ function renderListing(service: ServiceListing) {
 }
 
 describe('Seek Services listing booking entry point', () => {
+  it('requests an agreement price even when the paid queue is full and never displays zero as a price', () => {
+    const agreement = { ...listing, price: 0, priceType: 'BY_AGREEMENT' as const, providerWaitingCount: 5, queueSize: 5 };
+    const { handleBookListing } = renderListing(agreement);
+    expect(screen.getByText('Price by agreement')).toBeVisible();
+    expect(screen.queryByText(/₱0/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Request service' }));
+    expect(handleBookListing).toHaveBeenCalledWith(agreement, 'On-site Cash');
+    expect(screen.queryByRole('button', { name: /Join.*waitlist/i })).not.toBeInTheDocument();
+  });
+  it('shows only the cover on the card and exposes all three photos through Details', () => {
+    const photos = Array.from({ length: 3 }, (_, index) => ({ id: `photo-${index}`, url: `https://res.cloudinary.com/fixture/image/upload/photo-${index}.jpg`, width: 1200, height: 800 }));
+    renderListing({ ...listing, photos });
+    expect(screen.getByRole('img', { name: 'House Cleaning, cover photo' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Next photo' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Inspect House Cleaning details' }));
+    expect(screen.getByText('Photo 1 of 3')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Show photo 3' }));
+    expect(screen.getByRole('img', { name: 'House Cleaning — photo 3 of 3' })).toHaveAttribute('src', expect.stringContaining('photo-2.jpg'));
+  });
   it('shows the same zero rating format for an unreviewed provider and opens provider reviews', () => {
     const { push } = renderListing(listing);
     expect(screen.getByRole('img', { name: 'No reviews yet as a service provider' })).toHaveTextContent('0.0(0)');
@@ -46,9 +67,9 @@ describe('Seek Services listing booking entry point', () => {
   });
   it('opens direct booking for a FIXED listing instead of redirecting to Post Request', () => {
     const { push, handleBookListing } = renderListing(listing);
-    expect(screen.getByText('Accepted payment methods')).toBeInTheDocument();
-    expect(screen.getByText('On-site Cash')).toBeInTheDocument();
-    expect(screen.getByText('GCash · Test Mode')).toBeInTheDocument();
+    expect(screen.getByLabelText('Accepted payment methods')).toBeInTheDocument();
+    expect(screen.getByText('Cash in person')).toBeInTheDocument();
+    expect(screen.getByText('GCash (test mode)')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Book Service' }));
     expect(handleBookListing).toHaveBeenCalledWith(listing, 'On-site Cash');
     expect(push).not.toHaveBeenCalledWith('/seeker/post-request');
@@ -66,7 +87,7 @@ describe('Seek Services listing booking entry point', () => {
 
   it.each(['STARTS_AT', 'CUSTOM'] as const)('does not offer booking for an older %s listing', (priceType) => {
     const { handleBookListing } = renderListing({ ...listing, priceType });
-    expect(screen.getByText('Price unavailable')).toBeInTheDocument();
+    expect(screen.getByText('Quote required')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Book Service' })).not.toBeInTheDocument();
     expect(handleBookListing).not.toHaveBeenCalled();
   });

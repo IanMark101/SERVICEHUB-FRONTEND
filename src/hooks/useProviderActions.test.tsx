@@ -1,11 +1,11 @@
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { apiCreateService, apiToggleServiceAvailability } from '../api/services.api';
+import { apiCreateService, apiUpdateService, apiToggleServiceAvailability } from '../api/services.api';
 import { apiGetMyOffers, apiSubmitOffer } from '../api/offers.api';
 import { useToast } from '../components/ui/Toast';
 import { useProviderActions } from './useProviderActions';
 
-vi.mock('../api/services.api', () => ({ apiCreateService: vi.fn(), apiToggleServiceAvailability: vi.fn() }));
+vi.mock('../api/services.api', () => ({ apiCreateService: vi.fn(), apiUpdateService: vi.fn(), apiToggleServiceAvailability: vi.fn() }));
 vi.mock('../api/offers.api', () => ({ apiSubmitOffer: vi.fn(), apiGetMyOffers: vi.fn() }));
 vi.mock('../components/ui/Toast', () => ({ useToast: vi.fn() }));
 
@@ -28,6 +28,18 @@ function renderProviderActions() {
 }
 
 describe('useProviderActions category identity', () => {
+  it('persists an agreement listing with a null amount for both creation and editing', async () => {
+    vi.mocked(apiCreateService).mockResolvedValue({ success: true, data: { id: 'listing-id', price: null, priceType: 'BY_AGREEMENT', status: 'ACTIVE', isAvailable: true } });
+    vi.mocked(apiUpdateService).mockResolvedValue({ success: true, data: { id: 'listing-id', price: null, priceType: 'BY_AGREEMENT', status: 'ACTIVE', isAvailable: true } });
+    const { result } = renderProviderActions();
+    await result.current.createServiceListing('provider-id', 'Laptop repair', 'category-cuid', 2500, 'Repair the charging port.', { cash: true, gcash: true }, { priceType: 'BY_AGREEMENT', transportationFee: null });
+    expect(apiCreateService).toHaveBeenCalledWith(expect.objectContaining({ price: null, priceType: 'BY_AGREEMENT', transportationFee: null }));
+    const added = setServices.mock.calls[0][0]([]);
+    expect(added[0].price).toBe(0);
+    expect(await result.current.editServiceListing('listing-id', 'Laptop repair', 2500, 'Repair the charging port.', { priceType: 'BY_AGREEMENT', transportationFee: null })).toBe(true);
+    expect(apiUpdateService).toHaveBeenCalledWith('listing-id', expect.objectContaining({ price: null, priceType: 'BY_AGREEMENT', transportationFee: null }));
+    expect(setServices.mock.calls[1][0](added)[0].price).toBe(0);
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useToast).mockReturnValue({

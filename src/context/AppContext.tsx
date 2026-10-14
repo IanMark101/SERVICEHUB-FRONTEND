@@ -1,5 +1,7 @@
 'use client';
 
+import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
+
 import type { LocationPoint } from '../lib/location';
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -42,22 +44,22 @@ interface AppContextType {
   // Live admin-controlled category list. Always sourced from the database.
   // Populated after session recovery and refreshable via refreshCategories().
   // PostRequest, OfferServices, and SeekServices use this — never hardcoded lists.
-  dbCategories: { id: string; name: string }[];
+  dbCategories: { id: string; name: string; description?: string; aliases?: readonly string[] }[];
   refreshCategories: () => void;
 
   // Auth helper callbacks
   updateUserProfile: (userId: string, data: Partial<User>) => void;
 
   // Seeker actions
-  postJobRequest: (seekerId: string, title: string, category: string, urgency: import('../lib/requestUrgency').RequestUrgency, budget: number, description: string, paymentMethods?: { cash: boolean; gcash: boolean }, locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }) => Promise<boolean | { success: false; error: string; field?: 'title' | 'description' | 'category' }>;
-  editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency, locationOptions?: { jobLocation?: LocationPoint; transportationFee?: number | null }) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
+  postJobRequest: (seekerId: string, title: string, category: string, urgency: import('../lib/requestUrgency').RequestUrgency, budget: number, description: string, paymentMethods?: { cash: boolean; gcash: boolean }, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }) => Promise<boolean | { success: false; error: string; field?: 'title' | 'description' | 'category' }>;
+  editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
   deleteJobRequest: (requestId: string) => Promise<boolean>;
   toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
   acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
   declineBid: (bidId: string) => void;
   confirmJobCompletion: (jobId: string) => Promise<void>;
   disputeJob: (jobId: string, reason: string) => Promise<void>;
-  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash', quantity?: number, jobLocation?: LocationPoint) => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
+  bookProviderDirectly: (seekerId: string, serviceId: string, price: number, description: string, paymentMethod: 'GCash' | 'On-site Cash', quantity?: number, jobLocation?: LocationPoint, serviceLocationMode?: BookingLocationMode) => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
 
   // Provider actions
   createServiceListing: (
@@ -68,7 +70,11 @@ interface AppContextType {
     description: string,
     paymentMethods: { cash: boolean; gcash: boolean },
     options?: {
+      photoIds?: string[];
+      publicMapPin?: boolean;
       serviceLocation?: LocationPoint;
+      serviceLocationMode?: ServiceLocationMode;
+      venueAddress?: string | null;
       coverageRadiusKm?: number | null;
       transportationFee?: number | null;
       serviceType?: ServiceListing['serviceType'];
@@ -83,7 +89,11 @@ interface AppContextType {
     price: number,
     description: string,
     options?: {
+      photoIds?: string[];
+      publicMapPin?: boolean;
       serviceLocation?: LocationPoint;
+      serviceLocationMode?: ServiceLocationMode;
+      venueAddress?: string | null;
       coverageRadiusKm?: number | null;
       transportationFee?: number | null;
       priceType?: ServiceListing['priceType'];
@@ -94,7 +104,7 @@ interface AppContextType {
   ) => Promise<boolean>;
   toggleServiceListingStatus: (serviceId: string) => void;
   deleteServiceListing: (serviceId: string) => void;
-  submitBid: (requestId: string, providerId: string, serviceId: string | undefined, price: number, estimatedDuration: number, message: string, availability?: string) => Promise<boolean>;
+  submitBid: (requestId: string, providerId: string, serviceId: string | undefined, price: number, estimatedDuration: number, message: string, availability?: string, arrangement?: { serviceLocationMode: BookingLocationMode; providerVenue?: LocationPoint }) => Promise<boolean>;
   respondToDirectBooking: (jobId: string, accept: boolean) => void;
   requestJobApproval: (jobId: string) => Promise<void>;
   providerStartJob: (id: string) => Promise<void>;

@@ -1,0 +1,7 @@
+.tools { display:flex; flex-wrap:wrap; gap:8px; padding-top:8px; border-top:1px solid var(--border); }
+.button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:8px 12px; border:1px solid var(--form-border); border-radius:10px; background:var(--form-surface); color:var(--text-primary); font-size:12px; font-weight:600; white-space:nowrap; cursor:pointer; }
+.button:hover { border-color:var(--workspace-focus); }
+.button[aria-pressed='true'] { color:var(--workspace-focus); background:var(--workspace-tint,var(--form-surface)); }
+.button:focus-visible { outline:2px solid var(--workspace-focus); outline-offset:3px; }
+.button:active { transform:scale(.98); }.button:disabled { opacity:.6; cursor:not-allowed; }
+.report { margin-left:auto; }.report svg { color:var(--text-muted); }

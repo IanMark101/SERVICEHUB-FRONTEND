@@ -1,0 +1,23 @@
+{
+  "surface": "Official categories in seeker and provider listing forms and filters",
+  "date": "2026-10-13",
+  "catalog": { "active": 35, "retiredDuplicateChoices": 4, "fallback": "Other Services" },
+  "developmentDatabase": { "migrationApplied": "20261013020000_service_category_cleanup", "existingListingsPreserved": 3, "existingRequestsPreserved": 1, "historicalCategoryIdsPreserved": true },
+  "verification": {
+    "freshMigrations": 44,
+    "freshSchemaTables": 41,
+    "schemaDrift": "none",
+    "disposableDatabaseIntegrationTestsPassed": 11,
+    "backendUnitSuiteBeforeFinalAliasFilterChange": "197 passed",
+    "finalBackendCategoryTests": "3 passed; nearby-map tests also passed",
+    "frontendCategoryAndBrowseTests": "39 passed; FormalSelect tests also passed",
+    "frontendTypeScript": "passed",
+    "backendBuild": "passed",
+    "frontendChangedFileLint": "passed",
+    "browser": "Real listing forms, existing CSS and local category fixtures; desktop 1280px and mobile 390px; category help wraps and no page overflow"
+  },
+  "screenshots": ["category-provider-desktop.png", "category-seeker-mobile-dark.png", "listing-placeholder-current-categories.png"],
+  "dataHandling": "Duplicate references merge to a surviving category; historical IDs and unrelated custom categories remain. Existing titles are not used to guess a category. Old category-name filters resolve to the new family.",
+  "previewScope": "Local fixtures with submission callbacks disabled; no browser API or user-data writes",
+  "cleanup": "Temporary preview server, files and tab removed"
+}

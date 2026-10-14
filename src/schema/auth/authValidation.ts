@@ -5,18 +5,18 @@ const baseEmailSchema = (requiredMessage: string) => z.string()
   .trim()
   .min(1, requiredMessage)
   .refine((val) => val.includes('@'), {
-    message: "Email is missing the '@' symbol (e.g. user@example.com)",
+    message: 'Include @ in your email address, like name@example.com.',
   })
   .refine((val) => {
     const parts = val.split('@');
     return parts.length === 2 && parts[1].includes('.');
   }, {
-    message: "Email domain is missing a dot suffix (e.g. '.com')",
+    message: 'Enter the full email address, like name@example.com.',
   })
   .refine((val) => {
     return /\S+@\S+\.\S+/.test(val);
   }, {
-    message: 'Please enter a valid email format',
+    message: 'Check your email address, like name@example.com.',
   });
 
 // Step 1: Credentials & Agreement
@@ -45,7 +45,7 @@ export const signupStep2Schema = z.object({
     .min(1, 'Contact number is required')
     .transform((val) => val.replace(/\s+/g, ''))
     .refine((val) => /^(\+639|09|9)\d{9}$/.test(val), {
-      message: 'Invalid Philippine mobile format (e.g. 917 123 4567)',
+      message: 'Enter a Philippine mobile number, like 917 123 4567.',
     }),
   barangay: z.string().trim().min(1, 'Barangay is required').max(100, 'Barangay must be at most 100 characters'),
   cityMunicipality: z.string().trim().min(1, 'City / municipality is required').max(100, 'City / municipality must be at most 100 characters'),

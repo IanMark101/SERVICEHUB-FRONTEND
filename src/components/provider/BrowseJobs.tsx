@@ -1,5 +1,7 @@
+import type { BookingLocationMode } from '../../lib/serviceArrangement';
+import type { LocationPoint } from '../../lib/location';
 import MarketplacePresentation from '../marketplace/MarketplacePresentation';
-import { orderServiceCategories } from '../../lib/category-catalog';
+import { orderServiceCategories, resolveServiceCategoryName } from '../../lib/category-catalog';
 import useNearbyMarketplace from '../../hooks/useNearbyMarketplace';
 import MarketplaceSearchHeader from '../marketplace/MarketplaceSearchHeader';
 import MarketplaceLocationControl from '../location/MarketplaceLocationControl';
@@ -20,10 +22,13 @@ import ProposalModal from './browse-jobs/ProposalModal';
 import JobRequestDetailsModal from './browse-jobs/JobRequestDetailsModal';
 import { useToast } from '../ui/Toast';
 import { apiGetMyServices } from '../../api/services.api';
-import { mapServiceToListing } from '../../context/mappers';
+import { mapServiceToListing, mapRequestToJobRequest } from '../../context/mappers';
+import { apiGetRequestById } from '../../api/requests.api';
+import { getApiErrorMessage } from '../../lib/api/errors';
 import type { ServiceListing, JobRequest } from '../../types';
 import { hasActiveOffer } from '../../lib/offerStatus';
 import JobRequestCard from './browse-jobs/JobRequestCard';
+import useSavedListings from '../../hooks/useSavedListings';
 
 export default function BrowseJobs({
   currentProviderId
@@ -41,11 +46,13 @@ export default function BrowseJobs({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [locationOpen, setLocationOpen] = useState(false);
   const [linkedRequestId, setLinkedRequestId] = useState<string | null>(null);
+  const [linkedError, setLinkedError] = useState('');
   React.useEffect(() => {
     const timer = window.setTimeout(() => setLinkedRequestId(new URLSearchParams(window.location.search).get('request')), 0);
     return () => window.clearTimeout(timer);
   }, []);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  const [selectedCategoryInput, setSelectedCategory] = useState<string>('All Categories');
+  const selectedCategory = resolveServiceCategoryName(dbCategories, selectedCategoryInput);
   const [activeFilter, setActiveFilter] = useState<'all' | 'urgent' | 'high-budget' | 'few-offers'>('all');
   const nearby = useNearbyMarketplace('provider', effectiveProviderId, searchQuery, selectedCategory, activeFilter);
   const jobRequests = nearby.items as JobRequest[];
@@ -96,14 +103,17 @@ export default function BrowseJobs({
 
   const sortedRequests = jobRequests;
   const paginatedRequests = jobRequests;
+  const saved = useSavedListings('SERVICE_REQUEST', user?.id, paginatedRequests.filter(item => item.seekerId !== user?.id).map(item => item.id));
   const { currentPage, totalPages, goToPage, nextPage, prevPage, startIndex, endIndex } = nearby;
   const [proposalRequest, setProposalRequest] = useState<JobRequest | null>(null);
   React.useEffect(() => {
-    if (linkedRequestId) {
-      const request = allRequests.find(item => item.id === linkedRequestId);
-      if (request) queueMicrotask(() => { setPreviewRequest(request); setLinkedRequestId(null); });
-    }
-  }, [linkedRequestId, allRequests]);
+    if (!linkedRequestId) return;
+    let active = true;
+    void apiGetRequestById(linkedRequestId).then(response => {
+      if (active) { setPreviewRequest(mapRequestToJobRequest(response.data)); setLinkedError(''); }
+    }).catch(error => { if (active) setLinkedError(getApiErrorMessage(error, 'This request is no longer available.')); });
+    return () => { active = false; };
+  }, [linkedRequestId]);
 
   const eligibleListingsFor = (category: string) => listingCheck.items.filter((listing) =>
     listing.providerId === effectiveProviderId && listing.category.trim().toLocaleLowerCase() === category.trim().toLocaleLowerCase()
@@ -119,7 +129,7 @@ export default function BrowseJobs({
     const targetServiceId = jobRequests.find((request) => request.id === reqId)?.targetServiceId || serviceId;
     setSelectedServiceId(targetServiceId);
     const selectedListing = listingCheck.items.find((listing) => listing.id === targetServiceId);
-    setBidPrice(selectedListing ? selectedListing.price + (selectedListing.transportationFee ?? 0) : initialPrice);
+    setBidPrice(selectedListing ? selectedListing.price + ((jobRequests.find(request => request.id === reqId) || previewRequest)?.serviceLocationMode === 'SEEKER_VISITS' ? 0 : selectedListing.transportationFee ?? 0) : initialPrice);
     setBidDuration(selectedListing?.estimatedDurationMins || 60);
     setBidMessage('');
     setBidAvailability('');
@@ -129,12 +139,12 @@ export default function BrowseJobs({
     setSelectedServiceId(serviceId);
     const listing = listingCheck.items.find((item) => item.id === serviceId);
     if (listing) {
-      setBidPrice(listing.price + (listing.transportationFee ?? 0));
+      setBidPrice(listing.price + (proposalRequest?.serviceLocationMode === 'SEEKER_VISITS' ? 0 : listing.transportationFee ?? 0));
       setBidDuration(listing.estimatedDurationMins || 60);
     }
   };
 
-  const handleSendOfferSubmit = async (e: React.FormEvent) => {
+  const handleSendOfferSubmit = async (e: React.FormEvent, arrangement: { serviceLocationMode: BookingLocationMode; providerVenue?: LocationPoint }) => {
     e.preventDefault();
     if (!selectedRequestId || sendingOfferRef.current) return;
 
@@ -148,7 +158,7 @@ export default function BrowseJobs({
     sendingOfferRef.current = true;
     setSendingOffer(true);
     try {
-      const sent = await submitBid(selectedRequestId, effectiveProviderId, selectedServiceId || undefined, bidPrice, bidDuration, bidMessage, bidAvailability.trim() || undefined);
+      const sent = await submitBid(selectedRequestId, effectiveProviderId, selectedServiceId || undefined, bidPrice, bidDuration, bidMessage, bidAvailability.trim() || undefined, arrangement);
       if (sent) setSelectedRequestId(null);
     } finally {
       setSendingOffer(false);
@@ -160,6 +170,7 @@ export default function BrowseJobs({
     <div className={`workspace-page space-y-8 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
       <LimitedModeDashboardCard role="provider" />
+      {linkedError && <p role="alert" className="workspace-surface rounded-xl border p-4 text-sm">{linkedError}</p>}
 
       <MarketplaceSearchHeader role="provider" isDark={isDark} value={searchQuery} onQueryChange={setSearchQuery} resultsId="job-request-results" locationControl={<MarketplaceLocationControl workspace="provider" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation} />} onSubmit={(event) => {
         event.preventDefault();
@@ -188,6 +199,7 @@ export default function BrowseJobs({
 
       {/* Job Requests Card Grid */}
       <section id="job-request-results" aria-label="Service request results" className="marketplace-results scroll-mt-24">
+      {saved.error && <p role="alert" className="workspace-surface mb-4 rounded-xl border p-3 text-sm">{saved.error} <button type="button" onClick={saved.refresh} className="font-semibold underline">Retry Saved</button></p>}
       <div className="marketplace-result-context">
       <MarketplaceResultsSummary workspace="provider" location={nearby.location} search={searchQuery} category={selectedCategory} filterLabel={activeFilter !== 'all' ? quickFilters.find(filter => filter.id === activeFilter)?.label : undefined} total={nearby.totalItems} loading={nearby.loading}/>
       {nearby.location && !nearby.loading && !nearby.error && <span className="marketplace-count">{nearby.totalItems} Service Request{nearby.totalItems === 1 ? '' : 's'} Available</span>}
@@ -225,6 +237,7 @@ export default function BrowseJobs({
                 isOwned={isOwned}
                 offerState={hasSentBid ? (previousOffer?.status === 'accepted' || previousOffer?.status === 'ACCEPTED' ? 'accepted' : 'submitted') : null}
                 isDark={isDark}
+                saved={saved.isSaved(req.id)} saving={saved.isBusy(req.id)} onToggleSaved={() => { void saved.toggle(req.id); }}
                     onProfile={(reviews) => router.push(`/profile/${encodeURIComponent(req.seekerId)}${reviews ? '?tab=reviews&reviewRole=seeker' : ''}`)}
                 onDetails={() => setPreviewRequest(req)}
                 onSendOffer={() => {
@@ -252,6 +265,7 @@ export default function BrowseJobs({
       </MarketplacePresentation>
 
       <ProposalModal
+        key={selectedRequestId || 'closed'}
         request={selectedRequestId ? proposalRequest || undefined : undefined}
         listings={eligibleListingsFor(proposalRequest?.category || '').filter(listing => !proposalRequest?.targetServiceId || listing.id === proposalRequest.targetServiceId)}
         serviceId={selectedServiceId}

@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-13",
+  "scope": "Use a simple no-image icon on a neutral cover background for service and request cards without uploaded photos.",
+  "changes": [
+    "The shared TrailCard always keeps its cover area. No-photo cards use a 40px ImageOff icon and an accessible No photo added label.",
+    "Title, category and area remain readable below the icon. Uploaded covers keep their existing image/title composition.",
+    "Unavailable cover images use the same fallback with the accessible label Photo unavailable.",
+    "Photo uploads remain optional with the existing three-photo limit."
+  ],
+  "verification": {
+    "tests": "All 34 existing photo/gallery, ServiceMarketplaceGrid and BrowseJobs tests passed.",
+    "typescript": "No-emit check passed with incremental compilation disabled.",
+    "eslint": "Shared card passed with zero warnings.",
+    "browser": "Real service and request cards rendered in a local sample preview at 1280px desktop, 390px Provider dark phone and 320px Seeker light phone. All covers have the same height within each layout. Long titles remain separate from the icon, and the document has no horizontal overflow. Both themes inspected; browser logs contained no warnings or errors."
+  },
+  "screenshots": [
+    "listing-placeholder-seeker-desktop-light.png",
+    "listing-placeholder-provider-desktop-dark.png",
+    "listing-placeholder-provider-phone-dark.png",
+    "listing-placeholder-seeker-phone-light.png"
+  ],
+  "limitations": "Local preview used sample listings, disabled actions, a Next Image adapter and the existing Arial font fallback. No live listing was posted. Temporary preview files/server/tab were removed and viewport reset."
+}

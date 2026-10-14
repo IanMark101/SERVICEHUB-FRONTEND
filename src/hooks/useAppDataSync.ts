@@ -73,7 +73,7 @@ export function useAppDataSync({
   const [messages, setMessages] = useState<Message[]>([]);
   const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const [userReports, setUserReports] = useState<UserReport[]>([]);
-  const [dbCategories, setDbCategories] = useState<{ id: string; name: string }[]>([]);
+  const [dbCategories, setDbCategories] = useState<{ id: string; name: string; description?: string; aliases?: readonly string[] }[]>([]);
   const isAdmin = user?.role === 'admin';
   const canLoadWorkspace = isAuthenticated && user?.moderationStatus !== 'BANNED' && (isAdmin || user?.emailVerified === true);
 

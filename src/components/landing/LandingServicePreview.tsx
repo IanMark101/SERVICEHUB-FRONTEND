@@ -10,7 +10,7 @@ const noop = () => {};
 // Fictional hero example. An empty avatar uses the live panel's "J" fallback.
 const previewService: ServiceListing = {
   id: 'preview-laptop-repair', providerId: 'preview-john', providerName: 'John Sefuesca', providerAvatar: '',
-  title: 'LAPTOP REPAIR SERVICES', category: 'Electrical Repair',
+  title: 'LAPTOP REPAIR SERVICES', category: 'Computer & Laptop Repair',
   description: 'Diagnostics and repair for laptops. Arrange the work with your provider.',
   price: 1500, priceType: 'FIXED', estimatedDurationMins: 60,
   locationLabel: 'Day-as, Cordova, Cebu', distanceKm: 1.3, coverageRadiusKm: 5, transportationFee: 75,

@@ -1,4 +1,4 @@
-export type CacheResource = 'services' | 'requests' | 'offers' | 'bookings' | 'transactions'
+export type CacheResource = 'saved' | 'services' | 'requests' | 'offers' | 'bookings' | 'transactions'
   | 'notifications' | 'messages' | 'categories' | 'profiles' | 'reviews' | 'community'
   | 'admin' | 'content' | 'users' | 'summaries';
 
@@ -10,7 +10,7 @@ export interface CachePolicy {
 }
 
 export const ALL_CACHE_RESOURCES: CacheResource[] = [
-  'services', 'requests', 'offers', 'bookings', 'transactions', 'notifications',
+  'saved', 'services', 'requests', 'offers', 'bookings', 'transactions', 'notifications',
   'messages', 'categories', 'profiles', 'reviews', 'community', 'admin', 'content', 'users', 'summaries',
 ];
 
@@ -50,6 +50,7 @@ export function getCachePolicy(path: string): CachePolicy | null {
 /** Invalidate dependencies too: a booking changes queues, offers and balances;
  * a review changes the profile, trust display and generated summary. */
 export function mutationResources(path: string): CacheResource[] {
+  if (/^\/saved(?:\/|$)/.test(path)) return ['saved'];
   if (/^\/admin(?:\/|$)/.test(path)) return ALL_CACHE_RESOURCES;
   if (/^\/bookings\/queue\/[^/]+\/start$/.test(path)) return bookingTransitionResources('started');
   if (/^\/bookings\/queue\/[^/]+\/complete$/.test(path)) return bookingTransitionResources('awaiting_confirmation');

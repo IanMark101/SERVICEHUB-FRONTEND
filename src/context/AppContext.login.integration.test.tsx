@@ -8,7 +8,7 @@ import LoginPage from '../app/(auth)/login/page';
 import RegisterPage from '../app/(auth)/register/page';
 import LandingLayout from '../app/(landingPage)/layout';
 import Home from '../app/(landingPage)/page';
-import { api, clearAccessToken, getAccessToken } from '../lib/api/axios';
+import { api, publicApi, clearAccessToken, getAccessToken } from '../lib/api/axios';
 import { AppProvider, useApp } from './AppContext';
 import { useRouteGuard } from '../hooks/useRouteGuard';
 import SeekServices from '../components/seeker/SeekServices';
@@ -40,6 +40,7 @@ vi.mock('../components/auth/AuthLeftPanel', () => ({ default: () => null }));
 // interceptors, AppProvider, LoginPage, the real form and its callbacks run together.
 const profile = { id: 'session-account', name: 'Session Account', email: 'account@example.test', role: 'user', emailVerified: true, moderationStatus: 'ACTIVE' };
 const defaultAdapter = api.defaults.adapter;
+const defaultPublicAdapter = publicApi.defaults.adapter;
 let cookieValid: boolean;
 let sessionRequest: ((config: InternalAxiosRequestConfig) => ReturnType<AxiosAdapter>) | undefined;
 let captchaPolicyRequest: ((config: InternalAxiosRequestConfig) => ReturnType<AxiosAdapter>) | undefined;
@@ -112,7 +113,7 @@ describe('login/session integration through the real auth flow', () => {
     initialize = vi.fn();
     window.google = { accounts: { id: { initialize, renderButton: vi.fn() } } };
     transport = vi.fn<AxiosAdapter>(async config => {
-      expect(config.withCredentials).toBe(true);
+      expect(config.withCredentials).toBe(config.url !== '/auth/captcha-config');
       if (config.url === '/auth/captcha-config' && captchaPolicyRequest) return captchaPolicyRequest(config);
       if (config.url === '/auth/captcha-config') return reply(config, { success: true, data: { enabled: true, siteKey: 'fixture-site-key', loginRequired: false } });
       if (config.url === '/auth/session' && sessionRequest) return sessionRequest(config);
@@ -131,6 +132,7 @@ describe('login/session integration through the real auth flow', () => {
       throw new Error(`Unexpected auth request: ${config.url}`);
     });
     api.defaults.adapter = transport;
+    publicApi.defaults.adapter = transport;
   });
 
   it.each([
@@ -296,6 +298,7 @@ describe('login/session integration through the real auth flow', () => {
     await act(async () => { await Promise.resolve(); finishSessionCheck?.(); finishCaptchaPolicyCheck?.(); });
     clearAccessToken();
     api.defaults.adapter = defaultAdapter;
+    publicApi.defaults.adapter = defaultPublicAdapter;
     delete window.google;
     document.querySelectorAll('script[src="https://accounts.google.com/gsi/client"]').forEach(script => script.remove());
     vi.unstubAllEnvs();

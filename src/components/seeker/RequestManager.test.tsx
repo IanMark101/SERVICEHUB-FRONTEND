@@ -9,6 +9,7 @@ vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../../api/requests.api', () => ({ apiGetMyRequests: vi.fn() }));
 vi.mock('../../api/ai.api', () => ({ apiMatchProviders: vi.fn() }));
 vi.mock('../ui/PaginationBar', () => ({ default: () => null }));
+vi.mock('../ui/Toast', () => ({useToast:()=>({error:vi.fn()})}));
 
 const request = { id: 'request-1', seekerId: 'seeker-1', seekerName: 'Ian', seekerAvatar: '', title: 'PIPE REPAIR', description: 'Repair the leaking kitchen pipe.', category: 'Plumbing', budget: 500, urgency: 'Flexible', status: 'CLOSED', createdAt: '2026-10-01', paymentMethods: { cash: true, gcash: false } };
 const toggle = vi.fn();
@@ -20,6 +21,22 @@ function deferred<T>() {
 }
 
 describe('Request Manager activation', () => {
+  it('removes a canceled private price inquiry from the active manager', () => {
+    vi.mocked(apiGetMyRequests).mockReturnValueOnce(new Promise(() => {}));
+    vi.mocked(useApp).mockReturnValue({ jobRequests: [{ ...request, budget: 0, targetServiceId: 'service-1', targetProviderId: 'provider-1', status: 'CANCELED' }], bids: [], deleteJobRequest: vi.fn(), isDark: false } as unknown as ReturnType<typeof useApp>);
+    render(<RequestManager currentUserId="seeker-1" />);
+    expect(screen.getByText('No requests in Request Manager')).toBeVisible();
+    expect(screen.queryByText('Waiting for the provider’s price')).not.toBeInTheDocument();
+    expect(screen.queryByText('₱0')).not.toBeInTheDocument();
+  });
+  it('shows closure from a withdrawn price before the owner request refresh arrives', () => {
+    vi.mocked(apiGetMyRequests).mockReturnValueOnce(new Promise(() => {}));
+    vi.mocked(useApp).mockReturnValue({ jobRequests: [{ ...request, budget: 0, targetServiceId: 'service-1', targetProviderId: 'provider-1', status: 'OPEN' }], bids: [{ id: 'price-1', requestId: 'request-1', status: 'withdrawn' }], deleteJobRequest: vi.fn(), isDark: false } as unknown as ReturnType<typeof useApp>);
+    render(<RequestManager currentUserId="seeker-1" />);
+    expect(screen.getByText('Request closed')).toBeVisible();
+    expect(screen.queryByText('Waiting for the provider’s price')).not.toBeInTheDocument();
+    expect(screen.getByText('Price by agreement')).toBeVisible();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({ jobRequests: [request], bids: [], toggleJobRequestStatus: toggle, deleteJobRequest: vi.fn(), editJobRequest: edit, isDark: false } as unknown as ReturnType<typeof useApp>);
@@ -77,14 +94,14 @@ describe('Request Manager activation', () => {
     edit.mockReturnValue(update.promise);
     const { rerender } = render(<RequestManager currentUserId="seeker-1" />);
     fireEvent.click(screen.getByRole('button', { name: 'Edit PIPE REPAIR' }));
-    fireEvent.change(screen.getByLabelText('Request Title'), { target: { value: 'PIPE REPAI' } });
-    fireEvent.change(screen.getByLabelText('Estimated Budget (₱)'), { target: { value: '650' } });
-    fireEvent.change(screen.getByLabelText('Description'), { target: { value: saved.description } });
+    fireEvent.change(screen.getByLabelText('Request title'), { target: { value: 'PIPE REPAI' } });
+    fireEvent.change(screen.getByLabelText('Your service budget (₱)'), { target: { value: '650' } });
+    fireEvent.change(screen.getByLabelText('Describe what you need'), { target: { value: saved.description } });
     fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
     expect(screen.getByRole('button', { name: /Saving changes/ })).toBeDisabled();
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-busy', 'true');
-    expect(screen.getByLabelText('Request Title')).toBeDisabled();
+    expect(screen.getByLabelText('Request title')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Close edit request' })).toBeDisabled();
     fireEvent.submit(screen.getByRole('button', { name: /Saving changes/ }).closest('form')!);
@@ -103,8 +120,8 @@ describe('Request Manager activation', () => {
     expect(screen.getByRole('heading', { name: saved.title })).toBeInTheDocument();
     expect(screen.getByText('₱650')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: `Edit ${saved.title}` }));
-    expect(screen.getByLabelText('Request Title')).toHaveValue(saved.title);
-    expect(screen.getByLabelText('Estimated Budget (₱)')).toHaveValue(650);
+    expect(screen.getByLabelText('Request title')).toHaveValue(saved.title);
+    expect(screen.getByLabelText('Your service budget (₱)')).toHaveValue(650);
   });
 
   it('keeps unsaved changes open after a rejected save and allows a successful retry', async () => {
@@ -113,11 +130,11 @@ describe('Request Manager activation', () => {
     edit.mockResolvedValueOnce(null).mockResolvedValueOnce(saved);
     render(<RequestManager currentUserId="seeker-1" />);
     fireEvent.click(screen.getByRole('button', { name: 'Edit PIPE REPAIR' }));
-    fireEvent.change(screen.getByLabelText('Request Title'), { target: { value: saved.title } });
+    fireEvent.change(screen.getByLabelText('Request title'), { target: { value: saved.title } });
     fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'Save Changes' })).toBeEnabled());
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByLabelText('Request Title')).toHaveValue(saved.title);
+    expect(screen.getByLabelText('Request title')).toHaveValue(saved.title);
     expect(screen.getByRole('heading', { name: request.title })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -173,7 +190,7 @@ describe('booked requests belong in Activity', () => {
     expect(screen.getByRole('heading', { name: awaitingAcceptance.title })).toBeInTheDocument();
     await act(async () => { invalidateApiCache(['requests', 'bookings'], 'socket'); });
     await waitFor(() => expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument());
-    expect(screen.getByText('0 task requests posted to nearby providers')).toBeInTheDocument();
+    expect(screen.getByText('0 requests · posted publicly or sent to a provider')).toBeInTheDocument();
   });
 
   it.each(['ACCEPTED', 'WAITING', 'ONGOING', 'AWAITING_CONFIRMATION', 'DISPUTED', 'COMPLETED'])('hides requests with a %s booking even when the listing status is stale', async status => {
@@ -230,7 +247,7 @@ describe('booked requests belong in Activity', () => {
     expect(screen.getByRole('switch', { name: 'Pause OPEN PIPE REPAIR' })).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: 'Activate PAUSED PIPE REPAIR' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
-    expect(screen.getByText('2 task requests posted to nearby providers')).toBeInTheDocument();
+    expect(screen.getByText('2 requests · posted publicly or sent to a provider')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Offers/ })).not.toBeInTheDocument();
   });
 });

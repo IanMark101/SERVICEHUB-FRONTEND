@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/components/provider/IncomingRequests.test.tsx (9 tests) 634ms
+ ✓ src/components/seeker/RequestManager.test.tsx (28 tests) 2274ms
+   ✓ Request Manager activation > shows pending progress, prevents duplicate saves, and displays confirmed edits despite a stale owner-list read  316ms
+   ✓ Request Manager deletion > keeps the exact card in place while deleting and after rejection, including a refresh and remount  371ms
+
+ Test Files  2 passed (2)
+      Tests  37 passed (37)
+   Start at  15:24:56
+   Duration  11.18s (transform 692ms, setup 786ms, collect 13.80s, tests 2.91s, environment 2.03s, prepare 346ms)
+

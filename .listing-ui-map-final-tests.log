@@ -1,0 +1,35 @@
+
+> servicehub-frontend@0.1.0 test
+> vitest run src/components/location/ListingLocationFields.test.tsx src/components/provider/OfferServices.test.tsx src/components/location/LocationMap.test.tsx src/components/location/LocationEditor.test.tsx src/components/ui/Toast.test.tsx
+
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/components/ui/Toast.test.tsx (3 tests) 422ms
+ ✓ src/components/location/LocationEditor.test.tsx (13 tests) 1045ms
+   ✓ device-location recovery > allows a fresh successful attempt after browser failure code 1  307ms
+ ✓ src/components/location/LocationMap.test.tsx (13 tests) 2665ms
+   ✓ location map lifecycle with real Leaflet > keeps the same green marker DOM during zoom refreshes and an empty response  783ms
+   ✓ location map lifecycle with real Leaflet > can zoom, close during the zoom, and immediately reopen without delayed DOM errors  544ms
+ ✓ src/components/location/ListingLocationFields.test.tsx (1 test) 236ms
+ ✓ src/components/provider/OfferServices.test.tsx (17 tests) 8532ms
+   ✓ keeps public map sharing opt-in and includes the choice in publication  795ms
+   ✓ Offer Services wizard > lets providers publish by agreement without an amount or separate travel fee and retains a fixed-price draft  662ms
+   ✓ Offer Services wizard > offers only pricing that shows a definite amount before booking  308ms
+   ✓ Offer Services wizard > requires explicit travel coverage and accepts an area without a venue address  553ms
+   ✓ Offer Services wizard > requires a venue for The seeker comes to you and preserves its conditional payload  727ms
+   ✓ Offer Services wizard > requires a venue for Either option and preserves its conditional payload  943ms
+   ✓ Offer Services wizard > uses the same coverage radius for map preview and publication, and resets only on success  475ms
+   ✓ Offer Services wizard > returns server moderation rejection to Details without losing the draft  480ms
+   ✓ Offer Services wizard > preserves photos and all pricing/payment choices through review edits  779ms
+   ✓ Offer Services wizard > honors the existing native price and duration bounds before Payment  729ms
+   ✓ Offer Services wizard > requires a payment choice before Review  454ms
+   ✓ Offer Services wizard > revalidates categories before final publication  347ms
+   ✓ Offer Services wizard > prevents duplicate publishes while the existing create call is pending  447ms
+   ✓ Offer Services wizard > retains the review and releases the controls if creation throws  427ms
+
+ Test Files  5 passed (5)
+      Tests  47 passed (47)
+   Start at  16:53:44
+   Duration  19.24s (transform 1.28s, setup 3.14s, collect 17.29s, tests 12.90s, environment 7.42s, prepare 1.41s)
+

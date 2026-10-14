@@ -25,6 +25,10 @@ export default function PrivacyPage() {
         <p className="text-ink-muted dark:text-ink-muted text-sm mb-6 leading-relaxed">
           The ServiceHub Privacy Policy is currently being finalized to explain how your account, location and transaction data are handled. Please check back soon.
         </p>
+        <section className="mb-6 text-left text-sm leading-relaxed">
+          <h2 className="mb-2 font-bold">Account security records</h2>
+          <p>ServiceHub records sign-in attempts, explicit sign-outs, and key marketplace actions to help investigate account misuse. Records include timestamps, IP addresses, approximate IP areas, and browser/device reports. This history does not collect GPS coordinates. Authorized administrators can review it, and their access is recorded. Security records have a limited retention period and are removed when the associated account is permanently deleted.</p>
+        </section>
 
         <Link
           href="/register"

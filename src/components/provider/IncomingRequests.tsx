@@ -1,31 +1,72 @@
-import TrustScoreBadge from '../ui/TrustScoreBadge';
+import IncomingBookingRequestCard from './IncomingBookingRequestCard';
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
-import { 
-  Check, 
-  X, 
-  MapPin, 
-  Loader2, 
-  MessageSquare, 
-  Clock, 
-  ShieldCheck, 
-  Banknote, 
-  CreditCard,
-  Inbox,
-} from 'lucide-react';
+import { Inbox, Loader2, Search } from 'lucide-react';
+import InboxState from '../ui/InboxState';
+import styles from '../ui/Inbox.module.css';
+import { usePagination } from '../../hooks/usePagination';
+import PaginationBar from '../ui/PaginationBar';
 import TransactionBlockedModal from '../ui/TransactionBlockedModal';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import LimitedModeDashboardCard from '../landing/LimitedModeDashboardCard';
+import ProposalModal from './browse-jobs/ProposalModal';
+import IncomingInquiryCard from './IncomingInquiryCard';
+import { useToast } from '../ui/Toast';
+import { apiGetMyServices } from '../../api/services.api';
+import { apiDeclineListingInquiry } from '../../api/requests.api';
+import { mapServiceToListing } from '../../context/mappers';
+import { getApiErrorMessage } from '../../lib/api/errors';
+import type { JobRequest, ServiceListing } from '../../types';
+import type { BookingLocationMode } from '../../lib/serviceArrangement';
+import type { LocationPoint } from '../../lib/location';
 
 export default function IncomingRequests({ currentProviderId = 'u3' }: { currentProviderId?: string }) {
-  const { jobEngagements, jobRequests, bids, respondToDirectBooking, isDark, requestsStatus, engagementsStatus, refreshAll } = useApp();
+  const { jobEngagements, jobRequests, bids, submitBid, respondToDirectBooking, isDark, requestsStatus, engagementsStatus, refreshAll } = useApp();
+  const toast = useToast();
   const { canTransact } = useTransactionPermission();
   const [loadingJobId, setLoadingJobId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
   const [referenceTime, setReferenceTime] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const responseLock = React.useRef(false);
+  const [priceRequest, setPriceRequest] = useState<JobRequest | undefined>();
+  const [priceListing, setPriceListing] = useState<ServiceListing[]>([]);
+  const [price, setPrice] = useState(0);
+  const [duration, setDuration] = useState(60);
+  const [includedWork, setIncludedWork] = useState('');
+  const [availability, setAvailability] = useState('');
+  const [sendingPrice, setSendingPrice] = useState(false);
+
+  const openPriceForm = async (request: JobRequest) => {
+    if (!canTransact) { setBlockedModalOpen(true); return; }
+    if (responseLock.current) return;
+    responseLock.current = true; setLoadingJobId(request.id); setLoadingAction('accepting');
+    try {
+      const response = await apiGetMyServices();
+      const listing = response.data?.map(mapServiceToListing).find((item: ServiceListing) => item.id === request.targetServiceId && item.status === 'ACTIVE' && !item.isPaused);
+      if (!response.success || !listing) throw new Error('The requested listing is no longer available.');
+      setPriceListing([listing]); setPrice(0); setDuration(listing.estimatedDurationMins || 60); setIncludedWork(''); setAvailability(''); setPriceRequest(request);
+    } catch (error) { toast.error('Could not open request', getApiErrorMessage(error, 'Try loading your listing again.')); }
+    finally { responseLock.current = false; setLoadingJobId(null); setLoadingAction(null); }
+  };
+  const declineInquiry = async (request: JobRequest) => {
+    if (responseLock.current) return;
+    responseLock.current = true; setLoadingJobId(request.id); setLoadingAction('declining');
+    try { await apiDeclineListingInquiry(request.id); toast.success('Request declined', 'The seeker has been notified. No booking was created.'); await refreshAll(); }
+    catch (error) { toast.error('Could not decline request', getApiErrorMessage(error, 'Please try again.')); }
+    finally { responseLock.current = false; setLoadingJobId(null); setLoadingAction(null); }
+  };
+  const sendPrice = async (event: React.FormEvent, arrangement: { serviceLocationMode: BookingLocationMode; providerVenue?: LocationPoint }) => {
+    event.preventDefault();
+    if (!priceRequest || responseLock.current) return;
+    responseLock.current = true; setSendingPrice(true);
+    try {
+      const sent = await submitBid(priceRequest.id, currentProviderId, priceRequest.targetServiceId!, price, duration, includedWork, availability.trim() || undefined, arrangement);
+      if (sent) setPriceRequest(undefined);
+    } catch (error) { toast.error('Could not send price', getApiErrorMessage(error, 'Your price has not been sent. Please try again.')); }
+    finally { responseLock.current = false; setSendingPrice(false); }
+  };
 
   useEffect(() => {
     const timer = window.setTimeout(() => setReferenceTime(Date.now()), 0);
@@ -53,11 +94,21 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
   const pendingRequests = jobEngagements.filter(
     je => je.providerId === currentProviderId && je.status === 'pending_provider'
   );
+  const agreementRequestIds = new Set(jobRequests.filter(request => request.targetServiceId && !request.preferredPaymentMethod).map(request => request.id));
+  const answeredRequestIds = new Set(bids.filter(bid => bid.providerId === currentProviderId &&
+    (['pending', 'pending_payment', 'accepted'].includes(bid.status.toLowerCase()) ||
+      (agreementRequestIds.has(bid.requestId) && ['declined', 'rejected', 'withdrawn'].includes(bid.status.toLowerCase())))).map(bid => bid.requestId));
   const quoteInquiries = jobRequests.filter((request) =>
     request.targetProviderId === currentProviderId && request.targetServiceId && request.status === 'OPEN' &&
-    !bids.some((bid) => bid.requestId === request.id && bid.providerId === currentProviderId &&
-      ['pending', 'pending_payment', 'PENDING', 'PENDING_PAYMENT', 'accepted', 'ACCEPTED'].includes(bid.status))
+    !answeredRequestIds.has(request.id)
   );
+  const inboxItems = [
+    ...quoteInquiries.map(request => ({ kind:'inquiry' as const, item:request })),
+    ...pendingRequests.map(booking => ({ kind:'booking' as const, item:booking })),
+  ].sort((a,b) => (Date.parse(b.item.createdAt) || 0) - (Date.parse(a.item.createdAt) || 0));
+  const query = searchQuery.trim().toLowerCase();
+  const matchingItems = inboxItems.filter(({item}) => [item.title, item.seekerName, item.description].some(text => text?.toLowerCase().includes(query)));
+  const pagination = usePagination(matchingItems, 10);
 
   // Compute relative time from a full ISO timestamp
   const formatTimeAgo = (isoStr: string): string => {
@@ -73,230 +124,25 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
     return `${Math.floor(diffHrs / 24)} day${Math.floor(diffHrs / 24) > 1 ? 's' : ''} ago`;
   };
 
-  return (
-    <div className={`space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
-      
-      <LimitedModeDashboardCard role="provider" />
-
-      {pendingRequests.length === 0 && quoteInquiries.length === 0 && (requestsStatus === 'loading' || engagementsStatus === 'loading') ? (
-        <div role="status" className={`rounded-[24px] border p-12 text-center ${isDark ? 'border-neutral-850 bg-charcoal-surface text-ink-muted' : 'border-slate-200 bg-white text-ink-muted'}`}>
-          <Loader2 className="mx-auto mb-3 h-6 w-6 animate-spin" aria-hidden="true" />
-          Loading incoming requests...
-        </div>
-      ) : pendingRequests.length === 0 && quoteInquiries.length === 0 && (requestsStatus === 'error' || engagementsStatus === 'error') ? (
-        <div className={`rounded-[24px] border p-12 text-center ${isDark ? 'border-neutral-850 bg-charcoal-surface text-ink-muted' : 'border-slate-200 bg-white text-ink-muted'}`}>
-          <p className="text-sm font-semibold">Incoming requests could not be loaded.</p>
-          <button type="button" onClick={refreshAll} className="mt-3 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white">Try again</button>
-        </div>
-      ) : pendingRequests.length === 0 && quoteInquiries.length === 0 ? (
-        <div className={`rounded-[24px] p-12 border text-center transition-all ${
-          isDark ? 'bg-charcoal-surface border-neutral-850 text-ink-muted' : 'bg-white border-slate-200 shadow-sm text-ink-muted'
-        }`}>
-          <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center bg-emerald-500/10 text-emerald-500">
-            <Inbox className="w-6 h-6" />
-          </div>
-          <h3 className={`text-sm font-extrabold mb-1 ${isDark ? 'text-white' : 'text-ink'}`}>
-            No Incoming Requests
-          </h3>
-          <p className="text-xs max-w-md mx-auto text-ink-muted dark:text-ink-muted">
-            When seekers choose your priced listings, their booking requests will appear here.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {quoteInquiries.map((request) => (
-            <div key={request.id} className={`rounded-[20px] border p-4 sm:p-5 shadow-sm ${isDark ? 'border-neutral-850 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 space-y-1">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-text dark:text-orange-400">Existing listing inquiry · final price needed</span>
-                  <h3 className="uppercase break-words [overflow-wrap:anywhere] text-sm font-extrabold">{request.title}</h3>
-                  <p className="text-xs text-ink-muted dark:text-ink-muted">From {request.seekerName}</p>
-                </div>
-                <Link href={`/provider/browse-services?request=${encodeURIComponent(request.id)}`} className="rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-700">
-                  Send quote
-                </Link>
-              </div>
-              <p className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-ink-muted dark:text-ink-secondary">{request.description}</p>
-              <p className="mt-2 text-xs font-semibold text-ink-muted dark:text-ink-muted">{request.budget ? `Listed rate: ₱${request.budget}` : 'Custom price · quote required'}</p>
-              <p className="mt-1 text-xs font-semibold text-ink-muted dark:text-ink-muted">Seeker selected: {request.preferredPaymentMethod}</p>
-            </div>
-          ))}
-          {pendingRequests.map((je) => {
-            const isVerified = je.seekerVerificationStatus === 'APPROVED';
-            const trustScore = typeof je.seekerTrustScore === 'number' ? je.seekerTrustScore : 50;
-            const location = je.seekerLocation || 'Location not provided';
-
-            return (
-              <div 
-                key={je.id} 
-                className={`rounded-[20px] p-4 sm:p-5 border shadow-sm transition-all duration-200 ${
-                  isDark 
-                    ? 'bg-charcoal-surface border-neutral-850 hover:border-neutral-800'
-                    : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-md'
-                }`}
-              >
-                {/* Row 1: Header with Seeker Profile (Left) & Price/Payment (Right) */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  {/* Left: Avatar + Name + Badges */}
-                  <Link href={`/profile/${encodeURIComponent(je.seekerId)}`} className="group/profile flex min-w-0 items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500" aria-label={`View ${je.seekerName}'s profile`}>
-                    {je.seekerAvatar ? (
-                      <Image unoptimized width={40} height={40}
-                        src={je.seekerAvatar} 
-                        alt={je.seekerName} 
-                        className="w-10 h-10 rounded-full object-cover border border-neutral-700/60 shadow-sm shrink-0 transition-transform group-hover/profile:scale-[1.03]"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-extrabold text-sm shadow-sm shrink-0">
-                        {je.seekerName ? je.seekerName.charAt(0).toUpperCase() : 'S'}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className={`font-extrabold text-sm truncate transition-colors group-hover/profile:text-emerald-600 dark:group-hover/profile:text-emerald-400 ${isDark ? 'text-white' : 'text-ink'}`}>
-                          {je.seekerName}
-                        </span>
-                        {isVerified && (
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                            <ShieldCheck className="w-3 h-3" /> Verified
-                          </span>
-                        )}
-                        <span className="text-slate-300 dark:text-ink-secondary">•</span>
-                        <span className={`font-bold text-xs ${isDark ? 'text-amber-400/90' : 'text-amber-600'}`}>
-                          {je.title}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-ink-muted dark:text-ink-muted font-medium">
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-red-400" />
-                          {location}
-                        </span>
-                        <span>•</span>
-                        <TrustScoreBadge score={trustScore} />
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatTimeAgo(je.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-
-                  {/* Right: Offered Rate & Payment */}
-                  <div className="flex items-center gap-2.5 sm:text-right shrink-0">
-                    <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-ink-subtle dark:text-ink-subtle block">
-                        Booking Total
-                      </span>
-                      <span className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400">
-                        ₱{Number(je.price).toLocaleString()}
-                      </span>
-                      {!!je.quantity && je.quantity > 1 && <span className="block text-[10px] text-ink-muted dark:text-ink-muted">{je.quantity} {je.priceType === 'PER_DAY' ? 'days' : 'hours'} requested</span>}
-                    </div>
-                    <div className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold border flex items-center gap-1 shadow-xs ${
-                      je.paymentMethod !== 'On-site Cash'
-                        ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
-                        : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                    }`}>
-                      {je.paymentMethod !== 'On-site Cash' ? <CreditCard className="w-3 h-3" /> : <Banknote className="w-3 h-3" />}
-                      <span>{je.paymentMethod || 'On-site Cash'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Row 2: Customer Note (Compact Single-Container Inline Strip) */}
-                {je.description && (
-                  <div className={`mt-3 px-3.5 py-2.5 rounded-xl border flex items-start gap-2 text-xs leading-relaxed ${
-                    isDark ? 'bg-charcoal border-neutral-850' : 'bg-slate-50 border-slate-200/80'
-                  }`}>
-                    <MessageSquare className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                    <span className="font-semibold text-ink-subtle dark:text-ink-subtle shrink-0">Note:</span>
-                    <span className={`italic font-medium ${isDark ? 'text-white' : 'text-ink-secondary'}`}>
-                      &quot;{je.description}&quot;
-                    </span>
-                  </div>
-                )}
-
-                {je.preferredSchedule && (
-                  <div className={`mt-2 px-3.5 py-2.5 rounded-xl border flex flex-wrap items-start gap-2 text-xs leading-relaxed ${
-                    isDark ? 'bg-charcoal border-neutral-850' : 'bg-slate-50 border-slate-200/80'
-                  }`}>
-                    <Clock className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="font-semibold text-ink-subtle dark:text-ink-subtle shrink-0">Preferred schedule:</span>
-                    <span className={isDark ? 'text-white' : 'text-ink-secondary'}>{je.preferredSchedule}</span>
-                  </div>
-                )}
-
-                {/* Row 3: Action Buttons Footer */}
-                <div className={`mt-3 pt-3 border-t flex items-center justify-between gap-3 ${
-                  isDark ? 'border-neutral-850/80' : 'border-slate-100'
-                }`}>
-                  <span className="text-[11px] font-medium text-ink-subtle dark:text-ink-subtle hidden sm:inline">
-                    Accepting confirms this booking and unlocks private messaging. Starting the job remains a separate action.
-                  </span>
-
-                  <div className="flex items-center gap-2 ml-auto">
-                    <button
-                      type="button"
-                      disabled={!!loadingJobId}
-                      onClick={() => handleRespond(je.id, false)}
-                      className={`px-3.5 py-1.5 border font-bold text-xs rounded-xl transition-all flex items-center gap-1 cursor-pointer ${
-                        loadingJobId === je.id && loadingAction === 'declining'
-                          ? 'bg-charcoal border-neutral-800 text-ink-muted cursor-not-allowed opacity-60'
-                          : isDark 
-                            ? 'border-neutral-800 hover:bg-red-950/30 hover:text-red-400 hover:border-red-900/40 text-ink-muted'
-                            : 'border-slate-200 hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-ink-secondary'
-                      }`}
-                    >
-                      {loadingJobId === je.id && loadingAction === 'declining' ? (
-                        <>
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                          <span>Declining...</span>
-                        </>
-                      ) : (
-                        <>
-                          <X className="w-3 h-3" />
-                          <span>Decline</span>
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={!!loadingJobId}
-                      onClick={() => handleRespond(je.id, true)}
-                      className={`px-4 sm:px-5 py-1.5 font-extrabold text-xs rounded-xl shadow-xs transition-all active:scale-95 flex items-center gap-1 cursor-pointer ${
-                        loadingJobId === je.id && loadingAction === 'accepting'
-                          ? 'bg-charcoal text-ink-muted cursor-not-allowed opacity-60'
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                      }`}
-                    >
-                      {loadingJobId === je.id && loadingAction === 'accepting' ? (
-                        <>
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                          <span>Accepting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Accept Job</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Transaction Blocked Modal */}
-      <TransactionBlockedModal
-        isOpen={blockedModalOpen}
-        onClose={() => setBlockedModalOpen(false)}
-      />
-
-    </div>
-  );
+  return <div className={`space-y-3 ${isDark ? 'text-white' : 'text-ink'}`}>
+    <LimitedModeDashboardCard role="provider" />
+    {inboxItems.length > 0 && <div className={styles.toolbar}>
+      <input type="search" className={styles.search} aria-label="Search incoming requests" placeholder="Search person, service or work…" value={searchQuery} onChange={e => {setSearchQuery(e.target.value);pagination.reset();}} />
+      <span>{matchingItems.length} awaiting response</span>
+    </div>}
+    {inboxItems.length === 0 && (requestsStatus === 'loading' || engagementsStatus === 'loading') ?
+      <InboxState loading icon={Loader2} title="Loading incoming requests..." description="Fetching booking requests and quote inquiries." /> :
+      inboxItems.length === 0 && (requestsStatus === 'error' || engagementsStatus === 'error') ?
+      <InboxState kind="error" title="Incoming requests could not be loaded." description="Try again to fetch your inbox." actionLabel="Try again" onAction={refreshAll} /> :
+      inboxItems.length === 0 ? <InboxState icon={Inbox} title="No Incoming Requests" description="When seekers choose your services, their booking requests and quote inquiries will appear here." /> :
+      matchingItems.length === 0 ? <InboxState icon={Search} title="No matching requests" description="Try another person or service name." actionLabel="Clear search" onAction={() => {setSearchQuery('');pagination.reset();}} /> :
+      <div className="space-y-2">
+        {pagination.paginatedItems.map(entry => entry.kind === 'booking' ?
+          <IncomingBookingRequestCard key={`booking-${entry.item.id}`} booking={entry.item} timeLabel={formatTimeAgo(entry.item.createdAt)} disabled={Boolean(loadingJobId)} loadingAction={loadingJobId === entry.item.id ? loadingAction : null} onRespond={accept => void handleRespond(entry.item.id,accept)} /> :
+          <IncomingInquiryCard key={`inquiry-${entry.item.id}`} request={entry.item} timeLabel={formatTimeAgo(entry.item.createdAt)} disabled={Boolean(loadingJobId)} loadingAction={loadingJobId === entry.item.id ? loadingAction : null} onDecline={() => void declineInquiry(entry.item)} onSetPrice={() => void openPriceForm(entry.item)} />)}
+        <PaginationBar {...pagination} variant="provider" />
+      </div>}
+    <ProposalModal key={priceRequest?.id || 'closed'} request={priceRequest} listings={priceListing} serviceId={priceRequest?.targetServiceId || ''} onServiceChange={() => {}} isSubmitting={sendingPrice} isDark={isDark} price={price} duration={duration} message={includedWork} availability={availability} onAvailabilityChange={setAvailability} onPriceChange={setPrice} onDurationChange={setDuration} onMessageChange={setIncludedWork} onClose={() => { if (!responseLock.current) setPriceRequest(undefined); }} onSubmit={sendPrice} />
+    <TransactionBlockedModal isOpen={blockedModalOpen} onClose={() => setBlockedModalOpen(false)} />
+  </div>;
 }

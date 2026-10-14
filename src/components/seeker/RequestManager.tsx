@@ -24,9 +24,11 @@ import { JobRequest } from '../../types';
 import { formatUrgencyDisplay } from '../provider/browse-jobs/browseJobs.utils';
 import EmptyState from '../ui/EmptyState';
 import EditRequestModal, { EditRequestState } from './request-manager/EditRequestModal';
+import ListingPhotoThumbnail from '../ui/ListingPhotoThumbnail';
 import RequestPaymentMethods from '../ui/RequestPaymentMethods';
 import { isRequestUrgency } from '../../lib/requestUrgency';
 import { requestDeleteBlockedReason } from '../../lib/requestDeletion';
+import { useToast } from '../ui/Toast';
 
 export default function RequestManager({ 
   currentUserId = 'u1',
@@ -38,6 +40,7 @@ export default function RequestManager({
   onNavigateToActivity?: () => void;
 }) {
   const { jobRequests, bids, deleteJobRequest, editJobRequest, toggleJobRequestStatus, isDark } = useApp();
+  const { error } = useToast();
 
   // Fetch unbooked requests, including paused listings and offers awaiting acceptance/payment.
   const [myOwnRequests, setMyOwnRequests] = useState<JobRequest[] | null>(null);
@@ -208,8 +211,12 @@ export default function RequestManager({
   const handleOpenEdit = (req: JobRequest) => {
     setEditingRequest({
       requestId: req.id,
+      photos: req.photos ?? [],
+      originalPhotoIds: (req.photos ?? []).map(photo => photo.id),
       jobLocation: req.jobLocation,
       originalJobLocation: req.jobLocation,
+      serviceLocationMode: req.serviceLocationMode ?? 'PROVIDER_VISITS',
+      originalServiceLocationMode: req.serviceLocationMode ?? 'PROVIDER_VISITS',
       transportationFee: req.transportationFee == null ? '' : String(req.transportationFee),
       originalTransportationFee: req.transportationFee,
       locationLocked: req.hasAcceptedOffer || req.hasPendingPaymentOffer || bids.some(bid => bid.requestId === req.id && ['pending', 'PENDING', 'accepted', 'ACCEPTED', 'pending_payment', 'PENDING_PAYMENT'].includes(bid.status)),
@@ -224,6 +231,10 @@ export default function RequestManager({
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingRequest || savingEditRef.current) return;
+    if (!editingRequest.jobLocation && editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode) {
+      error(editingRequest.serviceLocationMode === 'SEEKER_VISITS' ? 'Choose an area to find providers' : 'Choose where the work will happen', editingRequest.serviceLocationMode === 'SEEKER_VISITS' ? 'Choose the city or barangay where you want to find a provider.' : 'Mark where the provider should come on the map.');
+      return;
+    }
     savingEditRef.current = true;
     setIsSavingEdit(true);
 
@@ -235,6 +246,8 @@ export default function RequestManager({
         editingRequest.description,
         editingRequest.urgency,
         {
+          ...(editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode && { serviceLocationMode: editingRequest.serviceLocationMode }),
+          ...(JSON.stringify((editingRequest.photos ?? []).map(photo => photo.id)) !== JSON.stringify(editingRequest.originalPhotoIds ?? []) && { photoIds: (editingRequest.photos ?? []).map(photo => photo.id) }),
           ...(editingRequest.jobLocation && JSON.stringify(editingRequest.jobLocation) !== JSON.stringify(editingRequest.originalJobLocation) && { jobLocation: editingRequest.jobLocation }),
           ...((editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null) !== (editingRequest.originalTransportationFee ?? null) && { transportationFee: editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null }),
         },
@@ -268,7 +281,7 @@ export default function RequestManager({
               Your Requests
             </h2>
             <p className={`text-[11px] ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-              {myRequests.length} {myRequests.length === 1 ? 'task request' : 'task requests'} posted to nearby providers
+              {myRequests.length} {myRequests.length === 1 ? 'request' : 'requests'} · posted publicly or sent to a provider
             </p>
           </div>
         </div>
@@ -399,7 +412,7 @@ export default function RequestManager({
                             )}
                           </div>
                         ) : req.targetServiceId ? (
-                          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">{bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Quote received · review offer' : 'Awaiting provider quote'}</span>
+                          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">{['CANCELED', 'CLOSED'].includes(req.status) || (!req.preferredPaymentMethod && bids.some(bid => bid.requestId === req.id && ['declined', 'rejected', 'withdrawn'].includes(bid.status.toLowerCase()))) ? 'Request closed' : req.status === 'PAYMENT_PENDING' ? 'Payment in progress' : bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Price received · review in Offers Received' : 'Waiting for the provider’s price'}</span>
                         ) : (() => {
                           const isToggling = togglingRequestId === req.id;
                           return (
@@ -447,6 +460,7 @@ export default function RequestManager({
                   </div>
 
                   {/* Tier 2: Request content */}
+                  <ListingPhotoThumbnail photo={req.photos?.[0]} title={req.title} />
                   <div className="min-w-0 space-y-1.5">
                     <h3 className={`uppercase break-words [overflow-wrap:anywhere] font-bold text-base sm:text-lg leading-snug ${isDark ? 'text-white' : 'text-ink'}`}>
                       {req.title}
@@ -464,9 +478,9 @@ export default function RequestManager({
                     isDark ? 'border-neutral-800/80' : 'border-slate-100'
                   }`}>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[11px] font-semibold text-ink-muted">{req.targetServiceId ? 'Displayed listing rate · final quote pending' : 'Estimated budget'}</span>
+                      <span className="text-[11px] font-semibold text-ink-muted">{req.targetServiceId ? 'Service pricing' : 'Estimated budget'}</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-brand-text'}`}>
-                        {req.targetServiceId && !req.budget ? 'Quote required' : `₱${req.budget}`}
+                        {req.targetServiceId && !req.budget ? 'Price by agreement' : `₱${req.budget}`}
                       </span>
                     </div>
 
@@ -561,6 +575,7 @@ export default function RequestManager({
       )}
 
       <EditRequestModal
+        key={editingRequest?.requestId}
         value={editingRequest}
         isDark={isDark}
         isSaving={isSavingEdit}

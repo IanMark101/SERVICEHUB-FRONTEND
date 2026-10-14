@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-12",
+  "scope": "Soft rounded back-arrow treatment in both account headers; enhanced left navigation for Account Settings.",
+  "environment": "Local development server with real components and a synthetic member; temporary review route removed before production build. No profile changes submitted.",
+  "browserChecks": [
+    "Desktop navigation panel is 208px wide, beside the existing forms; no horizontal overflow.",
+    "Section links land below the sticky global header; desktop navigation remains at 88px from the viewport top.",
+    "Profile and Trust & safety anchor links select the matching aria-current location; keyboard PageDown changes the highlight to Profile.",
+    "Both themes inspected; neutral back-arrow fill and 10px corners verified on Account Settings and User Profile header contexts.",
+    "390px and 320px browser-frame layouts have no horizontal overflow and use static wrapped navigation; all section links are 44px high.",
+    "768px layout retains static navigation above the forms."
+  ],
+  "validation": {
+    "eslint": "Passed for the modified account components.",
+    "existingTests": "12 passed: profile saving and header people search.",
+    "productionBuild": "Passed; 109 pages generated."
+  },
+  "screenshots": [
+    "account-settings-sidebar-light.png",
+    "account-settings-sidebar-dark.png",
+    "account-settings-sidebar-phone.png"
+  ],
+  "limitations": "Responsive checks use real application content inside browser frames, not physical devices. Backend-only account panels require a genuine authenticated session."
+}

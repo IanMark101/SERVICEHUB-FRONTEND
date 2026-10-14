@@ -1,0 +1,54 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "postSteps": 5,
+    "bookingSteps": 4,
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "openMapRestored": null,
+    "postWrites": 1,
+    "bookingWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "postSteps": 5,
+    "bookingSteps": 4,
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "openMapRestored": null,
+    "postWrites": 1,
+    "bookingWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "postSteps": 5,
+    "bookingSteps": 4,
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "openMapRestored": true,
+    "postWrites": 1,
+    "bookingWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 320,
+    "theme": "light",
+    "postSteps": 5,
+    "bookingSteps": 4,
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "openMapRestored": null,
+    "postWrites": 1,
+    "bookingWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  }
+]

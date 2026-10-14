@@ -1,127 +1,115 @@
-import { useEffect, useState } from 'react';
+'use client';
+
+import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
-import { ArrowRight, Briefcase, Clock, UsersThree } from '@phosphor-icons/react';
+import { ArrowRight, Briefcase, Clock, ListNumbers } from '@phosphor-icons/react';
 import { apiGetProviderWorkload, apiSetProviderWorkloadCapacity, type ProviderWorkload } from '../../../api/bookings.api';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import FormalSelect from '../../ui/FormalSelect';
+import styles from './WorkQueue.module.css';
 
 function jobTitle(job: { service?: { title: string } | null; offer?: { request: { title: string } } | null }) {
   return job.offer?.request.title || job.service?.title || 'Service booking';
 }
 
 export default function ProviderWorkloadPanel({ onOpen, onStart, startingBookingId, isDark }: {
-  onOpen: (bookingId: string) => void;
-  onStart: (bookingId: string) => void;
-  startingBookingId?: string | null;
-  isDark: boolean;
+  onOpen: (bookingId: string) => void; onStart: (bookingId: string) => void;
+  startingBookingId?: string | null; isDark: boolean;
 }) {
   const [workload, setWorkload] = useState<ProviderWorkload | null>(null);
   const [capacity, setCapacity] = useState(5);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  useEffect(() => {
-    let active = true;
-    apiGetProviderWorkload().then((result) => {
-      if (active) { setWorkload(result.data); setCapacity(result.data.onlineQueueLimit); setError(''); }
-    }).catch((failure) => { if (active) setError(getApiErrorMessage(failure, 'Workload is temporarily unavailable.')); });
-    return () => { active = false; };
+  const active = useRef(false);
+  const savedLimit = useRef<number | null>(null);
+  const savePending = useRef(false);
+  const generation = useRef(0);
+  const load = useCallback(async () => {
+    const request = ++generation.current;
+    try {
+      const result = await apiGetProviderWorkload();
+      if (!active.current || request !== generation.current) return;
+      setWorkload(result.data);
+      const oldLimit = savedLimit.current;
+      setCapacity(previous => oldLimit === null || previous === oldLimit ? result.data.onlineQueueLimit : previous);
+      savedLimit.current = result.data.onlineQueueLimit;
+      setError('');
+    } catch (failure) {
+      if (active.current && request === generation.current) setError(getApiErrorMessage(failure, 'Workload is temporarily unavailable.'));
+    }
   }, []);
-  useApiCacheRefresh(['bookings'], async () => {
-    const result = await apiGetProviderWorkload();
-    setWorkload(result.data);
-    setCapacity(previous => previous === workload?.onlineQueueLimit ? result.data.onlineQueueLimit : previous);
-    setError('');
-  }, !saving);
+  const stop = useCallback(() => { active.current = false; generation.current += 1; }, []);
+  useEffect(() => { active.current = true; queueMicrotask(() => { if (active.current) void load(); }); return stop; }, [load, stop]);
+  useApiCacheRefresh(['bookings'], load, !saving);
 
-  const currentPaid = workload?.paidJobs.find((job) => job.status === 'SERVING');
-  const currentCash = workload?.cashJobs.find((job) => job.started && ['ONGOING', 'DISPUTED', 'UNDER_REVIEW'].includes(job.status));
-  const waiting = workload?.paidJobs.filter((job) => job.status === 'WAITING') || [];
+  const currentPaid = workload?.paidJobs.find(job => job.status === 'SERVING');
+  const currentCash = workload?.cashJobs.find(job => job.started && ['ONGOING', 'DISPUTED', 'UNDER_REVIEW'].includes(job.status));
+  const waiting = workload?.paidJobs.filter(job => job.status === 'WAITING') || [];
   const next = waiting[0];
-  const cashArrangements = workload?.cashJobs.filter((job) => !job.started && ['ACCEPTED', 'PENDING_APPROVAL'].includes(job.status)) || [];
+  const cashArrangements = workload?.cashJobs.filter(job => !job.started && ['ACCEPTED', 'PENDING_APPROVAL'].includes(job.status)) || [];
   const current = currentPaid?.booking || currentCash;
   const currentId = currentPaid?.bookingId || currentCash?.id;
   const canStartNext = !current && !!next?.bookingId && next.canStart;
-  const nextBlockedReason = current
-    ? 'Finish your current job before starting another one.'
-    : next?.startBlockedReason;
-  const currentStatus = current?.status === 'DISPUTED' || current?.status === 'UNDER_REVIEW'
-    ? 'Under review'
-    : 'In progress';
-
+  const nextBlockedReason = current ? 'Finish your current job before starting another one.' : next?.startBlockedReason;
+  const currentStatus = current?.status === 'DISPUTED' || current?.status === 'UNDER_REVIEW' ? 'Under review' : 'In progress';
   const saveCapacity = async () => {
-    setSaving(true);
-    setError('');
+    if (savePending.current) return;
+    savePending.current = true;
+    ++generation.current;
+    setSaving(true); setError('');
     try {
       await apiSetProviderWorkloadCapacity(capacity);
-      setWorkload((previous) => previous ? { ...previous, onlineQueueLimit: capacity } : previous);
-    } catch (failure) { setError(getApiErrorMessage(failure, 'Could not update your waiting capacity.')); }
-    finally { setSaving(false); }
+      if (!active.current) return;
+      savedLimit.current = capacity;
+      setWorkload(previous => previous ? { ...previous, onlineQueueLimit: capacity } : previous);
+      await load();
+    } catch (failure) { if (active.current) setError(getApiErrorMessage(failure, 'Could not update your waiting capacity.')); }
+    finally { savePending.current = false; if (active.current) setSaving(false); }
   };
 
-  return (
-    <section aria-labelledby="provider-workload-heading" className={`rounded-2xl border p-5 sm:p-6 ${isDark ? 'border-emerald-900/50 bg-charcoal-surface' : 'border-emerald-200 bg-white'}`}>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 id="provider-workload-heading" className="text-lg font-bold text-ink dark:text-ink">Your workload</h2>
-          <p className="mt-1 text-sm text-ink-muted dark:text-ink-secondary">One current job and one shared paid queue across all your services and accepted offers.</p>
+  return <section aria-labelledby="provider-workload-heading" className={styles.queue}>
+    <div className={styles.header}>
+      <div><h1 id="provider-workload-heading">Your work queue</h1><p>Manage your current job and paid bookings in the order they arrived.</p></div>
+      <Link href="/provider/provider-activity" className={styles.link}>View Activity <ArrowRight size={16} aria-hidden="true" /></Link>
+    </div>
+    {error && <div role="alert" className={styles.error}>{error} <button type="button" onClick={() => { void load(); }}>Try again</button></div>}
+    {!workload && !error && <div aria-label="Loading workload" className={styles.skeleton}><div /><div /><div /></div>}
+    {!workload && error && <p className={styles.muted}>Workload unavailable</p>}
+    {workload && <>
+      <div className={styles.layout}>
+        <div className={styles.jobs}>
+          <div className={styles.current}>
+            <h2><Briefcase size={19} aria-hidden="true" /> Current job</h2>
+            {current ? <><h3>{jobTitle(current)}</h3><p>{current.seeker.name}</p><div className={styles.jobActions}><span className={styles.badge}>{currentStatus}</span>{currentId && <button type="button" className={styles.secondary} onClick={() => onOpen(currentId)}>Open booking <ArrowRight size={16} aria-hidden="true" /></button>}</div></>
+              : <p className={styles.empty}>No job in progress.</p>}
+          </div>
+          <div className={styles.next}>
+            <h2><Clock size={19} aria-hidden="true" /> Next paid job</h2>
+            {next?.booking ? <><h3>{jobTitle(next.booking)}</h3><p>{next.booking.seeker.name}</p><div className={styles.jobActions}>
+              <span className={styles.badge}>Position #{next.position}</span>
+              {next.bookingId && <><button type="button" className={styles.secondary} onClick={() => onOpen(next.bookingId!)}>Details</button><button type="button" className={styles.primary} disabled={!canStartNext || !!startingBookingId || Boolean(error)} onClick={() => onStart(next.bookingId!)} title={nextBlockedReason || undefined}>{startingBookingId === next.bookingId ? 'Starting...' : 'Start Job'}</button></>}
+            </div>{nextBlockedReason && <p className={styles.blocked}>{nextBlockedReason}</p>}</>
+              : <p className={styles.empty}>No paid job waiting.</p>}
+          </div>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"><UsersThree size={15} /> {workload ? `${waiting.length} paid waiting` : error ? 'Workload unavailable' : 'Loading workload'}</span>
+        <aside className={styles.settings} aria-labelledby="queue-settings-heading">
+          <h2 id="queue-settings-heading">Queue settings</h2>
+          <span className={styles.count}>{waiting.length}<span> / {workload.onlineQueueLimit}</span></span>
+          <p className={styles.muted}>Paid waiting places used</p>
+          <p className={styles.help}>One shared limit for GCash-paid jobs across your services and accepted offers. Your current job does not use a waiting place.</p>
+          <label htmlFor="provider-paid-capacity">Paid waiting capacity</label>
+          <div className={styles.settingActions}><div className={styles.select}><FormalSelect id="provider-paid-capacity" name="capacity" value={String(capacity)} onChange={event => setCapacity(Number(event.target.value))} options={Array.from({ length: 10 }, (_, index) => ({ value: String(index + 1), label: String(index + 1) + (index === 0 ? ' job' : ' jobs') }))} theme="seeker" isDark={isDark} disabled={saving} /></div><button type="button" className={styles.primary} disabled={saving || Boolean(error) || capacity === workload.onlineQueueLimit} onClick={() => { void saveCapacity(); }}>{saving ? 'Saving...' : 'Save'}</button></div>
+        </aside>
       </div>
-
-      {error && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/30 dark:text-red-300">{error}</p>}
-      {!workload && !error ? <div className="mt-5 h-24 animate-pulse rounded-xl bg-stone-100 dark:bg-charcoal" aria-label="Loading workload" /> : workload && (
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-[1.1fr_1.1fr_0.8fr]">
-          <div className="rounded-xl bg-stone-50 p-4 dark:bg-charcoal/70">
-            <div className="flex items-center gap-2 text-xs font-semibold text-ink-muted dark:text-ink-secondary"><Briefcase size={16} /> Current job</div>
-            {current ? <>
-              <p className="mt-2 font-bold text-ink dark:text-ink">{jobTitle(current)}</p>
-              <p className="text-sm text-ink-muted dark:text-ink-secondary">{current.seeker.name} · {currentStatus}</p>
-              {currentId && <button type="button" onClick={() => onOpen(currentId)} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700  dark:text-emerald-400">Open booking <ArrowRight size={15} /></button>}
-            </> : <p className="mt-2 text-sm text-ink-muted dark:text-ink-secondary">No job in progress.</p>}
-          </div>
-          <div className="rounded-xl bg-emerald-50/70 p-4 dark:bg-emerald-950/20">
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300"><Clock size={16} /> Next paid job</div>
-            {next?.booking ? <>
-              <p className="mt-2 font-bold text-ink dark:text-ink">{jobTitle(next.booking)}</p>
-              <p className="text-sm text-ink-muted dark:text-ink-secondary">{next.booking.seeker.name} · Position #{next.position}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {next.bookingId && <button type="button" onClick={() => onOpen(next.bookingId!)} className="text-sm font-semibold text-emerald-800  dark:text-emerald-300">Details</button>}
-                {next.bookingId && <button type="button" disabled={!canStartNext || !!startingBookingId} onClick={() => onStart(next.bookingId!)} title={nextBlockedReason || undefined} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-stone-200 disabled:text-ink-muted dark:disabled:bg-charcoal dark:disabled:text-ink-secondary">{startingBookingId === next.bookingId ? 'Starting…' : 'Start Job'}</button>}
-              </div>
-              {nextBlockedReason && <p className="mt-2 text-xs leading-5 text-amber-800 dark:text-amber-300">{nextBlockedReason}</p>}
-            </> : <p className="mt-2 text-sm text-ink-muted dark:text-ink-secondary">No paid job waiting.</p>}
-          </div>
-          <div className="rounded-xl bg-stone-50 p-4 dark:bg-charcoal/70">
-            <label htmlFor="provider-paid-capacity" className="text-xs font-semibold text-ink dark:text-ink">Paid waiting capacity</label>
-            <p className="mt-1 text-sm text-ink-secondary dark:text-ink">{waiting.length} of {workload.onlineQueueLimit} paid waiting places used</p>
-            <p className="mt-1 text-xs leading-5 text-ink-muted dark:text-ink-muted">Maximum GCash-paid jobs waiting across all your services and offers.</p>
-            <div className="mt-3 flex items-center gap-2">
-              <div className="w-36">
-                <FormalSelect
-                  id="provider-paid-capacity"
-                  name="capacity"
-                  value={String(capacity)}
-                  onChange={(event) => setCapacity(Number(event.target.value))}
-                  options={Array.from({ length: 10 }, (_, index) => ({
-                    value: String(index + 1),
-                    label: `${index + 1} jobs`,
-                  }))}
-                  theme="provider"
-                  isDark={isDark}
-                  className="!py-2 !px-3 !text-sm !rounded-xl"
-                />
-              </div>
-              <button type="button" disabled={saving || capacity === workload.onlineQueueLimit} onClick={() => void saveCapacity()} className="min-h-10 rounded-lg border border-emerald-300 px-3 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 disabled:opacity-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/30">{saving ? 'Saving…' : 'Save'}</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {workload && (waiting.length > 1 || cashArrangements.length > 0) && (
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-stone-200 pt-4 text-sm dark:border-neutral-700">
-          {waiting.length > 1 && <span className="text-ink-secondary dark:text-ink">Also waiting: {waiting.slice(1).map((job) => `#${job.position} ${job.booking ? jobTitle(job.booking) : 'Booking'}`).join(', ')}</span>}
-          {cashArrangements.length > 0 && <span className="text-ink-secondary dark:text-ink">Direct cash arrangements: {cashArrangements.length} (outside the numbered paid queue)</span>}
-        </div>
-      )}
-    </section>
-  );
+      <section className={styles.waiting} aria-labelledby="paid-waiting-heading">
+        <div className={styles.sectionHeading}><h2 id="paid-waiting-heading"><ListNumbers size={19} aria-hidden="true" /> Paid waiting list</h2><span className={styles.muted}>{waiting.length} paid waiting</span></div>
+        {waiting.length ? <ol className={styles.list}>{waiting.map(job => <li key={job.id}><span className={styles.position}>#{job.position}</span><div className={styles.rowText}><h3>{job.booking ? jobTitle(job.booking) : 'Service booking'}</h3><p>{job.booking?.seeker.name || 'Booking information unavailable'}{job.paymentStatus ? ' · ' + (job.paymentStatus === 'PAID' ? 'Paid' : job.paymentStatus.toLowerCase().replaceAll('_', ' ')) : ''}</p></div><span className={styles.badge}>{job.id === next?.id ? 'Up next' : 'Waiting'}</span>{job.bookingId && <button type="button" className={styles.secondary} aria-label="View booking details" onClick={() => onOpen(job.bookingId!)}>Details</button>}</li>)}</ol>
+          : <p className={styles.empty}>New paid bookings will appear here. Jobs stay in payment order.</p>}
+      </section>
+      <section className={styles.waiting} aria-labelledby="cash-bookings-heading"><h2 id="cash-bookings-heading">Cash bookings</h2><p className={styles.help}>Cash bookings are arranged directly with seekers and stay outside the paid queue. Open a booking to see its status and available actions.</p>
+        {cashArrangements.length ? <ul className={styles.list}>{cashArrangements.map(job => <li key={job.id}><div className={styles.rowText}><h3>{jobTitle(job)}</h3><p>{job.seeker.name}</p></div><span className={styles.badge}>{job.status === 'PENDING_APPROVAL' ? 'Needs approval' : 'Accepted'}</span><button type="button" className={styles.secondary} onClick={() => onOpen(job.id)}>Details</button></li>)}</ul> : <p className={styles.empty}>No cash bookings waiting.</p>}
+      </section>
+    </>}
+  </section>;
 }

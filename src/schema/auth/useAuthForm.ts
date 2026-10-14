@@ -5,7 +5,7 @@ import { UserSession } from '../../components/auth/LoginContainer';
 import { signupStep1Schema, signupStep2Schema, formatSignupAddress, loginSchema, forgotSchema, resetSchema } from '@/schema/auth/authValidation';
 import { setAccessToken } from '@/lib/api/axios';
 import { markSessionPresent } from '@/lib/browserStorage';
-import { getApiErrorBody, getApiErrorMessage } from '@/lib/api/errors';
+import { getApiErrorBody, getApiErrorMessage, getUserFacingErrorMessage } from '@/lib/api/errors';
 import type { FieldPath } from 'react-hook-form';
 import type { ZodIssue } from 'zod';
 import useAuthCaptcha from '@/components/auth/shared/useAuthCaptcha';
@@ -221,11 +221,11 @@ export default function useAuthForm({
             moderationStatus: user.moderationStatus,
           });
         } else {
-          setError(res.error || 'Google Login failed');
+          setError(getUserFacingErrorMessage(res.error, 'We couldn’t sign you in with Google. Please try again.'));
         }
       })
       .catch((err: unknown) => {
-        setError(getApiErrorMessage(err, 'Google authentication failed.'));
+        setError(getApiErrorMessage(err, 'We couldn’t sign you in with Google. Please try again.'));
       })
       .finally(() => {
         recoveryBusy.current = false;
@@ -253,12 +253,12 @@ export default function useAuthForm({
             setSuccessMsg(res.message || 'If an account exists, a reset link has been sent.');
             setError('');
           } else {
-            setError(res.error || 'Failed to send reset link.');
+            setError(getUserFacingErrorMessage(res.error, 'We couldn’t send the password reset email. Please try again.'));
           }
         })
         .catch((err: unknown) => {
           captcha.handleFailure(err);
-          setError(getApiErrorMessage(err, 'Something went wrong.'));
+          setError(getApiErrorMessage(err, 'We couldn’t send the password reset email. Please try again.'));
         }).finally(() => { captcha.reset(); recoveryBusy.current = false; setIsLoading(false); });
       return;
     }
@@ -282,11 +282,11 @@ export default function useAuthForm({
               setValue('confirmPassword', '');
             }, 3000);
           } else {
-            setError(res.error || 'Failed to reset password.');
+            setError(getUserFacingErrorMessage(res.error, 'We couldn’t reset your password. Please try again or request a new reset link.'));
           }
         })
         .catch((err: unknown) => {
-          setError(getApiErrorMessage(err, 'Something went wrong.'));
+          setError(getApiErrorMessage(err, 'We couldn’t reset your password. Please try again or request a new reset link.'));
         }).finally(() => { recoveryBusy.current = false; setIsLoading(false); });
       return;
     }
@@ -327,12 +327,12 @@ export default function useAuthForm({
               moderationStatus: user.moderationStatus,
             });
           } else {
-            setError(res.error || 'Login failed');
+            setError(getUserFacingErrorMessage(res.error, 'We couldn’t sign you in. Please try again.'));
           }
         })
         .catch((err: unknown) => {
           captcha.handleFailure(err);
-          setError(getApiErrorMessage(err, 'Invalid email or password'));
+          setError(getApiErrorMessage(err, 'We couldn’t sign you in. Please try again.'));
         })
         .finally(() => {
           captcha.reset();
@@ -382,7 +382,7 @@ export default function useAuthForm({
             setIsRegisterSuccess(true);
             setError('');
           } else {
-            setError(res.error || 'Registration failed');
+            setError(getUserFacingErrorMessage(res.error, 'We couldn’t create your account. Please try again.'));
           }
         })
         .catch((err: unknown) => {
@@ -394,12 +394,7 @@ export default function useAuthForm({
             setRHFError('email', { type: 'registered', message: registeredEmailMessage });
             return;
           }
-          const validationErrors = body?.errors;
-          if (validationErrors && Array.isArray(validationErrors)) {
-            setError(validationErrors.map((validationError) => validationError.message).filter(Boolean).join(', '));
-          } else {
-            setError(getApiErrorMessage(err, 'Registration failed'));
-          }
+          setError(getApiErrorMessage(err, 'We couldn’t create your account. Please try again.'));
         })
         .finally(() => {
           captcha.reset();

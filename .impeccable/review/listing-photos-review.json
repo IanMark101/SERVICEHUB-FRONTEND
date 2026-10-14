@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-13",
+  "scope": "Up to three photos per provider service or seeker request, reference-inspired discovery cards with one cover, and a manual Details carousel.",
+  "changes": [
+    "Creation and editing forms support JPEG, PNG and WebP, preview, removal and cover selection. Existing listings without photos remain supported.",
+    "Public discovery cards use the supplied Trail Card's photo/title composition with marketplace price, distance, trust, payment and action information. Only the first photo renders on a card.",
+    "Details renders all one, two or three photos with manual arrows, thumbnails, keyboard arrows and a count. No autoplay.",
+    "Management lists show a cover thumbnail. Admin content inspection displays current photos.",
+    "The API uses owned photo IDs, ordered join tables and application/database limits. Editing and request reposts preserve photo order. Unattached and account-purge orphan cleanup retains assets referenced by a listing."
+  ],
+  "reference": {
+    "url": "https://21st.dev/community/components/ravikatiyar162/trail-card",
+    "integration": "The requested 21st.dev command failed to launch npx on Windows. Direct shadcn registry access required authentication. Adapted the attached component source directly using existing dependencies; no successful registry installation is claimed."
+  },
+  "verification": {
+    "frontendTests": "110 focused photo/listing/form/detail/manager/admin/action tests passed. An additional 19 inbox tests passed for the subsequent empty-state restoration.",
+    "backendTests": "22 photo, authorization, arrangement and payment contract tests passed.",
+    "database": "Fresh disposable-schema rehearsal applied all 43 migrations, verified 41 tables with no drift, and passed the broad photo integration test covering ordering, ownership, editing, database maximum count, marketplace reads, deletion and cleanup. The new migration was then applied to the confirmed development database.",
+    "builds": "Both frontend production build, including TypeScript and 109 generated pages, and backend tsc/tsc-alias build passed.",
+    "eslint": "All 31 changed frontend production/test TypeScript files passed with zero warnings.",
+    "diffCheck": "Both repository diff checks passed; existing line-ending warnings are informational."
+  },
+  "browserChecks": [
+    "Real cards, forms and Details rendered in a temporary local preview with sample context and publishing disabled.",
+    "Desktop 1280px discovery cards measured 351px across and rendered zero, one and one cover image for listings with zero, one and three photos respectively.",
+    "390px light and dark phone views fit without horizontal overflow.",
+    "Provider and Seeker Details reached the selected second/third photo and exposed all thumbnails.",
+    "Native multi-file selection prepared three local PNG/WebP images through the real resize/re-encode function. Cover selection moved the chosen image first; removing a photo re-enabled Add photos. No listing was published.",
+    "Browser logs contained no warnings or errors during the checked flows."
+  ],
+  "screenshots": [
+    "listing-photos-seeker-desktop-light.png",
+    "listing-photos-seeker-carousel-desktop-light.png",
+    "listing-photos-provider-desktop-dark.png",
+    "listing-photos-provider-phone-dark.png",
+    "listing-photos-provider-carousel-phone-dark.png",
+    "listing-photos-seeker-phone-light.png",
+    "listing-photos-upload-provider-phone-light.png",
+    "listing-photos-upload-seeker-phone-light.png"
+  ],
+  "limitations": "No authenticated live Cloudinary upload was performed. Browser upload responses used a local adapter, while database tests mocked Cloudinary destruction. Historical moderation snapshots retain their existing text-only behavior. Preview used the existing Arial font fallback. Temporary preview files/server/tab were removed and viewport reset."
+}

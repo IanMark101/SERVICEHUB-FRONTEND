@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-13",
+  "scope": "Frontend UI/UX organization of Post Request and Offer Services.",
+  "branch": "feature/listing-forms-ux",
+  "branchPreparation": "Existing frontend edits were temporarily stashed and restored. Local development was fast-forwarded to the existing main baseline, then the feature branch was created. No commits or remote changes made.",
+  "design": [
+    "Four sequential sections replace the two uneven desktop columns, using matching visual and keyboard order.",
+    "Related short fields share rows; description and location use full width. Arrangement choices stack on narrow views.",
+    "Travel amounts sit with the budget or price. Payment follows costs, with publishing at the end.",
+    "The informational booking model sits beside Publish. The unsaved availability dropdown is replaced with links to existing listing and queue controls.",
+    "Labels are associated with controls. Text fields and primary actions are 48px high; payment checkbox labels are at least 44px high."
+  ],
+  "browserChecks": [
+    "Real form components rendered with illustrative context, both roles on desktop, both themes, and a 390px provider browser frame.",
+    "Desktop fields and selectors have matching 48px heights. The provider location group has a computed 20px gap.",
+    "Phone document clientWidth and scrollWidth both equal 380px within a 390px frame; no horizontal overflow. Checkbox labels measure 44px and Publish measures 48px.",
+    "Seeker visit mode shows a search area and hides the travel allowance. Provider visit-to-venue mode shows private venue directions and hides coverage and transportation.",
+    "Unverified preview disables text fields, selectors, arrangement choices, map opening and publishing. Restoring verified state re-enables the form.",
+    "Provider Publish uses #047857 with white text for stronger contrast. Production Seeker actions inherit the existing scoped workspace orange tokens.",
+    "Original localhost dark theme restored. Temporary tabs, routes and context export removed before production build. No real submissions made."
+  ],
+  "validation": {
+    "tests": "44 passed across PostRequest, OfferServices, MarketplaceLocationControl, ProposalModal and RequestServiceModal tests.",
+    "typescript": "Passed standalone no-emit check and production compilation.",
+    "eslint": "Passed for all five modified/new TypeScript components in this task.",
+    "detector": "No findings across the form and arrangement components/styles.",
+    "productionBuild": "Passed; 109 pages generated, no preview routes included."
+  },
+  "screenshots": [
+    "listing-forms-seeker-desktop-light.png",
+    "listing-forms-provider-desktop-light.png",
+    "listing-forms-provider-desktop-dark.png",
+    "listing-forms-provider-phone-light.png"
+  ],
+  "limitations": "Review uses illustrative local context and a browser frame, not a physical device or a real authenticated publishing session. The first private preview hit the app's session-recovery gate; final state checks used a temporary public preview. Some captures include preview navigation or the help shell. The actual workspace shell and its palette are unchanged. API payloads and backend files were not changed by this task."
+}

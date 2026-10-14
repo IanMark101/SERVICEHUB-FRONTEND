@@ -5,12 +5,13 @@ export type ContentDecision = 'KEEP' | 'REMOVE' | 'RESTORE' | 'KEEP_REMOVED' | '
 export type ContentPenalty = 'none' | 'warn' | 'suspend' | 'ban';
 export interface ContentOwner { id: string; name: string; email: string; trustScore: number; verificationStatus: string; moderationStatus: 'ACTIVE' | 'SUSPENDED' | 'BANNED'; isActive: boolean; role: string; deactivatedAt: string | null }
 export interface ContentItem {
+  photos?: import('../lib/listingPhotos').ListingPhoto[];
   id: string; contentType: ContentType; title: string; description: string; category: string;
   owner: ContentOwner; status: string; visibility: string; moderationReasonCode: string | null; adminNotes: string | null;
   createdAt: string; updatedAt: string; price: number | null; priceType: string | null; budgetMin: number | null; budgetMax: number | null; urgency: string | null;
   canRemove: boolean; canRestore: boolean; actionBlock: string | null;
 }
-export interface ContentSnapshot { title: string; description: string; category: string; ownerId: string; ownerName: string; updatedAt: string; price: number | null; priceType: string | null; budgetMin: number | null; budgetMax: number | null; urgency: string | null }
+export interface ContentSnapshot { photos?: import('../lib/listingPhotos').ListingPhoto[]; title: string; description: string; category: string; ownerId: string; ownerName: string; updatedAt: string; price: number | null; priceType: string | null; budgetMin: number | null; budgetMax: number | null; urgency: string | null }
 export interface ContentCase {
   id: string; caseType: 'REPORT' | 'APPEAL'; contentType: ContentType; resourceId: string | null; status: 'OPEN' | 'RESOLVED'; reason: string; resolution: string | null;
   createdAt: string; decidedAt: string | null; decision: ContentDecision | null; penalty: ContentPenalty | null; contentSnapshot: ContentSnapshot | null;

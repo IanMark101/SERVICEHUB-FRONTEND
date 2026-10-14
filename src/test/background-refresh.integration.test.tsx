@@ -61,7 +61,7 @@ describe('loaded workspaces revalidate without replacing content', () => {
     ['users', AdminUsers, admin.apiListUsers, 'No users match the search filters.'],
     ['verifications', AdminVerifications, admin.apiListPendingVerifications, 'There are no verifications currently pending review.'],
     ['announcements', AdminAnnouncements, admin.apiListAnnouncements, 'No announcements have been created.'],
-    ['audit records', AdminAuditLogs, admin.apiListAdminAuditLogs, 'No audit records found.'],
+    ['audit records', AdminAuditLogs, admin.apiListAdminAuditLogs, 'No administrator actions found.'],
     ['moderation cases', AdminReports, admin.apiListModerationCases, 'No cases need attention'],
     ['content cases', ContentWorkspace, apiGetContentCases, 'No cases need review'],
     ['ban appeals', AdminBanAppeals, admin.apiListBanAppeals, 'No ban appeals are awaiting review.'],
@@ -69,7 +69,7 @@ describe('loaded workspaces revalidate without replacing content', () => {
   ] as const)('keeps the confirmed empty %s view during a slow tab-return refresh', async (_name, Page, read, message) => {
     render(<Page />); await tick(); await tick(300); await tick();
     expect(screen.getByText(message)).toBeInTheDocument();
-    vi.mocked(read).mockImplementationOnce(() => new Promise(() => {}));
+    vi.mocked(read).mockImplementationOnce(() => new Promise<never>(() => {}));
     const calls = vi.mocked(read).mock.calls.length;
     await refresh();
     expect(read).toHaveBeenCalledTimes(calls + 1);

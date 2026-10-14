@@ -1,0 +1,11 @@
+# Listing photos and marketplace cards
+
+Mode: Operate. Extend the existing Seeker and Provider workspaces using the image/title composition of the user's supplied 21st.dev Trail Card. Keep marketplace facts, trust, payment choices and booking/offer actions visible. Preserve orange Seeker and green Provider accents in both themes.
+
+Both service and request forms accept zero through three JPEG, PNG or WebP photos, including edits. The first photo is the cover; users can remove photos and choose another cover. A public discovery card renders only that cover. Listings without photos keep the same cover area with a softly tinted workspace background, restrained corner arcs and layered photo tiles around an ImageOff icon. Use warm orange in Seeker and mint in Provider, with explicit dark-theme elevation. Its accessible label is No photo added. Failed cover images use the same placeholder with Photo unavailable. Keep the title, category and area visible below the icon in the header. Provider Service Manager uses a prominent responsive cover beside content on wide cards and above it on narrow cards; View all opens the existing gallery. Request Manager retains its current thumbnail. Full managed descriptions wrap, including unbroken words.
+
+Details shows every saved photo in a manual carousel with previous/next controls, thumbnails, keyboard arrows and a photo count. Do not autoplay or add carousels to discovery cards. Failed images have a readable fallback. Keep tap targets at least 44px and avoid horizontal overflow.
+
+The upload field explains the public visibility, allowed formats, size limit and maximum count. Publishing/saving waits for uploads to finish. Successful uploads remain available if another photo fails. Reuse the application's Cloudinary service and owned asset IDs; reject foreign assets, duplicates and a fourth photo on the server and in database positions.
+
+Reference: https://21st.dev/community/components/ravikatiyar162/trail-card. The requested CLI's Windows launcher failed and the registry required authentication; the attached component source was adapted directly with existing dependencies.

@@ -1,18 +1,24 @@
 'use client';
 
 import type { LocationPoint } from '../../../lib/location';
-import LocationField from '../../location/LocationField';
-import CoverageField from '../../location/CoverageField';
-import TransportationField from '../../location/TransportationField';
+import ListingLocationFields from '../../location/ListingLocationFields';
+import type { ServiceLocationMode } from '../../../lib/serviceArrangement';
 
 import FormSelect from '../../ui/FormSelect';
-import React, { useEffect, type FormEvent } from 'react';
+import React, { useEffect, useState, type FormEvent } from 'react';
 import { X } from '@phosphor-icons/react';
 import type { ServiceListing } from '../../../types';
 import ListingTitleInput from '../../ui/ListingTitleInput';
+import ListingPhotoUploader from '../../ui/ListingPhotoUploader';
+import type { ListingPhoto } from '../../../lib/listingPhotos';
+import GCashNumberField from '../../ui/GCashNumberField';
 
 export interface EditServiceState {
+  publicMapPin?: boolean;
+  photos?: ListingPhoto[];
   serviceLocation?: LocationPoint | null;
+  serviceLocationMode?: ServiceLocationMode;
+  venueAddress?: string | null;
   coverageRadiusKm?: number | null;
   transportationFee?: string;
   serviceId: string;
@@ -28,25 +34,24 @@ export interface EditServiceState {
 interface Props {
   value: EditServiceState | null;
   isDark: boolean;
-  hasMobileNumber: boolean;
+  userId?: string;
   onChange: (value: EditServiceState) => void;
   onClose: () => void;
   onSubmit: (event: FormEvent) => void;
-  onOpenProfile: () => void;
 }
 
 export default function EditServiceModal({
   value,
   isDark,
-  hasMobileNumber,
+  userId,
   onChange,
   onClose,
   onSubmit,
-  onOpenProfile,
 }: Props) {
+  const [photosBusy, setPhotosBusy] = useState(false);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !e.defaultPrevented) onClose();
     };
     if (value) {
       document.body.style.overflow = 'hidden';
@@ -110,10 +115,10 @@ export default function EditServiceModal({
         </div>
 
         {/* Scrollable Form Body */}
-        <form onSubmit={onSubmit} className="flex-1 flex flex-col min-h-0">
+        <form onSubmit={event => { if (photosBusy) event.preventDefault(); else onSubmit(event); }} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 space-y-4.5">
             <div>
-              <label className={label}>Listing Title</label>
+              <label className={label}>Service name</label>
               <ListingTitleInput
                 className={field}
                 required
@@ -125,10 +130,10 @@ export default function EditServiceModal({
             </div>
 
             <div>
-              <label className={label}>Pricing Unit</label>
+              <label className={label}>How do you charge?</label>
               <div className="relative">
                 <FormSelect
-                  aria-label="Pricing Unit"
+                  aria-label="How do you charge?"
                   className={`${field} appearance-none pr-10 cursor-pointer`}
                   value={value.priceType === 'PER_SESSION' ? 'FIXED' : value.priceType}
                   onChange={(e) =>
@@ -143,16 +148,17 @@ export default function EditServiceModal({
                   <option value="PER_HOUR">Per Hour</option>
                   <option value="PER_DAY">Per Day</option>
                   <option value="PER_PROJECT">Per Project</option>
+                  <option value="BY_AGREEMENT">Price by agreement</option>
                 </FormSelect>
               </div>
               <p className={`mt-1.5 text-xs leading-relaxed ${isDark ? 'text-neutral-400' : 'text-ink-muted'}`}>
-                Enter the amount the seeker will pay, or an exact unit rate. Each booking is a separate one-time job.
+                Choose a set price or rate, or agree on the price after reviewing the seeker’s request. Each booking is a separate job.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div>
-                <label className={label}>Price (PHP)</label>
+              {value.priceType !== 'BY_AGREEMENT' && <div>
+                <label className={label}>Service price (₱)</label>
                 <input
                   className={field}
                   type="number"
@@ -162,10 +168,10 @@ export default function EditServiceModal({
                   value={value.price}
                   onChange={(e) => onChange({ ...value, price: Number(e.target.value) })}
                 />
-              </div>
+              </div>}
 
               <div>
-                <label className={label}>Estimated Duration (minutes)</label>
+                <label className={label}>Time needed (minutes)</label>
                 <input
                   className={field}
                   type="number"
@@ -178,12 +184,11 @@ export default function EditServiceModal({
               </div>
             </div>
 
-            <CoverageField isDark={isDark} value={value.coverageRadiusKm} onChange={coverageRadiusKm => onChange({ ...value, coverageRadiusKm })} />
-            <LocationField label="Service operating base" workspace="provider" value={value.serviceLocation ?? null} radiusKm={value.coverageRadiusKm} onChange={serviceLocation => onChange({ ...value, serviceLocation })} />
-            {!value.serviceLocation && <p className="text-xs text-ink-muted">Add a location to include this older listing in nearby discovery.</p>}
-            <TransportationField isDark={isDark} value={value.transportationFee ?? ''} onChange={transportationFee => onChange({ ...value, transportationFee })} />
+            <ListingPhotoUploader workspace="provider" value={value.photos ?? []} onChange={photos => onChange({ ...value, photos })} onBusyChange={setPhotosBusy} />
+            <ListingLocationFields value={value} isDark={isDark} showTransportation={value.priceType !== 'BY_AGREEMENT'} onChange={patch => onChange({ ...value, ...patch })} />
+            {!value.serviceLocation && <p className="text-xs text-ink-muted">Choose an area or location so nearby seekers can find this listing.</p>}
             <div>
-              <label className={label}>Description</label>
+              <label className={label}>What is included?</label>
               <textarea
                 className={`${field} resize-none leading-relaxed`}
                 rows={4}
@@ -196,12 +201,12 @@ export default function EditServiceModal({
             </div>
 
             <div>
-              <span className={label}>Accepted Payment Methods</span>
+              <span className={label}>How can seekers pay you?</span>
               <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 mt-1">
                 {(
                   [
-                    ['cash', 'On-site Cash'],
-                    ['gcash', 'GCash · PayMongo Test Mode'],
+                    ['cash', 'Cash in person'],
+                    ['gcash', 'GCash (test mode)'],
                   ] as const
                 ).map(([key, text]) => {
                   const isChecked = value.paymentMethods[key];
@@ -237,26 +242,7 @@ export default function EditServiceModal({
               {!hasPaymentMethod && (
                 <p className="mt-1.5 text-xs text-red-500 font-medium">Select at least one payment method.</p>
               )}
-              {value.paymentMethods.gcash && !hasMobileNumber && (
-                <div
-                  className={`mt-2.5 rounded-2xl border p-3.5 text-xs ${
-                    isDark
-                      ? 'border-amber-900/40 bg-amber-950/20 text-amber-200'
-                      : 'border-amber-200 bg-amber-50 text-amber-900'
-                  }`}
-                >
-                  <p className="leading-relaxed">
-                    <span className="font-bold">Your mobile contact information is incomplete.</span> PayMongo Test Mode records an internal earning and does not pay a personal GCash number.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={onOpenProfile}
-                    className="mt-2 rounded-xl border border-current px-3 py-1.5 font-bold hover:bg-amber-500/10 transition-colors cursor-pointer"
-                  >
-                    Add mobile number
-                  </button>
-                </div>
-              )}
+              <GCashNumberField userId={userId} enabled={value.paymentMethods.gcash} isDark={isDark} workspace="provider" />
             </div>
           </div>
 
@@ -279,7 +265,7 @@ export default function EditServiceModal({
             </button>
             <button
               type="submit"
-              disabled={!hasPaymentMethod}
+              disabled={!hasPaymentMethod || photosBusy}
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl transition-all active:scale-98 shadow-md hover:shadow-emerald-500/25 cursor-pointer disabled:cursor-not-allowed"
             >
               Save Changes

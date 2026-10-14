@@ -4,7 +4,7 @@ import type { MarketplaceLocation } from './location';
 const MapPinSchema = z.object({
   id:z.string().min(1), title:z.string(), label:z.string(),
   providerName:z.string().optional(),
-  area:z.object({ latitude:z.number().finite().min(-90).max(90), longitude:z.number().finite().min(-180).max(180), approximate:z.literal(true) }),
+  area:z.object({ latitude:z.number().finite().min(-90).max(90), longitude:z.number().finite().min(-180).max(180), approximate:z.boolean() }),
 });
 export type MarketplaceMapPin = z.infer<typeof MapPinSchema>;
 export function parseMapPins(value:unknown):MarketplaceMapPin[] {
@@ -59,6 +59,7 @@ function mapDistanceKm(a:MarketplaceMapViewport['center'], b:MarketplaceMapViewp
 
 /** Draw a public area inside the search circle, using only its coarse grid center. */
 export function mapAreaAnchor(area:MarketplaceMapPin['area'], location:MarketplaceLocation) {
+  if (!area.approximate) return area;
   const rad = Math.PI / 180;
   const lat1 = location.point.latitude * rad, lat2 = area.latitude * rad;
   const delta = (area.longitude - location.point.longitude) * rad;

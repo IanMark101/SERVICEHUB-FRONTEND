@@ -1,5 +1,7 @@
 'use client';
 
+import { arrangementLabel } from '../../../lib/serviceArrangement';
+
 import { formatDistance } from '../../../lib/location';
 
 import React, { useEffect } from 'react';
@@ -10,6 +12,7 @@ import ContentCaseAction from '../../moderation/ContentCaseAction';
 import styles from '../../ui/ListingDetails.module.css';
 import { formatUrgencyDisplay } from './browseJobs.utils';
 import { requestUrgencyRank } from '../../../lib/requestUrgency';
+import ListingPhotoGallery from '../../ui/ListingPhotoGallery';
 import {
   X,
   ShieldCheck,
@@ -102,13 +105,15 @@ export default function JobRequestDetailsModal({
               </div>
               <div className={styles.geography}>
                 {request.locationLabel && <p className={styles.locationLine}><MapPin size={15} aria-hidden="true" /><span>{request.locationLabel}{request.distanceKm != null && <> · {formatDistance(request.distanceKm)}</>}</span></p>}
-                {!!request.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>Additional travel budget: ₱{request.transportationFee.toLocaleString()}. Offers include travel in their final total.</span></p>}
+                {request.serviceLocationMode !== 'SEEKER_VISITS' && !!request.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>Additional travel budget: ₱{request.transportationFee.toLocaleString()}. Offers include travel in their final total.</span></p>}
               </div>
             </div>
           </header>
 
           <div className={styles.body}>
+            <ListingPhotoGallery key={request.id} photos={request.photos} title={request.title} />
             <section>
+              <p className={styles.description}><strong>Service arrangement:</strong> {arrangementLabel[request.serviceLocationMode ?? 'PROVIDER_VISITS']}</p>
               <h3 className={styles.label}>About This Request</h3>
               <p className={styles.description}>{request.description}</p>
             </section>

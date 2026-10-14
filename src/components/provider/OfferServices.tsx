@@ -1,7 +1,10 @@
-import LocationField from '../location/LocationField';
+import Link from 'next/link';
+import ListingFormSection from '../ui/ListingFormSection';
+import styles from '../ui/ListingForm.module.css';
+import ListingLocationFields from '../location/ListingLocationFields';
+import type { ServiceLocationMode } from '../../lib/serviceArrangement';
 import TransportationField, { validTransportationFee } from '../location/TransportationField';
 import { LocationSchema, type LocationPoint } from '../../lib/location';
-import CoverageField from '../location/CoverageField';
 import { orderServiceCategories } from '../../lib/category-catalog';
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
@@ -9,27 +12,41 @@ import { Briefcase, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
 import type { ServiceListing } from '../../types';
-import { useRouter } from 'next/navigation';
+import GCashNumberField from '../ui/GCashNumberField';
 import FormalSelect from '../ui/FormalSelect';
 import ListingTitleInput from '../ui/ListingTitleInput';
 import PaymentMethodCheckboxes from '../ui/PaymentMethodCheckboxes';
+import ListingPhotoUploader from '../ui/ListingPhotoUploader';
+import type { ListingPhoto } from '../../lib/listingPhotos';
+import { FormWizardProgress, WizardStep, WizardReviewSection } from '../ui/FormWizard';
+import wizard from '../ui/FormWizard.module.css';
+import { getApiErrorMessage } from '../../lib/api/errors';
+
+const SERVICE_STEPS = ['Details', 'Location', 'Price', 'Payment', 'Review'] as const;
+const PRICING_OPTIONS: readonly string[] = ['FIXED', 'PER_HOUR', 'PER_DAY', 'PER_PROJECT', 'BY_AGREEMENT'];
 
 export default function OfferServices() {
   const { user, createServiceListing, isDark, dbCategories } = useApp();
-  const router = useRouter();
   const { canTransact, navigateToVerification } = useTransactionPermission();
   const { error } = useToast();
 
   const [title, setTitle] = useState<string>('');
+  const [photos, setPhotos] = useState<ListingPhoto[]>([]);
+  const [photosBusy, setPhotosBusy] = useState(false);
   const [category, setCategory] = useState<string>('');
   const [price, setPrice] = useState<number>(500);
   const [priceType, setPriceType] = useState<NonNullable<ServiceListing['priceType']>>('FIXED');
+  const priceByAgreement = priceType === 'BY_AGREEMENT';
   const [description, setDescription] = useState<string>('');
   const [durationMins, setDurationMins] = useState<number>(30);
-  const [availability, setAvailability] = useState<string>('Available Now');
 
   const [serviceLocation, setServiceLocation] = useState<LocationPoint | null>(null);
-  const [coverageRadiusKm, setCoverageRadiusKm] = useState<number | null>(null);
+  const [publicMapPin, setPublicMapPin] = useState(false);
+  const [locationError, setLocationError] = useState('');
+  const [serviceLocationMode, setServiceLocationMode] = useState<ServiceLocationMode>('PROVIDER_VISITS');
+  const [venueAddress, setVenueAddress] = useState('');
+  const [coverageRadiusKm, setCoverageRadiusKm] = useState<number | null | undefined>(undefined);
+  const [coverageError, setCoverageError] = useState('');
   const [transportationFee, setTransportationFee] = useState('');
 
   // Payment methods
@@ -38,352 +55,227 @@ export default function OfferServices() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [moderationError, setModerationError] = useState<{ field?: 'title' | 'description' | 'category'; message: string } | null>(null);
-  const hasMobileNumber = Boolean(user?.phone?.trim());
+  const [step, setStep] = useState(0);
+  const [validationAttempted, setValidationAttempted] = useState(false);
 
   const categories = orderServiceCategories(dbCategories);
   const selectedCategoryId = categories.some((item) => item.id === category) ? category : '';
 
+  const stepProblems = (index: number) => {
+    const problems: { field: string; heading: string; message: string }[] = [];
+    if (index === 0) {
+      if (title.trim().length < 10 || title.trim().length > 100) problems.push({ field: 'title', heading: 'Check your service name', message: 'Name the service in 10–100 characters.' });
+      if (description.trim().length < 30 || description.trim().length > 1000) problems.push({ field: 'description', heading: 'Describe your service', message: 'Explain what is included in 30–1,000 characters.' });
+      if (!selectedCategoryId) problems.push({ field: 'category', heading: 'Choose a category', message: 'Select the type of service you offer.' });
+    }
+    if (index === 1) {
+      if (!LocationSchema.safeParse(serviceLocation).success) {
+        problems.push({ field: 'location', heading: serviceLocationMode === 'PROVIDER_VISITS' ? 'Choose your service area' : 'Choose where seekers can visit you', message: serviceLocationMode === 'PROVIDER_VISITS' ? 'Choose a city or barangay where you offer this service. No shop or home address is needed.' : 'Mark the place where seekers can visit you on the map, then enter the city or barangay name.' });
+      } else if (serviceLocationMode !== 'SEEKER_VISITS' && coverageRadiusKm === undefined) {
+        problems.push({ field: 'coverage', heading: 'Choose your travel distance', message: 'Choose how far you will travel, or select “No distance limit”.' });
+      }
+      if (serviceLocationMode !== 'PROVIDER_VISITS' && venueAddress.length > 500) problems.push({ field: 'address', heading: 'Check your directions', message: 'Keep the address or directions within 500 characters.' });
+    }
+    if (index === 2) {
+      if (!priceByAgreement && (!Number.isFinite(price) || !Number.isInteger(price) || price < 50 || price > 50000)) problems.push({ field: 'price', heading: 'Check your service price', message: 'Enter a service price between ₱50 and ₱50,000 in whole pesos.' });
+      if (!PRICING_OPTIONS.includes(priceType)) problems.push({ field: 'priceType', heading: 'Choose how you charge', message: 'Choose a set price or rate, or Price by agreement.' });
+      if (!Number.isFinite(durationMins) || durationMins < 15 || durationMins > 480 || durationMins % 5 !== 0) problems.push({ field: 'duration', heading: 'Check the time needed', message: 'Enter 15–480 minutes in steps of 5, such as 30 or 45.' });
+      if (!priceByAgreement && serviceLocationMode !== 'SEEKER_VISITS' && !validTransportationFee(transportationFee)) problems.push({ field: 'travel', heading: 'Check your travel fee', message: 'Leave it blank, or enter ₱0–₱5,000 using no more than two digits after the decimal point.' });
+    }
+    if (index === 3 && !acceptCash && !acceptGCash) problems.push({ field: 'payment', heading: 'Choose a payment method', message: 'Choose at least one way seekers can pay you.' });
+    return problems;
+  };
+  const problems = validationAttempted ? stepProblems(step) : [];
+  const changeStep = (next: number) => { setValidationAttempted(false); setStep(next); };
+  const validateStep = (index: number) => {
+    const issues = stepProblems(index);
+    if (!issues.length) return true;
+    setStep(index); setValidationAttempted(true);
+    const location = issues.find(issue => issue.field === 'location');
+    const coverage = issues.find(issue => issue.field === 'coverage');
+    setLocationError(location?.message || ''); setCoverageError(coverage?.message || '');
+    error(issues[0].heading, issues[0].message);
+    return false;
+  };
+  const nextStep = () => {
+    if (loading || photosBusy || !canTransact) return;
+    if (validateStep(step)) changeStep(step + 1);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading || photosBusy || !canTransact) return;
+    if (step < 4) { nextStep(); return; }
+    for (let index = 0; index < 4; index++) {
+      if (!validateStep(index)) return;
+    }
     setModerationError(null);
-    if (!acceptCash && !acceptGCash) {
-      error('Payment method required', 'Select at least one supported payment method for this listing.');
-      return;
-    }
-
     const selectedCategory = selectedCategoryId;
-    if (!selectedCategory) {
-      error('Category required', 'Select the category that best matches this service.');
-      return;
-    }
-
-    if (!LocationSchema.safeParse(serviceLocation).success) { error('Service location required', 'Choose your operating base and enter its area name.'); return; }
-    if (!validTransportationFee(transportationFee)) { error('Invalid transportation fee', 'Enter an amount from ₱0 to ₱5,000, with at most two decimal places.'); return; }
     setLoading(true);
     const providerId = user?.id || '';
-    const res = await createServiceListing(
-      providerId,
-      title,
-      selectedCategory,
-      price,
-      description,
-      { cash: acceptCash, gcash: acceptGCash },
-      {
-        serviceLocation: serviceLocation!,
-        coverageRadiusKm,
-        transportationFee: transportationFee === '' ? null : Number(transportationFee),
-        serviceType: 'ONE_TIME',
-        priceType,
-        estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
+    try {
+      const res = await createServiceListing(
+        providerId,
+        title,
+        selectedCategory,
+        price,
+        description,
+        { cash: acceptCash, gcash: acceptGCash },
+        {
+          photoIds: photos.map(photo => photo.id),
+          serviceLocation: serviceLocation!,
+          publicMapPin,
+          serviceLocationMode,
+          venueAddress: serviceLocationMode === 'PROVIDER_VISITS' ? null : venueAddress.trim() || null,
+          coverageRadiusKm: serviceLocationMode === 'SEEKER_VISITS' ? null : coverageRadiusKm,
+          transportationFee: priceByAgreement || serviceLocationMode === 'SEEKER_VISITS' || transportationFee === '' ? null : Number(transportationFee),
+          serviceType: 'ONE_TIME',
+          priceType,
+          estimatedDurationMins: Math.max(15, Math.min(480, durationMins)),
+        }
+      );
+
+      if (res?.success) {
+        // Reset form
+        setServiceLocation(null);
+        setPublicMapPin(false);
+        setServiceLocationMode('PROVIDER_VISITS');
+        setVenueAddress('');
+        setCoverageRadiusKm(undefined);
+        setTransportationFee('');
+        setTitle('');
+        setPhotos([]);
+        setDescription('');
+        setPrice(500);
+        setCategory('');
+        setPriceType('FIXED');
+        setDurationMins(30);
+        changeStep(0);
+      } else if (res?.field) {
+        setModerationError({ field: res.field, message: res.error || 'Fix this detail before publishing.' });
+        changeStep(0);
       }
-    );
-
-    setLoading(false);
-
-    if (res?.success) {
-      // Reset form
-      setServiceLocation(null);
-      setCoverageRadiusKm(null);
-      setTransportationFee('');
-      setTitle('');
-      setDescription('');
-      setPrice(500);
-      setCategory('');
-      setPriceType('FIXED');
-      setDurationMins(30);
-    } else if (res?.field) {
-      setModerationError({ field: res.field, message: res.error || 'Fix this detail before publishing.' });
-    }
+    } catch (cause) {
+      error('Could not publish your service', getApiErrorMessage(cause, 'Please try again. Your details are still saved in this form.'));
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
-
-      {/* Form Container Card */}
-      <div className={`rounded-[24px] p-8 border shadow-sm transition-colors duration-200 ${isDark ? 'bg-charcoal-surface border-neutral-800/80' : 'bg-white border-slate-300'
-        }`}>
-
-        {/* Header */}
-        <div className={`flex items-center space-x-3 mb-6 pb-4 border-b ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
-            }`}>
-            <Briefcase className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className={`text-base font-extrabold leading-none ${isDark ? 'text-white' : 'text-ink'}`}>
-              Create a Service Listing
-            </h2>
-            <p className={`text-[10px] mt-1 ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
-              Offer your skills to the local community.
-            </p>
-          </div>
-        </div>
-
-        {/* Verification Required Alert Block */}
-        {!canTransact && (
-          <div className={`p-4 rounded-2xl border text-xs font-semibold flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 animate-in fade-in duration-200 ${
-            isDark ? 'bg-amber-950/25 border-amber-900/30 text-amber-400' : 'bg-amber-50 border-amber-200 text-amber-800'
-          }`}>
-            <div>
-              <span className="font-bold">Verification Required:</span>
-              <span className="font-medium ml-1">You may browse ServiceHub freely, but you must complete Identity & Residency Verification before participating in marketplace transactions.</span>
-            </div>
-            <button
-              type="button"
-              onClick={navigateToVerification}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] px-4 py-2.5 rounded-xl transition-all shadow-md flex-shrink-0 cursor-pointer"
-            >
-              Verify Now
-            </button>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          {/* Left Column: Listing Details & Payment Options */}
-          <div className="space-y-5">
-            {/* Service Title */}
-            <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                Service Listing Title
-              </label>
-              <ListingTitleInput
-                required
-                disabled={!canTransact}
-                placeholder="e.g. Lawn Mowing and Edge Trimming"
-                value={title}
-                minLength={10}
-                maxLength={100}
-                onChange={(e) => { setTitle(e.target.value); if (moderationError?.field === 'title') setModerationError(null); }}
-                aria-invalid={moderationError?.field === 'title'}
-                aria-describedby={moderationError?.field === 'title' ? 'listing-title-policy-error' : undefined}
-                className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                    ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
-                    : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
-                  } ${moderationError?.field === 'title' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
-              />
-              {moderationError?.field === 'title' && <p id="listing-title-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message} Edit the title and try again.</p>}
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                Description
-              </label>
-              <textarea
-                rows={6}
-                required
-                disabled={!canTransact}
-                placeholder="Describe what you will do, tools you will use, and what is included in the service..."
-                value={description}
-                minLength={30}
-                maxLength={1000}
-                onChange={(e) => { setDescription(e.target.value); if (moderationError?.field === 'description') setModerationError(null); }}
-                aria-invalid={moderationError?.field === 'description'}
-                aria-describedby={moderationError?.field === 'description' ? 'listing-description-policy-error' : undefined}
-                className={`w-full px-4 py-3 rounded-xl border outline-none font-medium text-sm resize-none leading-relaxed transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                    ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
-                    : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
-                  } ${moderationError?.field === 'description' ? 'border-red-500 ring-2 ring-red-500/20' : ''} ${!canTransact ? 'opacity-65 cursor-not-allowed' : ''}`}
-              />
-              {moderationError?.field === 'description' && <p id="listing-description-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message} Edit the description and try again.</p>}
-            </div>
-
-            {/* Payment Methods Checkboxes */}
-            <div>
-              <PaymentMethodCheckboxes legend="Payment Methods Accepted" value={{ cash: acceptCash, gcash: acceptGCash }} onChange={(methods) => { setAcceptCash(methods.cash); setAcceptGCash(methods.gcash); }} isDark={isDark} disabled={loading || !canTransact} />
-              {acceptGCash && !hasMobileNumber && (
-                <div className={`mt-2 flex flex-col gap-2 rounded-xl border p-2.5 text-xs sm:flex-row sm:items-center sm:justify-between ${isDark ? 'border-amber-900/50 bg-amber-950/20 text-amber-200' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
-                  <p className="text-[11px] leading-4">
-                    <span className="font-bold">Complete your mobile contact information.</span>{' '}
-                    PayMongo Test Mode records an internal earning and does not transfer funds to this phone number.
-                  </p>
-                  <button type="button" onClick={() => router.push('/provider/account-settings#contact-information')} className="shrink-0 rounded-lg border border-current px-2.5 py-1 text-[11px] font-bold hover:bg-amber-500/10">
-                    Add mobile number
-                  </button>
+    <div className={styles.page} data-form-tone="provider">
+      <div className={styles.panel}>
+        <header className={styles.header}>
+          <span className={styles.headerIcon}><Briefcase size={22} aria-hidden="true" /></span>
+          <div><h2>Create a Service Listing</h2><p>Describe what you offer, where you work, and what it costs.</p></div>
+        </header>
+        {!canTransact && <div className={styles.verification}>
+          <p><strong>Verify your account to publish.</strong> Complete Identity & Residency Verification and wait for approval. You can still browse requests.</p>
+          <button type="button" onClick={navigateToVerification}>Verify Now</button>
+        </div>}
+        <form noValidate onSubmit={handleSubmit} className={styles.form} aria-label="Create a service listing">
+          <FormWizardProgress steps={SERVICE_STEPS} currentStep={step} workspace="provider" />
+          {problems.some(issue => issue.field !== 'location' && issue.field !== 'coverage') && <ul id="service-step-errors" role="alert" className={wizard.errors}>{problems.filter(issue => issue.field !== 'location' && issue.field !== 'coverage').map(issue => <li key={issue.field}>{issue.message}</li>)}</ul>}
+          <fieldset disabled={loading || photosBusy || !canTransact} className={styles.fields}>
+            <WizardStep index={0} currentStep={step} label="Service details">
+            <ListingFormSection number={1} title="What service do you offer?" description="Tell seekers what you can do and what your price includes.">
+              <div className={styles.detailsColumns}>
+                <div>
+                  <label htmlFor="listing-title" className={styles.label}>Service name</label>
+                  <ListingTitleInput id="listing-title" required minLength={10} maxLength={100} placeholder="e.g. Laptop repair and diagnostics" value={title}
+                    onChange={e => { setTitle(e.target.value); if (moderationError?.field === 'title') setModerationError(null); }}
+                    aria-invalid={moderationError?.field === 'title' || problems.some(issue => issue.field === 'title')} aria-describedby={moderationError?.field === 'title' ? 'listing-title-help listing-title-policy-error' : 'listing-title-help'} className={styles.field} />
+                  <p id="listing-title-help" className={styles.fieldHelp}>Name the service in 10–100 characters.</p>
+                  {moderationError?.field === 'title' && <p id="listing-title-policy-error" role="alert" className={styles.error}>{moderationError.message} Edit the title and try again.</p>}
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: Category, Pricing, Schedule & Actions */}
-          <div className="space-y-4 flex flex-col justify-between">
-            <div className="space-y-4">
-              {/* Category */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                  Service Category
-                </label>
-                <FormalSelect
-                  ariaLabel="Service Category"
-                  value={selectedCategoryId}
-                  required
-                  disabled={!canTransact}
-                  onChange={(e) => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
-                  options={categories.map((cat) => ({ value: cat.id, label: cat.name }))}
-                  placeholder="Select a category..."
-                  isDark={isDark}
-                  theme="provider"
-                  ariaInvalid={moderationError?.field === 'category'}
-                  ariaDescribedBy={moderationError?.field === 'category' ? 'listing-category-policy-error' : undefined}
-                />
-                <p className="mt-2 text-xs text-ink-muted">Choose a broad service category. Use Other Services if none fits, and describe your specific service in the title and description.</p>
-                {moderationError?.field === 'category' && <p id="listing-category-policy-error" role="alert" className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message} Choose the right category and try again.</p>}
-              </div>
-
-            <CoverageField value={coverageRadiusKm} onChange={setCoverageRadiusKm} isDark={isDark} disabled={!canTransact || loading} />
-            <LocationField label="Service operating base" value={serviceLocation} onChange={setServiceLocation} radiusKm={coverageRadiusKm} workspace="provider" disabled={!canTransact || loading} />
-            <TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} disabled={!canTransact || loading} />
-
-              {/* Engagement / Booking model */}
-              <div>
-                <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                  Booking Model
-                </label>
-                <div className={`rounded-xl border px-3 py-2 text-xs font-bold ${isDark ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' : 'bg-emerald-50 border-emerald-200 text-emerald-700'}`}>
-                  Reusable one-time listing
+                <div>
+                  <label htmlFor="listing-category" className={styles.label}>Service category</label>
+                  <FormalSelect id="listing-category" ariaLabel="Service category" value={selectedCategoryId} required
+                    onChange={e => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
+                    options={categories.map(cat => ({ value:cat.id, label:cat.name }))} placeholder="Select a category..." isDark={isDark} theme="provider"
+                    ariaInvalid={moderationError?.field === 'category' || problems.some(issue => issue.field === 'category')} ariaDescribedBy={moderationError?.field === 'category' ? 'listing-category-policy-error' : 'listing-category-help'} />
+                  <p id="listing-category-help" className={styles.fieldHelp}>{categories.find(item => item.id === selectedCategoryId)?.description || 'Choose the type of service you offer. If none fits, choose Other Services.'}</p>
+                  {moderationError?.field === 'category' && <p id="listing-category-policy-error" role="alert" className={styles.error}>{moderationError.message} Choose the right category and try again.</p>}
                 </div>
-                <p className={`text-[10px] mt-1 leading-relaxed ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
-                  Each accepted request is an independent booking. A satisfied seeker may request this listing again after the previous booking closes.
-                </p>
               </div>
-
-              {/* Base Price & Pricing Unit */}
               <div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                      Price (₱)
-                    </label>
-                    <input
-                      type="number"
-                      min={50}
-                      max={50000}
-                      required
-                      placeholder="e.g. 500"
-                      value={price}
-                      onChange={(e) => setPrice(Number(e.target.value))}
-                      className={`w-full px-4 py-3 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                          ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
-                          : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
-                        }`}
-                    />
-                  </div>
-
-                  <div>
-                    <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                      Pricing Unit
-                    </label>
-                    <FormalSelect
-                      ariaLabel="Pricing Unit"
-                      value={priceType}
-                      onChange={(e) => setPriceType(e.target.value as NonNullable<ServiceListing['priceType']>)}
-                      options={[
-                        { value: 'FIXED', label: 'Fixed Price' },
-                        { value: 'PER_HOUR', label: 'Per Hour' },
-                        { value: 'PER_DAY', label: 'Per Day' },
-                        { value: 'PER_PROJECT', label: 'Per Project' },
-                      ]}
-                      placeholder="Select pricing unit"
-                      isDark={isDark}
-                      theme="provider"
-                    />
-                  </div>
-                </div>
-                {price > 0 && (
-                  <p className={`text-[10px] mt-1.5 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                    Preview: ₱{price}{priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ''}
-                  </p>
-                )}
+                <label htmlFor="listing-description" className={styles.label}>What is included?</label>
+                <textarea id="listing-description" rows={4} required minLength={30} maxLength={1000} placeholder="e.g. I check and repair laptops. The price includes checking the problem and basic repairs. Replacement parts cost extra." value={description}
+                  onChange={e => { setDescription(e.target.value); if (moderationError?.field === 'description') setModerationError(null); }}
+                  aria-invalid={moderationError?.field === 'description' || problems.some(issue => issue.field === 'description')} aria-describedby={moderationError?.field === 'description' ? 'listing-description-help listing-description-policy-error' : 'listing-description-help'} className={styles.field} />
+                <p id="listing-description-help" className={styles.fieldHelp}>Explain what you do and any extra costs, such as parts. Use 30–1,000 characters.</p>
+                {moderationError?.field === 'description' && <p id="listing-description-policy-error" role="alert" className={styles.error}>{moderationError.message} Edit the description and try again.</p>}
               </div>
-
-              {/* Duration & Availability Status */}
-              <div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                      Est. Duration (Minutes)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        min={15}
-                        max={480}
-                        step={5}
-                        required
-                        value={durationMins}
-                        onChange={(e) => setDurationMins(Math.max(1, Number(e.target.value)))}
-                        className={`w-full px-4 py-3 pr-14 rounded-xl border outline-none font-semibold text-sm transition-all focus:ring-4 focus:ring-emerald-500/10 ${isDark
-                            ? 'bg-charcoal-inset border-neutral-800/80 text-white focus:border-emerald-500/80'
-                            : 'bg-white border-slate-300 text-ink-secondary focus:border-emerald-500'
-                          }`}
-                      />
-                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-subtle pointer-events-none">
-                        mins
-                      </span>
-                    </div>
-                    <p className={`text-[10px] mt-1 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                      {durationMins >= 60
-                        ? `≈ ${Math.floor(durationMins / 60)} hr ${durationMins % 60 ? `${durationMins % 60} mins` : ''}`
-                        : `${durationMins} minutes`}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className={`text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`}>
-                      Availability Status
-                    </label>
-                    <FormalSelect
-                      ariaLabel="Availability Status"
-                      value={availability}
-                      onChange={(e) => setAvailability(e.target.value)}
-                      options={[
-                        { value: 'Available Now', label: 'Available Now' },
-                        { value: 'Available Next Week', label: 'Available Next Week' },
-                        { value: 'Busy / Paused', label: 'Busy / Paused' },
-                      ]}
-                      placeholder="Select availability"
-                      isDark={isDark}
-                      theme="provider"
-                    />
-                  </div>
+            <ListingPhotoUploader workspace="provider" value={photos} onChange={setPhotos} onBusyChange={setPhotosBusy} disabled={loading || !canTransact} />
+            </ListingFormSection>
+            </WizardStep>
+            <WizardStep index={1} currentStep={step} label="Service location and coverage">
+            <ListingFormSection number={2} title="Where will you do the work?" description="Choose whether you go to seekers or they come to you.">
+              <ListingLocationFields locationError={locationError} coverageError={coverageError} value={{ serviceLocation, publicMapPin, serviceLocationMode, venueAddress, coverageRadiusKm, transportationFee }} isDark={isDark} disabled={!canTransact || loading} arrangementLayout="responsive" showTransportation={false} onChange={patch => {
+                setLocationError('');
+                if (patch.publicMapPin !== undefined) setPublicMapPin(patch.publicMapPin);
+                if (patch.serviceLocation !== undefined) setServiceLocation(patch.serviceLocation);
+                if (patch.serviceLocationMode) setServiceLocationMode(patch.serviceLocationMode);
+                if (patch.venueAddress !== undefined) setVenueAddress(patch.venueAddress ?? '');
+                if (patch.coverageRadiusKm !== undefined) { setCoverageRadiusKm(patch.coverageRadiusKm); setCoverageError(''); }
+                if (patch.serviceLocationMode) setCoverageError('');
+                if (patch.transportationFee !== undefined) setTransportationFee(patch.transportationFee);
+              }} />
+            </ListingFormSection>
+            </WizardStep>
+            <WizardStep index={2} currentStep={step} label="Service price and duration">
+            <ListingFormSection number={3} title="How much do you charge?" description="Set your service price and how long the work usually takes.">
+              <div className={priceByAgreement ? styles.columns : styles.threeColumns}>
+                {!priceByAgreement && <div>
+                  <label htmlFor="listing-price" className={styles.label}>Service price (₱)</label>
+                  <input id="listing-price" type="number" min={50} max={50000} required placeholder="e.g. 500" value={price} onChange={e => setPrice(Number(e.target.value))} aria-invalid={problems.some(issue => issue.field === 'price')} aria-describedby="listing-price-help" className={styles.field} />
+                  <p id="listing-price-help" className={styles.fieldHelp}>Enter ₱50–₱50,000. Choose how you charge next.</p>
+                </div>}
+                <div>
+                  <label htmlFor="listing-price-unit" className={styles.label}>How do you charge?</label>
+                  <FormalSelect id="listing-price-unit" ariaLabel="How do you charge?" value={priceType} onChange={e => setPriceType(e.target.value as NonNullable<ServiceListing['priceType']>)}
+                    options={[{ value:'FIXED', label:'Fixed Price' },{ value:'PER_HOUR', label:'Per Hour' },{ value:'PER_DAY', label:'Per Day' },{ value:'PER_PROJECT', label:'Per Project' },{ value:'BY_AGREEMENT', label:'Price by agreement' }]} placeholder="Choose how you charge" isDark={isDark} theme="provider" />
                 </div>
-                <p className={`mt-1.5 text-[10px] leading-relaxed ${isDark ? 'text-ink-muted' : 'text-ink-subtle'}`}>
-                  Manage how many paid jobs can wait for you in Provider Activity. This setting applies across all your listings and offers.
-                </p>
+                <div>
+                  <label htmlFor="listing-duration" className={styles.label}>Time needed (minutes)</label>
+                  <input id="listing-duration" type="number" min={15} max={480} step={5} required value={durationMins} onChange={e => setDurationMins(Math.max(1,Number(e.target.value)))} aria-invalid={problems.some(issue => issue.field === 'duration')} aria-describedby="listing-duration-help" className={styles.field} />
+                  <p id="listing-duration-help" className={styles.fieldHelp}>{priceByAgreement ? 'A general estimate: 15–480 minutes. Give the actual expected duration when you propose a price.' : 'Usual time for one job: 15–480 minutes (up to 8 hours).'}</p>
+                </div>
               </div>
-            </div>
-
-            {/* Submit Action */}
-            <div className="pt-2 flex items-center justify-end">
-              {moderationError && !moderationError.field && <p role="alert" className="mb-2 text-xs font-semibold text-red-600 dark:text-red-400">{moderationError.message}</p>}
-              <button
-                type="submit"
-                disabled={loading || !canTransact}
-                className={`w-full py-3.5 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 ${
-                  !canTransact
-                    ? 'bg-neutral-500 dark:bg-charcoal cursor-not-allowed opacity-50'
-                    : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95'
-                }`}
-              >
-                {loading ? 'Submitting...' : 'Publish Listing'}
-              </button>
-            </div>
-          </div>
-
+              {priceByAgreement ? <p className={styles.help}><strong>Price by agreement.</strong> Seekers describe the work in a service request. You accept with a final price, including any travel, or decline. They approve your price before booking or payment.</p> : price > 0 && <p className={styles.help}><strong>Price preview:</strong> ₱{price}{priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}</p>}
+              {!priceByAgreement && serviceLocationMode !== 'SEEKER_VISITS' && <TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} disabled={!canTransact || loading} />}
+            </ListingFormSection>
+            </WizardStep>
+            <WizardStep index={3} currentStep={step} label="Accepted payment methods">
+            <ListingFormSection number={4} title="How can seekers pay you?" description="Choose the payment methods you accept.">
+              <PaymentMethodCheckboxes legend="Choose at least one payment method" value={{ cash:acceptCash, gcash:acceptGCash }} onChange={methods => { setAcceptCash(methods.cash); setAcceptGCash(methods.gcash); }} isDark={isDark} disabled={loading || !canTransact}
+                description="You can choose both. GCash is currently in test mode; no real money is transferred."
+                error={!acceptCash && !acceptGCash ? 'Choose at least one way seekers can pay you.' : undefined} />
+              <GCashNumberField userId={user?.id} enabled={acceptGCash} isDark={isDark} workspace="provider" disabled={loading || !canTransact} />
+            </ListingFormSection>
+            </WizardStep>
+            <WizardStep index={4} currentStep={step} label="Review your service listing">
+              <ListingFormSection number={5} title="Review your service listing" description="Check the details seekers will see before publishing.">
+                <div>
+                  <WizardReviewSection title="Service details" onEdit={() => changeStep(0)}><dl><dt>Service name</dt><dd>{title}</dd><dt>Service category</dt><dd>{categories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>What is included?</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
+                  <WizardReviewSection title="Location and coverage" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>{serviceLocationMode === 'PROVIDER_VISITS' ? 'Service area' : 'Where seekers can visit you'}</dt><dd>{serviceLocation?.label}</dd>{serviceLocationMode !== 'PROVIDER_VISITS' && venueAddress && <><dt>Private directions</dt><dd>{venueAddress}</dd></>}{serviceLocationMode !== 'SEEKER_VISITS' && <><dt>How far you travel</dt><dd>{coverageRadiusKm === null ? 'No distance limit' : `Up to ${coverageRadiusKm} km`}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Price and duration" onEdit={() => changeStep(2)}><dl><dt>Service price</dt><dd>{priceByAgreement ? 'Price by agreement' : '₱' + price.toLocaleString() + (priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price')}</dd><dt>Time needed</dt><dd>{durationMins} minutes</dd>{!priceByAgreement && serviceLocationMode !== 'SEEKER_VISITS' && <><dt>Your travel fee</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[acceptCash && 'Cash in person', acceptGCash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p>{acceptGCash && <p>GCash is currently in test mode; no real money is transferred.</p>}</WizardReviewSection>
+                  <p className={styles.help}>You can accept separate bookings from this listing. A seeker can book again after their previous booking ends.</p>
+                </div>
+              </ListingFormSection>
+            </WizardStep>
+            {moderationError && !moderationError.field && <p role="alert" className={styles.error}>{moderationError.message}</p>}
+            <footer className={styles.footer}>
+              <div className={wizard.actions}>
+                <button type="button" disabled={step === 0 || loading || photosBusy || !canTransact} className={wizard.back} onClick={() => changeStep(step - 1)}>Back</button>
+                {step < 4 ? <button type="submit" disabled={loading || photosBusy || !canTransact} className={styles.submit}>{step === 3 ? 'Review service' : 'Next'}</button> : <button type="submit" disabled={loading || photosBusy || !canTransact || (!acceptCash && !acceptGCash)} className={styles.submit} aria-busy={loading}>{loading ? 'Publishing...' : 'Publish service'}</button>}
+              </div>
+            </footer>
+          </fieldset>
         </form>
-
       </div>
-
-      {/* Info Warning */}
-      <div className={`rounded-2xl p-4 border flex items-start space-x-3 transition-colors duration-200 ${isDark ? 'bg-charcoal-inset border-neutral-800/80 text-ink-muted' : 'bg-slate-50 border-slate-300 text-ink-muted'
-        }`}>
-        <Info className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-        <div><p className="text-[10px] leading-relaxed">
-          Your service appears in Seek Services after you publish it. No admin approval is needed. If a detail needs fixing, we will show you what to change before you try again.
-        </p></div>
-      </div>
-
+      <div className={styles.notice}><Info size={16} aria-hidden="true" /><div><p>Once published, seekers can find and book your service. If something needs fixing, we will tell you what to change.</p>
+        <p className="mt-2">Pause or resume your listing in <Link href="/provider/service-manager" className={styles.link}>Service Manager</Link>. Track your bookings in <Link href="/provider/provider-activity" className={styles.link}>Provider Activity</Link>.</p>
+      </div></div>
     </div>
   );
 }

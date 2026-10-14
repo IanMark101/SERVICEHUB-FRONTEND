@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useInView, useReducedMotion } from 'motion/react';
+import { useInView } from 'motion/react';
+import useHydratedReducedMotion from '@/hooks/useHydratedReducedMotion';
 import { AcceptedBookingFace, MessagesFace, MarketplaceConnectionFace } from './LandingHeroCardFaces';
 import styles from './LandingHeroHorizontalTrack.module.css';
 
@@ -26,7 +27,7 @@ function CardSequence({ copy = false }: { copy?: boolean }) {
 export default function LandingHeroHorizontalTrack({ paused = false }: { paused?: boolean }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(viewportRef, { margin: '200px 0px', initial: true });
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useHydratedReducedMotion();
   const [pageVisible, setPageVisible] = useState(true);
 
   useEffect(() => {

@@ -13,6 +13,7 @@ import UserProfileTabs from './user-profile/UserProfileTabs';
 import WorkspaceTabs from '../ui/WorkspaceTabs';
 import MarketplaceProfileOverview from './MarketplaceProfileOverview';
 import ProfilePageSkeleton from './ProfilePageSkeleton';
+import ProfileVerificationSummary from './ProfileVerificationSummary';
 import type { ProfileReviewContext } from '../../types/reviews';
 
 interface UserProfileProps {
@@ -175,13 +176,8 @@ export default function UserProfile({
       >
         {variant === 'marketplace' && activeTab === 'overview' ? (
           <MarketplaceProfileOverview model={profile} />
-        ) : variant === 'marketplace' && activeTab === 'verification' ? (
-          <section className="profile-section">
-            <h2 className="text-lg font-bold">residency</h2>
-            <p className="mt-3 text-sm font-semibold">{verStatus === 'APPROVED' ? 'Identity and residency verified' : 'Residency not yet verified'}</p>
-            <p className="mt-2 text-sm text-[color:var(--workspace-muted)]">Only verification status is shared on this profile. Identity documents remain private.</p>
-            {isOwnProfile && <Link href="/account/settings#verification" className="mt-5 inline-flex min-h-11 items-center font-semibold text-[color:var(--workspace-focus)]">Manage your verification</Link>}
-          </section>
+        ) : activeTab === 'verification' ? (
+          <ProfileVerificationSummary status={verStatus} isOwnProfile={isOwnProfile} />
         ) : (
           <UserProfileTabs
             model={{

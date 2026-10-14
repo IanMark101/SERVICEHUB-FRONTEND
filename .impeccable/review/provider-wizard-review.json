@@ -1,0 +1,46 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "steps": 5,
+    "providerColor": "rgb(4, 120, 87)",
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "publishWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "steps": 5,
+    "providerColor": "rgb(4, 120, 87)",
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "publishWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "steps": 5,
+    "providerColor": "rgb(4, 120, 87)",
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "publishWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  },
+  {
+    "width": 320,
+    "theme": "light",
+    "steps": 5,
+    "providerColor": "rgb(4, 120, 87)",
+    "noEarlyWrites": true,
+    "draftPreserved": true,
+    "publishWrites": 1,
+    "horizontalOverflow": false,
+    "pageErrors": []
+  }
+]

@@ -68,10 +68,10 @@ test('normal refresh removes the original, retains the replacement, and tolerate
 
 function configFor(environment, platform = process.platform) {
   const source = fs.readFileSync(path.join(projectRoot, 'next.config.ts'), 'utf8');
-  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText;
   const moduleRef = { exports: {} };
   vm.runInNewContext(compiled, {
-    module: moduleRef, exports: moduleRef.exports, require,
+    module: moduleRef, exports: moduleRef.exports, require: createRequire(path.join(projectRoot, 'next.config.ts')),
     process: { env: { NODE_ENV: environment }, platform, cwd: () => projectRoot },
   });
   return moduleRef.exports.default;
@@ -111,6 +111,7 @@ test('Windows development ignores protected drive entries without losing Next ig
       assert.equal(ignored.test(file), false, file);
     }
     assert.equal(webpackConfig.watchOptions.aggregateTimeout, 5);
+    assert.equal(webpackConfig.plugins.length, 1);
   }
 });
 

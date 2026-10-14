@@ -38,7 +38,7 @@ export default function LandingHero({ isDark }: LandingHeroProps) {
           </div>
         </div>
         <div data-hero-entrance="scene" className={styles.scene}>
-          <Image src="/images/hero-presenter-updated.png" alt="" width={1122} height={1402} sizes="(max-width: 767px) 260px, (max-width: 1023px) 335px, (max-width: 1199px) 42vw, 560px" preload className={styles.presenter} />
+          <Image src="/images/hero-presenter-casual.png" alt="" width={4828} height={5140} sizes="(max-width: 767px) 340px, (max-width: 1023px) 440px, (max-width: 1199px) 52vw, 640px" preload className={styles.presenter} />
           <figure className={styles.preview} aria-label="ServiceHub mobile website showing example service details">
             <div className={styles.phone} aria-hidden="true">
               <span className={styles.volumeButtons} />
@@ -65,7 +65,6 @@ export default function LandingHero({ isDark }: LandingHeroProps) {
               </div>
             </div>
           </figure>
-          <Image src="/images/hero-presenter-updated.png" alt="" aria-hidden="true" width={1122} height={1402} sizes="(max-width: 767px) 260px, (max-width: 1023px) 335px, (max-width: 1199px) 42vw, 560px" loading="eager" className={`${styles.presenter} ${styles.presenterHand}`} />
         </div>
       </div>
     </section>

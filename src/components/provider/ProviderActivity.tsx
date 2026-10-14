@@ -17,7 +17,6 @@ import {
 } from './activity/providerActivity.utils';
 import type { ProviderActivitySort, ProviderActivityTab } from './activity/types';
 import ProviderActivityList from './activity/ProviderActivityList';
-import ProviderWorkloadPanel from './activity/ProviderWorkloadPanel';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import { normalizeOfferStatus } from '../../lib/offerStatus';
 import SafetyReportModal from '../activity/SafetyReportModal';
@@ -415,13 +414,6 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     <div className={`workspace-page workspace-activity-view space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
 
 
-
-      {!openItemId && <ProviderWorkloadPanel
-        onOpen={(id) => openItem(id, 'booking')}
-        onStart={(id) => { void handleProviderStartJob(id); }}
-        startingBookingId={loadingActionType === 'start' ? loadingItemId : null}
-        isDark={isDark}
-      />}
 
       {!openItemId && <ProviderActivityTabs
         activeTab={activeTab}

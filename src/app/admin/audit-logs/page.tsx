@@ -1,88 +1,9 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { useApiCacheRefresh } from '../../../hooks/useApiCacheRefresh';
-import { useRefreshableLoad } from '../../../hooks/useRefreshableLoad';
-import { getApiErrorMessage } from '../../../lib/api/errors';
-import { invalidateApiCache } from '../../../lib/api/responseCache';
-import { History, RefreshCw } from 'lucide-react';
-import { apiListAdminAuditLogs } from '../../../api/admin.api';
 import { useApp } from '../../../context/AppContext';
-import AdminPagination from '../../../components/admin/AdminPagination';
-
-const PAGE_SIZE = 20;
-
-interface AuditLog {
-  id: string;
-  action: string;
-  resourceType: string;
-  resourceId?: string;
-  reason: string;
-  createdAt: string;
-  actor: { name: string; email: string };
-  targetUser?: { name: string };
-}
+import AuditLogsView from '../../../components/admin/audit/AuditLogsView';
 
 export default function AdminAuditLogsPage() {
   const { isDark } = useApp();
-  const [items, setItems] = useState<AuditLog[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [error, setError] = useState('');
-  const { loading, beginLoad } = useRefreshableLoad(String(page));
-
-  const load = useCallback(async () => {
-    const request = beginLoad();
-    let succeeded = false;
-    try {
-      const response = await apiListAdminAuditLogs({ page, limit: PAGE_SIZE });
-      if (!request.current()) return;
-      if (!response.success) throw new Error('Audit records could not be loaded.');
-      setItems(response.data || []);
-      setTotal(response.pagination?.total || 0);
-      setTotalPages(Math.max(1, response.pagination?.totalPages || 1));
-      setError('');
-      succeeded = true;
-    } catch (cause) {
-      if (request.current()) setError(getApiErrorMessage(cause, 'Audit records could not be loaded. Try Refresh.'));
-    } finally {
-      request.finish(succeeded);
-    }
-  }, [page, beginLoad]);
-  useApiCacheRefresh(['admin'], () => load());
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => void load(), 0);
-    return () => window.clearTimeout(timer);
-  }, [load]);
-
-  return (
-    <div className="space-y-5">
-      <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="flex items-center gap-2 text-base font-extrabold"><History className="h-5 w-5 text-[var(--admin-accent)]" /> Administrator Audit Log</h2>
-            <p className="mt-1 text-xs text-ink-muted">Immutable history of privileged moderation, private-document access, and account actions.</p>
-          </div>
-          <button type="button" onClick={() => { invalidateApiCache(['admin']); void load(); }} className="rounded-xl border px-3 py-2 text-xs font-bold"><RefreshCw className="mr-1 inline h-3.5 w-3.5" />Refresh</button>
-        </div>
-      </section>
-      {error && <p role="alert" className="rounded-xl border border-red-500/25 bg-red-500/10 p-4 text-xs text-red-600">{error}</p>}
-      <section className={`overflow-hidden rounded-2xl border ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
-        {loading ? <p className="p-8 text-center text-xs text-ink-muted">Loading audit records...</p> : items.length === 0 ? <p className="p-8 text-center text-xs text-ink-muted">No audit records found.</p> : (
-          <div className="divide-y divide-slate-200 dark:divide-neutral-800">
-            {items.map((item) => (
-              <article key={item.id} className="grid gap-2 p-4 text-xs md:grid-cols-[180px_1fr_180px]">
-                <div><p className="font-extrabold">{item.action.replace(/_/g, ' ')}</p><p className="text-ink-muted">{new Date(item.createdAt).toLocaleString()}</p></div>
-                <div><p>{item.reason}</p><p className="mt-1 text-ink-muted">{item.resourceType}{item.resourceId ? ` · ${item.resourceId}` : ''}{item.targetUser ? ` · Target: ${item.targetUser.name}` : ''}</p></div>
-                <div className="md:text-right"><p className="font-bold">{item.actor.name}</p><p className="text-ink-muted">{item.actor.email}</p></div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-      <AdminPagination page={page} totalPages={totalPages} totalItems={total} pageSize={PAGE_SIZE} onPageChange={setPage} itemLabel="audit records" />
-    </div>
-  );
+  return <AuditLogsView isDark={isDark}/>;
 }

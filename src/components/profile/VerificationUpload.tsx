@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Shield, AlertTriangle, FileCheck, Trash2, Camera, Plus, Eye } from 'lucide-react';
 import { apiSubmitVerification, apiGetVerificationStatus, apiUploadVerificationImage, apiGetVerificationPrivacyNotice, type VerificationStatusData } from '../../api/verifications.api';
 import { useToast } from '../ui/Toast';
-import { getApiErrorMessage } from '../../lib/api/errors';
+import { getApiErrorMessage, getUserFacingErrorMessage } from '../../lib/api/errors';
 import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
 import VerificationDecision from './VerificationDecision';
 
@@ -20,22 +20,24 @@ interface DocumentRow {
   fileUrl: string;
   fileName?: string;
   documentType: string;
+  error?: string;
 }
 
 const DOCUMENT_TYPES = [
   { value: 'GOVERNMENT_ID', label: 'Government-Issued ID (PhilSys, Driver\'s License, Passport)' },
   { value: 'BARANGAY_ID', label: 'Barangay ID' },
-  { value: 'PROOF_OF_RESIDENCE', label: 'Proof of Residence (Barangay Cert, Utility Bill)' },
+  { value: 'PROOF_OF_RESIDENCE', label: 'Proof of Address (Barangay Certificate, Utility Bill)' },
 ];
 
 export default function VerificationUpload({ isDark, onClose, embedded = false }: VerificationUploadProps) {
-  const { success, error: toastError } = useToast();
+  const { success } = useToast();
   const [verification, setVerification] = useState<VerificationStatusData | null>(null);
   const status = verification?.status || 'NOT_SUBMITTED';
   const [statusError, setStatusError] = useState('');
   const statusRequest = useRef({ id: 0 });
   const [rows, setRows] = useState<DocumentRow[]>([{ fileUrl: '', documentType: 'GOVERNMENT_ID' }]);
   const [submitting, setSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState('');
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [hasLoadedStatus, setHasLoadedStatus] = useState(false);
   const [previewModalUrl, setPreviewModalUrl] = useState<string | null>(null);
@@ -108,26 +110,34 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
   const handleFileUpload = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setSubmissionError('');
+    // Reset the picker so choosing the same file again still fires onChange.
+    e.target.value = '';
 
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      toastError('Unsupported file', 'Use a JPG, PNG, or WEBP image. PDF files are not accepted for identity verification.');
-      e.target.value = '';
+      updateRow(i, 'error', 'This file can’t be used. Choose a JPG, PNG, or WebP photo of your document. SVG and PDF files aren’t accepted.');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toastError('File too large', 'Please upload a photo under 5MB.');
-      e.target.value = '';
+      updateRow(i, 'error', 'This photo is too large. Choose a photo no larger than 5 MB. You can use a smaller photo or reduce its size first.');
+      return;
+    }
+    if (file.size === 0) {
+      updateRow(i, 'error', 'This file is empty. Choose another photo of your document.');
       return;
     }
 
+    updateRow(i, 'error', '');
     const reader = new FileReader();
+    reader.onerror = () => updateRow(i, 'error', 'We couldn’t open this photo. Choose it again or use another photo.');
     reader.onload = () => {
       const dataUrl = reader.result as string;
       setRows(prev => prev.map((row, idx) => idx === i ? {
         ...row,
         fileUrl: dataUrl,
-        fileName: file.name
+        fileName: file.name,
+        error: '',
       } : row));
     };
     reader.readAsDataURL(file);
@@ -136,32 +146,36 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
   const handleSubmit = async () => {
     const valid = rows.filter(r => r.fileUrl.trim());
     if (valid.length === 0) {
-      toastError('No documents', 'Please upload or attach at least one document photo.');
+      setSubmissionError('Add at least one photo of your ID or proof of address before submitting.');
       return;
     }
     if (!privacyNotice || !privacyAccepted) {
-      toastError('Privacy acknowledgement required', 'Read and accept the verification privacy notice before submitting.');
+      setSubmissionError('Read the privacy notice and check the box before submitting your photos.');
       return;
     }
+    setSubmissionError('');
     setSubmitting(true);
     try {
       if (valid.some((item) => !item.fileUrl.startsWith('data:image/'))) {
-        toastError('Upload required', 'For privacy, verification documents must be uploaded from your device.');
+        setSubmissionError('Choose the document photos saved on your device, then try again.');
         return;
       }
       const uploaded = await Promise.all(valid.map(async (item) => {
         const upload = await apiUploadVerificationImage(item.fileUrl);
+        if (upload.success === false || !upload.data?.storageKey) {
+          throw new Error(getUserFacingErrorMessage(upload.error || upload.message, 'We couldn’t upload your photo. Please try again.'));
+        }
         return { storageKey: upload.data.storageKey, documentType: item.documentType };
       }));
       const res = await apiSubmitVerification(uploaded, privacyNotice.version);
       if (res.success) {
-        success('Verification Submitted!', 'Admin will review your photos & documents.');
+        success('Photos submitted', 'Our team will review your documents. You can check the result here.');
         await loadStatus();
       } else {
-        toastError('Submission Failed', res.error || 'Please try again.');
+        setSubmissionError(getUserFacingErrorMessage(res.error || res.message, 'We couldn’t submit your documents. Please try again.'));
       }
-    } catch (submissionError: unknown) {
-      toastError('Submission Failed', getApiErrorMessage(submissionError, 'Network error.'));
+    } catch (cause: unknown) {
+      setSubmissionError(getApiErrorMessage(cause, 'We couldn’t submit your documents. Please try again. Your selected photos are still here.'));
     } finally {
       setSubmitting(false);
     }
@@ -219,7 +233,7 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', background: isDark ? 'var(--color-charcoal)' : '#fefce8', padding: '12px', borderRadius: '12px', border: `1px solid ${isDark ? '#3a3730' : '#fef08a'}` }}>
               <AlertTriangle size={16} color="#f59e0b" style={{ flexShrink: 0 }} />
               <p style={{ margin: 0, fontSize: '11.5px', color: isDark ? '#d4d0c7' : '#854d0e', lineHeight: 1.4 }}>
-                Please upload clear photos of your official ID or documents (PhilSys, Barangay Cert, Utility Bill). Photos will be reviewed securely by Admins.
+                Add clear photos of your official ID or proof of address, such as a barangay certificate or utility bill. Only authorized reviewers can open your documents.
               </p>
             </div>
 
@@ -236,6 +250,7 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
                       </label>
                       <FormSelect
                         aria-label={`Document Type #${i + 1}`}
+                        disabled={submitting}
                         value={row.documentType}
                         onChange={e => updateRow(i, 'documentType', e.target.value)}
                         style={inputStyle}
@@ -248,6 +263,8 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
 
                     {rows.length > 1 && (
                       <button
+                        type="button"
+                        disabled={submitting}
                         onClick={() => removeRow(i)}
                         style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', padding: '8px 10px', borderRadius: '10px', cursor: 'pointer', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', alignSelf: 'flex-end' }}
                         title="Remove Document"
@@ -263,7 +280,10 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
                     <input
                       type="file"
                       aria-label={`Upload document photo ${i + 1}`}
+                      aria-describedby={`document-photo-help-${i}${row.error ? ` document-photo-error-${i}` : ''}`}
+                      aria-invalid={!!row.error}
                       accept="image/jpeg,image/png,image/webp"
+                      disabled={submitting}
                       ref={el => { fileInputRefs.current[i] = el; }}
                       style={{ display: 'none' }}
                       onChange={e => handleFileUpload(i, e)}
@@ -298,6 +318,8 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
                         <div style={{ display: 'flex', gap: '6px' }}>
                           <button
                             type="button"
+                            aria-describedby={row.error ? `document-photo-error-${i}` : undefined}
+                            disabled={submitting}
                             onClick={() => fileInputRefs.current[i]?.click()}
                             style={{ background: isDark ? 'var(--color-charcoal)' : '#f1f5f9', border: `1px solid ${isDark ? '#3a3835' : '#e2e8f0'}`, color: textPrimary, padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
                           >
@@ -306,22 +328,26 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
                         </div>
                       </div>
                     ) : (
-                      <div
+                      <button
+                        type="button"
+                        disabled={submitting}
+                        aria-label={`Choose document photo ${i + 1}`}
+                        aria-describedby={`document-photo-help-${i}${row.error ? ` document-photo-error-${i}` : ''}`}
                         onClick={() => fileInputRefs.current[i]?.click()}
-                        style={{ border: `2px dashed ${isDark ? '#3a3730' : '#cbd5e1'}`, borderRadius: '14px', padding: '20px', textAlign: 'center', cursor: 'pointer', background: isDark ? 'var(--color-charcoal)' : '#ffffff', transition: 'all 0.2s' }}
+                        style={{ width: '100%', border: `2px dashed ${isDark ? '#3a3730' : '#cbd5e1'}`, borderRadius: '14px', padding: '20px', textAlign: 'center', cursor: 'pointer', background: isDark ? 'var(--color-charcoal)' : '#ffffff', transition: 'all 0.2s' }}
                       >
-                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: isDark ? 'var(--color-charcoal)' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: isDark ? '#f2efe9' : '#1e293b' }}>
-                          <Camera size={22} />
-                        </div>
-                        <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: textPrimary }}>
-                          Click to Upload Photo / File
-                        </p>
-                        <p style={{ margin: '4px 0 0', fontSize: '11px', color: textMuted }}>
-                          Supports JPG, PNG, or WEBP (up to 5MB)
-                        </p>
-                      </div>
+                        <span style={{ width: '44px', height: '44px', borderRadius: '12px', background: isDark ? 'var(--color-charcoal)' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: isDark ? '#f2efe9' : '#1e293b' }}>
+                          <Camera size={22} aria-hidden="true" />
+                        </span>
+                        <span style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: textPrimary }}>
+                          Choose a document photo
+                        </span>
+                      </button>
                     )}
-
+                    <p id={`document-photo-help-${i}`} style={{ margin: '8px 0 0', fontSize: '12px', lineHeight: 1.5, color: textMuted }}>JPG, PNG, or WebP photos, up to 5 MB each.</p>
+                    {row.error && <p id={`document-photo-error-${i}`} role="alert" style={{ margin: '8px 0 0', fontSize: '13px', lineHeight: 1.5, color: isDark ? '#fca5a5' : '#b91c1c' }}>
+                      {row.error}{row.fileUrl && ' Your previous photo is still selected.'}
+                    </p>}
                   </div>
                 </div>
               ))}
@@ -330,6 +356,7 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
             {/* Add Document button */}
             <button
               type="button"
+              disabled={submitting}
               onClick={addRow}
               style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: isDark ? '#f2efe9' : '#1e293b', background: 'none', border: 'none', cursor: 'pointer', padding: '10px 0 0', marginTop: '4px' }}
             >
@@ -357,6 +384,7 @@ export default function VerificationUpload({ isDark, onClose, embedded = false }
           </label>}
 
           {/* Submit Action Button - Clean High-Contrast Monochrome */}
+          {submissionError && <p role="alert" style={{ margin: '0 0 12px', fontSize: '13px', lineHeight: 1.5, color: isDark ? '#fca5a5' : '#b91c1c' }}>{submissionError}</p>}
           <button
             onClick={handleSubmit}
             disabled={submitting || privacyLoading || !privacyNotice || !privacyAccepted}

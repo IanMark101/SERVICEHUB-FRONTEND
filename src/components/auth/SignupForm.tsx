@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import GoogleSignInButton from './shared/GoogleSignInButton';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
+import { getApiErrorMessage } from '../../lib/api/errors';
 import SignupSteps from './signup/SignupSteps';
 import type { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import type { AuthFormValues } from '../../schema/auth/useAuthForm';
@@ -66,7 +67,7 @@ export default function SignupForm({
       const cdnUrl = await uploadAvatarToCloudinary(file);
       handleAvatarSelect(cdnUrl);
     } catch (err: unknown) {
-      setUploadError(err instanceof Error ? err.message : 'Failed to process and upload image');
+      setUploadError(getApiErrorMessage(err, 'We couldn’t upload your profile photo. Please try again or choose another photo.'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) {

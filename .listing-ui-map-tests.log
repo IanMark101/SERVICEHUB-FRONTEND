@@ -1,0 +1,55 @@
+
+> servicehub-frontend@0.1.0 test
+> vitest run src/components/provider/IncomingRequests.test.tsx src/components/provider/ManagedServiceCard.test.tsx src/components/location/LocationEditor.test.tsx src/components/location/LocationMap.test.tsx src/hooks/useProviderMapListings.test.tsx src/lib/marketplace-map.test.ts src/components/location/MarketplaceLocationControl.test.tsx src/components/provider/OfferServices.test.tsx src/hooks/useProviderActions.test.tsx src/hooks/useSavedListings.test.tsx src/components/ui/Toast.test.tsx src/components/marketplace/SavedListings.test.tsx
+
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/lib/marketplace-map.test.ts (7 tests) 26ms
+ ✓ src/components/location/LocationEditor.test.tsx (13 tests) 1545ms
+   ✓ device-location recovery > allows a fresh successful attempt after browser failure code 1  431ms
+ ✓ src/components/location/LocationMap.test.tsx (13 tests) 4032ms
+   ✓ location map lifecycle with real Leaflet > keeps the same green marker DOM during zoom refreshes and an empty response  915ms
+   ✓ location map lifecycle with real Leaflet > can zoom, close during the zoom, and immediately reopen without delayed DOM errors  649ms
+   ✓ location map lifecycle with real Leaflet > keeps the same map and selected location when expanded and restored  349ms
+   ✓ location map lifecycle with real Leaflet > zooms with Ctrl or Command plus wheel while leaving normal scrolling and selection alone  313ms
+ ✓ src/hooks/useSavedListings.test.tsx (6 tests) 818ms
+ ✓ src/hooks/useProviderMapListings.test.tsx (9 tests) 7731ms
+   ✓ provider markers in the location modal > queries the map area rather than a selected radius and respects public pin visibility and filters  405ms
+   ✓ provider markers in the location modal > ignores a stale request after the viewport changes and retries a failed load  848ms
+   ✓ provider markers in the location modal > keeps known markers through zoom refreshes, empty viewports, failures and retries  1159ms
+   ✓ provider markers in the location modal > adds newly discovered providers and clears old markers immediately when filters change  889ms
+   ✓ provider markers in the location modal > removes paused and deleted listings on live updates, including pins discovered outside the current viewport  1860ms
+   ✓ provider markers in the location modal > aborts pre-update requests so late responses cannot resurrect a removed listing  1136ms
+   ✓ provider markers in the location modal > revalidates on reconnect and recovery while retaining markers on a failed refresh  1176ms
+ ✓ src/components/ui/Toast.test.tsx (1 test) 360ms
+   ✓ semantic toast feedback > announces errors as alerts with their error kind in either workspace  358ms
+ ✓ src/hooks/useProviderActions.test.tsx (14 tests) 120ms
+ ✓ src/components/provider/IncomingRequests.test.tsx (9 tests) 1377ms
+   ✓ provider incoming listing inquiries > sets the final price inside Incoming Requests and uses the existing offer action  473ms
+   ✓ provider incoming listing inquiries > paginates the work queue and resets to the first page when searching  449ms
+ ✓ src/components/location/MarketplaceLocationControl.test.tsx (15 tests) 2459ms
+   ✓ marketplace search location > seeker can apply the 0.5 km preset  358ms
+ ✓ src/components/marketplace/SavedListings.test.tsx (4 tests) 559ms
+   ✓ Saved workspace page > opens a saved provider listing through the original service details route and removes it  403ms
+ ✓ src/components/provider/ManagedServiceCard.test.tsx (2 tests) 319ms
+ ✓ src/components/provider/OfferServices.test.tsx (16 tests) 9802ms
+   ✓ Offer Services wizard > lets providers publish by agreement without an amount or separate travel fee and retains a fixed-price draft  1573ms
+   ✓ Offer Services wizard > offers only pricing that shows a definite amount before booking  580ms
+   ✓ Offer Services wizard > requires explicit travel coverage and accepts an area without a venue address  807ms
+   ✓ Offer Services wizard > requires a venue for The seeker comes to you and preserves its conditional payload  804ms
+   ✓ Offer Services wizard > requires a venue for Either option and preserves its conditional payload  772ms
+   ✓ Offer Services wizard > uses the same coverage radius for map preview and publication, and resets only on success  454ms
+   ✓ Offer Services wizard > returns server moderation rejection to Details without losing the draft  525ms
+   ✓ Offer Services wizard > preserves photos and all pricing/payment choices through review edits  1134ms
+   ✓ Offer Services wizard > honors the existing native price and duration bounds before Payment  742ms
+   ✓ Offer Services wizard > requires a payment choice before Review  539ms
+   ✓ Offer Services wizard > revalidates categories before final publication  416ms
+   ✓ Offer Services wizard > prevents duplicate publishes while the existing create call is pending  400ms
+   ✓ Offer Services wizard > retains the review and releases the controls if creation throws  500ms
+
+ Test Files  12 passed (12)
+      Tests  109 passed (109)
+   Start at  16:34:58
+   Duration  34.97s (transform 10.81s, setup 14.51s, collect 97.25s, tests 29.15s, environment 32.33s, prepare 7.12s)
+

@@ -1,3 +1,4 @@
+import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
 import type { LocationPoint } from '../lib/location';
 
 export interface Review {
@@ -38,6 +39,10 @@ export interface User {
 }
 
 export interface ServiceListing {
+  publicMapPin?: boolean;
+  photos?: import('../lib/listingPhotos').ListingPhoto[];
+  serviceLocationMode?: ServiceLocationMode;
+  venueAddress?: string | null;
   locationLabel?: string;
   distanceKm?: number;
   serviceLocation?: LocationPoint;
@@ -64,7 +69,7 @@ export interface ServiceListing {
   // listings and bookings are reusable ONE_TIME engagements.
   serviceType?: 'ONE_TIME' | 'SESSION_BASED';
   // priceType controls how the price is displayed (e.g. ₱200 / session, ₱500 / project)
-  priceType?: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM';
+  priceType?: 'FIXED' | 'STARTS_AT' | 'PER_HOUR' | 'PER_SESSION' | 'PER_DAY' | 'PER_PROJECT' | 'CUSTOM' | 'BY_AGREEMENT';
   estimatedDurationMins?: number;
   status?: 'PENDING_REVIEW' | 'ACTIVE' | 'REJECTED' | 'INACTIVE' | 'SUSPENDED' | 'DELETED';
   adminNotes?: string | null;
@@ -82,6 +87,8 @@ export interface PaymentMethods {
 }
 
 export interface JobRequest {
+  photos?: import('../lib/listingPhotos').ListingPhoto[];
+  serviceLocationMode?: ServiceLocationMode;
   locationLabel?: string;
   distanceKm?: number;
   jobLocation?: LocationPoint;
@@ -117,6 +124,8 @@ export interface JobRequest {
 }
 
 export interface Bid {
+  serviceLocationMode?: BookingLocationMode;
+  venueLabel?: string;
   id: string;
   requestId: string;
   seekerId?: string;
@@ -126,6 +135,7 @@ export interface Bid {
   serviceId?: string;
   requestPaymentMethods?: PaymentMethods | null;
   requestPreferredPaymentMethod?: 'GCash' | 'On-site Cash' | null;
+  requestTargetServiceId?: string | null;
   estimatedDuration?: number;
   availability?: string;
   requestStatus?: string;
@@ -152,6 +162,7 @@ export interface BookingProgressEvent {
 }
 
 export interface JobEngagement {
+  serviceLocationMode?: BookingLocationMode;
   jobLocation?: LocationPoint;
   transportationFee?: number | null;
   id: string;

@@ -6,13 +6,13 @@ import { getAccessToken } from './api/axios';
  */
 export async function processAvatarFile(file: File, size: number = 400, quality: number = 0.85): Promise<string> {
   return new Promise((resolve, reject) => {
-    if (!file.type.startsWith('image/')) {
-      return reject(new Error('Please select a valid image file (JPEG, PNG, or WebP).'));
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      return reject(new Error('This file can’t be used. Choose a JPG, PNG, or WebP photo.'));
     }
 
     // Max 10MB input limit
     if (file.size > 10 * 1024 * 1024) {
-      return reject(new Error('Image size must be less than 10MB.'));
+      return reject(new Error('This photo is too large. Choose a photo no larger than 10 MB.'));
     }
 
     const reader = new FileReader();
@@ -24,7 +24,7 @@ export async function processAvatarFile(file: File, size: number = 400, quality:
         canvas.height = size;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          return reject(new Error('Failed to create canvas context.'));
+          return reject(new Error('We couldn’t prepare your photo. Please try again or choose another photo.'));
         }
 
         // Center square crop calculations
@@ -38,10 +38,10 @@ export async function processAvatarFile(file: File, size: number = 400, quality:
         const dataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(dataUrl);
       };
-      img.onerror = () => reject(new Error('Failed to load selected image.'));
+      img.onerror = () => reject(new Error('We couldn’t open this photo. Choose another JPG, PNG, or WebP photo.'));
       img.src = e.target?.result as string;
     };
-    reader.onerror = () => reject(new Error('Failed to read image file.'));
+    reader.onerror = () => reject(new Error('We couldn’t open this photo. Choose it again or use another photo.'));
     reader.readAsDataURL(file);
   });
 }

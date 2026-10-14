@@ -16,7 +16,7 @@ interface LandingTickerProps {
 const TICKER_DATA: Record<TickerVariant, string[]> = {
   services: [
     'Aircon Service', 'Appliance Repair', 'Carpentry & Woodwork',
-    'Electrical Repair', 'Haircut', 'House Cleaning', 'Lawn Care', 'Plumbing', 'Tutoring',
+    'Electrical Wiring & Repairs', 'Haircuts & Beauty', 'Home & Office Cleaning', 'Gardening & Landscaping', 'Plumbing', 'Tutoring & Lessons',
   ],
   locality: [
     'Choose Your Location', 'Adjust Your Search Radius', 'Nearby Providers',

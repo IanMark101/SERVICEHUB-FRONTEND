@@ -82,7 +82,7 @@ describe('useSeekerActions Post Request payload', () => {
 
     expect(posted).toBe(false);
     expect(toastSuccess).not.toHaveBeenCalled();
-    expect(toastError).toHaveBeenCalledWith('Failed to post request', 'Validation failed');
+    expect(toastError).toHaveBeenCalledWith('Failed to post request', 'Some details are missing or need changing. Check the form and try again.');
   });
 
   it('rejects a name or stale ID instead of silently assigning the first category', async () => {
@@ -150,6 +150,21 @@ describe('useSeekerActions Post Request payload', () => {
     expect(toastError).toHaveBeenCalledWith('Update Failed', 'This request cannot be edited.');
     expect(toastSuccess).not.toHaveBeenCalled();
     expect(setJobRequests).not.toHaveBeenCalled();
+  });
+
+  it('uses the saved search area without stale private directions or travel budget after switching to seeker visits', async () => {
+    vi.mocked(apiUpdateRequest).mockResolvedValue({ success: true, data: {
+      id: 'request-id', title: 'LAPTOP REPAIR', description: 'Visit a workshop.', budgetMax: 1500,
+      serviceLocationMode: 'SEEKER_VISITS', latitude: 10.3, longitude: 123.9,
+      locationLabel: 'Cordova, Cebu', privateAddress: null, transportationFee: null,
+    } });
+    const { result } = renderSeekerActions();
+    const updated = await result.current.editJobRequest('request-id', 'LAPTOP REPAIR', 1500, 'Visit a workshop.', undefined, { serviceLocationMode: 'SEEKER_VISITS' });
+    const applyUpdate = setJobRequests.mock.calls[0][0];
+    const saved = applyUpdate([{ id: 'request-id', jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cordova, Cebu', address: 'Old private home directions' }, transportationFee: 75 }])[0];
+    expect(updated).toMatchObject({ serviceLocationMode: 'SEEKER_VISITS' });
+    expect(saved.jobLocation).toEqual({ latitude: 10.3, longitude: 123.9, label: 'Cordova, Cebu' });
+    expect(saved.transportationFee).toBeUndefined();
   });
 
   it.each(['REJECTED', 'WITHDRAWN'])('publishes the confirmed %s decision even if refresh fails', async status => {

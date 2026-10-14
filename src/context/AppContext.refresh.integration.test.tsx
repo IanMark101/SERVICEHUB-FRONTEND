@@ -3,7 +3,7 @@ import axios, { AxiosHeaders, type AxiosAdapter, type InternalAxiosRequestConfig
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppProvider, useApp } from './AppContext';
-import { api, clearAccessToken } from '../lib/api/axios';
+import { api, clearAccessToken, getAccessToken } from '../lib/api/axios';
 import { useRouteGuard } from '../hooks/useRouteGuard';
 import SeekServices from '../components/seeker/SeekServices';
 
@@ -57,7 +57,24 @@ describe('full refresh through real recovery, Axios, data sync and service UI', 
     handler = async config => defaults(config);
     api.defaults.adapter = async config => { calls.push(config.url!); return handler(config); };
   });
-  afterEach(() => { cleanup(); clearAccessToken(); api.defaults.adapter = originalAdapter; });
+  afterEach(() => { cleanup(); clearAccessToken(); api.defaults.adapter = originalAdapter; vi.restoreAllMocks(); });
+
+  it('redirects a refused recovered session and stops its private workspace feeds', async () => {
+    const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: { data: { accessToken: 'refused-recovered-token' } } });
+    handler = async config => {
+      if (config.url === '/notifications') throw failure(config, 401);
+      return defaults(config);
+    };
+    mount();
+    await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith(expect.stringContaining('/login')));
+    expect(getAccessToken()).toBeNull();
+    expect(screen.queryByText(listing.title)).not.toBeInTheDocument();
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(calls.filter(path => path === '/notifications')).toHaveLength(2);
+    const count = calls.length;
+    await act(async () => { window.dispatchEvent(new Event('servicehub_account_updated')); });
+    expect(calls).toHaveLength(count);
+  });
 
   it.each(['seeker', 'provider'])('restores %s across repeated fresh mounts without a cached profile', async role => {
     localStorage.setItem('workspaceRole', role);

@@ -17,9 +17,11 @@ import {
 } from 'lucide-react';
 import { UserSession } from '../auth/LoginContainer';
 import { uploadAvatarToCloudinary } from '../../lib/imageUtils';
+import { getApiErrorMessage } from '../../lib/api/errors';
 import TrustScoreGuide from './account-settings/TrustScoreGuide';
 import AccountDeletionPanel from './account-settings/AccountDeletionPanel';
 import PasswordSecurityPanel from './account-settings/PasswordSecurityPanel';
+import AccountSettingsNav from './account-settings/AccountSettingsNav';
 import UserAvatar from '../ui/UserAvatar';
 import VerificationUpload from './VerificationUpload';
 
@@ -60,7 +62,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
       const cdnUrl = await uploadAvatarToCloudinary(file);
       setEditForm((form) => ({ ...form, avatarUrl: cdnUrl }));
     } catch (err: unknown) {
-      setUploadError(err instanceof Error ? err.message : 'Failed to process and upload image');
+      setUploadError(getApiErrorMessage(err, 'We couldn’t upload your profile photo. Please try again or choose another photo.'));
     } finally {
       setProcessingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -84,7 +86,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
   const inputClass = 'workspace-form-control min-w-0 w-full px-3.5 py-2.5 text-base sm:text-sm font-medium';
 
   return (
-    <div className={`max-w-5xl mx-auto space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
+    <div className={`account-settings-view max-w-6xl mx-auto space-y-5 transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
       
       {/* Header Banner */}
       <div className="px-1 py-4">
@@ -92,15 +94,10 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
         <p className={`mt-2 max-w-2xl text-sm leading-6 ${labelText}`}>Manage your profile, residency verification, password, and appearance.</p>
       </div>
 
-      <nav className="workspace-section-nav" aria-label="Account settings sections">
-        <a href="#account-identity">Account</a>
-        <a href="#contact-information">Profile</a>
-        {!isAdmin && <a href="#verification">Verification</a>}
-        <a href="#password-security">Security</a>
-        <a href="#appearance">Appearance</a>
-        {!isAdmin && <a href="#trust-safety">Trust & safety</a>}
-      </nav>
+      <div className="account-settings-layout">
+      <AccountSettingsNav isAdmin={isAdmin} />
 
+      <div className="account-settings-content space-y-5">
       {/* Account Details & Email Card */}
       <section id="account-identity" className={`${cardBg} scroll-mt-24 rounded-2xl p-5 sm:p-6 border space-y-4`}>
         <h3 className={`font-bold text-base flex items-center gap-2 ${headingText}`}>
@@ -377,6 +374,9 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
           <AccountDeletionPanel email={email || user.email} isDark={isDark} />
         </section>
       )}
+
+      </div>
+      </div>
 
       {/* Phone Password Confirmation Modal */}
       <PhonePasswordConfirmModal

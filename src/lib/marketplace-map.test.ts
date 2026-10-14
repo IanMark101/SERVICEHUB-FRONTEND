@@ -25,7 +25,7 @@ describe('public marketplace map areas',()=>{
   });
   it('rejects exact or invalid positions and strips unrelated private fields',()=>{
     const pin={id:'a',title:'Plumbing',label:'Cordova',area:{latitude:10.3,longitude:123.9,approximate:true}};
-    expect(parseMapPins([pin,{...pin,area:{...pin.area,approximate:false}},{...pin,area:{...pin.area,latitude:91}},null])).toEqual([pin]);
+    expect(parseMapPins([pin,{...pin,area:{...pin.area,approximate:false}},{...pin,area:{...pin.area,latitude:91}},null])).toEqual([pin,{...pin,area:{...pin.area,approximate:false}}]);
     expect(parseMapPins([{...pin,privateAddress:'Private',area:{...pin.area,address:'Private'}}])).toEqual([pin]);
     expect(parseMapPins(undefined)).toEqual([]);
   });

@@ -128,4 +128,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .tab { transition: none; }
+  .tablet { transform: none !important; }
 }

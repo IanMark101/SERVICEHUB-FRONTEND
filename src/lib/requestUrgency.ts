@@ -1,10 +1,10 @@
 // New requests use these exact values. Older free-text timelines stay readable.
 export const REQUEST_URGENCY_OPTIONS = [
-  { value: 'ASAP / Today', label: 'ASAP / Today' },
-  { value: 'Needs Tomorrow', label: 'Needs Tomorrow' },
-  { value: 'Next 1-2 Days', label: 'Next 1-2 Days' },
-  { value: 'This Week', label: 'This Week' },
-  { value: 'Flexible Schedule', label: 'Flexible Schedule' },
+  { value: 'ASAP / Today', label: 'Today / as soon as possible' },
+  { value: 'Needs Tomorrow', label: 'Tomorrow' },
+  { value: 'Next 1-2 Days', label: 'In the next 1–2 days' },
+  { value: 'This Week', label: 'This week' },
+  { value: 'Flexible Schedule', label: 'No fixed date' },
 ] as const;
 
 export type RequestUrgency = typeof REQUEST_URGENCY_OPTIONS[number]['value'];

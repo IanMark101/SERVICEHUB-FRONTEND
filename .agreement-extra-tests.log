@@ -1,0 +1,20 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/components/ui/ListingPhotos.test.tsx (8 tests) 591ms
+ ✓ src/components/seeker/RequestManager.test.tsx (26 tests) 3098ms
+   ✓ Request Manager activation > shows pending progress, prevents duplicate saves, and displays confirmed edits despite a stale owner-list read  461ms
+   ✓ Request Manager deletion > keeps the exact card in place while deleting and after rejection, including a refresh and remount  422ms
+ ✓ src/components/seeker/RequestFormWizard.test.tsx (15 tests) 4853ms
+   ✓ Post Request wizard > shows only the current fields and blocks an empty step, including Enter submission  349ms
+   ✓ Post Request wizard > preserves details, photos, location and budget when going Back and editing from Review  990ms
+   ✓ Post Request wizard > requires a job location and validates the budget before showing Payment  396ms
+   ✓ Post Request wizard > revalidates a retired category at final submission instead of sending the stale draft  544ms
+   ✓ Request Service wizard > preserves schedule, metered quantity and payment when returning from Review  459ms
+   ✓ Request Service wizard > switches between arrangements without losing the job location and omits it for venue booking  486ms
+
+ Test Files  3 passed (3)
+      Tests  49 passed (49)
+   Start at  14:35:00
+   Duration  15.83s (transform 1.28s, setup 1.40s, collect 25.94s, tests 8.54s, environment 3.54s, prepare 667ms)
+

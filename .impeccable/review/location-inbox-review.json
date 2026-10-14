@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-13",
+  "scope": "Provider area versus venue rules, seeker job versus search area, semantic errors, compact scalable incoming inboxes",
+  "authority": "User's explicit clarified arrangement rules; existing ServiceHub workspace design",
+  "environment": "Illustrative local component fixture. Google font downloads were unavailable, so local preview used font fallback. No real external submissions. Temporary fixture and context exports removed after review.",
+  "measurements": {
+    "desktopEmptyHeightPx": 86.5,
+    "phoneWidthPx": 390,
+    "horizontalOverflow": false,
+    "decisionButtonHeightPx": 44,
+    "itemsPerPage": 10,
+    "lightErrorIcon": "rgb(185, 28, 28)",
+    "darkErrorIcon": "rgb(252, 165, 165)"
+  },
+  "checks": [
+    "General service area search opens without an exact-pin map or shop address.",
+    "Seeker visits require the actual provider venue and hide travel coverage.",
+    "A seeker who travels supplies only their general search area; private job directions are absent.",
+    "Native request details reveal the saved agreed job pin and private directions.",
+    "Provider queue pagination and search reset passed regression tests.",
+    "Cash/GCash offer acceptance, loading states, blocked decisions and refreshed availability passed existing tests.",
+    "Light and dark error toast styles remain red regardless of workspace."
+  ],
+  "validation": {"frontendTests":72,"backendArrangementTests":8,"typescript":"Both projects passed","eslint":"Changed frontend TypeScript passed","uiDetector":"No findings","databaseIntegration":"Not run against the configured remote database"},
+  "screenshots": ["inbox-seeker-desktop-light.png","inbox-empty-desktop-light.png","inbox-provider-phone-dark.png","inbox-seeker-phone-dark-error.png"]
+}

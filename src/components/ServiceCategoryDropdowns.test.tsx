@@ -1,4 +1,4 @@
-import { fireEvent, render as rtlRender, waitFor } from '@testing-library/react';
+import { fireEvent, render as rtlRender, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../context/AppContext';
 import { useTransactionPermission } from '../hooks/useTransactionPermission';
@@ -15,7 +15,7 @@ const postJobRequest = vi.fn();
 const createServiceListing = vi.fn();
 const toastError = vi.fn();
 
-type Category = { id: string; name: string };
+type Category = { id: string; name: string; description?: string };
 let activeCategories: Category[];
 
 function categoryOptions(container: HTMLElement) {
@@ -103,7 +103,8 @@ describe('Seeker and Provider admin-managed categories', () => {
     const provider = render(<OfferServices />);
     fireEvent.change(seeker.container.querySelector('select')!, { target: { value: 'plumbing-id' } });
     fireEvent.change(provider.container.querySelector('select')!, { target: { value: 'plumbing-id' } });
-    fireEvent.change(seeker.container.querySelector('input[placeholder="e.g. Need help fixing kitchen faucet leak"]')!, { target: { value: 'Fix kitchen faucet leak' } });
+    fireEvent.change(seeker.container.querySelector('#request-title')!, { target: { value: 'Fix kitchen faucet leak' } });
+    fireEvent.change(seeker.container.querySelector('#request-budget')!, { target: { value: '500' } });
     fireEvent.change(seeker.container.querySelector('textarea')!, { target: { value: 'The faucet leaks under the sink and needs repair.' } });
     fireEvent.change(seeker.container.querySelector('#request-urgency')!, { target: { value: 'Flexible Schedule' } });
     fireEvent.submit(seeker.container.querySelector('form')!);
@@ -130,7 +131,8 @@ describe('Seeker and Provider admin-managed categories', () => {
     expect(categoryOptions(provider.container)).toEqual(expected);
     fireEvent.change(seeker.container.querySelector('select')!, { target: { value: 'fallback-id' } });
     fireEvent.change(provider.container.querySelector('select')!, { target: { value: 'fallback-id' } });
-    fireEvent.change(seeker.container.querySelector('input[placeholder="e.g. Need help fixing kitchen faucet leak"]')!, { target: { value: 'Repair aquarium pump' } });
+    fireEvent.change(seeker.container.querySelector('#request-title')!, { target: { value: 'Repair aquarium pump' } });
+    fireEvent.change(seeker.container.querySelector('#request-budget')!, { target: { value: '500' } });
     fireEvent.change(seeker.container.querySelector('textarea')!, { target: { value: 'The aquarium circulation pump needs inspection and repair.' } });
     fireEvent.change(seeker.container.querySelector('#request-urgency')!, { target: { value: 'Flexible Schedule' } });
     fireEvent.submit(seeker.container.querySelector('form')!);
@@ -140,8 +142,30 @@ describe('Seeker and Provider admin-managed categories', () => {
       expect(createServiceListing).toHaveBeenCalledWith('resident-id', '', 'fallback-id', 500, '', expect.any(Object), expect.any(Object));
     });
   });
+  it('explains the selected category in both forms and preserves its official ID', () => {
+    activeCategories = [
+      { id: 'computer-id', name: 'Computer & Laptop Repair', description: 'Laptop and desktop repairs. For routers, choose Internet & Wi-Fi Setup.' },
+      { id: 'electrical-id', name: 'Electrical Wiring & Repairs', description: 'Wiring, outlets, lights, and circuit breakers.' },
+    ];
+    const seeker = render(<PostRequest />);
+    const provider = render(<OfferServices />);
+    for (const view of [seeker, provider]) {
+      fireEvent.change(view.container.querySelector('select')!, { target: { value: 'computer-id' } });
+      expect(within(view.container).getByText(activeCategories[0].description!)).toBeInTheDocument();
+      fireEvent.change(view.container.querySelector('select')!, { target: { value: 'electrical-id' } });
+      expect(within(view.container).getByText(activeCategories[1].description!)).toBeInTheDocument();
+      expect(within(view.container).queryByText(activeCategories[0].description!)).not.toBeInTheDocument();
+    }
+  });
 });
 
 // These regression tests supply an explicit location fixture; location interaction is tested separately.
 vi.mock('./location/LocationField', () => ({ default: ({ onChange, disabled }: { onChange: (point: { latitude:number; longitude:number; label:string }) => void; disabled?:boolean }) => <button type="button" data-testid="test-location" disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
-function render(...args: Parameters<typeof rtlRender>) { const view = rtlRender(...args); const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]'); if (choice) fireEvent.click(choice); return view; }
+function render(...args: Parameters<typeof rtlRender>) {
+  const view = rtlRender(...args);
+  const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]');
+  if (choice) fireEvent.click(choice);
+  const coverage = Array.from(view.container.querySelectorAll('select')).find(select => Array.from(select.options).some(option => option.value === 'unlimited'));
+  if (coverage) fireEvent.change(coverage, { target: { value: '2' } });
+  return view;
+}

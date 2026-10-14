@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { join } from "node:path";
+import AtomicDevManifestsPlugin from './scripts/plugins/atomic-dev-manifests.cjs';
 
 const nextConfig: NextConfig = {
   // The local preview browser accesses the dev server through its loopback IP.
@@ -45,7 +46,8 @@ if (process.env.NODE_ENV === "development") {
   nextConfig.webpack = (config, { dev, isServer }) => {
     if (dev && process.platform === "win32") {
       // Module resolution can watch a drive ancestor. Skip protected Windows
-      // entries before Watchpack tries to stat them, keeping Next's ignores.
+      // entries during scanning, keeping Next's ignores. The dev launcher
+      // preloads the guard that applies these ignores before Watchpack's lstat.
       const protectedFiles = /[\\/](?:System Volume Information|(?:swapfile|pagefile|hiberfil)\.sys)(?:[\\/]|$)/i;
       const existingIgnored = config.watchOptions?.ignored;
       config.watchOptions = {
@@ -54,6 +56,7 @@ if (process.env.NODE_ENV === "development") {
           ? new RegExp(`${existingIgnored.source}|${protectedFiles.source}`, [...new Set(`${existingIgnored.flags}i`)].join(""))
           : protectedFiles,
       };
+      config.plugins = [...(config.plugins || []), new AtomicDevManifestsPlugin(join(process.cwd(), '.next', 'dev'))];
     }
     if (dev && !isServer) {
       config.module.rules.push({

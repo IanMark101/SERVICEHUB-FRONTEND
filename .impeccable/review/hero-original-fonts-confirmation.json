@@ -1,0 +1,196 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "reducedMotion": "no-preference",
+    "errors": [],
+    "warnings": [
+      "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED"
+    ],
+    "overflow": 0,
+    "images": [
+      {
+        "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhero-presenter-casual.png&w=640&q=75",
+        "width": 582.703125,
+        "height": 620.03125,
+        "naturalWidth": 640,
+        "naturalHeight": 681
+      }
+    ],
+    "fonts": [
+      {
+        "family": "playfair",
+        "status": "loaded"
+      },
+      {
+        "family": "playfair Fallback",
+        "status": "unloaded"
+      },
+      {
+        "family": "geist",
+        "status": "loaded"
+      },
+      {
+        "family": "geist Fallback",
+        "status": "loaded"
+      },
+      {
+        "family": "__nextjs-Geist",
+        "status": "unloaded"
+      },
+      {
+        "family": "__nextjs-Geist Mono",
+        "status": "unloaded"
+      },
+      {
+        "family": "__nextjs-Geist",
+        "status": "unloaded"
+      },
+      {
+        "family": "__nextjs-Geist Mono",
+        "status": "unloaded"
+      }
+    ],
+    "copy": [
+      {
+        "kind": "badge",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "0px",
+        "marginBottom": "28px",
+        "height": 44
+      },
+      {
+        "kind": "heading",
+        "font": "geist, \"geist Fallback\", \"Plus Jakarta Sans\", system-ui, -apple-system, sans-serif",
+        "marginTop": "0px",
+        "marginBottom": "0px",
+        "height": 88.515625
+      },
+      {
+        "kind": "heading",
+        "font": "playfair, \"playfair Fallback\"",
+        "marginTop": "22px",
+        "marginBottom": "0px",
+        "height": 40
+      },
+      {
+        "kind": "description",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "20px",
+        "marginBottom": "0px",
+        "height": 55.78125
+      },
+      {
+        "kind": "actions",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "30px",
+        "marginBottom": "0px",
+        "height": 52
+      },
+      {
+        "kind": "support",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "14px",
+        "marginBottom": "0px",
+        "height": 60
+      }
+    ],
+    "descriptionLines": 2,
+    "heroHeight": 781,
+    "phoneTop": "48px",
+    "phoneFits": true,
+    "modelZ": "3",
+    "modelClip": "none",
+    "dark": false,
+    "progressDisplay": "block"
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "reducedMotion": "reduce",
+    "errors": [],
+    "warnings": [
+      "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED"
+    ],
+    "overflow": 0,
+    "images": [
+      {
+        "src": "http://localhost:3000/_next/image?url=%2Fimages%2Fhero-presenter-casual.png&w=384&q=75",
+        "width": 340,
+        "height": 362.125,
+        "naturalWidth": 340,
+        "naturalHeight": 362
+      }
+    ],
+    "fonts": [
+      {
+        "family": "playfair",
+        "status": "loaded"
+      },
+      {
+        "family": "playfair Fallback",
+        "status": "loaded"
+      },
+      {
+        "family": "geist",
+        "status": "loaded"
+      },
+      {
+        "family": "geist Fallback",
+        "status": "loaded"
+      }
+    ],
+    "copy": [
+      {
+        "kind": "badge",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "0px",
+        "marginBottom": "22px",
+        "height": 44
+      },
+      {
+        "kind": "heading",
+        "font": "geist, \"geist Fallback\", \"Plus Jakarta Sans\", system-ui, -apple-system, sans-serif",
+        "marginTop": "0px",
+        "marginBottom": "0px",
+        "height": 42.890625
+      },
+      {
+        "kind": "heading",
+        "font": "playfair, \"playfair Fallback\"",
+        "marginTop": "14px",
+        "marginBottom": "0px",
+        "height": 31.25
+      },
+      {
+        "kind": "description",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "18px",
+        "marginBottom": "0px",
+        "height": 76.78125
+      },
+      {
+        "kind": "actions",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "24px",
+        "marginBottom": "0px",
+        "height": 108
+      },
+      {
+        "kind": "support",
+        "font": "geist, \"geist Fallback\"",
+        "marginTop": "14px",
+        "marginBottom": "0px",
+        "height": 60
+      }
+    ],
+    "descriptionLines": 3,
+    "heroHeight": 965.921875,
+    "phoneTop": "24px",
+    "phoneFits": true,
+    "modelZ": "3",
+    "modelClip": "none",
+    "dark": false,
+    "progressDisplay": "none"
+  }
+]

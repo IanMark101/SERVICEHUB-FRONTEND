@@ -1,15 +1,23 @@
+import ServiceArrangementField from '../../location/ServiceArrangementField';
+import type { ServiceLocationMode } from '../../../lib/serviceArrangement';
 import type { LocationPoint } from '../../../lib/location';
 import LocationField from '../../location/LocationField';
 import TransportationField from '../../location/TransportationField';
 import FormSelect from '../../ui/FormSelect';
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { X, CircleNotch } from '@phosphor-icons/react';
 import ListingTitleInput from '../../ui/ListingTitleInput';
 import useDialogFocus from '../../../hooks/useDialogFocus';
 import { formatRequestUrgency, REQUEST_URGENCY_OPTIONS, type RequestUrgency } from '../../../lib/requestUrgency';
+import ListingPhotoUploader from '../../ui/ListingPhotoUploader';
+import type { ListingPhoto } from '../../../lib/listingPhotos';
 
 export interface EditRequestState {
-  jobLocation?: LocationPoint;
+  photos?: ListingPhoto[];
+  originalPhotoIds?: string[];
+  serviceLocationMode?: ServiceLocationMode;
+  originalServiceLocationMode?: ServiceLocationMode;
+  jobLocation?: LocationPoint | null;
   originalJobLocation?: LocationPoint;
   transportationFee?: string;
   originalTransportationFee?: number | null;
@@ -32,6 +40,7 @@ interface EditRequestModalProps {
 }
 
 export default function EditRequestModal({ value, isDark, isSaving = false, onChange, onClose, onSubmit }: EditRequestModalProps) {
+  const [photosBusy, setPhotosBusy] = useState(false);
   const dialogRef = useDialogFocus(Boolean(value), isSaving, onClose);
   if (!value) return null;
   const labelClass = `text-xs font-semibold mb-1.5 block ${isDark ? 'text-ink-muted' : 'text-ink-secondary'}`;
@@ -43,25 +52,27 @@ export default function EditRequestModal({ value, isDark, isSaving = false, onCh
           <h3 id="edit-request-heading" className={`font-extrabold text-sm ${isDark ? 'text-white' : 'text-ink'}`}>Edit Request details</h3>
           <button type="button" aria-label="Close edit request" disabled={isSaving} onClick={onClose} className={`p-1.5 rounded-lg border transition-colors disabled:cursor-wait disabled:opacity-50 ${isDark ? 'border-neutral-800 hover:bg-charcoal text-ink-subtle' : 'border-slate-200 hover:bg-slate-100 text-ink-subtle'}`}><X className="w-4 h-4" /></button>
         </div>
-        <form onSubmit={onSubmit} className="p-5 space-y-4">
-          <div><label htmlFor="edit-request-title" className={labelClass}>Request Title</label><ListingTitleInput id="edit-request-title" disabled={isSaving} required minLength={3} maxLength={100} value={value.title} onChange={(event) => onChange({ ...value, title: event.target.value })} className={`${fieldClass} font-medium`} /></div>
-          <div><label htmlFor="edit-request-budget" className={labelClass}>Estimated Budget (₱)</label><input id="edit-request-budget" disabled={isSaving} type="number" required min={1} value={value.budget} onChange={(event) => onChange({ ...value, budget: Number(event.target.value) })} className={`${fieldClass} font-semibold`} /></div>
+        <form onSubmit={event => { if (photosBusy) event.preventDefault(); else onSubmit(event); }} className="p-5 space-y-4">
+          <ListingPhotoUploader value={value.photos ?? []} onChange={photos => onChange({ ...value, photos })} onBusyChange={setPhotosBusy} disabled={isSaving} />
+          <div><label htmlFor="edit-request-title" className={labelClass}>Request title</label><ListingTitleInput id="edit-request-title" disabled={isSaving} required minLength={3} maxLength={100} value={value.title} onChange={(event) => onChange({ ...value, title: event.target.value })} className={`${fieldClass} font-medium`} /></div>
+          <div><label htmlFor="edit-request-budget" className={labelClass}>Your service budget (₱)</label><input id="edit-request-budget" disabled={isSaving} type="number" required min={1} value={value.budget} onChange={(event) => onChange({ ...value, budget: Number(event.target.value) })} className={`${fieldClass} font-semibold`} /></div>
           <div>
-            <label htmlFor="edit-request-urgency" className={labelClass}>Urgency</label>
+            <label htmlFor="edit-request-urgency" className={labelClass}>When do you need help?</label>
             <FormSelect id="edit-request-urgency" disabled={isSaving} value={value.urgency || ''} onChange={event => onChange({ ...value, urgency: event.target.value as RequestUrgency || undefined })} className={fieldClass}>
-              <option value="">Keep current urgency: {formatRequestUrgency(value.originalUrgency)}</option>
+              <option value="">Keep current timing: {formatRequestUrgency(value.originalUrgency)}</option>
               {REQUEST_URGENCY_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
             </FormSelect>
-            <p className="mt-1.5 text-xs text-ink-muted">Choose a new urgency or keep the saved value.</p>
+            <p className="mt-1.5 text-xs text-ink-muted">Choose when you need help, or keep your previous choice.</p>
           </div>
-          <LocationField label="Where will the job happen?" value={value.jobLocation ?? null} privateAddress disabled={isSaving || value.locationLocked} onChange={jobLocation => onChange({ ...value, jobLocation })} />
-          <TransportationField budget isDark={isDark} disabled={isSaving || value.locationLocked} value={value.transportationFee ?? ''} onChange={transportationFee => onChange({ ...value, transportationFee })} />
-          {value.locationLocked && <p className="text-xs text-ink-muted">Location and travel budget stay fixed while offers are awaiting a decision. Close those offers before changing the job location.</p>}
-          {!value.jobLocation && <p className="text-xs text-ink-muted">Add the actual job location to include this older request in nearby discovery.</p>}
-          <div><label htmlFor="edit-request-description" className={labelClass}>Description</label><textarea id="edit-request-description" disabled={isSaving} rows={4} required value={value.description} onChange={(event) => onChange({ ...value, description: event.target.value })} className={`${fieldClass} font-medium resize-none`} /></div>
+          <ServiceArrangementField value={value.serviceLocationMode ?? 'PROVIDER_VISITS'} onChange={serviceLocationMode => onChange({ ...value, serviceLocationMode, ...((value.serviceLocationMode === 'SEEKER_VISITS') !== (serviceLocationMode === 'SEEKER_VISITS') ? {jobLocation:null} : {}) })} disabled={isSaving || value.locationLocked} />
+          <LocationField required selectionMode={value.serviceLocationMode === 'SEEKER_VISITS' ? 'area' : 'pin'} label={value.serviceLocationMode === 'SEEKER_VISITS' ? 'Area where you want to find a provider' : value.serviceLocationMode === 'BOTH' ? 'Your location if the provider comes to you' : 'Where the provider should come'} value={value.jobLocation ?? null} privateAddress={value.serviceLocationMode !== 'SEEKER_VISITS'} hint={value.serviceLocationMode === 'SEEKER_VISITS' ? 'Choose a city or barangay to find providers in that area. No home address is needed. The provider will give their address in their offer.' : value.serviceLocationMode === 'BOTH' ? 'Mark where the provider should come if you choose that option. Your exact location is shared after booking. If you go to the provider, their offer gives the address.' : undefined} disabled={isSaving || value.locationLocked} onChange={jobLocation => onChange({ ...value, jobLocation })} />
+          {value.serviceLocationMode !== 'SEEKER_VISITS' && <TransportationField budget isDark={isDark} disabled={isSaving || value.locationLocked} value={value.transportationFee ?? ''} onChange={transportationFee => onChange({ ...value, transportationFee })} />}
+          {value.locationLocked && <p className="text-xs text-ink-muted">You have offers waiting for a decision. Close those offers before changing who travels, the location, or the extra travel budget.</p>}
+          {!value.jobLocation && <p className="text-xs text-ink-muted">{value.serviceLocationMode === 'SEEKER_VISITS' ? 'Choose the area where you want to find a provider.' : 'Mark where the provider should come.'}</p>}
+          <div><label htmlFor="edit-request-description" className={labelClass}>Describe what you need</label><textarea id="edit-request-description" disabled={isSaving} rows={4} required value={value.description} onChange={(event) => onChange({ ...value, description: event.target.value })} className={`${fieldClass} font-medium resize-none`} /></div>
           <div className={`pt-3 border-t flex items-center justify-end space-x-2.5 ${isDark ? 'border-neutral-850' : 'border-slate-100'}`}>
             <button type="button" disabled={isSaving} onClick={onClose} className={`px-4 py-2.5 border font-bold text-xs rounded-xl transition-all disabled:cursor-wait disabled:opacity-50 ${isDark ? 'border-neutral-800 hover:bg-charcoal-hover text-ink-muted' : 'border-slate-200 hover:bg-slate-50 text-ink-muted'}`}>Cancel</button>
-            <button type="submit" disabled={isSaving} aria-live="polite" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 disabled:cursor-wait disabled:opacity-75">
+            <button type="submit" disabled={isSaving || photosBusy} aria-live="polite" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all active:scale-95 disabled:cursor-wait disabled:opacity-75">
               {isSaving && <CircleNotch className="w-4 h-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />}
               {isSaving ? 'Saving changes…' : 'Save Changes'}
             </button>
