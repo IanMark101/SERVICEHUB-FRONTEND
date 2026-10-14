@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://servicehubcordova.tech');
+  vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://www.servicehub.bond');
   vi.stubEnv('VERCEL_ENV', 'production');
   vi.stubEnv('SEO_INDEXING_ENABLED', 'true');
 });
@@ -27,7 +27,7 @@ describe('server-rendered Help Center SEO', () => {
     const metadata = await articleMetadata(props);
     expect(metadata.title).toBe(article.title);
     expect(metadata.description).toBe(article.description);
-    expect(metadata.alternates?.canonical).toBe(`https://servicehubcordova.tech${path}`);
+    expect(metadata.alternates?.canonical).toBe(`https://www.servicehub.bond${path}`);
   });
 
   it('renders readable article content and matching breadcrumb/article JSON-LD before hydration', async () => {
@@ -37,12 +37,12 @@ describe('server-rendered Help Center SEO', () => {
     expect(container.querySelector('h1')?.textContent).toBe(article.title);
     const data = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent!);
     expect(data['@graph'][0].itemListElement.map((item: { name: string }) => item.name)).toEqual(['Help Center', category.title, article.title]);
-    expect(data['@graph'][1]).toMatchObject({ '@type': 'TechArticle', headline: article.title, url: `https://servicehubcordova.tech${path}` });
+    expect(data['@graph'][1]).toMatchObject({ '@type': 'TechArticle', headline: article.title, url: `https://www.servicehub.bond${path}` });
   });
 
   it('gives collections a distinct canonical and visible-content breadcrumbs', async () => {
     const props = { params: Promise.resolve({ category: category.slug }) };
-    expect((await categoryMetadata(props)).alternates?.canonical).toBe(`https://servicehubcordova.tech/help/${category.slug}`);
+    expect((await categoryMetadata(props)).alternates?.canonical).toBe(`https://www.servicehub.bond/help/${category.slug}`);
     const container = document.createElement('div');
     container.innerHTML = renderToStaticMarkup(await CategoryPage(props));
     const data = JSON.parse(container.querySelector('script[type="application/ld+json"]')!.textContent!);

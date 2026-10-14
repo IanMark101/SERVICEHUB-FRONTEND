@@ -97,13 +97,13 @@ export function useAppDataSync({
     setUserReports([]);
   }, []);
   // ─── Live Data Sync Helpers ────────────────────────────────────
-  const userModerationStatus = user?.moderationStatus;
-
   const syncPublicServices = useCallback(async () => {
     const version = ++serviceRequestVersion.current;
     setServicesStatus(previous => servicesResolved.current ? previous : 'loading');
     const current = () => version === serviceRequestVersion.current;
-    const loadMine = isAuthenticated && userModerationStatus !== 'BANNED' && !isAdmin;
+    // Public browsing already includes the member's published services. Only
+    // the provider workspace needs this private read for hidden/paused listings.
+    const loadMine = canLoadWorkspace && user?.role === 'provider';
     let owned: ServiceListing[] | undefined;
     let published: ServiceListing[] | undefined;
     const browse = apiBrowseServices().then(res => {
@@ -132,7 +132,7 @@ export function useAppDataSync({
     }).catch(() => { /* A private listing failure must not erase public listings. */ }) : Promise.resolve();
     // Each side updates independently: browsing never waits for private listings.
     await Promise.all([browse, mine]);
-  }, [isAuthenticated, isAdmin, userModerationStatus, user?.id]);
+  }, [canLoadWorkspace, user?.role, user?.id]);
 
   useEffect(() => {
     if (!authLoading && !canLoadWorkspace) {

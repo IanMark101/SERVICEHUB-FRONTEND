@@ -1,16 +1,10 @@
 import type { Metadata } from 'next';
+import { getSiteOrigin } from './site-origin';
+export { getSiteOrigin } from './site-origin';
 
 export const SITE_NAME = 'ServiceHub';
 export const SITE_DESCRIPTION = 'Find nearby services, compare local providers and post service requests on ServiceHub. Choose your search area and follow bookings from start to completion.';
 export const PRIVATE_ROBOTS: Metadata['robots'] = { index: false, follow: false };
-
-export function getSiteOrigin(value = process.env.NEXT_PUBLIC_SITE_URL): string {
-  const url = new URL(value?.trim() || 'https://servicehubcordova.tech');
-  if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
-    throw new Error('NEXT_PUBLIC_SITE_URL must be an HTTP(S) origin without credentials, a path, query or fragment.');
-  }
-  return url.origin;
-}
 
 export function siteUrl(path = '/'): string {
   return new URL(path, getSiteOrigin()).toString();

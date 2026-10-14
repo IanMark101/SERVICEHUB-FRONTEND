@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { canIndexPublicPages, getSiteOrigin, publicPageMetadata, rootMetadata, siteUrl, websiteSchema } from './seo';
 
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://servicehubcordova.tech');
+  vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://www.servicehub.bond');
   vi.stubEnv('VERCEL_ENV', 'production');
   vi.stubEnv('SEO_INDEXING_ENABLED', 'true');
 });
@@ -16,9 +16,9 @@ describe('public SEO and account indexing boundaries', () => {
 
   it('gives public content its own canonical, title, social description and indexing rules', () => {
     const metadata = publicPageMetadata({ title: 'Help Center', description: 'Read ServiceHub guides.', path: '/help' });
-    expect(metadata.alternates?.canonical).toBe('https://servicehubcordova.tech/help');
+    expect(metadata.alternates?.canonical).toBe('https://www.servicehub.bond/help');
     expect(metadata.robots).toMatchObject({ index: true, follow: true });
-    expect(metadata.openGraph).toMatchObject({ title: 'Help Center | ServiceHub', url: 'https://servicehubcordova.tech/help', description: 'Read ServiceHub guides.' });
+    expect(metadata.openGraph).toMatchObject({ title: 'Help Center | ServiceHub', url: 'https://www.servicehub.bond/help', description: 'Read ServiceHub guides.' });
     expect(metadata.twitter).toMatchObject({ card: 'summary_large_image', title: 'Help Center | ServiceHub' });
   });
 

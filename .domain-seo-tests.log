@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/lib/site-origin.test.ts (2 tests) 12ms
+ ✓ src/lib/seo.test.ts (10 tests) 29ms
+ ✓ src/app/sitemap.test.ts (4 tests) 103ms
+ ✓ src/hooks/useAppDataSync.test.tsx (16 tests) 123ms
+ ✓ src/app/help/help-seo.test.tsx (6 tests) 121ms
+ ✓ src/components/pwa/PwaProvider.test.tsx (10 tests) 495ms
+
+ Test Files  6 passed (6)
+      Tests  48 passed (48)
+   Start at  18:01:40
+   Duration  14.15s (transform 2.25s, setup 7.29s, collect 20.76s, tests 883ms, environment 14.03s, prepare 2.50s)
+

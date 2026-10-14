@@ -53,7 +53,7 @@ export default function LandingHero({ isDark }: LandingHeroProps) {
                   <div className={styles.browserBar}>
                     <div className={styles.browserAddress}>
                       <LockKeyhole />
-                      <span>servicehubcordova.tech</span>
+                      <span>servicehub.bond</span>
                       <RotateCw />
                     </div>
                   </div>

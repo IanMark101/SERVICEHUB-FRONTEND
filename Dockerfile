@@ -17,7 +17,7 @@ FROM base AS builder
 
 ARG NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
-ARG NEXT_PUBLIC_SITE_URL=https://servicehubcordova.tech
+ARG NEXT_PUBLIC_SITE_URL=https://www.servicehub.bond
 ARG SEO_INDEXING_ENABLED=true
 
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \

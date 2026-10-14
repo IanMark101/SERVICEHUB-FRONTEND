@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { join } from "node:path";
 import AtomicDevManifestsPlugin from './scripts/plugins/atomic-dev-manifests.cjs';
+import { FRONTEND_REDIRECT_HOSTS, PRODUCTION_SITE_ORIGIN } from './src/lib/site-origin';
 
 const nextConfig: NextConfig = {
   // The local preview browser accesses the dev server through its loopback IP.
@@ -8,7 +9,15 @@ const nextConfig: NextConfig = {
   // Vercel supplies its own build adapter; standalone output is for Docker.
   output: process.env.VERCEL === "1" ? undefined : "standalone",
   async redirects() {
-    return [{ source: '/help/getting-started/what-is-servicehub-cordova', destination: '/help/getting-started/what-is-servicehub', permanent: true }];
+    return [
+      ...FRONTEND_REDIRECT_HOSTS.map(host => ({
+        source: '/:path*',
+        has: [{ type: 'host' as const, value: host.replaceAll('.', '\\.') }],
+        destination: `${PRODUCTION_SITE_ORIGIN}/:path*`,
+        permanent: true,
+      })),
+      { source: '/help/getting-started/what-is-servicehub-cordova', destination: '/help/getting-started/what-is-servicehub', permanent: true },
+    ];
   },
   async headers() {
     return [

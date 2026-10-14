@@ -4,7 +4,7 @@ import sitemap from './sitemap';
 import robots from './robots';
 
 beforeEach(() => {
-  vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://servicehubcordova.tech');
+  vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://www.servicehub.bond');
   vi.stubEnv('VERCEL_ENV', 'production');
   vi.stubEnv('SEO_INDEXING_ENABLED', 'true');
 });
@@ -14,10 +14,10 @@ describe('crawl discovery', () => {
   it('lists the landing page and every canonical Help Center collection/article once', () => {
     const entries = sitemap();
     const urls = entries.map(entry => entry.url);
-    expect(urls).toContain('https://servicehubcordova.tech/');
-    expect(urls).toContain('https://servicehubcordova.tech/help');
-    for (const category of HELP_CATEGORIES) expect(urls).toContain(`https://servicehubcordova.tech/help/${category.slug}`);
-    for (const article of ALL_HELP_ARTICLES) expect(urls).toContain(`https://servicehubcordova.tech/help/${article.category}/${article.slug}`);
+    expect(urls).toContain('https://www.servicehub.bond/');
+    expect(urls).toContain('https://www.servicehub.bond/help');
+    for (const category of HELP_CATEGORIES) expect(urls).toContain(`https://www.servicehub.bond/help/${category.slug}`);
+    for (const article of ALL_HELP_ARTICLES) expect(urls).toContain(`https://www.servicehub.bond/help/${article.category}/${article.slug}`);
     expect(new Set(urls).size).toBe(urls.length);
     expect(urls).toHaveLength(2 + HELP_CATEGORIES.length + ALL_HELP_ARTICLES.length);
     expect(entries.every(entry => entry.lastModified === undefined)).toBe(true);
@@ -42,7 +42,7 @@ describe('crawl discovery', () => {
   it('advertises the canonical sitemap and allows crawlers to read route noindex directives', () => {
     expect(robots()).toEqual({
       rules: { userAgent: '*', allow: '/', disallow: '/api/' },
-      sitemap: 'https://servicehubcordova.tech/sitemap.xml',
+      sitemap: 'https://www.servicehub.bond/sitemap.xml',
     });
   });
 });

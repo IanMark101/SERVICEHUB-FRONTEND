@@ -1,0 +1,94 @@
+{
+  "passed": true,
+  "origin": "http://127.0.0.1:3107",
+  "review": [
+    {
+      "check": "robots and sitemap",
+      "publicUrls": 51
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "canonical": "https://www.servicehub.bond",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/help",
+      "status": 200,
+      "canonical": "https://www.servicehub.bond/help",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/help/getting-started",
+      "status": 200,
+      "canonical": "https://www.servicehub.bond/help/getting-started",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/help/getting-started/what-is-servicehub",
+      "status": 200,
+      "canonical": "https://www.servicehub.bond/help/getting-started/what-is-servicehub",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/register",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/seeker/seek-services",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/provider/service-manager",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/admin/audit-logs",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/help/search",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/terms",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/install",
+      "status": 200,
+      "robots": "noindex, nofollow"
+    },
+    {
+      "check": "alias redirect",
+      "host": "servicehubcordova.tech",
+      "status": 308
+    },
+    {
+      "check": "alias redirect",
+      "host": "www.servicehubcordova.tech",
+      "status": 308
+    },
+    {
+      "check": "alias redirect",
+      "host": "servicehub.bond",
+      "status": 308
+    }
+  ]
+}

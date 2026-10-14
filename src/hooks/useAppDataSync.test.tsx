@@ -98,7 +98,7 @@ describe('useAppDataSync initial marketplace loading', () => {
     vi.mocked(apiGetMyServices).mockReturnValueOnce(new Promise(resolve => { mine = resolve; }));
     const publicListing = { id: 'public', providerId: 'another-user', title: 'Public service', isAvailable: true, status: 'ACTIVE', category: { name: 'Plumbing' }, provider: { name: 'Other User' } };
     const privateListing = { ...publicListing, id: 'private', providerId: user.id, title: 'My hidden service', status: 'HIDDEN' };
-    const { result } = renderHook(() => useAppDataSync({ authLoading: false, isAuthenticated: true, user, toastSuccess, toastError }));
+    const { result } = renderHook(() => useAppDataSync({ authLoading: false, isAuthenticated: true, user: { ...user, role: 'provider' }, toastSuccess, toastError }));
     await act(async () => { await vi.advanceTimersByTimeAsync(0); });
     const finishBrowse = () => browse({ success: true, data: [publicListing] });
     const finishMine = () => mine({ success: true, data: [privateListing] });
@@ -144,7 +144,7 @@ describe('useAppDataSync initial marketplace loading', () => {
 
     expect(apiGetCategories).toHaveBeenCalledTimes(1);
     expect(apiBrowseServices).toHaveBeenCalledTimes(1);
-    expect(apiGetMyServices).toHaveBeenCalledTimes(1);
+    expect(apiGetMyServices).not.toHaveBeenCalled();
   });
 
   it('does not load private workspace data for an authenticated email-unverified user', () => {
@@ -165,7 +165,7 @@ describe('useAppDataSync initial marketplace loading', () => {
     renderHook(() => useAppDataSync({
       authLoading: false,
       isAuthenticated: true,
-      user,
+      user: { ...user, role: 'provider' },
       toastSuccess,
       toastError,
     }), { wrapper: StrictMode });
@@ -174,6 +174,25 @@ describe('useAppDataSync initial marketplace loading', () => {
 
     expect(apiGetCategories).toHaveBeenCalledTimes(1);
     expect(apiBrowseServices).toHaveBeenCalledTimes(1);
+    expect(apiGetMyServices).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fetch provider-only listings on seeker loads or refreshes, and loads them after a provider switch', async () => {
+    const { result, rerender } = renderHook(({ role }: { role: 'seeker' | 'provider' }) => useAppDataSync({
+      authLoading: false, isAuthenticated: true, user: { ...user, role }, toastSuccess, toastError,
+    }), { initialProps: { role: 'seeker' as 'seeker' | 'provider' } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    await act(async () => { await result.current.syncPublicServices(); });
+    act(() => invalidateApiCache(['services'], 'focus'));
+    await act(async () => { await vi.advanceTimersByTimeAsync(200); });
+    expect(apiGetMyServices).not.toHaveBeenCalled();
+    expect(result.current.servicesStatus).toBe('ready');
+
+    rerender({ role: 'provider' });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(apiGetMyServices).toHaveBeenCalledTimes(1);
+    rerender({ role: 'seeker' });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
     expect(apiGetMyServices).toHaveBeenCalledTimes(1);
   });
 
