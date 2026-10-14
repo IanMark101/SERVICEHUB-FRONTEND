@@ -55,10 +55,14 @@ try {
   const category = urls.find(url => new URL(url).pathname.split('/').filter(Boolean).length === 2);
   const article = urls.find(url => new URL(url).pathname.split('/').filter(Boolean).length === 3);
   assert.ok(category && article);
-  for (const path of ['/', '/help', new URL(category).pathname, new URL(article).pathname]) {
+  const titles = new Set();
+  for (const path of urls.map(url => new URL(url).pathname)) {
     const { response, body } = await read(path);
     assert.equal(response.status, 200, path);
     assert.ok(/<title>[^<]+<\/title>/.test(body), `${path} title`);
+    const title = body.match(/<title>([^<]+)<\/title>/)[1];
+    assert.ok(!titles.has(title), `${path} duplicate public title`);
+    titles.add(title);
     assert.ok(metadata(body, 'description'), `${path} description`);
     assert.equal(new URL(canonical(body)).href, new URL(path, canonicalOrigin).href, `${path} canonical`);
     assert.equal(new URL(metadata(body, 'og:url')).href, new URL(path, canonicalOrigin).href);
@@ -73,6 +77,19 @@ try {
     }
     review.push({ path, status: response.status, canonical: canonical(body), robots: metadata(body, 'robots') });
   }
+  for (const path of ['/help/missing-category', '/help/getting-started/missing-article']) {
+    const { response, body } = await read(path);
+    assert.equal(response.status, 404, path);
+    assert.match(metadata(body, 'robots') || '', /noindex/, path);
+    review.push({ path, status: response.status });
+  }
+  const image = await fetch(new URL('/opengraph-image', origin), { signal: AbortSignal.timeout(20000) });
+  assert.equal(image.status, 200);
+  assert.match(image.headers.get('content-type') || '', /image\/png/);
+  const png = Buffer.from(await image.arrayBuffer());
+  assert.equal(png.readUInt32BE(16), 1200);
+  assert.equal(png.readUInt32BE(20), 630);
+  review.push({ check: 'sharing image', status: image.status, width: 1200, height: 630 });
   for (const path of ['/login', '/register', '/seeker/seek-services', '/provider/service-manager', '/admin/audit-logs', '/help/search', '/terms', '/privacy', '/install']) {
     const { response, body } = await read(path);
     assert.equal(response.status, 200, path);

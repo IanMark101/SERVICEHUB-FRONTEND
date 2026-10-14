@@ -1,0 +1,33 @@
+{
+  "redirects": [
+    {
+      "url": "https://servicehubcordova.tech/help?domain-check=1",
+      "status": 308,
+      "location": "https://www.servicehub.bond/help?domain-check=1"
+    },
+    {
+      "url": "https://www.servicehubcordova.tech/help?domain-check=1",
+      "status": 308,
+      "location": "https://www.servicehub.bond/help?domain-check=1"
+    },
+    {
+      "url": "https://servicehub.bond/help?domain-check=1",
+      "status": 308,
+      "location": "https://www.servicehub.bond/help?domain-check=1"
+    }
+  ],
+  "cors": [
+    {
+      "origin": "https://servicehub.bond",
+      "status": 200,
+      "allowOrigin": "https://servicehub.bond",
+      "credentials": "true"
+    },
+    {
+      "origin": "https://www.servicehub.bond",
+      "status": 200,
+      "allowOrigin": "https://www.servicehub.bond",
+      "credentials": "true"
+    }
+  ]
+}
