@@ -1,0 +1,38 @@
+{
+  "notices": [],
+  "errors": [],
+  "snapshots": [
+    {
+      "label": "install",
+      "url": "http://127.0.0.1:3107/install",
+      "state": {
+        "events": [],
+        "preloads": [],
+        "stylesheets": [
+          "http://127.0.0.1:3107/_next/static/chunks/37zls85e4986j.css",
+          "http://127.0.0.1:3107/_next/static/chunks/360ewir5wj2df.css",
+          "http://127.0.0.1:3107/_next/static/chunks/44a-xtij5-vcu.css",
+          "http://127.0.0.1:3107/_next/static/chunks/0000i1ui9gp45.css"
+        ]
+      }
+    },
+    {
+      "label": "sign-in after workspace redirect",
+      "url": "http://127.0.0.1:3107/login",
+      "state": {
+        "events": [],
+        "preloads": [
+          "http://127.0.0.1:3107/_next/static/chunks/1zzwhni67we3k.css"
+        ],
+        "stylesheets": [
+          "http://127.0.0.1:3107/_next/static/chunks/37zls85e4986j.css",
+          "http://127.0.0.1:3107/_next/static/chunks/360ewir5wj2df.css",
+          "http://127.0.0.1:3107/_next/static/chunks/44a-xtij5-vcu.css",
+          "http://127.0.0.1:3107/_next/static/chunks/0000i1ui9gp45.css",
+          "http://127.0.0.1:3107/_next/static/chunks/1zzwhni67we3k.css",
+          "https://accounts.google.com/gsi/style"
+        ]
+      }
+    }
+  ]
+}

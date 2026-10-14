@@ -13,6 +13,7 @@ interface SystemStateProps {
   detail?: ReactNode;
   tone?: SystemStateTone;
   role?: 'alert' | 'status';
+  prefetchLinks?: boolean;
 }
 
 export default function SystemState({
@@ -24,17 +25,18 @@ export default function SystemState({
   detail,
   tone = 'neutral',
   role = 'status',
+  prefetchLinks,
 }: SystemStateProps) {
   return (
     <main className="system-state-page" data-tone={tone}>
       <header className="system-state-header">
-        <Link href="/" className="system-state-brand" aria-label="ServiceHub home">
+        <Link href="/" prefetch={prefetchLinks} className="system-state-brand" aria-label="ServiceHub home">
           <Image src="/logo.svg?v=7" alt="" width={34} height={34} priority />
           <span>
             <strong>ServiceHub</strong>
           </span>
         </Link>
-        <Link href="/help" className="system-state-help-link">
+        <Link href="/help" prefetch={prefetchLinks} className="system-state-help-link">
           Help center
         </Link>
       </header>

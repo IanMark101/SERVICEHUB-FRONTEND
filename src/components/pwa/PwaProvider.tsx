@@ -44,15 +44,32 @@ export default function PwaProvider({ children }: { children: ReactNode }) {
   const updateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    let disposed = false;
     const standalone = window.matchMedia('(display-mode: standalone)');
     const syncInstalled = () => setInstalled(standalone.matches || Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
     const receivePrompt = (event: Event) => {
       // Development has no ServiceHub worker. Leave Chrome's native install
       // behavior alone instead of deferring a prompt for a development build.
       if (process.env.NODE_ENV !== 'production') return;
-      event.preventDefault();
-      prompt.current = event as InstallPromptEvent;
+      // Keep Chrome's native install UI enabled. Cancelling this event produces
+      // its recurring "Banner not shown" diagnostic in DevTools.
+      const installEvent = event as InstallPromptEvent;
+      prompt.current = installEvent;
       setCanInstall(true);
+      // The browser can consume the prompt through its own UI. Do not retain a
+      // used event in our Install button; each event can prompt only once.
+      void installEvent.userChoice.then(choice => {
+        if (disposed || prompt.current !== installEvent) return;
+        prompt.current = null;
+        setCanInstall(false);
+        setInstallMessage(choice.outcome === 'accepted'
+          ? 'Installation requested. Follow any remaining device instructions.'
+          : 'Installation cancelled. You can install later from your browser menu.');
+      }).catch(() => {
+        if (disposed || prompt.current !== installEvent) return;
+        prompt.current = null;
+        setCanInstall(false);
+      });
     };
     const didInstall = () => {
       prompt.current = null;
@@ -68,6 +85,7 @@ export default function PwaProvider({ children }: { children: ReactNode }) {
     window.addEventListener('online', syncConnection);
     window.addEventListener('offline', syncConnection);
     return () => {
+      disposed = true;
       standalone.removeEventListener('change', syncInstalled);
       window.removeEventListener('beforeinstallprompt', receivePrompt);
       window.removeEventListener('appinstalled', didInstall);

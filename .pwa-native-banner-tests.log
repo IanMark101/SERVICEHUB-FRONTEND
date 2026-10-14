@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/pwa/service-worker.test.ts (13 tests) 44ms
+ ✓ src/components/pwa/PwaProvider.test.tsx (13 tests) 565ms
+
+ Test Files  2 passed (2)
+      Tests  26 passed (26)
+   Start at  19:05:04
+   Duration  13.07s (transform 395ms, setup 1.93s, collect 8.55s, tests 609ms, environment 4.24s, prepare 396ms)
+

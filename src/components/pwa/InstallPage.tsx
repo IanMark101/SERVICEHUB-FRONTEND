@@ -9,6 +9,7 @@ import styles from './Pwa.module.css';
 export default function InstallPage() {
   const { installed, canInstall, installing, installMessage, install, updateAvailable, updating, updateMessage, update, offline } = usePwa();
   return <SystemState
+    prefetchLinks={false}
     code="APP"
     title={installed ? 'ServiceHub is ready on your device.' : 'Keep ServiceHub a tap away.'}
     description="Install ServiceHub for home-screen access to both your Seeker and Provider workspaces."
@@ -17,7 +18,7 @@ export default function InstallPage() {
       {!installed && canInstall && <button type="button" className="system-state-primary-action" onClick={() => void install()} disabled={installing} aria-busy={installing}>
         {installing ? 'Opening installation…' : 'Install ServiceHub'}
       </button>}
-      <Link href="/dashboard" className={installed ? 'system-state-primary-action' : 'system-state-secondary-action'}>Open ServiceHub</Link>
+      <Link href="/dashboard" prefetch={false} className={installed ? 'system-state-primary-action' : 'system-state-secondary-action'}>Open ServiceHub</Link>
       {updateAvailable && <button type="button" className="system-state-secondary-action" onClick={update} disabled={updating || offline}>
         {updating ? 'Updating…' : 'Update ServiceHub'}
       </button>}

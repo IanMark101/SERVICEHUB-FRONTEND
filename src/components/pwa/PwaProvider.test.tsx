@@ -12,9 +12,12 @@ const originalWorker = Object.getOwnPropertyDescriptor(navigator, 'serviceWorker
 
 function renderPage() { return render(<PwaProvider><InstallPage /></PwaProvider>); }
 function offerInstall(outcome: 'accepted' | 'dismissed' = 'accepted', fail = false) {
+  let settle!: (choice: { outcome: 'accepted' | 'dismissed' }) => void;
+  const userChoice = new Promise<{ outcome: 'accepted' | 'dismissed' }>(resolve => { settle = resolve; });
   const event = Object.assign(new Event('beforeinstallprompt', { cancelable: true }), {
-    prompt: fail ? vi.fn().mockRejectedValue(new Error('cancelled')) : vi.fn().mockResolvedValue(undefined),
-    userChoice: Promise.resolve({ outcome }),
+    prompt: fail ? vi.fn().mockRejectedValue(new Error('cancelled')) : vi.fn().mockImplementation(async () => { settle({ outcome }); }),
+    userChoice,
+    nativeChoice: () => settle({ outcome }),
   });
   act(() => { window.dispatchEvent(event); });
   return event;
@@ -45,14 +48,34 @@ describe('PWA installation and update UX', () => {
     expect(screen.getByRole('heading', { name: 'On iPhone or iPad' })).toBeVisible();
     expect(container.register).not.toHaveBeenCalled();
   });
-  it('opens the native prompt only on request and confirms the appinstalled event', async () => {
+  it('preserves the browser banner and opens the retained prompt from the Install button', async () => {
     vi.stubEnv('NODE_ENV', 'production');
     renderPage(); const event = offerInstall();
-    expect(event.defaultPrevented).toBe(true); expect(event.prompt).not.toHaveBeenCalled();
+    expect(event.defaultPrevented).toBe(false); expect(event.prompt).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Install ServiceHub' }));
     await waitFor(() => expect(event.prompt).toHaveBeenCalledOnce());
     act(() => { window.dispatchEvent(new Event('appinstalled')); });
     expect(screen.getByRole('heading', { name: 'ServiceHub is ready on your device.' })).toBeVisible();
+  });
+  it.each(['accepted', 'dismissed'] as const)('retires an event consumed by the browser installation UI (%s)', async outcome => {
+    vi.stubEnv('NODE_ENV', 'production');
+    renderPage(); const event = offerInstall(outcome);
+    expect(screen.getByRole('button', { name: 'Install ServiceHub' })).toBeVisible();
+    act(() => event.nativeChoice());
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Install ServiceHub' })).not.toBeInTheDocument());
+    expect(event.defaultPrevented).toBe(false);
+    expect(event.prompt).not.toHaveBeenCalled();
+    expect(screen.getByText(outcome === 'accepted'
+      ? 'Installation requested. Follow any remaining device instructions.'
+      : 'Installation cancelled. You can install later from your browser menu.')).toBeVisible();
+  });
+  it('keeps a newer install event when an older browser prompt completes', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    renderPage(); const oldEvent = offerInstall('dismissed'); const currentEvent = offerInstall();
+    await act(async () => { oldEvent.nativeChoice(); });
+    fireEvent.click(screen.getByRole('button', { name: 'Install ServiceHub' }));
+    await waitFor(() => expect(currentEvent.prompt).toHaveBeenCalledOnce());
+    expect(oldEvent.prompt).not.toHaveBeenCalled();
   });
   it.each([['dismissed', false], ['accepted', true]] as const)('handles installation %s / error=%s', async (outcome, fail) => {
     vi.stubEnv('NODE_ENV', 'production');

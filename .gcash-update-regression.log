@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 C:/Users/SERVICEHUB-CORDOVA/fullstack/SERVICEHUB-FRONTEND
+
+ ✓ src/api/gcashNumber.api.test.ts (5 tests) 11ms
+ ✓ src/pwa/service-worker.test.ts (13 tests) 55ms
+ ✓ src/components/pwa/PwaProvider.test.tsx (10 tests) 559ms
+ ✓ src/components/ui/GCashNumberField.test.tsx (9 tests) 705ms
+
+ Test Files  4 passed (4)
+      Tests  37 passed (37)
+   Start at  18:40:23
+   Duration  13.03s (transform 937ms, setup 3.40s, collect 15.58s, tests 1.33s, environment 11.55s, prepare 1.70s)
+

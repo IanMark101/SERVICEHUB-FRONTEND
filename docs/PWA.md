@@ -13,6 +13,10 @@ npm start
 
 Open `http://localhost:3000/install`. **Install app** also appears in the landing footer and the Connect group of both workspace sidebars. Supported browsers show an **Install ServiceHub** button when they provide a native installation prompt. The page also explains Safari's Add to Home Screen flow and browser-menu alternatives.
 
+As of October 14, the `beforeinstallprompt` handler retains the event without cancelling Chrome's native install UI. This removes the app's cause of the recurring **Banner not shown** diagnostic. Chrome can offer its normal installation banner, and the existing **Install ServiceHub** button can still open a pending prompt. If the browser's own UI consumes the event, the button retires that event; stale choices cannot replace a newer prompt. Installation never starts automatically from application code. Service-worker updates and offline handling are independent of this change.
+
+The install page opts out of automatic Link prefetch for its home/help header and workspace entry action. Prefetch previously loaded three unused workspace/form CSS chunks and emitted warnings again after the entry action redirected an anonymous visitor to Sign In. Routes and styles load normally when selected; other SystemState pages retain their existing prefetch policy.
+
 On Windows, use the npm commands above. Their `scripts/next.mjs` launcher resolves the actual directory and Next CLI spelling before starting Next. A lowercase terminal path such as `servicehub-frontend` can otherwise load framework modules under different path spellings from the actual `SERVICEHUB-FRONTEND` directory and reproduce `Expected workStore to be initialized` during prerendering. The existing development launcher uses the same normalization. [Next.js documents directory-casing mismatches](https://nextjs.org/docs/messages/invalid-project-dir-casing).
 
 The service worker registers only in production on a secure origin. `localhost` is suitable for local testing; a deployed site needs HTTPS. `npm run dev` deliberately does not register a worker, avoiding development assets being controlled by a new development worker. If the same origin already has a production worker, use a separate browser profile or unregister it in DevTools before development.
@@ -46,3 +50,9 @@ The manifest uses `/` as its entry point and supplies workspace shortcuts. `/ins
 ## Validation
 
 Targeted tests cover worker cache boundaries, offline fallback, explicit activation, app metadata/icons, installation events, update notices and session recovery. Browser evidence lives in `.impeccable/review/pwa-review.json` and accompanying captures. Runtime checks use a production build; OS-level installation, physical iOS/Android devices and a deployed HTTPS origin require separate validation.
+
+## Console cleanup verification, October 14
+
+26 PWA/worker tests passed, including uncancelled production events, native accepted/dismissed choices, the existing Install button, stale events and update/offline handling. TypeScript, scoped lint and the production build passed. An isolated production-preview browser reproduced six unused-CSS warnings before the targeted prefetch change and reported none after Install-to-dashboard-to-Sign-In navigation. Normal stylesheet loading and the existing anonymous redirect remained. Evidence: .pwa-console-review.json.
+
+The headless browser did not emit a trusted beforeinstallprompt event; uncancelled events and native/custom choice behavior were verified in component tests. An actual operating-system installation was not performed. This frontend change needs deployment; old console entries are not erased by the application.
