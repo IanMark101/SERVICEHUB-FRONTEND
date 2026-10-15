@@ -5,14 +5,14 @@ import type { PaymentMethods } from '../types';
 import type { RequestUrgency } from '../lib/requestUrgency';
 import type { BookingLocationMode } from '../lib/serviceArrangement';
 
-export async function apiCreateListingInquiry(data: { serviceId: string; message: string; serviceLocationMode: BookingLocationMode; jobLocation?: LocationPoint; photoIds?: string[] }) {
+export async function apiCreateListingInquiry(data: { serviceId: string; message: string; serviceLocationMode: BookingLocationMode; jobLocation?: LocationPoint | null; photoIds?: string[] }) {
   return (await api.post('/requests/listing-inquiry', data)).data;
 }
 export async function apiDeclineListingInquiry(id: string) {
   return (await api.post(`/requests/${encodeURIComponent(id)}/decline-inquiry`)).data;
 }
 
-export async function apiCreateRequest(data: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null; categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency: RequestUrgency; paymentMethods: PaymentMethods }) {
+export async function apiCreateRequest(data: { photoIds?: string[]; jobLocation?: LocationPoint | null; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null; categoryId: string; title: string; description: string; budgetMin: number; budgetMax: number; urgency: RequestUrgency; paymentMethods: PaymentMethods }) {
   const response = await api.post('/requests', { ...data, title: data.title.trim().toUpperCase() });
   return response.data;
 }
@@ -34,7 +34,7 @@ export async function apiGetMyRequests() {
 
 export interface RequestRepostTemplate {
   photos?: import('../lib/listingPhotos').ListingPhoto[];
-  jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode;
+  jobLocation?: LocationPoint | null; serviceLocationMode?: ServiceLocationMode;
   transportationFee?: number | null;
   title: string;
   description: string;
@@ -51,7 +51,7 @@ export async function apiGetRequestRepostTemplate(id: string): Promise<{ success
 
 type RequestUpdate = Partial<{
   photoIds: string[];
-  jobLocation: LocationPoint;
+  jobLocation: LocationPoint | null;
   serviceLocationMode?: ServiceLocationMode;
   transportationFee: number | null;
   title: string;

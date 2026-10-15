@@ -21,6 +21,18 @@ function deferred<T>() {
 }
 
 describe('Request Manager activation', () => {
+  it('saves a physical public request as remote without requiring another location',async()=>{
+    vi.mocked(apiGetMyRequests).mockReturnValue(new Promise(()=>{}));
+    vi.mocked(useApp).mockReturnValue({jobRequests:[{...request,jobLocation:{latitude:10.3,longitude:123.9,label:'Cordova'},serviceLocationMode:'PROVIDER_VISITS'}],bids:[],deleteJobRequest:vi.fn(),editJobRequest:edit,isDark:false} as unknown as ReturnType<typeof useApp>);
+    edit.mockResolvedValue({...request,serviceLocationMode:'REMOTE',jobLocation:undefined});
+    render(<RequestManager currentUserId="seeker-1"/>);
+    fireEvent.click(screen.getByRole('button',{name:'Edit PIPE REPAIR'}));
+    fireEvent.click(screen.getByRole('radio',{name:/Online \/ remote/}));
+    expect(screen.getByText('Based in (optional)')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
+    await waitFor(()=>expect(edit).toHaveBeenCalledWith(request.id,request.title,request.budget,request.description,undefined,expect.objectContaining({serviceLocationMode:'REMOTE',jobLocation:null})));
+    await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
   it('removes a canceled private price inquiry from the active manager', () => {
     vi.mocked(apiGetMyRequests).mockReturnValueOnce(new Promise(() => {}));
     vi.mocked(useApp).mockReturnValue({ jobRequests: [{ ...request, budget: 0, targetServiceId: 'service-1', targetProviderId: 'provider-1', status: 'CANCELED' }], bids: [], deleteJobRequest: vi.fn(), isDark: false } as unknown as ReturnType<typeof useApp>);

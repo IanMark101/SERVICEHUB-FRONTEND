@@ -1,15 +1,17 @@
 import { act, renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiCreateRequest, apiUpdateRequest, apiDeleteRequest } from '../api/requests.api';
 import { useToast } from '../components/ui/Toast';
 import { useSeekerActions } from './useSeekerActions';
 import { apiRejectOffer } from '../api/offers.api';
-import { apiBookDirectFromOffer } from '../api/bookings.api';
+import { apiBookDirectFromOffer, apiInitiatePayment } from '../api/bookings.api';
+import { mapOfferToBid } from '../context/mappers';
+import { clearGcashCheckout, readPendingGcashCheckout } from '../lib/paymentCheckout';
 
 vi.mock('../api/requests.api', () => ({ apiCreateRequest: vi.fn(), apiUpdateRequest: vi.fn(), apiDeleteRequest: vi.fn() }));
 vi.mock('../components/ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('../api/offers.api', () => ({ apiRejectOffer: vi.fn() }));
-vi.mock('../api/bookings.api', () => ({ apiBookDirectFromOffer: vi.fn() }));
+vi.mock('../api/bookings.api', () => ({ apiBookDirectFromOffer: vi.fn(), apiInitiatePayment: vi.fn() }));
 
 const toastSuccess = vi.fn();
 const toastError = vi.fn();
@@ -38,10 +40,18 @@ function renderSeekerActions() {
 
 describe('useSeekerActions Post Request payload', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+    syncRequests.mockResolvedValue(undefined);
+    syncBids.mockResolvedValue(undefined);
+    localStorage.clear();
     vi.mocked(useToast).mockReturnValue({
       success: toastSuccess, error: toastError, info: vi.fn(),
     } as unknown as ReturnType<typeof useToast>);
+  });
+
+  afterEach(() => {
+    clearGcashCheckout('pi_custom_offer');
+    vi.restoreAllMocks();
   });
 
   it('sends the exact selected category ID, controlled urgency, and budget to the API', async () => {
@@ -160,6 +170,7 @@ describe('useSeekerActions Post Request payload', () => {
     } });
     const { result } = renderSeekerActions();
     const updated = await result.current.editJobRequest('request-id', 'LAPTOP REPAIR', 1500, 'Visit a workshop.', undefined, { serviceLocationMode: 'SEEKER_VISITS' });
+    expect(toastError).not.toHaveBeenCalled();
     const applyUpdate = setJobRequests.mock.calls[0][0];
     const saved = applyUpdate([{ id: 'request-id', jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cordova, Cebu', address: 'Old private home directions' }, transportationFee: 75 }])[0];
     expect(updated).toMatchObject({ serviceLocationMode: 'SEEKER_VISITS' });
@@ -186,6 +197,63 @@ describe('useSeekerActions Post Request payload', () => {
     expect(apiBookDirectFromOffer).toHaveBeenCalledWith('offer-id');
     expect(toastError).not.toHaveBeenCalled();
     expect(toastSuccess).toHaveBeenCalledWith('Offer accepted', 'You can now message the provider to arrange the work.');
+  });
+
+  function renderCustomGcashOffer() {
+    const bid = mapOfferToBid({
+      id: 'offer-id', requestId: 'request-id', serviceId: null, providerId: 'provider-id',
+      offeredPrice: 2500, status: 'PENDING',
+      request: { seekerId: 'seeker-id', title: 'LAPTOP FAN REPAIR', paymentMethods: { cash: false, gcash: true } },
+    });
+    return renderHook(() => useSeekerActions({
+      dbCategories: [], jobRequests: [], bids: [bid], setBids, syncBids, syncRequests,
+    } as unknown as Parameters<typeof useSeekerActions>[0]));
+  }
+
+  it('opens checkout for a GCash-only custom offer without needing a service listing or the request feed', async () => {
+    const popup = { opener: window, document: { title: '', body: { textContent: '' } }, location: { replace: vi.fn() }, close: vi.fn() };
+    vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    vi.mocked(apiInitiatePayment).mockResolvedValue({ success: true, data: {
+      paymentIntentId: 'pi_custom_offer', expectedAmount: 2500, redirectUrl: 'https://test-sources.paymongo.com/sources/custom-offer',
+    } });
+    const { result } = renderCustomGcashOffer();
+    const checkout = await result.current.acceptBid('offer-id', 'GCash');
+    expect(apiInitiatePayment).toHaveBeenCalledWith(expect.objectContaining({ offerId: 'offer-id', serviceId: undefined, paymentMethodType: 'gcash' }));
+    expect(checkout).toMatchObject({ seekerId: 'seeker-id', offerId: 'offer-id', expectedAmount: 2500 });
+    expect(checkout).not.toHaveProperty('serviceId');
+    expect(readPendingGcashCheckout('seeker-id')).toEqual(checkout);
+    expect(popup.opener).toBeNull();
+    expect(popup.location.replace).toHaveBeenCalledWith('https://test-sources.paymongo.com/sources/custom-offer');
+    expect(popup.close).not.toHaveBeenCalled();
+    expect(apiBookDirectFromOffer).not.toHaveBeenCalled();
+    expect(setBids).not.toHaveBeenCalled();
+    expect(toastSuccess).not.toHaveBeenCalled();
+    expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it('closes the preparing tab and leaves the offer unchanged when GCash initiation fails', async () => {
+    const popup = { opener: window, document: { title: '', body: { textContent: '' } }, close: vi.fn() };
+    vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    vi.mocked(apiInitiatePayment).mockRejectedValue(new Error('Validation failed'));
+    const { result } = renderCustomGcashOffer();
+    await expect(result.current.acceptBid('offer-id', 'GCash')).rejects.toThrow('Validation failed');
+    expect(popup.close).toHaveBeenCalledOnce();
+    expect(readPendingGcashCheckout('seeker-id')).toBeNull();
+    expect(setBids).not.toHaveBeenCalled();
+    expect(toastSuccess).not.toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalledWith('Action Failed', expect.any(String));
+  });
+
+  it('keeps a usable checkout link when the browser blocks the payment tab', async () => {
+    vi.spyOn(window, 'open').mockReturnValue(null);
+    vi.mocked(apiInitiatePayment).mockResolvedValue({ success: true, data: {
+      paymentIntentId: 'pi_custom_offer', expectedAmount: 2500, redirectUrl: 'https://test-sources.paymongo.com/sources/custom-offer',
+    } });
+    const { result } = renderCustomGcashOffer();
+    await result.current.acceptBid('offer-id', 'GCash');
+    expect(readPendingGcashCheckout('seeker-id')).toMatchObject({ offerId: 'offer-id', redirectUrl: 'https://test-sources.paymongo.com/sources/custom-offer' });
+    expect(setBids).not.toHaveBeenCalled();
+    expect(toastError).not.toHaveBeenCalled();
   });
 
   it.each(['rejection', 'unsuccessful response'])('returns false on delete %s without changing or refreshing any data', async failure => {

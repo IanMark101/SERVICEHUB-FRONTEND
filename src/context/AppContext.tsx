@@ -43,7 +43,7 @@ interface AppContextType {
   userReports: UserReport[];
   // Live admin-controlled category list. Always sourced from the database.
   // Populated after session recovery and refreshable via refreshCategories().
-  // PostRequest, OfferServices, and SeekServices use this — never hardcoded lists.
+  // PostRequest, OfferServices, and SeekServices use this â€” never hardcoded lists.
   dbCategories: { id: string; name: string; description?: string; aliases?: readonly string[] }[];
   refreshCategories: () => void;
 
@@ -51,8 +51,8 @@ interface AppContextType {
   updateUserProfile: (userId: string, data: Partial<User>) => void;
 
   // Seeker actions
-  postJobRequest: (seekerId: string, title: string, category: string, urgency: import('../lib/requestUrgency').RequestUrgency, budget: number, description: string, paymentMethods?: { cash: boolean; gcash: boolean }, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }) => Promise<boolean | { success: false; error: string; field?: 'title' | 'description' | 'category' }>;
-  editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
+  postJobRequest: (seekerId: string, title: string, category: string, urgency: import('../lib/requestUrgency').RequestUrgency, budget: number, description: string, paymentMethods?: { cash: boolean; gcash: boolean }, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint | null; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }) => Promise<boolean | { success: false; error: string; field?: 'title' | 'description' | 'category' }>;
+  editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint | null; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
   deleteJobRequest: (requestId: string) => Promise<boolean>;
   toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
   acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
@@ -72,7 +72,7 @@ interface AppContextType {
     options?: {
       photoIds?: string[];
       publicMapPin?: boolean;
-      serviceLocation?: LocationPoint;
+      serviceLocation?: LocationPoint | null;
       serviceLocationMode?: ServiceLocationMode;
       venueAddress?: string | null;
       coverageRadiusKm?: number | null;
@@ -91,7 +91,7 @@ interface AppContextType {
     options?: {
       photoIds?: string[];
       publicMapPin?: boolean;
-      serviceLocation?: LocationPoint;
+      serviceLocation?: LocationPoint | null;
       serviceLocationMode?: ServiceLocationMode;
       venueAddress?: string | null;
       coverageRadiusKm?: number | null;
@@ -244,7 +244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(timer);
   }, []);
 
-  // ─── Session Recovery ──────────────────────────────────────────
+  // â”€â”€â”€ Session Recovery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   /* eslint-disable react-hooks/set-state-in-effect -- Browser storage determines whether post-hydration recovery is needed; protected routes remain gated before effects run. */
   useEffect(() => {
     clearLegacyAuthStorage();
@@ -421,7 +421,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('theme', nextDark ? 'dark' : 'light');
   };
 
-  // ─── Shared helper ─────────────────────────────────────────────
+  // â”€â”€â”€ Shared helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const helperAddNotification = useCallback((userId: string, title: string, desc: string) => {
     const newNotif: Notification = {
       id: `n_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
@@ -438,7 +438,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...data } : u));
   };
 
-  // ─── Modularize Seeker Actions ──────────────────────────────────
+  // â”€â”€â”€ Modularize Seeker Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const seekerActions = useSeekerActions({
     users,
     services,
@@ -461,7 +461,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     helperAddNotification
   });
 
-  // ─── Modularize Provider Actions ────────────────────────────────
+  // â”€â”€â”€ Modularize Provider Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const providerActions = useProviderActions({
     users,
     services,
@@ -479,9 +479,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     helperAddNotification
   });
 
-  // ─── Modularize Admin Actions ───────────────────────────────────
+  // â”€â”€â”€ Modularize Admin Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-  // ─── Modularize Shared Actions ──────────────────────────────────
+  // â”€â”€â”€ Modularize Shared Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const sharedActions = useSharedActions({
     jobEngagements,
     setMessages,
@@ -546,7 +546,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           </main>
         : authLoading || user?.moderationStatus !== 'BANNED' || pathname === '/account-banned'
         ? children
-        : <main className="flex min-h-screen items-center justify-center bg-charcoal text-white" role="status">Opening account notice…</main>}
+        : <main className="flex min-h-screen items-center justify-center bg-charcoal text-white" role="status">Opening account noticeâ€¦</main>}
     </AppContext.Provider>
   );
 }

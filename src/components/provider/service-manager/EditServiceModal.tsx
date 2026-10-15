@@ -191,7 +191,6 @@ export default function EditServiceModal({
 
             <ListingPhotoUploader workspace="provider" value={value.photos ?? []} onChange={photos => onChange({ ...value, photos })} onBusyChange={setPhotosBusy} />
             <ListingLocationFields value={value} isDark={isDark} showTransportation={value.priceType !== 'BY_AGREEMENT'} onChange={patch => onChange({ ...value, ...patch })} />
-            {!value.serviceLocation && <p className="text-xs text-ink-muted">Choose an area or location so nearby seekers can find this listing.</p>}
             <div>
               <label className={label}>What is included?</label>
               <textarea

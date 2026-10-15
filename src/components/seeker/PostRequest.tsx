@@ -66,8 +66,8 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       }
       if (!selectedCategoryId) problems.push({ field: 'category', heading: 'Choose a category', message: 'Select the type of service you need.' });
     }
-    if (index === 1 && !LocationSchema.safeParse(jobLocation).success) {
-      problems.push({ field: 'location', heading: requestUsesArea(serviceLocationMode) ? 'Choose an area to find providers' : 'Choose where the work will happen', message: serviceLocationMode === 'REMOTE' ? 'Choose a city or barangay for local discovery. Online work needs no meetup address.' : requestUsesArea(serviceLocationMode) ? 'Choose the city or barangay where you want to find a provider. The provider will give their address in their offer.' : 'Mark where the provider should come on the map, then enter the city or barangay name.' });
+    if (index === 1 && serviceLocationMode !== 'REMOTE' && !LocationSchema.safeParse(jobLocation).success) {
+      problems.push({ field: 'location', heading: requestUsesArea(serviceLocationMode) ? 'Choose an area to find providers' : 'Choose where the work will happen', message: requestUsesArea(serviceLocationMode) ? 'Choose the city or barangay where you want to find a provider. The provider will give their address in their offer.' : 'Mark where the provider should come on the map, then enter the city or barangay name.' });
     }
     if (index === 2) {
       if (!Number.isFinite(budget) || budget < 50 || budget > 50_000 || !Number.isInteger(budget)) problems.push({ field: 'budget', heading: 'Invalid budget', message: 'Enter an estimated budget between ₱50 and ₱50,000 in whole pesos.' });
@@ -108,7 +108,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
     setLoading(true);
     setSuccess(false);
     try {
-      const posted = await postJobRequest(user?.id || '', title.trim(), selectedCategoryId, urgency, budget, description.trim(), paymentMethods, { ...(photos.length && { photoIds: photos.map(photo => photo.id) }), jobLocation: requestUsesArea(serviceLocationMode) ? { ...jobLocation!, address: undefined } : jobLocation!, serviceLocationMode, transportationFee: requestUsesArea(serviceLocationMode) || transportationFee === '' ? null : Number(transportationFee) });
+      const posted = await postJobRequest(user?.id || '', title.trim(), selectedCategoryId, urgency, budget, description.trim(), paymentMethods, { ...(photos.length && { photoIds: photos.map(photo => photo.id) }), ...(jobLocation && {jobLocation: requestUsesArea(serviceLocationMode) ? { ...jobLocation, address: undefined } : jobLocation}), serviceLocationMode, transportationFee: requestUsesArea(serviceLocationMode) || transportationFee === '' ? null : Number(transportationFee) });
       if (posted !== true) {
         if (posted && typeof posted === 'object') {
           setModerationError({ field: posted.field, message: posted.error });
@@ -196,10 +196,10 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
             <WizardStep index={1} currentStep={step} label="Request location">
             <ListingFormSection number={2} title="Where should the work happen?" description="Choose a visit arrangement or have the work delivered online.">
               <ServiceArrangementField value={serviceLocationMode} onChange={mode => {
-                if (requestUsesArea(mode) !== requestUsesArea(serviceLocationMode)) setJobLocation(null);
+                if (mode !== serviceLocationMode && (mode === 'REMOTE' || serviceLocationMode === 'REMOTE' || requestUsesArea(mode) !== requestUsesArea(serviceLocationMode))) setJobLocation(null);
                 setServiceLocationMode(mode); setLocationError('');
               }} disabled={!canTransact || loading} layout="responsive" />
-              <LocationField required error={locationError} selectionMode={requestUsesArea(serviceLocationMode) ? 'area' : 'pin'} label={requestLocationText(serviceLocationMode).label} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} privateAddress={involvesProviderTravel(serviceLocationMode)} disabled={!canTransact || loading}
+              <LocationField required={serviceLocationMode !== 'REMOTE'} error={locationError} selectionMode={serviceLocationMode === 'REMOTE' ? 'area-search' : requestUsesArea(serviceLocationMode) ? 'area' : 'pin'} label={requestLocationText(serviceLocationMode).label} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} onClear={serviceLocationMode === 'REMOTE' ? () => setJobLocation(null) : undefined} privateAddress={involvesProviderTravel(serviceLocationMode)} disabled={!canTransact || loading}
                 hint={requestLocationText(serviceLocationMode).hint} />
             </ListingFormSection>
             </WizardStep>
@@ -235,7 +235,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
               <ListingFormSection number={5} title="Review your request" description="Check everything before sharing it with providers.">
                 <div>
                   <WizardReviewSection title="Request details" onEdit={() => changeStep(0)}><dl><dt>Request title</dt><dd>{title}</dd><dt>Service category</dt><dd>{dbCategories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>Describe what you need</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd><dt>{requestUsesArea(serviceLocationMode) ? 'Area to find providers' : 'Job location'}</dt><dd>{jobLocation?.label}</dd>{involvesProviderTravel(serviceLocationMode) && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd><dt>{requestUsesArea(serviceLocationMode) ? 'Area to find providers' : 'Job location'}</dt><dd>{jobLocation?.label || (serviceLocationMode === 'REMOTE' ? 'Online / remote — no location needed' : 'Not selected')}</dd>{involvesProviderTravel(serviceLocationMode) && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Timing and budget" onEdit={() => changeStep(2)}><dl><dt>When you need help</dt><dd>{urgency}</dd><dt>Your service budget</dt><dd>₱{budget.toLocaleString()}</dd>{involvesProviderTravel(serviceLocationMode) && <><dt>Extra travel budget</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[paymentMethods.cash && 'Cash in person', paymentMethods.gcash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p><p>Posting does not charge you. Compare providers’ offers before choosing.</p></WizardReviewSection>
                 </div>

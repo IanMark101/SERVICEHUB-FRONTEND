@@ -6,11 +6,33 @@ vi.mock('next/navigation',()=>({useSearchParams:()=>new URLSearchParams()}));
 vi.mock('../../context/AppContext',()=>({useApp:vi.fn()}));
 vi.mock('../../api/services.api',()=>({apiGetMyServices:vi.fn().mockResolvedValue({success:false})}));
 vi.mock('../ui/Toast',()=>({useToast:()=>({error:vi.fn()})}));
-vi.mock('../location/ListingLocationFields',()=>({default:()=>null}));
 vi.mock('../moderation/ContentCaseAction',()=>({default:()=>null}));
 vi.mock('../marketplace/MarketplaceMatchesModal',()=>({default:({source}:{source:{title:string}})=><div role="dialog">Matches for {source.title}</div>}));
 const service={id:'service-1',providerId:'provider-1',providerName:'Provider',title:'LAPTOP REPAIR',description:'Laptop diagnostics and hardware repairs.',category:'Computer & Laptop Repair',price:500,priceType:'FIXED',status:'ACTIVE',isPaused:false,estimatedDurationMins:60,photos:[],serviceLocationMode:'PROVIDER_VISITS',serviceLocation:{latitude:10.26,longitude:123.95,label:'Cordova'},coverageRadiusKm:10,paymentMethods:{cash:true,gcash:false}};
 describe('compact managed listings and durable save state',()=>{
+  it.each(['PROVIDER_VISITS','SEEKER_VISITS','BOTH'])('saves an existing %s listing as remote without requiring a replacement location',async mode=>{
+    const edit=vi.fn().mockResolvedValue(true);
+    vi.mocked(useApp).mockReturnValue({services:[{...service,serviceLocationMode:mode}],setServices:vi.fn(),editServiceListing:edit,toggleServiceListingStatus:vi.fn(),deleteServiceListing:vi.fn(),isDark:false,user:{id:'provider-1'}} as unknown as ReturnType<typeof useApp>);
+    render(<ServiceManager currentProviderId="provider-1"/>);
+    fireEvent.click(screen.getByRole('button',{name:'Details of LAPTOP REPAIR'}));
+    fireEvent.click(screen.getByRole('button',{name:'Edit'}));
+    fireEvent.click(screen.getByRole('radio',{name:/Online \/ remote/}));
+    expect(screen.getByText('Based in (optional)')).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox',{name:/exact location publicly/})).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
+    await waitFor(()=>expect(edit).toHaveBeenCalledWith(service.id,service.title,500,service.description,expect.objectContaining({serviceLocationMode:'REMOTE',serviceLocation:null,publicMapPin:false,transportationFee:null})));
+    await waitFor(()=>expect(screen.queryByText('Edit Service Listing')).not.toBeInTheDocument());
+  });
+  it.each(['You go to the seeker','The seeker comes to you','Either option'])('requires a new physical location when changing remote to %s',async arrangement=>{
+    const edit=vi.fn();
+    vi.mocked(useApp).mockReturnValue({services:[{...service,serviceLocationMode:'REMOTE'}],setServices:vi.fn(),editServiceListing:edit,toggleServiceListingStatus:vi.fn(),deleteServiceListing:vi.fn(),isDark:false,user:{id:'provider-1'}} as unknown as ReturnType<typeof useApp>);
+    render(<ServiceManager currentProviderId="provider-1"/>);
+    fireEvent.click(screen.getByRole('button',{name:'Details of LAPTOP REPAIR'}));fireEvent.click(screen.getByRole('button',{name:'Edit'}));
+    fireEvent.click(screen.getByRole('radio',{name:new RegExp(arrangement)}));
+    fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
+    expect(edit).not.toHaveBeenCalled();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+  });
   it('keeps full content in Details and locks saving until the server responds, retaining failed edits',async()=>{
     let finish!:(value:boolean)=>void;
     const edit=vi.fn().mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;})).mockResolvedValue(true);

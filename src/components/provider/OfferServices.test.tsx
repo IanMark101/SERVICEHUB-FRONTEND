@@ -50,8 +50,9 @@ beforeEach(() => {
 
 it('keeps public map sharing opt-in and includes the choice in publication', async () => {
   render(<OfferServices />); fillDetails(); next();
+  fireEvent.click(screen.getByRole('radio', {name:/The seeker comes to you/}));
   fireEvent.click(screen.getByTestId('test-location'));
-  const consent=screen.getByRole('checkbox', { name:/Show this exact pin on the public map/ });
+  const consent=screen.getByRole('checkbox', { name:/Show my shop’s exact location publicly/ });
   expect(consent).not.toBeChecked(); fireEvent.click(consent); expect(consent).toBeChecked();
   next(); next(); next();
   fireEvent.click(screen.getByRole('button', { name:'Publish service' }));
@@ -59,10 +60,9 @@ it('keeps public map sharing opt-in and includes the choice in publication', asy
 });
 
 describe('Offer Services wizard', () => {
-  it('publishes remote work with a discovery area and no venue, pin consent, travel coverage or fee', async () => {
+  it('publishes remote work without requiring a location or carrying venue, pin consent or travel fees', async () => {
     render(<OfferServices />); fillDetails(); next();
     fireEvent.click(screen.getByRole('radio', { name: /Online \/ remote/ }));
-    fireEvent.click(screen.getByTestId('test-location'));
     expect(screen.queryByRole('checkbox', { name: /Show this exact pin/ })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/How far will you travel/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Address or directions/)).not.toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('Offer Services wizard', () => {
     expect(screen.queryByLabelText(/Your travel fee/)).not.toBeInTheDocument();
     next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
-    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: 'REMOTE', publicMapPin: false, coverageRadiusKm: null, venueAddress: null, transportationFee: null })));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: 'REMOTE', serviceLocation:undefined, publicMapPin: false, coverageRadiusKm: null, venueAddress: null, transportationFee: null })));
   });
   it('lets providers publish by agreement without an amount or separate travel fee and retains a fixed-price draft', async () => {
     render(<OfferServices />); toPrice();

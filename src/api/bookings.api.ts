@@ -13,8 +13,15 @@ export async function apiBookDirect(data: {
   return response.data;
 }
 
+// Public-request offers may have no linked Service. The offer is the payment
+// source; the server resolves any linked listing and the agreed terms itself.
+function paymentTarget({ offerId, serviceId }: { offerId?: string; serviceId?: string }) {
+  return offerId ? { offerId } : serviceId ? { serviceId } : {};
+}
+
 export async function apiInitiatePayment(data: { retryPaymentIntentId?: string; jobLocation?: LocationPoint; serviceLocationMode?: BookingLocationMode; serviceId?: string; offerId?: string; quantity?: number; paymentMethodType?: 'gcash' }) {
-  const response = await api.post('/bookings/initiate-payment', data);
+  const { serviceId, offerId, ...terms } = data;
+  const response = await api.post('/bookings/initiate-payment', { ...terms, ...paymentTarget({ serviceId, offerId }) });
   return response.data;
 }
 
@@ -23,7 +30,8 @@ export async function apiConfirmOnlineBooking(data: {
   paymentIntentId: string;
   offerId?: string;
 }) {
-  const response = await api.post('/bookings/confirm-online', data);
+  const { serviceId, offerId, ...payment } = data;
+  const response = await api.post('/bookings/confirm-online', { ...payment, ...paymentTarget({ serviceId, offerId }) });
   return response.data;
 }
 

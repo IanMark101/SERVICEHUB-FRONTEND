@@ -39,7 +39,7 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, initi
       <header className={styles.header}><h2 id={title}>Change search location</h2><button className={styles.close} type="button" aria-label="Close location dialog" onClick={onClose}><X size={20}/></button></header>
       <div className={styles.body}>
         <p className={styles.hint}>Choose a location and search radius. The circle previews the area used to find nearby {workspace==='seeker' ? 'service areas' : 'request areas'}. Your search, category and quick filters stay applied.</p>
-        <p className={styles.hint}>{workspace === 'seeker' ? 'This changes browsing only. Coverage is checked against your actual job location when booking.' : 'This changes browsing only. It does not change a listing’s service coverage.'}</p>
+        <p className={styles.hint}>The radius filters physical listings only. Online / remote listings remain available without a map pin. Providers decide whether to accept each physical job.</p>
         <div className={styles.fieldGroup}>
           <label><span className={styles.label}>Search radius</span><FormSelect tone={workspace} className={styles.field} value={radiusChoice} aria-describedby={radiusHintId} onChange={event => {
             const choice = event.target.value;

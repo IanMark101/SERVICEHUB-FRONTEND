@@ -52,7 +52,7 @@ function submitRequest() {
 }
 
 describe('Post Request submission', () => {
-  it('posts online work with a general discovery area and no private address or travel budget', async () => {
+  it.each([false,true])('posts online work with an optional area (selected: %s) and no private address or travel budget', async withArea => {
     postJobRequest.mockResolvedValue(false);
     render(<PostRequest />);
     fireEvent.change(screen.getByLabelText('Request title'), {target:{value:'Build my business website'}});
@@ -61,13 +61,14 @@ describe('Post Request submission', () => {
   fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
     fireEvent.click(screen.getByRole('button', {name:'Next'}));
     fireEvent.click(screen.getByRole('radio', {name:/Online \/ remote/}));
-    fireEvent.click(screen.getByTestId('test-location'));
+    if (withArea) fireEvent.click(screen.getByTestId('test-location'));
     fireEvent.click(screen.getByRole('button', {name:'Next'}));
     expect(screen.queryByLabelText(/Extra budget for the provider/)).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('When do you need help?'), {target:{value:'Flexible Schedule'}});
     fireEvent.change(screen.getByLabelText('Your service budget (₱)'), {target:{value:'500'}});
     submitRequest();
-    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid','Flexible Schedule',500,expect.any(String),expect.any(Object),expect.objectContaining({serviceLocationMode:'REMOTE',jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu',address:undefined},transportationFee:null})));
+    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid','Flexible Schedule',500,expect.any(String),expect.any(Object),expect.objectContaining({serviceLocationMode:'REMOTE',...(withArea && {jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu',address:undefined}}),transportationFee:null})));
+    if (!withArea) expect(postJobRequest.mock.calls.at(-1)?.[7]).not.toHaveProperty('jobLocation');
   });
   beforeEach(() => {
   walletState.ready = true;

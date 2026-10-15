@@ -88,7 +88,7 @@ export default function OfferServices() {
       if (description.trim().length < 30 || description.trim().length > 1000) problems.push({ field: 'description', heading: 'Describe your service', message: description.trim() ? 'Use 30–1,000 characters to explain what is included.' : 'Describe what you will do and what the price includes.' });
     }
     if (index === 1) {
-      if (!LocationSchema.safeParse(serviceLocation).success) {
+      if (serviceLocationMode !== 'REMOTE' && !LocationSchema.safeParse(serviceLocation).success) {
         problems.push({ field: 'location', heading: listingUsesArea(serviceLocationMode) ? 'Choose your general service area' : 'Choose where seekers can visit you', message: listingUsesArea(serviceLocationMode) ? 'Choose a city or barangay where you offer this service. No shop or home address is needed.' : 'Mark the place where seekers can visit you on the map, then enter the city or barangay name.' });
       }
       if (!listingUsesArea(serviceLocationMode) && venueAddress.length > 500) problems.push({ field: 'address', heading: 'Check your directions', message: 'Keep the address or directions within 500 characters.' });
@@ -144,8 +144,8 @@ export default function OfferServices() {
         { cash: acceptCash, gcash: acceptGCash },
         {
           photoIds: photos.map(photo => photo.id),
-          serviceLocation: serviceLocation!,
-          publicMapPin: serviceLocationMode !== 'REMOTE' && publicMapPin,
+          serviceLocation: serviceLocation ?? undefined,
+          publicMapPin: !listingUsesArea(serviceLocationMode) && publicMapPin,
           serviceLocationMode,
           venueAddress: listingUsesArea(serviceLocationMode) ? null : venueAddress.trim() || null,
           coverageRadiusKm: null,
@@ -287,7 +287,7 @@ export default function OfferServices() {
               <ListingFormSection number={5} title="Review your service listing" description="Check the details seekers will see before publishing.">
                 <div>
                   <WizardReviewSection title="Service details" onEdit={() => changeStep(0)}><dl><dt>Service name</dt><dd>{title}</dd><dt>Service category</dt><dd>{categories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>What is included?</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no travel' : serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>{serviceLocationMode === 'REMOTE' ? 'Discovery area' : serviceLocationMode === 'PROVIDER_VISITS' ? 'Service area' : 'Where seekers can visit you'}</dt><dd>{serviceLocation?.label}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Private directions</dt><dd>{venueAddress}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no travel' : serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>{serviceLocationMode === 'REMOTE' ? 'Discovery area' : serviceLocationMode === 'PROVIDER_VISITS' ? 'Service area' : 'Where seekers can visit you'}</dt><dd>{serviceLocation?.label || (serviceLocationMode === 'REMOTE' ? 'Online / remote — no location needed' : 'Not selected')}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Private directions</dt><dd>{venueAddress}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Price and duration" onEdit={() => changeStep(2)}><dl><dt>Service price</dt><dd>{priceByAgreement ? 'Price by agreement' : '₱' + price.toLocaleString() + (priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price')}</dd><dt>Time needed</dt><dd>{durationMins} minutes</dd>{!priceByAgreement && involvesProviderTravel(serviceLocationMode) && <><dt>Your travel fee</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[acceptCash && 'Cash in person', acceptGCash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p>{acceptGCash && <p>GCash is currently in test mode; no real money is transferred.</p>}</WizardReviewSection>
                   <p className={styles.help}>You can accept separate bookings from this listing. A seeker can book again after their previous booking ends.</p>

@@ -201,7 +201,7 @@ export default function RequestManager({
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingRequest || savingEditRef.current) return;
-    if (!editingRequest.jobLocation && editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode) {
+    if (!editingRequest.jobLocation && editingRequest.serviceLocationMode !== 'REMOTE' && editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode) {
       error(['SEEKER_VISITS', 'REMOTE'].includes(editingRequest.serviceLocationMode ?? '') ? 'Choose an area to find providers' : 'Choose where the work will happen', ['SEEKER_VISITS', 'REMOTE'].includes(editingRequest.serviceLocationMode ?? '') ? 'Choose the city or barangay where you want to find a provider.' : 'Mark where the provider should come on the map.');
       return;
     }
@@ -218,7 +218,7 @@ export default function RequestManager({
         {
           ...(editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode && { serviceLocationMode: editingRequest.serviceLocationMode }),
           ...(JSON.stringify((editingRequest.photos ?? []).map(photo => photo.id)) !== JSON.stringify(editingRequest.originalPhotoIds ?? []) && { photoIds: (editingRequest.photos ?? []).map(photo => photo.id) }),
-          ...(editingRequest.jobLocation && JSON.stringify(editingRequest.jobLocation) !== JSON.stringify(editingRequest.originalJobLocation) && { jobLocation: editingRequest.jobLocation }),
+          ...(JSON.stringify(editingRequest.jobLocation) !== JSON.stringify(editingRequest.originalJobLocation) && (editingRequest.jobLocation || editingRequest.serviceLocationMode === 'REMOTE') && { jobLocation: editingRequest.jobLocation ?? null }),
           ...((editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null) !== (editingRequest.originalTransportationFee ?? null) && { transportationFee: editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null }),
         },
       );

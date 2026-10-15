@@ -23,7 +23,7 @@ export default function JobRequestCard({ request, proposalCount, isOwned, offerS
       </button>
       <button type="button" className={styles.person} disabled={!request.seekerId} onClick={() => onProfile(true)} aria-label={`View service seeker reviews for ${request.seekerName}`}><MarketplaceRating rating={request.seekerRating} reviewCount={request.seekerReviewCount} context="seeker" /></button>
     </div>
-    <TrailCardStats items={[{ label: request.targetServiceId ? 'Listed rate' : 'Budget', value: request.targetServiceId && !request.budget ? 'Quote required' : `₱${request.budget.toLocaleString()}` }, { label: 'Distance', value: request.distanceKm == null ? 'Not set' : formatDistance(request.distanceKm) }, { label: 'Offers', value: proposalCount }]} />
+    <TrailCardStats items={[{ label: request.targetServiceId ? 'Listed rate' : 'Budget', value: request.targetServiceId && !request.budget ? 'Quote required' : `₱${request.budget.toLocaleString()}` }, { label: 'Distance', value: request.serviceLocationMode === 'REMOTE' ? 'No travel' : request.distanceKm == null ? 'Not set' : formatDistance(request.distanceKm) }, { label: 'Offers', value: proposalCount }]} />
     <div className={styles.actions} data-workspace="provider">
       <button type="button" onClick={onDetails} aria-label={`Inspect ${request.title} details`}>Details</button>
       {!isOwned && (offerState ? <span className={styles.status}>{offerState === 'accepted' ? 'Offer accepted' : 'Proposal Submitted'}</span> : <button type="button" data-primary="true" onClick={onSendOffer}>Send Offer</button>)}

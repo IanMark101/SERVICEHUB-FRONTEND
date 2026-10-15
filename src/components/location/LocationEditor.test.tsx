@@ -29,6 +29,18 @@ describe('device-location recovery', () => {
   });
   afterEach(() => {vi.useRealTimers();vi.unstubAllGlobals();});
 
+  it('selects a base area from search without exposing map or device-location controls', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({data:{success:true,data:[{latitude:10.3,longitude:123.9,label:'Cordova, Cebu'}]}});
+    const onChange=vi.fn();
+    render(<LocationEditor compact selectionMode="area-search" value={null} onChange={onChange}/>);
+    expect(screen.queryByRole('button',{name:/map|device location/i})).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox',{name:'Find a city or barangay'}),{target:{value:'Cordova'}});
+    fireEvent.click(screen.getByRole('button',{name:'Search'}));
+    fireEvent.click(await screen.findByRole('button',{name:'Cordova, Cebu'}));
+    expect(onChange).toHaveBeenCalledWith({latitude:10.3,longitude:123.9,label:'Cordova, Cebu'});
+    expect(gps).not.toHaveBeenCalled();
+  });
+
   it.each([1,2,3])('allows a fresh successful attempt after browser failure code %s', code => {
     gps.mockImplementationOnce((_success,error) => error?.(failure(code)))
       .mockImplementationOnce(success => success(position));

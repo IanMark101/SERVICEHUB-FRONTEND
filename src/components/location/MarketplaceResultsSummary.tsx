@@ -9,6 +9,6 @@ export default function MarketplaceResultsSummary({ workspace, location, search,
     {loading ? 'Finding' : `${total} matching`} {marketplaceSubject(workspace, search, category)} near {location.point.label}, within {location.radiusKm} km.
     {search.trim() && category !== 'All Categories' ? ` Category: ${category}.` : ''}
     {filterLabel ? ` Filter: ${filterLabel}.` : ''}
-    {' '}Distances are measured from this search location.
+    {' '}Online / remote matches are also included without a distance limit. Distances apply to physical services and are measured from this search location.
   </p>;
 }

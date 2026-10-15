@@ -62,7 +62,7 @@ export function useProviderActions({
     options?: {
       photoIds?: string[];
       publicMapPin?: boolean;
-      serviceLocation?: LocationPoint;
+      serviceLocation?: LocationPoint | null;
       serviceLocationMode?: ServiceLocationMode;
       venueAddress?: string | null;
       coverageRadiusKm?: number | null;
@@ -83,7 +83,7 @@ export function useProviderActions({
           title,
           description,
           price: options?.priceType === 'BY_AGREEMENT' ? null : price,
-          ...(options?.serviceLocation && { serviceLocation: options.serviceLocation }),
+          ...(options?.serviceLocation !== undefined && { serviceLocation: options.serviceLocation }),
         ...(options?.serviceLocationMode && { serviceLocationMode: options.serviceLocationMode }),
         ...(options?.venueAddress !== undefined && { venueAddress: options.venueAddress }),
           ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
@@ -101,7 +101,7 @@ export function useProviderActions({
             photos: item.photos ?? [],
             providerId,
             providerName: 'My Service',
-            serviceLocation: options?.serviceLocation,
+            serviceLocation: options?.serviceLocation ?? undefined,
             publicMapPin: item.publicMapPin ?? false,
             locationLabel: options?.serviceLocation?.label,
             coverageRadiusKm: options?.coverageRadiusKm,
@@ -138,7 +138,7 @@ export function useProviderActions({
       }
     } catch (err: unknown) {
       const body = getApiErrorBody(err);
-      const errorMsg = getApiErrorMessage(err, 'We couldn’t create your listing. Please try again.');
+      const errorMsg = getApiErrorMessage(err, 'We couldnâ€™t create your listing. Please try again.');
       toastError(body?.code === 'CONTENT_REVISION_REQUIRED' ? 'Check your service details' : 'Failed to create listing', errorMsg);
       return { success: false, error: errorMsg, field: body?.code === 'CONTENT_REVISION_REQUIRED' ? body.field : undefined };
     }
@@ -152,7 +152,7 @@ export function useProviderActions({
     options?: {
       photoIds?: string[];
       publicMapPin?: boolean;
-      serviceLocation?: LocationPoint;
+      serviceLocation?: LocationPoint | null;
       serviceLocationMode?: ServiceLocationMode;
       venueAddress?: string | null;
       coverageRadiusKm?: number | null;
@@ -170,7 +170,7 @@ export function useProviderActions({
         title,
         price: options?.priceType === 'BY_AGREEMENT' ? null : price,
         description,
-        ...(options?.serviceLocation && { serviceLocation: options.serviceLocation }),
+        ...(options?.serviceLocation !== undefined && { serviceLocation: options.serviceLocation }),
         ...(options?.serviceLocationMode && { serviceLocationMode: options.serviceLocationMode }),
         ...(options?.venueAddress !== undefined && { venueAddress: options.venueAddress }),
         ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),
@@ -190,7 +190,7 @@ export function useProviderActions({
                   publicMapPin: res.data.publicMapPin ?? s.publicMapPin ?? false,
                   status: res.data.status,
                   isPaused: !res.data.isAvailable,
-                  ...(options?.serviceLocation && { serviceLocation: options.serviceLocation, locationLabel: options.serviceLocation.label }),
+                  ...(options?.serviceLocation !== undefined && { serviceLocation: options.serviceLocation ?? undefined, locationLabel: options.serviceLocation?.label }),
                   ...(options?.serviceLocationMode && { serviceLocationMode: options.serviceLocationMode }),
                   ...(options?.venueAddress !== undefined && { venueAddress: options.venueAddress }),
                   ...(options?.coverageRadiusKm !== undefined && { coverageRadiusKm: options.coverageRadiusKm }),

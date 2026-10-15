@@ -7,7 +7,7 @@ type PaymentMethods = { cash: boolean; gcash: boolean };
 export interface ServicePayload {
   publicMapPin?: boolean;
   photoIds?: string[];
-  serviceLocation?: LocationPoint;
+  serviceLocation?: LocationPoint | null;
   serviceLocationMode?: ServiceLocationMode;
   venueAddress?: string | null;
   coverageRadiusKm?: number | null;

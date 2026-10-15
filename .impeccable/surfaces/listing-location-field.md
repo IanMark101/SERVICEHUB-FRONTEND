@@ -21,3 +21,7 @@ Verification uses real LocationField/LocationEditor components in a temporary lo
 ## October 16 simplification
 
 Listing forms show one saved place with Change. Search/map both select it; only failed reverse lookup exposes manual name recovery. Provider base area differs from a shop venue, and seeker job point differs from desired provider area. Provider travel has no radius field or coverage circle. Browsing retains its search radius. Pricing is independent of delivery: fixed/rate listings retain direct booking in every arrangement, while only BY_AGREEMENT requires a provider price offer. Both posting roles must save a private valid GCash number when selecting GCash; Cash only needs none.
+
+## Remote location correction
+
+Remote create/edit allows no location. Its optional city/barangay selector uses search only, with a clear Remove area action. Travelling providers choose their required base city/barangay through search without a home pin. Only Seeker visits/Both expose a required shop pin and optional exact-public-shop consent. Switching to remote clears the old point; switching back requires the appropriate physical location. Discovery includes eligible remote results regardless of radius, with no distance or map marker.

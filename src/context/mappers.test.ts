@@ -12,6 +12,11 @@ const service = (queueEntries: unknown[], bookings: unknown[]) => ({
 });
 
 describe('workspace API mappers', () => {
+  it('maps a custom public-request offer without inventing a linked service ID',()=>{
+    const bid=mapOfferToBid({id:'offer-1',requestId:'request-1',serviceId:null,offeredPrice:2500,status:'PENDING',request:{seekerId:'seeker-1',paymentMethods:{cash:false,gcash:true}}});
+    expect(bid.serviceId).toBeUndefined();expect(bid.requestPaymentMethods).toEqual({cash:false,gcash:true});
+    expect(bid.price).toBe(2500);
+  });
   it('retains offer Seeker metadata without a loaded request list', () => {
     const bid = mapOfferToBid({ id: 'offer-1', requestId: 'closed-request', providerId: 'provider-1',
       provider: { name: 'John' }, estimatedDuration: 90, availability: 'Saturday morning',

@@ -115,7 +115,7 @@ export default function ServiceDetailsPanel({
                 </>}
               </div>
               <div className={styles.geography}>
-                {listing.locationLabel && <p className={styles.locationLine}><MapPin size={15} aria-hidden="true" /><span>{listing.locationLabel}{listing.distanceKm != null && <> · {formatDistance(listing.distanceKm)}</>}</span></p>}
+                {(listing.locationLabel || listing.serviceLocationMode === 'REMOTE') && <p className={styles.locationLine}><MapPin size={15} aria-hidden="true" /><span>{listing.serviceLocationMode === 'REMOTE' ? `Online / remote${listing.locationLabel ? ' · ' + listing.locationLabel : ''}` : listing.locationLabel}{listing.serviceLocationMode !== 'REMOTE' && listing.distanceKm != null && <> · {formatDistance(listing.distanceKm)}</>}</span></p>}
                 {listing.serviceLocationMode !== 'REMOTE' && listing.serviceLocationMode !== 'SEEKER_VISITS' && !!listing.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>+ ₱{listing.transportationFee.toLocaleString()} transportation, once when the provider visits</span></p>}
               </div>
             </div>

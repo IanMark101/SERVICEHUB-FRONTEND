@@ -13,7 +13,7 @@ import { notificationCopy } from '../lib/notificationCopy';
 
 const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200';
 
-interface ApiLocation { serviceLocationMode?: ServiceLocationMode; latitude?: number | null; longitude?: number | null; locationLabel?: string | null; privateAddress?: string | null; distanceKm?: number; transportationFee?: number | string | null }
+interface ApiLocation { serviceLocationMode?: ServiceLocationMode; latitude?: number | null; longitude?: number | null; locationLabel?: string | null; privateAddress?: string | null; distanceKm?: number | null; transportationFee?: number | string | null }
 function recordPoint(value: ApiLocation) {
   const parsed = LocationSchema.safeParse({ latitude:value.latitude, longitude:value.longitude, label:value.locationLabel, address:value.privateAddress ?? undefined });
   return parsed.success ? parsed.data : undefined;
@@ -24,7 +24,7 @@ interface ApiCategory { name?: string }
 interface ApiService extends ApiLocation { publicMapPin?: boolean; photos?: ServiceListing['photos']; venueAddress?: string | null; coverageRadiusKm?: number | null; id: string; providerId?: string; provider?: ApiUser; title: string; category?: ApiCategory; description: string; price?: number | string | null; queueEntries?: unknown[]; bookings?: unknown[]; queueLimit?: number; providerWaitingCount?: number; isAvailable?: boolean; rating?: number; trustScore?: number; priceType?: ServiceListing['priceType']; estimatedDurationMins?: number; estimatedDuration?: number; status?: ServiceListing['status']; adminNotes?: string | null; rejectionCount?: number; paymentMethods?: Partial<NonNullable<ServiceListing['paymentMethods']>> }
 interface ApiBookingService { title?: string; category?: ApiCategory; estimatedDurationMins?: number; price?: number | string; priceType?: ServiceListing['priceType'] }
 interface ApiDirectRequest { agreedPrice?: number | string; quantity?: number; message?: string; schedule?: string; service?: ApiBookingService }
-interface ApiOffer { serviceLocationMode?: BookingLocationMode; venueLabel?: string; id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string; offeredPrice?: number | string; estimatedDuration?: number; availability?: string; message?: string; status?: string; decisionReason?: Bid['decisionReason']; decisionAt?: string | null; createdAt?: string; request?: { title?: string; targetServiceId?: string | null; status?: string; seekerId?: string; seeker?: ApiUser; category?: ApiCategory | string; paymentMethods?: JobRequest['paymentMethods']; preferredPaymentMethod?: JobRequest['preferredPaymentMethod'] } }
+interface ApiOffer { serviceLocationMode?: BookingLocationMode; venueLabel?: string; id: string; requestId: string; providerId?: string; provider?: ApiUser; serviceId?: string | null; offeredPrice?: number | string; estimatedDuration?: number; availability?: string; message?: string; status?: string; decisionReason?: Bid['decisionReason']; decisionAt?: string | null; createdAt?: string; request?: { title?: string; targetServiceId?: string | null; status?: string; seekerId?: string; seeker?: ApiUser; category?: ApiCategory | string; paymentMethods?: JobRequest['paymentMethods']; preferredPaymentMethod?: JobRequest['preferredPaymentMethod'] } }
 export interface ApiBooking { serviceLocationMode?: BookingLocationMode | null; jobLocation?: unknown; transportationFee?: number | string | null; id: string; status?: string; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; serviceId?: string | null; service?: ApiBookingService; estimatedDurationMins?: number | null; offer?: ApiOffer; directRequest?: ApiDirectRequest; agreedAmount?: number | string | null; queue?: { status?: string; position?: number; estimatedWait?: number; paymentStatus?: string } | null; paymentMethod?: string; paymentStatus?: string; createdAt?: string; updatedAt?: string; description?: string; reports?: Array<{ description?: string }>; started?: boolean; cancellationRequests?: JobEngagement['cancellationRequests']; progressEvents?: JobEngagement['progressEvents'] }
 export interface ApiCompletedService { id: string; bookingId?: string; booking?: ApiBooking; seekerId: string; seeker?: ApiUser; providerId: string; provider?: ApiUser; finalPrice?: number | string; paymentStatus?: string; completedAt?: string; reviews?: JobEngagement['reviews'] }
 interface ApiRequest extends ApiLocation { targetService?: { priceType?: ServiceListing['priceType']; price?: number | string | null } | null; photos?: JobRequest['photos']; offersCount?: number; id: string; seekerId?: string; seeker?: ApiUser; targetProviderId?: string | null; targetServiceId?: string | null; preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null; paymentMethods?: JobRequest['paymentMethods']; title: string; category?: ApiCategory; urgency?: string; budgetMax?: number | string; budgetMin?: number | string; description: string; status: JobRequest['status']; createdAt?: string; offers?: { status?: string; booking?: { status?: string } | null }[]; canArchive?: boolean; archivedAt?: string | null; canDelete?: boolean; deleteBlockedReason?: string | null }
@@ -182,7 +182,7 @@ export function mapServiceToListing(item: ApiService): ServiceListing {
     id: item.id,
     photos: item.photos ?? [],
     locationLabel: item.locationLabel || undefined,
-    distanceKm: item.distanceKm,
+    distanceKm: item.serviceLocationMode === 'REMOTE' ? undefined : item.distanceKm ?? undefined,
     serviceLocation: recordPoint(item),
     publicMapPin: item.publicMapPin ?? false,
     serviceLocationMode: item.serviceLocationMode ?? 'PROVIDER_VISITS',
@@ -228,7 +228,7 @@ export function mapRequestToJobRequest(r: ApiRequest): JobRequest {
     id: r.id,
     photos: r.photos ?? [],
     locationLabel: r.locationLabel || undefined,
-    distanceKm: r.distanceKm,
+    distanceKm: r.serviceLocationMode === 'REMOTE' ? undefined : r.distanceKm ?? undefined,
     jobLocation: recordPoint(r),
     serviceLocationMode: r.serviceLocationMode ?? 'PROVIDER_VISITS',
     transportationFee: r.transportationFee == null ? undefined : Number(r.transportationFee),
@@ -279,7 +279,7 @@ export function mapOfferToBid(o: ApiOffer): Bid {
     seekerAvatar: o.request?.seeker?.avatarUrl || '',
     seekerTrustScore: o.request?.seeker?.trustScore,
     providerId: o.providerId || o.provider?.id || '',
-    serviceId: o.serviceId,
+    serviceId: o.serviceId ?? undefined,
     serviceLocationMode: o.serviceLocationMode ?? 'PROVIDER_VISITS',
     venueLabel: o.venueLabel,
     requestPaymentMethods: o.request?.paymentMethods,

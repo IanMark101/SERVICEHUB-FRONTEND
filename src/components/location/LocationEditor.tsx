@@ -15,7 +15,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
   value:LocationPoint | null; onChange:(point:LocationPoint) => void; radiusKm?:number; accent?:string; disabled?:boolean; label?:string;
   onPendingChange?:(pending:boolean)=>void;
   mapResults?:MarketplaceMapPin[]; mapResultAccent?:string; onResultSelect?:(id:string)=>void; onViewportChange?:(viewport:MarketplaceMapViewport)=>void;
-  selectionMode?:'area'|'pin';
+  selectionMode?:'area'|'area-search'|'pin';
   compact?:boolean;
   onSelected?:()=>void;
 }) {
@@ -26,7 +26,8 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
   const [error, setError] = useState('');
   const [candidate,setCandidate]=useState<LocationPoint|null>(null);
   const [showAreaMap, setShowAreaMap] = useState(false);
-  const areaOnly = selectionMode === 'area';
+  const areaOnly = selectionMode !== 'pin';
+  const allowMap = selectionMode !== 'area-search';
   const request = useRef(0);
   const locationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lookup = useRef<{ key:string; point:LocationPoint; mode:'preview'|'confirmed'; controller:AbortController } | null>(null);
@@ -96,8 +97,8 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
       const response = await api.get('/locations/search', { params:{ q:query.trim() }, timeout:12000 });
       if (version !== request.current) return;
       setResults(response.data.data || []);
-      if (!response.data.data?.length) setError('No places found. Try another city or barangay name, or choose a place on the map.');
-    } catch (e) { if (version === request.current) setError(getApiErrorMessage(e, 'We could not search for places. Try again, or choose a place on the map.')); }
+      if (!response.data.data?.length) setError(allowMap ? 'No places found. Try another city or barangay name, or choose a place on the map.' : 'No places found. Try another city or barangay name.');
+    } catch (e) { if (version === request.current) setError(getApiErrorMessage(e, allowMap ? 'We could not search for places. Try again, or choose a place on the map.' : 'We could not search for places. Try again later.')); }
     finally { if (version === request.current) setOperation(null); }
   };
   useEffect(() => () => {
@@ -145,12 +146,12 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     </div>
     <p id={`${id}-hint`} className={styles.hint}>Enter only a city or barangay here. Keep house numbers and private addresses out of this search.</p>
     {results.length>0 && <div className={styles.results} aria-label="Matching places">{results.map((p,i) => <button type="button" disabled={disabled} className={styles.result} key={`${p.latitude}-${p.longitude}-${i}`} onClick={() => areaOnly ? selectPoint({ latitude:p.latitude, longitude:p.longitude, label:p.label }) : proposePoint(p)}><MapPin size={16}/>{p.label}</button>)}</div>}
-    {areaOnly && <p className={styles.hint}>Select a search result, or choose a point on the map.</p>}
-    {areaOnly && <button type="button" className={styles.button} aria-expanded={showAreaMap} onClick={() => setShowAreaMap(!showAreaMap)}>{showAreaMap ? 'Hide area map' : 'Use map instead'}</button>}
-    {(!areaOnly || showAreaMap) && <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my device location'}</button>}
+    {areaOnly && <p className={styles.hint}>{allowMap ? 'Select a search result, or choose a point on the map.' : 'Select your city or barangay from the results.'}</p>}
+    {areaOnly && allowMap && <button type="button" className={styles.button} aria-expanded={showAreaMap} onClick={() => setShowAreaMap(!showAreaMap)}>{showAreaMap ? 'Hide area map' : 'Use map instead'}</button>}
+    {allowMap && (!areaOnly || showAreaMap) && <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my device location'}</button>}
     {operation === 'location' && <div className={styles.selected}><p role="status" className={styles.hint}>Allow location in your browser. You can cancel and retry after turning on device location.</p><button type="button" className={styles.button} onClick={cancelRequest}>Cancel location request</button></div>}
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
-    {(!areaOnly || showAreaMap) && <><p className={styles.hint}>{areaOnly ? 'Choose a point in your city or barangay, then confirm. No exact address is needed.' : 'Click the map or move the pin to the job location or workplace, then confirm.'}</p>
+    {allowMap && (!areaOnly || showAreaMap) && <><p className={styles.hint}>{areaOnly ? 'Choose a point in your city or barangay, then confirm. No exact address is needed.' : 'Click the map or move the pin to the job location or workplace, then confirm.'}</p>
       <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}
         results={mapResults} resultPlacement="area" resultAccent={mapResultAccent} resultActionLabel="View listing" onResultSelect={onResultSelect} onViewportChange={onViewportChange}/></>}
     {(candidate || value) && (!compact || manualLabel) && <label><span className={styles.label}>{compact ? 'City or barangay for the selected point' : label}</span><input className={styles.field} value={candidate?.label ?? value?.label ?? ''} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => { cancelLookup(); if(value) onChange({ ...value, label:e.target.value }); }}/></label>}

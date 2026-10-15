@@ -86,7 +86,7 @@ export function useSeekerActions({
     budget: number,
     description: string,
     paymentMethods = { cash: true, gcash: true },
-    locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }
+    locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint | null; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }
   ) => {
     try {
       const catId = dbCategories.find(c => c.id === category)?.id;
@@ -119,7 +119,7 @@ export function useSeekerActions({
     return false;
   };
 
-  const editJobRequest = async (requestId: string, title: string, budget: number, description: string, urgency?: RequestUrgency, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }): Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null> => {
+  const editJobRequest = async (requestId: string, title: string, budget: number, description: string, urgency?: RequestUrgency, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint | null; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }): Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null> => {
     try {
       const res = await apiUpdateRequest(requestId, { title, budgetMin: budget, budgetMax: budget, description, ...locationOptions, ...(urgency !== undefined && { urgency }) });
       if (res.success) {
@@ -127,6 +127,7 @@ export function useSeekerActions({
         const updated = {
           ...(res.data?.photos && { photos: res.data.photos }),
           ...locationOptions,
+          ...(locationOptions?.jobLocation === null && {jobLocation:undefined}),
           ...(savedLocation && { serviceLocationMode: savedLocation.serviceLocationMode, jobLocation: savedLocation.jobLocation, transportationFee: savedLocation.transportationFee }),
           title: res.data?.title ?? title.trim().toUpperCase(),
           budget: Number(res.data?.budgetMax ?? res.data?.budgetMin ?? budget),
@@ -252,8 +253,7 @@ export function useSeekerActions({
           return;
         }
       } else {
-        const serviceId = targetBid.serviceId;
-        return await startGcashCheckout({ seekerId: seekerId!, serviceId, offerId: bidId, title: targetRequest?.title || targetBid.requestTitle, providerName: targetBid.providerName });
+        return await startGcashCheckout({ seekerId: seekerId!, offerId: bidId, title: targetRequest?.title || targetBid.requestTitle, providerName: targetBid.providerName });
       }
     } catch (err: unknown) {
       toastError('Action Failed', getApiErrorMessage(err, 'Unable to accept the offer.'));
