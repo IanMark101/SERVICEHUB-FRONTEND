@@ -7,7 +7,7 @@ import PostRequest from './seeker/PostRequest';
 import OfferServices from './provider/OfferServices';
 
 vi.mock('../context/AppContext', () => ({ useApp: vi.fn() }));
-vi.mock('../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () => ({ gcashNumber: null })), apiSaveGCashNumber: vi.fn() }));
+vi.mock('../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () => ({ gcashNumber: '09123456789' })), apiSaveGCashNumber: vi.fn() }));
 vi.mock('../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('./ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -29,7 +29,12 @@ function submitWizard(container: HTMLElement) {
   if (location) fireEvent.click(location);
   const coverage = Array.from(container.querySelectorAll('select')).find(select => Array.from(select.options).some(option => option.value === 'unlimited'));
   if (coverage) fireEvent.change(coverage, { target: { value: '2' } });
-  for (let step = 0; step < 5; step++) fireEvent.submit(container.querySelector('form')!);
+  for (let step = 0; step < 3; step++) fireEvent.submit(container.querySelector('form')!);
+  // Wallet readiness is covered separately; these category tests publish Cash only.
+  const gcash = within(container).queryByRole('checkbox', { name:/GCash/ }) as HTMLInputElement | null;
+  if (gcash?.checked) fireEvent.click(gcash);
+  fireEvent.submit(container.querySelector('form')!);
+  fireEvent.submit(container.querySelector('form')!);
 }
 
 function fillProvider(container: HTMLElement) {

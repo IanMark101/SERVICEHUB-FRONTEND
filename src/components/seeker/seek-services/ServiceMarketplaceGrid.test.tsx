@@ -66,13 +66,14 @@ describe('Seek Services listing booking entry point', () => {
     expect(screen.getByRole('img', { name: 'Service provider rating: 4.5 out of 5 from 2 reviews' })).toHaveTextContent('4.5(2)');
   });
   it('opens direct booking for a FIXED listing instead of redirecting to Post Request', () => {
-    const { push, handleBookListing } = renderListing(listing);
+    const travelListing = { ...listing, serviceLocationMode:'PROVIDER_VISITS' as const };
+    const { push, handleBookListing } = renderListing(travelListing);
     fireEvent.click(screen.getByRole('button', { name: 'Inspect House Cleaning details' }));
     expect(screen.getByText('On-site Cash')).toBeInTheDocument();
     expect(screen.getByText('GCash · Test Mode')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     fireEvent.click(screen.getByRole('button', { name: 'Book Service' }));
-    expect(handleBookListing).toHaveBeenCalledWith(listing, 'On-site Cash');
+    expect(handleBookListing).toHaveBeenCalledWith(travelListing, 'On-site Cash');
     expect(push).not.toHaveBeenCalledWith('/seeker/post-request');
   });
 

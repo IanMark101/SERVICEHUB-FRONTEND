@@ -1,4 +1,4 @@
-import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
@@ -30,7 +30,8 @@ function fillValidRequest() {
   fireEvent.change(screen.getByPlaceholderText(/e.g. My laptop will not turn on/), {
     target: { value: description },
   });
-  fireEvent.change(screen.getAllByRole('combobox')[0], { target: { value: 'category-cuid' } });
+  fireEvent.click(screen.getByRole('combobox', { name:'Service category' }));
+  fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
   fireEvent.click(screen.getByRole('button', { name: 'Next' }));
   fireEvent.click(screen.getByRole('button', { name: 'Next' }));
   fireEvent.change(screen.getByLabelText('When do you need help?'), { target: { value: 'Flexible Schedule' } });
@@ -56,7 +57,8 @@ describe('Post Request submission', () => {
     render(<PostRequest />);
     fireEvent.change(screen.getByLabelText('Request title'), {target:{value:'Build my business website'}});
     fireEvent.change(screen.getByLabelText('Describe what you need'), {target:{value:'Build a five-page website. We can coordinate and deliver the work online.'}});
-    fireEvent.change(screen.getByRole('combobox', {name:'Service category'}), {target:{value:'category-cuid'}});
+    fireEvent.click(screen.getByRole('combobox', { name:'Service category' }));
+  fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
     fireEvent.click(screen.getByRole('button', {name:'Next'}));
     fireEvent.click(screen.getByRole('radio', {name:/Online \/ remote/}));
     fireEvent.click(screen.getByTestId('test-location'));
@@ -125,7 +127,7 @@ describe('Post Request submission', () => {
     expect(screen.getByRole('heading', { name: 'Post this request again' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('e.g. Laptop will not turn on')).toHaveValue('FIX KITCHEN FAUCET');
     expect(screen.getByPlaceholderText(/e.g. My laptop will not turn on/)).toHaveValue(description);
-    expect(screen.getAllByRole('combobox')[0]).toHaveValue('category-cuid');
+    expect(screen.getByRole('combobox', { name:'Service category' })).toHaveValue('Plumbing');
     expect(screen.getByLabelText('When do you need help?')).toHaveValue('');
     expect(screen.getByLabelText(/GCash/)).not.toBeChecked();
     expect(postJobRequest).not.toHaveBeenCalled();

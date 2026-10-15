@@ -58,7 +58,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const [jobLocation, setJobLocation] = useState<LocationPoint | null>(null);
   const arrangements = availableArrangements(listing.serviceLocationMode);
   const [serviceLocationMode, setServiceLocationMode] = useState<BookingLocationMode>(arrangements[0]);
-  const reviewRequired = agreement || serviceLocationMode === 'PROVIDER_VISITS';
+  const reviewRequired = agreement;
   const finalStep = reviewRequired ? 2 : 3;
   const steps = reviewRequired ? ['Details', remote ? 'Delivery' : 'Location', 'Review'] : remote ? ['Details', 'Delivery', 'Payment', 'Review'] : BOOKING_STEPS;
   const transportationFee = directTransportationFee(serviceLocationMode, listing.transportationFee);
@@ -143,12 +143,13 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
           serviceLocationMode,
           serviceId: listing.id,
           quantity,
+          ...(serviceLocationMode === 'PROVIDER_VISITS' && { jobLocation: jobLocation! }),
           message: description,
           schedule: preferredSchedule.trim() || undefined,
         });
       } else {
         // GCash/online path — use the existing hook
-        const checkout = await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity, undefined, serviceLocationMode);
+        const checkout = await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity, serviceLocationMode === 'PROVIDER_VISITS' ? jobLocation! : undefined, serviceLocationMode);
         // The workspace payment dialog takes over without leaving the listing.
         // Initiating checkout alone must never claim a successful booking.
         setLoading(false);
@@ -222,7 +223,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
                 <WizardStep index={1} currentStep={step} label="Work location">
                 <ServiceArrangementField value={serviceLocationMode} options={arrangements} onChange={mode => { setServiceLocationMode(mode as BookingLocationMode); setFormError(null); }} disabled={loading || isOwned} />
-                {serviceLocationMode === 'REMOTE' ? <div className={styles.hint}><strong>Online / remote — no meetup required</strong><p>Agree on the deliverables and schedule through Messages. Follow progress, completion and any concerns in Activity. No address or travel fee is needed.</p></div> : serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Where will the job happen?" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Mark where the work will happen. The provider reviews the area before agreeing to travel. The exact pin and directions stay private until booking." /> : <div className={styles.hint}>
+                {serviceLocationMode === 'REMOTE' ? <div className={styles.hint}><strong>Online / remote — no meetup required</strong><p>Agree on the deliverables and schedule through Messages. Follow progress, completion and any concerns in Activity. No address or travel fee is needed.</p></div> : serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Where will the job happen?" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Mark where the provider should come. Review the listed price and any displayed travel fee before booking. The exact pin and directions stay private until booking." /> : <div className={styles.hint}>
                   <strong>Provider’s service venue</strong>
                   <p>{listing.locationLabel || 'The provider’s saved service venue'}</p>
                   <p>You’ll travel to the provider. Exact directions are shared in your booking; no seeker job pin or provider transportation fee is needed.</p>

@@ -11,3 +11,5 @@ The category list remains scrollable with native validation and keyboard selecti
 Suggest category uses a bounded server-side AI request. If AI is unavailable or returns unusable results, conservative matching against the active catalog can offer clearly labeled category-list matches. Vague input asks for more detail instead of guessing. Both paths require explicit selection and preserve manual search; Gemini credentials remain server-only. Reliability checks: `.impeccable/review/category-suggestion-reliability.json`.
 
 Catalog definitions and migration behavior: `SERVICEHUB-BACKEND/docs/SERVICE_CATEGORIES.md`. Verification: `.impeccable/review/category-catalog-review.json`.
+
+The listing category control is one editable combobox. Focus opens the option list; typing filters labels and aliases. Only choosing an official option changes the category ID. There is no second search field inside the popup. Escape/blur restores the saved label. Native form validation, IDs, disabled states and keyboard selection remain supported.

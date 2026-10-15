@@ -100,3 +100,8 @@ describe('workspace API mappers', () => {
     expect(mapServiceToListing(service(queueEntries, bookings)).queueSize).toBe(expected);
   });
 });
+
+it('retains authoritative pricing for an old private fixed-price inquiry', () => {
+  const request = mapRequestToJobRequest({id:'legacy',targetServiceId:'fixed',targetProviderId:'provider',targetService:{priceType:'FIXED',price:'300.00'},title:'Tutoring',description:'Please tutor online.',status:'OPEN',seekerId:'seeker',budgetMax:0});
+  expect(request).toMatchObject({sourcePriceType:'FIXED',sourcePrice:300});
+});

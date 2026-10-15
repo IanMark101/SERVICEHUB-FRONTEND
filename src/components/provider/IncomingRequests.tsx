@@ -46,6 +46,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
       const response = await apiGetMyServices();
       const listing = response.data?.map(mapServiceToListing).find((item: ServiceListing) => item.id === request.targetServiceId && item.status === 'ACTIVE' && !item.isPaused);
       if (!response.success || !listing) throw new Error('The requested listing is no longer available.');
+      if (listing.priceType !== 'BY_AGREEMENT') throw new Error('This service has a set price. Close the old inquiry and ask the seeker to book at the listed price.');
       setPriceListing([listing]); setPrice(0); setDuration(listing.estimatedDurationMins || 60); setIncludedWork(''); setAvailability(''); setPriceRequest(request);
     } catch (error) { toast.error('Could not open request', getApiErrorMessage(error, 'Try loading your listing again.')); }
     finally { responseLock.current = false; setLoadingJobId(null); setLoadingAction(null); }

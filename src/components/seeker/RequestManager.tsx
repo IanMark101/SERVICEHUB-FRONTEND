@@ -382,7 +382,7 @@ export default function RequestManager({
                             )}
                           </div>
                         ) : req.targetServiceId ? (
-                          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">{['CANCELED', 'CLOSED'].includes(req.status) || (!req.preferredPaymentMethod && bids.some(bid => bid.requestId === req.id && ['declined', 'rejected', 'withdrawn'].includes(bid.status.toLowerCase()))) ? 'Request closed' : req.status === 'PAYMENT_PENDING' ? 'Payment in progress' : bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Price received · review in Offers Received' : 'Waiting for the provider’s price'}</span>
+                          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">{['CANCELED', 'CLOSED'].includes(req.status) || (!req.preferredPaymentMethod && bids.some(bid => bid.requestId === req.id && ['declined', 'rejected', 'withdrawn'].includes(bid.status.toLowerCase()))) ? 'Request closed' : req.status === 'PAYMENT_PENDING' ? 'Payment in progress' : bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Price received · review in Offers Received' : req.sourcePriceType && req.sourcePriceType !== 'BY_AGREEMENT' ? 'Listed price applies · close this old inquiry and book the service' : 'Waiting for the provider’s price'}</span>
                         ) : (() => {
                           const isToggling = togglingRequestId === req.id;
                           return (
@@ -450,7 +450,7 @@ export default function RequestManager({
                     <div className="flex items-center space-x-2">
                       <span className="text-[11px] font-semibold text-ink-muted">{req.targetServiceId ? 'Service pricing' : 'Estimated budget'}</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-brand-text'}`}>
-                        {req.targetServiceId && !req.budget ? 'Price by agreement' : `₱${req.budget}`}
+                        {req.targetServiceId && req.sourcePrice != null ? `₱${req.sourcePrice.toLocaleString()}` : req.targetServiceId && !req.budget ? 'Price by agreement' : `₱${req.budget}`}
                       </span>
                     </div>
 

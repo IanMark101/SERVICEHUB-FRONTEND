@@ -8,6 +8,8 @@ import { getApiErrorMessage } from '../../lib/api/errors';
 import useDialogFocus from '../../hooks/useDialogFocus';
 import form from './TransactionForm.module.css';
 import styles from './GCashNumberField.module.css';
+import PhilippineFlag from './PhilippineFlag';
+import { formatPhilippineMobile } from '../../lib/philippine-phone';
 
 export type GCashReadiness = { userId: string; ready: boolean };
 interface Props { userId?: string; enabled: boolean; isDark: boolean; workspace: 'seeker' | 'provider'; disabled?: boolean; onReadinessChange?: (state: GCashReadiness) => void }
@@ -56,7 +58,7 @@ interface ModalProps { initialNumber: string | null; isDark: boolean; workspace:
 
 function GCashNumberModal({ initialNumber, isDark, workspace, onClose, onSaved }: ModalProps) {
   const id = useId();
-  const [value, setValue] = useState(initialNumber ?? '');
+  const [value, setValue] = useState(() => formatPhilippineMobile(initialNumber ?? ''));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const pending = useRef<AbortController | null>(null);
@@ -81,9 +83,9 @@ function GCashNumberModal({ initialNumber, isDark, workspace, onClose, onSaved }
 
   function submit(event: FormEvent) {
     event.preventDefault(); event.stopPropagation();
-    const normalized = value.trim().replace(/[\s-]/g, '').replace(/^\+63/, '0');
-    if (!/^09\d{9}$/.test(normalized)) { setError('Enter a valid GCash number: 11 digits starting with 09, or use +639.'); return; }
-    void save(normalized);
+    const digits = value.replace(/\D/g, '');
+    if (!/^9\d{9}$/.test(digits)) { setError('Enter 10 digits starting with 9 after +63, for example 917 123 4567.'); return; }
+    void save(`0${digits}`);
   }
 
   return createPortal(<div className={`${form.overlay} ${styles.overlay}`} onMouseDown={event => { if (event.target === event.currentTarget && !busy) onClose(); }}>
@@ -93,8 +95,11 @@ function GCashNumberModal({ initialNumber, isDark, workspace, onClose, onSaved }
         <div className={form.body}>
           <p id={`${id}-description`} className={styles.description}>Save one GCash number for your listings. You can change it here anytime. Your contact number stays the same.</p>
           <label className={form.label} htmlFor={`${id}-number`}>GCash mobile number</label>
-          <input className={form.field} id={`${id}-number`} type="tel" inputMode="tel" autoComplete="off" placeholder="e.g. 09123456789" maxLength={24} value={value} disabled={busy} aria-invalid={!!error} aria-describedby={`${id}-help${error ? ` ${id}-error` : ''}`} onChange={event => { setValue(event.target.value); setError(''); }} />
-          <p id={`${id}-help`} className={form.hint}>Enter 11 digits starting with 09, or use +639. Only enter your number; no MPIN or OTP is needed.</p>
+          <div className={`${styles.phone} form-control-group`} data-invalid={Boolean(error)}>
+            <span className={styles.prefix} aria-hidden="true"><PhilippineFlag />+63</span>
+            <input data-form-unstyled id={`${id}-number`} type="tel" inputMode="numeric" autoComplete="off" placeholder="917 123 4567" value={value} disabled={busy} aria-invalid={!!error} aria-describedby={`${id}-help${error ? ` ${id}-error` : ''}`} onChange={event => { setValue(formatPhilippineMobile(event.target.value)); setError(''); }} />
+          </div>
+          <div className={styles.phoneHelp}><p id={`${id}-help`} className={form.hint}>Philippine mobile number: +63 followed by 10 digits starting with 9. No MPIN or OTP is needed.</p><span aria-hidden="true">{value.replace(/\D/g, '').length}/10 digits</span></div>
           <p className={form.notice}>Saving a number does not verify wallet ownership or change checkout. GCash payments use test mode, so no real money is transferred to this number.</p>
           {error && <p id={`${id}-error`} role="alert" className={form.error}>{error}</p>}
         </div>

@@ -19,7 +19,7 @@ export default function ServiceMarketplaceCard({ service, trustScore, verified, 
   const queue = service.providerWaitingCount ?? service.queueSize;
   const queueFull = gcash && queue >= (service.queueLimit || 5);
   const agreement = isPriceByAgreement(service);
-  const requestFirst = agreement || !service.serviceLocationMode || ['PROVIDER_VISITS', 'BOTH'].includes(service.serviceLocationMode);
+  const requestFirst = agreement;
   const quote = !agreement && (service.priceType === 'STARTS_AT' || service.priceType === 'CUSTOM' || Number(service.price) < 50);
   const cardStatus = isOwned ? 'Your listing' : queueFull ? `Paid queue full (${queue}/${service.queueLimit || 5})` : queue > 0 && gcash ? `${queue} paid waiting` : undefined;
   return <TrailCard status={cardStatus} tools={!readOnly && <ListingCardTools compact contentType="SERVICE_LISTING" listingId={service.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />} photo={service.photos?.[0]} title={service.title} location={service.serviceLocationMode === 'REMOTE' ? `Online / remote${service.locationLabel ? ' · ' + service.locationLabel : ''}` : service.locationLabel} category={service.category} isDark={isDark}>

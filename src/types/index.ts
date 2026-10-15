@@ -96,6 +96,8 @@ export interface JobRequest {
   id: string;
   targetProviderId?: string | null;
   targetServiceId?: string | null;
+  sourcePriceType?: ServiceListing['priceType'];
+  sourcePrice?: number;
   preferredPaymentMethod?: 'GCash' | 'On-site Cash' | null;
   paymentMethods?: PaymentMethods | null;
   seekerId: string;

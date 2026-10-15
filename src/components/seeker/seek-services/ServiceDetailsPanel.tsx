@@ -61,7 +61,7 @@ export default function ServiceDetailsPanel({
 }: ServiceDetailsPanelProps) {
   const { cash, gcash } = getServicePaymentMethods(listing);
   const agreement = isPriceByAgreement(listing);
-  const requestFirst = agreement || !listing.serviceLocationMode || ['PROVIDER_VISITS', 'BOTH'].includes(listing.serviceLocationMode);
+  const requestFirst = agreement;
   const isVerified = listing.providerVerificationStatus === 'APPROVED';
   const trustScore = listing.providerTrustScore;
   const isQueueFull = gcash && (listing.providerWaitingCount ?? listing.queueSize) >= (listing.queueLimit || 5);

@@ -35,7 +35,7 @@ describe('current UI previews on the public landing page', () => {
     const preview = screen.getByRole('img', { name: /Current mobile service details/ });
     const panel = preview.querySelector('[data-layout="compact"]');
     expect(panel).toHaveAttribute('data-theme', 'dark');
-    expect(preview.textContent).toContain('Travel coverage: 5 km');
+    expect(preview.textContent).not.toContain('Travel coverage');
     expect(preview.textContent).toContain('Scheduling');
     expect(preview.textContent).not.toContain('GCash bookings only');
     expect(preview.textContent).toContain('pay in person upon completion');

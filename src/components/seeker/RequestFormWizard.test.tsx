@@ -40,7 +40,8 @@ beforeEach(() => {
 function next() { fireEvent.click(screen.getByRole('button', { name: /^(Next|Review request)$/ })); }
 function details() {
   fireEvent.change(screen.getByLabelText('Request title'), { target: { value: 'Laptop will not turn on' } });
-  fireEvent.change(screen.getByLabelText('Service category'), { target: { value: 'category-1' } });
+  fireEvent.click(screen.getByRole('combobox', { name: 'Service category' }));
+  fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Computer & Laptop Repair' }));
   fireEvent.change(screen.getByLabelText('Describe what you need'), { target: { value: 'Please check why my laptop will not start.' } });
 }
 function requestToPayment() {
@@ -125,7 +126,7 @@ describe('Request Service wizard', () => {
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
     fireEvent.change(screen.getByRole('textbox', { name: 'Describe the work needed' }), { target: { value: 'Fix my laptop.' } });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument(); next(); next();
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '33');
     expect(screen.getByRole('alert')).toHaveTextContent('Choose where the work');
     expect(apiBookDirect).not.toHaveBeenCalled(); expect(online).not.toHaveBeenCalled();
   });
@@ -156,7 +157,7 @@ describe('Request Service wizard', () => {
     const section = screen.getByRole('group', { name: 'Review your booking request' });
     expect(within(section).getByText('Total').nextElementSibling).toHaveTextContent('₱500');
     fireEvent.click(screen.getByRole('button', { name: 'Edit location' }));
-    fireEvent.click(screen.getByRole('radio', { name: /The provider comes to you/ })); next();
+    fireEvent.click(screen.getByRole('radio', { name: /The provider comes to you/ })); next(); next();
     expect(within(screen.getByRole('group', { name: 'Review your booking request' })).getByText('Cordova')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Edit location' }));
     fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ })); next(); next();

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
@@ -29,7 +29,8 @@ function next() { fireEvent.click(screen.getByRole('button', { name: /^(Next|Rev
 function fillDetails() {
   fireEvent.change(screen.getByRole('textbox', { name: 'Service name' }), { target: { value: 'Kitchen pipe repair' } });
   fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: description } });
-  fireEvent.change(screen.getByRole('combobox', { name: 'Service category' }), { target: { value: 'category-cuid' } });
+  fireEvent.click(screen.getByRole('combobox', { name:'Service category' }));
+  fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
 }
 function toPrice() {
   fillDetails(); next();
@@ -112,7 +113,8 @@ describe('Offer Services wizard', () => {
     expect(screen.queryByText('Enter a service name, such as Laptop repair and diagnostics.')).not.toBeInTheDocument();
     next();
     expect(screen.getByRole('combobox', { name: 'Service category' })).toHaveFocus();
-    fireEvent.change(screen.getByRole('combobox', { name: 'Service category' }), { target: { value: 'category-cuid' } });
+    fireEvent.click(screen.getByRole('combobox', { name:'Service category' }));
+  fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
     next();
     expect(screen.getByRole('textbox', { name: 'What is included?' })).toHaveFocus();
     fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: 'Too short' } });

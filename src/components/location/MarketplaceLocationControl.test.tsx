@@ -124,7 +124,7 @@ describe('marketplace search location', () => {
     fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));
     fireEvent.change(screen.getByLabelText('Address or directions (optional, shared after booking)'), { target:{ value:'Unit 7, private directions' } });
     expect(api.get).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('City or barangay shown to other users')).toHaveValue('Lapu-Lapu City, Cebu');
+    expect(document.querySelector('summary')).toHaveTextContent('Lapu-Lapu City, Cebu');
     await waitFor(() => expect(screen.getByLabelText('Address or directions (optional, shared after booking)')).toHaveValue('Unit 7, private directions'));
   });
 });

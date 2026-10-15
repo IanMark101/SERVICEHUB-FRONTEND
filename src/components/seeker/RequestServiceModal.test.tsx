@@ -109,14 +109,14 @@ describe('direct listing booking payment choices', () => {
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({ serviceLocationMode: 'SEEKER_VISITS', serviceId: listing.id, quantity: 1, message: 'Please repair my laptop at your workshop.', schedule: undefined }));
   });
 
-  it('switches a flexible listing from travel review to shop checkout', async () => {
+  it('switches a fixed-price listing between travel and shop checkout without requiring a quote', async () => {
     rtlRender(<RequestServiceModal listing={{ ...listing, serviceLocationMode: 'BOTH', transportationFee: 75 }} onClose={vi.fn()} initialPaymentMethod="GCash" />);
     fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'I will bring my laptop to your venue.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByTestId('test-location'));
-    fireEvent.click(screen.getByRole('button', { name: 'Review request' }));
-    expect(screen.getByRole('button', { name: 'Send service request' })).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'Continue to GCash' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText('Total: '+String.fromCharCode(8369)+'575')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Send service request' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
@@ -215,6 +215,14 @@ describe('one-time direct booking transportation', () => {
     await waitFor(() => expect(online).toHaveBeenCalledWith('seeker-1', listing.id, 500, expect.any(String), 'GCash', 1, undefined, 'REMOTE'));
     expect(apiBookDirect).not.toHaveBeenCalled();
   });
+  it('passes the selected private job point with a fixed-price cash booking without asking for another price', async () => {
+    vi.clearAllMocks(); vi.mocked(apiBookDirect).mockResolvedValueOnce({success:true});
+    vi.mocked(useApp).mockReturnValue({user:{id:'seeker-1'},bookProviderDirectly:online,isDark:false,jobEngagements:[]} as unknown as ReturnType<typeof useApp>);
+    render(<RequestServiceModal listing={{...listing,serviceLocationMode:'PROVIDER_VISITS',price:300,transportationFee:100}} onClose={vi.fn()}/>);
+    submitBooking('Send Request');
+    await waitFor(()=>expect(apiBookDirect).toHaveBeenCalledWith(expect.objectContaining({serviceId:listing.id,serviceLocationMode:'PROVIDER_VISITS',quantity:1,jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu'}})));
+    expect(apiCreateListingInquiry).not.toHaveBeenCalled(); expect(online).not.toHaveBeenCalled();
+  });
   it('sends remote price enquiries without inventing a venue', async () => {
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({ user:{id:'seeker-1'}, bookProviderDirectly:online, isDark:false,jobEngagements:[],refreshAll } as unknown as ReturnType<typeof useApp>);
@@ -226,18 +234,15 @@ describe('one-time direct booking transportation', () => {
     fireEvent.click(screen.getByRole('button', {name:'Send service request'}));
     await waitFor(() => expect(apiCreateListingInquiry).toHaveBeenCalledWith({serviceId:listing.id,message:'Build a website with five pages and a contact form.',serviceLocationMode:'REMOTE'}));
   });
-  it('sends a fixed-price travelling provider the job location for review before any payment', async () => {
+  it.each(['FIXED', 'PER_HOUR', 'PER_DAY'] as const)('books a travelling %s listing at the posted price plus one displayed travel fee', async priceType => {
     vi.clearAllMocks();
-    vi.mocked(apiCreateListingInquiry).mockResolvedValue({ success: true, data: {} });
+    online.mockResolvedValueOnce({ seekerId:'seeker-1', paymentIntentId:'pi_pending' });
     vi.mocked(useApp).mockReturnValue({ user:{id:'seeker-1'}, bookProviderDirectly:online, isDark:false,jobEngagements:[],refreshAll } as unknown as ReturnType<typeof useApp>);
-    rtlRender(<RequestServiceModal listing={{...listing, serviceLocationMode:'PROVIDER_VISITS', price:200,priceType:'PER_HOUR',transportationFee:100}} onClose={vi.fn()}/>);
-    fireEvent.change(screen.getByLabelText('Describe the work needed'),{target:{value:'Repair the kitchen pipe; estimated three hours.'}});
-    fireEvent.click(screen.getByRole('button',{name:'Next'}));
-    fireEvent.click(screen.getByTestId('test-location'));
-    fireEvent.click(screen.getByRole('button',{name:'Review request'}));
-    expect(screen.getByText(/including any travel/)).toBeVisible();
-    fireEvent.click(screen.getByRole('button',{name:'Send service request'}));
-    await waitFor(()=>expect(apiCreateListingInquiry).toHaveBeenCalledWith(expect.objectContaining({serviceLocationMode:'PROVIDER_VISITS',jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu'}})));
-    expect(apiBookDirect).not.toHaveBeenCalled(); expect(online).not.toHaveBeenCalled();
+    render(<RequestServiceModal listing={{...listing, serviceLocationMode:'PROVIDER_VISITS', price:300, priceType, transportationFee:100}} initialPaymentMethod="GCash" onClose={vi.fn()}/>);
+    if (priceType !== 'FIXED') fireEvent.change(screen.getByLabelText(priceType === 'PER_HOUR' ? 'Number of hours' : 'Number of days'), {target:{value:'2'}});
+    expect(screen.getByText(priceType === 'FIXED' ? 'Total: PHP400'.replace('PHP', String.fromCharCode(8369)) : 'Total: PHP700'.replace('PHP', String.fromCharCode(8369)))).toBeVisible();
+    submitBooking('Continue to GCash');
+    await waitFor(()=>expect(online).toHaveBeenCalledWith('seeker-1', listing.id, 300, expect.any(String), 'GCash', priceType === 'FIXED' ? 1 : 2, {latitude:10.3,longitude:123.9,label:'Cebu'}, 'PROVIDER_VISITS'));
+    expect(apiCreateListingInquiry).not.toHaveBeenCalled(); expect(apiBookDirect).not.toHaveBeenCalled();
   });
 });

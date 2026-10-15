@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-16",
+  "scope": "Posted pricing, category combobox and private GCash number input",
+  "inputBrowser": {
+    "source": "Current local production build; fictional intercepted records; no production writes",
+    "scenarios": [
+      {
+        "workspace": "provider",
+        "width": 1440,
+        "theme": "light",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      },
+      {
+        "workspace": "provider",
+        "width": 1440,
+        "theme": "dark",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      },
+      {
+        "workspace": "provider",
+        "width": 390,
+        "theme": "light",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      },
+      {
+        "workspace": "provider",
+        "width": 390,
+        "theme": "dark",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      },
+      {
+        "workspace": "seeker",
+        "width": 1440,
+        "theme": "light",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      },
+      {
+        "workspace": "seeker",
+        "width": 1440,
+        "theme": "dark",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      },
+      {
+        "workspace": "seeker",
+        "width": 390,
+        "theme": "light",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      },
+      {
+        "workspace": "seeker",
+        "width": 390,
+        "theme": "dark",
+        "singleCategoryField": true,
+        "strictPhone": true,
+        "saved": true,
+        "noHorizontalOverflow": true
+      }
+    ],
+    "errors": []
+  },
+  "pricingBrowser": {
+    "source": "Local production build; intercepted fictional data; stopped before any transaction",
+    "scenarios": [
+      {
+        "type": "FIXED",
+        "width": 1440,
+        "correctRoute": true,
+        "noWrites": true
+      },
+      {
+        "type": "FIXED",
+        "width": 390,
+        "correctRoute": true,
+        "noWrites": true
+      },
+      {
+        "type": "BY_AGREEMENT",
+        "width": 1440,
+        "correctRoute": true,
+        "noWrites": true
+      },
+      {
+        "type": "BY_AGREEMENT",
+        "width": 390,
+        "correctRoute": true,
+        "noWrites": true
+      }
+    ]
+  },
+  "designDetector": [],
+  "visualReview": "Desktop/mobile and light/dark captures inspected; no overflow or page errors observed."
+}

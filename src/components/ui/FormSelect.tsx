@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState, type ComponentPropsWithRef, type CSSProperties, type KeyboardEvent } from 'react';
+import { Children, Fragment, isValidElement, useCallback, useEffect, useId, useRef, useState, type ComponentPropsWithRef, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Search } from 'lucide-react';
 
@@ -16,6 +16,10 @@ type Menu = {
   value: string;
 };
 
+function optionChildren(children: ReactNode): ReactNode[] {
+  return Children.toArray(children).flatMap(child => isValidElement<{children?: ReactNode}>(child) && (child.type === Fragment || child.type === 'optgroup') ? optionChildren(child.props.children) : [child]);
+}
+
 /** Preserve the native select, refs, validation and events; share menu presentation. */
 export default function FormSelect({ children, className = '', ref, tone, compact, searchable = false, searchLabel = 'Search options', searchTerms, onChange, onKeyDown, onKeyDownCapture, onClick, onMouseDown, onPointerDown, onBlur, ...props }: Props) {
   const selectRef = useRef<HTMLSelectElement>(null);
@@ -25,6 +29,10 @@ export default function FormSelect({ children, className = '', ref, tone, compac
   const [menu, setMenu] = useState<Menu | null>(null);
   const [active, setActive] = useState(0);
   const [query, setQuery] = useState('');
+  const [selection, setSelection] = useState(String(props.defaultValue ?? ''));
+  const selectedValue = String(props.value ?? selection);
+  const selectedOption = optionChildren(children).find(child => isValidElement<{value?: string}>(child) && String(child.props.value) === selectedValue);
+  const selectedLabel = selectedValue && isValidElement<{children?: string; label?: string}>(selectedOption) ? selectedOption.props.label ?? String(selectedOption.props.children ?? '') : '';
   const typeAhead = useRef({ text: '', time: 0 });
   const isOpen = Boolean(menu);
   const visibleOptions = menu?.options.flatMap((option, index) => {
@@ -35,7 +43,7 @@ export default function FormSelect({ children, className = '', ref, tone, compac
 
   function enabled() { return selectRef.current && !selectRef.current.matches(':disabled'); }
   const placement = useCallback((select: HTMLSelectElement): CSSProperties => {
-    const rect = select.getBoundingClientRect();
+    const rect = (searchable ? searchRef.current : null)?.getBoundingClientRect() ?? select.getBoundingClientRect();
     const below = window.innerHeight - rect.bottom - 12;
     const above = rect.top - 12;
     const upwards = below < 180 && above > below;
@@ -56,7 +64,7 @@ export default function FormSelect({ children, className = '', ref, tone, compac
     setActive(selected >= 0 ? selected : Math.max(0, options.findIndex(option => !option.disabled)));
     // Stay inside a modal's focus boundary, outside its scrolling form body.
     setMenu({ options, value: select.value, parent: select.closest('[role="dialog"]') || document.body, style: placement(select), label: props['aria-label'] || select.labels?.[0]?.firstChild?.textContent?.trim() || 'Choose an option' });
-    select.focus();
+    if (searchable) searchRef.current?.focus(); else select.focus();
   }
   function choose(index: number) {
     const select = selectRef.current;
@@ -67,7 +75,7 @@ export default function FormSelect({ children, className = '', ref, tone, compac
     Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set?.call(select, option.value);
     select.dispatchEvent(new Event('change', { bubbles: true }));
     setMenu(null);
-    select.focus();
+    if (searchable) searchRef.current?.focus(); else select.focus();
   }
   useEffect(() => {
     if (!isOpen) return;
@@ -96,10 +104,11 @@ export default function FormSelect({ children, className = '', ref, tone, compac
   }, [isOpen, searchable]);
 
   function searchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.defaultPrevented) return;
     if (event.key === 'Escape') {
-      event.preventDefault(); event.stopPropagation(); setMenu(null); selectRef.current?.focus(); return;
+      event.preventDefault(); event.stopPropagation(); setMenu(null); return;
     }
-    if (event.key === 'Tab') { setMenu(null); selectRef.current?.focus(); return; }
+    if (event.key === 'Tab') { setMenu(null); return; }
     if (!['ArrowDown', 'ArrowUp', 'Enter'].includes(event.key) || event.nativeEvent.isComposing) return;
     event.preventDefault(); event.stopPropagation();
     const indices = visibleOptions.filter(option => !option.disabled).map(option => option.index);
@@ -117,20 +126,42 @@ export default function FormSelect({ children, className = '', ref, tone, compac
   ><span>{option.label}</span>{option.value === menu?.value && <Check aria-hidden size={16} />}</div>);
 
   return <span className={`form-select${compact ? ' form-select--compact' : ''}`} data-form-tone={tone}>
+    {searchable && <>
+      <Search size={16} aria-hidden="true" className="form-select__search-icon" />
+      <input ref={searchRef} id={props.id} type="text" role="combobox" aria-label={props['aria-label']} aria-haspopup="listbox" aria-autocomplete="list" aria-expanded={isOpen && !props.disabled} aria-controls={menu ? id : undefined} aria-activedescendant={menu && active >= 0 ? `${id}-${active}` : undefined} aria-required={props.required} aria-invalid={props['aria-invalid']} aria-describedby={props['aria-describedby']} disabled={props.disabled} placeholder={searchLabel} autoComplete="off" className={`form-select__query ${className}`} value={menu ? query : selectedLabel}
+        onFocus={() => { if (!menu) open(); }} onClick={() => { if (!menu) open(); }}
+        onChange={event => { if (!menu) open(); setQuery(event.target.value); setActive(-1); }}
+        onKeyDownCapture={event => { if (event.key === 'Escape' && menu) searchKeyDown(event); }}
+        onKeyDown={event => {
+          if (menu) searchKeyDown(event);
+          else if (['ArrowDown', 'ArrowUp', 'Enter'].includes(event.key)) { event.preventDefault(); event.stopPropagation(); open(); }
+        }}
+        onBlur={event => {
+          if (event.relatedTarget instanceof Node && menuRef.current?.contains(event.relatedTarget)) return;
+          setMenu(null);
+          selectRef.current?.dispatchEvent(new FocusEvent('focusout', { bubbles:true, relatedTarget:event.relatedTarget }));
+        }} />
+    </>}
     <select
       {...props}
+      id={searchable ? `${id}-native` : props.id}
       ref={node => {
         selectRef.current = node;
         if (typeof ref === 'function') ref(node);
         else if (ref) ref.current = node;
       }}
-      className={`form-select__control ${className}`}
-      role="combobox"
+      className={searchable ? 'form-select__native' : `form-select__control ${className}`}
+      role={searchable ? undefined : 'combobox'}
+      aria-hidden={searchable || undefined}
+      aria-label={searchable ? undefined : props['aria-label']}
+      tabIndex={searchable ? -1 : props.tabIndex}
       aria-haspopup="listbox"
       aria-expanded={isOpen && !props.disabled}
       aria-controls={menu ? id : undefined}
       aria-activedescendant={menu && active >= 0 ? `${id}-${active}` : undefined}
-      onChange={onChange}
+      onFocus={event => { props.onFocus?.(event); if (searchable) searchRef.current?.focus(); }}
+      onChange={event => { setSelection(event.target.value); onChange?.(event); }}
+      onInvalid={event => { props.onInvalid?.(event); if (searchable) { event.preventDefault(); searchRef.current?.focus(); } }}
       onPointerDown={event => {
         onPointerDown?.(event);
         if (!event.defaultPrevented && enabled()) event.preventDefault();
@@ -179,12 +210,6 @@ export default function FormSelect({ children, className = '', ref, tone, compac
     <ChevronDown aria-hidden className={`form-select__chevron ${menu ? 'is-open' : ''}`} size={16} />
     {menu && !props.disabled && createPortal(<div ref={menuRef} id={searchable ? undefined : id} role={searchable ? undefined : 'listbox'} aria-label={searchable ? undefined : menu.label} className={`form-select__menu rounded-2xl${searchable ? ' form-select__menu--searchable' : ''}`} style={menu.style}>
       {searchable ? <>
-        <label className="form-select__search form-control-group">
-          <Search size={16} aria-hidden="true" />
-          <input ref={searchRef} data-form-unstyled type="search" aria-label={searchLabel} placeholder={searchLabel} autoComplete="off" value={query} aria-controls={id} aria-activedescendant={active >= 0 ? `${id}-${active}` : undefined}
-            onChange={event => { setQuery(event.target.value); setActive(-1); }} onKeyDownCapture={event => { if (event.key === 'Escape') searchKeyDown(event); }} onKeyDown={searchKeyDown}
-            onBlur={event => { if (!(event.relatedTarget instanceof Node) || (!menuRef.current?.contains(event.relatedTarget) && !selectRef.current?.parentElement?.contains(event.relatedTarget))) setMenu(null); }} />
-        </label>
         <div id={id} role="listbox" aria-label={menu.label} className="form-select__options">
           {options}
           {!options.length && <p className="form-select__empty" role="status">No matching categories. Try another word.</p>}

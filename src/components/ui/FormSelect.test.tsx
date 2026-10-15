@@ -113,83 +113,67 @@ describe('shared form select preserves native form contracts', () => {
 });
 
 describe('searchable form select', () => {
-  it('browses all options and filters names or aliases without changing the saved selection', () => {
-    const change = vi.fn(); render(<Searchable change={change} initial="plumbing" />);
-    const select = screen.getByRole('combobox', { name: 'Service category' });
+  it('uses one editable field to browse and filter without changing the saved category until selection', () => {
+    const change = vi.fn(); const { container } = render(<Searchable change={change} initial="plumbing" />);
+    const input = screen.getByRole('combobox', { name: 'Service category' });
+    const native = container.querySelector('select')!;
+    expect(input).toHaveValue('Plumbing');
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
-    fireEvent.click(select);
-    const search = screen.getByRole('searchbox', { name: 'Search service categories' });
-    expect(search).toHaveFocus();
-    fireEvent.blur(select, { relatedTarget: search });
+    expect(container.querySelectorAll('input')).toHaveLength(1);
+    fireEvent.click(input);
+    expect(input).toHaveFocus();
     expect(within(screen.getByRole('listbox')).getAllByRole('option')).toHaveLength(3);
-    fireEvent.change(search, { target: { value: '  SPLIT-TYPE  ' } });
-    const listbox = screen.getByRole('listbox');
-    expect(within(listbox).getAllByRole('option')).toHaveLength(1);
-    expect(select).toHaveValue('plumbing');
-    expect(change).not.toHaveBeenCalled();
-    fireEvent.click(within(listbox).getByRole('option', { name: 'Aircon service' }));
-    expect(select).toHaveValue('aircon');
-    expect(change).toHaveBeenCalledExactlyOnceWith('aircon');
-    expect(select).toHaveFocus();
-    expect(new FormData(screen.getByRole('form', { name: 'Category form' }) as HTMLFormElement).get('category')).toBe('aircon');
+    fireEvent.change(input, { target: { value: '  SPLIT-TYPE  ' } });
+    expect(within(screen.getByRole('listbox')).getAllByRole('option')).toHaveLength(1);
+    expect(native).toHaveValue('plumbing'); expect(change).not.toHaveBeenCalled();
+    fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Aircon service' }));
+    expect(input).toHaveValue('Aircon service'); expect(native).toHaveValue('aircon');
+    expect(change).toHaveBeenCalledExactlyOnceWith('aircon'); expect(input).toHaveFocus();
+    expect(new FormData(screen.getByRole('form') as HTMLFormElement).get('category')).toBe('aircon');
   });
-
-  it('selects filtered results by keyboard and Escape preserves the previous choice', () => {
+  it('supports filtered keyboard selection and Escape restores the last category', () => {
     const change = vi.fn(); render(<Searchable change={change} initial="plumbing" />);
-    const select = screen.getByRole('combobox');
-    fireEvent.keyDown(select, { key: 'Enter' });
-    let search = screen.getByRole('searchbox');
-    fireEvent.change(search, { target: { value: 'aircon' } });
-    fireEvent.keyDown(search, { key: 'Escape' });
-    expect(select).toHaveValue('plumbing');
-    expect(select).toHaveFocus();
+    const input = screen.getByRole('combobox');
+    fireEvent.keyDown(input, { key:'Enter' }); fireEvent.change(input, { target:{ value:'aircon' } });
+    fireEvent.keyDown(input, { key:'Escape' }); expect(input).toHaveValue('Plumbing');
     expect(change).not.toHaveBeenCalled();
-    fireEvent.click(select); search = screen.getByRole('searchbox');
-    expect(search).toHaveValue('');
-    fireEvent.change(search, { target: { value: 'cooling' } });
-    fireEvent.keyDown(search, { key: 'ArrowDown' });
-    expect(search.getAttribute('aria-activedescendant')).toBe(within(screen.getByRole('listbox')).getByRole('option', { name: 'Aircon service' }).id);
-    fireEvent.keyDown(search, { key: 'Enter' });
-    expect(select).toHaveValue('aircon');
+    fireEvent.click(input); expect(input).toHaveValue('');
+    fireEvent.change(input, { target:{ value:'cooling' } }); fireEvent.keyDown(input, { key:'ArrowDown' });
+    expect(input.getAttribute('aria-activedescendant')).toBe(within(screen.getByRole('listbox')).getByRole('option', { name:'Aircon service' }).id);
+    fireEvent.keyDown(input, { key:'Enter' }); expect(input).toHaveValue('Aircon service');
     expect(change).toHaveBeenCalledExactlyOnceWith('aircon');
   });
-
-  it('handles no results, prevents Enter from submitting, and recovers when the search is cleared', () => {
-    const change = vi.fn(); render(<Searchable change={change} />);
-    const submit = vi.fn(event => event.preventDefault());
-    screen.getByRole('form').addEventListener('submit', submit);
-    const select = screen.getByRole('combobox') as HTMLSelectElement;
-    expect(select.validity.valueMissing).toBe(true);
-    fireEvent.click(select);
-    const search = screen.getByRole('searchbox');
-    fireEvent.change(search, { target: { value: 'no-such-category' } });
+  it('handles no results without submitting and keeps native required validation', () => {
+    const change = vi.fn(); const { container } = render(<Searchable change={change} />);
+    const submit = vi.fn(event => event.preventDefault()); screen.getByRole('form').addEventListener('submit', submit);
+    const input = screen.getByRole('combobox'); const native = container.querySelector('select')!;
+    expect(native.validity.valueMissing).toBe(true); fireEvent.click(input);
+    fireEvent.change(input, { target:{ value:'no-such-category' } });
     expect(screen.getByRole('status')).toHaveTextContent('No matching categories');
-    fireEvent.keyDown(search, { key: 'Enter' });
-    expect(change).not.toHaveBeenCalled();
-    expect(submit).not.toHaveBeenCalled();
-    expect(select.validity.valueMissing).toBe(true);
-    fireEvent.change(search, { target: { value: 'plumb' } });
-    fireEvent.keyDown(search, { key: 'Enter' });
-    expect(select).toHaveValue('plumbing');
-    expect(select.validity.valid).toBe(true);
-    expect(submit).not.toHaveBeenCalled();
+    fireEvent.keyDown(input, { key:'Enter' }); expect(change).not.toHaveBeenCalled();
+    expect(submit).not.toHaveBeenCalled(); expect(native.validity.valueMissing).toBe(true);
+    fireEvent.change(input, { target:{ value:'plumb' } }); fireEvent.keyDown(input, { key:'Enter' });
+    expect(input).toHaveValue('Plumbing'); expect(native.validity.valid).toBe(true); expect(submit).not.toHaveBeenCalled();
   });
-
-  it('closes on Tab or outside focus without clearing a category', () => {
-    render(<Searchable initial="plumbing" />);
-    const select = screen.getByRole('combobox');
-    fireEvent.click(select);
-    fireEvent.keyDown(screen.getByRole('searchbox'), { key: 'Tab' });
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-    fireEvent.click(select);
-    fireEvent.blur(screen.getByRole('searchbox'), { relatedTarget: screen.getByRole('button', { name: 'Next field' }) });
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-    expect(select).toHaveValue('plumbing');
+  it('closes on Tab, blur or outside click while preserving the selected ID and label', () => {
+    const blur = vi.fn(); const { container } = render(<Searchable initial="plumbing" />);
+    container.querySelector('select')!.addEventListener('focusout', blur);
+    const input = screen.getByRole('combobox');
+    fireEvent.click(input); fireEvent.keyDown(input, { key:'Tab' }); expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    fireEvent.click(input); fireEvent.blur(input, { relatedTarget:screen.getByRole('button', { name:'Next field' }) });
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument(); expect(blur).toHaveBeenCalled();
+    fireEvent.click(input); fireEvent.change(input, { target:{ value:'unconfirmed' } }); fireEvent.mouseDown(document.body);
+    expect(input).toHaveValue('Plumbing'); expect(container.querySelector('select')).toHaveValue('plumbing');
   });
-
-  it('does not open a search for disabled or permission-restricted controls', () => {
+  it('keeps Escape inside the parent dialog and never opens disabled controls', () => {
+    const { unmount } = render(<div role="dialog"><Searchable /></div>); const close = vi.fn();
+    screen.getByRole('dialog').addEventListener('keydown', close);
+    const input = screen.getByRole('combobox'); fireEvent.click(input);
+    expect(screen.getByRole('dialog')).toContainElement(screen.getByRole('listbox'));
+    fireEvent.keyDown(input, { key:'Escape' }); expect(close).not.toHaveBeenCalled();
+    unmount();
     render(<><FormSelect searchable disabled aria-label="Disabled">{options}</FormSelect><fieldset disabled><FormSelect searchable aria-label="Restricted">{options}</FormSelect></fieldset></>);
-    for (const select of screen.getAllByRole('combobox')) fireEvent.click(select);
-    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
+    for (const control of screen.getAllByRole('combobox')) fireEvent.click(control);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 });

@@ -30,7 +30,7 @@ const mockListing: ServiceListing = {
 
 describe('ServiceDetailsModal', () => {
   const defaultProps = {
-    listing: mockListing,
+    listing: { ...mockListing, serviceLocationMode:'PROVIDER_VISITS' as const },
     isOpen: true,
     onClose: vi.fn(),
     onBookListing: vi.fn(),
@@ -74,7 +74,7 @@ describe('ServiceDetailsModal', () => {
     const bookBtn = screen.getByRole('button', { name: 'Book This Service' });
     fireEvent.click(bookBtn);
 
-    expect(onBookListing).toHaveBeenCalledWith(mockListing, 'On-site Cash');
+    expect(onBookListing).toHaveBeenCalledWith(defaultProps.listing, 'On-site Cash');
     expect(onClose).toHaveBeenCalled();
   });
 

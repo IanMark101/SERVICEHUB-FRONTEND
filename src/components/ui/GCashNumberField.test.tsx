@@ -65,18 +65,34 @@ describe('private GCash number in listing forms', () => {
   it('validates missing/invalid input, and cancel leaves the draft and saved number untouched', async () => {
     render(<GCashNumberField userId="owner" enabled isDark workspace="seeker" />); await open();
     fireEvent.click(screen.getByRole('button', { name: 'Save number' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('11 digits starting with 09'); expect(apiSaveGCashNumber).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('10 digits starting with 9'); expect(apiSaveGCashNumber).not.toHaveBeenCalled();
     fireEvent.change(screen.getByRole('textbox', { name: 'GCash mobile number' }), { target: { value: 'invalid' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save number' })); expect(apiSaveGCashNumber).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' })); expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Add GCash number' })).toHaveFocus();
+  });
+  it('formats pasted numbers, removes non-digits, caps national digits and rejects a non-mobile prefix', async () => {
+    render(<GCashNumberField userId="owner" enabled isDark={false} workspace="provider" />); await open();
+    const input = screen.getByRole('textbox', { name: 'GCash mobile number' });
+    expect(input).toHaveAttribute('inputmode', 'numeric');
+    for (const raw of ['+63 917-123-4567', '09171234567', '917letters123456799']) {
+      fireEvent.change(input, { target: { value: raw } });
+      expect(input).toHaveValue('917 123 4567');
+    }
+    fireEvent.change(input, { target: { value: '8123456789' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save number' }));
+    expect(apiSaveGCashNumber).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('starting with 9');
+    fireEvent.change(input, { target: { value: '9171234567' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save number' }));
+    await waitFor(() => expect(apiSaveGCashNumber).toHaveBeenCalledWith('09171234567', expect.any(AbortSignal)));
   });
   it('keeps errors in the modal and allows retry without losing the entered number', async () => {
     vi.mocked(apiSaveGCashNumber).mockRejectedValueOnce(new Error('Temporary failure'));
     render(<GCashNumberField userId="owner" enabled isDark={false} workspace="provider" />); await open();
     fireEvent.change(screen.getByRole('textbox', { name: 'GCash mobile number' }), { target: { value: '09123456789' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save number' }));
-    await screen.findByRole('alert'); expect(screen.getByRole('textbox', { name: 'GCash mobile number' })).toHaveValue('09123456789');
+    await screen.findByRole('alert'); expect(screen.getByRole('textbox', { name: 'GCash mobile number' })).toHaveValue('912 345 6789');
     fireEvent.click(screen.getByRole('button', { name: 'Save number' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument()); expect(apiSaveGCashNumber).toHaveBeenCalledTimes(2);
   });
@@ -97,7 +113,7 @@ describe('private GCash number in listing forms', () => {
     await screen.findByRole('button', { name: 'Edit GCash number' }); first.unmount();
     render(<GCashNumberField userId="owner" enabled isDark={false} workspace="seeker" />);
     fireEvent.click(await screen.findByRole('button', { name: 'Edit GCash number' }));
-    expect(screen.getByRole('textbox', { name: 'GCash mobile number' })).toHaveValue('09123456789');
+    expect(screen.getByRole('textbox', { name: 'GCash mobile number' })).toHaveValue('912 345 6789');
     fireEvent.click(screen.getByRole('button', { name: 'Remove number' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(apiSaveGCashNumber).toHaveBeenCalledWith(null, expect.any(AbortSignal)); expect(screen.getByRole('status')).toHaveTextContent('removed');

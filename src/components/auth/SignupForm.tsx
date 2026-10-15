@@ -1,3 +1,4 @@
+import { formatPhilippineMobile as formatPhoneNumber } from '../../lib/philippine-phone';
 import React, { useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import GoogleSignInButton from './shared/GoogleSignInButton';
@@ -74,17 +75,6 @@ export default function SignupForm({
         fileInputRef.current.value = '';
       }
     }
-  };
-
-  // Helper to format Philippine Phone Numbers: auto-formats digits to '9XX XXX XXXX'
-  const formatPhoneNumber = (raw: string) => {
-    let digits = raw.replace(/\D/g, '');
-    if (digits.startsWith('63')) digits = digits.slice(2);
-    if (digits.startsWith('0')) digits = digits.slice(1);
-    digits = digits.slice(0, 10);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
-    return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
   };
 
   // Compute per-step validity for button state
