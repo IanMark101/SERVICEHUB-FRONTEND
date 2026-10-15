@@ -144,7 +144,7 @@ describe('Browse Service Requests offer eligibility', () => {
     render(<BrowseJobs />);
     expect(await screen.findByText(request.title)).toBeInTheDocument();
     if (viewerId === request.seekerId) {
-      expect(screen.getByText('Your own request · cannot send an offer')).toBeInTheDocument();
+      expect(screen.getByText('Your own request')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Send Offer' })).not.toBeInTheDocument();
     } else {
       expect(screen.getByRole('button', { name: 'Send Offer' })).toBeInTheDocument();

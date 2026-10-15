@@ -1,0 +1,31 @@
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { useApp } from '../../context/AppContext';
+import ServiceManager from './ServiceManager';
+vi.mock('next/navigation',()=>({useSearchParams:()=>new URLSearchParams()}));
+vi.mock('../../context/AppContext',()=>({useApp:vi.fn()}));
+vi.mock('../../api/services.api',()=>({apiGetMyServices:vi.fn().mockResolvedValue({success:false})}));
+vi.mock('../ui/Toast',()=>({useToast:()=>({error:vi.fn()})}));
+vi.mock('../location/ListingLocationFields',()=>({default:()=>null}));
+vi.mock('../moderation/ContentCaseAction',()=>({default:()=>null}));
+vi.mock('../marketplace/MarketplaceMatchesModal',()=>({default:({source}:{source:{title:string}})=><div role="dialog">Matches for {source.title}</div>}));
+const service={id:'service-1',providerId:'provider-1',providerName:'Provider',title:'LAPTOP REPAIR',description:'Laptop diagnostics and hardware repairs.',category:'Computer & Laptop Repair',price:500,priceType:'FIXED',status:'ACTIVE',isPaused:false,estimatedDurationMins:60,photos:[],serviceLocationMode:'PROVIDER_VISITS',serviceLocation:{latitude:10.26,longitude:123.95,label:'Cordova'},coverageRadiusKm:10,paymentMethods:{cash:true,gcash:false}};
+describe('compact managed listings and durable save state',()=>{
+  it('keeps full content in Details and locks saving until the server responds, retaining failed edits',async()=>{
+    let finish!:(value:boolean)=>void;
+    const edit=vi.fn().mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;})).mockResolvedValue(true);
+    vi.mocked(useApp).mockReturnValue({services:[service],setServices:vi.fn(),editServiceListing:edit,toggleServiceListingStatus:vi.fn(),deleteServiceListing:vi.fn(),isDark:false,user:{id:'provider-1'}} as unknown as ReturnType<typeof useApp>);
+    render(<ServiceManager currentProviderId="provider-1"/>);
+    expect(screen.queryByText(service.description)).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Edit'})).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Details of LAPTOP REPAIR'}));expect(screen.getByText(service.description)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Edit'}));
+    fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
+    await waitFor(()=>expect(edit).toHaveBeenCalledOnce());
+    const busy=screen.getByRole('button',{name:'Saving…'});expect(busy).toBeDisabled();expect(busy).toHaveAttribute('aria-busy','true');
+    fireEvent.click(busy);expect(edit).toHaveBeenCalledOnce();expect(screen.getByRole('button',{name:'Cancel'})).toBeDisabled();
+    await act(async()=>finish(false));
+    expect(screen.getByDisplayValue('LAPTOP REPAIR')).toBeInTheDocument();expect(screen.getByRole('button',{name:'Save Changes'})).toBeEnabled();
+    fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));await waitFor(()=>expect(screen.queryByText('Edit Service Listing')).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button',{name:'AI matches for LAPTOP REPAIR'}));expect(screen.getByRole('dialog')).toHaveTextContent('Matches for LAPTOP REPAIR');
+  });
+});

@@ -20,6 +20,7 @@ import {
   Briefcase,
   Radar,
   Truck,
+  Banknote,
 } from 'lucide-react';
 import type { ServiceListing, JobEngagement } from '../../../types';
 import { getServicePaymentMethods } from '../../../lib/paymentUtils';
@@ -122,32 +123,41 @@ export default function ServiceDetailsPanel({
           </header>
           <div className={styles.body}>
             <ListingPhotoGallery key={listing.id} photos={listing.photos} title={listing.title} />
-            <p className={styles.description}><strong>Service arrangement:</strong> {arrangementLabel[listing.serviceLocationMode ?? 'PROVIDER_VISITS']}</p>
-            {agreement && <p className={styles.description}>Describe the work in a service request. The provider can accept with a final price or decline. You approve the price before booking or payment.</p>}
-            <section>
-              <h3 className={styles.label}>About This Service</h3>
+            <section className={styles.detailSection}>
+              <h3 className={styles.sectionTitle}>About This Service</h3>
               <p className={styles.description}>{listing.description}</p>
             </section>
+            <section className={styles.detailSection}>
+              <h3 className={styles.sectionTitle}>Service details</h3>
+              <dl className={styles.detailFacts}>
+                <div><dt><MapPin size={16} aria-hidden="true" />Service arrangement</dt><dd>{arrangementLabel[listing.serviceLocationMode ?? 'PROVIDER_VISITS']}</dd></div>
+                {!!listing.estimatedDurationMins && <div><dt><Clock size={16} aria-hidden="true" />Estimated duration</dt><dd>{listing.estimatedDurationMins} minutes</dd></div>}
+              </dl>
+            </section>
+            {agreement && <section className={styles.bookingGuide}>
+              <h3 className={styles.sectionTitle}>How booking works</h3>
+              <ol className={styles.bookingSteps}>
+                <li><strong>Describe the work</strong><p>Send a private service request to this provider.</p></li>
+                <li><strong>Review the final price</strong><p>The provider proposes a total and explains what it includes, or declines.</p></li>
+                <li><strong>Approve and book</strong><p>You approve the price before booking or payment.</p></li>
+              </ol>
+            </section>}
             <div className={styles.info}>
-              {listing.estimatedDurationMins && <div className={styles.row}>
-                <span className={styles.label}>Estimated duration</span>
-                <span className={styles.value}><Clock size={15} aria-hidden="true" /><span>{listing.estimatedDurationMins} minutes</span></span>
-              </div>}
-              {gcash ? <section className={styles.queue}>
+              {gcash ? <section className={`${styles.queue} ${styles.detailSection}`}>
                 <div className={styles.queueHeading}><h3 className={styles.label}>Online queue · GCash bookings only</h3><span className={styles.value}>{queueCount} / {queueLimit} waiting</span></div>
                 {isQueueFull ? <div className={`${styles.queueMessage} text-rose-700 dark:text-rose-400`}><AlertCircle size={15} /><span>{agreement ? 'The paid queue is full. You can still request a price. GCash availability is checked when you approve it.' : <>Online queue is currently full. Join the waitlist to be notified when space opens.{cash && ' On-site Cash requests remain subject to provider approval.'}</>}</span></div> : queueCount > 0 ?
                   <div className={`${styles.queueMessage} text-ink-muted`}><Clock size={15} /><span>Provider has {queueCount} paid job{queueCount === 1 ? '' : 's'} in queue. New bookings follow first-come, first-served order.</span></div> :
                   <div className={`${styles.queueMessage} text-emerald-700 dark:text-emerald-400`}><CheckCircle2 size={15} /><span>No paid bookings are waiting. The provider confirms when work starts.</span></div>}
-              </section> : cash && <section className={styles.queue}>
+              </section> : cash && <section className={`${styles.queue} ${styles.detailSection}`}>
                 <h3 className={styles.label}>Scheduling</h3>
                 <p className={styles.description}>{agreement ? 'Approve the provider’s final price to book. Arrange the schedule with the provider and pay in person upon completion.' : 'Subject to provider approval. Arrange the schedule with the provider and pay in person upon completion.'}</p>
               </section>}
             </div>
-            <section>
-              <h3 className={styles.label}>Accepted Payment Methods</h3>
+            <section className={styles.detailSection}>
+              <h3 className={styles.sectionTitle}>Accepted Payment Methods</h3>
               <div className={styles.payment}>
-                {cash && <div className={styles.paymentChip}><MapPin size={14} aria-hidden="true" /><span>On-site Cash (settled in person upon completion)</span></div>}
-                {gcash && <div className={styles.paymentChip}><GCashLogo /><span>· Test Mode (secured online checkout)</span></div>}
+                {cash && <div className={styles.paymentOption}><Banknote size={20} aria-hidden="true" /><div><strong>On-site Cash</strong><p>Pay the provider in person when the work is completed.</p></div></div>}
+                {gcash && <div className={styles.paymentOption}><GCashLogo /><div><strong>GCash · Test Mode</strong><p>Use the online test checkout. This is a demonstration payment.</p></div></div>}
               </div>
             </section>
         </div>
@@ -155,7 +165,7 @@ export default function ServiceDetailsPanel({
         <footer className={styles.footer}>
           {!isOwned && reportAction}
           <div className={styles.actions}>
-            <button type="button" onClick={onClose} className={styles.secondary}>Cancel</button>
+            <button type="button" onClick={onClose} className={styles.secondary}>Close</button>
             {isOwned ? <button type="button" onClick={() => { onClose(); router.push(`/provider/service-manager?id=${listing.id}`); }} className={styles.primary}>Edit Listing</button> :
               activeEngagement ? <button type="button" onClick={() => { onClose(); router.push(`/seeker/seeker-activity?tab=all&booking=${activeEngagement.id}`); }} className={styles.primary}>View Active Booking</button> :
               agreement ? <button type="button" onClick={handleBookClick} className={styles.primary}>Request service</button> :

@@ -39,6 +39,35 @@ describe('text-only chat in both workspaces', () => {
     vi.mocked(apiSendMessage).mockImplementation(async (_bookingId, content) => ({ success: true, data: message('sent-message', content) }));
   });
 
+  it.each(['seeker','provider'])('%s receives seen timestamps live and preserves them against a late send response', async role => {
+    render(role==='provider' ? <ProviderMessagesPage/> : <SeekerMessagesPage/>);
+    const input = await screen.findByRole('textbox',{name:'Message'});
+    let finish!:(value:unknown)=>void;
+    vi.mocked(apiSendMessage).mockImplementationOnce(() => new Promise(resolve => {finish=resolve;}));
+    fireEvent.change(input,{target:{value:'Can you check it?'}});
+    fireEvent.click(screen.getByRole('button',{name:'Send message'}));
+    await act(async () => {
+      socketHandlers.get('messages_read')?.({bookingId:'booking-1',receiverId:'neighbor',messages:[{id:'sent-1',readAt:'2026-10-15T04:42:00Z'}]});
+      finish({success:true,data:message('sent-1','Can you check it?')});
+    });
+    expect(await screen.findByText(/^Seen /)).toHaveAttribute('datetime','2026-10-15T04:42:00.000Z');
+    await act(async () => {socketHandlers.get('messages_read')?.({bookingId:'other-booking',messages:[{id:'sent-1',readAt:'2026-10-15T05:00:00Z'}]});});
+    expect(screen.getByText(/^Seen /)).toHaveAttribute('datetime','2026-10-15T04:42:00.000Z');
+  });
+
+  it('acknowledges new messages only while the conversation is visible, including a return from the background', async () => {
+    render(<SeekerMessagesPage/>);
+    await screen.findByRole('textbox',{name:'Message'});
+    const initialReads=vi.mocked(apiGetMessages).mock.calls.length;
+    Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});
+    await act(async () => { socketHandlers.get('new_message')?.(message('background','New message','neighbor')); });
+    await act(async () => { await new Promise(resolve=>setTimeout(resolve,100)); });
+    expect(apiGetMessages).toHaveBeenCalledTimes(initialReads);
+    Object.defineProperty(document,'visibilityState',{configurable:true,value:'visible'});
+    fireEvent(document,new Event('visibilitychange'));
+    await waitFor(()=>expect(apiGetMessages).toHaveBeenCalledTimes(initialReads+1));
+  });
+
   it.each(['seeker', 'provider'])('%s has only a text composer and receives real-time replies without duplicate bubbles', async (role) => {
     const view = render(role === 'provider' ? <ProviderMessagesPage /> : <SeekerMessagesPage />);
     const input = await screen.findByRole('textbox', { name: 'Message' });

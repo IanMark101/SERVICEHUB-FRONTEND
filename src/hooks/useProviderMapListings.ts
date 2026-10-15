@@ -20,10 +20,10 @@ function mergePins(previous:MarketplaceMapPin[], loaded:MarketplaceMapPin[], rep
 }
 
 /** Public area markers for the location dialog only; never changes the marketplace feed. */
-export default function useProviderMapListings(viewport:MarketplaceMapViewport | null, filters?:ProviderMapFilters, initialPins:MarketplaceMapPin[] = emptyPins) {
+export default function useProviderMapListings(viewport:MarketplaceMapViewport | null, filters?:ProviderMapFilters, initialPins:MarketplaceMapPin[] = emptyPins, workspace:'seeker'|'provider' = 'seeker') {
   const queries = useMemo(() => viewport ? providerMapQueries(viewport) : { centers:[],limited:false },[viewport]);
-  const criteriaKey = JSON.stringify(filters ?? null);
-  const queryKey = JSON.stringify({ centers:queries.centers,filters });
+  const criteriaKey = JSON.stringify({ filters:filters ?? null, workspace });
+  const queryKey = JSON.stringify({ centers:queries.centers,filters,workspace });
   const query = useMemo(() => JSON.parse(queryKey) as { centers:Array<{latitude:number;longitude:number}>;filters?:ProviderMapFilters },[queryKey]);
   const [revision,setRevision] = useState(0);
   const [result,setResult] = useState<MapResult>({ key:'',criteriaKey,pins:initialPins,loading:false,error:'',resolved:false,validatedRevision:0 });
@@ -31,7 +31,7 @@ export default function useProviderMapListings(viewport:MarketplaceMapViewport |
   useEffect(() => { latestResult.current=result; },[result]);
   const retry = useCallback(() => setRevision(value => value + 1),[]);
   const enabled = Boolean(filters);
-  useApiCacheRefresh(['services'],retry,enabled);
+  useApiCacheRefresh([workspace==='seeker' ? 'services' : 'requests'],retry,enabled);
   useEffect(() => {
     if (!enabled) return;
     const onFocus = () => { if (document.visibilityState==='visible') retry(); };
@@ -54,14 +54,14 @@ export default function useProviderMapListings(viewport:MarketplaceMapViewport |
         const pins = new Map<string,MarketplaceMapPin>();
         // Bound concurrency so a wider viewport cannot flood the existing API.
         for (let offset=0;offset<loadCenters.length;offset+=4) {
-          const responses = await Promise.all(loadCenters.slice(offset,offset+4).map(center => api.get('/services/nearby',{
+          const responses = await Promise.all(loadCenters.slice(offset,offset+4).map(center => api.get(workspace==='seeker' ? '/services/nearby' : '/requests/nearby',{
             params:{ ...center,radiusKm:30,page:1,limit:6,search:criteria.search.trim().replace(/\s+/g,' '),category:criteria.category,filter:criteria.filter },
             signal:controller.signal,timeout:15000,apiCache:'no-store',
           })));
           if (!active) return;
           for (const response of responses) {
             const data = response.data.data;
-            if (!response.data.success || !Array.isArray(data?.mapPins)) throw new Error('Provider map listings could not load.');
+            if (!response.data.success || !Array.isArray(data?.mapPins)) throw new Error('Map listings could not load.');
             for (const pin of parseMapPins(data.mapPins)) {
               const item = data.items?.find((service:{ id:string }) => service.id===pin.id);
               pins.set(pin.id,{ ...pin,...(typeof item?.provider?.name==='string' ? { providerName:item.provider.name } : {}) });
@@ -80,11 +80,11 @@ export default function useProviderMapListings(viewport:MarketplaceMapViewport |
       };
       void load().catch(error => {
         if (active) setResult(current => ({ ...current,key:queryKey,criteriaKey,pins:current.criteriaKey===criteriaKey ? current.pins : emptyPins,
-          loading:false,error:getApiErrorMessage(error,'Provider map listings could not load. Try again.'),resolved:false }));
+          loading:false,error:getApiErrorMessage(error,'Map listings could not load. Try again.'),resolved:false }));
       });
     },known.key ? 250 : 0);
     return () => { active=false;window.clearTimeout(timer);controller.abort(); };
-  },[queryKey,query,criteriaKey,revision]);
+  },[queryKey,query,criteriaKey,revision,workspace]);
   const current = result.key===queryKey;
   return { pins:filters && result.criteriaKey===criteriaKey ? result.pins : emptyPins,error:current ? result.error : '',retry,limited:queries.limited,
     loading:Boolean(filters && queries.centers.length && (!current || result.loading)),resolved:current && result.resolved };

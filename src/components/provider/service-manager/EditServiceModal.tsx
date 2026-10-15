@@ -1,5 +1,6 @@
 'use client';
 
+import MoneyInput from '../../ui/MoneyInput';
 import type { LocationPoint } from '../../../lib/location';
 import ListingLocationFields from '../../location/ListingLocationFields';
 import type { ServiceLocationMode } from '../../../lib/serviceArrangement';
@@ -34,6 +35,7 @@ export interface EditServiceState {
 interface Props {
   value: EditServiceState | null;
   isDark: boolean;
+  saving?: boolean;
   userId?: string;
   onChange: (value: EditServiceState) => void;
   onClose: () => void;
@@ -47,11 +49,12 @@ export default function EditServiceModal({
   onChange,
   onClose,
   onSubmit,
+  saving=false,
 }: Props) {
   const [photosBusy, setPhotosBusy] = useState(false);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !e.defaultPrevented) onClose();
+      if (e.key === 'Escape' && !e.defaultPrevented && !saving) onClose();
     };
     if (value) {
       document.body.style.overflow = 'hidden';
@@ -61,7 +64,7 @@ export default function EditServiceModal({
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [value, onClose]);
+  }, [value, onClose, saving]);
 
   if (!value) return null;
 
@@ -94,7 +97,7 @@ export default function EditServiceModal({
         {/* Modal Top Bar */}
         <div
           className={`flex items-center justify-between px-6 py-4.5 border-b ${
-            isDark ? 'border-neutral-800 bg-charcoal-surface/60' : 'border-slate-100 bg-slate-50/70'
+            isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-100 bg-slate-50'
           }`}
         >
           <h3 id="edit-service-modal-title" className="font-extrabold text-base tracking-tight">
@@ -103,6 +106,7 @@ export default function EditServiceModal({
           <button
             type="button"
             onClick={onClose}
+              disabled={saving}
             aria-label="Close"
             className={`p-1.5 rounded-full transition-colors cursor-pointer ${
               isDark
@@ -115,8 +119,8 @@ export default function EditServiceModal({
         </div>
 
         {/* Scrollable Form Body */}
-        <form onSubmit={event => { if (photosBusy) event.preventDefault(); else onSubmit(event); }} className="flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4.5">
+        <form onSubmit={event => { if (photosBusy || saving) event.preventDefault(); else onSubmit(event); }} className="flex-1 flex flex-col min-h-0" aria-busy={saving}>
+          <div className="flex-1 min-h-0 overflow-y-auto p-6"><fieldset disabled={saving} className="space-y-4.5 min-w-0">
             <div>
               <label className={label}>Service name</label>
               <ListingTitleInput
@@ -159,9 +163,8 @@ export default function EditServiceModal({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {value.priceType !== 'BY_AGREEMENT' && <div>
                 <label className={label}>Service price (₱)</label>
-                <input
+                <MoneyInput
                   className={field}
-                  type="number"
                   min={50}
                   max={50000}
                   required
@@ -244,17 +247,18 @@ export default function EditServiceModal({
               )}
               <GCashNumberField userId={userId} enabled={value.paymentMethods.gcash} isDark={isDark} workspace="provider" />
             </div>
-          </div>
+          </fieldset></div>
 
           {/* Modal Footer with Soft Divider */}
           <div
-            className={`px-6 py-4 border-t flex items-center justify-end gap-2.5 ${
-              isDark ? 'border-neutral-800 bg-charcoal-surface/60' : 'border-slate-100 bg-slate-50/70'
+            className={`px-6 py-4 border-t shrink-0 flex items-center justify-end gap-2.5 ${
+              isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-100 bg-slate-50'
             }`}
           >
             <button
               type="button"
               onClick={onClose}
+              disabled={saving}
               className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition-colors cursor-pointer ${
                 isDark
                   ? 'border-neutral-700 bg-charcoal text-neutral-200 hover:bg-charcoal'
@@ -265,10 +269,11 @@ export default function EditServiceModal({
             </button>
             <button
               type="submit"
-              disabled={!hasPaymentMethod || photosBusy}
-              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl transition-all active:scale-98 shadow-md hover:shadow-emerald-500/25 cursor-pointer disabled:cursor-not-allowed"
+              disabled={saving || !hasPaymentMethod || photosBusy}
+              aria-busy={saving}
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:shadow-none disabled:bg-neutral-600 disabled:hover:bg-neutral-600 disabled:text-white disabled:opacity-80 text-white font-extrabold text-xs rounded-xl transition-all active:scale-98 shadow-md hover:shadow-emerald-500/25 cursor-pointer disabled:cursor-not-allowed"
             >
-              Save Changes
+              {saving ? 'Saving…' : 'Save Changes'}
             </button>
           </div>
         </form>

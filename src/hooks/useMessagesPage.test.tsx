@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { apiGetConversationGroups, apiGetConversationGroupForBooking, apiGetMessages } from '../api/messages.api';
 import { useApp } from '../context/AppContext';
 import { useMessagesPage } from './useMessagesPage';
+import { joinBookingRoom } from '../lib/socket';
 import { BookingThreads, PeopleInbox } from '../components/messages/ConversationNavigation';
 import { invalidateApiCache } from '../lib/api/responseCache';
 
@@ -14,12 +15,13 @@ vi.mock('../api/messages.api', () => ({
   apiGetConversationGroupForBooking: vi.fn(),
   apiGetMessages: vi.fn(), apiSendMessage: vi.fn(),
 }));
+const socketState = vi.hoisted(() => ({ready:true}));
 const socketHandlers = vi.hoisted(() => new Map<string, (message: unknown) => void>());
 vi.mock('../lib/socket', () => ({
-  getSocket: () => ({
+  getSocket: () => socketState.ready ? ({
     on: (event: string, handler: (message: unknown) => void) => socketHandlers.set(event, handler),
     off: (event: string) => socketHandlers.delete(event),
-  }),
+  }) : null,
   joinBookingRoom: vi.fn(),
 }));
 
@@ -46,10 +48,44 @@ function NavigationPane() {
 describe('message pane scrolling', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    socketState.ready=true;socketHandlers.clear();
     HTMLElement.prototype.scrollIntoView = vi.fn();
     vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as ReturnType<typeof useSearchParams>);
     vi.mocked(useApp).mockReturnValue({ isDark: false, user: { id: 'johncarlo' }, syncUnreadMessages: vi.fn() } as unknown as ReturnType<typeof useApp>);
     vi.mocked(apiGetConversationGroups).mockResolvedValue({ success: true, data: [] } as Awaited<ReturnType<typeof apiGetConversationGroups>>);
+  });
+
+  it('binds live messages and receipts when socket creation follows the first render', async () => {
+    socketState.ready=false;
+    let finish!:(value:unknown)=>void;
+    vi.mocked(apiGetConversationGroups).mockImplementationOnce(() => new Promise(resolve => {finish=resolve;}));
+    vi.mocked(apiGetMessages).mockResolvedValue({success:true,data:[]});
+    const {result}=renderHook(() => useMessagesPage());
+    await waitFor(() => expect(apiGetConversationGroups).toHaveBeenCalled());
+    expect(socketHandlers.has('messages_read')).toBe(false);
+    await act(async () => {
+      socketState.ready=true;
+      finish({success:true,data:[{otherPartyId:'ian',otherPartyName:'Ian',unreadCount:0,bookings:[{bookingId:'booking-1',title:'Repair',otherPartyId:'ian',otherPartyName:'Ian',otherPartyRole:'Provider',status:'ACCEPTED',unreadCount:0}]}]});
+    });
+    await waitFor(() => expect(result.current.selectedConv?.bookingId).toBe('booking-1'));
+    expect(socketHandlers.has('new_message')).toBe(true);
+    expect(socketHandlers.has('messages_read')).toBe(true);
+    expect(socketHandlers.has('message_notification')).toBe(true);
+  });
+
+  it('rejoins the selected booking and rebinds after socket replacement on reconnect', async () => {
+    const conv={bookingId:'booking-1',title:'Repair',otherPartyId:'ian',otherPartyName:'Ian',otherPartyRole:'Provider' as const,status:'ACCEPTED',unreadCount:0};
+    vi.mocked(apiGetConversationGroups).mockResolvedValue({success:true,data:[{otherPartyId:'ian',otherPartyName:'Ian',unreadCount:0,bookings:[conv]}]});
+    vi.mocked(apiGetMessages).mockResolvedValue({success:true,data:[]});
+    renderHook(() => useMessagesPage());
+    await waitFor(() => expect(apiGetMessages).toHaveBeenCalledWith('booking-1'));
+    vi.mocked(joinBookingRoom).mockClear();socketHandlers.clear();
+    act(() => invalidateApiCache(['messages'],'reconnect'));
+    await waitFor(() => expect(joinBookingRoom).toHaveBeenCalledWith('booking-1'));
+    expect(socketHandlers.has('messages_read')).toBe(true);
+    expect(socketHandlers.has('new_message')).toBe(true);
+    await act(async () => {socketHandlers.get('message_notification')?.({bookingId:'booking-1'});});
+    await waitFor(() => expect(apiGetMessages).toHaveBeenCalledTimes(3));
   });
 
   it.each(['focus', 'online', 'reconnect'] as const)('retains a confirmed empty conversation during %s, but loads a different conversation visibly', async reason => {

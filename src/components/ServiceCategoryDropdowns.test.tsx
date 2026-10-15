@@ -7,6 +7,7 @@ import PostRequest from './seeker/PostRequest';
 import OfferServices from './provider/OfferServices';
 
 vi.mock('../context/AppContext', () => ({ useApp: vi.fn() }));
+vi.mock('../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () => ({ gcashNumber: null })), apiSaveGCashNumber: vi.fn() }));
 vi.mock('../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('./ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -21,6 +22,19 @@ let activeCategories: Category[];
 function categoryOptions(container: HTMLElement) {
   const select = container.querySelector('select')!;
   return Array.from(select.options).map((option) => ({ value: option.value, name: option.textContent }));
+}
+
+function submitWizard(container: HTMLElement) {
+  const location = container.querySelector<HTMLButtonElement>('[data-testid="test-location"]');
+  if (location) fireEvent.click(location);
+  const coverage = Array.from(container.querySelectorAll('select')).find(select => Array.from(select.options).some(option => option.value === 'unlimited'));
+  if (coverage) fireEvent.change(coverage, { target: { value: '2' } });
+  for (let step = 0; step < 5; step++) fireEvent.submit(container.querySelector('form')!);
+}
+
+function fillProvider(container: HTMLElement) {
+  fireEvent.change(container.querySelector('#listing-title')!, { target: { value: 'Plumbing inspection and repair' } });
+  fireEvent.change(container.querySelector('#listing-description')!, { target: { value: 'I inspect and repair household plumbing and leaking faucets.' } });
 }
 
 describe('Seeker and Provider admin-managed categories', () => {
@@ -107,11 +121,12 @@ describe('Seeker and Provider admin-managed categories', () => {
     fireEvent.change(seeker.container.querySelector('#request-budget')!, { target: { value: '500' } });
     fireEvent.change(seeker.container.querySelector('textarea')!, { target: { value: 'The faucet leaks under the sink and needs repair.' } });
     fireEvent.change(seeker.container.querySelector('#request-urgency')!, { target: { value: 'Flexible Schedule' } });
-    fireEvent.submit(seeker.container.querySelector('form')!);
-    fireEvent.submit(provider.container.querySelector('form')!);
+    fillProvider(provider.container);
+    submitWizard(seeker.container);
+    submitWizard(provider.container);
     await waitFor(() => {
       expect(postJobRequest).toHaveBeenCalledWith('resident-id', 'FIX KITCHEN FAUCET LEAK', 'plumbing-id', 'Flexible Schedule', 500, expect.any(String), expect.any(Object), expect.objectContaining({ jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' } }));
-      expect(createServiceListing).toHaveBeenCalledWith('resident-id', '', 'plumbing-id', 500, '', expect.any(Object), expect.any(Object));
+      expect(createServiceListing).toHaveBeenCalledWith('resident-id', 'PLUMBING INSPECTION AND REPAIR', 'plumbing-id', 500, 'I inspect and repair household plumbing and leaking faucets.', expect.any(Object), expect.any(Object));
     });
   });
 
@@ -135,11 +150,12 @@ describe('Seeker and Provider admin-managed categories', () => {
     fireEvent.change(seeker.container.querySelector('#request-budget')!, { target: { value: '500' } });
     fireEvent.change(seeker.container.querySelector('textarea')!, { target: { value: 'The aquarium circulation pump needs inspection and repair.' } });
     fireEvent.change(seeker.container.querySelector('#request-urgency')!, { target: { value: 'Flexible Schedule' } });
-    fireEvent.submit(seeker.container.querySelector('form')!);
-    fireEvent.submit(provider.container.querySelector('form')!);
+    fillProvider(provider.container);
+    submitWizard(seeker.container);
+    submitWizard(provider.container);
     await waitFor(() => {
       expect(postJobRequest).toHaveBeenCalledWith('resident-id', 'REPAIR AQUARIUM PUMP', 'fallback-id', 'Flexible Schedule', 500, expect.any(String), expect.any(Object), expect.any(Object));
-      expect(createServiceListing).toHaveBeenCalledWith('resident-id', '', 'fallback-id', 500, '', expect.any(Object), expect.any(Object));
+      expect(createServiceListing).toHaveBeenCalledWith('resident-id', 'PLUMBING INSPECTION AND REPAIR', 'fallback-id', 500, 'I inspect and repair household plumbing and leaking faucets.', expect.any(Object), expect.any(Object));
     });
   });
   it('explains the selected category in both forms and preserves its official ID', () => {

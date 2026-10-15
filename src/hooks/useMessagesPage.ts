@@ -17,6 +17,7 @@ export interface DbMessage {
   content: string;
   createdAt: string;
   isRead: boolean;
+  readAt?: string | null;
   isSystem: boolean;
   sender: { id: string; name: string; avatarUrl?: string };
 }
@@ -59,6 +60,7 @@ export function useMessagesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
+  const [socketRevision,setSocketRevision] = useState(0);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -70,6 +72,13 @@ export function useMessagesPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const selectedConvRef = useRef<Conversation | null>(null);
   const messageLoadIdRef = useRef(0);
+  const messagesRef = useRef<DbMessage[]>([]);
+  const receiptRef = useRef(new Map<string, { bookingId:string; readAt:string }>());
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  const withReceipt = useCallback((message:DbMessage):DbMessage => {
+    const receipt = receiptRef.current.get(message.id);
+    return receipt?.bookingId === message.bookingId ? { ...message, isRead:true, readAt:receipt.readAt } : message;
+  }, []);
   const resolvedMessageBooking = useRef<string | null>(null);
 
   const conversations = conversationGroups.flatMap(group => group.bookings);
@@ -119,13 +128,21 @@ export function useMessagesPage() {
   // Load messages for chosen conversation
   const loadMessages = useCallback(async (bookingId: string) => {
     const loadId = ++messageLoadIdRef.current;
+    const knownIds = new Set(messagesRef.current.map(message => message.id));
     setLoading(resolvedMessageBooking.current !== bookingId);
     setError('');
     try {
       const res = await apiGetMessages(bookingId);
       if (loadId !== messageLoadIdRef.current) return;
       if (res.success) {
-        setMessages(res.data || []);
+        setMessages(previous => {
+          const snapshot:DbMessage[] = res.data || [];
+          const ids = new Set(snapshot.map(message => message.id));
+          // Keep socket arrivals after this HTTP read began; the snapshot may
+          // predate them. Receipts can also arrive before the HTTP send result.
+          return [...snapshot, ...previous.filter(message => message.bookingId === bookingId && !knownIds.has(message.id) && !ids.has(message.id))]
+            .map(withReceipt).sort((a,b) => new Date(a.createdAt).getTime()-new Date(b.createdAt).getTime() || a.id.localeCompare(b.id));
+        });
         resolvedMessageBooking.current = bookingId;
       } else {
         setError(res.error || 'Failed to load messages.');
@@ -135,10 +152,14 @@ export function useMessagesPage() {
     } finally {
       if (loadId === messageLoadIdRef.current) setLoading(false);
     }
-  }, []);
+  }, [withReceipt]);
 
   useApiCacheRefresh(['messages'], async change => {
-    if (['focus', 'online', 'reconnect'].includes(change.reason) && selectedConvRef.current) {
+    if (change.reason === 'reconnect') {
+      setSocketRevision(value => value + 1);
+      if (selectedConvRef.current) joinBookingRoom(selectedConvRef.current.bookingId);
+    }
+    if (['focus', 'online', 'reconnect'].includes(change.reason) && document.visibilityState === 'visible' && selectedConvRef.current) {
       await Promise.all([syncConversations(), loadMessages(selectedConvRef.current.bookingId)]);
     } else await syncConversations();
   });
@@ -146,6 +167,8 @@ export function useMessagesPage() {
   // Select conversation & join room
   const selectConversation = useCallback((conv: Conversation) => {
     shouldStickToBottomRef.current = true;
+    selectedConvRef.current = conv;
+    receiptRef.current.clear();
     setSelectedConv(conv);
     resolvedMessageBooking.current = null;
     setMessages([]);
@@ -205,28 +228,45 @@ export function useMessagesPage() {
     return () => window.clearTimeout(timer);
   }, [bookingParam, conversationGroups, conversations, initialSyncComplete, selectConversation, selectGroup, selectedConv]);
 
-  // Real-time listener
+  // Real-time messages and durable receipts for the selected booking only.
   useEffect(() => {
     const sock = getSocket();
-    if (!sock) return;
-
-    const handler = (msg: DbMessage) => {
-      if (selectedConvRef.current && msg.bookingId === selectedConvRef.current.bookingId) {
-        setMessages(prev => {
-          const exists = prev.some(m => m.id === msg.id);
-          return exists ? prev : [...prev, msg];
-        });
+    let readTimer:number | undefined;
+    const readVisible = () => {
+      if (document.visibilityState !== 'visible' || !selectedConvRef.current) return;
+      window.clearTimeout(readTimer);
+      readTimer = window.setTimeout(() => {
+        if (document.visibilityState === 'visible' && selectedConvRef.current) void loadMessages(selectedConvRef.current.bookingId);
+      }, 75);
+    };
+    const handler = (msg:DbMessage) => {
+      if (msg.bookingId !== selectedConvRef.current?.bookingId) return;
+      setMessages(previous => previous.some(message => message.id === msg.id) ? previous : [...previous, withReceipt(msg)]);
+      if (msg.senderId !== user?.id) readVisible();
+    };
+    const receipt = (event:{ bookingId:string; messages:Array<{ id:string; readAt:string|null }> }) => {
+      if (event.bookingId !== selectedConvRef.current?.bookingId || !Array.isArray(event.messages)) return;
+      for (const item of event.messages) {
+        if (item.readAt && Number.isFinite(Date.parse(item.readAt))) receiptRef.current.set(item.id, { bookingId:event.bookingId, readAt:item.readAt });
       }
+      setMessages(previous => previous.map(withReceipt));
     };
-
-    // Central socket invalidation refreshes inbox and unread counts once.
-    // This listener only inserts the active thread's message immediately.
-    sock.on('new_message', handler);
-
+    // The personal-room ping also recovers an arrival during room rejoining.
+    const incoming = (event:{bookingId:string}) => {
+      if (event.bookingId === selectedConvRef.current?.bookingId) readVisible();
+    };
+    sock?.on('message_notification', incoming);
+    sock?.on('new_message', handler);
+    sock?.on('messages_read', receipt);
+    document.addEventListener('visibilitychange', readVisible);
     return () => {
-      sock.off('new_message', handler);
+      window.clearTimeout(readTimer);
+      sock?.off('message_notification', incoming);
+      sock?.off('new_message', handler);
+      sock?.off('messages_read', receipt);
+      document.removeEventListener('visibilitychange', readVisible);
     };
-  }, []);
+  }, [loadMessages, withReceipt, user?.id, selectedConv?.bookingId, socketRevision]);
 
   const handleMessageScroll = () => {
     const pane = messageScrollRef.current;
@@ -243,16 +283,17 @@ export function useMessagesPage() {
   const handleSend = async () => {
     if (!input.trim() || !selectedConv || sending) return;
     shouldStickToBottomRef.current = true;
+    const bookingId = selectedConv.bookingId;
     const content = input.trim();
     setInput('');
     setError('');
     setSending(true);
     try {
-      const res = await apiSendMessage(selectedConv.bookingId, content);
-      if (res.success) {
+      const res = await apiSendMessage(bookingId, content);
+      if (res.success && selectedConvRef.current?.bookingId === bookingId) {
         setMessages(prev => {
           const exists = prev.some(m => m.id === res.data.id);
-          return exists ? prev : [...prev, res.data];
+          return exists ? prev : [...prev, withReceipt(res.data)];
         });
       }
     } catch (e: unknown) {

@@ -23,7 +23,7 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, initi
   const [point,setPoint] = useState<LocationPoint | null>(value?.point || null);
   const [pending,setPending]=useState(false);
   const [viewport,setViewport]=useState<MarketplaceMapViewport|null>(null);
-  const mapListings=useProviderMapListings(viewport,workspace==='seeker' ? providerMap : undefined, initialPins);
+  const mapListings=useProviderMapListings(viewport,providerMap,initialPins,workspace);
   const initialRadius = value?.radiusKm ?? 10;
   const [radiusChoice,setRadiusChoice] = useState(SEARCH_RADII.some(km => km === initialRadius) ? String(initialRadius) : 'custom');
   const [customRadius,setCustomRadius] = useState(String(initialRadius));
@@ -53,14 +53,14 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, initi
           <input id={radiusInputId} className={`${styles.field} ${styles.radiusInput}`} type="number" inputMode="decimal" min={SEARCH_RADIUS_MIN_KM} max={SEARCH_RADIUS_MAX_KM} step={SEARCH_RADIUS_STEP_KM} required value={customRadius} placeholder="e.g. 2.5" aria-invalid={Boolean(radiusError)} aria-describedby={`${radiusHintId}${radiusError ? ` ${radiusErrorId}` : ''}`} onChange={event => setCustomRadius(event.target.value)}/>
           {radiusError && <p id={radiusErrorId} role="alert" className={styles.error}>{radiusError}</p>}
         </div>}
-        {providerMap && workspace==='seeker' && <div className={styles.hint}>
-          <p>Orange: your search location and radius. Green: provider listings, including outside the circle. Exact pins are shared by the provider; other pins show approximate areas.</p>
-          <p role="status">{mapListings.error || (mapListings.loading ? 'Loading provider listings…' : mapListings.resolved ? `${mapListings.pins.length} provider listing${mapListings.pins.length===1 ? '' : 's'} loaded for this map.` : '')}</p>
-          {mapListings.limited && <p>Zoom in to load providers across the visible area.</p>}
-          {mapListings.error && <button className={styles.button} type="button" onClick={mapListings.retry}>Retry provider listings</button>}
+        {providerMap && <div className={styles.hint}>
+          <p>{workspace==='seeker' ? 'Orange: your search location and radius. Green: provider listings. Exact pins are shared by the provider; other pins show approximate areas.' : 'Green: your search location and radius. Orange: seeker requests. Request pins show approximate areas to protect private job locations.'}</p>
+          <p role="status">{mapListings.error || (mapListings.loading ? `Loading ${workspace==='seeker' ? 'provider listings' : 'seeker requests'}...` : mapListings.resolved ? `${mapListings.pins.length} ${workspace==='seeker' ? 'provider listing' : 'seeker request'}${mapListings.pins.length===1 ? '' : 's'} loaded for this map.` : '')}</p>
+          {mapListings.limited && <p>Zoom in to load listings across the visible area.</p>}
+          {mapListings.error && <button className={styles.button} type="button" onClick={mapListings.retry}>Retry map listings</button>}
         </div>}
         <LocationEditor value={point} onChange={setPoint} radiusKm={radius} accent={accent} label="Search area name" onPendingChange={setPending}
-          mapResults={providerMap && workspace==='seeker' ? mapListings.pins : undefined} onViewportChange={providerMap && workspace==='seeker' ? setViewport : undefined}
+          mapResultAccent={workspace==='seeker' ? '#047857' : '#c2410c'} mapResults={providerMap ? mapListings.pins : undefined} onViewportChange={providerMap ? setViewport : undefined}
           onResultSelect={id=>{ onClose();onViewListing?.(id); }}/>
       </div>
       <footer className={styles.footer}><button className={styles.button} type="button" onClick={onClose}>Cancel</button><button className={`${styles.button} ${styles.primary}`} type="button" disabled={!valid} onClick={() => { if(point && valid && radiusResult.success)onApply({ point:{ latitude:point.latitude, longitude:point.longitude, label:point.label },radiusKm:radiusResult.data }); }}>Apply location</button></footer>

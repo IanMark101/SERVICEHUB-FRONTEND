@@ -7,7 +7,6 @@ import UserAvatar from '../../ui/UserAvatar';
 import TrustScoreBadge from '../../ui/TrustScoreBadge';
 import MarketplaceRating from '../../ui/MarketplaceRating';
 import { formatDistance } from '../../../lib/location';
-import { arrangementLabel } from '../../../lib/serviceArrangement';
 import { getServicePaymentMethods } from '../../../lib/paymentUtils';
 import ListingCardTools, { type ListingSaveProps } from '../../marketplace/ListingCardTools';
 import { isPriceByAgreement, listingPriceLabel } from '../../../lib/listingPricing';
@@ -21,12 +20,10 @@ export default function ServiceMarketplaceCard({ service, trustScore, verified, 
   const queueFull = gcash && queue >= (service.queueLimit || 5);
   const agreement = isPriceByAgreement(service);
   const quote = !agreement && (service.priceType === 'STARTS_AT' || service.priceType === 'CUSTOM' || Number(service.price) < 50);
-  return <TrailCard photo={service.photos?.[0]} title={service.title} location={service.locationLabel} category={service.category} isDark={isDark}>
+  const cardStatus = isOwned ? 'Your listing' : queueFull ? `Paid queue full (${queue}/${service.queueLimit || 5})` : queue > 0 && gcash ? `${queue} paid waiting` : undefined;
+  return <TrailCard status={cardStatus} tools={!readOnly && <ListingCardTools compact contentType="SERVICE_LISTING" listingId={service.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />} photo={service.photos?.[0]} title={service.title} location={service.locationLabel} category={service.category} isDark={isDark}>
     <div className={styles.identity}><button type="button" className={styles.person} onClick={onProfile} disabled={!service.providerId} aria-label={`View ${service.providerName}'s profile`}><UserAvatar src={service.providerAvatar} name={service.providerName} alt="" size={32} role="provider" /><div><span className={styles.name}>{service.providerName}</span><span className={styles.reputation}><TrustScoreBadge score={trustScore} />{verified && <span className={styles.verified}>Verified</span>}</span></div></button><button type="button" className={styles.person} onClick={onReviews} aria-label={`View reviews for ${service.providerName}`}><MarketplaceRating context="provider" rating={service.rating} reviewCount={service.reviewCount} /></button></div>
     <TrailCardStats items={[{ label: 'Price', value: listingPriceLabel(service) }, { label: 'Distance', value: service.distanceKm == null ? 'Not set' : formatDistance(service.distanceKm) }, { label: 'Time needed', value: service.estimatedDurationMins ? `${service.estimatedDurationMins} min` : 'Ask provider' }]} />
-    <p className={styles.line}>{arrangementLabel[service.serviceLocationMode ?? 'PROVIDER_VISITS']}</p>
-    <div className={styles.line} aria-label="Accepted payment methods">{cash && <span>Cash in person</span>}{cash && gcash && ' · '}{gcash && <span>GCash (test mode)</span>}{service.transportationFee && service.serviceLocationMode !== 'SEEKER_VISITS' ? ` · +₱${service.transportationFee.toLocaleString()} travel` : ''}</div>
-    <span className={styles.status} data-full={queueFull}>{isOwned ? 'Your listing' : queueFull ? `Queue full (${queue}/${service.queueLimit || 5})` : queue > 0 && gcash ? `${queue} waiting` : 'Available'}</span>
     <div className={styles.actions}>
       {quote && !isOwned && !activeEngagement ? <button type="button" onClick={onDetails}>View Details &amp; Request Quote</button> : <>
         <button type="button" aria-label={`Inspect ${service.title} details`} onClick={onDetails}>Details</button>
@@ -36,6 +33,5 @@ export default function ServiceMarketplaceCard({ service, trustScore, verified, 
         </>}
       </>}
     </div>
-    {!readOnly && <ListingCardTools contentType="SERVICE_LISTING" listingId={service.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />}
   </TrailCard>;
 }

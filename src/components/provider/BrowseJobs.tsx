@@ -115,6 +115,16 @@ export default function BrowseJobs({
     return () => { active = false; };
   }, [linkedRequestId]);
 
+  const openMapRequest = async (id:string) => {
+    const known = jobRequests.find(request => request.id===id);
+    if (known) { setPreviewRequest(known); return; }
+    try {
+      const response = await apiGetRequestById(id);
+      setPreviewRequest(mapRequestToJobRequest(response.data));
+      setLinkedError('');
+    } catch (error) { setLinkedError(getApiErrorMessage(error, 'This request is no longer available.')); }
+  };
+
   const eligibleListingsFor = (category: string) => listingCheck.items.filter((listing) =>
     listing.providerId === effectiveProviderId && listing.category.trim().toLocaleLowerCase() === category.trim().toLocaleLowerCase()
     && listing.status === 'ACTIVE' && !listing.isPaused);
@@ -172,7 +182,7 @@ export default function BrowseJobs({
       <LimitedModeDashboardCard role="provider" />
       {linkedError && <p role="alert" className="workspace-surface rounded-xl border p-4 text-sm">{linkedError}</p>}
 
-      <MarketplaceSearchHeader role="provider" isDark={isDark} value={searchQuery} onQueryChange={setSearchQuery} resultsId="job-request-results" locationControl={<MarketplaceLocationControl workspace="provider" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation} />} onSubmit={(event) => {
+      <MarketplaceSearchHeader role="provider" isDark={isDark} value={searchQuery} onQueryChange={setSearchQuery} resultsId="job-request-results" locationControl={<MarketplaceLocationControl workspace="provider" value={nearby.location} open={locationOpen} onOpenChange={setLocationOpen} onApply={nearby.applyLocation} providerMap={{ search:searchQuery, category:selectedCategory, filter:activeFilter }} initialPins={nearby.mapPins} onViewListing={openMapRequest} />} onSubmit={(event) => {
         event.preventDefault();
         nearby.submitSearch?.();
         if (!nearby.location) { setLocationOpen(true); return; }

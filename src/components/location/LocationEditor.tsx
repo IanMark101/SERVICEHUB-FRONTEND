@@ -11,10 +11,10 @@ import styles from './Location.module.css';
 
 const Map = dynamic(() => import('./LocationMap'), { ssr:false, loading:() => <div className={styles.mapLoading}>Loading map…</div> });
 export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'City or barangay shown to other users', onPendingChange,
-  mapResults, onResultSelect, onViewportChange, selectionMode = 'pin' }: {
+  mapResults, mapResultAccent = '#047857', onResultSelect, onViewportChange, selectionMode = 'pin' }: {
   value:LocationPoint | null; onChange:(point:LocationPoint) => void; radiusKm?:number; accent?:string; disabled?:boolean; label?:string;
   onPendingChange?:(pending:boolean)=>void;
-  mapResults?:MarketplaceMapPin[]; onResultSelect?:(id:string)=>void; onViewportChange?:(viewport:MarketplaceMapViewport)=>void;
+  mapResults?:MarketplaceMapPin[]; mapResultAccent?:string; onResultSelect?:(id:string)=>void; onViewportChange?:(viewport:MarketplaceMapViewport)=>void;
   selectionMode?:'area'|'pin';
 }) {
   const id = useId();
@@ -147,7 +147,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
     {(!areaOnly || showAreaMap) && <><p className={styles.hint}>{areaOnly ? 'Mark a point in your chosen area, then confirm. This sets the center for measuring distance. No exact address is needed here.' : 'Click the map or drag the pin to the exact place, then confirm. Moving or zooming the map does not change your selected place.'}</p>
       <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}
-        results={mapResults} resultPlacement="area" resultAccent="#047857" resultActionLabel="View listing" onResultSelect={onResultSelect} onViewportChange={onViewportChange}/></>}
+        results={mapResults} resultPlacement="area" resultAccent={mapResultAccent} resultActionLabel="View listing" onResultSelect={onResultSelect} onViewportChange={onViewportChange}/></>}
     {(candidate || value) && <label><span className={styles.label}>{label}</span><input className={styles.field} value={candidate?.label ?? value?.label ?? ''} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => { cancelLookup(); if(value) onChange({ ...value, label:e.target.value }); }}/></label>}
     {lookupStatus && <p className={styles.hint} role="status">{lookupStatus === 'loading' ? 'Finding the city or barangay for this pin…' : 'We could not find a place name here. Enter the city or barangay yourself; your selected pin stays in place.'}</p>}
   </div>;

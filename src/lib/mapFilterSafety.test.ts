@@ -11,7 +11,7 @@ function safe(filter: unknown) {
   return 'filter' in layer ? layer.filter : undefined;
 }
 function evaluate(filter: unknown, properties: Record<string, unknown>) {
-  const compiled = expression.createExpression(filter);
+  const compiled = expression.createExpression(filter, 'layers[0].filter');
   if (compiled.result === 'error') throw new Error(JSON.stringify(compiled.value));
   return compiled.value.evaluate({ zoom: 12 }, { type: 2, properties, geometry: [] });
 }

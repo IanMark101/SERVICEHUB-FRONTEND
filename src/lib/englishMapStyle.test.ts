@@ -4,7 +4,7 @@ import type { StyleSpecification } from 'maplibre-gl';
 import { ENGLISH_MAP_LABEL, englishMapStyle } from './englishMapStyle';
 
 function label(properties:Record<string,string>) {
-  const compiled = expression.createExpression(ENGLISH_MAP_LABEL);
+  const compiled = expression.createExpression(ENGLISH_MAP_LABEL, 'layers[0].layout.text-field');
   if (compiled.result === 'error') throw new Error(JSON.stringify(compiled.value));
   return compiled.value.evaluate({zoom:6}, {type:1, properties, geometry:[]});
 }

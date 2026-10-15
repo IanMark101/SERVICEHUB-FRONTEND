@@ -14,3 +14,5 @@ Evidence: [fixture browser report](../review/seeker-map-phone-review.json). Back
 Marker lifecycle verification: [zoom and live update report](../review/map-marker-live-review.json), with isolated socket events for service pause/delete and request cancel/delete in the production frontend build. No production account data or deployment was changed.
 
 Marker loading now starts from loaded feed mapPins, before viewport discovery completes, and publishes completed batches progressively. Overlapping result icons handle mouse/keyboard actions directly without selecting a new search point. See listing-ui-map-review.json for intercepted-fixture evidence.
+
+October 15: the same location-dialog viewport loader also supports Provider browsing with requests/nearby and initial public request pins. Orange request markers stay approximate; green remains the Provider search center. Marker previews open existing request Details without applying the location draft. Keep the existing inline request map. The Seeker service endpoint, public consent rules and existing filtering/recovery behavior remain unchanged.

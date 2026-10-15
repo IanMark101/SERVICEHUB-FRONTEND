@@ -67,9 +67,10 @@ describe('Seek Services listing booking entry point', () => {
   });
   it('opens direct booking for a FIXED listing instead of redirecting to Post Request', () => {
     const { push, handleBookListing } = renderListing(listing);
-    expect(screen.getByLabelText('Accepted payment methods')).toBeInTheDocument();
-    expect(screen.getByText('Cash in person')).toBeInTheDocument();
-    expect(screen.getByText('GCash (test mode)')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Inspect House Cleaning details' }));
+    expect(screen.getByText('On-site Cash')).toBeInTheDocument();
+    expect(screen.getByText('GCash · Test Mode')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     fireEvent.click(screen.getByRole('button', { name: 'Book Service' }));
     expect(handleBookListing).toHaveBeenCalledWith(listing, 'On-site Cash');
     expect(push).not.toHaveBeenCalledWith('/seeker/post-request');

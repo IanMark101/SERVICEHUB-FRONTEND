@@ -62,6 +62,15 @@ export async function apiGetSeekerSummary(seekerId: string, options?: { force?: 
 }
 
 export async function apiMatchProviders(requestId: string) {
-  const response = await api.post('/ai/match-providers', { requestId });
+  const response = await api.post('/ai/match-providers', { requestId }, {timeout:30000});
   return response.data;
+}
+
+export interface MarketplaceMatch { id:string;title:string;category:string;name:string;userId:string;trustScore:number;rating:number|null;reviewCount:number;distanceKm:number|null;locationLabel:string|null;amount:number|null;priceType:string;rank:number;rationale:string }
+export interface MarketplaceMatches { suggestions:MarketplaceMatch[];source:'gemini'|'computed';reason?:string }
+export async function apiMatchRequests(serviceId:string) {
+  return (await api.post('/ai/match-requests',{serviceId},{timeout:30000})).data;
+}
+export async function apiSuggestCategory(title:string,description:string,signal?:AbortSignal) {
+  return (await api.post('/ai/suggest-category',{title,description},{signal,timeout:30000})).data as {success:boolean;data:{suggestions:Array<{id:string;name:string}>;source:string;reason?:string}};
 }

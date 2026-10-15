@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import {
@@ -14,7 +14,9 @@ import { apiGetMyServices } from '../../api/services.api';
 import { mapServiceToListing } from '../../context/mappers';
 import type { ServiceListing } from '../../types';
 import EditServiceModal, { EditServiceState } from './service-manager/EditServiceModal';
-import ManagedServiceCard from './ManagedServiceCard';
+import ManagedServiceRow from './ManagedServiceRow';
+import ManagedServiceDetailsModal from './ManagedServiceDetailsModal';
+import MarketplaceMatchesModal from '../marketplace/MarketplaceMatchesModal';
 import WorkspaceTabs from '../ui/WorkspaceTabs';
 import { useToast } from '../ui/Toast';
 
@@ -138,6 +140,11 @@ export default function ServiceManager({
     endIndex
   } = usePagination(filteredServices, 6);
 
+  const [detailsId,setDetailsId]=useState<string|null>(null);
+  const [matchesId,setMatchesId]=useState<string|null>(null);
+  const [saving,setSaving]=useState(false);
+  const savingRef=useRef(false);
+  const detailsService=myServices.find(service=>service.id===detailsId);
   const [editingService, setEditingService] = useState<EditServiceState | null>(null);
 
   // Switch tab when redirected with query param, without auto-opening modal
@@ -177,12 +184,14 @@ export default function ServiceManager({
 
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingService) return;
+    if (!editingService || savingRef.current) return;
     if (!editingService.serviceLocation && editingService.serviceLocationMode !== (services.find(service => service.id === editingService.serviceId)?.serviceLocationMode ?? 'PROVIDER_VISITS')) {
       error(editingService.serviceLocationMode === 'PROVIDER_VISITS' ? 'Choose your service area' : 'Choose where seekers can visit you', editingService.serviceLocationMode === 'PROVIDER_VISITS' ? 'Choose a city or barangay where you offer this service.' : 'Mark the place where seekers can visit you on the map.');
       return;
     }
 
+    savingRef.current=true;setSaving(true);
+    try {
     const saved = await editServiceListing(
       editingService.serviceId,
       editingService.title,
@@ -203,6 +212,8 @@ export default function ServiceManager({
       }
     );
     if (saved) setEditingService(null);
+    } catch { error('Changes were not saved', 'Please try again. Your edits are still here.'); }
+    finally { savingRef.current=false;setSaving(false); }
   };
 
   return (
@@ -247,7 +258,7 @@ export default function ServiceManager({
       ) : (
         <div className="space-y-6">
           <div className="space-y-4">
-            {paginatedServices.map(service => <ManagedServiceCard key={service.id} service={service} isDark={isDark} highlighted={targetServiceId === service.id} toggling={togglingServiceId === service.id} onEdit={() => handleOpenEdit(service)} onDelete={() => handleDeleteServiceClick(service)} onToggle={() => void handleToggleStatus(service.id)} />)}
+            {paginatedServices.map(service => <ManagedServiceRow key={service.id} service={service} highlighted={targetServiceId===service.id} onDetails={()=>setDetailsId(service.id)} onMatches={()=>setMatchesId(service.id)} />)}
           </div>
 
           <PaginationBar
@@ -264,13 +275,17 @@ export default function ServiceManager({
         </div>
       )}
 
+      {detailsService&&<ManagedServiceDetailsModal service={detailsService} isDark={isDark} toggling={togglingServiceId===detailsService.id} onClose={()=>setDetailsId(null)} onEdit={()=>{setDetailsId(null);handleOpenEdit(detailsService);}} onDelete={()=>{setDetailsId(null);handleDeleteServiceClick(detailsService);}} onToggle={()=>void handleToggleStatus(detailsService.id)}/>}
+      {matchesId&&<MarketplaceMatchesModal key={matchesId} source={{id:matchesId,title:myServices.find(service=>service.id===matchesId)?.title||'Your service'}} tone="provider" onClose={()=>setMatchesId(null)}/>}
+
       <EditServiceModal
         key={editingService?.serviceId}
         value={editingService}
+        saving={saving}
         isDark={isDark}
         userId={user?.id}
         onChange={setEditingService}
-        onClose={() => setEditingService(null)}
+        onClose={() => {if(!savingRef.current)setEditingService(null);}}
         onSubmit={handleSaveEdit}
       />
 

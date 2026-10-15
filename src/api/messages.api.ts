@@ -1,7 +1,7 @@
 import { api } from '../lib/api/axios';
 
 export async function apiGetMessages(completedServiceId: string) {
-  const response = await api.get(`/messages/${completedServiceId}`);
+  const response = await api.get(`/messages/${completedServiceId}`, { params:{ markRead:typeof document === 'undefined' || document.visibilityState === 'visible' }, apiCache:'no-store' });
   return response.data;
 }
 

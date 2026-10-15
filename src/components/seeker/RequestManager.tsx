@@ -6,7 +6,6 @@ import {
   Trash as Trash2,
   PencilSimple as Edit2,
   UsersThree as UsersRound,
-  WarningCircle as AlertCircle,
   ArrowRight,
   CircleNotch as Loader2,
   FolderSimple,
@@ -17,7 +16,7 @@ import {
 import { usePagination } from '../../hooks/usePagination';
 import PaginationBar from '../ui/PaginationBar';
 import ConfirmModal, { ConfirmModalState } from '../ui/ConfirmModal';
-import { apiMatchProviders } from '../../api/ai.api';
+import MarketplaceMatchesModal from '../marketplace/MarketplaceMatchesModal';
 import { apiGetMyRequests } from '../../api/requests.api';
 import { mapRequestToJobRequest } from '../../context/mappers';
 import { JobRequest } from '../../types';
@@ -30,11 +29,11 @@ import { isRequestUrgency } from '../../lib/requestUrgency';
 import { requestDeleteBlockedReason } from '../../lib/requestDeletion';
 import { useToast } from '../ui/Toast';
 
-export default function RequestManager({ 
+export default function RequestManager({
   currentUserId = 'u1',
   onNavigateToPost,
   onNavigateToActivity
-}: { 
+}: {
   currentUserId?: string;
   onNavigateToPost?: () => void;
   onNavigateToActivity?: () => void;
@@ -78,37 +77,8 @@ export default function RequestManager({
   }, [currentUserId]);
 
   const [activeAiRequestId, setActiveAiRequestId] = useState<string | null>(null);
-  const [aiSuggestions, setAiSuggestions] = useState<Record<string, Array<{ name: string; rationale: string }>>>({});
-  const [loadingAiMap, setLoadingAiMap] = useState<Record<string, boolean>>({});
+  const handleToggleAiSuggestions = (requestId:string) => setActiveAiRequestId(requestId);
 
-  const handleToggleAiSuggestions = (requestId: string) => {
-    if (activeAiRequestId === requestId) {
-      setActiveAiRequestId(null);
-      return;
-    }
-
-    setActiveAiRequestId(requestId);
-
-    if (!aiSuggestions[requestId]) {
-      setLoadingAiMap(prev => ({ ...prev, [requestId]: true }));
-      apiMatchProviders(requestId)
-        .then((res) => {
-          if (res.success && res.data.suggestions) {
-            setAiSuggestions(prev => ({ ...prev, [requestId]: res.data.suggestions }));
-          } else if (res.success && res.data.reason) {
-            setAiSuggestions(prev => ({ ...prev, [requestId]: [{ name: "No Suggestion", rationale: res.data.reason }] }));
-          }
-        })
-        .catch((err) => {
-          if (process.env.NODE_ENV === 'development') console.warn("Failed to fetch AI suggestions:", err);
-          setAiSuggestions(prev => ({ ...prev, [requestId]: [{ name: "Error", rationale: err.response?.data?.error || "Failed to load recommendations" }] }));
-        })
-        .finally(() => {
-          setLoadingAiMap(prev => ({ ...prev, [requestId]: false }));
-        });
-    }
-  };
-  
   // Booked work belongs in Activity. Apply the same rule to cached/fallback data.
   const myRequests = (myOwnRequests ?? jobRequests.filter(r => r.seekerId === currentUserId))
     .map(r => localRequestEdits[r.id] ? { ...r, ...localRequestEdits[r.id] } : r)
@@ -268,7 +238,7 @@ export default function RequestManager({
 
   return (
     <div className={`workspace-page space-y-6 select-none transition-colors duration-200 ${isDark ? 'text-white' : 'text-ink'}`}>
-      
+
       {/* Header Action Strip & Status Filter Tabs */}
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${isDark ? 'border-neutral-800/80' : 'border-slate-200'}`}>
         {/* Quick Info & Count */}
@@ -315,12 +285,12 @@ export default function RequestManager({
               const isPaused = req.status === 'CLOSED' || (req.status as string) === 'closed' || (req.status as string) === 'paused';
               const isBooked = req.status === 'IN_PROGRESS' || (req.status as string) === 'in_progress' || req.hasActiveBooking || req.hasAcceptedOffer || bids.some(bid => bid.requestId === req.id && bid.status.toUpperCase() === 'ACCEPTED');
               const deleteBlockedReason = requestDeleteBlockedReason(req, bids);
-              
+
               return (
-                <div 
-                  key={req.id} 
+                <div
+                  key={req.id}
                   className={`workspace-card rounded-2xl border p-5 sm:p-6 flex flex-col space-y-5 ${
-                    isDark 
+                    isDark
                       ? 'bg-charcoal-surface border-neutral-800/80 hover:border-neutral-700'
                       : 'bg-white border-slate-200 hover:border-slate-300'
                   }`}
@@ -339,8 +309,8 @@ export default function RequestManager({
                       {!req.targetServiceId && <button
                         type="button"
                         onClick={() => handleToggleAiSuggestions(req.id)}
-                        aria-expanded={activeAiRequestId === req.id}
-                        aria-controls={`request-${req.id}-matches`}
+                        aria-haspopup="dialog"
+
                         className={`inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
                           activeAiRequestId === req.id
                             ? isDark
@@ -360,7 +330,7 @@ export default function RequestManager({
                         onClick={() => handleOpenEdit(req)}
                         aria-label={`Edit ${req.title}`}
                         className={`flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition-colors active:scale-[0.98] cursor-pointer ${
-                          isDark 
+                          isDark
                             ? 'border-neutral-800 hover:bg-charcoal-hover text-ink-muted hover:text-white'
                             : 'border-slate-200 hover:bg-slate-50 text-ink-muted hover:text-ink'
                         }`}
@@ -379,7 +349,7 @@ export default function RequestManager({
                           deleteBlockedReason
                             ? isDark ? 'border-neutral-800 text-ink-muted hover:bg-charcoal-hover' : 'border-slate-200 text-ink-muted hover:bg-slate-50'
                             : isDark
-                            ? 'border-red-950/45 hover:bg-red-950/20 text-red-400' 
+                            ? 'border-red-950/45 hover:bg-red-950/20 text-red-400'
                             : 'border-red-200 hover:bg-red-50 text-red-500'
                         }`}
                       >
@@ -440,7 +410,7 @@ export default function RequestManager({
                                   )}
                                 </span>
                               </button>
-                              
+
                               <span className={`text-xs font-bold transition-colors ${
                                 isToggling
                                   ? 'text-orange-700 dark:text-orange-400'
@@ -498,62 +468,6 @@ export default function RequestManager({
                     </div>
                   </div>
 
-                  {/* Collapsible AI Recommendations Section */}
-                  {activeAiRequestId === req.id && (
-                    <div
-                      id={`request-${req.id}-matches`}
-                      className={`w-full rounded-xl border p-4 animate-in slide-in-from-top-3 duration-200 ${
-                        isDark ? 'border-neutral-800 bg-charcoal-inset/70' : 'border-slate-200 bg-slate-50/80'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2 mb-3">
-                        <UsersRound className={`w-4 h-4 ${isDark ? 'text-orange-400' : 'text-brand-text'}`} />
-                        <h4 className="text-xs font-bold text-ink dark:text-white">
-                          Suggested providers
-                        </h4>
-                      </div>
-
-                      {loadingAiMap[req.id] ? (
-                        <div className="flex items-center space-x-2 py-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-brand-text" />
-                          <span className="text-xs text-ink-subtle dark:text-ink-muted font-semibold pl-1">Analyzing provider capabilities and trust scores...</span>
-                        </div>
-                      ) : !aiSuggestions[req.id] ? (
-                        <p className="text-xs text-ink-subtle dark:text-ink-subtle italic">Click the button above to generate AI-powered provider matches.</p>
-                      ) : aiSuggestions[req.id].length === 0 ? (
-                        <div className="flex items-start space-x-2 text-xs text-ink-muted dark:text-ink-muted">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-brand-text" />
-                          <span>No providers found in this category yet. Try again after more providers join.</span>
-                        </div>
-                      ) : aiSuggestions[req.id][0]?.name === "No Suggestion" || aiSuggestions[req.id][0]?.name === "Error" ? (
-                        <div className="flex items-start space-x-2 text-xs">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-brand-text" />
-                          <span className="text-ink-muted dark:text-ink-muted italic">{aiSuggestions[req.id][0]?.rationale}</span>
-                        </div>
-                      ) : (
-                        <div className="space-y-2.5">
-                          {aiSuggestions[req.id].map((sug, idx) => (
-                            <div 
-                              key={idx}
-                              className={`p-3 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs transition-colors ${
-                                isDark ? 'bg-charcoal-surface border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
-                              }`}
-                            >
-                              <div className="space-y-1">
-                                <div className="flex items-center space-x-2">
-                                  <span className="font-extrabold text-brand-text dark:text-orange-400">Rank #{idx + 1}</span>
-                                  <span className="font-extrabold text-ink dark:text-white">{sug.name}</span>
-                                </div>
-                                <p className="text-ink-muted dark:text-ink-muted italic leading-normal">
-                                  {sug.rationale}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
 
                 </div>
               );
@@ -573,6 +487,8 @@ export default function RequestManager({
           />
         </div>
       )}
+
+      {activeAiRequestId && <MarketplaceMatchesModal key={activeAiRequestId} source={{id:activeAiRequestId,title:myRequests.find(request=>request.id===activeAiRequestId)?.title||'Your request'}} tone="seeker" onClose={()=>setActiveAiRequestId(null)} />}
 
       <EditRequestModal
         key={editingRequest?.requestId}

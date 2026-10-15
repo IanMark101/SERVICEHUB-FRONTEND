@@ -22,6 +22,19 @@ describe('provider markers in the location modal',()=>{
     await waitFor(() => expect(api.get).toHaveBeenCalled());
     expect(result.current.pins).toEqual([pin]);
   });
+  it('loads seeker request pins for providers without exposing private coordinates or crossing workspace data', async () => {
+    const requestPin = {...pin,id:'request-1',title:'Laptop will not turn on'};
+    vi.mocked(api.get).mockResolvedValue({data:{success:true,data:{mapPins:[requestPin],items:[]}}});
+    const {result,rerender}=renderHook(({workspace}) => useProviderMapListings(viewport,filters,[requestPin],workspace),{initialProps:{workspace:'provider' as 'provider'|'seeker'}});
+    expect(result.current.pins).toEqual([requestPin]);
+    await waitFor(() => expect(result.current.resolved).toBe(true));
+    expect(api.get).toHaveBeenCalledWith('/requests/nearby',expect.objectContaining({params:expect.objectContaining({radiusKm:30,category:filters.category}),apiCache:'no-store'}));
+    expect(result.current.pins[0].area.approximate).toBe(true);
+    vi.mocked(api.get).mockImplementation(() => new Promise(() => {}));
+    rerender({workspace:'seeker'});
+    expect(result.current.pins).toEqual([]);
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/services/nearby',expect.anything()));
+  });
   it('queries the map area rather than a selected radius and respects public pin visibility and filters',async()=>{
     vi.mocked(api.get).mockResolvedValue({data:{success:true,data:{...response.data.data,mapPins:[pin,{...pin,id:'exact',area:{...pin.area,approximate:false}}]}}});
     const {result,rerender}=renderHook(({enabled})=>useProviderMapListings(viewport,enabled ? {...filters} : undefined),{initialProps:{enabled:true}});
@@ -102,7 +115,7 @@ describe('provider markers in the location modal',()=>{
   it('removes paused and deleted listings on live updates, including pins discovered outside the current viewport',async()=>{
     const second={...pin,id:'second',title:'Still available',area:{...pin.area,latitude:10.41}};
     let available=[pin,second];
-    vi.mocked(api.get).mockImplementation(async(_path,options)=>({data:{success:true,data:{mapPins:options?.params.latitude<11 ? available : [],items:[]}}}));
+    vi.mocked(api.get).mockImplementation(async(_path,options)=>({data:{success:true,data:{mapPins:Number((options?.params as {latitude?:number} | undefined)?.latitude)<11 ? available : [],items:[]}}}));
     const {result,rerender}=renderHook(({view})=>useProviderMapListings(view,filters),{initialProps:{view:viewport}});
     await waitFor(()=>expect(result.current.pins).toHaveLength(2));
     rerender({view:{center:{latitude:11.3,longitude:123.9},bounds:{...viewport.bounds,north:11.32,south:11.28}}});

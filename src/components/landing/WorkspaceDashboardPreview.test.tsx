@@ -38,7 +38,7 @@ describe('current UI previews on the public landing page', () => {
     expect(preview.textContent).toContain('Travel coverage: 5 km');
     expect(preview.textContent).toContain('Scheduling');
     expect(preview.textContent).not.toContain('GCash bookings only');
-    expect(preview.textContent).toContain('settled in person upon completion');
+    expect(preview.textContent).toContain('pay in person upon completion');
     expect(preview.textContent).toContain('John Sefuesca');
     expect(preview.textContent).toContain('LAPTOP REPAIR SERVICES');
     expect(preview.textContent).toContain('₱1,500');

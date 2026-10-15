@@ -5,3 +5,8 @@
 .button:focus-visible { outline:2px solid var(--workspace-focus); outline-offset:3px; }
 .button:active { transform:scale(.98); }.button:disabled { opacity:.6; cursor:not-allowed; }
 .report { margin-left:auto; }.report svg { color:var(--text-muted); }
+.tools[data-compact] { padding:0; border:0; gap:6px; flex-wrap:nowrap; }
+.tools[data-compact] .button { width:44px; padding:0; background:#fff; color:#292524; border-color:transparent; box-shadow:0 2px 8px rgb(0 0 0 / .12); }
+.tools[data-compact] .button:hover { background:#f3f1ed; }
+.tools[data-compact] .button[aria-pressed='true'] { color:var(--workspace-focus); background:var(--workspace-tint,#fff1e8); }
+.tools[data-compact] .report svg { width:18px; height:18px; color:inherit; }

@@ -103,6 +103,7 @@ export function socketResources(event: string, payload?: unknown): CacheResource
   if (event === 'queue_update') return ['bookings', 'services'];
   if (event === 'notification') return ['notifications', 'profiles', 'reviews', 'summaries', 'admin'];
   if (event === 'notifications_read') return ['notifications'];
+  if (event === 'messages_read') return ['messages'];
   if (event === 'new_message' || event === 'message_notification') return ['messages', 'notifications'];
   if (event === 'COMMUNITY_CATEGORIES_CHANGED') return ['categories', 'community', 'admin'];
   if (event === 'COMMUNITY_ANNOUNCEMENTS_CHANGED') return ['community', 'admin'];

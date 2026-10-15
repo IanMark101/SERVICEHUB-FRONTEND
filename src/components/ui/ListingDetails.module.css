@@ -114,6 +114,23 @@
 
 .body { padding: 0 28px 28px; }
 .body > * + * { margin-top: 24px; }
+.detailSection { padding-block:20px 0; border-top:1px solid var(--detail-border); }
+.sectionTitle { margin:0; color:var(--detail-ink); font-size:15px; line-height:1.5; font-weight:650; }
+.detailFacts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px 24px; margin:14px 0 0; }
+.detailFacts dt { display:flex; align-items:center; gap:6px; font-size:12px; line-height:1.5; color:var(--detail-muted); }
+.detailFacts dt svg { flex-shrink:0; color:var(--detail-accent); }
+.detailFacts dd { margin:6px 0 0; color:var(--detail-ink); font-size:14px; font-weight:550; line-height:1.5; overflow-wrap:anywhere; }
+.bookingGuide { padding:18px; border-radius:12px; background:var(--detail-soft); }
+.bookingSteps { display:grid; gap:14px; margin:14px 0 0; padding:0; list-style:none; counter-reset:booking; }
+.bookingSteps li { display:grid; grid-template-columns:24px minmax(0,1fr); gap:2px 10px; counter-increment:booking; }
+.bookingSteps li::before { content:counter(booking); grid-row:span 2; display:grid; place-items:center; align-self:start; height:24px; border-radius:50%; background:var(--detail-header); color:var(--detail-accent); font-size:12px; font-weight:650; }
+.bookingSteps strong { font-size:13px; line-height:1.5; font-weight:650; }
+.bookingSteps p { margin:0; color:var(--detail-muted); font-size:13px; line-height:1.55; overflow-wrap:anywhere; }
+.paymentOption { display:flex; align-items:flex-start; gap:12px; padding:14px 0; flex:1 1 230px; min-width:0; }
+.paymentOption > svg { flex-shrink:0; margin-top:2px; color:var(--detail-accent); }
+.paymentOption strong { display:block; color:var(--detail-ink); font-size:14px; line-height:1.5; font-weight:600; }
+.paymentOption p { margin:3px 0 0; color:var(--detail-muted); font-size:13px; line-height:1.55; }
+.overlay:focus { outline:none; }
 .identity { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-block: 20px; border-block: 1px solid var(--detail-border); }
 .header .identity { margin-bottom: 20px; padding-block: 0 20px; border-top: 0; }
 .person { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 240px; }
@@ -175,6 +192,7 @@
 }
 
 @media (max-width: 359px) { .facts { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 479px) { .detailFacts { grid-template-columns:minmax(0,1fr); gap:14px; } }
 @media (prefers-reduced-motion: reduce) { .panel :is(.primary, .secondary, .notify, .report) { transition: none; transform: none; } }
 
 /* Inert phone illustrations reuse the live panel with tighter mobile spacing. */

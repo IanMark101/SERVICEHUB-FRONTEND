@@ -1,4 +1,5 @@
 import FormSelect from '../../ui/FormSelect';
+import MoneyInput from '../../ui/MoneyInput';
 import { useState, type FormEvent } from 'react';
 import { offerArrangements, type BookingLocationMode } from '../../../lib/serviceArrangement';
 import { LocationSchema, type LocationPoint } from '../../../lib/location';
@@ -91,7 +92,7 @@ export default function ProposalModal({ request, listings, serviceId, onServiceC
               {mode === 'SEEKER_VISITS' && (listing ? <p className={styles.hint}><strong>Service venue: {listing.locationLabel || listing.serviceLocation?.label}</strong><br />Your saved venue pin and directions will be shared with booking participants. You will not travel to the seeker’s area.</p> : <LocationField workspace="provider" label="Your service venue" value={venue} onChange={setVenue} disabled={isSubmitting} privateAddress hint="The seeker sees the general venue area in your offer. Exact directions are shared only after booking." />)}
               {locationError && <p role="alert" className={styles.error}>{locationError}</p>}
               <div className={styles.columns}>
-                <div><label htmlFor="offer-price" className={styles.label}>{agreementRequest ? 'Final total (₱)' : 'Your price (₱)'}</label><input id="offer-price" type="number" min={50} max={50000} step="0.01" required value={price} onChange={(event) => onPriceChange(Number(event.target.value))} className={styles.field} /></div>
+                <div><label htmlFor="offer-price" className={styles.label}>{agreementRequest ? 'Final total (₱)' : 'Your price (₱)'}</label><MoneyInput id="offer-price" min={50} max={50000} step="0.01" required value={price} onChange={(event) => onPriceChange(Number(event.target.value))} className={styles.field} /></div>
                 <div><label htmlFor="offer-duration" className={styles.label}>Expected duration (minutes)</label><input id="offer-duration" type="number" min={15} max={480} required value={duration} onChange={(event) => onDurationChange(Number(event.target.value))} className={styles.field} /></div>
               </div>
               <p className={styles.hint}>Quote one final total including transportation. The listing fee or seeker travel allowance will not be added again.</p>

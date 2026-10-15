@@ -1,5 +1,6 @@
 "use client";
 
+import MessageReceipt from '../../../components/messages/MessageReceipt';
 import React from 'react';
 import Image from 'next/image';
 import {
@@ -271,6 +272,7 @@ export default function SeekerMessagesPage() {
                       <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{msg.content}</p>
                       <span className={`block text-[9.5px] mt-1.5 font-medium ${isMe ? 'opacity-75 text-right' : 'text-ink-subtle dark:text-ink-subtle'}`}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {isMe && <><span aria-hidden="true"> · </span><MessageReceipt isRead={msg.isRead} readAt={msg.readAt}/></>}
                       </span>
                     </div>
                   </div>

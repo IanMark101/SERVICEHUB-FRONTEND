@@ -5,6 +5,7 @@ import { arrangementLabel } from '../../../lib/serviceArrangement';
 import { formatDistance } from '../../../lib/location';
 
 import React, { useEffect } from 'react';
+import useDialogFocus from '../../../hooks/useDialogFocus';
 import type { JobRequest } from '../../../types';
 import UserAvatar from '../../ui/UserAvatar';
 import RequestPaymentMethods from '../../ui/RequestPaymentMethods';
@@ -52,26 +53,20 @@ export default function JobRequestDetailsModal({
   isDark,
   router,
 }: JobRequestDetailsModalProps) {
+  const dialogRef = useDialogFocus(isOpen, false, onClose, 'dialog');
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+    if (!isOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previous; };
+  }, [isOpen]);
 
   if (!isOpen || !request) return null;
 
   const totalBids = request.offersCount ?? 0;
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="job-request-details-title" className={styles.overlay}>
+    <div role="dialog" aria-modal="true" aria-labelledby="job-request-details-title" tabIndex={-1} ref={dialogRef} className={styles.overlay}>
       <div className={styles.panel} data-theme={isDark ? 'dark' : 'light'} data-tone="provider">
         <div className={styles.content}>
           <header className={styles.header}>
@@ -89,10 +84,10 @@ export default function JobRequestDetailsModal({
                 <UserAvatar src={request.seekerAvatar} name={request.seekerName || 'Service seeker'} alt={request.seekerName} size={48} role="seeker" />
                 <div className={styles.personText}>
                   <div className={styles.personName}><span>{request.seekerName}</span><span className={styles.tag}>Service Seeker</span></div>
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1"><ShieldCheck size={14} /><span>Verified resident</span></div>
+                  {request.seekerVerificationStatus === 'APPROVED' && <div className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1"><ShieldCheck size={14} /><span>Verified resident</span></div>}
                 </div>
               </div>
-              {request.seekerId && <button type="button" onClick={() => router.push(`/profile/${encodeURIComponent(request.seekerId)}`)} className={styles.secondary}>View Profile <ArrowRight size={14} /></button>}
+              {request.seekerId && <button type="button" onClick={() => { onClose(); router.push(`/profile/${encodeURIComponent(request.seekerId)}`); }} className={styles.secondary}>View Profile <ArrowRight size={14} /></button>}
             </div>
             <h2 id="job-request-details-title" className={styles.title}>{request.title}</h2>
             <div className={styles.summary}>
@@ -112,19 +107,32 @@ export default function JobRequestDetailsModal({
 
           <div className={styles.body}>
             <ListingPhotoGallery key={request.id} photos={request.photos} title={request.title} />
-            <section>
-              <p className={styles.description}><strong>Service arrangement:</strong> {arrangementLabel[request.serviceLocationMode ?? 'PROVIDER_VISITS']}</p>
-              <h3 className={styles.label}>About This Request</h3>
+            <section className={styles.detailSection}>
+              <h3 className={styles.sectionTitle}>About This Request</h3>
               <p className={styles.description}>{request.description}</p>
+            </section>
+            <section className={styles.detailSection}>
+              <h3 className={styles.sectionTitle}>Request details</h3>
+              <dl className={styles.detailFacts}>
+                <div><dt><MapPin size={16} aria-hidden="true" />Service arrangement</dt><dd>{arrangementLabel[request.serviceLocationMode ?? 'PROVIDER_VISITS']}</dd></div>
+                <div><dt><Alarm size={16} aria-hidden="true" />When it is needed</dt><dd>{formatUrgencyDisplay(request.urgency)}</dd></div>
+              </dl>
             </section>
             <div className={`${styles.info} ${styles.facts}`}>
               <div className={styles.row}><span className={styles.label}>Date Posted</span><span className={styles.value}><CalendarDays size={15} aria-hidden="true" />{request.createdAt ? new Date(request.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently posted'}</span></div>
               <div className={styles.row}><span className={styles.label}>Submitted so far</span><span className={styles.value}>{totalBids} proposal{totalBids === 1 ? '' : 's'}</span></div>
             </div>
-            <section>
-              <h3 className={styles.label}>Accepted Payment Methods</h3>
+            <section className={styles.detailSection}>
+              <h3 className={styles.sectionTitle}>Accepted Payment Methods</h3>
               <div className={styles.payment}><RequestPaymentMethods request={request} isDark={isDark} /></div>
-              <p className={styles.hint}>Submit an offer if you can accept the payment options shown. The seeker chooses a method when accepting.</p>
+            </section>
+            <section className={styles.bookingGuide}>
+              <h3 className={styles.sectionTitle}>How to offer your service</h3>
+              <ol className={styles.bookingSteps}>
+                <li><strong>Review the request</strong><p>Check the work, location and payment options.</p></li>
+                <li><strong>Send your offer</strong><p>Include your final price and explain the work you will do.</p></li>
+                <li><strong>Wait for the seeker</strong><p>The seeker reviews your offer and chooses whether to accept it.</p></li>
+              </ol>
             </section>
           </div>
         </div>

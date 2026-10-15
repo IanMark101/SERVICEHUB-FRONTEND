@@ -30,7 +30,7 @@ describe('nearby discovery refresh and privacy', () => {
     await waitFor(() => expect(api.get).toHaveBeenLastCalledWith(workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({radiusKm:2.3})})));
   });
   it('requires an explicit location and sends radius and filters to the server before paginating', async () => {
-    vi.mocked(api.get).mockImplementation(async (_path, options) => reply('Near service', Number(options?.params.page || 1)));
+    vi.mocked(api.get).mockImplementation(async (_path, options) => reply('Near service', Number((options?.params as { page?:number } | undefined)?.page || 1)));
     const { result,rerender }=renderHook(({category})=>useNearbyMarketplace('seeker','one','',category,'all'), { initialProps:{ category:'All Categories' } });
     expect(result.current.items).toEqual([]); expect(api.get).not.toHaveBeenCalled();
     act(()=>result.current.applyLocation({ ...location, point:{ ...location.point, address:'Private job details' } }));

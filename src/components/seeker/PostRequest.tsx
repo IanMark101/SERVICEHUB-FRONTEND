@@ -1,4 +1,6 @@
+import CategorySuggestion from '../marketplace/CategorySuggestion';
 import ListingFormSection from '../ui/ListingFormSection';
+import MoneyInput from '../ui/MoneyInput';
 import styles from '../ui/ListingForm.module.css';
 import ServiceArrangementField from '../location/ServiceArrangementField';
 import { arrangementLabel, type ServiceLocationMode } from '../../lib/serviceArrangement';
@@ -171,6 +173,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                     options={orderServiceCategories(dbCategories).map(cat => ({ value:cat.id, label:cat.name }))} placeholder="Select a category..." isDark={isDark} theme="seeker"
                     ariaInvalid={moderationError?.field === 'category' || (validationAttempted && !selectedCategoryId)} ariaDescribedBy={moderationError?.field === 'category' ? 'request-category-policy-error' : 'request-category-help'} />
                   <p id="request-category-help" className={styles.fieldHelp}>{dbCategories.find(item => item.id === selectedCategoryId)?.description || 'Choose the type of help you need. If none fits, choose Other Services.'}</p>
+                  <CategorySuggestion title={title} description={description} categories={dbCategories} selectedId={selectedCategoryId} onChoose={id=>{setCategory(id);if(moderationError?.field==='category')setModerationError(null);}} tone="seeker" />
                   {moderationError?.field === 'category' && <p id="request-category-policy-error" role="alert" className={styles.error}>{moderationError.message}</p>}
                 </div>
               </div>
@@ -208,7 +211,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                 </div>
                 <div>
                   <label htmlFor="request-budget" className={styles.label}>Your service budget (₱)</label>
-                  <input id="request-budget" type="number" min={50} max={50000} required placeholder="e.g. 500" value={budget} onChange={e => setBudget(Number(e.target.value))} aria-invalid={problems.some(issue => issue.field === 'budget')} aria-describedby="request-budget-help" className={styles.field} />
+                  <MoneyInput id="request-budget" min={50} max={50000} required placeholder="e.g. 500" value={budget} onChange={e => setBudget(Number(e.target.value))} aria-invalid={problems.some(issue => issue.field === 'budget')} aria-describedby="request-budget-help" className={styles.field} />
                   <p id="request-budget-help" className={styles.fieldHelp}>How much you expect to spend on the work: ₱50–₱50,000. Review the provider’s price before accepting.</p>
                 </div>
               </div>

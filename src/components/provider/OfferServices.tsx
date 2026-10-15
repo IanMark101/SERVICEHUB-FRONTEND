@@ -1,4 +1,6 @@
+import CategorySuggestion from '../marketplace/CategorySuggestion';
 import Link from 'next/link';
+import MoneyInput from '../ui/MoneyInput';
 import ListingFormSection from '../ui/ListingFormSection';
 import styles from '../ui/ListingForm.module.css';
 import ListingLocationFields from '../location/ListingLocationFields';
@@ -193,6 +195,7 @@ export default function OfferServices() {
                     options={categories.map(cat => ({ value:cat.id, label:cat.name }))} placeholder="Select a category..." isDark={isDark} theme="provider"
                     ariaInvalid={moderationError?.field === 'category' || problems.some(issue => issue.field === 'category')} ariaDescribedBy={moderationError?.field === 'category' ? 'listing-category-policy-error' : 'listing-category-help'} />
                   <p id="listing-category-help" className={styles.fieldHelp}>{categories.find(item => item.id === selectedCategoryId)?.description || 'Choose the type of service you offer. If none fits, choose Other Services.'}</p>
+                  <CategorySuggestion title={title} description={description} categories={categories} selectedId={selectedCategoryId} onChoose={id=>{setCategory(id);if(moderationError?.field==='category')setModerationError(null);}} tone="provider" />
                   {moderationError?.field === 'category' && <p id="listing-category-policy-error" role="alert" className={styles.error}>{moderationError.message} Choose the right category and try again.</p>}
                 </div>
               </div>
@@ -226,7 +229,7 @@ export default function OfferServices() {
               <div className={priceByAgreement ? styles.columns : styles.threeColumns}>
                 {!priceByAgreement && <div>
                   <label htmlFor="listing-price" className={styles.label}>Service price (₱)</label>
-                  <input id="listing-price" type="number" min={50} max={50000} required placeholder="e.g. 500" value={price} onChange={e => setPrice(Number(e.target.value))} aria-invalid={problems.some(issue => issue.field === 'price')} aria-describedby="listing-price-help" className={styles.field} />
+                  <MoneyInput id="listing-price" min={50} max={50000} required placeholder="e.g. 500" value={price} onChange={e => setPrice(Number(e.target.value))} aria-invalid={problems.some(issue => issue.field === 'price')} aria-describedby="listing-price-help" className={styles.field} />
                   <p id="listing-price-help" className={styles.fieldHelp}>Enter ₱50–₱50,000. Choose how you charge next.</p>
                 </div>}
                 <div>

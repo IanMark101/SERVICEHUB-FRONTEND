@@ -56,7 +56,7 @@ describe('Activity presentation from authoritative booking state', () => {
     const headings = screen.getAllByRole('heading').map((node) => node.textContent);
     expect(headings).toEqual(['Your Turn1', 'Waiting1', 'Under Review1']);
     expect(screen.getByRole('region', { name: 'Waiting 1' })).toHaveTextContent('Payment confirmed');
-    expect(screen.getByText('None right now')).toBeInTheDocument();
+    expect(screen.getByText('Position #2')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Open booking Faucet Repair/ }));
     expect(onOpen).toHaveBeenCalledWith(entries[1]);
   });
@@ -79,12 +79,10 @@ describe('Activity presentation from authoritative booking state', () => {
     expect(history).toHaveTextContent('Sep 26, 2026');
     const completedRow = screen.getByRole('button', { name: /Open booking Haircut/ });
     const canceledRow = screen.getByRole('button', { name: /Open booking Cleaning/ });
-    expect(completedRow).toHaveClass(tone === 'seeker' ? 'border-l-orange-500' : 'border-l-emerald-500');
-    expect(completedRow).toHaveClass(tone === 'seeker' ? 'dark:border-l-orange-500' : 'dark:border-l-emerald-500');
+    expect(completedRow).toHaveClass('border-stone-200', 'dark:border-neutral-700');
     expect(screen.getByText('Completed')).toHaveClass(tone === 'seeker' ? 'bg-orange-50' : 'bg-emerald-50');
     expect(screen.getByText('Completed')).toHaveClass(tone === 'seeker' ? 'dark:bg-orange-950/30' : 'dark:bg-emerald-950/30');
-    expect(canceledRow).toHaveClass('border-l-stone-400');
-    expect(canceledRow).toHaveClass('dark:border-l-neutral-500');
+    expect(canceledRow).toHaveClass('border-stone-200', 'dark:border-neutral-700');
     expect(screen.getByText('Canceled')).toHaveClass('bg-stone-100');
     expect(screen.getByText('Canceled')).toHaveClass('dark:bg-charcoal');
     fireEvent.click(screen.getByRole('button', { name: /Open booking Cleaning/ }));

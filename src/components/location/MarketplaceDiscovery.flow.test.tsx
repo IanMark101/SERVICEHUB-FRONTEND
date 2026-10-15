@@ -33,6 +33,7 @@ const aircon = (km:number) => ({ id:`aircon-${km}`, providerId:'provider', provi
   title:`Aircon Repair ${km}`, description:'Repair air conditioning', category:{name:'Aircon Repair'}, price:500, budgetMax:500, urgency:'Needs Tomorrow',
   status:'ACTIVE', isAvailable:true, paymentMethods:{cash:true,gcash:true}, distanceKm:km, locationLabel:'Lapu-Lapu City', createdAt:new Date().toISOString() });
 const plumbing = { ...aircon(.5), id:'plumbing', title:'Plumbing service', category:{name:'Plumbing'} };
+const requestParams = (options: Parameters<typeof api.get>[1]) => (options?.params ?? {}) as Record<string, unknown>;
 
 describe('actual Seeker and Provider discovery pages with the nearby hook', () => {
   beforeEach(() => {
@@ -46,7 +47,7 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     // by proximity-marketplace.test.ts in the backend.
     vi.mocked(api.get).mockImplementation(async (path, options) => {
       if (!String(path).endsWith('/nearby')) throw new Error(`Unexpected API: ${path}`);
-      const params = options!.params;
+      const params = requestParams(options);
       const narrowed = params.search || params.category === 'Aircon Repair';
       const items = params.radiusKm === 1 || params.filter === 'rated' || params.filter === 'urgent' ? []
         : params.radiusKm === 2 ? (narrowed ? [aircon(2)] : [plumbing, aircon(2)])
@@ -171,9 +172,12 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     fireEvent.click(screen.getByRole('button', {name:'Aircon Repair'}));
     await waitFor(() => expect(api.get).toHaveBeenLastCalledWith(workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({ search:'Aircon Repair', category:'Aircon Repair', radiusKm:10 })})));
     fireEvent.click(screen.getByRole('button', {name:/Location: Cordova/}));
-    const calls = vi.mocked(api.get).mock.calls.length;
+    // The dialog separately loads pins across the visible map. Only feed
+    // requests should change when a search radius is committed.
+    const feedCalls = () => vi.mocked(api.get).mock.calls.filter(([path, options]) => String(path).endsWith('/nearby') && requestParams(options).radiusKm !== 30);
+    const calls = feedCalls().length;
     fireEvent.change(screen.getByLabelText('Search radius'), {target:{value:'1'}});
-    expect(api.get).toHaveBeenCalledTimes(calls);
+    expect(feedCalls()).toHaveLength(calls);
     fireEvent.click(screen.getByRole('button', {name:'Apply location'}));
     await screen.findByRole('heading', {name:workspace === 'seeker' ? 'No Services Found' : 'No Open Service Requests'});
     expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
@@ -214,27 +218,31 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     await waitFor(() => expect(screen.queryByText('Plumbing service')).not.toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', {name:/Location: Cordova/}));
     const dialog = screen.getByRole('dialog');
-    const calls = vi.mocked(api.get).mock.calls.length;
+    const feedCalls = () => vi.mocked(api.get).mock.calls.filter(([path, options]) => String(path).endsWith('/nearby') && requestParams(options).radiusKm !== 30);
+    const calls = feedCalls().length;
     expect(within(dialog).queryByLabelText('Service category')).not.toBeInTheDocument();
     fireEvent.change(within(dialog).getByLabelText('Search radius'), {target:{value:'2'}});
-    expect(api.get).toHaveBeenCalledTimes(calls);
+    expect(feedCalls()).toHaveLength(calls);
     fireEvent.click(within(dialog).getByRole('button', {name:'Apply location'}));
-    await waitFor(() => expect(api.get).toHaveBeenCalledTimes(calls + 1));
-    expect(api.get).toHaveBeenLastCalledWith(workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({category:'Aircon Repair',radiusKm:2,latitude:10.3,longitude:123.9})}));
+    await waitFor(() => expect(feedCalls()).toHaveLength(calls + 1));
+    expect(feedCalls().at(-1)).toEqual([workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({category:'Aircon Repair',radiusKm:2,latitude:10.3,longitude:123.9})})]);
     await screen.findByText('Aircon Repair 2');
     expect(screen.queryByText('Plumbing service')).not.toBeInTheDocument();
     expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
     expect(screen.getByRole('button', {name:'Aircon Repair'})).toHaveAttribute('aria-pressed', 'true');
+    const committedCalls = feedCalls().length;
     fireEvent.click(screen.getByRole('button', {name:/Location: Cordova/}));
     fireEvent.change(screen.getByLabelText('Search radius'), {target:{value:'10'}});
     fireEvent.click(screen.getByRole('button', {name:'Cancel'}));
-    expect(api.get).toHaveBeenCalledTimes(calls + 1);
+    // Opening/closing can revalidate results, but the unconfirmed radius must
+    // never replace the committed criteria.
+    expect(feedCalls().slice(committedCalls).every(([, options]) => requestParams(options).radiusKm === 2)).toBe(true);
     expect(screen.queryByText('Plumbing service')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('within 2 km');
     fireEvent.click(screen.getByRole('button', {name:'All Categories'}));
     await screen.findByText('Plumbing service');
     expect(screen.queryByText('Aircon Repair 7')).not.toBeInTheDocument();
-    expect(api.get).toHaveBeenLastCalledWith(workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({category:'All Categories',radiusKm:2,latitude:10.3,longitude:123.9})}));
+    expect(feedCalls().at(-1)).toEqual([workspace === 'seeker' ? '/services/nearby' : '/requests/nearby', expect.objectContaining({params:expect.objectContaining({category:'All Categories',radiusKm:2,latitude:10.3,longitude:123.9})})]);
   });
 
   it.each(['seeker','provider'] as const)('%s keeps its empty state visible when returning to the browser tab', async workspace => {
@@ -276,7 +284,7 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     expect(screen.getByLabelText('Service listing (optional)')).toHaveValue('');
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), {target:{value:'I can repair the aircon tomorrow.'}});
     fireEvent.submit(screen.getByRole('dialog').querySelector('form')!);
-    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('aircon-2','member',undefined,500,60,'I can repair the aircon tomorrow.',undefined));
+    await waitFor(() => expect(submitBid).toHaveBeenCalledWith('aircon-2','member',undefined,500,60,'I can repair the aircon tomorrow.',undefined,{serviceLocationMode:'PROVIDER_VISITS'}));
     view.unmount();
     // First seeker visit reuses only this account's deliberate marketplace area.
     render(<SeekServices/>);
@@ -292,7 +300,7 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     render(<SeekServices/>);
     expect(await screen.findByRole('dialog')).toHaveTextContent('Far aircon');
     await screen.findByRole('heading', {name:'No Services Found'});
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', {name:'Cancel'}));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', {name:'Close'}));
     expect(screen.queryByText('Far aircon')).not.toBeInTheDocument();
   });
 
@@ -301,7 +309,7 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     vi.mocked(useApp).mockReturnValue({ ...useApp(), dbCategories: [{ id: 'other-id', name: 'Other Services' }, ...useApp().dbCategories] } as ReturnType<typeof useApp>);
     const other = { ...aircon(1), id: 'aquarium', title: 'Repair aquarium pump', description: 'Inspect circulation pump', category: { name: 'Other Services' } };
     vi.mocked(api.get).mockImplementation(async (_path, options) => {
-      const items = options!.params.category === 'Other Services' || options!.params.search ? [other] : [plumbing, other];
+      const items = requestParams(options).category === 'Other Services' || requestParams(options).search ? [other] : [plumbing, other];
       return { data: { success: true, data: { items, pagination: { page: 1, limit: 6, total: items.length, totalPages: 1 } } } };
     });
     render(workspace === 'seeker' ? <SeekServices /> : <BrowseJobs />);

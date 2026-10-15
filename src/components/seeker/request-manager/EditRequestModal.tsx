@@ -1,4 +1,5 @@
 import ServiceArrangementField from '../../location/ServiceArrangementField';
+import MoneyInput from '../../ui/MoneyInput';
 import type { ServiceLocationMode } from '../../../lib/serviceArrangement';
 import type { LocationPoint } from '../../../lib/location';
 import LocationField from '../../location/LocationField';
@@ -55,7 +56,7 @@ export default function EditRequestModal({ value, isDark, isSaving = false, onCh
         <form onSubmit={event => { if (photosBusy) event.preventDefault(); else onSubmit(event); }} className="p-5 space-y-4">
           <ListingPhotoUploader value={value.photos ?? []} onChange={photos => onChange({ ...value, photos })} onBusyChange={setPhotosBusy} disabled={isSaving} />
           <div><label htmlFor="edit-request-title" className={labelClass}>Request title</label><ListingTitleInput id="edit-request-title" disabled={isSaving} required minLength={3} maxLength={100} value={value.title} onChange={(event) => onChange({ ...value, title: event.target.value })} className={`${fieldClass} font-medium`} /></div>
-          <div><label htmlFor="edit-request-budget" className={labelClass}>Your service budget (₱)</label><input id="edit-request-budget" disabled={isSaving} type="number" required min={1} value={value.budget} onChange={(event) => onChange({ ...value, budget: Number(event.target.value) })} className={`${fieldClass} font-semibold`} /></div>
+          <div><label htmlFor="edit-request-budget" className={labelClass}>Your service budget (₱)</label><MoneyInput id="edit-request-budget" disabled={isSaving} required min={1} value={value.budget} onChange={(event) => onChange({ ...value, budget: Number(event.target.value) })} className={`${fieldClass} font-semibold`} /></div>
           <div>
             <label htmlFor="edit-request-urgency" className={labelClass}>When do you need help?</label>
             <FormSelect id="edit-request-urgency" disabled={isSaving} value={value.urgency || ''} onChange={event => onChange({ ...value, urgency: event.target.value as RequestUrgency || undefined })} className={fieldClass}>

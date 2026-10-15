@@ -59,7 +59,7 @@ describe('Post Request submission', () => {
 
   it('uses a controlled urgency dropdown and requires a selection', () => {
     render(<PostRequest />);
-    expect(screen.getByLabelText(/Your service budget/)).toHaveValue(0);
+    expect(screen.getByLabelText(/Your service budget/)).toHaveValue(null);
     fillValidRequest();
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     const urgency = screen.getByLabelText('When do you need help?');
@@ -134,7 +134,7 @@ describe('Post Request submission', () => {
 
     expect(await screen.findByText(/Your request is live/)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('e.g. Laptop will not turn on')).toHaveValue('');
-    expect(screen.getByLabelText(/Your service budget/)).toHaveValue(0);
+    expect(screen.getByLabelText(/Your service budget/)).toHaveValue(null);
     expect(screen.getByLabelText('Service category')).toHaveValue('');
     expect(screen.getByLabelText('When do you need help?')).toHaveValue('');
   });
