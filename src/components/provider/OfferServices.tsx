@@ -29,7 +29,7 @@ const PRICING_OPTIONS: readonly string[] = ['FIXED', 'PER_HOUR', 'PER_DAY', 'PER
 
 export default function OfferServices() {
   const { user, createServiceListing, isDark, dbCategories } = useApp();
-  const { canTransact, navigateToVerification } = useTransactionPermission();
+  const { canTransact, navigateToVerification, isSuspended } = useTransactionPermission();
   const { error } = useToast();
 
   const [title, setTitle] = useState<string>('');
@@ -170,8 +170,10 @@ export default function OfferServices() {
           <div><h2>Create a Service Listing</h2><p>Describe what you offer, where you work, and what it costs.</p></div>
         </header>
         {!canTransact && <div className={styles.verification}>
-          <p><strong>Verify your account to publish.</strong> Complete Identity & Residency Verification and wait for approval. You can still browse requests.</p>
-          <button type="button" onClick={navigateToVerification}>Verify Now</button>
+          {isSuspended ? <p><strong>Publishing is unavailable while suspended.</strong> You can still browse requests. You can publish again when your suspension ends.</p> : <>
+            <p><strong>Verify your account to publish.</strong> Complete Identity & Residency Verification and wait for approval. You can still browse requests.</p>
+            <button type="button" onClick={navigateToVerification}>Verify Now</button>
+          </>}
         </div>}
         <form noValidate onSubmit={handleSubmit} className={styles.form} aria-label="Create a service listing">
           <FormWizardProgress steps={SERVICE_STEPS} currentStep={step} workspace="provider" />

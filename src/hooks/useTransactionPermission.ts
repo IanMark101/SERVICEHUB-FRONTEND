@@ -1,6 +1,7 @@
 import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { VerificationStatus } from '../types';
+import { marketplaceAccess } from '../lib/marketplaceAccess';
 
 export interface UserPermissions {
   canBrowse: boolean;
@@ -17,11 +18,7 @@ export function useTransactionPermission() {
   const { user } = useApp();
   const router = useRouter();
 
-  const isVerified = user?.verificationStatus === VerificationStatus.APPROVED;
-  const isActive = user?.isActive !== false;
-  const isAdmin = user?.role === 'admin';
-
-  const canTransact = isAdmin || (isVerified && isActive);
+  const { canTransact, isSuspended } = marketplaceAccess(user);
 
   const navigateToVerification = () => {
     if (!user) return;
@@ -31,6 +28,7 @@ export function useTransactionPermission() {
   return {
     canBrowse: true,
     canTransact,
+    isSuspended,
     canCreateListings: canTransact,
     canBookServices: canTransact,
     canAcceptBookings: canTransact,

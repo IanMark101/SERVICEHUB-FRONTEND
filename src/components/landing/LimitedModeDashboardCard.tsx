@@ -10,7 +10,7 @@ interface LimitedModeDashboardCardProps {
 
 export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardCardProps = {}) {
   const { isDark, user } = useApp();
-  const { verificationStatus, navigateToVerification, canTransact } = useTransactionPermission();
+  const { verificationStatus, navigateToVerification, canTransact, isSuspended } = useTransactionPermission();
   const [dismissed, setDismissed] = useState<boolean>(
     () => typeof window !== 'undefined' && sessionStorage.getItem('limited_mode_card_dismissed') === 'true',
   );
@@ -20,7 +20,9 @@ export default function LimitedModeDashboardCard({ role }: LimitedModeDashboardC
   const isProvider = activeRole === 'provider';
 
   // If the user can already transact, don't show the card
-  if (canTransact) return null;
+  // Suspension is explained by the persistent workspace banner, rather than
+  // asking an already verified member to submit verification again.
+  if (canTransact || isSuspended) return null;
 
   // Don't show if dismissed in this session
   if (dismissed) return null;

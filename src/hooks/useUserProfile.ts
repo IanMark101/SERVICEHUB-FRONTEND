@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useApiCacheRefresh } from './useApiCacheRefresh';
 import { usePathname } from 'next/navigation';
 import { useApp } from '../context/AppContext';
+import { marketplaceAccess } from '../lib/marketplaceAccess';
 import { UserSession } from '../components/auth/LoginContainer';
 import {
   apiGetPublicProfile,
@@ -501,7 +502,7 @@ export function useUserProfile({
     trustHistoryLoading,
     trustHistoryError,
     retryTrustHistory: () => setCacheRevision(value => value + 1),
-    isViewerVerified: user?.verificationStatus === 'APPROVED',
+    isViewerVerified: user?.verificationStatus === 'APPROVED' && marketplaceAccess(user).canTransact,
     cardBg,
     innerBg,
     labelText,

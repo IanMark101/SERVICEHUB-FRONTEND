@@ -37,6 +37,13 @@ describe('workspace email gate', () => {
     await waitFor(() => expect(replace).toHaveBeenCalledWith('/account-banned'));
   });
 
+  it.each(['seeker', 'provider'] as const)('retains signed-in browsing for a suspended %s without treating suspension as a ban', role => {
+    vi.mocked(useApp).mockReturnValue({ authLoading: false, isAuthenticated: true, user: { id: 'account', role, emailVerified: true, verificationStatus: 'APPROVED', moderationStatus: 'SUSPENDED', isActive: true } } as ReturnType<typeof useApp>);
+    const { result } = renderHook(() => useRouteGuard(['user']));
+    expect(result.current.shouldRender).toBe(true);
+    expect(replace).not.toHaveBeenCalled();
+  });
+
   it('does not redirect an interrupted recovery to login or authorize cached identity', () => {
     vi.mocked(useApp).mockReturnValue({ authLoading: false, authError: 'Connection interrupted', isAuthenticated: false, user: null } as ReturnType<typeof useApp>);
     const { result } = renderHook(() => useRouteGuard(['user']));

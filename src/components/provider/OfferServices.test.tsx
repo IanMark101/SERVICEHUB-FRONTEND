@@ -184,6 +184,15 @@ describe('Offer Services wizard', () => {
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
     expect(screen.getByRole('textbox', { name: 'Service name' })).toBeDisabled();
   });
+  it('keeps a suspended verified provider from publishing and explains suspension instead of re-verification', () => {
+    vi.mocked(useTransactionPermission).mockReturnValue({ canTransact: false, isSuspended: true, navigateToVerification: vi.fn() } as unknown as ReturnType<typeof useTransactionPermission>);
+    render(<OfferServices />);
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(screen.getByText('Publishing is unavailable while suspended.')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Verify Now' })).not.toBeInTheDocument();
+    expect(createServiceListing).not.toHaveBeenCalled();
+  });
   it('revalidates categories before final publication', () => {
     const view = render(<OfferServices />); toReview();
     vi.mocked(useApp).mockReturnValue({ ...useApp(), dbCategories: [] }); view.rerender(<OfferServices />);

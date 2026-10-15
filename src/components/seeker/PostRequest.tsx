@@ -30,7 +30,7 @@ const REQUEST_STEPS = ['Details', 'Location', 'Budget', 'Payment', 'Review'] as 
 
 export default function PostRequest({ appealRequestId = '', initialTemplate }: { appealRequestId?: string; initialTemplate?: RequestRepostTemplate }) {
   const { user, postJobRequest, isDark, dbCategories } = useApp();
-  const { canTransact, navigateToVerification } = useTransactionPermission();
+  const { canTransact, navigateToVerification, isSuspended } = useTransactionPermission();
   const { error } = useToast();
   const [title, setTitle] = useState<string>(initialTemplate?.title ?? '');
   const [photos, setPhotos] = useState<ListingPhoto[]>(initialTemplate?.photos ?? []);
@@ -147,8 +147,10 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
           {!initialTemplate.paymentMethods && <p>Choose how you can pay before posting.</p>}</div>
         </div>}
         {!canTransact && <div className={styles.verification}>
-          <p><strong>Verify your account to post.</strong> Complete Identity & Residency Verification and wait for approval. You can still browse services.</p>
-          <button type="button" onClick={navigateToVerification}>Verify Now</button>
+          {isSuspended ? <p><strong>Posting is unavailable while suspended.</strong> You can still browse services. You can post again when your suspension ends.</p> : <>
+            <p><strong>Verify your account to post.</strong> Complete Identity & Residency Verification and wait for approval. You can still browse services.</p>
+            <button type="button" onClick={navigateToVerification}>Verify Now</button>
+          </>}
         </div>}
         {success && <div className={styles.status} role="status"><CheckCircle2 size={20} aria-hidden="true" /><span>Your request is live. Providers can now send offers.</span></div>}
         <form noValidate onSubmit={handleSubmit} className={styles.form} aria-label="Post a request">

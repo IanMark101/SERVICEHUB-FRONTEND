@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { ShieldAlert, X } from 'lucide-react';
+import { SUSPENSION_BROWSING_NOTICE } from '../../lib/marketplaceAccess';
+import useDialogFocus from '../../hooks/useDialogFocus';
 
 interface TransactionBlockedModalProps {
   isOpen: boolean;
@@ -10,7 +12,10 @@ interface TransactionBlockedModalProps {
 
 export default function TransactionBlockedModal({ isOpen, onClose }: TransactionBlockedModalProps) {
   const { isDark } = useApp();
-  const { navigateToVerification } = useTransactionPermission();
+  const { navigateToVerification, isSuspended } = useTransactionPermission();
+  const titleId = useId();
+  const descriptionId = useId();
+  const dialog = useDialogFocus(isOpen, false, onClose);
 
   if (!isOpen) return null;
 
@@ -23,7 +28,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/75 backdrop-blur-sm select-none animate-in fade-in duration-200">
       
       {/* Modal Card container */}
-      <div className={`viewport-dialog-scroll rounded-[24px] max-w-md w-full border shadow-2xl overflow-hidden p-6 relative transition-colors duration-200 ${
+      <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} className={`viewport-dialog-scroll rounded-[24px] max-w-md w-full border shadow-2xl overflow-hidden p-6 relative transition-colors duration-200 ${
         isDark ? 'bg-charcoal-inset border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'
       }`}>
         
@@ -46,12 +51,12 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
             <ShieldAlert className="w-6 h-6" />
           </div>
           
-          <h3 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
-            Verification Required
+          <h3 id={titleId} className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>
+            {isSuspended ? 'Account suspended' : 'Verification Required'}
           </h3>
           
-          <p className={`text-xs leading-relaxed max-w-sm font-medium ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
-            You may browse ServiceHub freely, but you must complete Identity and Residency Verification before participating in marketplace transactions.
+          <p id={descriptionId} className={`text-xs leading-relaxed max-w-sm font-medium ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>
+            {isSuspended ? SUSPENSION_BROWSING_NOTICE : 'You may browse ServiceHub freely, but you must complete Identity and Residency Verification before participating in marketplace transactions.'}
           </p>
         </div>
 
@@ -66,10 +71,10 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
                 : 'border-slate-200 hover:bg-slate-100 text-ink-muted hover:text-ink'
             }`}
           >
-            Maybe Later
+            {isSuspended ? 'Continue browsing' : 'Maybe Later'}
           </button>
           
-          <button
+          {!isSuspended && <button
             type="button"
             onClick={handleVerifyNow}
             className={`flex-1 py-2.5 font-extrabold text-xs rounded-xl shadow-sm transition-all active:scale-98 cursor-pointer ${
@@ -79,7 +84,7 @@ export default function TransactionBlockedModal({ isOpen, onClose }: Transaction
             }`}
           >
             Verify Now
-          </button>
+          </button>}
         </div>
 
       </div>

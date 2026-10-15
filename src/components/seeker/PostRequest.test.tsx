@@ -57,6 +57,16 @@ describe('Post Request submission', () => {
     vi.mocked(apiSubmitContentCase).mockResolvedValue({ success: true });
   });
 
+  it('keeps a suspended verified seeker from posting and explains suspension instead of re-verification', () => {
+    vi.mocked(useTransactionPermission).mockReturnValue({ canTransact: false, isSuspended: true, navigateToVerification: vi.fn() } as unknown as ReturnType<typeof useTransactionPermission>);
+    render(<PostRequest />);
+    expect(screen.getByRole('textbox', { name: 'Request title' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(screen.getByText('Posting is unavailable while suspended.')).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Verify Now' })).not.toBeInTheDocument();
+    expect(postJobRequest).not.toHaveBeenCalled();
+  });
+
   it('uses a controlled urgency dropdown and requires a selection', () => {
     render(<PostRequest />);
     expect(screen.getByLabelText(/Your service budget/)).toHaveValue(null);

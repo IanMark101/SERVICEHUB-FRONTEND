@@ -31,6 +31,14 @@ describe('viewed profile trust history', () => {
     expect(result.current.trustHistoryLoading).toBe(false);
     expect(result.current.trustHistoryError).toBe(false);
   });
+
+  it('does not offer review actions to a verified member while suspended', async () => {
+    vi.mocked(useApp).mockReturnValue({ user: { id: 'viewer-user', role: 'seeker', verificationStatus: 'APPROVED', emailVerified: true, isActive: true, moderationStatus: 'SUSPENDED' }, isDark: false } as unknown as ReturnType<typeof useApp>);
+    vi.mocked(apiGetTrustHistory).mockResolvedValue({ success: true, data: events });
+    const { result } = renderHook(() => useUserProfile({ targetUser: target }));
+    await waitFor(() => expect(result.current.trustHistoryLoading).toBe(false));
+    expect(result.current.isViewerVerified).toBe(false);
+  });
   it('makes a rejected fetch visible and reloads the real log on retry', async () => {
     vi.mocked(apiGetTrustHistory).mockRejectedValueOnce(new Error('Offline')).mockResolvedValueOnce({ success: true, data: events });
     const { result } = renderHook(() => useUserProfile({ targetUser: target }));
