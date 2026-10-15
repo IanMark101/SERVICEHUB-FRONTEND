@@ -98,4 +98,34 @@ describe('session recovery before workspace requests', () => {
     expect(getAccessToken()).toBe(token);
     expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'auth_session_expired' }));
   });
+
+  it('rotates through the website cookie before rejecting a verification, then preserves admin access', async () => {
+    setAccessToken(jwt(-10));
+    const fresh = jwt(900);
+    const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: { data: { accessToken: fresh } } });
+    const dispatch = vi.spyOn(window, 'dispatchEvent');
+    const adapter = vi.fn<AxiosAdapter>(async config => {
+      expect(config.headers.Authorization).toBe(`Bearer ${fresh}`);
+      expect(config.baseURL).not.toBe('/api');
+      return ok(config);
+    });
+    await api.patch('/admin/verifications/submission', { approve: false, adminNotes: 'Please resubmit a clear document.' }, { adapter });
+    await api.get('/admin/verifications', { adapter, apiCache: 'no-store' });
+    expect(post).toHaveBeenCalledOnce();
+    expect(post).toHaveBeenCalledWith('/api/auth/refresh', {}, expect.objectContaining({ withCredentials: true, timeout: 15_000 }));
+    expect(getAccessToken()).toBe(fresh);
+    expect(dispatch.mock.calls.filter(([event]) => event.type === 'auth_session_expired')).toHaveLength(0);
+  });
+
+  it('sends sign-in, reload recovery and explicit sign-out to the same first-party cookie scope', async () => {
+    const adapter = vi.fn<AxiosAdapter>(async config => {
+      expect(config.baseURL).toBe('/api');
+      expect(config.withCredentials).toBe(true);
+      return ok(config);
+    });
+    await api.post('/auth/login', {}, { adapter });
+    await api.post('/auth/session', {}, { adapter });
+    await api.post('/auth/logout', {}, { adapter });
+    expect(adapter).toHaveBeenCalledTimes(3);
+  });
 });

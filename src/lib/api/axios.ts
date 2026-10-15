@@ -3,6 +3,7 @@ import { clearSessionHint, markSessionPresent } from '../browserStorage';
 import { prepareCachedRequest } from './cachedAdapter';
 import { apiPath, mutationResources } from './cachePolicy';
 import { clearApiCache, invalidateApiCache, responseCache } from './responseCache';
+import { sessionRequestBaseUrl } from './sessionRouting';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -121,6 +122,7 @@ api.interceptors.request.use(
   async (config) => {
     const generation = sessionGeneration;
     const path = apiPath(config.url);
+    config.baseURL = sessionRequestBaseUrl(path, API_BASE_URL);
     let token = getAccessToken();
     if (token && !SESSION_ENTRY_PATHS.has(path) && tokenNeedsRefresh(token)) {
       token = await refreshAccessTokenOnce();
@@ -158,7 +160,7 @@ export function refreshAccessTokenOnce(): Promise<string> {
     const anotherTabRotated = typeof localStorage !== 'undefined'
       && localStorage.getItem(REFRESH_GENERATION) !== observedGeneration;
     const endpoint = anotherTabRotated ? '/auth/session' : '/auth/refresh';
-    const response = await axios.post(`${API_BASE_URL}${endpoint}`, {}, { withCredentials: true });
+    const response = await axios.post(`${sessionRequestBaseUrl(endpoint, API_BASE_URL)}${endpoint}`, {}, { withCredentials: true, timeout: 15_000 });
     if (generation !== sessionGeneration) throw new axios.CanceledError('Session changed during token refresh');
     if (anotherTabRotated && response.data?.data?.authenticated === false) {
       expireSession();

@@ -2,12 +2,18 @@ import type { NextConfig } from "next";
 import { join } from "node:path";
 import AtomicDevManifestsPlugin from './scripts/plugins/atomic-dev-manifests.cjs';
 import { FRONTEND_REDIRECT_HOSTS, PRODUCTION_SITE_ORIGIN } from './src/lib/site-origin';
+import { sessionProxyRewrites } from './src/lib/api/sessionRouting';
 
 const nextConfig: NextConfig = {
   // The local preview browser accesses the dev server through its loopback IP.
   allowedDevOrigins: ["127.0.0.1"],
   // Vercel supplies its own build adapter; standalone output is for Docker.
   output: process.env.VERCEL === "1" ? undefined : "standalone",
+  async rewrites() {
+    // The API stays on its existing domain. These narrow proxies give browser
+    // sessions a first-party cookie, including in Incognito and Safari.
+    return sessionProxyRewrites(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api');
+  },
   async redirects() {
     return [
       ...FRONTEND_REDIRECT_HOSTS.map(host => ({
@@ -21,6 +27,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      ...sessionProxyRewrites(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api').map(({ source }) => ({
+        source,
+        headers: [{ key: 'Cache-Control', value: 'private, no-store' }],
+      })),
       {
         source: '/sw.js',
         headers: [
