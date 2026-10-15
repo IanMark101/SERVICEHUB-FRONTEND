@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
+import './build-map-assets.mjs';
 
 // Each deployment needs different worker bytes so an existing installation
 // receives an update prompt even when only application code has changed.

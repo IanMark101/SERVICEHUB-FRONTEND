@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
+import './build-map-assets.mjs';
 
 // Windows accepts differently cased terminal paths. Resolve the native spelling
 // before loading Next so its router context is not bundled under two paths.

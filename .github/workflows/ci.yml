@@ -25,5 +25,9 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - name: Install the browser for production map regression checks
+        run: npx playwright install --with-deps chromium
+      - name: Verify rendered maps in both workspaces and recovery without WebGL
+        run: npm run test:map-browser
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
