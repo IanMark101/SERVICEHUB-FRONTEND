@@ -81,9 +81,13 @@ describe('message pane scrolling', () => {
     await waitFor(() => expect(apiGetMessages).toHaveBeenCalledWith('booking-1'));
     vi.mocked(joinBookingRoom).mockClear();socketHandlers.clear();
     act(() => invalidateApiCache(['messages'],'reconnect'));
-    await waitFor(() => expect(joinBookingRoom).toHaveBeenCalledWith('booking-1'));
-    expect(socketHandlers.has('messages_read')).toBe(true);
-    expect(socketHandlers.has('new_message')).toBe(true);
+    // Joining runs before React commits the effect that binds the replacement
+    // socket. Wait for both parts of recovery, including on faster CI runners.
+    await waitFor(() => {
+      expect(joinBookingRoom).toHaveBeenCalledWith('booking-1');
+      expect(socketHandlers.has('messages_read')).toBe(true);
+      expect(socketHandlers.has('new_message')).toBe(true);
+    });
     await act(async () => {socketHandlers.get('message_notification')?.({bookingId:'booking-1'});});
     await waitFor(() => expect(apiGetMessages).toHaveBeenCalledTimes(3));
   });
