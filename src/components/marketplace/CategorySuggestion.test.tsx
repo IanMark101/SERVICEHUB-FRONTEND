@@ -14,7 +14,7 @@ describe('confirmed AI category suggestions',()=>{
     expect(base.onChoose).not.toHaveBeenCalled();expect(screen.queryByText('Invented')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:/Use category/}));expect(base.onChoose).toHaveBeenCalledWith('laptop');
   });
-  it('ignores stale suggestions and keeps manual category search available on failures',async()=>{
+  it('ignores stale suggestions and allows retrying after failures',async()=>{
     let finish!:(value:Awaited<ReturnType<typeof apiSuggestCategory>>)=>void;
     vi.mocked(apiSuggestCategory).mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
     const view=render(<CategorySuggestion {...base}/>);fireEvent.click(screen.getByRole('button',{name:'Suggest category'}));
@@ -24,7 +24,7 @@ describe('confirmed AI category suggestions',()=>{
     expect(screen.queryByRole('button',{name:/Use category/})).not.toBeInTheDocument();
     vi.mocked(apiSuggestCategory).mockRejectedValueOnce(new Error('Offline'));
     fireEvent.click(screen.getByRole('button',{name:'Suggest category'}));await waitFor(()=>expect(screen.getByRole('status')).toBeInTheDocument());
-    fireEvent.change(screen.getByRole('searchbox'),{target:{value:'PC'}});fireEvent.click(screen.getByRole('button',{name:'Computer & Laptop Repair'}));
-    expect(base.onChoose).toHaveBeenCalledWith('laptop');
+    expect(screen.getByRole('button',{name:'Suggest category'})).toBeEnabled();
+    expect(base.onChoose).not.toHaveBeenCalled();
   });
 });

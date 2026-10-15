@@ -170,9 +170,9 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                 </div>
                 <div>
                   <label htmlFor="request-category" className={styles.label}>Service category</label>
-                  <FormalSelect id="request-category" ariaLabel="Service category" value={selectedCategoryId} required
+                  <FormalSelect id="request-category" ariaLabel="Service category" value={selectedCategoryId} required searchable searchLabel="Search service categories"
                     onChange={e => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
-                    options={orderServiceCategories(dbCategories).map(cat => ({ value:cat.id, label:cat.name }))} placeholder="Select a category..." isDark={isDark} theme="seeker"
+                    options={orderServiceCategories(dbCategories).map(cat => ({ value:cat.id, label:cat.name, searchText:[cat.description, ...(cat.aliases ?? [])].join(' ') }))} placeholder="Select a category..." isDark={isDark} theme="seeker"
                     ariaInvalid={moderationError?.field === 'category' || (validationAttempted && !selectedCategoryId)} ariaDescribedBy={moderationError?.field === 'category' ? 'request-category-policy-error' : 'request-category-help'} />
                   <p id="request-category-help" className={styles.fieldHelp}>{dbCategories.find(item => item.id === selectedCategoryId)?.description || 'Choose the type of help you need. If none fits, choose Other Services.'}</p>
                   <CategorySuggestion title={title} description={description} categories={dbCategories} selectedId={selectedCategoryId} onChoose={id=>{setCategory(id);if(moderationError?.field==='category')setModerationError(null);}} tone="seeker" />

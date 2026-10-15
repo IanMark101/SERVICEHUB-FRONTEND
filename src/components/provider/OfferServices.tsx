@@ -192,9 +192,9 @@ export default function OfferServices() {
                 </div>
                 <div>
                   <label htmlFor="listing-category" className={styles.label}>Service category</label>
-                  <FormalSelect id="listing-category" ariaLabel="Service category" value={selectedCategoryId} required
+                  <FormalSelect id="listing-category" ariaLabel="Service category" value={selectedCategoryId} required searchable searchLabel="Search service categories"
                     onChange={e => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
-                    options={categories.map(cat => ({ value:cat.id, label:cat.name }))} placeholder="Select a category..." isDark={isDark} theme="provider"
+                    options={categories.map(cat => ({ value:cat.id, label:cat.name, searchText:[cat.description, ...(cat.aliases ?? [])].join(' ') }))} placeholder="Select a category..." isDark={isDark} theme="provider"
                     ariaInvalid={moderationError?.field === 'category' || problems.some(issue => issue.field === 'category')} ariaDescribedBy={moderationError?.field === 'category' ? 'listing-category-policy-error' : 'listing-category-help'} />
                   <p id="listing-category-help" className={styles.fieldHelp}>{categories.find(item => item.id === selectedCategoryId)?.description || 'Choose the type of service you offer. If none fits, choose Other Services.'}</p>
                   <CategorySuggestion title={title} description={description} categories={categories} selectedId={selectedCategoryId} onChoose={id=>{setCategory(id);if(moderationError?.field==='category')setModerationError(null);}} tone="provider" />

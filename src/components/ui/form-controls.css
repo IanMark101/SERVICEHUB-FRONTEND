@@ -85,6 +85,13 @@ select.form-select__control { display: block; width: 100%; appearance: none; pad
 .form-select__option[data-active="true"]:not([aria-disabled="true"]) { background: var(--form-menu-hover); }
 .form-select__option[aria-selected="true"]:not([aria-disabled="true"]) { color: var(--form-accent); background: color-mix(in srgb, var(--form-accent) 10%, var(--form-surface)); font-weight: 600; }
 .dark .form-select__option[aria-selected="true"]:not([aria-disabled="true"]) { color: color-mix(in srgb, var(--form-accent) 55%, white); }
+.form-select__menu--searchable { display: flex; flex-direction: column; overflow: hidden; }
+.form-select__search { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin: 4px 4px 8px; padding: 0 10px; color: var(--text-muted); }
+.form-select__search svg { flex-shrink: 0; }
+.form-select__search input { width: 100%; min-width: 0; min-height: 42px; padding: 8px 0; font-size: 16px; line-height: 1.5; }
+.form-select__search input::placeholder { color: var(--text-muted); opacity: 1; }
+.form-select__options { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.form-select__empty { margin: 0; padding: 12px 14px; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
 @media (max-width: 639px) {
   :is(input, textarea, select.form-select__control):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not(.service-search-input):not(.workspace-header-control):not([data-form-unstyled]) { font-size: 16px !important; }
 }
