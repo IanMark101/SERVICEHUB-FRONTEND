@@ -27,4 +27,15 @@ describe('confirmed AI category suggestions',()=>{
     expect(screen.getByRole('button',{name:'Suggest category'})).toBeEnabled();
     expect(base.onChoose).not.toHaveBeenCalled();
   });
+  it.each(['seeker','provider'] as const)('labels catalog fallback honestly and keeps %s selection explicit',async tone=>{
+    vi.mocked(apiSuggestCategory).mockResolvedValue({success:true,data:{suggestions:[{id:'laptop',name:'Computer & Laptop Repair'},{id:'laptop',name:'duplicate'}],source:'catalog'}});
+    render(<CategorySuggestion {...base} title="COMPUTER REPAIR" tone={tone}/>);
+    fireEvent.click(screen.getByRole('button',{name:'Suggest category'}));
+    expect(await screen.findByText(/Matched from the category list/)).toBeInTheDocument();
+    expect(screen.getAllByRole('button',{name:/Use category/})).toHaveLength(1);
+    expect(base.onChoose).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:/Use category/}));
+    expect(base.onChoose).toHaveBeenCalledWith('laptop');
+    expect(screen.queryByText(/unavailable/i)).not.toBeInTheDocument();
+  });
 });
