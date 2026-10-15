@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { apiSubmitTrustCase, apiListTrustCases, apiRespondTrustCase, apiDecideTrustCase, apiRespondReview, type TrustCaseItem, type ReviewViolation } from '../../api/trust.api';
+import { apiSubmitTrustCase, apiListTrustCases, apiRespondTrustCase, apiDecideTrustCase, type TrustCaseItem, type ReviewViolation } from '../../api/trust.api';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
 import { apiGetAdminBookingMessages } from '../../api/admin.api';
@@ -12,45 +12,24 @@ import FormSelect from '../ui/FormSelect';
 const inputClass = 'w-full min-w-0 rounded-lg border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] p-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2';
 const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--workspace-border)] px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50';
 
-export function TrustCaseForm({ reviewId, trustEventId }: { reviewId?: string; trustEventId?: string }) {
+export function TrustPenaltyAppealForm({ trustEventId }: { trustEventId: string }) {
   const id = useId(); const [open, setOpen] = useState(false); const [description, setDescription] = useState('');
   const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [sent, setSent] = useState(false);
   if (sent) return <p role="status" className="text-sm leading-6">Case submitted. Follow its decision in your Trust History.</p>;
   return <div className="space-y-3">
-    <button type="button" className={buttonClass} aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>{reviewId ? 'Report review policy violation' : 'Appeal trust penalty'}</button>
+    <button type="button" className={buttonClass} aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>Appeal trust penalty</button>
     {open && <form id={id} className="space-y-3" onSubmit={async event => {
       event.preventDefault(); if (busy || description.trim().length < 20) return;
       setBusy(true); setError('');
-      try { await apiSubmitTrustCase({ reviewId, trustEventId, description: description.trim() }); setSent(true); }
+      try { await apiSubmitTrustCase({ trustEventId, description: description.trim() }); setSent(true); }
       catch (cause) { setError(getApiErrorMessage(cause, 'The case could not be submitted. Try again.')); }
       finally { setBusy(false); }
     }}>
-      <label htmlFor={`${id}-reason`} className="block text-sm font-semibold">{reviewId ? 'Policy violation and supporting details' : 'Why the penalty should be corrected'}</label>
-      <p className="text-sm leading-6">{reviewId ? 'Explain threats, manipulation, harassment, irrelevant content, or fabricated participation. Disagreeing with a rating is not grounds for removal.' : 'Explain the finding you dispute and identify relevant booking messages or evidence. Submitting an appeal does not change your score immediately.'} At least 20 characters. Do not include identity documents or passwords.</p>
+      <label htmlFor={`${id}-reason`} className="block text-sm font-semibold">Why the penalty should be corrected</label>
+      <p className="text-sm leading-6">Explain the finding you dispute and identify relevant booking messages or evidence. Submitting an appeal does not change your score immediately. At least 20 characters. Do not include identity documents or passwords.</p>
       <textarea id={`${id}-reason`} required minLength={20} maxLength={2000} rows={4} className={inputClass} value={description} onChange={event => setDescription(event.target.value)} />
       {error && <p role="alert" className="text-sm text-red-600 dark:text-red-300">{error}</p>}
       <button className={buttonClass} disabled={busy || description.trim().length < 20}>{busy ? 'Submitting case…' : 'Submit for admin review'}</button>
-    </form>}
-  </div>;
-}
-
-export function ReviewResponseForm({ reviewId, initialResponse }: { reviewId: string; initialResponse?: string }) {
-  const id = useId(); const [open, setOpen] = useState(false); const [response, setResponse] = useState(initialResponse || '');
-  const [busy, setBusy] = useState(false); const [error, setError] = useState(''); const [saved, setSaved] = useState(initialResponse || '');
-  return <div className="space-y-3">
-    <button type="button" className={buttonClass} aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>Respond publicly to review</button>
-    {saved && <p className="text-sm leading-6">Member’s response: {saved}</p>}
-    {open && <form id={id} className="space-y-3" onSubmit={async event => {
-      event.preventDefault(); if (busy || response.trim().length < 10) return;
-      setBusy(true); setError('');
-      try { await apiRespondReview(reviewId, response.trim()); setSaved(response.trim()); setOpen(false); }
-      catch (cause) { setError(getApiErrorMessage(cause, 'The response could not be saved. Try again.')); }
-      finally { setBusy(false); }
-    }}>
-      <label htmlFor={`${id}-text`} className="block text-sm font-semibold">Public response (10–1,000 characters)</label>
-      <textarea id={`${id}-text`} required minLength={10} maxLength={1000} rows={3} className={inputClass} value={response} onChange={event => setResponse(event.target.value)} />
-      {error && <p role="alert" className="text-sm text-red-600 dark:text-red-300">{error}</p>}
-      <button className={buttonClass} disabled={busy || response.trim().length < 10}>{busy ? 'Saving response…' : 'Publish response'}</button>
     </form>}
   </div>;
 }

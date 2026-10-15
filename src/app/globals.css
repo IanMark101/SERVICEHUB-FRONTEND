@@ -2247,10 +2247,6 @@ body:has(.profile-page-shell) {
   }
 }
 
-.profile-page-shell .marketplace-profile-tabs {
-  top: var(--account-header-height);
-}
-
 .profile-global-header {
   -webkit-backdrop-filter: blur(16px) saturate(125%);
   backdrop-filter: blur(16px) saturate(125%);
@@ -2266,9 +2262,6 @@ body:has(.profile-page-shell) {
 }
 
 .marketplace-profile-tabs {
-  position: sticky;
-  top: 4rem;
-  z-index: 20;
   display: flex;
   justify-content: safe center;
   max-width: 100%;
@@ -2616,9 +2609,6 @@ body:has(.profile-page-shell) {
     backdrop-filter: none;
   }
 
-  .profile-page-shell .marketplace-profile-tabs {
-    position: static;
-  }
 }
 
 @media (min-width: 400px) and (max-width: 639px) {
@@ -2727,7 +2717,6 @@ body:has(.profile-page-shell) {
 
 @media (max-width: 639px) {
   .marketplace-profile-tabs {
-    top: 4.25rem;
     margin-inline: -0.25rem;
   }
 

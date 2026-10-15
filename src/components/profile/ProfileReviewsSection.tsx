@@ -8,7 +8,6 @@ import PaginationBar from '../ui/PaginationBar';
 import WorkspaceTabs from '../ui/WorkspaceTabs';
 import type { ProfileReviewContext, ProfileReviewStatsByContext } from '../../types/reviews';
 import styles from './ProfileReviewsSection.module.css';
-import { TrustCaseForm, ReviewResponseForm } from './TrustCaseControls';
 
 interface ReviewItem {
   id: string;
@@ -137,8 +136,7 @@ function ReviewContent({
                 </div>
               </div>
               {review.comment && <p className={`text-sm leading-6 break-words ${isDark ? 'text-neutral-300' : 'text-ink-secondary'}`}>{review.comment}</p>}
-              {!isOwnProfile && review.response && <p className={`text-sm leading-6 break-words ${labelText}`}>Member’s response: {review.response}</p>}
-              {isOwnProfile && <div className="space-y-3"><ReviewResponseForm reviewId={review.id} initialResponse={review.response} /><TrustCaseForm reviewId={review.id} /></div>}
+              {review.response && <p className={`text-sm leading-6 break-words ${labelText}`}>Member’s response: {review.response}</p>}
               <p className={`pt-3 border-t border-[color:var(--workspace-border)] text-xs ${labelText}`}>Reviewed {isService ? 'as a service provider by a service seeker' : 'as a service seeker by a service provider'} · Completed booking</p>
             </article>)}
             {totalPages > 1 && <PaginationBar currentPage={currentPage} totalPages={totalPages} goToPage={goToPage} nextPage={nextPage} prevPage={prevPage} startIndex={startIndex} endIndex={endIndex} totalItems={reviews.length} variant={isService ? 'provider' : 'seeker'} />}

@@ -1,0 +1,82 @@
+{
+  "scope": "Read-only profile reviews and normally scrolling profile tabs",
+  "environment": "Local production build with fictional intercepted accounts and data; no real transactions or production writes.",
+  "results": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "profileTabsPosition": "static",
+      "tabsScrollWithDocument": true,
+      "reviewActions": 0,
+      "existingResponseReadable": true,
+      "keyboardTabs": true,
+      "overflow": false,
+      "errors": [],
+      "mutations": [],
+      "screenshotsReviewed": [
+        "profile-readonly-1440-light.png",
+        "profile-trust-scroll-1440-light.png"
+      ]
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "profileTabsPosition": "static",
+      "tabsScrollWithDocument": true,
+      "reviewActions": 0,
+      "existingResponseReadable": true,
+      "keyboardTabs": true,
+      "overflow": false,
+      "errors": [],
+      "mutations": [],
+      "screenshotsReviewed": [
+        "profile-readonly-1440-dark.png",
+        "profile-trust-scroll-1440-dark.png"
+      ]
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "profileTabsPosition": "static",
+      "tabsScrollWithDocument": true,
+      "reviewActions": 0,
+      "existingResponseReadable": true,
+      "keyboardTabs": true,
+      "overflow": false,
+      "errors": [],
+      "mutations": [],
+      "screenshotsReviewed": [
+        "profile-readonly-390-light.png",
+        "profile-trust-scroll-390-light.png"
+      ]
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "profileTabsPosition": "static",
+      "tabsScrollWithDocument": true,
+      "reviewActions": 0,
+      "existingResponseReadable": true,
+      "keyboardTabs": true,
+      "overflow": false,
+      "errors": [],
+      "mutations": [],
+      "screenshotsReviewed": [
+        "profile-readonly-390-dark.png",
+        "profile-trust-scroll-390-dark.png"
+      ]
+    }
+  ],
+  "validation": {
+    "frontendFocusedTestsPassed": 28,
+    "backendSchemaTestsPassed": 241,
+    "isolatedDatabaseTestsPassed": 13,
+    "frontendProductionBuild": "passed 112 routes",
+    "backendBuild": "passed",
+    "targetedLint": "passed",
+    "publicReplyEndpoint": "HTTP 404",
+    "productionDeployed": false,
+    "temporaryBrowserScriptsRemoved": true
+  },
+  "screenshotDisposition": "Visually inspected, then removed after verification to avoid retaining unused binary files in the codebase."
+}

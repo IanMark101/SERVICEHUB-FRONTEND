@@ -7,6 +7,16 @@ const clientReview = { id: 'client-review', authorName: 'Ian', rating: 5, commen
 const serviceReview = { id: 'service-review', authorName: 'Client', rating: 2, comment: 'The repair was incomplete.', createdAt: 'Oct 6, 2026', reviewContext: 'PROVIDER' as const };
 
 describe('profile review roles', () => {
+  it.each([true, false])('keeps reviews read-only when profile ownership is %s and preserves recorded responses', isOwnProfile => {
+    render(<ProfileReviewsSection {...props} isOwnProfile={isOwnProfile} initialReviews={[{ ...serviceReview, response: 'Previously recorded member response.' }]} />);
+    expect(screen.getByText(serviceReview.comment)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: '2 out of 5 stars' })).toBeInTheDocument();
+    expect(screen.getByText('Member’s response: Previously recorded member response.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /respond publicly|report review|publish response/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.getByText(/Completed booking/)).toBeInTheDocument();
+  });
+
   it('opens the requested seeker role for a member with reviews in both roles', () => {
     const { rerender } = render(<ProfileReviewsSection {...props} initialReviewContext="SEEKER" initialReviews={[clientReview, serviceReview]} />);
     expect(screen.getByRole('tab', { name: 'Reviews as Service Seeker 1' })).toHaveAttribute('aria-selected', 'true');

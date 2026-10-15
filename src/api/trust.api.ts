@@ -8,7 +8,7 @@ export interface TrustCaseItem {
   review?: { id: string; rating: number; text?: string; completedService: { bookingId?: string } };
   trustEvent?: { id: string; reason: string; delta: number; bookingId?: string };
 }
-export async function apiSubmitTrustCase(input: { reviewId?: string; trustEventId?: string; description: string }) {
+export async function apiSubmitTrustCase(input: { trustEventId: string; description: string }) {
   return (await api.post('/reviews/trust-cases', input)).data;
 }
 export async function apiListTrustCases(admin = false, page = 1): Promise<{ data: TrustCaseItem[]; pagination: { totalPages: number } }> {
@@ -19,9 +19,6 @@ export async function apiRespondTrustCase(id: string, response: string) {
 }
 export async function apiDecideTrustCase(id: string, input: { uphold: boolean; reason: string; violation?: ReviewViolation }) {
   return (await api.patch(`/admin/trust-cases/${id}`, input)).data;
-}
-export async function apiRespondReview(id: string, response: string) {
-  return (await api.patch(`/reviews/${id}/response`, { response })).data;
 }
 export async function apiTrustCorrections(id: string): Promise<{ data: { id: string; delta: number; reason: string }[] }> {
   return (await api.get(`/admin/users/${id}/trust-corrections`, { apiCache: 'no-store' })).data;

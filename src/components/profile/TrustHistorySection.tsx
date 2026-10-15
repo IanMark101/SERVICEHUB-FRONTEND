@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Award } from 'lucide-react';
 import type { getTrustBand } from './ProfileHeader';
-import { TrustCaseForm, TrustCasesPanel } from './TrustCaseControls';
+import { TrustPenaltyAppealForm, TrustCasesPanel } from './TrustCaseControls';
 
 export interface TrustHistoryEvent {
   id: string;
@@ -67,7 +67,7 @@ export default function TrustHistorySection({ events, loading, error, onRetry, s
                   <span aria-label={`${event.delta > 0 ? '+' : ''}${event.delta} trust points`} className={`inline-flex min-h-10 min-w-12 shrink-0 items-center justify-center rounded-xl px-2 text-sm font-bold tabular-nums ${tone}`}>{event.delta > 0 ? '+' : ''}{event.delta}</span>
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <h3 className="break-words text-sm font-semibold leading-6 [overflow-wrap:anywhere]">{event.reason}</h3>
-                    {isOwnProfile && event.appealable && <TrustCaseForm trustEventId={event.id} />}
+                    {isOwnProfile && event.appealable && <TrustPenaltyAppealForm trustEventId={event.id} />}
                     <p className={`text-sm tabular-nums ${muted}`}>Score: {event.scoreBefore} → {event.scoreAfter}</p>
                     <time dateTime={event.createdAt} className={`block text-xs leading-5 ${muted}`}>{new Date(event.createdAt).toLocaleString('en-PH', { timeZone: 'Asia/Manila', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} · Philippine time</time>
                   </div>

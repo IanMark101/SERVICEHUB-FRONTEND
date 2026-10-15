@@ -1,48 +1,37 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TrustCaseForm, ReviewResponseForm, TrustCasesPanel } from './TrustCaseControls';
+import { TrustPenaltyAppealForm, TrustCasesPanel } from './TrustCaseControls';
 import * as api from '../../api/trust.api';
 import { apiGetAdminBookingMessages } from '../../api/admin.api';
 
 vi.mock('../../context/AppContext', () => ({ useApp: () => ({ user: { id: 'recipient' } }) }));
 vi.mock('../../hooks/useApiCacheRefresh', () => ({ useApiCacheRefresh: vi.fn() }));
 vi.mock('../../api/admin.api', () => ({ apiGetAdminBookingMessages: vi.fn() }));
-vi.mock('../../api/trust.api', () => ({ apiSubmitTrustCase: vi.fn(), apiListTrustCases: vi.fn(), apiRespondTrustCase: vi.fn(), apiDecideTrustCase: vi.fn(), apiRespondReview: vi.fn() }));
+vi.mock('../../api/trust.api', () => ({ apiSubmitTrustCase: vi.fn(), apiListTrustCases: vi.fn(), apiRespondTrustCase: vi.fn(), apiDecideTrustCase: vi.fn() }));
 beforeEach(() => { vi.resetAllMocks(); vi.mocked(api.apiListTrustCases).mockResolvedValue({ data: [], pagination: { totalPages: 1 } }); });
 
 describe('review and trust appeal controls', () => {
   it('requires an explanation and submits only the selected penalty source', async () => {
     vi.mocked(api.apiSubmitTrustCase).mockResolvedValue({ success: true });
-    render(<TrustCaseForm trustEventId="event-1" />);
+    render(<TrustPenaltyAppealForm trustEventId="event-1" />);
     fireEvent.click(screen.getByRole('button', { name: 'Appeal trust penalty' }));
     const button = screen.getByRole('button', { name: 'Submit for admin review' });
     expect(button).toBeDisabled();
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'The booking messages document a mutual cancellation.' } });
     fireEvent.click(button);
-    await waitFor(() => expect(api.apiSubmitTrustCase).toHaveBeenCalledWith({ reviewId: undefined, trustEventId: 'event-1', description: 'The booking messages document a mutual cancellation.' }));
+    await waitFor(() => expect(api.apiSubmitTrustCase).toHaveBeenCalledWith({ trustEventId: 'event-1', description: 'The booking messages document a mutual cancellation.' }));
     expect(await screen.findByRole('status')).toHaveTextContent('Case submitted');
   });
   it('retains the explanation after a failed submission and allows retry', async () => {
     vi.mocked(api.apiSubmitTrustCase).mockRejectedValueOnce(new Error('Offline')).mockResolvedValueOnce({ success: true });
-    render(<TrustCaseForm reviewId="review-1" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Report review policy violation' }));
-    expect(screen.getByText(/Disagreeing with a rating/)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'The review threatens me unless I give an unrelated refund.' } });
+    render(<TrustPenaltyAppealForm trustEventId="event-1" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Appeal trust penalty' }));
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'The booking messages document a mutual cancellation.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit for admin review' }));
     expect(await screen.findByRole('alert')).toBeInTheDocument();
-    expect(screen.getByRole('textbox')).toHaveValue('The review threatens me unless I give an unrelated refund.');
+    expect(screen.getByRole('textbox')).toHaveValue('The booking messages document a mutual cancellation.');
     fireEvent.click(screen.getByRole('button', { name: 'Submit for admin review' }));
     expect(await screen.findByRole('status')).toHaveTextContent('Case submitted');
-  });
-  it('publishes a recipient response through the response endpoint only', async () => {
-    vi.mocked(api.apiRespondReview).mockResolvedValue({ success: true });
-    render(<ReviewResponseForm reviewId="review-1" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Respond publicly to review' }));
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Here is my perspective on the completed service.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Publish response' }));
-    expect(await screen.findByText(/Member’s response: Here is/)).toBeInTheDocument();
-    expect(api.apiRespondReview).toHaveBeenCalledWith('review-1', 'Here is my perspective on the completed service.');
-    expect(api.apiSubmitTrustCase).not.toHaveBeenCalled();
   });
   it('distinguishes a failed case load from an empty case list', async () => {
     vi.mocked(api.apiListTrustCases).mockRejectedValueOnce(new Error('Offline')).mockResolvedValueOnce({ data: [], pagination: { totalPages: 1 } });

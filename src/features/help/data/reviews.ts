@@ -31,11 +31,9 @@ export const REVIEWS_ARTICLES: HelpArticle[] = [
           'Seekers and Providers can edit their own submitted review for 24 hours. Low ratings still require an explanation. Posting, editing, hiding, or restoring a review does not change Trust Score.',
         ],
       },
-      { heading: 'Responding to or disputing a review', steps: [
-        'Open your User Profile and choose Reviews.',
-        'Use Respond publicly to review to explain your perspective respectfully. This response is visible with the review.',
-        'Use Report review policy violation for threats, manipulation, harassment, irrelevant content, or fabricated participation. Explain the violation and supporting details in at least 20 characters.',
-        'Track the dispute in Trust History. The review author has 48 hours to explain before Admin can uphold the dispute, unless they respond earlier. Admin records a reasoned decision. Harmful content can still be hidden through separately audited direct moderation.',
+      { heading: 'Reading profile reviews', paragraphs: [
+        'Open a User Profile and choose Reviews to read feedback, ratings, dates and any previously recorded member response. Profile reviews are read-only; public replies and new review reports are unavailable.',
+        'Eligible participants submit or edit their own feedback through the completed booking in Activity. Administrators can still moderate harmful content. Trust penalty appeals and previously submitted cases remain in Trust History.',
       ], callout: { type: 'info', title: 'Honest criticism stays visible', text: 'Disagreement with a rating is not a reason to remove it. Reviews express satisfaction; every star rating adds or deducts zero trust points.' } },
     ],
   },
