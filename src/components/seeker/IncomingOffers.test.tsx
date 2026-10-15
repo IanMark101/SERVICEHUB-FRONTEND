@@ -11,6 +11,22 @@ vi.mock('../ui/TransactionBlockedModal', () => ({ default: () => null }));
 vi.mock('../ui/PaginationBar', () => ({ default: () => null }));
 
 describe('payment selected when requesting a listing', () => {
+  it.each(['On-site Cash','GCash'] as const)('keeps discovery separate and requires a private job address before accepting a public offer with %s', async method => {
+    const acceptBid = vi.fn().mockResolvedValue(undefined);
+    const request = {id:'request-1',seekerId:'seeker-1',title:'Laptop repair',paymentMethods:{cash:method === 'On-site Cash',gcash:method === 'GCash'},jobLocation:{latitude:10.3,longitude:123.9,label:'Discovery point'}};
+    const bid = mapOfferToBid({id:'offer-1',requestId:request.id,providerId:'provider-1',serviceId:null,serviceLocationMode:'PROVIDER_VISITS',status:'PENDING',offeredPrice:2500,request:{seekerId:request.seekerId,title:request.title,paymentMethods:request.paymentMethods}});
+    vi.mocked(useApp).mockReturnValue({isDark:false,users:[],services:[],jobRequests:[request],bids:[bid],acceptBid,declineBid:vi.fn()} as unknown as ReturnType<typeof useApp>);
+    render(<IncomingOffers currentUserId="seeker-1" />);
+    fireEvent.click(screen.getByRole('button',{name:'Accept Offer'}));
+    const confirm = screen.getByRole('button',{name:method === 'GCash' ? 'GCash' : 'Confirm booking'});
+    fireEvent.click(confirm);
+    expect(acceptBid).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter the job address');
+    fireEvent.change(screen.getByRole('textbox',{name:'Job address and directions'}),{target:{value:'Blue gate beside Ibabao barangay hall'}});
+    fireEvent.click(confirm);
+    await waitFor(() => expect(acceptBid).toHaveBeenCalledWith('offer-1',method,{label:'Job address',address:'Blue gate beside Ibabao barangay hall'}));
+    expect(request.jobLocation).toEqual({latitude:10.3,longitude:123.9,label:'Discovery point'});
+  });
   it.each(['On-site Cash', 'GCash'])('shows the final total and included work before a listing proposal is approved with %s', async method => {
     const acceptBid = vi.fn().mockResolvedValue(undefined);
     vi.mocked(useApp).mockReturnValue({ isDark: false, users: [], services: [], jobRequests: [], acceptBid, declineBid: vi.fn(), bids: [{ id: 'price', requestId: 'private', seekerId: 'seeker-1', requestTitle: 'Laptop repair', requestTargetServiceId: 'service-1', requestPaymentMethods: { cash: true, gcash: true }, status: 'pending', providerId: 'provider-1', providerName: 'Ian', price: 1250, message: 'Charging port repair including labor, parts and travel.', createdAt: '2026-10-14' }] } as unknown as ReturnType<typeof useApp>);

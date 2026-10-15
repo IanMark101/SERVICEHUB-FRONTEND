@@ -8,6 +8,12 @@ export const LocationSchema = z.object({
   address: z.string().trim().max(500).optional(),
 });
 export type LocationPoint = z.infer<typeof LocationSchema>;
+export const BookingLocationSchema = LocationSchema.partial({ latitude: true, longitude: true }).superRefine((value, context) => {
+  const hasPoint = value.latitude !== undefined && value.longitude !== undefined;
+  if ((value.latitude !== undefined) !== (value.longitude !== undefined)) context.addIssue({ code: 'custom', message: 'Provide both map coordinates.' });
+  if (!hasPoint && (value.address?.length ?? 0) < 5) context.addIssue({ code: 'custom', message: 'Enter a job address or choose a job pin.' });
+});
+export type BookingLocation = z.infer<typeof BookingLocationSchema>;
 export const SEARCH_RADIUS_MIN_KM = 0.5;
 export const SEARCH_RADIUS_MAX_KM = 30;
 export const SEARCH_RADIUS_STEP_KM = 0.1;

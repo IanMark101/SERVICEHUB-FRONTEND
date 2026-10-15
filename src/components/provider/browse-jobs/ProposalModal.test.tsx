@@ -33,7 +33,7 @@ describe('provider offer service arrangement', () => {
   it('uses a compatible listing’s saved venue without requesting another pin', () => {
     const submit = vi.fn();
     render(<ProposalModal {...props} listings={[listing]} serviceId="listing" onSubmit={submit} />);
-    expect(screen.getByText('Service venue: Workshop area')).toBeInTheDocument();
+    expect(screen.getByText('Your saved workplace')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Choose test venue' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Send Offer' }));
     expect(submit).toHaveBeenCalledWith(expect.anything(), { serviceLocationMode: 'SEEKER_VISITS' });

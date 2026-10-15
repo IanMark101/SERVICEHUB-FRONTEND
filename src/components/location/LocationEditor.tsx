@@ -11,7 +11,8 @@ import styles from './Location.module.css';
 
 const Map = dynamic(() => import('./LocationMap'), { ssr:false, loading:() => <div className={styles.mapLoading}>Loading map…</div> });
 export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'City or barangay shown to other users', onPendingChange,
-  mapResults, mapResultAccent = '#047857', onResultSelect, onViewportChange, selectionMode = 'pin', compact = false, onSelected }: {
+  mapResults, mapResultAccent = '#047857', onResultSelect, onViewportChange, selectionMode = 'pin', compact = false, onSelected, purpose = 'job' }: {
+  purpose?: 'job' | 'discovery' | 'search';
   value:LocationPoint | null; onChange:(point:LocationPoint) => void; radiusKm?:number; accent?:string; disabled?:boolean; label?:string;
   onPendingChange?:(pending:boolean)=>void;
   mapResults?:MarketplaceMapPin[]; mapResultAccent?:string; onResultSelect?:(id:string)=>void; onViewportChange?:(viewport:MarketplaceMapViewport)=>void;
@@ -151,7 +152,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     {allowMap && (!areaOnly || showAreaMap) && <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my device location'}</button>}
     {operation === 'location' && <div className={styles.selected}><p role="status" className={styles.hint}>Allow location in your browser. You can cancel and retry after turning on device location.</p><button type="button" className={styles.button} onClick={cancelRequest}>Cancel location request</button></div>}
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
-    {allowMap && (!areaOnly || showAreaMap) && <><p className={styles.hint}>{areaOnly ? 'Choose a point in your city or barangay, then confirm. No exact address is needed.' : 'Click the map or move the pin to the job location or workplace, then confirm.'}</p>
+    {allowMap && (!areaOnly || showAreaMap) && <><p className={styles.hint}>{purpose === 'search' ? 'Choose the center of your nearby search. This does not change any listing or booking address.' : purpose === 'discovery' ? 'Place the pin where nearby users should find your listing, then confirm. This does not set the job address.' : areaOnly ? 'Choose a point in your city or barangay, then confirm. No exact address is needed.' : 'Click the map or move the pin to the job location or workplace, then confirm.'}</p>
       <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}
         results={mapResults} resultPlacement="area" resultAccent={mapResultAccent} resultActionLabel="View listing" onResultSelect={onResultSelect} onViewportChange={onViewportChange}/></>}
     {(candidate || value) && (!compact || manualLabel) && <label><span className={styles.label}>{compact ? 'City or barangay for the selected point' : label}</span><input className={styles.field} value={candidate?.label ?? value?.label ?? ''} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => { cancelLookup(); if(value) onChange({ ...value, label:e.target.value }); }}/></label>}

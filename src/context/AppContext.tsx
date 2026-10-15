@@ -2,7 +2,7 @@
 
 import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
 
-import type { LocationPoint } from '../lib/location';
+import type { LocationPoint, BookingLocation } from '../lib/location';
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { User, ServiceListing, JobRequest, Bid, JobEngagement, Transaction, Notification, Message, UserReport } from '../types';
@@ -55,7 +55,7 @@ interface AppContextType {
   editJobRequest: (requestId: string, title: string, budget: number, description: string, urgency?: import('../lib/requestUrgency').RequestUrgency, locationOptions?: { photoIds?: string[]; jobLocation?: LocationPoint | null; serviceLocationMode?: ServiceLocationMode; transportationFee?: number | null }) => Promise<(Pick<JobRequest, 'title' | 'budget' | 'description'> & { urgency?: string }) | null>;
   deleteJobRequest: (requestId: string) => Promise<boolean>;
   toggleJobRequestStatus: (requestId: string, currentStatus?: string) => Promise<boolean>;
-  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash') => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
+  acceptBid: (bidId: string, paymentMethod?: 'GCash' | 'On-site Cash', jobLocation?: BookingLocation) => Promise<import('../lib/paymentCheckout').PendingGcashCheckout | void>;
   declineBid: (bidId: string) => void;
   confirmJobCompletion: (jobId: string) => Promise<void>;
   disputeJob: (jobId: string, reason: string) => Promise<void>;

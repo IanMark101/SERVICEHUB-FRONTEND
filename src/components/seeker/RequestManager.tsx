@@ -202,7 +202,7 @@ export default function RequestManager({
     e.preventDefault();
     if (!editingRequest || savingEditRef.current) return;
     if (!editingRequest.jobLocation && editingRequest.serviceLocationMode !== 'REMOTE' && editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode) {
-      error(['SEEKER_VISITS', 'REMOTE'].includes(editingRequest.serviceLocationMode ?? '') ? 'Choose an area to find providers' : 'Choose where the work will happen', ['SEEKER_VISITS', 'REMOTE'].includes(editingRequest.serviceLocationMode ?? '') ? 'Choose the city or barangay where you want to find a provider.' : 'Mark where the provider should come on the map.');
+      error('Choose your discovery location', 'Choose where nearby providers can find your request on the map.');
       return;
     }
     savingEditRef.current = true;
@@ -218,7 +218,7 @@ export default function RequestManager({
         {
           ...(editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode && { serviceLocationMode: editingRequest.serviceLocationMode }),
           ...(JSON.stringify((editingRequest.photos ?? []).map(photo => photo.id)) !== JSON.stringify(editingRequest.originalPhotoIds ?? []) && { photoIds: (editingRequest.photos ?? []).map(photo => photo.id) }),
-          ...(JSON.stringify(editingRequest.jobLocation) !== JSON.stringify(editingRequest.originalJobLocation) && (editingRequest.jobLocation || editingRequest.serviceLocationMode === 'REMOTE') && { jobLocation: editingRequest.jobLocation ?? null }),
+          ...(editingRequest.serviceLocationMode === 'REMOTE' ? { jobLocation:null } : (editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode || JSON.stringify(editingRequest.jobLocation) !== JSON.stringify(editingRequest.originalJobLocation)) && editingRequest.jobLocation ? { jobLocation: { latitude:editingRequest.jobLocation.latitude, longitude:editingRequest.jobLocation.longitude, label:editingRequest.jobLocation.label } } : {}),
           ...((editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null) !== (editingRequest.originalTransportationFee ?? null) && { transportationFee: editingRequest.transportationFee ? Number(editingRequest.transportationFee) : null }),
         },
       );

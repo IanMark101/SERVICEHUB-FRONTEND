@@ -1,5 +1,5 @@
 import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
-import type { LocationPoint } from '../lib/location';
+import type { LocationPoint, BookingLocation } from '../lib/location';
 
 export interface Review {
   id: string;
@@ -165,7 +165,7 @@ export interface BookingProgressEvent {
 
 export interface JobEngagement {
   serviceLocationMode?: BookingLocationMode;
-  jobLocation?: LocationPoint;
+  jobLocation?: BookingLocation;
   transportationFee?: number | null;
   id: string;
   title: string;

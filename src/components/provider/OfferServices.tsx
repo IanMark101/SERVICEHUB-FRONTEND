@@ -89,9 +89,9 @@ export default function OfferServices() {
     }
     if (index === 1) {
       if (serviceLocationMode !== 'REMOTE' && !LocationSchema.safeParse(serviceLocation).success) {
-        problems.push({ field: 'location', heading: listingUsesArea(serviceLocationMode) ? 'Choose your general service area' : 'Choose where seekers can visit you', message: listingUsesArea(serviceLocationMode) ? 'Choose a city or barangay where you offer this service. No shop or home address is needed.' : 'Mark the place where seekers can visit you on the map, then enter the city or barangay name.' });
+        problems.push({ field: 'location', heading: 'Choose your discovery location', message: 'Choose where nearby seekers can find your service on the map.' });
       }
-      if (!listingUsesArea(serviceLocationMode) && venueAddress.length > 500) problems.push({ field: 'address', heading: 'Check your directions', message: 'Keep the address or directions within 500 characters.' });
+      if (!listingUsesArea(serviceLocationMode) && (venueAddress.trim().length < 5 || venueAddress.length > 500)) problems.push({ field: 'address', heading: 'Add your workplace address', message: 'Enter the workplace address or directions in 5–500 characters. This is saved for seekers who visit you.' });
     }
     if (index === 2) {
       if (!priceByAgreement && (!Number.isFinite(price) || !Number.isInteger(price) || price < 50 || price > 50000)) problems.push({ field: 'price', heading: 'Check your service price', message: 'Enter a service price between ₱50 and ₱50,000 in whole pesos.' });
@@ -144,8 +144,8 @@ export default function OfferServices() {
         { cash: acceptCash, gcash: acceptGCash },
         {
           photoIds: photos.map(photo => photo.id),
-          serviceLocation: serviceLocation ?? undefined,
-          publicMapPin: !listingUsesArea(serviceLocationMode) && publicMapPin,
+          serviceLocation: serviceLocationMode === 'REMOTE' ? undefined : serviceLocation ?? undefined,
+          publicMapPin: false,
           serviceLocationMode,
           venueAddress: listingUsesArea(serviceLocationMode) ? null : venueAddress.trim() || null,
           coverageRadiusKm: null,
@@ -238,7 +238,7 @@ export default function OfferServices() {
             </WizardStep>
             <WizardStep index={1} currentStep={step} label="Service location">
             <ListingFormSection number={2} title="How will you deliver the service?" description="Choose a visit arrangement or deliver the work online.">
-              <div data-listing-location><ListingLocationFields locationError={locationError} value={{ serviceLocation, publicMapPin, serviceLocationMode, venueAddress, transportationFee }} isDark={isDark} disabled={!canTransact || loading} arrangementLayout="responsive" showTransportation={false} onChange={patch => {
+              <div data-listing-location><ListingLocationFields userId={user?.id} reuseSaved locationError={locationError} value={{ serviceLocation, publicMapPin, serviceLocationMode, venueAddress, transportationFee }} isDark={isDark} disabled={!canTransact || loading} arrangementLayout="responsive" showTransportation={false} onChange={patch => {
                 setLocationError('');
                 if (patch.publicMapPin !== undefined) setPublicMapPin(patch.publicMapPin);
                 if (patch.serviceLocation !== undefined) setServiceLocation(patch.serviceLocation);
@@ -287,7 +287,7 @@ export default function OfferServices() {
               <ListingFormSection number={5} title="Review your service listing" description="Check the details seekers will see before publishing.">
                 <div>
                   <WizardReviewSection title="Service details" onEdit={() => changeStep(0)}><dl><dt>Service name</dt><dd>{title}</dd><dt>Service category</dt><dd>{categories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>What is included?</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no travel' : serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>{serviceLocationMode === 'REMOTE' ? 'Discovery area' : serviceLocationMode === 'PROVIDER_VISITS' ? 'Service area' : 'Where seekers can visit you'}</dt><dd>{serviceLocation?.label || (serviceLocationMode === 'REMOTE' ? 'Online / remote — no location needed' : 'Not selected')}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Private directions</dt><dd>{venueAddress}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no travel' : serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>Discovery location</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no location needed' : serviceLocation?.label || 'Not selected'}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Private workplace address</dt><dd>{venueAddress}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Price and duration" onEdit={() => changeStep(2)}><dl><dt>Service price</dt><dd>{priceByAgreement ? 'Price by agreement' : '₱' + price.toLocaleString() + (priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price')}</dd><dt>Time needed</dt><dd>{durationMins} minutes</dd>{!priceByAgreement && involvesProviderTravel(serviceLocationMode) && <><dt>Your travel fee</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[acceptCash && 'Cash in person', acceptGCash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p>{acceptGCash && <p>GCash is currently in test mode; no real money is transferred.</p>}</WizardReviewSection>
                   <p className={styles.help}>You can accept separate bookings from this listing. A seeker can book again after their previous booking ends.</p>

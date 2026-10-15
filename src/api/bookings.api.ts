@@ -1,5 +1,5 @@
 import type { BookingLocationMode } from '../lib/serviceArrangement';
-import type { LocationPoint } from '../lib/location';
+import type { LocationPoint, BookingLocation } from '../lib/location';
 import { api } from '../lib/api/axios';
 
 export async function apiBookDirect(data: {
@@ -19,7 +19,7 @@ function paymentTarget({ offerId, serviceId }: { offerId?: string; serviceId?: s
   return offerId ? { offerId } : serviceId ? { serviceId } : {};
 }
 
-export async function apiInitiatePayment(data: { retryPaymentIntentId?: string; jobLocation?: LocationPoint; serviceLocationMode?: BookingLocationMode; serviceId?: string; offerId?: string; quantity?: number; paymentMethodType?: 'gcash' }) {
+export async function apiInitiatePayment(data: { retryPaymentIntentId?: string; jobLocation?: BookingLocation; serviceLocationMode?: BookingLocationMode; serviceId?: string; offerId?: string; quantity?: number; paymentMethodType?: 'gcash' }) {
   const { serviceId, offerId, ...terms } = data;
   const response = await api.post('/bookings/initiate-payment', { ...terms, ...paymentTarget({ serviceId, offerId }) });
   return response.data;
@@ -86,8 +86,8 @@ export async function apiRespondDirectRequest(requestId: string, accept: boolean
   return response.data;
 }
 
-export async function apiBookDirectFromOffer(offerId: string) {
-  const response = await api.post('/bookings/direct-from-offer', { offerId });
+export async function apiBookDirectFromOffer(offerId: string, jobLocation?: BookingLocation) {
+  const response = await api.post('/bookings/direct-from-offer', { offerId, ...(jobLocation && { jobLocation }) });
   return response.data;
 }
 

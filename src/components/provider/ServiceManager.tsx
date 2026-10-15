@@ -186,7 +186,7 @@ export default function ServiceManager({
     e.preventDefault();
     if (!editingService || savingRef.current) return;
     if (!editingService.serviceLocation && editingService.serviceLocationMode !== 'REMOTE' && editingService.serviceLocationMode !== (services.find(service => service.id === editingService.serviceId)?.serviceLocationMode ?? 'PROVIDER_VISITS')) {
-      error(['PROVIDER_VISITS', 'REMOTE'].includes(editingService.serviceLocationMode ?? '') ? 'Choose your service area' : 'Choose where seekers can visit you', ['PROVIDER_VISITS', 'REMOTE'].includes(editingService.serviceLocationMode ?? '') ? 'Choose a city or barangay where you offer this service.' : 'Mark the place where seekers can visit you on the map.');
+      error('Choose your discovery location', 'Choose where nearby seekers can find your service on the map.');
       return;
     }
 
@@ -198,8 +198,8 @@ export default function ServiceManager({
       editingService.price,
       editingService.description,
       {
-        ...(editingService.serviceLocation ? { serviceLocation: editingService.serviceLocation } : editingService.serviceLocationMode === 'REMOTE' ? {serviceLocation:null} : {}),
-        publicMapPin: editingService.publicMapPin ?? false,
+        ...(editingService.serviceLocationMode === 'REMOTE' ? { serviceLocation:null } : editingService.serviceLocation ? { serviceLocation: editingService.serviceLocation } : {}),
+        publicMapPin: false,
         coverageRadiusKm: null,
         photoIds: (editingService.photos ?? []).map(photo => photo.id),
         serviceLocationMode: editingService.serviceLocationMode,

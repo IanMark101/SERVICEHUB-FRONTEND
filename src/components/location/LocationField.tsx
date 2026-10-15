@@ -6,7 +6,8 @@ import type { LocationPoint } from '../../lib/location';
 import LocationEditor from './LocationEditor';
 import styles from './Location.module.css';
 
-export default function LocationField({ value, onChange, onClear, label, radiusKm, privateAddress = false, disabled = false, workspace = 'seeker', hint, selectionMode = 'pin', required = false, error }: {
+export default function LocationField({ value, onChange, onClear, label, radiusKm, privateAddress = false, disabled = false, workspace = 'seeker', hint, selectionMode = 'pin', required = false, error, purpose = 'job' }: {
+  purpose?: 'job' | 'discovery';
   value:LocationPoint | null; onChange:(point:LocationPoint) => void; onClear?:()=>void; label:string; radiusKm?:number | null; privateAddress?:boolean; disabled?:boolean; workspace?:'seeker'|'provider'; hint?:string; selectionMode?:'area'|'area-search'|'pin'; required?:boolean; error?:string;
 }) {
   const [open, setOpen] = useState(false);
@@ -31,11 +32,11 @@ export default function LocationField({ value, onChange, onClear, label, radiusK
         <span className={styles.pickerIcon}><MapPinned size={22} aria-hidden="true" /></span>
         <span className={styles.pickerCopy}>
           <strong id={`${id}-title`}>{value?.label || (areaOnly ? 'Choose a city or barangay' : 'Choose a location')}</strong>
-          <small>{areaOnly ? 'Choose a general area. No exact address is needed here.' : value ? 'Check the marked place. Move the pin if needed.' : 'Search your city or barangay, then mark the exact place.'}</small>
+          <small>{purpose === 'discovery' ? 'Choose where nearby users can find this listing.' : areaOnly ? 'Choose a general area. No exact address is needed here.' : value ? 'Check the marked place. Move the pin if needed.' : 'Search your city or barangay, then mark the exact place.'}</small>
         </span>
         <span id={`${id}-action`} className={styles.pickerAction}>{open ? 'Close' : value ? 'Change' : areaOnly ? 'Choose area' : 'Choose location'}<ChevronDown size={16} aria-hidden="true" /></span>
       </summary>
-      {open && !disabled && <LocationEditor compact key={selectionMode} selectionMode={selectionMode} value={value} onChange={onChange} onSelected={closeAfterSelection} radiusKm={radiusKm ?? undefined} accent={workspace==='provider' ? '#059669' : 'var(--color-brand-text)'}/>}
+      {open && !disabled && <LocationEditor compact purpose={purpose} key={selectionMode} selectionMode={selectionMode} value={value} onChange={onChange} onSelected={closeAfterSelection} radiusKm={radiusKm ?? undefined} accent={workspace==='provider' ? '#059669' : 'var(--color-brand-text)'}/>}
     </details>
     {value && onClear && <button type="button" className={styles.button} disabled={disabled} onClick={onClear}>Remove area</button>}
     <p id={`${id}-hint`} className={styles.hint}>{hint || (privateAddress ? 'Mark where the provider should come. Only the city or barangay is public; the exact location and directions are shared after booking.' : 'Other users see the general area and approximate distance. Your exact location stays private.')}</p>

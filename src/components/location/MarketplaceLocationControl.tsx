@@ -59,7 +59,7 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, initi
           {mapListings.limited && <p>Zoom in to load listings across the visible area.</p>}
           {mapListings.error && <button className={styles.button} type="button" onClick={mapListings.retry}>Retry map listings</button>}
         </div>}
-        <LocationEditor value={point} onChange={setPoint} radiusKm={radius} accent={accent} label="Search area name" onPendingChange={setPending}
+        <LocationEditor purpose="search" value={point} onChange={setPoint} radiusKm={radius} accent={accent} label="Search area name" onPendingChange={setPending}
           mapResultAccent={workspace==='seeker' ? '#047857' : '#c2410c'} mapResults={providerMap ? mapListings.pins : undefined} onViewportChange={providerMap ? setViewport : undefined}
           onResultSelect={id=>{ onClose();onViewListing?.(id); }}/>
       </div>

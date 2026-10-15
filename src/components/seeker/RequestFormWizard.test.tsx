@@ -12,7 +12,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/GCashNumberField', async () => {
   const { useEffect } = await import('react');
-  return { default: ({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) => {
+  return { default: function GCashNumberFixture({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) {
     useEffect(() => { if (enabled) onReadinessChange?.({ userId, ready: true }); }, [userId, enabled, onReadinessChange]);
     return enabled ? <p>Saved number ending in 6789</p> : null;
   } };
@@ -30,6 +30,7 @@ const online = vi.fn();
 const listing: ServiceListing = { id: 'service-1', providerId: 'provider-1', providerName: 'Ian', providerAvatar: '', title: 'Laptop repair', category: 'Computer & Laptop Repair', description: 'Repair laptops', price: 500, queueSize: 0, isPaused: false, proofOfSkillUrl: '', rating: 0, reviewCount: 0, priceType: 'FIXED', paymentMethods: { cash: true, gcash: true }, serviceLocationMode: 'BOTH', transportationFee: 75 };
 
 beforeEach(() => {
+  localStorage.clear();
   vi.clearAllMocks();
   post.mockResolvedValue(false);
   online.mockResolvedValue(undefined);
@@ -85,9 +86,9 @@ describe('Post Request wizard', () => {
     expect(screen.getByRole('spinbutton', { name: /Your service budget/ })).toHaveValue(1500);
     next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Post request' }));
-    expect(post).toHaveBeenCalledWith('seeker-1', expect.any(String), 'category-1', 'This Week', 1500, expect.any(String), { cash: true, gcash: true }, expect.objectContaining({ photoIds: ['photo-1'], jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cordova', address: 'Blue gate' } }));
+    expect(post).toHaveBeenCalledWith('seeker-1', expect.any(String), 'category-1', 'This Week', 1500, expect.any(String), { cash: true, gcash: true }, expect.objectContaining({ photoIds: ['photo-1'], jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cordova' } }));
   });
-  it('requires a job location and validates the budget before showing Payment', () => {
+  it('requires a discovery location and validates the budget before showing Payment', () => {
     render(<PostRequest />); details(); next(); next();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '25');
     fireEvent.click(screen.getByRole('button', { name: 'Use Cordova location' })); next(); next();

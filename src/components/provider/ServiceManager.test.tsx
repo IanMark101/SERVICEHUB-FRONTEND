@@ -17,7 +17,7 @@ describe('compact managed listings and durable save state',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Details of LAPTOP REPAIR'}));
     fireEvent.click(screen.getByRole('button',{name:'Edit'}));
     fireEvent.click(screen.getByRole('radio',{name:/Online \/ remote/}));
-    expect(screen.getByText('Based in (optional)')).toBeInTheDocument();
+    expect(screen.getByText(/No discovery pin or job address is needed/)).toBeInTheDocument();
     expect(screen.queryByRole('checkbox',{name:/exact location publicly/})).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
     await waitFor(()=>expect(edit).toHaveBeenCalledWith(service.id,service.title,500,service.description,expect.objectContaining({serviceLocationMode:'REMOTE',serviceLocation:null,publicMapPin:false,transportationFee:null})));
@@ -25,7 +25,7 @@ describe('compact managed listings and durable save state',()=>{
   });
   it.each(['You go to the seeker','The seeker comes to you','Either option'])('requires a new physical location when changing remote to %s',async arrangement=>{
     const edit=vi.fn();
-    vi.mocked(useApp).mockReturnValue({services:[{...service,serviceLocationMode:'REMOTE'}],setServices:vi.fn(),editServiceListing:edit,toggleServiceListingStatus:vi.fn(),deleteServiceListing:vi.fn(),isDark:false,user:{id:'provider-1'}} as unknown as ReturnType<typeof useApp>);
+    vi.mocked(useApp).mockReturnValue({services:[{...service,serviceLocationMode:'REMOTE',serviceLocation:undefined}],setServices:vi.fn(),editServiceListing:edit,toggleServiceListingStatus:vi.fn(),deleteServiceListing:vi.fn(),isDark:false,user:{id:'provider-1'}} as unknown as ReturnType<typeof useApp>);
     render(<ServiceManager currentProviderId="provider-1"/>);
     fireEvent.click(screen.getByRole('button',{name:'Details of LAPTOP REPAIR'}));fireEvent.click(screen.getByRole('button',{name:'Edit'}));
     fireEvent.click(screen.getByRole('radio',{name:new RegExp(arrangement)}));

@@ -28,7 +28,7 @@ describe('Request Manager activation', () => {
     render(<RequestManager currentUserId="seeker-1"/>);
     fireEvent.click(screen.getByRole('button',{name:'Edit PIPE REPAIR'}));
     fireEvent.click(screen.getByRole('radio',{name:/Online \/ remote/}));
-    expect(screen.getByText('Based in (optional)')).toBeInTheDocument();
+    expect(screen.getByText(/No discovery pin or job address is needed/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
     await waitFor(()=>expect(edit).toHaveBeenCalledWith(request.id,request.title,request.budget,request.description,undefined,expect.objectContaining({serviceLocationMode:'REMOTE',jobLocation:null})));
     await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());

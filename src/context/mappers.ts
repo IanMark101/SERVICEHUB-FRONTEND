@@ -1,5 +1,5 @@
 import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
-import { LocationSchema } from '../lib/location';
+import { LocationSchema, BookingLocationSchema } from '../lib/location';
 import {
   ServiceListing,
   JobRequest,
@@ -33,7 +33,7 @@ interface ApiTransaction { id: string; relatedBookingId?: string; walletOwnerId:
 
 function bookingMetadata(booking?: ApiBooking) {
   const requestCategory = booking?.offer?.request?.category;
-  const point = LocationSchema.safeParse(booking?.jobLocation);
+  const point = BookingLocationSchema.safeParse(booking?.jobLocation);
   return {
     category: (typeof requestCategory === 'string' ? requestCategory : requestCategory?.name)
       || booking?.service?.category?.name || booking?.directRequest?.service?.category?.name,

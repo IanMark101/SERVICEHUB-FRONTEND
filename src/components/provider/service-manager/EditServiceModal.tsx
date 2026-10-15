@@ -190,7 +190,7 @@ export default function EditServiceModal({
             </div>
 
             <ListingPhotoUploader workspace="provider" value={value.photos ?? []} onChange={photos => onChange({ ...value, photos })} onBusyChange={setPhotosBusy} />
-            <ListingLocationFields value={value} isDark={isDark} showTransportation={value.priceType !== 'BY_AGREEMENT'} onChange={patch => onChange({ ...value, ...patch })} />
+            <ListingLocationFields userId={userId} value={value} isDark={isDark} showTransportation={value.priceType !== 'BY_AGREEMENT'} onChange={patch => onChange({ ...value, ...patch })} />
             <div>
               <label className={label}>What is included?</label>
               <textarea

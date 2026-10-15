@@ -1,8 +1,8 @@
 import ServiceArrangementField from '../../location/ServiceArrangementField';
 import MoneyInput from '../../ui/MoneyInput';
-import { requestUsesArea, involvesProviderTravel, requestLocationText, type ServiceLocationMode } from '../../../lib/serviceArrangement';
+import { involvesProviderTravel, type ServiceLocationMode } from '../../../lib/serviceArrangement';
 import type { LocationPoint } from '../../../lib/location';
-import LocationField from '../../location/LocationField';
+import DiscoveryLocationField from '../../location/DiscoveryLocationField';
 import TransportationField from '../../location/TransportationField';
 import FormSelect from '../../ui/FormSelect';
 import { useState, type FormEvent } from 'react';
@@ -65,8 +65,8 @@ export default function EditRequestModal({ value, isDark, isSaving = false, onCh
             </FormSelect>
             <p className="mt-1.5 text-xs text-ink-muted">Choose when you need help, or keep your previous choice.</p>
           </div>
-          <ServiceArrangementField value={value.serviceLocationMode ?? 'PROVIDER_VISITS'} onChange={serviceLocationMode => onChange({ ...value, serviceLocationMode, ...(serviceLocationMode !== value.serviceLocationMode && (serviceLocationMode === 'REMOTE' || value.serviceLocationMode === 'REMOTE' || requestUsesArea(value.serviceLocationMode) !== requestUsesArea(serviceLocationMode)) ? {jobLocation:null} : {}) })} disabled={isSaving || value.locationLocked} />
-          <LocationField required={value.serviceLocationMode !== 'REMOTE'} selectionMode={value.serviceLocationMode === 'REMOTE' ? 'area-search' : requestUsesArea(value.serviceLocationMode) ? 'area' : 'pin'} label={requestLocationText(value.serviceLocationMode).label} value={value.jobLocation ?? null} privateAddress={involvesProviderTravel(value.serviceLocationMode)} hint={requestLocationText(value.serviceLocationMode).hint} disabled={isSaving || value.locationLocked} onChange={jobLocation => onChange({ ...value, jobLocation })} onClear={value.serviceLocationMode === 'REMOTE' ? () => onChange({...value,jobLocation:null}) : undefined} />
+          <ServiceArrangementField value={value.serviceLocationMode ?? 'PROVIDER_VISITS'} onChange={serviceLocationMode => onChange({ ...value, serviceLocationMode })} disabled={isSaving || value.locationLocked} />
+          {value.serviceLocationMode === 'REMOTE' ? <p className="text-xs text-ink-muted">Work is delivered online. No discovery pin or job address is needed.</p> : <DiscoveryLocationField workspace="seeker" value={value.jobLocation ?? null} disabled={isSaving || value.locationLocked} onChange={jobLocation => onChange({ ...value, jobLocation })} />}
           {involvesProviderTravel(value.serviceLocationMode) && <TransportationField budget isDark={isDark} disabled={isSaving || value.locationLocked} value={value.transportationFee ?? ''} onChange={transportationFee => onChange({ ...value, transportationFee })} />}
           {value.locationLocked && <p className="text-xs text-ink-muted">You have offers waiting for a decision. Close those offers before changing who travels, the location, or the extra travel budget.</p>}
           <div><label htmlFor="edit-request-description" className={labelClass}>Describe what you need</label><textarea id="edit-request-description" disabled={isSaving} rows={4} required value={value.description} onChange={(event) => onChange({ ...value, description: event.target.value })} className={`${fieldClass} font-medium resize-none`} /></div>

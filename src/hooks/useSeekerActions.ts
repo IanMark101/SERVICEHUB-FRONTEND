@@ -1,5 +1,5 @@
 import type { ServiceLocationMode, BookingLocationMode } from '../lib/serviceArrangement';
-import type { LocationPoint } from '../lib/location';
+import type { LocationPoint, BookingLocation } from '../lib/location';
 import React from 'react';
 import type { BookingActionResult } from '../lib/bookingActionUpdate';
 import { User, ServiceListing, JobRequest, Bid, JobEngagement, Transaction, Notification, UserReport } from '../types';
@@ -54,7 +54,7 @@ export function useSeekerActions({
 }: SeekerActionsDeps) {
   const { success, error: toastError, info } = useToast();
 
-  const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>, jobLocation?: LocationPoint, serviceLocationMode?: BookingLocationMode) => {
+  const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>, jobLocation?: BookingLocation, serviceLocationMode?: BookingLocationMode) => {
     const popup = prepareGcashWindow();
     try {
       const response = await apiInitiatePayment({
@@ -233,7 +233,7 @@ export function useSeekerActions({
     }
   };
 
-  const acceptBid = async (bidId: string, paymentMethod: 'GCash' | 'On-site Cash' = 'On-site Cash') => {
+  const acceptBid = async (bidId: string, paymentMethod: 'GCash' | 'On-site Cash' = 'On-site Cash', jobLocation?: BookingLocation) => {
     const targetBid = bids.find(b => b.id === bidId);
     if (!targetBid) return;
 
@@ -246,14 +246,14 @@ export function useSeekerActions({
 
     try {
       if (paymentMethod === 'On-site Cash') {
-        const res = await apiBookDirectFromOffer(bidId);
+        const res = await apiBookDirectFromOffer(bidId, ...(jobLocation ? [jobLocation] as const : []));
         if (res.success) {
           setBids(current => current.map(bid => bid.id === bidId ? { ...bid, status: 'accepted' } : bid));
           success('Offer accepted', 'You can now message the provider to arrange the work.');
           return;
         }
       } else {
-        return await startGcashCheckout({ seekerId: seekerId!, offerId: bidId, title: targetRequest?.title || targetBid.requestTitle, providerName: targetBid.providerName });
+        return await startGcashCheckout({ seekerId: seekerId!, offerId: bidId, title: targetRequest?.title || targetBid.requestTitle, providerName: targetBid.providerName }, jobLocation);
       }
     } catch (err: unknown) {
       toastError('Action Failed', getApiErrorMessage(err, 'Unable to accept the offer.'));

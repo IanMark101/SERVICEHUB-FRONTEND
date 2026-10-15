@@ -10,7 +10,7 @@ const walletState = vi.hoisted(() => ({ ready: true }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/GCashNumberField', async () => {
   const { useEffect } = await import('react');
-  return { default: ({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) => {
+  return { default: function GCashNumberFixture({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) {
     useEffect(() => { if (enabled) onReadinessChange?.({ userId, ready: walletState.ready }); }, [userId, enabled, onReadinessChange]);
     return enabled ? <p>Saved number ending in 6789</p> : null;
   } };
@@ -52,7 +52,7 @@ function submitRequest() {
 }
 
 describe('Post Request submission', () => {
-  it.each([false,true])('posts online work with an optional area (selected: %s) and no private address or travel budget', async withArea => {
+  it.each([false,true])('posts online work without sending a discovery draft (previously selected: %s)', async withArea => {
     postJobRequest.mockResolvedValue(false);
     render(<PostRequest />);
     fireEvent.change(screen.getByLabelText('Request title'), {target:{value:'Build my business website'}});
@@ -60,18 +60,20 @@ describe('Post Request submission', () => {
     fireEvent.click(screen.getByRole('combobox', { name:'Service category' }));
   fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
     fireEvent.click(screen.getByRole('button', {name:'Next'}));
-    fireEvent.click(screen.getByRole('radio', {name:/Online \/ remote/}));
     if (withArea) fireEvent.click(screen.getByTestId('test-location'));
+    fireEvent.click(screen.getByRole('radio', {name:/Online \/ remote/}));
+    expect(screen.queryByTestId('test-location')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', {name:'Next'}));
     expect(screen.queryByLabelText(/Extra budget for the provider/)).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('When do you need help?'), {target:{value:'Flexible Schedule'}});
     fireEvent.change(screen.getByLabelText('Your service budget (₱)'), {target:{value:'500'}});
     submitRequest();
-    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid','Flexible Schedule',500,expect.any(String),expect.any(Object),expect.objectContaining({serviceLocationMode:'REMOTE',...(withArea && {jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu',address:undefined}}),transportationFee:null})));
-    if (!withArea) expect(postJobRequest.mock.calls.at(-1)?.[7]).not.toHaveProperty('jobLocation');
+    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid','Flexible Schedule',500,expect.any(String),expect.any(Object),expect.objectContaining({serviceLocationMode:'REMOTE',transportationFee:null})));
+    expect(postJobRequest.mock.calls.at(-1)?.[7]).not.toHaveProperty('jobLocation');
   });
   beforeEach(() => {
   walletState.ready = true;
+    localStorage.clear();
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({
       user: { id: 'seeker-id' }, postJobRequest, isDark: false,
@@ -108,18 +110,14 @@ describe('Post Request submission', () => {
     expect(toastError).toHaveBeenCalledWith('Choose when you need help', expect.any(String));
   });
 
-  it('asks for a search area when the seeker travels and strips private job directions', async () => {
+  it('keeps the same discovery point when the seeker changes who travels', async () => {
     postJobRequest.mockResolvedValue(false);
     render(<PostRequest/>);fillValidRequest();
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByRole('radio',{name:/You go to the provider/}));
     submitRequest();
-    expect(postJobRequest).not.toHaveBeenCalled();
-    expect(toastError).toHaveBeenCalledWith('Choose an area to find providers',expect.stringContaining('The provider will give their address'));
-    fireEvent.click(screen.getByTestId('test-location'));
-    submitRequest();
-    await waitFor(()=>expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid',expect.any(String),500,description,expect.any(Object),expect.objectContaining({serviceLocationMode:'SEEKER_VISITS',jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu',address:undefined},transportationFee:null})));
+    await waitFor(()=>expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid',expect.any(String),500,description,expect.any(Object),expect.objectContaining({serviceLocationMode:'SEEKER_VISITS',jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu'},transportationFee:null})));
   });
 
   it('prefills a repost without copying urgency and submits through normal new-request creation', async () => {

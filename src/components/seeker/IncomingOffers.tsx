@@ -18,6 +18,8 @@ import IncomingOfferRow from './IncomingOfferRow';
 import { getRequestPaymentMethods } from '../../lib/paymentUtils';
 import { isOfferAwaitingDecision, normalizeOfferStatus } from '../../lib/offerStatus';
 import useDialogFocus from '../../hooks/useDialogFocus';
+import BookingAddressField from '../location/BookingAddressField';
+import { BookingLocationSchema, type BookingLocation } from '../../lib/location';
 
 export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId?: string }) {
   const { bids, jobRequests, acceptBid, declineBid, users, isDark, services, offersStatus, refreshAll } = useApp();
@@ -26,6 +28,8 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price_asc' | 'price_desc' | 'rating' | 'trust'>('rating');
   const [selectingPaymentBidId, setSelectingPaymentBidId] = useState<string | null>(null);
+  const [bookingLocation, setBookingLocation] = useState<BookingLocation | null>(null);
+  const [locationError, setLocationError] = useState('');
   const [loadingBidId, setLoadingBidId] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<'accepting' | 'declining' | null>(null);
   const [blockedModalOpen, setBlockedModalOpen] = useState<boolean>(false);
@@ -69,16 +73,23 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
       return;
     }
     setSelectingPaymentBidId(bidId);
+    setLocationError('');
+    setBookingLocation(null);
   };
 
   const handleSelectPaymentMethod = async (paymentMethod: 'GCash' | 'On-site Cash') => {
     if (!selectingPaymentBidId) return;
     const bidId = selectingPaymentBidId;
+    if (needsJobAddress && !BookingLocationSchema.safeParse(bookingLocation).success) {
+      setLocationError('Enter the job address or directions in at least 5 characters, or choose a job pin.');
+      return;
+    }
     setSelectingPaymentBidId(null);
     setLoadingBidId(bidId);
     setLoadingAction('accepting');
     try {
-      await acceptBid(bidId, paymentMethod);
+      if (needsJobAddress && bookingLocation) await acceptBid(bidId, paymentMethod, bookingLocation);
+      else await acceptBid(bidId, paymentMethod);
     } catch {
       // error is already toasted, clean up loading state
     } finally {
@@ -114,6 +125,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
   } : null));
   const cashOnlyConfirmation = acceptedMethods.cash && !acceptedMethods.gcash;
   const isListingPriceApproval = Boolean(paymentSelectionRequest?.targetServiceId || paymentSelectionBid?.requestTargetServiceId);
+  const needsJobAddress = !isListingPriceApproval && paymentSelectionBid?.serviceLocationMode === 'PROVIDER_VISITS';
 
   // Helper to fetch matching provider user details (like verification flags)
   const getProviderDetails = (providerId: string) => {
@@ -275,6 +287,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
             </div>
 
             <div className="p-6 space-y-4">
+              {needsJobAddress && <BookingAddressField value={bookingLocation} onChange={point => { setBookingLocation(point); setLocationError(''); }} error={locationError || undefined} />}
               {cashOnlyConfirmation ? (
                 <>
                   <p className="text-sm leading-relaxed text-ink-secondary">Review the offer before creating your booking.</p>

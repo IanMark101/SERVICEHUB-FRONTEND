@@ -10,7 +10,7 @@ const walletState = vi.hoisted(() => ({ ready: true }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../ui/GCashNumberField', async () => {
   const { useEffect } = await import('react');
-  return { default: ({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) => {
+  return { default: function GCashNumberFixture({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) {
     useEffect(() => { if (enabled) onReadinessChange?.({ userId, ready: walletState.ready }); }, [userId, enabled, onReadinessChange]);
     return enabled ? <p>Saved number ending in 6789</p> : null;
   } };
@@ -40,6 +40,7 @@ function toPrice() {
 function toReview() { toPrice(); next(); next(); }
 
 beforeEach(() => {
+  localStorage.clear();
   walletState.ready = true;
   vi.clearAllMocks();
   createServiceListing.mockResolvedValue({ success: false });
@@ -48,15 +49,15 @@ beforeEach(() => {
   vi.mocked(useToast).mockReturnValue({ error: toastError, success: vi.fn() } as unknown as ReturnType<typeof useToast>);
 });
 
-it('keeps public map sharing opt-in and includes the choice in publication', async () => {
+it('publishes an approximate discovery point and a separate private workplace address', async () => {
   render(<OfferServices />); fillDetails(); next();
   fireEvent.click(screen.getByRole('radio', {name:/The seeker comes to you/}));
   fireEvent.click(screen.getByTestId('test-location'));
-  const consent=screen.getByRole('checkbox', { name:/Show my shop’s exact location publicly/ });
-  expect(consent).not.toBeChecked(); fireEvent.click(consent); expect(consent).toBeChecked();
+  expect(screen.queryByRole('checkbox', { name:/exact location publicly/ })).not.toBeInTheDocument();
+  fireEvent.change(screen.getByRole('textbox', { name:/Your workplace address/ }), { target:{value:'Shop beside the barangay hall'} });
   next(); next(); next();
   fireEvent.click(screen.getByRole('button', { name:'Publish service' }));
-  await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String),expect.any(String),expect.any(String),expect.any(Number),expect.any(String),expect.any(Object),expect.objectContaining({publicMapPin:true})));
+  await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String),expect.any(String),expect.any(String),expect.any(Number),expect.any(String),expect.any(Object),expect.objectContaining({publicMapPin:false,serviceLocation:{latitude:10.3,longitude:123.9,label:'Cebu'},venueAddress:'Shop beside the barangay hall'})));
 });
 
 describe('Offer Services wizard', () => {
@@ -145,11 +146,11 @@ describe('Offer Services wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByRole('radio', { name: new RegExp(choice) })); next();
     expect(createServiceListing).not.toHaveBeenCalled();
-    expect(screen.getByRole('alert')).toHaveTextContent('Mark the place where seekers can visit you');
+    expect(screen.getByText(/Enter the workplace address or directions in/)).toBeVisible();
     if (choice === 'The seeker comes to you') expect(screen.queryByLabelText('How far will you travel? (required)')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('test-location'));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Address or directions for the seeker (optional)' }), { target: { value: 'Shop beside the barangay hall' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /Your workplace address/ }), { target: { value: 'Shop beside the barangay hall' } });
     next(); next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
     await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: choice === 'Either option' ? 'BOTH' : 'SEEKER_VISITS', coverageRadiusKm: null, venueAddress: 'Shop beside the barangay hall', transportationFee: null })));
