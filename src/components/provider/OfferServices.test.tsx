@@ -11,7 +11,7 @@ vi.mock('../../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () 
 vi.mock('../../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
-vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled, radiusKm }: { onChange: (point: { latitude: number; longitude: number; label: string }) => void; disabled?: boolean; radiusKm?: number | null }) => <button type="button" data-testid="test-location" data-radius={radiusKm ?? ''} disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
+vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled, radiusKm, error }: { onChange: (point: { latitude: number; longitude: number; label: string }) => void; disabled?: boolean; radiusKm?: number | null; error?: string }) => <div><button type="button" data-testid="test-location" data-radius={radiusKm ?? ''} disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button>{error && <p role="alert">{error}</p>}</div> }));
 let finishUpload = () => {};
 vi.mock('../ui/ListingPhotoUploader', () => ({ default: ({ value, onChange, onBusyChange }: { value: ListingPhoto[]; onChange: (photos: ListingPhoto[]) => void; onBusyChange: (busy: boolean) => void }) => <div><p>{value.length} uploaded photos</p><button type="button" onClick={() => onChange([{ id: 'photo-1', url: 'https://example.test/laptop.jpg', width: 640, height: 480 }])}>Add test photo</button><button type="button" onClick={() => { onBusyChange(true); finishUpload = () => onBusyChange(false); }}>Start upload</button></div> }));
 
@@ -73,8 +73,35 @@ describe('Offer Services wizard', () => {
     expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Publish service' })).not.toBeInTheDocument();
     fireEvent.submit(screen.getByRole('form', { name: 'Create a service listing' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('10–100 characters');
-    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent('Check 3 fields to continue');
+    const name = screen.getByRole('textbox', { name: 'Service name' });
+    expect(name).toHaveAttribute('aria-invalid', 'true');
+    expect(name).toHaveFocus();
+    expect(name).toHaveAccessibleDescription(/Enter a service name/);
+    expect(screen.getByRole('combobox', { name: 'Service category' })).toHaveAccessibleDescription(/Choose the category that best fits/);
+    expect(screen.getByRole('textbox', { name: 'What is included?' })).toHaveAccessibleDescription(/Describe what you will do/);
+    expect(toastError).not.toHaveBeenCalled();
+    expect(createServiceListing).not.toHaveBeenCalled();
+  });
+  it('shows errors only after Next, clears each corrected field and focuses the next problem on retry', () => {
+    render(<OfferServices />);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    next();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Service name' }), { target: { value: 'Laptop repair and diagnostics' } });
+    expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.getByRole('alert')).toHaveTextContent('Check 2 fields');
+    expect(screen.queryByText('Enter a service name, such as Laptop repair and diagnostics.')).not.toBeInTheDocument();
+    next();
+    expect(screen.getByRole('combobox', { name: 'Service category' })).toHaveFocus();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Service category' }), { target: { value: 'category-cuid' } });
+    next();
+    expect(screen.getByRole('textbox', { name: 'What is included?' })).toHaveFocus();
+    fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: 'Too short' } });
+    expect(screen.getByRole('textbox', { name: 'What is included?' })).toHaveAccessibleDescription(/Use 30–1,000 characters/);
+    fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: description } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    next();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '25');
     expect(createServiceListing).not.toHaveBeenCalled();
   });
   it('offers only pricing that shows a definite amount before booking', () => {
@@ -86,7 +113,7 @@ describe('Offer Services wizard', () => {
   });
   it('requires explicit travel coverage and accepts an area without a venue address', async () => {
     render(<OfferServices />); fillDetails(); next(); next();
-    expect(toastError).toHaveBeenCalledWith('Choose your service area', expect.stringContaining('No shop or home address'));
+    expect(screen.getByRole('alert')).toHaveTextContent('No shop or home address is needed');
     fireEvent.click(screen.getByTestId('test-location')); next();
     expect(createServiceListing).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent('Choose how far you will travel');
@@ -102,7 +129,7 @@ describe('Offer Services wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByRole('radio', { name: new RegExp(choice) })); next();
     expect(createServiceListing).not.toHaveBeenCalled();
-    expect(toastError).toHaveBeenCalledWith('Choose where seekers can visit you', expect.any(String));
+    expect(screen.getByRole('alert')).toHaveTextContent('Mark the place where seekers can visit you');
     if (choice === 'The seeker comes to you') expect(screen.queryByLabelText('How far will you travel? (required)')).not.toBeInTheDocument();
     else expect(screen.getByRole('combobox', { name: 'How far will you travel? (required)' })).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('test-location'));
@@ -157,7 +184,8 @@ describe('Offer Services wizard', () => {
     fireEvent.change(screen.getByRole('spinbutton', { name: 'Service price (₱)' }), { target: { value: '500' } });
     for (const duration of ['14', '481', '17']) {
       fireEvent.change(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' }), { target: { value: duration } }); next();
-      expect(screen.getByRole('alert')).toHaveTextContent('15–480 minutes');
+      expect(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' })).toHaveAccessibleDescription(/Enter 15–480 minutes/);
+      expect(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' })).toHaveFocus();
     }
     expect(createServiceListing).not.toHaveBeenCalled();
   });
