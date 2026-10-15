@@ -34,8 +34,6 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const isOwned = !!(user && listing.providerId === user.id);
   const agreement = isPriceByAgreement(listing);
   const remote = listing.serviceLocationMode === 'REMOTE';
-  const finalStep = agreement ? 2 : 3;
-  const steps = agreement ? ['Details', remote ? 'Delivery' : 'Location', 'Review'] : remote ? ['Details', 'Delivery', 'Payment', 'Review'] : BOOKING_STEPS;
   const [photos, setPhotos] = useState<ListingPhoto[]>([]);
   const [photosBusy, setPhotosBusy] = useState(false);
   const priceUnavailable = !agreement && (listing.priceType === 'STARTS_AT' || listing.priceType === 'CUSTOM' || !Number.isFinite(Number(listing.price)) || Number(listing.price) < 50);
@@ -60,6 +58,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const [jobLocation, setJobLocation] = useState<LocationPoint | null>(null);
   const arrangements = availableArrangements(listing.serviceLocationMode);
   const [serviceLocationMode, setServiceLocationMode] = useState<BookingLocationMode>(arrangements[0]);
+  const reviewRequired = agreement || serviceLocationMode === 'PROVIDER_VISITS';
+  const finalStep = reviewRequired ? 2 : 3;
+  const steps = reviewRequired ? ['Details', remote ? 'Delivery' : 'Location', 'Review'] : remote ? ['Details', 'Delivery', 'Payment', 'Review'] : BOOKING_STEPS;
   const transportationFee = directTransportationFee(serviceLocationMode, listing.transportationFee);
   const [quantity, setQuantity] = useState<number>(1);
   const total = Number(listing.price) * quantity + transportationFee;
@@ -76,9 +77,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       if (!arrangements.includes(serviceLocationMode)) return 'This arrangement changed. Reopen the listing and choose an available arrangement.';
       if (serviceLocationMode === 'PROVIDER_VISITS' && !LocationSchema.safeParse(jobLocation).success) return 'Choose where the work will happen and enter its area name.';
     }
-    if (index === 0 && agreement && description.trim().length < 10) return 'Describe the problem or work needed using at least 10 characters.';
-    if (index === 0 && agreement && description.trim().length > 2000) return 'Keep the description within 2,000 characters.';
-    if (index === 2 && !agreement) {
+    if (index === 0 && reviewRequired && description.trim().length < 10) return 'Describe the problem or work needed using at least 10 characters.';
+    if (index === 0 && reviewRequired && description.trim().length > 2000) return 'Keep the description within 2,000 characters.';
+    if (index === 2 && !reviewRequired) {
       if (priceUnavailable) return 'This provider needs to set a final price before the service can be booked.';
       if (!cash && !gcash) return 'This listing has no available payment method.';
       if ((paymentMethod === 'On-site Cash' && !cash) || (paymentMethod === 'GCash' && !gcash)) return 'Choose a payment method accepted by this provider.';
@@ -89,7 +90,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   };
   const changeStep = (next: number) => { setFormError(null); setStep(next); };
   const nextStep = () => {
-    if (loading || photosBusy || isOwned || priceUnavailable) return;
+    if (loading || photosBusy || isOwned || (priceUnavailable && !reviewRequired)) return;
     const problem = stepProblem(step);
     if (problem) { setFormError(problem); return; }
     changeStep(step + 1);
@@ -128,7 +129,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     inFlight.current = true;
     setLoading(true);
     try {
-      if (agreement) {
+      if (reviewRequired) {
         await apiCreateListingInquiry({ serviceId: listing.id, message: description.trim(), serviceLocationMode,
           ...(serviceLocationMode === 'PROVIDER_VISITS' && { jobLocation: jobLocation! }),
           ...(photos.length && { photoIds: photos.map(photo => photo.id) }),
@@ -139,7 +140,6 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         // Cash requests are provider-confirmed. The preferred schedule is a
         // proposal and does not reserve provider availability.
         await apiBookDirect({
-          ...(serviceLocationMode === 'PROVIDER_VISITS' && { jobLocation: jobLocation! }),
           serviceLocationMode,
           serviceId: listing.id,
           quantity,
@@ -148,7 +148,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         });
       } else {
         // GCash/online path — use the existing hook
-        const checkout = await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity, serviceLocationMode === 'PROVIDER_VISITS' ? jobLocation! : undefined, serviceLocationMode);
+        const checkout = await bookProviderDirectly(user.id, listing.id, listing.price, description, paymentMethod, quantity, undefined, serviceLocationMode);
         // The workspace payment dialog takes over without leaving the listing.
         // Initiating checkout alone must never claim a successful booking.
         setLoading(false);
@@ -162,7 +162,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       }, 1500);
     } catch (err: unknown) {
       setLoading(false);
-      setFormError(getApiErrorMessage(err, agreement ? 'Your service request could not be sent. Please try again.' : 'Booking failed. Please try again.'));
+      setFormError(getApiErrorMessage(err, reviewRequired ? 'Your service request could not be sent. Please try again.' : 'Booking failed. Please try again.'));
     } finally { inFlight.current = false; }
   };
 
@@ -177,11 +177,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
         {success ? (
           <div role="status" className={styles.success}>
             <CheckCircle2 size={40} aria-hidden="true" />
-            <h4>{agreement ? 'Service request sent' : paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}</h4>
-            <p>{agreement ? 'The provider will review your request and accept with a final price, or decline. Review their price in Offers Received. No booking or payment has been created.' : paymentMethod === 'On-site Cash'
+            <h4>{reviewRequired ? 'Service request sent' : paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}</h4>
+            <p>{reviewRequired ? 'The provider will review your work and location, then send a final price or decline. Review their price in Offers Received. No booking or payment has been created.' : paymentMethod === 'On-site Cash'
               ? 'The request was sent to ' + listing.providerName + ' for acceptance. Your preferred schedule is a proposal until the provider accepts it.'
               : "Your verified online booking has entered this service listing's queue."}</p>
-            {agreement && <button type="button" className={`${styles.button} ${styles.primary}`} onClick={() => { onClose(); router.push('/seeker/request-manager'); }}>View your request</button>}
+            {reviewRequired && <button type="button" className={`${styles.button} ${styles.primary}`} onClick={() => { onClose(); router.push('/seeker/request-manager'); }}>View your request</button>}
           </div>
         ) : (
           <form noValidate onSubmit={handleFormSubmit} aria-label="Request service" aria-busy={loading} className={styles.form}>
@@ -193,7 +193,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     <h4>{listing.title}</h4>
                     <div className={styles.amount}>
                       <span>{agreement ? 'Price by agreement' : priceUnavailable ? 'Price unavailable' : '₱' + Number(listing.price).toLocaleString()}</span>
-                      <span>{agreement ? 'Approve the price before booking' : priceUnavailable ? 'Final price required' : listing.priceType === 'PER_HOUR' ? 'Per hour' : listing.priceType === 'PER_DAY' ? 'Per day' : listing.priceType === 'PER_PROJECT' ? 'Per project' : 'Fixed price'}</span>
+                      <span>{reviewRequired ? 'Final total after provider review' : priceUnavailable ? 'Final price required' : listing.priceType === 'PER_HOUR' ? 'Per hour' : listing.priceType === 'PER_DAY' ? 'Per day' : listing.priceType === 'PER_PROJECT' ? 'Per project' : 'Fixed price'}</span>
                     </div>
                   </div>
                   <div className={styles.metadata}>
@@ -203,7 +203,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   </div>
                   <p className={styles.hint}>
                     <strong>{agreement ? 'Request this service' : isMetered ? 'Displayed listing rate' : 'Agreed listing price'}</strong>
-                    {' · '}{agreement ? 'Describe the work. The provider proposes a final price for your approval.' : priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : remote ? 'Online delivery. No transportation fee applies. Review the final total before booking.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'The total includes any one-time transportation fee shown below.'}
+                    {' · '}{reviewRequired ? 'Send the work and job location. The provider reviews the request and proposes a final total before payment.' : priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : remote ? 'Online delivery. No transportation fee applies. Review the final total before booking.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'Review the service total before booking.'}
                   </p>
                 </section>
 
@@ -213,23 +213,23 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
                 <div>
                   <label htmlFor="request-work-description" className={styles.label}>Describe the work needed</label>
-                  <textarea id="request-work-description" rows={4} required minLength={agreement ? 10 : undefined} maxLength={agreement ? 2000 : undefined} disabled={isOwned} aria-invalid={Boolean(formError && !description.trim())} aria-describedby={formError && !description.trim() ? 'booking-form-error' : undefined}
+                  <textarea id="request-work-description" rows={4} required minLength={reviewRequired ? 10 : undefined} maxLength={2000} disabled={isOwned} aria-invalid={Boolean(formError && !description.trim())} aria-describedby={formError && !description.trim() ? 'booking-form-error' : undefined}
                     placeholder="Describe exactly what needs to be done, location details, preferred schedules..."
                     value={description} onChange={(event) => { setDescription(event.target.value); setFormError(null); }} className={styles.field} />
                 </div>
-                {agreement && <ListingPhotoUploader purpose="inquiry" value={photos} onChange={setPhotos} onBusyChange={setPhotosBusy} disabled={loading || isOwned} />}
+                {reviewRequired && <ListingPhotoUploader purpose="inquiry" value={photos} onChange={setPhotos} onBusyChange={setPhotosBusy} disabled={loading || isOwned} />}
                 </WizardStep>
 
                 <WizardStep index={1} currentStep={step} label="Work location">
                 <ServiceArrangementField value={serviceLocationMode} options={arrangements} onChange={mode => { setServiceLocationMode(mode as BookingLocationMode); setFormError(null); }} disabled={loading || isOwned} />
-                {serviceLocationMode === 'REMOTE' ? <div className={styles.hint}><strong>Online / remote — no meetup required</strong><p>Agree on the deliverables and schedule through Messages. Follow progress, completion and any concerns in Activity. No address or travel fee is needed.</p></div> : serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Where will the job happen?" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Choose the place where the provider will work. The pin and directions are shared only with booking participants." /> : <div className={styles.hint}>
+                {serviceLocationMode === 'REMOTE' ? <div className={styles.hint}><strong>Online / remote — no meetup required</strong><p>Agree on the deliverables and schedule through Messages. Follow progress, completion and any concerns in Activity. No address or travel fee is needed.</p></div> : serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Where will the job happen?" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Mark where the work will happen. The provider reviews the area before agreeing to travel. The exact pin and directions stay private until booking." /> : <div className={styles.hint}>
                   <strong>Provider’s service venue</strong>
                   <p>{listing.locationLabel || 'The provider’s saved service venue'}</p>
                   <p>You’ll travel to the provider. Exact directions are shared in your booking; no seeker job pin or provider transportation fee is needed.</p>
                 </div>}
                 </WizardStep>
 
-                {!agreement && <WizardStep index={2} currentStep={step} label="Schedule and payment">
+                {!reviewRequired && <WizardStep index={2} currentStep={step} label="Schedule and payment">
                 {paymentMethod === 'On-site Cash' && (
                   <div>
                     <label htmlFor="request-preferred-schedule" className={styles.label}>Preferred schedule <span className={styles.optional}>(optional)</span></label>
@@ -276,11 +276,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
                 <WizardStep index={finalStep} currentStep={step} label="Review your booking request">
                   <h4 className={styles.label}>Review your request</h4>
-                  <WizardReviewSection title="Work details" onEdit={() => changeStep(0)}><p>{description}</p>{agreement && <p>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} attached` : 'No photos attached'}</p>}</WizardReviewSection>
+                  <WizardReviewSection title="Work details" onEdit={() => changeStep(0)}><p>{description}</p>{reviewRequired && <p>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} attached` : 'No photos attached'}</p>}</WizardReviewSection>
                   <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd>{serviceLocationMode === 'REMOTE' ? <><dt>Delivery</dt><dd>Online. Coordinate through Messages and Activity; no meetup or travel fee.</dd></> : <><dt>{serviceLocationMode === 'PROVIDER_VISITS' ? 'Job location' : 'Provider’s service venue'}</dt><dd>{serviceLocationMode === 'PROVIDER_VISITS' ? jobLocation?.label : listing.locationLabel || 'The provider’s saved service venue'}</dd></>}{serviceLocationMode === 'PROVIDER_VISITS' && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
-                  {agreement ? <p className={styles.hint}>The provider reviews your request and proposes a final price. Approve their price in Offers Received before booking or payment. Sending this request does not charge you.</p> : <WizardReviewSection title="Schedule and payment" onEdit={() => changeStep(2)}><dl>{paymentMethod === 'On-site Cash' && <><dt>Preferred schedule</dt><dd>{preferredSchedule.trim() || 'Not specified'}</dd></>}{isMetered && <><dt>Number of {unitName}</dt><dd>{quantity}</dd></>}<dt>Service</dt><dd>₱{(Number(listing.price) * quantity).toLocaleString()}</dd>{!!transportationFee && <><dt>Provider transportation (once)</dt><dd>₱{transportationFee.toLocaleString()}</dd></>}<dt>Total</dt><dd>₱{total.toLocaleString()}</dd><dt>Payment Method</dt><dd>{paymentMethod === 'GCash' ? 'GCash · Test Mode' : remote ? 'Cash in person (arrange separately)' : paymentMethod}</dd></dl>
+                  {reviewRequired ? <p className={styles.hint}>The provider reviews your work and location, then proposes a final price including any travel. Approve their price in Offers Received before booking or payment. Sending this request does not charge you.</p> : <WizardReviewSection title="Schedule and payment" onEdit={() => changeStep(2)}><dl>{paymentMethod === 'On-site Cash' && <><dt>Preferred schedule</dt><dd>{preferredSchedule.trim() || 'Not specified'}</dd></>}{isMetered && <><dt>Number of {unitName}</dt><dd>{quantity}</dd></>}<dt>Service</dt><dd>₱{(Number(listing.price) * quantity).toLocaleString()}</dd>{!!transportationFee && <><dt>Provider transportation (once)</dt><dd>₱{transportationFee.toLocaleString()}</dd></>}<dt>Total</dt><dd>₱{total.toLocaleString()}</dd><dt>Payment Method</dt><dd>{paymentMethod === 'GCash' ? 'GCash · Test Mode' : remote ? 'Cash in person (arrange separately)' : paymentMethod}</dd></dl>
                   <p>{paymentMethod === 'On-site Cash' ? 'Your preferred schedule is a proposal. The provider must accept your request and confirm availability.' : 'Continue to PayMongo Test Mode checkout. Your booking is added only after payment is confirmed.'}</p></WizardReviewSection>}
-                {!agreement && <div className={styles.notice}>
+                {!reviewRequired && <div className={styles.notice}>
                   <TriangleAlert size={16} aria-hidden="true" />
                   <p>You can cancel for free anytime before the provider starts the job. Once they&apos;ve started, cancellation needs their approval.</p>
                 </div>}
@@ -295,11 +295,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 {isOwned ? (
                   <button type="button" onClick={() => router.push('/provider/service-manager?id=' + listing.id)} className={[styles.button, styles.primary].join(' ')}>Edit Listing Details</button>
                 ) : step < finalStep ? (
-                  <button type="submit" disabled={loading || photosBusy || priceUnavailable} className={[styles.button, styles.primary].join(' ')}>{priceUnavailable ? 'Price Needed Before Booking' : step === finalStep - 1 ? 'Review request' : 'Next'}</button>
+                  <button type="submit" disabled={loading || photosBusy || (priceUnavailable && !reviewRequired)} className={[styles.button, styles.primary].join(' ')}>{priceUnavailable && !reviewRequired ? 'Price Needed Before Booking' : step === finalStep - 1 ? 'Review request' : 'Next'}</button>
                 ) : (
-                  <button type="submit" disabled={loading || photosBusy || priceUnavailable} className={[styles.button, styles.primary].join(' ')}>
+                  <button type="submit" disabled={loading || photosBusy || (priceUnavailable && !reviewRequired)} className={[styles.button, styles.primary].join(' ')}>
                     {loading && <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />}
-                    {priceUnavailable ? 'Price Needed Before Booking' : agreement ? loading ? 'Sending request…' : 'Send service request' : loading ? paymentMethod === 'GCash' ? 'Preparing checkout…' : 'Sending request…' : paymentMethod === 'GCash' ? 'Continue to GCash' : 'Send Request'}
+                    {priceUnavailable && !reviewRequired ? 'Price Needed Before Booking' : reviewRequired ? loading ? 'Sending request…' : 'Send service request' : loading ? paymentMethod === 'GCash' ? 'Preparing checkout…' : 'Sending request…' : paymentMethod === 'GCash' ? 'Continue to GCash' : 'Send Request'}
                   </button>
                 )}
               </div>

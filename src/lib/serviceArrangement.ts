@@ -12,6 +12,14 @@ export const listingUsesArea = (mode?: ServiceLocationMode) => mode === 'PROVIDE
 export const requestUsesArea = (mode?: ServiceLocationMode) => mode === 'SEEKER_VISITS' || mode === 'REMOTE';
 export const involvesProviderTravel = (mode?: ServiceLocationMode) => mode === 'PROVIDER_VISITS' || mode === 'BOTH';
 
+export function requestLocationText(mode: ServiceLocationMode = 'PROVIDER_VISITS') {
+  if (mode === 'REMOTE') return { label: 'Your city or barangay', hint: 'Helps local providers find your request. The work happens online; no meeting place is needed.' };
+  if (mode === 'SEEKER_VISITS') return { label: 'Where do you want to find a provider?', hint: 'Choose an area once by search or map. Providers see your request in this area and include their shop location in an offer.' };
+  return { label: 'Where should the provider come?', hint: mode === 'BOTH'
+    ? 'Mark the job location in case the provider comes to you. If you visit them instead, their offer gives the shop location. The public map shows only an approximate area.'
+    : 'Mark where the work will happen. Providers see the approximate area and decide whether they can travel there. Your exact pin and directions are shared after booking.' };
+}
+
 export function availableArrangements(mode: ServiceLocationMode = 'PROVIDER_VISITS'): BookingLocationMode[] {
   return mode === 'BOTH' ? ['PROVIDER_VISITS', 'SEEKER_VISITS'] : [mode];
 }

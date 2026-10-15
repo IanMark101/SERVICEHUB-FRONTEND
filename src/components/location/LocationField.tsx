@@ -12,6 +12,10 @@ export default function LocationField({ value, onChange, label, radiusKm, privat
   const [open, setOpen] = useState(false);
   const id = useId();
   const summaryRef = useRef<HTMLElement>(null);
+  const closeAfterSelection = () => {
+    const details = summaryRef.current?.parentElement;
+    if (details instanceof HTMLDetailsElement) details.open = false;
+  };
   const areaOnly = selectionMode === 'area';
   useEffect(() => {
     if (!error || disabled) return;
@@ -29,9 +33,9 @@ export default function LocationField({ value, onChange, label, radiusKm, privat
           <strong id={`${id}-title`}>{value?.label || (areaOnly ? 'Choose a city or barangay' : 'Choose a location')}</strong>
           <small>{areaOnly ? 'Choose a general area. No exact address is needed here.' : value ? 'Check the marked place. Move the pin if needed.' : 'Search your city or barangay, then mark the exact place.'}</small>
         </span>
-        <span id={`${id}-action`} className={styles.pickerAction}>{areaOnly ? open ? 'Hide areas' : value ? 'Change area' : 'Choose area' : open ? 'Hide map' : value ? 'Change location' : 'Open map'}<ChevronDown size={16} aria-hidden="true" /></span>
+        <span id={`${id}-action`} className={styles.pickerAction}>{open ? 'Close' : value ? 'Change' : areaOnly ? 'Choose area' : 'Choose location'}<ChevronDown size={16} aria-hidden="true" /></span>
       </summary>
-      {open && !disabled && <LocationEditor key={selectionMode} selectionMode={selectionMode} value={value} onChange={onChange} radiusKm={radiusKm ?? undefined} accent={workspace==='provider' ? '#059669' : 'var(--color-brand-text)'}/>}
+      {open && !disabled && <LocationEditor compact key={selectionMode} selectionMode={selectionMode} value={value} onChange={onChange} onSelected={closeAfterSelection} radiusKm={radiusKm ?? undefined} accent={workspace==='provider' ? '#059669' : 'var(--color-brand-text)'}/>}
     </details>
     <p id={`${id}-hint`} className={styles.hint}>{hint || (privateAddress ? 'Mark where the provider should come. Only the city or barangay is public; the exact location and directions are shared after booking.' : 'Other users see the general area and approximate distance. Your exact location stays private.')}</p>
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}

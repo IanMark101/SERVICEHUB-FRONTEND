@@ -1,6 +1,6 @@
 import ServiceArrangementField from '../../location/ServiceArrangementField';
 import MoneyInput from '../../ui/MoneyInput';
-import { requestUsesArea, involvesProviderTravel, type ServiceLocationMode } from '../../../lib/serviceArrangement';
+import { requestUsesArea, involvesProviderTravel, requestLocationText, type ServiceLocationMode } from '../../../lib/serviceArrangement';
 import type { LocationPoint } from '../../../lib/location';
 import LocationField from '../../location/LocationField';
 import TransportationField from '../../location/TransportationField';
@@ -66,7 +66,7 @@ export default function EditRequestModal({ value, isDark, isSaving = false, onCh
             <p className="mt-1.5 text-xs text-ink-muted">Choose when you need help, or keep your previous choice.</p>
           </div>
           <ServiceArrangementField value={value.serviceLocationMode ?? 'PROVIDER_VISITS'} onChange={serviceLocationMode => onChange({ ...value, serviceLocationMode, ...(requestUsesArea(value.serviceLocationMode) !== requestUsesArea(serviceLocationMode) ? {jobLocation:null} : {}) })} disabled={isSaving || value.locationLocked} />
-          <LocationField required selectionMode={requestUsesArea(value.serviceLocationMode) ? 'area' : 'pin'} label={requestUsesArea(value.serviceLocationMode) ? 'Area where you want to find a provider' : value.serviceLocationMode === 'BOTH' ? 'Your location if the provider comes to you' : 'Where the provider should come'} value={value.jobLocation ?? null} privateAddress={involvesProviderTravel(value.serviceLocationMode)} hint={value.serviceLocationMode === 'REMOTE' ? 'This city or barangay is for local discovery only. Online work needs no address or meetup pin.' : requestUsesArea(value.serviceLocationMode) ? 'Choose a city or barangay to find providers in that area. No home address is needed. The provider will give their address in their offer.' : value.serviceLocationMode === 'BOTH' ? 'Mark where the provider should come if you choose that option. Your exact location is shared after booking. If you go to the provider, their offer gives the address.' : undefined} disabled={isSaving || value.locationLocked} onChange={jobLocation => onChange({ ...value, jobLocation })} />
+          <LocationField required selectionMode={requestUsesArea(value.serviceLocationMode) ? 'area' : 'pin'} label={requestLocationText(value.serviceLocationMode).label} value={value.jobLocation ?? null} privateAddress={involvesProviderTravel(value.serviceLocationMode)} hint={requestLocationText(value.serviceLocationMode).hint} disabled={isSaving || value.locationLocked} onChange={jobLocation => onChange({ ...value, jobLocation })} />
           {involvesProviderTravel(value.serviceLocationMode) && <TransportationField budget isDark={isDark} disabled={isSaving || value.locationLocked} value={value.transportationFee ?? ''} onChange={transportationFee => onChange({ ...value, transportationFee })} />}
           {value.locationLocked && <p className="text-xs text-ink-muted">You have offers waiting for a decision. Close those offers before changing who travels, the location, or the extra travel budget.</p>}
           {!value.jobLocation && <p className="text-xs text-ink-muted">{requestUsesArea(value.serviceLocationMode) ? 'Choose the area where you want to find a provider.' : 'Mark where the provider should come.'}</p>}

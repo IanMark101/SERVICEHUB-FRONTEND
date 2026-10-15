@@ -19,6 +19,7 @@ export default function ServiceMarketplaceCard({ service, trustScore, verified, 
   const queue = service.providerWaitingCount ?? service.queueSize;
   const queueFull = gcash && queue >= (service.queueLimit || 5);
   const agreement = isPriceByAgreement(service);
+  const requestFirst = agreement || !service.serviceLocationMode || ['PROVIDER_VISITS', 'BOTH'].includes(service.serviceLocationMode);
   const quote = !agreement && (service.priceType === 'STARTS_AT' || service.priceType === 'CUSTOM' || Number(service.price) < 50);
   const cardStatus = isOwned ? 'Your listing' : queueFull ? `Paid queue full (${queue}/${service.queueLimit || 5})` : queue > 0 && gcash ? `${queue} paid waiting` : undefined;
   return <TrailCard status={cardStatus} tools={!readOnly && <ListingCardTools compact contentType="SERVICE_LISTING" listingId={service.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />} photo={service.photos?.[0]} title={service.title} location={service.serviceLocationMode === 'REMOTE' ? `Online / remote${service.locationLabel ? ' · ' + service.locationLabel : ''}` : service.locationLabel} category={service.category} isDark={isDark}>
@@ -29,7 +30,7 @@ export default function ServiceMarketplaceCard({ service, trustScore, verified, 
         <button type="button" aria-label={`Inspect ${service.title} details`} onClick={onDetails}>Details</button>
         {isOwned ? <button type="button" onClick={onEdit}>Edit</button> : activeEngagement ? <button type="button" onClick={onActivity}>View Activity</button> : <>
           {queueFull && !agreement && <button type="button" disabled={joiningWaitlistId === service.id} onClick={onJoinWaitlist}>{joiningWaitlistId === service.id ? 'Joining...' : 'Notify Me'}</button>}
-          {(agreement || !queueFull || cash) && <button type="button" data-primary="true" onMouseEnter={prefetch} onFocus={prefetch} onClick={() => onBook(service.serviceLocationMode === 'REMOTE' && gcash && !queueFull ? 'GCash' : cash ? 'On-site Cash' : 'GCash')}>{agreement ? 'Request service' : queueFull ? 'Direct Cash' : 'Book Service'}</button>}
+          {(requestFirst || !queueFull || cash) && <button type="button" data-primary="true" onMouseEnter={prefetch} onFocus={prefetch} onClick={() => onBook(service.serviceLocationMode === 'REMOTE' && gcash && !queueFull ? 'GCash' : cash ? 'On-site Cash' : 'GCash')}>{requestFirst ? 'Request service' : queueFull ? 'Direct Cash' : 'Book Service'}</button>}
         </>}
       </>}
     </div>

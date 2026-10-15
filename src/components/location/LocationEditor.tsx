@@ -11,11 +11,13 @@ import styles from './Location.module.css';
 
 const Map = dynamic(() => import('./LocationMap'), { ssr:false, loading:() => <div className={styles.mapLoading}>Loading map…</div> });
 export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'City or barangay shown to other users', onPendingChange,
-  mapResults, mapResultAccent = '#047857', onResultSelect, onViewportChange, selectionMode = 'pin' }: {
+  mapResults, mapResultAccent = '#047857', onResultSelect, onViewportChange, selectionMode = 'pin', compact = false, onSelected }: {
   value:LocationPoint | null; onChange:(point:LocationPoint) => void; radiusKm?:number; accent?:string; disabled?:boolean; label?:string;
   onPendingChange?:(pending:boolean)=>void;
   mapResults?:MarketplaceMapPin[]; mapResultAccent?:string; onResultSelect?:(id:string)=>void; onViewportChange?:(viewport:MarketplaceMapViewport)=>void;
   selectionMode?:'area'|'pin';
+  compact?:boolean;
+  onSelected?:()=>void;
 }) {
   const id = useId();
   const [query, setQuery] = useState(value?.label || '');
@@ -29,6 +31,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
   const locationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lookup = useRef<{ key:string; point:LocationPoint; mode:'preview'|'confirmed'; controller:AbortController } | null>(null);
   const [lookupStatus, setLookupStatus] = useState<'loading'|'manual'|null>(null);
+  const [manualLabel, setManualLabel] = useState(false);
   const changeRef = useRef(onChange);
   const selectedRef = useRef(value);
   useEffect(() => { changeRef.current = onChange; }, [onChange]);
@@ -46,7 +49,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     void api.get('/locations/reverse', { params:{ latitude:point.latitude, longitude:point.longitude }, signal:controller.signal, timeout:10000, apiCache:'no-store' }).then(response => {
       if (lookup.current !== target || controller.signal.aborted) return;
       const label = response.data?.data?.label;
-      if (!response.data?.success || typeof label !== 'string' || label.trim().length < 2) { setLookupStatus('manual'); lookup.current=null; return; }
+      if (!response.data?.success || typeof label !== 'string' || label.trim().length < 2) { setLookupStatus('manual'); setManualLabel(true); lookup.current=null; return; }
       const named = { ...target.point, label:label.trim().slice(0,160) };
       if (target.mode === 'preview') setCandidate(current => current && pointKey(current) === key ? named : current);
       else {
@@ -55,10 +58,11 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
         if (selected && pointKey(selected)===key && selected.label===target.point.label) {
           const confirmed={...selected,label:named.label};
           setQuery(confirmed.label); changeRef.current(confirmed);
+          onSelected?.();
         }
       }
       setLookupStatus(null); lookup.current=null;
-    }).catch(() => { if (lookup.current===target && !controller.signal.aborted) { setLookupStatus('manual'); lookup.current=null; } });
+    }).catch(() => { if (lookup.current===target && !controller.signal.aborted) { setLookupStatus('manual'); setManualLabel(true); lookup.current=null; } });
   };
   const busy = operation !== null;
   const cancelRequest = () => {
@@ -74,6 +78,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     selectedRef.current=point;
     onChange(point);
     lookupLabel(point, 'confirmed');
+    if (!['Selected map location', 'My device location', 'Chosen map pin'].includes(point.label)) { setManualLabel(false); onSelected?.(); }
   };
   const proposePoint=(point:LocationPoint|null)=>{
     if(disabled)return;
@@ -140,15 +145,16 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     </div>
     <p id={`${id}-hint`} className={styles.hint}>Enter only a city or barangay here. Keep house numbers and private addresses out of this search.</p>
     {results.length>0 && <div className={styles.results} aria-label="Matching places">{results.map((p,i) => <button type="button" disabled={disabled} className={styles.result} key={`${p.latitude}-${p.longitude}-${i}`} onClick={() => areaOnly ? selectPoint({ latitude:p.latitude, longitude:p.longitude, label:p.label }) : proposePoint(p)}><MapPin size={16}/>{p.label}</button>)}</div>}
-    {areaOnly && <p className={styles.hint}>Choose a city or barangay from the search results. If you prefer, select it on the map instead. You only need to use one method.</p>}
+    {areaOnly && <p className={styles.hint}>Select a search result, or choose a point on the map.</p>}
     {areaOnly && <button type="button" className={styles.button} aria-expanded={showAreaMap} onClick={() => setShowAreaMap(!showAreaMap)}>{showAreaMap ? 'Hide area map' : 'Use map instead'}</button>}
     {(!areaOnly || showAreaMap) && <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my device location'}</button>}
     {operation === 'location' && <div className={styles.selected}><p role="status" className={styles.hint}>Allow location in your browser. You can cancel and retry after turning on device location.</p><button type="button" className={styles.button} onClick={cancelRequest}>Cancel location request</button></div>}
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
-    {(!areaOnly || showAreaMap) && <><p className={styles.hint}>{areaOnly ? 'Mark a point in your chosen area, then confirm. This sets the center for measuring distance. No exact address is needed here.' : 'Click the map or drag the pin to the exact place, then confirm. Moving or zooming the map does not change your selected place.'}</p>
+    {(!areaOnly || showAreaMap) && <><p className={styles.hint}>{areaOnly ? 'Choose a point in your city or barangay, then confirm. No exact address is needed.' : 'Click the map or move the pin to the job location or workplace, then confirm.'}</p>
       <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}
         results={mapResults} resultPlacement="area" resultAccent={mapResultAccent} resultActionLabel="View listing" onResultSelect={onResultSelect} onViewportChange={onViewportChange}/></>}
-    {(candidate || value) && <label><span className={styles.label}>{label}</span><input className={styles.field} value={candidate?.label ?? value?.label ?? ''} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => { cancelLookup(); if(value) onChange({ ...value, label:e.target.value }); }}/></label>}
+    {(candidate || value) && (!compact || manualLabel) && <label><span className={styles.label}>{compact ? 'City or barangay for the selected point' : label}</span><input className={styles.field} value={candidate?.label ?? value?.label ?? ''} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => { cancelLookup(); if(value) onChange({ ...value, label:e.target.value }); }}/></label>}
+    {compact && manualLabel && value && !candidate && <button type="button" className={styles.button} disabled={disabled || value.label.trim().length < 2} onClick={() => { setManualLabel(false); onSelected?.(); }}>Save place name</button>}
     {lookupStatus && <p className={styles.hint} role="status">{lookupStatus === 'loading' ? 'Finding the city or barangay for this pin…' : 'We could not find a place name here. Enter the city or barangay yourself; your selected pin stays in place.'}</p>}
   </div>;
 }

@@ -200,7 +200,7 @@ export default function ServiceManager({
       {
         ...(editingService.serviceLocation && { serviceLocation: editingService.serviceLocation }),
         publicMapPin: editingService.publicMapPin ?? false,
-        coverageRadiusKm: editingService.coverageRadiusKm ?? null,
+        coverageRadiusKm: null,
         photoIds: (editingService.photos ?? []).map(photo => photo.id),
         serviceLocationMode: editingService.serviceLocationMode,
         venueAddress: editingService.venueAddress?.trim() || null,

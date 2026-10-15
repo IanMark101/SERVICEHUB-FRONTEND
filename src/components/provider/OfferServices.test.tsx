@@ -6,8 +6,15 @@ import { useToast } from '../ui/Toast';
 import type { ListingPhoto } from '../../lib/listingPhotos';
 import OfferServices from './OfferServices';
 
+const walletState = vi.hoisted(() => ({ ready: true }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
-vi.mock('../../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () => ({ gcashNumber: null })), apiSaveGCashNumber: vi.fn() }));
+vi.mock('../ui/GCashNumberField', async () => {
+  const { useEffect } = await import('react');
+  return { default: ({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) => {
+    useEffect(() => { if (enabled) onReadinessChange?.({ userId, ready: walletState.ready }); }, [userId, enabled, onReadinessChange]);
+    return enabled ? <p>Saved number ending in 6789</p> : null;
+  } };
+});
 vi.mock('../../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -27,12 +34,12 @@ function fillDetails() {
 function toPrice() {
   fillDetails(); next();
   fireEvent.click(screen.getByTestId('test-location'));
-  fireEvent.change(screen.getByRole('combobox', { name: 'How far will you travel? (required)' }), { target: { value: '5' } });
   next();
 }
 function toReview() { toPrice(); next(); next(); }
 
 beforeEach(() => {
+  walletState.ready = true;
   vi.clearAllMocks();
   createServiceListing.mockResolvedValue({ success: false });
   vi.mocked(useApp).mockReturnValue({ user: { id: 'provider-id', phone: '09123456789' }, createServiceListing, isDark: false, dbCategories: [{ id: 'category-cuid', name: 'Plumbing' }] } as unknown as ReturnType<typeof useApp>);
@@ -45,7 +52,6 @@ it('keeps public map sharing opt-in and includes the choice in publication', asy
   fireEvent.click(screen.getByTestId('test-location'));
   const consent=screen.getByRole('checkbox', { name:/Show this exact pin on the public map/ });
   expect(consent).not.toBeChecked(); fireEvent.click(consent); expect(consent).toBeChecked();
-  fireEvent.change(screen.getByRole('combobox', { name:'How far will you travel? (required)' }), { target:{ value:'5' } });
   next(); next(); next();
   fireEvent.click(screen.getByRole('button', { name:'Publish service' }));
   await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String),expect.any(String),expect.any(String),expect.any(Number),expect.any(String),expect.any(Object),expect.objectContaining({publicMapPin:true})));
@@ -124,18 +130,13 @@ describe('Offer Services wizard', () => {
     expect(screen.queryByRole('option', { name: 'Custom' })).not.toBeInTheDocument();
     expect(createServiceListing).not.toHaveBeenCalled();
   });
-  it('requires explicit travel coverage and accepts an area without a venue address', async () => {
-    render(<OfferServices />); fillDetails(); next(); next();
-    expect(screen.getByRole('alert')).toHaveTextContent('No shop or home address is needed');
-    fireEvent.click(screen.getByTestId('test-location')); next();
-    expect(createServiceListing).not.toHaveBeenCalled();
-    expect(screen.getByRole('alert')).toHaveTextContent('Choose how far you will travel');
-    fireEvent.change(screen.getByRole('combobox', { name: 'How far will you travel? (required)' }), { target: { value: '10' } });
-    next(); next(); next();
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
-    expect(createServiceListing).not.toHaveBeenCalled();
+  it('publishes a base area without asking for a travel limit', async () => {
+    render(<OfferServices />); fillDetails(); next();
+    fireEvent.click(screen.getByTestId('test-location'));
+    expect(screen.queryByLabelText(/How far will you travel/)).not.toBeInTheDocument();
+    next(); next(); await waitFor(() => expect(screen.getByText(/Saved number ending/)).toBeVisible()); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
-    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500, description, { cash: true, gcash: true }, expect.objectContaining({ serviceLocationMode: 'PROVIDER_VISITS', serviceLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, coverageRadiusKm: 10, venueAddress: null })));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500, description, { cash: true, gcash: true }, expect.objectContaining({ serviceLocationMode: 'PROVIDER_VISITS', coverageRadiusKm: null, venueAddress: null })));
   });
   it.each(['The seeker comes to you', 'Either option'])('requires a venue for %s and preserves its conditional payload', async choice => {
     render(<OfferServices />); toPrice();
@@ -144,22 +145,22 @@ describe('Offer Services wizard', () => {
     expect(createServiceListing).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent('Mark the place where seekers can visit you');
     if (choice === 'The seeker comes to you') expect(screen.queryByLabelText('How far will you travel? (required)')).not.toBeInTheDocument();
-    else expect(screen.getByRole('combobox', { name: 'How far will you travel? (required)' })).toBeInTheDocument();
+
     fireEvent.click(screen.getByTestId('test-location'));
     fireEvent.change(screen.getByRole('textbox', { name: 'Address or directions for the seeker (optional)' }), { target: { value: 'Shop beside the barangay hall' } });
     next(); next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
-    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: choice === 'Either option' ? 'BOTH' : 'SEEKER_VISITS', coverageRadiusKm: choice === 'Either option' ? 5 : null, venueAddress: 'Shop beside the barangay hall', transportationFee: null })));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: choice === 'Either option' ? 'BOTH' : 'SEEKER_VISITS', coverageRadiusKm: null, venueAddress: 'Shop beside the barangay hall', transportationFee: null })));
   });
-  it('uses the same coverage radius for map preview and publication, and resets only on success', async () => {
+  it('publishes without a coverage circle and resets only on success', async () => {
     createServiceListing.mockResolvedValue({ success: true });
     render(<OfferServices />); toPrice();
-    expect(screen.getByTestId('test-location')).toHaveAttribute('data-radius', '5');
+    expect(screen.getByTestId('test-location')).toHaveAttribute('data-radius', '');
     next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
     await waitFor(() => expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0'));
     expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveValue('');
-    expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500, description, { cash: true, gcash: true }, expect.objectContaining({ coverageRadiusKm: 5 }));
+    expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500, description, { cash: true, gcash: true }, expect.objectContaining({ coverageRadiusKm: null }));
   });
   it('returns server moderation rejection to Details without losing the draft', async () => {
     createServiceListing.mockResolvedValue({ success: false, field: 'title', error: 'Remove hateful or abusive language before publishing.' });
@@ -261,4 +262,14 @@ describe('Offer Services wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Edit service details' }));
     expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveValue('KITCHEN PIPE REPAIR');
   });
+});
+
+it('blocks GCash publication without a saved number and permits Cash only', () => {
+  walletState.ready = false;
+  render(<OfferServices />); toPrice(); next(); next();
+  expect(screen.getByRole('alert')).toHaveTextContent('Save a valid GCash number');
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '75');
+  expect(createServiceListing).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('checkbox', { name: /GCash/ })); next();
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
 });

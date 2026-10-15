@@ -10,7 +10,13 @@ import RequestServiceModal from './RequestServiceModal';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
-vi.mock('../../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () => ({ gcashNumber: null })), apiSaveGCashNumber: vi.fn() }));
+vi.mock('../ui/GCashNumberField', async () => {
+  const { useEffect } = await import('react');
+  return { default: ({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) => {
+    useEffect(() => { if (enabled) onReadinessChange?.({ userId, ready: true }); }, [userId, enabled, onReadinessChange]);
+    return enabled ? <p>Saved number ending in 6789</p> : null;
+  } };
+});
 vi.mock('../../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('../../api/bookings.api', () => ({ apiBookDirect: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: () => ({ error: vi.fn(), success: vi.fn() }) }));
@@ -45,7 +51,8 @@ function requestToPayment() {
 }
 function bookingToPayment() {
   fireEvent.change(screen.getByRole('textbox', { name: 'Describe the work needed' }), { target: { value: 'Please repair my laptop.' } }); next();
-  fireEvent.click(screen.getByRole('button', { name: 'Use Cordova location' })); next();
+  fireEvent.click(screen.getByRole('button', { name: 'Use Cordova location' }));
+  fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ })); next();
 }
 
 describe('Post Request wizard', () => {
@@ -118,7 +125,7 @@ describe('Request Service wizard', () => {
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
     fireEvent.change(screen.getByRole('textbox', { name: 'Describe the work needed' }), { target: { value: 'Fix my laptop.' } });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument(); next(); next();
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '33');
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '50');
     expect(screen.getByRole('alert')).toHaveTextContent('Choose where the work');
     expect(apiBookDirect).not.toHaveBeenCalled(); expect(online).not.toHaveBeenCalled();
   });
@@ -133,7 +140,7 @@ describe('Request Service wizard', () => {
     expect(screen.getByRole('spinbutton', { name: 'Number of hours' })).toHaveValue(3);
     expect(screen.getByRole('button', { name: 'On-site Cash' })).toHaveAttribute('aria-pressed', 'true'); next();
     fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
-    expect(apiBookDirect).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3, schedule: 'Saturday afternoon', serviceLocationMode: 'PROVIDER_VISITS' }));
+    expect(apiBookDirect).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3, schedule: 'Saturday afternoon', serviceLocationMode: 'SEEKER_VISITS' }));
   });
   it.each([0, 41, 1.5])('blocks invalid hourly quantity %s before Review', quantity => {
     render(<RequestServiceModal listing={{ ...listing, priceType: 'PER_HOUR' }} onClose={vi.fn()} />); bookingToPayment();
@@ -149,8 +156,8 @@ describe('Request Service wizard', () => {
     const section = screen.getByRole('group', { name: 'Review your booking request' });
     expect(within(section).getByText('Total').nextElementSibling).toHaveTextContent('₱500');
     fireEvent.click(screen.getByRole('button', { name: 'Edit location' }));
-    fireEvent.click(screen.getByRole('radio', { name: /The provider comes to you/ })); next(); next();
-    expect(within(section).getByText('Cordova')).toBeVisible();
+    fireEvent.click(screen.getByRole('radio', { name: /The provider comes to you/ })); next();
+    expect(within(screen.getByRole('group', { name: 'Review your booking request' })).getByText('Cordova')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Edit location' }));
     fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ })); next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));

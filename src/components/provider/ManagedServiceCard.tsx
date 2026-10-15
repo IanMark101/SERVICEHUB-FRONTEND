@@ -38,7 +38,7 @@ export default function ManagedServiceCard({ service, isDark, highlighted, toggl
       <div className={styles.content}>
         <dl className={styles.price}><dt>Service price</dt><dd>{rate}{!needsPrice && service.priceType !== 'BY_AGREEMENT' && <small>{unit}</small>}</dd></dl>
         {service.priceType === 'BY_AGREEMENT' && <p className={styles.priceHint}>Review the request, then send your final price.</p>}
-        <p className={styles.location}><MapPin size={17} aria-hidden="true" /><span>{service.serviceLocationMode === 'REMOTE' && <span>Online / remote · </span>}{service.locationLabel || 'Add your service area or venue in Edit to appear in nearby discovery.'}{service.coverageRadiusKm != null && service.serviceLocationMode !== 'REMOTE' && service.serviceLocationMode !== 'SEEKER_VISITS' && <span> · Travels up to {service.coverageRadiusKm} km</span>}</span></p>
+        <p className={styles.location}><MapPin size={17} aria-hidden="true" /><span>{service.serviceLocationMode === 'REMOTE' && <span>Online / remote · </span>}{service.locationLabel || 'Add your service area or venue in Edit to appear in nearby discovery.'}</span></p>
         <div className={styles.descriptionBlock}>
           <h4>About this service</h4>
           <p id={descriptionId} className={styles.description} data-collapsed={lengthyDescription && !showDescription}>{service.description}</p>

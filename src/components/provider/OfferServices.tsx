@@ -14,7 +14,7 @@ import { AlertCircle, Briefcase, Info } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
 import type { ServiceListing } from '../../types';
-import GCashNumberField from '../ui/GCashNumberField';
+import GCashNumberField, { type GCashReadiness } from '../ui/GCashNumberField';
 import FormalSelect from '../ui/FormalSelect';
 import ListingTitleInput from '../ui/ListingTitleInput';
 import PaymentMethodCheckboxes from '../ui/PaymentMethodCheckboxes';
@@ -29,10 +29,10 @@ const PRICING_OPTIONS: readonly string[] = ['FIXED', 'PER_HOUR', 'PER_DAY', 'PER
 const FIELD_TARGETS: Record<string, string> = {
   title: '#listing-title', category: '#listing-category', description: '#listing-description',
   location: '[data-listing-location] summary[aria-invalid="true"]',
-  coverage: '[data-listing-location] select[aria-invalid="true"]',
   address: '[data-listing-location] textarea', price: '#listing-price',
   priceType: '#listing-price-unit', duration: '#listing-duration',
   travel: '[data-listing-travel] input', payment: '[data-listing-payment] input',
+  gcash: '[data-gcash-number] button',
 };
 
 export default function OfferServices() {
@@ -55,13 +55,13 @@ export default function OfferServices() {
   const [locationError, setLocationError] = useState('');
   const [serviceLocationMode, setServiceLocationMode] = useState<ServiceLocationMode>('PROVIDER_VISITS');
   const [venueAddress, setVenueAddress] = useState('');
-  const [coverageRadiusKm, setCoverageRadiusKm] = useState<number | null | undefined>(undefined);
-  const [coverageError, setCoverageError] = useState('');
   const [transportationFee, setTransportationFee] = useState('');
 
   // Payment methods
   const [acceptCash, setAcceptCash] = useState<boolean>(true);
   const [acceptGCash, setAcceptGCash] = useState<boolean>(true);
+  const [gcashReadiness, setGCashReadiness] = useState<GCashReadiness | null>(null);
+  const gcashReady = gcashReadiness?.userId === user?.id && gcashReadiness?.ready;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [moderationError, setModerationError] = useState<{ field?: 'title' | 'description' | 'category'; message: string } | null>(null);
@@ -90,8 +90,6 @@ export default function OfferServices() {
     if (index === 1) {
       if (!LocationSchema.safeParse(serviceLocation).success) {
         problems.push({ field: 'location', heading: listingUsesArea(serviceLocationMode) ? 'Choose your general service area' : 'Choose where seekers can visit you', message: listingUsesArea(serviceLocationMode) ? 'Choose a city or barangay where you offer this service. No shop or home address is needed.' : 'Mark the place where seekers can visit you on the map, then enter the city or barangay name.' });
-      } else if (involvesProviderTravel(serviceLocationMode) && coverageRadiusKm === undefined) {
-        problems.push({ field: 'coverage', heading: 'Choose your travel distance', message: 'Choose how far you will travel, or select “No distance limit”.' });
       }
       if (!listingUsesArea(serviceLocationMode) && venueAddress.length > 500) problems.push({ field: 'address', heading: 'Check your directions', message: 'Keep the address or directions within 500 characters.' });
     }
@@ -102,10 +100,11 @@ export default function OfferServices() {
       if (!priceByAgreement && involvesProviderTravel(serviceLocationMode) && !validTransportationFee(transportationFee)) problems.push({ field: 'travel', heading: 'Check your travel fee', message: 'Leave it blank, or enter ₱0–₱5,000 using no more than two digits after the decimal point.' });
     }
     if (index === 3 && !acceptCash && !acceptGCash) problems.push({ field: 'payment', heading: 'Choose a payment method', message: 'Choose at least one way seekers can pay you.' });
+    if (index === 3 && acceptGCash && !gcashReady) problems.push({ field: 'gcash', heading: 'Add your GCash number', message: 'Save a valid GCash number before continuing, or choose Cash only.' });
     return problems;
   };
   const problems = validationAttempted ? stepProblems(step) : [];
-  const summaryProblems = problems.filter(issue => !['location', 'coverage', 'payment'].includes(issue.field));
+  const summaryProblems = problems.filter(issue => !['location', 'payment', 'gcash'].includes(issue.field));
   const validationMessage = (field: string) => problems.find(issue => issue.field === field)?.message;
   const fieldDescription = (field: string, hint: string, policyId?: string) => [hint, validationMessage(field) && `listing-${field}-error`, moderationError?.field === field && policyId].filter(Boolean).join(' ');
   const fieldError = (field: string) => validationMessage(field) ? <p id={`listing-${field}-error`} className={styles.fieldError}>{validationMessage(field)}</p> : null;
@@ -115,8 +114,7 @@ export default function OfferServices() {
     if (!issues.length) return true;
     setStep(index); setValidationAttempted(true);
     const location = issues.find(issue => issue.field === 'location');
-    const coverage = issues.find(issue => issue.field === 'coverage');
-    setLocationError(location?.message || ''); setCoverageError(coverage?.message || '');
+    setLocationError(location?.message || '');
     setFocusRequest({ field: issues[0].field });
     return false;
   };
@@ -150,7 +148,7 @@ export default function OfferServices() {
           publicMapPin: serviceLocationMode !== 'REMOTE' && publicMapPin,
           serviceLocationMode,
           venueAddress: listingUsesArea(serviceLocationMode) ? null : venueAddress.trim() || null,
-          coverageRadiusKm: !involvesProviderTravel(serviceLocationMode) ? null : coverageRadiusKm,
+          coverageRadiusKm: null,
           transportationFee: priceByAgreement || !involvesProviderTravel(serviceLocationMode) || transportationFee === '' ? null : Number(transportationFee),
           serviceType: 'ONE_TIME',
           priceType,
@@ -164,7 +162,6 @@ export default function OfferServices() {
         setPublicMapPin(false);
         setServiceLocationMode('PROVIDER_VISITS');
         setVenueAddress('');
-        setCoverageRadiusKm(undefined);
         setTransportationFee('');
         setTitle('');
         setPhotos([]);
@@ -239,16 +236,14 @@ export default function OfferServices() {
             <ListingPhotoUploader workspace="provider" value={photos} onChange={setPhotos} onBusyChange={setPhotosBusy} disabled={loading || !canTransact} />
             </ListingFormSection>
             </WizardStep>
-            <WizardStep index={1} currentStep={step} label="Service location and coverage">
+            <WizardStep index={1} currentStep={step} label="Service location">
             <ListingFormSection number={2} title="How will you deliver the service?" description="Choose a visit arrangement or deliver the work online.">
-              <div data-listing-location><ListingLocationFields locationError={locationError} coverageError={coverageError} value={{ serviceLocation, publicMapPin, serviceLocationMode, venueAddress, coverageRadiusKm, transportationFee }} isDark={isDark} disabled={!canTransact || loading} arrangementLayout="responsive" showTransportation={false} onChange={patch => {
+              <div data-listing-location><ListingLocationFields locationError={locationError} value={{ serviceLocation, publicMapPin, serviceLocationMode, venueAddress, transportationFee }} isDark={isDark} disabled={!canTransact || loading} arrangementLayout="responsive" showTransportation={false} onChange={patch => {
                 setLocationError('');
                 if (patch.publicMapPin !== undefined) setPublicMapPin(patch.publicMapPin);
                 if (patch.serviceLocation !== undefined) setServiceLocation(patch.serviceLocation);
                 if (patch.serviceLocationMode) setServiceLocationMode(patch.serviceLocationMode);
                 if (patch.venueAddress !== undefined) setVenueAddress(patch.venueAddress ?? '');
-                if (patch.coverageRadiusKm !== undefined) { setCoverageRadiusKm(patch.coverageRadiusKm); setCoverageError(''); }
-                if (patch.serviceLocationMode) setCoverageError('');
                 if (patch.transportationFee !== undefined) setTransportationFee(patch.transportationFee);
               }} />{fieldError('address')}</div>
             </ListingFormSection>
@@ -284,14 +279,15 @@ export default function OfferServices() {
               <div data-listing-payment><PaymentMethodCheckboxes remote={serviceLocationMode === 'REMOTE'} legend="Choose at least one payment method" value={{ cash:acceptCash, gcash:acceptGCash }} onChange={methods => { setAcceptCash(methods.cash); setAcceptGCash(methods.gcash); }} isDark={isDark} disabled={loading || !canTransact}
                 description="You can choose both. GCash is currently in test mode; no real money is transferred."
                 error={validationMessage('payment')} /></div>
-              <GCashNumberField userId={user?.id} enabled={acceptGCash} isDark={isDark} workspace="provider" disabled={loading || !canTransact} />
+              <GCashNumberField userId={user?.id} enabled={acceptGCash} isDark={isDark} workspace="provider" disabled={loading || !canTransact} onReadinessChange={setGCashReadiness} />
+              {validationMessage('gcash') && <p role="alert" className={styles.fieldError}>{validationMessage('gcash')}</p>}
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={4} currentStep={step} label="Review your service listing">
               <ListingFormSection number={5} title="Review your service listing" description="Check the details seekers will see before publishing.">
                 <div>
                   <WizardReviewSection title="Service details" onEdit={() => changeStep(0)}><dl><dt>Service name</dt><dd>{title}</dd><dt>Service category</dt><dd>{categories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>What is included?</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
-                  <WizardReviewSection title="Location and coverage" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no travel' : serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>{serviceLocationMode === 'REMOTE' ? 'Discovery area' : serviceLocationMode === 'PROVIDER_VISITS' ? 'Service area' : 'Where seekers can visit you'}</dt><dd>{serviceLocation?.label}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Private directions</dt><dd>{venueAddress}</dd></>}{involvesProviderTravel(serviceLocationMode) && <><dt>How far you travel</dt><dd>{coverageRadiusKm === null ? 'No distance limit' : `Up to ${coverageRadiusKm} km`}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no travel' : serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>{serviceLocationMode === 'REMOTE' ? 'Discovery area' : serviceLocationMode === 'PROVIDER_VISITS' ? 'Service area' : 'Where seekers can visit you'}</dt><dd>{serviceLocation?.label}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Private directions</dt><dd>{venueAddress}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Price and duration" onEdit={() => changeStep(2)}><dl><dt>Service price</dt><dd>{priceByAgreement ? 'Price by agreement' : '₱' + price.toLocaleString() + (priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price')}</dd><dt>Time needed</dt><dd>{durationMins} minutes</dd>{!priceByAgreement && involvesProviderTravel(serviceLocationMode) && <><dt>Your travel fee</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[acceptCash && 'Cash in person', acceptGCash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p>{acceptGCash && <p>GCash is currently in test mode; no real money is transferred.</p>}</WizardReviewSection>
                   <p className={styles.help}>You can accept separate bookings from this listing. A seeker can book again after their previous booking ends.</p>

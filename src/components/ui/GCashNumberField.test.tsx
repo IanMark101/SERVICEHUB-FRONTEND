@@ -21,6 +21,28 @@ async function open() {
 }
 
 describe('private GCash number in listing forms', () => {
+  it.each(['provider', 'seeker'] as const)('requires a saved number for the %s listing and reports readiness after saving', async workspace => {
+    const readiness = vi.fn();
+    render(<GCashNumberField userId="owner" enabled isDark={false} workspace={workspace} onReadinessChange={readiness} />);
+    expect(screen.getByText('(required for GCash)')).toBeInTheDocument();
+    expect(screen.queryByText('(optional)')).not.toBeInTheDocument();
+    await open();
+    expect(readiness).toHaveBeenLastCalledWith({ userId: 'owner', ready: false });
+    fireEvent.change(screen.getByRole('textbox', { name: 'GCash mobile number' }), { target: { value: '09123456789' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save number' }));
+    await waitFor(() => expect(readiness).toHaveBeenLastCalledWith({ userId: 'owner', ready: true }));
+  });
+  it('blocks edit submission until the required number is saved', async () => {
+    const submit = vi.fn(event => event.preventDefault());
+    render(<EditServiceModal userId="owner" isDark={false} value={{ serviceId: 'service', title: 'Laptop repair', price: 500, priceType: 'FIXED', serviceType: 'ONE_TIME', estimatedDurationMins: 30, description: 'Laptop diagnostics and repair service.', paymentMethods: { cash: true, gcash: true } }} onChange={vi.fn()} onClose={vi.fn()} onSubmit={submit} />);
+    await open();
+    expect(screen.getByRole('button', { name: 'Save Changes' })).toBeDisabled();
+    fireEvent.change(screen.getByRole('textbox', { name: 'GCash mobile number' }), { target: { value: '09123456789' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save number' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save Changes' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+    expect(submit).toHaveBeenCalledTimes(1);
+  });
   it('does not request a wallet for cash-only forms or signed-out users', () => {
     const { rerender } = render(<GCashNumberField userId="owner" enabled={false} isDark={false} workspace="provider" />);
     rerender(<GCashNumberField enabled isDark={false} workspace="seeker" />);

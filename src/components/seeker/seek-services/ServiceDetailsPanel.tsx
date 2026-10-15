@@ -18,7 +18,6 @@ import {
   ArrowUpRight,
   Bell,
   Briefcase,
-  Radar,
   Truck,
   Banknote,
 } from 'lucide-react';
@@ -62,6 +61,7 @@ export default function ServiceDetailsPanel({
 }: ServiceDetailsPanelProps) {
   const { cash, gcash } = getServicePaymentMethods(listing);
   const agreement = isPriceByAgreement(listing);
+  const requestFirst = agreement || !listing.serviceLocationMode || ['PROVIDER_VISITS', 'BOTH'].includes(listing.serviceLocationMode);
   const isVerified = listing.providerVerificationStatus === 'APPROVED';
   const trustScore = listing.providerTrustScore;
   const isQueueFull = gcash && (listing.providerWaitingCount ?? listing.queueSize) >= (listing.queueLimit || 5);
@@ -116,7 +116,6 @@ export default function ServiceDetailsPanel({
               </div>
               <div className={styles.geography}>
                 {listing.locationLabel && <p className={styles.locationLine}><MapPin size={15} aria-hidden="true" /><span>{listing.locationLabel}{listing.distanceKm != null && <> · {formatDistance(listing.distanceKm)}</>}</span></p>}
-                {listing.serviceLocationMode !== 'REMOTE' && listing.serviceLocationMode !== 'SEEKER_VISITS' && listing.coverageRadiusKm != null && <p className={styles.locationLine}><Radar size={15} aria-hidden="true" /><span>Travel coverage: {listing.coverageRadiusKm} km from the selected service area or venue</span></p>}
                 {listing.serviceLocationMode !== 'REMOTE' && listing.serviceLocationMode !== 'SEEKER_VISITS' && !!listing.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>+ ₱{listing.transportationFee.toLocaleString()} transportation, once when the provider visits</span></p>}
               </div>
             </div>
@@ -134,7 +133,7 @@ export default function ServiceDetailsPanel({
                 {!!listing.estimatedDurationMins && <div><dt><Clock size={16} aria-hidden="true" />Estimated duration</dt><dd>{listing.estimatedDurationMins} minutes</dd></div>}
               </dl>
             </section>
-            {agreement && <section className={styles.bookingGuide}>
+            {requestFirst && <section className={styles.bookingGuide}>
               <h3 className={styles.sectionTitle}>How booking works</h3>
               <ol className={styles.bookingSteps}>
                 <li><strong>Describe the work</strong><p>Send a private service request to this provider.</p></li>
@@ -145,12 +144,12 @@ export default function ServiceDetailsPanel({
             <div className={styles.info}>
               {gcash ? <section className={`${styles.queue} ${styles.detailSection}`}>
                 <div className={styles.queueHeading}><h3 className={styles.label}>Online queue · GCash bookings only</h3><span className={styles.value}>{queueCount} / {queueLimit} waiting</span></div>
-                {isQueueFull ? <div className={`${styles.queueMessage} text-rose-700 dark:text-rose-400`}><AlertCircle size={15} /><span>{agreement ? 'The paid queue is full. You can still request a price. GCash availability is checked when you approve it.' : <>Online queue is currently full. Join the waitlist to be notified when space opens.{cash && ' On-site Cash requests remain subject to provider approval.'}</>}</span></div> : queueCount > 0 ?
+                {isQueueFull ? <div className={`${styles.queueMessage} text-rose-700 dark:text-rose-400`}><AlertCircle size={15} /><span>{requestFirst ? 'The paid queue is full. You can still request a price. GCash availability is checked when you approve it.' : <>Online queue is currently full. Join the waitlist to be notified when space opens.{cash && ' On-site Cash requests remain subject to provider approval.'}</>}</span></div> : queueCount > 0 ?
                   <div className={`${styles.queueMessage} text-ink-muted`}><Clock size={15} /><span>Provider has {queueCount} paid job{queueCount === 1 ? '' : 's'} in queue. New bookings follow first-come, first-served order.</span></div> :
                   <div className={`${styles.queueMessage} text-emerald-700 dark:text-emerald-400`}><CheckCircle2 size={15} /><span>No paid bookings are waiting. The provider confirms when work starts.</span></div>}
               </section> : cash && <section className={`${styles.queue} ${styles.detailSection}`}>
                 <h3 className={styles.label}>Scheduling</h3>
-                <p className={styles.description}>{agreement ? 'Approve the provider’s final price to book. Arrange the schedule with the provider and pay in person upon completion.' : 'Subject to provider approval. Arrange the schedule with the provider and pay in person upon completion.'}</p>
+                <p className={styles.description}>{requestFirst ? 'Approve the provider’s final price to book. Arrange the schedule with the provider and pay in person upon completion.' : 'Subject to provider approval. Arrange the schedule with the provider and pay in person upon completion.'}</p>
               </section>}
             </div>
             <section className={styles.detailSection}>
@@ -168,7 +167,7 @@ export default function ServiceDetailsPanel({
             <button type="button" onClick={onClose} className={styles.secondary}>Close</button>
             {isOwned ? <button type="button" onClick={() => { onClose(); router.push(`/provider/service-manager?id=${listing.id}`); }} className={styles.primary}>Edit Listing</button> :
               activeEngagement ? <button type="button" onClick={() => { onClose(); router.push(`/seeker/seeker-activity?tab=all&booking=${activeEngagement.id}`); }} className={styles.primary}>View Active Booking</button> :
-              agreement ? <button type="button" onClick={handleBookClick} className={styles.primary}>Request service</button> :
+              requestFirst ? <button type="button" onClick={handleBookClick} className={styles.primary}>Request service</button> :
               priceUnavailable ? <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Price unavailable</span> :
               isQueueFull ? <>
                 <button type="button" onClick={() => onJoinWaitlist(listing)} disabled={joiningWaitlistId === listing.id} className={styles.notify}><Bell size={14} />{joiningWaitlistId === listing.id ? (cash ? 'Joining...' : 'Joining Waitlist...') : (cash ? 'Notify Me' : 'Notify Me When Open')}</button>

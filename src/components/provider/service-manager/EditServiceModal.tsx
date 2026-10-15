@@ -12,7 +12,7 @@ import type { ServiceListing } from '../../../types';
 import ListingTitleInput from '../../ui/ListingTitleInput';
 import ListingPhotoUploader from '../../ui/ListingPhotoUploader';
 import type { ListingPhoto } from '../../../lib/listingPhotos';
-import GCashNumberField from '../../ui/GCashNumberField';
+import GCashNumberField, { type GCashReadiness } from '../../ui/GCashNumberField';
 
 export interface EditServiceState {
   publicMapPin?: boolean;
@@ -52,6 +52,8 @@ export default function EditServiceModal({
   saving=false,
 }: Props) {
   const [photosBusy, setPhotosBusy] = useState(false);
+  const [gcashReadiness, setGCashReadiness] = useState<GCashReadiness | null>(null);
+  const gcashReady = gcashReadiness?.userId === userId && gcashReadiness?.ready;
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !e.defaultPrevented && !saving) onClose();
@@ -119,7 +121,7 @@ export default function EditServiceModal({
         </div>
 
         {/* Scrollable Form Body */}
-        <form onSubmit={event => { if (photosBusy || saving) event.preventDefault(); else onSubmit(event); }} className="flex-1 flex flex-col min-h-0" aria-busy={saving}>
+        <form onSubmit={event => { if (photosBusy || saving || (value.paymentMethods.gcash && !gcashReady)) event.preventDefault(); else onSubmit(event); }} className="flex-1 flex flex-col min-h-0" aria-busy={saving}>
           <div className="flex-1 min-h-0 overflow-y-auto p-6"><fieldset disabled={saving} className="space-y-4.5 min-w-0">
             <div>
               <label className={label}>Service name</label>
@@ -245,7 +247,7 @@ export default function EditServiceModal({
               {!hasPaymentMethod && (
                 <p className="mt-1.5 text-xs text-red-500 font-medium">Select at least one payment method.</p>
               )}
-              <GCashNumberField userId={userId} enabled={value.paymentMethods.gcash} isDark={isDark} workspace="provider" />
+              <GCashNumberField userId={userId} enabled={value.paymentMethods.gcash} isDark={isDark} workspace="provider" disabled={saving} onReadinessChange={setGCashReadiness} />
             </div>
           </fieldset></div>
 
@@ -269,7 +271,7 @@ export default function EditServiceModal({
             </button>
             <button
               type="submit"
-              disabled={saving || !hasPaymentMethod || photosBusy}
+              disabled={saving || !hasPaymentMethod || photosBusy || (value.paymentMethods.gcash && !gcashReady)}
               aria-busy={saving}
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:shadow-none disabled:bg-neutral-600 disabled:hover:bg-neutral-600 disabled:text-white disabled:opacity-80 text-white font-extrabold text-xs rounded-xl transition-all active:scale-98 shadow-md hover:shadow-emerald-500/25 cursor-pointer disabled:cursor-not-allowed"
             >

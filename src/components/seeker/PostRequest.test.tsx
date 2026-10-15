@@ -6,8 +6,15 @@ import { useToast } from '../ui/Toast';
 import { apiSubmitContentCase } from '../../api/contentCases.api';
 import PostRequest from './PostRequest';
 
+const walletState = vi.hoisted(() => ({ ready: true }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
-vi.mock('../../api/gcashNumber.api', () => ({ apiGetGCashNumber: vi.fn(async () => ({ gcashNumber: null })), apiSaveGCashNumber: vi.fn() }));
+vi.mock('../ui/GCashNumberField', async () => {
+  const { useEffect } = await import('react');
+  return { default: ({ userId, enabled, onReadinessChange }: { userId: string; enabled: boolean; onReadinessChange?: (state: { userId: string; ready: boolean }) => void }) => {
+    useEffect(() => { if (enabled) onReadinessChange?.({ userId, ready: walletState.ready }); }, [userId, enabled, onReadinessChange]);
+    return enabled ? <p>Saved number ending in 6789</p> : null;
+  } };
+});
 vi.mock('../../hooks/useTransactionPermission', () => ({ useTransactionPermission: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: vi.fn() }));
 vi.mock('../../api/contentCases.api', () => ({ apiSubmitContentCase: vi.fn() }));
@@ -61,6 +68,7 @@ describe('Post Request submission', () => {
     await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid','Flexible Schedule',500,expect.any(String),expect.any(Object),expect.objectContaining({serviceLocationMode:'REMOTE',jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu',address:undefined},transportationFee:null})));
   });
   beforeEach(() => {
+  walletState.ready = true;
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({
       user: { id: 'seeker-id' }, postJobRequest, isDark: false,
@@ -249,3 +257,15 @@ describe('Post Request submission', () => {
 // These regression tests supply an explicit location fixture; location interaction is tested separately.
 vi.mock('../location/LocationField', () => ({ default: ({ onChange, disabled }: { onChange: (point: { latitude:number; longitude:number; label:string }) => void; disabled?:boolean }) => <button type="button" data-testid="test-location" disabled={disabled} onClick={() => onChange({ latitude: 10.3, longitude: 123.9, label: 'Cebu' })}>Set test location</button> }));
 function render(...args: Parameters<typeof rtlRender>) { const view = rtlRender(...args); const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]'); if (choice) fireEvent.click(choice); return view; }
+
+it('blocks a GCash seeker request without a saved number and permits Cash only', () => {
+  walletState.ready = false;
+  render(<PostRequest />); fillValidRequest();
+  fireEvent.click(screen.getByRole('button', { name: 'Review request' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('Save a valid GCash number');
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '75');
+  expect(postJobRequest).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('checkbox', { name: /GCash/ }));
+  fireEvent.click(screen.getByRole('button', { name: 'Review request' }));
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+});

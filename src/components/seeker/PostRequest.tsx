@@ -3,7 +3,7 @@ import ListingFormSection from '../ui/ListingFormSection';
 import MoneyInput from '../ui/MoneyInput';
 import styles from '../ui/ListingForm.module.css';
 import ServiceArrangementField from '../location/ServiceArrangementField';
-import { arrangementLabel, requestUsesArea, involvesProviderTravel, type ServiceLocationMode } from '../../lib/serviceArrangement';
+import { arrangementLabel, requestUsesArea, involvesProviderTravel, requestLocationText, type ServiceLocationMode } from '../../lib/serviceArrangement';
 import LocationField from '../location/LocationField';
 import { orderServiceCategories } from '../../lib/category-catalog';
 import TransportationField, { validTransportationFee } from '../location/TransportationField';
@@ -18,7 +18,7 @@ import ContentCaseAction from '../moderation/ContentCaseAction';
 import FormalSelect from '../ui/FormalSelect';
 import ListingTitleInput from '../ui/ListingTitleInput';
 import PaymentMethodCheckboxes from '../ui/PaymentMethodCheckboxes';
-import GCashNumberField from '../ui/GCashNumberField';
+import GCashNumberField, { type GCashReadiness } from '../ui/GCashNumberField';
 import { isRequestUrgency, REQUEST_URGENCY_OPTIONS } from '../../lib/requestUrgency';
 import type { RequestRepostTemplate } from '../../api/requests.api';
 import ListingPhotoUploader from '../ui/ListingPhotoUploader';
@@ -45,6 +45,8 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
   const [description, setDescription] = useState<string>(initialTemplate?.description ?? '');
   const [paymentMethods, setPaymentMethods] = useState(initialTemplate ? initialTemplate.paymentMethods ?? { cash: false, gcash: false } : { cash: true, gcash: true });
   const hasPaymentMethod = paymentMethods.cash || paymentMethods.gcash;
+  const [gcashReadiness, setGCashReadiness] = useState<GCashReadiness | null>(null);
+  const gcashReady = gcashReadiness?.userId === user?.id && gcashReadiness?.ready;
 
   const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -73,6 +75,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       if (involvesProviderTravel(serviceLocationMode) && !validTransportationFee(transportationFee)) problems.push({ field: 'travel', heading: 'Check your extra travel budget', message: 'Leave it blank, or enter ₱0–₱5,000 using no more than two digits after the decimal point.' });
     }
     if (index === 3 && !hasPaymentMethod) problems.push({ field: 'payment', heading: 'Choose how you can pay', message: 'Choose at least one way you can pay.' });
+    if (index === 3 && paymentMethods.gcash && !gcashReady) problems.push({ field: 'gcash', heading: 'Add your GCash number', message: 'Save a valid GCash number before continuing, or choose Cash only.' });
     return problems;
   };
   const problems = validationAttempted ? stepProblems(step) : [];
@@ -196,8 +199,8 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                 if (requestUsesArea(mode) !== requestUsesArea(serviceLocationMode)) setJobLocation(null);
                 setServiceLocationMode(mode); setLocationError('');
               }} disabled={!canTransact || loading} layout="responsive" />
-              <LocationField required error={locationError} selectionMode={requestUsesArea(serviceLocationMode) ? 'area' : 'pin'} label={requestUsesArea(serviceLocationMode) ? 'Area where you want to find a provider' : serviceLocationMode === 'BOTH' ? 'Your location if the provider comes to you' : 'Where the provider should come'} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} privateAddress={involvesProviderTravel(serviceLocationMode)} disabled={!canTransact || loading}
-                hint={serviceLocationMode === 'REMOTE' ? 'Choose a city or barangay to discover local providers. The work happens online; no address or meetup pin is needed.' : requestUsesArea(serviceLocationMode) ? 'Choose a city or barangay to find providers in that area. No home address is needed. The provider will give their address in their offer.' : serviceLocationMode === 'BOTH' ? 'Mark where the provider should come if you choose that option. Your exact location is shared after booking. If you go to the provider, their offer gives the address.' : undefined} />
+              <LocationField required error={locationError} selectionMode={requestUsesArea(serviceLocationMode) ? 'area' : 'pin'} label={requestLocationText(serviceLocationMode).label} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} privateAddress={involvesProviderTravel(serviceLocationMode)} disabled={!canTransact || loading}
+                hint={requestLocationText(serviceLocationMode).hint} />
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={2} currentStep={step} label="Request timing and budget">
@@ -225,7 +228,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
               <PaymentMethodCheckboxes remote={serviceLocationMode === 'REMOTE'} value={paymentMethods} onChange={setPaymentMethods} isDark={isDark} legend="Choose at least one payment method" disabled={loading || !canTransact}
                 description="You can choose both. Posting a request does not charge you. GCash is currently in test mode; no real money is transferred."
                 error={!hasPaymentMethod ? 'Choose at least one way you can pay.' : undefined} />
-              <GCashNumberField userId={user?.id} enabled={paymentMethods.gcash} isDark={isDark} workspace="seeker" disabled={loading || !canTransact} />
+              <GCashNumberField userId={user?.id} enabled={paymentMethods.gcash} isDark={isDark} workspace="seeker" disabled={loading || !canTransact} onReadinessChange={setGCashReadiness} />
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={4} currentStep={step} label="Review your request">

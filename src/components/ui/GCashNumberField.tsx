@@ -9,19 +9,23 @@ import useDialogFocus from '../../hooks/useDialogFocus';
 import form from './TransactionForm.module.css';
 import styles from './GCashNumberField.module.css';
 
-interface Props { userId?: string; enabled: boolean; isDark: boolean; workspace: 'seeker' | 'provider'; disabled?: boolean }
+export type GCashReadiness = { userId: string; ready: boolean };
+interface Props { userId?: string; enabled: boolean; isDark: boolean; workspace: 'seeker' | 'provider'; disabled?: boolean; onReadinessChange?: (state: GCashReadiness) => void }
 
 // Keyed to the signed-in account; no number is kept in browser storage or auth profiles.
 export default function GCashNumberField({ userId, enabled, ...props }: Props) {
-  return enabled && userId ? <GCashNumberControl key={userId} {...props} /> : null;
+  return enabled && userId ? <GCashNumberControl key={userId} userId={userId} {...props} /> : null;
 }
 
-function GCashNumberControl({ isDark, workspace, disabled }: Omit<Props, 'userId' | 'enabled'>) {
+function GCashNumberControl({ userId, isDark, workspace, disabled, onReadinessChange }: Omit<Props, 'enabled'> & { userId: string }) {
   const [number, setNumber] = useState<string | null>(null);
   const [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading');
   const [attempt, setAttempt] = useState(0);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  useEffect(() => {
+    onReadinessChange?.({ userId, ready: phase === 'ready' && /^09\d{9}$/.test(number ?? '') });
+  }, [userId, phase, number, onReadinessChange]);
   useEffect(() => {
     const controller = new AbortController();
     apiGetGCashNumber(controller.signal).then(result => {
@@ -30,10 +34,10 @@ function GCashNumberControl({ isDark, workspace, disabled }: Omit<Props, 'userId
     return () => controller.abort();
   }, [attempt]);
 
-  return <div className={styles.row} data-theme={isDark ? 'dark' : 'light'} data-workspace={workspace}>
+  return <div className={styles.row} data-gcash-number data-theme={isDark ? 'dark' : 'light'} data-workspace={workspace}>
     <div className={styles.copy}>
-      <strong>GCash number <span>(optional)</span></strong>
-      <p>{phase === 'loading' ? 'Loading your saved number…' : phase === 'error' ? 'Could not load your GCash number. Try again.' : number ? `Saved number ending in ${number.slice(-4)}. Used across your listings.` : 'Save your GCash number here. It can differ from your contact number.'}</p>
+      <strong>GCash number <span>(required for GCash)</span></strong>
+      <p>{phase === 'loading' ? 'Loading your saved number…' : phase === 'error' ? 'Could not load your GCash number. Retry before continuing, or choose Cash only.' : number ? `Saved number ending in ${number.slice(-4)}. Used across your listings.` : 'Add your GCash number to continue, or choose Cash only. It can differ from your contact number.'}</p>
       <p className={styles.note}>Private to your account. GCash is in test mode; this number does not receive payouts.</p>
       <span className={styles.status} role="status">{message}</span>
     </div>

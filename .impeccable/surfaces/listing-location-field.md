@@ -1,6 +1,6 @@
 # Listing form location control
 
-Mode: **Operate**. A narrow refinement of existing listing forms, preserving map search, pin selection, privacy, radius, submission and backend behavior.
+Mode: **Operate**. A narrow refinement of existing listing forms, preserving map search, pin selection, privacy, submission and the existing design language.
 
 - Make the existing inline map disclosure easy to spot: one bordered control, map icon, selected general area, supporting instruction and a clear Choose/Edit on map action.
 - Preserve the native details/summary interaction and lazy mounting of the existing LocationEditor. Do not add another map or modal. The whole control works as one keyboard/touch target.
@@ -17,3 +17,7 @@ Mode: **Operate**. A narrow refinement of existing listing forms, preserving map
 - The budget's initial ₱500 value could be mistaken for the seeker's own estimate.
 
 Verification uses real LocationField/LocationEditor components in a temporary local fixture, including both roles, both themes and a 390px viewport. No listing or account data is submitted. The fixture is removed before building for production.
+
+## October 16 simplification
+
+Listing forms show one saved place with Change. Search/map both select it; only failed reverse lookup exposes manual name recovery. Provider base area differs from a shop venue, and seeker job point differs from desired provider area. Provider travel has no radius field or coverage circle. Browsing retains its search radius. Provider visits requires work/location review and an offer before GCash. Both posting roles must save a private valid GCash number when selecting GCash; Cash only needs none.
