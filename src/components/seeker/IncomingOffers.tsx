@@ -305,7 +305,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 .map(([method]) => (
                   <button key={method} onClick={() => handleSelectPaymentMethod(method)}
                     className="w-full p-4 border rounded-2xl text-left text-sm hover:border-orange-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
-                    {paymentSelectionRequest?.preferredPaymentMethod ? `Confirm ${method}` : method}
+                    {method === 'On-site Cash' && paymentSelectionBid?.serviceLocationMode === 'REMOTE' ? 'Cash in person (arrange separately)' : paymentSelectionRequest?.preferredPaymentMethod ? `Confirm ${method}` : method}
                   </button>
                 ))}
               </>}

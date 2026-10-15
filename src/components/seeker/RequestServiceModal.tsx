@@ -33,8 +33,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const { user, bookProviderDirectly, isDark, jobEngagements, refreshAll } = useApp();
   const isOwned = !!(user && listing.providerId === user.id);
   const agreement = isPriceByAgreement(listing);
+  const remote = listing.serviceLocationMode === 'REMOTE';
   const finalStep = agreement ? 2 : 3;
-  const steps = agreement ? ['Details', 'Location', 'Review'] : BOOKING_STEPS;
+  const steps = agreement ? ['Details', remote ? 'Delivery' : 'Location', 'Review'] : remote ? ['Details', 'Delivery', 'Payment', 'Review'] : BOOKING_STEPS;
   const [photos, setPhotos] = useState<ListingPhoto[]>([]);
   const [photosBusy, setPhotosBusy] = useState(false);
   const priceUnavailable = !agreement && (listing.priceType === 'STARTS_AT' || listing.priceType === 'CUSTOM' || !Number.isFinite(Number(listing.price)) || Number(listing.price) < 50);
@@ -48,6 +49,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
   const resolveDefault = (): 'GCash' | 'On-site Cash' => {
     if (initialPaymentMethod === 'GCash' && gcash) return 'GCash';
     if (initialPaymentMethod === 'On-site Cash' && cash) return 'On-site Cash';
+    if (remote && gcash) return 'GCash';
     if (cash) return 'On-site Cash';
     return 'GCash';
   };
@@ -201,7 +203,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   </div>
                   <p className={styles.hint}>
                     <strong>{agreement ? 'Request this service' : isMetered ? 'Displayed listing rate' : 'Agreed listing price'}</strong>
-                    {' · '}{agreement ? 'Describe the work. The provider proposes a final price, including travel, for your approval.' : priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'The total includes any one-time transportation fee shown below.'}
+                    {' · '}{agreement ? 'Describe the work. The provider proposes a final price for your approval.' : priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : remote ? 'Online delivery. No transportation fee applies. Review the final total before booking.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'The total includes any one-time transportation fee shown below.'}
                   </p>
                 </section>
 
@@ -220,7 +222,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
                 <WizardStep index={1} currentStep={step} label="Work location">
                 <ServiceArrangementField value={serviceLocationMode} options={arrangements} onChange={mode => { setServiceLocationMode(mode as BookingLocationMode); setFormError(null); }} disabled={loading || isOwned} />
-                {serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Where will the job happen?" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Choose the place where the provider will work. The pin and directions are shared only with booking participants." /> : <div className={styles.hint}>
+                {serviceLocationMode === 'REMOTE' ? <div className={styles.hint}><strong>Online / remote — no meetup required</strong><p>Agree on the deliverables and schedule through Messages. Follow progress, completion and any concerns in Activity. No address or travel fee is needed.</p></div> : serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Where will the job happen?" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Choose the place where the provider will work. The pin and directions are shared only with booking participants." /> : <div className={styles.hint}>
                   <strong>Provider’s service venue</strong>
                   <p>{listing.locationLabel || 'The provider’s saved service venue'}</p>
                   <p>You’ll travel to the provider. Exact directions are shared in your booking; no seeker job pin or provider transportation fee is needed.</p>
@@ -262,10 +264,11 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                           aria-label={method === 'GCash' ? 'GCash · Test Mode' : method}
                           aria-pressed={paymentMethod === method}
                           onClick={() => { setPaymentMethod(method); setFormError(null); }} className={styles.paymentChoice}>
-                          {method === 'GCash' ? <><GCashLogo /><span>· Test Mode</span></> : method}
+                          {method === 'GCash' ? <><GCashLogo /><span>· Test Mode</span></> : remote ? 'Cash in person (arrange separately)' : method}
                         </button>
                       ))}
                   </div>
+                  {remote && cash && <p className={styles.hint}>Cash needs a separate in-person payment arrangement, even though the work is online. GCash Test Mode does not transfer real money.</p>}
                   {!cash && !gcash && <p className={styles.error}>No supported payment method is available.</p>}
                   {gcash && <p className={styles.hint}>GCash checkout uses PayMongo Test Mode. ServiceHub confirms the payment before adding your booking to the provider’s shared work queue; test payments are not real provider payouts.</p>}
                 </section>
@@ -274,8 +277,8 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 <WizardStep index={finalStep} currentStep={step} label="Review your booking request">
                   <h4 className={styles.label}>Review your request</h4>
                   <WizardReviewSection title="Work details" onEdit={() => changeStep(0)}><p>{description}</p>{agreement && <p>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} attached` : 'No photos attached'}</p>}</WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd><dt>{serviceLocationMode === 'PROVIDER_VISITS' ? 'Job location' : 'Provider’s service venue'}</dt><dd>{serviceLocationMode === 'PROVIDER_VISITS' ? jobLocation?.label : listing.locationLabel || 'The provider’s saved service venue'}</dd>{serviceLocationMode === 'PROVIDER_VISITS' && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
-                  {agreement ? <p className={styles.hint}>The provider reviews your request and proposes a final price, including travel. Approve their price in Offers Received before booking or payment. Sending this request does not charge you.</p> : <WizardReviewSection title="Schedule and payment" onEdit={() => changeStep(2)}><dl>{paymentMethod === 'On-site Cash' && <><dt>Preferred schedule</dt><dd>{preferredSchedule.trim() || 'Not specified'}</dd></>}{isMetered && <><dt>Number of {unitName}</dt><dd>{quantity}</dd></>}<dt>Service</dt><dd>₱{(Number(listing.price) * quantity).toLocaleString()}</dd>{!!transportationFee && <><dt>Provider transportation (once)</dt><dd>₱{transportationFee.toLocaleString()}</dd></>}<dt>Total</dt><dd>₱{total.toLocaleString()}</dd><dt>Payment Method</dt><dd>{paymentMethod === 'GCash' ? 'GCash · Test Mode' : paymentMethod}</dd></dl>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd>{serviceLocationMode === 'REMOTE' ? <><dt>Delivery</dt><dd>Online. Coordinate through Messages and Activity; no meetup or travel fee.</dd></> : <><dt>{serviceLocationMode === 'PROVIDER_VISITS' ? 'Job location' : 'Provider’s service venue'}</dt><dd>{serviceLocationMode === 'PROVIDER_VISITS' ? jobLocation?.label : listing.locationLabel || 'The provider’s saved service venue'}</dd></>}{serviceLocationMode === 'PROVIDER_VISITS' && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
+                  {agreement ? <p className={styles.hint}>The provider reviews your request and proposes a final price. Approve their price in Offers Received before booking or payment. Sending this request does not charge you.</p> : <WizardReviewSection title="Schedule and payment" onEdit={() => changeStep(2)}><dl>{paymentMethod === 'On-site Cash' && <><dt>Preferred schedule</dt><dd>{preferredSchedule.trim() || 'Not specified'}</dd></>}{isMetered && <><dt>Number of {unitName}</dt><dd>{quantity}</dd></>}<dt>Service</dt><dd>₱{(Number(listing.price) * quantity).toLocaleString()}</dd>{!!transportationFee && <><dt>Provider transportation (once)</dt><dd>₱{transportationFee.toLocaleString()}</dd></>}<dt>Total</dt><dd>₱{total.toLocaleString()}</dd><dt>Payment Method</dt><dd>{paymentMethod === 'GCash' ? 'GCash · Test Mode' : remote ? 'Cash in person (arrange separately)' : paymentMethod}</dd></dl>
                   <p>{paymentMethod === 'On-site Cash' ? 'Your preferred schedule is a proposal. The provider must accept your request and confirm availability.' : 'Continue to PayMongo Test Mode checkout. Your booking is added only after payment is confirmed.'}</p></WizardReviewSection>}
                 {!agreement && <div className={styles.notice}>
                   <TriangleAlert size={16} aria-hidden="true" />

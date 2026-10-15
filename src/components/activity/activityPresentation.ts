@@ -43,6 +43,7 @@ export interface ActivityPaymentCopy { label: string; detail: string }
 
 export function getActivityPaymentCopy(booking: JobEngagement): ActivityPaymentCopy {
   if (booking.paymentMethod === 'On-site Cash') {
+    if (booking.serviceLocationMode === 'REMOTE') return booking.paymentStatus === 'CASH_CONFIRMED' ? { label: 'Cash payment confirmed', detail: 'The separately arranged cash payment is confirmed. ServiceHub did not collect it.' } : { label: 'Cash by separate arrangement', detail: 'The work is online. Agree separately on how to pay cash in person; ServiceHub has not collected this payment.' };
     switch (booking.paymentStatus) {
       case 'CASH_CONFIRMED': return { label: 'Cash payment confirmed', detail: 'The on-site cash transaction has been confirmed. ServiceHub did not collect this payment.' };
       case 'UNPAID': return { label: 'Pay on site', detail: 'This cash payment is arranged directly with the provider. ServiceHub has not collected it.' };

@@ -3,7 +3,7 @@ import ListingFormSection from '../ui/ListingFormSection';
 import MoneyInput from '../ui/MoneyInput';
 import styles from '../ui/ListingForm.module.css';
 import ServiceArrangementField from '../location/ServiceArrangementField';
-import { arrangementLabel, type ServiceLocationMode } from '../../lib/serviceArrangement';
+import { arrangementLabel, requestUsesArea, involvesProviderTravel, type ServiceLocationMode } from '../../lib/serviceArrangement';
 import LocationField from '../location/LocationField';
 import { orderServiceCategories } from '../../lib/category-catalog';
 import TransportationField, { validTransportationFee } from '../location/TransportationField';
@@ -65,12 +65,12 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       if (!selectedCategoryId) problems.push({ field: 'category', heading: 'Choose a category', message: 'Select the type of service you need.' });
     }
     if (index === 1 && !LocationSchema.safeParse(jobLocation).success) {
-      problems.push({ field: 'location', heading: serviceLocationMode === 'SEEKER_VISITS' ? 'Choose an area to find providers' : 'Choose where the work will happen', message: serviceLocationMode === 'SEEKER_VISITS' ? 'Choose the city or barangay where you want to find a provider. The provider will give their address in their offer.' : 'Mark where the provider should come on the map, then enter the city or barangay name.' });
+      problems.push({ field: 'location', heading: requestUsesArea(serviceLocationMode) ? 'Choose an area to find providers' : 'Choose where the work will happen', message: serviceLocationMode === 'REMOTE' ? 'Choose a city or barangay for local discovery. Online work needs no meetup address.' : requestUsesArea(serviceLocationMode) ? 'Choose the city or barangay where you want to find a provider. The provider will give their address in their offer.' : 'Mark where the provider should come on the map, then enter the city or barangay name.' });
     }
     if (index === 2) {
       if (!Number.isFinite(budget) || budget < 50 || budget > 50_000 || !Number.isInteger(budget)) problems.push({ field: 'budget', heading: 'Invalid budget', message: 'Enter an estimated budget between ₱50 and ₱50,000 in whole pesos.' });
       if (!isRequestUrgency(urgency)) problems.push({ field: 'urgency', heading: 'Choose when you need help', message: 'Select how soon you need this service.' });
-      if (serviceLocationMode !== 'SEEKER_VISITS' && !validTransportationFee(transportationFee)) problems.push({ field: 'travel', heading: 'Check your extra travel budget', message: 'Leave it blank, or enter ₱0–₱5,000 using no more than two digits after the decimal point.' });
+      if (involvesProviderTravel(serviceLocationMode) && !validTransportationFee(transportationFee)) problems.push({ field: 'travel', heading: 'Check your extra travel budget', message: 'Leave it blank, or enter ₱0–₱5,000 using no more than two digits after the decimal point.' });
     }
     if (index === 3 && !hasPaymentMethod) problems.push({ field: 'payment', heading: 'Choose how you can pay', message: 'Choose at least one way you can pay.' });
     return problems;
@@ -105,7 +105,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
     setLoading(true);
     setSuccess(false);
     try {
-      const posted = await postJobRequest(user?.id || '', title.trim(), selectedCategoryId, urgency, budget, description.trim(), paymentMethods, { ...(photos.length && { photoIds: photos.map(photo => photo.id) }), jobLocation: serviceLocationMode === 'SEEKER_VISITS' ? { ...jobLocation!, address: undefined } : jobLocation!, serviceLocationMode, transportationFee: serviceLocationMode === 'SEEKER_VISITS' || transportationFee === '' ? null : Number(transportationFee) });
+      const posted = await postJobRequest(user?.id || '', title.trim(), selectedCategoryId, urgency, budget, description.trim(), paymentMethods, { ...(photos.length && { photoIds: photos.map(photo => photo.id) }), jobLocation: requestUsesArea(serviceLocationMode) ? { ...jobLocation!, address: undefined } : jobLocation!, serviceLocationMode, transportationFee: requestUsesArea(serviceLocationMode) || transportationFee === '' ? null : Number(transportationFee) });
       if (posted !== true) {
         if (posted && typeof posted === 'object') {
           setModerationError({ field: posted.field, message: posted.error });
@@ -191,13 +191,13 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={1} currentStep={step} label="Request location">
-            <ListingFormSection number={2} title="Where should the work happen?" description="Choose whether the provider comes to you or you go to them.">
+            <ListingFormSection number={2} title="Where should the work happen?" description="Choose a visit arrangement or have the work delivered online.">
               <ServiceArrangementField value={serviceLocationMode} onChange={mode => {
-                if ((mode === 'SEEKER_VISITS') !== (serviceLocationMode === 'SEEKER_VISITS')) setJobLocation(null);
+                if (requestUsesArea(mode) !== requestUsesArea(serviceLocationMode)) setJobLocation(null);
                 setServiceLocationMode(mode); setLocationError('');
               }} disabled={!canTransact || loading} layout="responsive" />
-              <LocationField required error={locationError} selectionMode={serviceLocationMode === 'SEEKER_VISITS' ? 'area' : 'pin'} label={serviceLocationMode === 'SEEKER_VISITS' ? 'Area where you want to find a provider' : serviceLocationMode === 'BOTH' ? 'Your location if the provider comes to you' : 'Where the provider should come'} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} privateAddress={serviceLocationMode !== 'SEEKER_VISITS'} disabled={!canTransact || loading}
-                hint={serviceLocationMode === 'SEEKER_VISITS' ? 'Choose a city or barangay to find providers in that area. No home address is needed. The provider will give their address in their offer.' : serviceLocationMode === 'BOTH' ? 'Mark where the provider should come if you choose that option. Your exact location is shared after booking. If you go to the provider, their offer gives the address.' : undefined} />
+              <LocationField required error={locationError} selectionMode={requestUsesArea(serviceLocationMode) ? 'area' : 'pin'} label={requestUsesArea(serviceLocationMode) ? 'Area where you want to find a provider' : serviceLocationMode === 'BOTH' ? 'Your location if the provider comes to you' : 'Where the provider should come'} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} privateAddress={involvesProviderTravel(serviceLocationMode)} disabled={!canTransact || loading}
+                hint={serviceLocationMode === 'REMOTE' ? 'Choose a city or barangay to discover local providers. The work happens online; no address or meetup pin is needed.' : requestUsesArea(serviceLocationMode) ? 'Choose a city or barangay to find providers in that area. No home address is needed. The provider will give their address in their offer.' : serviceLocationMode === 'BOTH' ? 'Mark where the provider should come if you choose that option. Your exact location is shared after booking. If you go to the provider, their offer gives the address.' : undefined} />
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={2} currentStep={step} label="Request timing and budget">
@@ -217,12 +217,12 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                   <p id="request-budget-help" className={styles.fieldHelp}>How much you expect to spend on the work: ₱50–₱50,000. Review the provider’s price before accepting.</p>
                 </div>
               </div>
-              {serviceLocationMode !== 'SEEKER_VISITS' && <TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} budget disabled={!canTransact || loading} />}
+              {involvesProviderTravel(serviceLocationMode) && <TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} budget disabled={!canTransact || loading} />}
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={3} currentStep={step} label="Request payment methods">
             <ListingFormSection number={4} title="How can you pay?" description="Let providers know which payment methods you can use.">
-              <PaymentMethodCheckboxes value={paymentMethods} onChange={setPaymentMethods} isDark={isDark} legend="Choose at least one payment method" disabled={loading || !canTransact}
+              <PaymentMethodCheckboxes remote={serviceLocationMode === 'REMOTE'} value={paymentMethods} onChange={setPaymentMethods} isDark={isDark} legend="Choose at least one payment method" disabled={loading || !canTransact}
                 description="You can choose both. Posting a request does not charge you. GCash is currently in test mode; no real money is transferred."
                 error={!hasPaymentMethod ? 'Choose at least one way you can pay.' : undefined} />
               <GCashNumberField userId={user?.id} enabled={paymentMethods.gcash} isDark={isDark} workspace="seeker" disabled={loading || !canTransact} />
@@ -232,8 +232,8 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
               <ListingFormSection number={5} title="Review your request" description="Check everything before sharing it with providers.">
                 <div>
                   <WizardReviewSection title="Request details" onEdit={() => changeStep(0)}><dl><dt>Request title</dt><dd>{title}</dd><dt>Service category</dt><dd>{dbCategories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>Describe what you need</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd><dt>{serviceLocationMode === 'SEEKER_VISITS' ? 'Area to find providers' : 'Job location'}</dt><dd>{jobLocation?.label}</dd>{serviceLocationMode !== 'SEEKER_VISITS' && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
-                  <WizardReviewSection title="Timing and budget" onEdit={() => changeStep(2)}><dl><dt>When you need help</dt><dd>{urgency}</dd><dt>Your service budget</dt><dd>₱{budget.toLocaleString()}</dd>{serviceLocationMode !== 'SEEKER_VISITS' && <><dt>Extra travel budget</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd><dt>{requestUsesArea(serviceLocationMode) ? 'Area to find providers' : 'Job location'}</dt><dd>{jobLocation?.label}</dd>{involvesProviderTravel(serviceLocationMode) && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Timing and budget" onEdit={() => changeStep(2)}><dl><dt>When you need help</dt><dd>{urgency}</dd><dt>Your service budget</dt><dd>₱{budget.toLocaleString()}</dd>{involvesProviderTravel(serviceLocationMode) && <><dt>Extra travel budget</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
                   <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[paymentMethods.cash && 'Cash in person', paymentMethods.gcash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p><p>Posting does not charge you. Compare providers’ offers before choosing.</p></WizardReviewSection>
                 </div>
               </ListingFormSection>

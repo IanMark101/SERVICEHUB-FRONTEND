@@ -35,13 +35,13 @@ export default function IncomingBookingRequestCard({ booking, timeLabel, disable
       </div>
     </header>
     <h3 className={styles.title}>{booking.title}</h3>
-    <p className={styles.summary}><span>{arrangementLabel[booking.serviceLocationMode ?? 'PROVIDER_VISITS']}</span><span>{location?.label || 'Location to confirm'}</span>{booking.preferredSchedule && <span>{booking.preferredSchedule}</span>}</p>
+    <p className={styles.summary}><span>{arrangementLabel[booking.serviceLocationMode ?? 'PROVIDER_VISITS']}</span><span>{booking.serviceLocationMode === 'REMOTE' ? 'No meetup required' : location?.label || 'Location to confirm'}</span>{booking.preferredSchedule && <span>{booking.preferredSchedule}</span>}</p>
     <div className={styles.decision}><details className={styles.details}>
     <summary>Request details</summary>
     <dl className={styles.facts}>
       <div><dt>Service arrangement</dt><dd>{arrangementLabel[booking.serviceLocationMode ?? 'PROVIDER_VISITS']}</dd></div>
-      <div><dt>{visitsProvider ? 'Your service venue' : 'Job location'}</dt><dd>
-        {location ? <><span className={styles.location}><MapPin size={16} aria-hidden="true" />Agreed job pin</span>
+      <div><dt>{booking.serviceLocationMode === 'REMOTE' ? 'Delivery' : visitsProvider ? 'Your service venue' : 'Job location'}</dt><dd>
+        {booking.serviceLocationMode === 'REMOTE' ? <span>Online delivery. Coordinate through Messages and Activity; no job pin is needed.</span> : location ? <><span className={styles.location}><MapPin size={16} aria-hidden="true" />Agreed job pin</span>
           {location.address && <span className={styles.directions}>{location.address}</span>}
           <a href={`https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}#map=17/${location.latitude}/${location.longitude}`} target="_blank" rel="noopener noreferrer" className={styles.mapLink}>View agreed job pin</a>
         </> : <span>Job location was not saved for this older booking. Confirm it with the seeker after accepting.</span>}

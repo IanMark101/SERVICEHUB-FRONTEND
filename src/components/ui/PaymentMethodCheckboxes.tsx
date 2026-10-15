@@ -7,11 +7,12 @@ interface Props {
   isDark: boolean;
   legend: string;
   disabled?: boolean;
+  remote?: boolean;
   description?: string;
   error?: string;
 }
 
-export default function PaymentMethodCheckboxes({ value, onChange, isDark, legend, disabled, description, error }: Props) {
+export default function PaymentMethodCheckboxes({ value, onChange, isDark, legend, disabled, description, error, remote = false }: Props) {
   const id = useId();
   const describedBy = [description && `${id}-help`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
   return (
@@ -21,10 +22,11 @@ export default function PaymentMethodCheckboxes({ value, onChange, isDark, legen
         {([['cash', 'Cash in person'], ['gcash', 'GCash (test mode)']] as const).map(([key, label]) => (
           <label key={key} className={`flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold cursor-pointer has-disabled:cursor-not-allowed has-disabled:opacity-60 ${isDark ? 'text-white' : 'text-ink'}`}>
             <input type="checkbox" checked={value[key]} onChange={(event) => onChange({ ...value, [key]: event.target.checked })} aria-invalid={!!error} aria-describedby={describedBy} className="h-4 w-4 shrink-0 rounded accent-emerald-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600" />
-            <span>{label}</span>
+            <span>{key === 'cash' && remote ? 'Cash in person (arrange separately)' : label}</span>
           </label>
         ))}
       </div>
+      {remote && <p className="mt-2 text-xs leading-relaxed text-ink-muted">Online work needs no meetup. Cash requires a separate in-person payment arrangement. GCash remains Test Mode and does not transfer real money.</p>}
       {description && <p id={`${id}-help`} className={`mt-2 text-xs leading-relaxed ${isDark ? 'text-ink-muted' : 'text-ink-muted'}`}>{description}</p>}
       {error && <p id={`${id}-error`} role="alert" className={`mt-2 text-xs font-semibold ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
     </fieldset>

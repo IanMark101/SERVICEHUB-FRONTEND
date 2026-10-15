@@ -201,6 +201,28 @@ function submitBooking(name: string) {
 }
 
 describe('one-time direct booking transportation', () => {
+  it('books remote work through online checkout without a job pin or travel charge', async () => {
+    vi.clearAllMocks();
+    vi.mocked(useApp).mockReturnValue({ user:{id:'seeker-1'}, bookProviderDirectly:online, isDark:false,jobEngagements:[] } as unknown as ReturnType<typeof useApp>);
+    render(<RequestServiceModal listing={{ ...listing, serviceLocationMode:'REMOTE', transportationFee:100 }} onClose={vi.fn()} />);
+    expect(screen.queryByTestId('test-location')).not.toBeInTheDocument();
+    expect(screen.getByText('Total: ₱500')).toBeVisible();
+    expect(screen.getByRole('button', { name:'GCash · Test Mode' })).toHaveAttribute('aria-pressed', 'true');
+    submitBooking('Continue to GCash');
+    await waitFor(() => expect(online).toHaveBeenCalledWith('seeker-1', listing.id, 500, expect.any(String), 'GCash', 1, undefined, 'REMOTE'));
+    expect(apiBookDirect).not.toHaveBeenCalled();
+  });
+  it('sends remote price enquiries without inventing a venue', async () => {
+    vi.clearAllMocks();
+    vi.mocked(useApp).mockReturnValue({ user:{id:'seeker-1'}, bookProviderDirectly:online, isDark:false,jobEngagements:[],refreshAll } as unknown as ReturnType<typeof useApp>);
+    rtlRender(<RequestServiceModal listing={{ ...listing, priceType:'BY_AGREEMENT', price:0, serviceLocationMode:'REMOTE' }} onClose={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Describe the work needed'), {target:{value:'Build a website with five pages and a contact form.'}});
+    fireEvent.click(screen.getByRole('button', {name:'Next'}));
+    expect(screen.getByText('Online / remote — no meetup required')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', {name:'Review request'}));
+    fireEvent.click(screen.getByRole('button', {name:'Send service request'}));
+    await waitFor(() => expect(apiCreateListingInquiry).toHaveBeenCalledWith({serviceId:listing.id,message:'Build a website with five pages and a contact form.',serviceLocationMode:'REMOTE'}));
+  });
   it('includes travel once in a multi-hour cash booking and forwards the actual job point', async () => {
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({ user:{id:'seeker-1'}, bookProviderDirectly:online, isDark:false,jobEngagements:[] } as unknown as ReturnType<typeof useApp>);

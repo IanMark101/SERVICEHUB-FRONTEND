@@ -237,7 +237,7 @@ export default function EditServiceModal({
                         }
                         className="h-4 w-4 rounded accent-emerald-600 cursor-pointer"
                       />
-                      <span className="text-xs font-semibold">{text}</span>
+                      <span className="text-xs font-semibold">{key === 'cash' && value.serviceLocationMode === 'REMOTE' ? 'Cash in person (arrange separately)' : text}</span>
                     </label>
                   );
                 })}

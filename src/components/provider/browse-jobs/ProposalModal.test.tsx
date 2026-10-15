@@ -10,6 +10,15 @@ const listing = { id: 'listing', title: 'Laptop repair', serviceLocationMode: 'S
 const props = { request, listings: [], serviceId: '', onServiceChange: vi.fn(), isSubmitting: false, isDark: false, price: 500, duration: 60, message: 'Repair the laptop.', availability: '', onAvailabilityChange: vi.fn(), onPriceChange: vi.fn(), onDurationChange: vi.fn(), onMessageChange: vi.fn(), onClose: vi.fn() };
 
 describe('provider offer service arrangement', () => {
+  it('sends a remote proposal with no venue and blocks a visit-only linked listing', () => {
+    const submit = vi.fn();
+    const view = render(<ProposalModal {...props} request={{ ...request, serviceLocationMode:'REMOTE' }} onSubmit={submit} />);
+    expect(screen.queryByRole('button', { name:'Choose test venue' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name:'Send Offer' }));
+    expect(submit).toHaveBeenCalledWith(expect.anything(), { serviceLocationMode:'REMOTE' });
+    view.rerender(<ProposalModal {...props} request={{ ...request, serviceLocationMode:'REMOTE' }} listings={[listing]} serviceId="listing" onSubmit={submit} />);
+    expect(screen.getByRole('button', { name:'Send Offer' })).toBeDisabled();
+  });
   it('requires a venue for a custom seeker-visit offer and sends that private pin', () => {
     const submit = vi.fn();
     render(<ProposalModal {...props} onSubmit={submit} />);

@@ -202,7 +202,7 @@ export default function RequestManager({
     e.preventDefault();
     if (!editingRequest || savingEditRef.current) return;
     if (!editingRequest.jobLocation && editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode) {
-      error(editingRequest.serviceLocationMode === 'SEEKER_VISITS' ? 'Choose an area to find providers' : 'Choose where the work will happen', editingRequest.serviceLocationMode === 'SEEKER_VISITS' ? 'Choose the city or barangay where you want to find a provider.' : 'Mark where the provider should come on the map.');
+      error(['SEEKER_VISITS', 'REMOTE'].includes(editingRequest.serviceLocationMode ?? '') ? 'Choose an area to find providers' : 'Choose where the work will happen', ['SEEKER_VISITS', 'REMOTE'].includes(editingRequest.serviceLocationMode ?? '') ? 'Choose the city or barangay where you want to find a provider.' : 'Mark where the provider should come on the map.');
       return;
     }
     savingEditRef.current = true;

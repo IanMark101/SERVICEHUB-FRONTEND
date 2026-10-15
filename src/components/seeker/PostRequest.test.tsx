@@ -44,6 +44,22 @@ function submitRequest() {
 }
 
 describe('Post Request submission', () => {
+  it('posts online work with a general discovery area and no private address or travel budget', async () => {
+    postJobRequest.mockResolvedValue(false);
+    render(<PostRequest />);
+    fireEvent.change(screen.getByLabelText('Request title'), {target:{value:'Build my business website'}});
+    fireEvent.change(screen.getByLabelText('Describe what you need'), {target:{value:'Build a five-page website. We can coordinate and deliver the work online.'}});
+    fireEvent.change(screen.getByRole('combobox', {name:'Service category'}), {target:{value:'category-cuid'}});
+    fireEvent.click(screen.getByRole('button', {name:'Next'}));
+    fireEvent.click(screen.getByRole('radio', {name:/Online \/ remote/}));
+    fireEvent.click(screen.getByTestId('test-location'));
+    fireEvent.click(screen.getByRole('button', {name:'Next'}));
+    expect(screen.queryByLabelText(/Extra budget for the provider/)).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('When do you need help?'), {target:{value:'Flexible Schedule'}});
+    fireEvent.change(screen.getByLabelText('Your service budget (₱)'), {target:{value:'500'}});
+    submitRequest();
+    await waitFor(() => expect(postJobRequest).toHaveBeenCalledWith('seeker-id',expect.any(String),'category-cuid','Flexible Schedule',500,expect.any(String),expect.any(Object),expect.objectContaining({serviceLocationMode:'REMOTE',jobLocation:{latitude:10.3,longitude:123.9,label:'Cebu',address:undefined},transportationFee:null})));
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({

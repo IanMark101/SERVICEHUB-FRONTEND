@@ -100,7 +100,7 @@ export default function JobRequestDetailsModal({
               </div>
               <div className={styles.geography}>
                 {request.locationLabel && <p className={styles.locationLine}><MapPin size={15} aria-hidden="true" /><span>{request.locationLabel}{request.distanceKm != null && <> · {formatDistance(request.distanceKm)}</>}</span></p>}
-                {request.serviceLocationMode !== 'SEEKER_VISITS' && !!request.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>Additional travel budget: ₱{request.transportationFee.toLocaleString()}. Offers include travel in their final total.</span></p>}
+                {request.serviceLocationMode !== 'REMOTE' && request.serviceLocationMode !== 'SEEKER_VISITS' && !!request.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>Additional travel budget: ₱{request.transportationFee.toLocaleString()}. Offers include travel in their final total.</span></p>}
               </div>
             </div>
           </header>

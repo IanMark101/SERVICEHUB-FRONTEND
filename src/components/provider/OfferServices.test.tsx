@@ -52,6 +52,19 @@ it('keeps public map sharing opt-in and includes the choice in publication', asy
 });
 
 describe('Offer Services wizard', () => {
+  it('publishes remote work with a discovery area and no venue, pin consent, travel coverage or fee', async () => {
+    render(<OfferServices />); fillDetails(); next();
+    fireEvent.click(screen.getByRole('radio', { name: /Online \/ remote/ }));
+    fireEvent.click(screen.getByTestId('test-location'));
+    expect(screen.queryByRole('checkbox', { name: /Show this exact pin/ })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/How far will you travel/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Address or directions/)).not.toBeInTheDocument();
+    next();
+    expect(screen.queryByLabelText(/Your travel fee/)).not.toBeInTheDocument();
+    next(); next();
+    fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: 'REMOTE', publicMapPin: false, coverageRadiusKm: null, venueAddress: null, transportationFee: null })));
+  });
   it('lets providers publish by agreement without an amount or separate travel fee and retains a fixed-price draft', async () => {
     render(<OfferServices />); toPrice();
     fireEvent.change(screen.getByLabelText('Service price (₱)'), { target: { value: '2500' } });

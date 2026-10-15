@@ -75,7 +75,7 @@ export default function ServiceDetailsPanel({
   const handleBookClick = () => {
     prefetchProviderSummary(listing);
     onClose();
-    onBookListing(listing, cash ? 'On-site Cash' : 'GCash');
+    onBookListing(listing, listing.serviceLocationMode === 'REMOTE' && gcash && !isQueueFull ? 'GCash' : cash ? 'On-site Cash' : 'GCash');
   };
 
   return (
@@ -116,8 +116,8 @@ export default function ServiceDetailsPanel({
               </div>
               <div className={styles.geography}>
                 {listing.locationLabel && <p className={styles.locationLine}><MapPin size={15} aria-hidden="true" /><span>{listing.locationLabel}{listing.distanceKm != null && <> · {formatDistance(listing.distanceKm)}</>}</span></p>}
-                {listing.serviceLocationMode !== 'SEEKER_VISITS' && listing.coverageRadiusKm != null && <p className={styles.locationLine}><Radar size={15} aria-hidden="true" /><span>Travel coverage: {listing.coverageRadiusKm} km from the selected service area or venue</span></p>}
-                {listing.serviceLocationMode !== 'SEEKER_VISITS' && !!listing.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>+ ₱{listing.transportationFee.toLocaleString()} transportation, once when the provider visits</span></p>}
+                {listing.serviceLocationMode !== 'REMOTE' && listing.serviceLocationMode !== 'SEEKER_VISITS' && listing.coverageRadiusKm != null && <p className={styles.locationLine}><Radar size={15} aria-hidden="true" /><span>Travel coverage: {listing.coverageRadiusKm} km from the selected service area or venue</span></p>}
+                {listing.serviceLocationMode !== 'REMOTE' && listing.serviceLocationMode !== 'SEEKER_VISITS' && !!listing.transportationFee && <p className={styles.locationLine}><Truck size={15} aria-hidden="true" /><span>+ ₱{listing.transportationFee.toLocaleString()} transportation, once when the provider visits</span></p>}
               </div>
             </div>
           </header>
@@ -156,7 +156,7 @@ export default function ServiceDetailsPanel({
             <section className={styles.detailSection}>
               <h3 className={styles.sectionTitle}>Accepted Payment Methods</h3>
               <div className={styles.payment}>
-                {cash && <div className={styles.paymentOption}><Banknote size={20} aria-hidden="true" /><div><strong>On-site Cash</strong><p>Pay the provider in person when the work is completed.</p></div></div>}
+                {cash && <div className={styles.paymentOption}><Banknote size={20} aria-hidden="true" /><div><strong>{listing.serviceLocationMode === 'REMOTE' ? 'Cash by separate arrangement' : 'On-site Cash'}</strong><p>{listing.serviceLocationMode === 'REMOTE' ? 'The work is online. Cash requires a separate in-person payment arrangement.' : 'Pay the provider in person when the work is completed.'}</p></div></div>}
                 {gcash && <div className={styles.paymentOption}><GCashLogo /><div><strong>GCash · Test Mode</strong><p>Use the online test checkout. This is a demonstration payment.</p></div></div>}
               </div>
             </section>

@@ -15,7 +15,7 @@ interface JobRequestCardProps extends ListingSaveProps {
 }
 
 export default function JobRequestCard({ request, proposalCount, isOwned, offerState, isDark, readOnly = false, onProfile, onDetails, onSendOffer, saved, saving, onToggleSaved }: JobRequestCardProps) {
-  return <TrailCard status={isOwned ? 'Your own request' : `Needed: ${formatUrgencyDisplay(request.urgency)}`} tools={!readOnly && <ListingCardTools compact contentType="SERVICE_REQUEST" listingId={request.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />} photo={request.photos?.[0]} title={request.title} location={request.locationLabel} category={request.category} isDark={isDark}>
+  return <TrailCard status={isOwned ? 'Your own request' : `Needed: ${formatUrgencyDisplay(request.urgency)}`} tools={!readOnly && <ListingCardTools compact contentType="SERVICE_REQUEST" listingId={request.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />} photo={request.photos?.[0]} title={request.title} location={request.serviceLocationMode === 'REMOTE' ? `Online / remote${request.locationLabel ? ' · ' + request.locationLabel : ''}` : request.locationLabel} category={request.category} isDark={isDark}>
     <div className={styles.identity}>
       <button type="button" className={styles.person} disabled={!request.seekerId} onClick={() => onProfile()} aria-label={`View ${request.seekerName}'s profile`}>
         <UserAvatar src={request.seekerAvatar} name={request.seekerName} alt="" size={32} role="seeker" />
