@@ -17,10 +17,11 @@ import {
 } from './activity/providerActivity.utils';
 import type { ProviderActivitySort, ProviderActivityTab } from './activity/types';
 import ProviderActivityList from './activity/ProviderActivityList';
-import { getApiErrorMessage } from '../../lib/api/errors';
+import { getApiErrorMessage, getApiErrorStatus } from '../../lib/api/errors';
 import { normalizeOfferStatus } from '../../lib/offerStatus';
 import SafetyReportModal from '../activity/SafetyReportModal';
 import { activityGroupOrder, getActivityCategory, getBookingActivityGroup } from '../activity/activityPresentation';
+import { canRequestCompletionReview, completionReviewForBooking } from '../../lib/completionReview';
 
 
 export default function ProviderActivity({ currentProviderId }: { currentProviderId?: string }) {
@@ -96,6 +97,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
   const [loadingActionType, setLoadingActionType] = useState<string | null>(null);
+  const completionReviewInFlight = useRef(false);
   const [cancelingBookingId, setCancelingBookingId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
   const cancelingBooking = myEngagements.find((booking) => booking.id === cancelingBookingId) || null;
@@ -249,14 +251,23 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   };
 
   const handleCompletionEscalation = async (id: string) => {
+    if (completionReviewInFlight.current || loadingItemId) return;
+    const booking = myEngagements.find(item => item.id === id);
+    if (!booking || !canRequestCompletionReview(booking)) return;
+    completionReviewInFlight.current = true;
     setLoadingItemId(id);
     setLoadingActionType('completion_escalation');
     try {
       await apiEscalateCompletion(id, 'The seeker has not responded to the completion request after the required waiting period.');
+      applyBookingAction({ id, status: 'AWAITING_CONFIRMATION', completionReview: {
+        ...completionReviewForBooking(booking)!, pending: true,
+      } });
       success('Review requested', 'The completion was sent to an administrator for review.');
     } catch (err: unknown) {
       toastError('Unable to escalate', getApiErrorMessage(err, 'Unable to escalate this completion.'));
+      if (getApiErrorStatus(err) === 409) void Promise.resolve(refreshEngagements()).catch(() => undefined);
     } finally {
+      completionReviewInFlight.current = false;
       setLoadingItemId(null);
       setLoadingActionType(null);
     }

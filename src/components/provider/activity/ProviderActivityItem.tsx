@@ -23,6 +23,7 @@ import ActivityBookingFacts from '../../activity/ActivityBookingFacts';
 import ActivityCancellationPanel from '../../activity/ActivityCancellationPanel';
 import { getPaidStartBlockReason } from '../../activity/paidStartReadiness';
 import { isOfferClosed, offerSituation } from '../../../lib/offerStatus';
+import CompletionReviewAction from './CompletionReviewAction';
 
 export interface ProviderActivityItemModel {
   isDark: boolean;
@@ -317,23 +318,10 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
             );
           })()}
 
-          {je.status === 'awaiting_seeker_approval' && (
-            <button
-              disabled={!!loadingItemId}
-              data-action="admin-review"
-              onClick={() => handleCompletionEscalation(je.id)}
-              className="px-3.5 py-1.5 font-extrabold rounded-xl transition-all shadow-sm flex items-center justify-center space-x-1 cursor-pointer"
-              title="Available after 72 hours without seeker confirmation"
-            >
-              {loadingItemId === je.id && loadingActionType === 'completion_escalation' ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  <span>Submitting...</span>
-                </>
-              ) : (
-                <span>Request Admin Review</span>
-              )}
-            </button>
+          {je.status === 'awaiting_seeker_approval' && je.paymentMethod === 'GCash' && (
+            <CompletionReviewAction booking={je} busy={!!loadingItemId}
+              submitting={loadingItemId === je.id && loadingActionType === 'completion_escalation'}
+              onRequest={handleCompletionEscalation} />
           )}
 
           {je.status === 'queued' && (

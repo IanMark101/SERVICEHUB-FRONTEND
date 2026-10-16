@@ -36,6 +36,9 @@ export function mergeBookingAction(current: JobEngagement[], result: BookingActi
       started: booking.started ?? previous.started,
       paymentStatus: booking.paymentStatus ?? previous.paymentStatus,
       progressEvents,
+      ...(booking.completionReview !== undefined ? { completionReview: booking.completionReview }
+        : booking.status === 'AWAITING_CONFIRMATION' && progress?.kind === 'WORK_MARKED_COMPLETE'
+          ? { completionReview: undefined } : {}),
       ...(result.cancellationRequest ? {
         cancellationRequests: [result.cancellationRequest, ...(previous.cancellationRequests || []).filter(item => item.id !== result.cancellationRequest!.id)],
         progressCancellationRequests: [result.cancellationRequest, ...(previous.progressCancellationRequests || previous.cancellationRequests || []).filter(item => item.id !== result.cancellationRequest!.id)],

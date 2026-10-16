@@ -198,6 +198,7 @@ export interface JobEngagement {
   bookingCreatedAt?: string;
   completionRecordedAt?: string;
   progressEvents?: BookingProgressEvent[];
+  completionReview?: { availableAt: string; pending: boolean } | null;
   progressCancellationRequests?: JobEngagement['cancellationRequests'];
   reviews?: Array<{
     id: string;

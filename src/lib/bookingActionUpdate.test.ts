@@ -58,4 +58,13 @@ describe('Booking action acknowledgements', () => {
     expect(current[0]).toMatchObject({ status: 'canceled', paymentStatus: 'REFUNDED', queueStatus: 'CANCELLED', category: 'Plumbing', estimatedDurationMins: 60 });
     expect(mergeBookingAction(current, { id: 'booking', hidden: true })).toEqual([]);
   });
+  it('retains a submitted completion review immediately without another feed read', () => {
+    const waiting = { ...initial, status: 'awaiting_seeker_approval' as const,
+      completionReview: { availableAt: '2026-10-10T10:00:00Z', pending: false } };
+    const [updated] = mergeBookingAction([waiting], { id: waiting.id, status: 'AWAITING_CONFIRMATION',
+      completionReview: { availableAt: '2026-10-10T10:00:00Z', pending: true } });
+    expect(updated.completionReview?.pending).toBe(true);
+    expect(updated.status).toBe('awaiting_seeker_approval');
+  });
+
 });

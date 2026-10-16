@@ -58,8 +58,8 @@ beforeEach(() => {
   vi.mocked(apiUpdateReview).mockResolvedValue({ success: true, data: { id: 'review', authorId: 'provider', rating: 4 } });
 });
 
-function mount(role: 'provider' | 'seeker') {
-  vi.mocked(useApp).mockReturnValue({ user: { id: role }, jobEngagements: [booking], bids: [], services: [], jobRequests: [], isDark: false,
+function mount(role: 'provider' | 'seeker', engagement = booking) {
+  vi.mocked(useApp).mockReturnValue({ user: { id: role }, jobEngagements: [engagement], bids: [], services: [], jobRequests: [], isDark: false,
     refreshEngagements: refresh, applyBookingAction, engagementsStatus: 'ready' } as unknown as ReturnType<typeof useApp>);
   render(role === 'provider' ? <ProviderActivity /> : <SeekerActivity />);
 }
@@ -72,7 +72,7 @@ async function confirm() {
 
 describe('All booking workroom mutation handlers', () => {
   it.each(['cancel', 'approve', 'decline', 'cancel_escalation', 'completion_escalation', 'hide', 'review', 'edit_review'] as const)('provider %s does not wait for or duplicate feed reads', async action => {
-    mount('provider');
+    mount('provider', action === 'completion_escalation' ? { ...booking, paymentMethod: 'GCash', status: 'awaiting_seeker_approval', completionReview: { availableAt: '2020-01-01T00:00:00Z', pending: false } } : booking);
     if (action === 'cancel') {
       await act(async () => { await providerModel.handleProviderRemoveFromQueue('booking'); });
       act(() => providerCancellation.onChange('Cannot attend'));
@@ -94,7 +94,40 @@ describe('All booking workroom mutation handlers', () => {
     expect(providerModel.loadingItemId).toBeNull();
     expect(refresh).not.toHaveBeenCalled();
     expect(toast.error).not.toHaveBeenCalled();
-    if (action !== 'completion_escalation') expect(applyBookingAction).toHaveBeenCalled();
+    expect(applyBookingAction).toHaveBeenCalled();
+    if (action === 'completion_escalation') {
+      expect(apiEscalateCompletion).toHaveBeenCalledTimes(1);
+      expect(applyBookingAction).toHaveBeenCalledWith(expect.objectContaining({ completionReview: expect.objectContaining({ pending: true }) }));
+    }
+  });
+
+  it('does not call the escalation endpoint for cash', async () => {
+    mount('provider', { ...booking, status: 'awaiting_seeker_approval', paymentMethod: 'On-site Cash',
+      completionReview: { availableAt: '2020-01-01T00:00:00Z', pending: false } });
+    await act(async () => { await providerModel.handleCompletionEscalation('booking'); });
+    expect(apiEscalateCompletion).not.toHaveBeenCalled();
+  });
+
+  it('does not send premature GCash requests', async () => {
+    mount('provider', { ...booking, paymentMethod: 'GCash', status: 'awaiting_seeker_approval',
+      completionReview: { availableAt: new Date(Date.now() + 3600000).toISOString(), pending: false } });
+    await act(async () => { await providerModel.handleCompletionEscalation('booking'); });
+    expect(apiEscalateCompletion).not.toHaveBeenCalled();
+  });
+
+  it('sends only one request when an eligible provider clicks repeatedly before React updates', async () => {
+    let resolveRequest!: (value: unknown) => void;
+    vi.mocked(apiEscalateCompletion).mockImplementationOnce(() => new Promise(resolve => { resolveRequest = resolve; }));
+    mount('provider', { ...booking, paymentMethod: 'GCash', status: 'awaiting_seeker_approval',
+      completionReview: { availableAt: '2020-01-01T00:00:00Z', pending: false } });
+    await act(async () => {
+      const first = providerModel.handleCompletionEscalation('booking');
+      const second = providerModel.handleCompletionEscalation('booking');
+      expect(apiEscalateCompletion).toHaveBeenCalledTimes(1);
+      resolveRequest({ success: true });
+      await Promise.all([first, second]);
+    });
+    expect(applyBookingAction).toHaveBeenCalledWith(expect.objectContaining({ completionReview: expect.objectContaining({ pending: true }) }));
   });
 
   it.each(['cancel', 'approve', 'cancel_escalation', 'hide', 'review', 'edit_review'] as const)('seeker %s does not wait for or duplicate feed reads', async action => {

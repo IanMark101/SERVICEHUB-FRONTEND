@@ -44,6 +44,15 @@ describe('Activity situation and filter semantics', () => {
     expect(getActivitySituation(awaiting, 'seeker').next).toContain('Report Issue');
   });
 
+  it('keeps cash confirmation separate from the GCash no-response review window', () => {
+    const awaiting = { ...booking, status: 'awaiting_seeker_approval' as const };
+    const cash = getActivitySituation({ ...awaiting, paymentMethod: 'On-site Cash' }, 'provider');
+    expect(cash.title).toBe('Work finished — waiting for seeker confirmation');
+    expect(cash.next).toContain('continue with other jobs');
+    expect(cash.next).not.toMatch(/72|admin/i);
+    expect(getActivitySituation(awaiting, 'provider').next).toContain('72 hours');
+  });
+
   it('does not describe an offer or an onsite-cash request as queued work', () => {
     const cashRequest = { ...booking, status: 'pending_provider' as const, paymentMethod: 'On-site Cash' as const };
     expect(getActivitySituation(cashRequest, 'provider').title).toBe('A direct request is waiting');

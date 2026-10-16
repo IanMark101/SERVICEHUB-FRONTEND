@@ -200,12 +200,24 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(model.setConfirmModal).toHaveBeenCalledWith(expect.objectContaining({ title: 'Complete Transaction' }));
   });
 
+  it('cash completion waits for the seeker without offering routine admin review or enabling unearned reviews', () => {
+    const model = providerModel();
+    const cash = { ...booking, status: 'awaiting_seeker_approval' as const, paymentMethod: 'On-site Cash' as const,
+      completionReview: { availableAt: '2020-01-01T00:00:00Z', pending: false } };
+    render(<ProviderActivityItem item={{ type: 'engagement', data: cash }} model={model} />);
+    expect(screen.getByText('Work finished — waiting for seeker confirmation')).toBeVisible();
+    expect(screen.getByText(/You can continue with other jobs/)).toBeVisible();
+    expect(screen.queryByRole('button', { name: /Admin Review|Review Seeker/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Safety report' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Open Conversation' })).toBeEnabled();
+  });
+
   it('keeps a provider admin-review action in dark mode and shows submission progress', () => {
     const model = providerModel({ isDark: true });
-    const view = render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'awaiting_seeker_approval' } }} model={model} />);
+    const view = render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'awaiting_seeker_approval', completionReview: { availableAt: '2020-01-01T00:00:00Z', pending: false } } }} model={model} />);
     fireEvent.click(screen.getByRole('button', { name: 'Request Admin Review' }));
     expect(model.handleCompletionEscalation).toHaveBeenCalledWith('booking-1');
-    view.rerender(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'awaiting_seeker_approval' } }} model={providerModel({ isDark: true, loadingItemId: booking.id, loadingActionType: 'completion_escalation' })} />);
+    view.rerender(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'awaiting_seeker_approval', completionReview: { availableAt: '2020-01-01T00:00:00Z', pending: false } } }} model={providerModel({ isDark: true, loadingItemId: booking.id, loadingActionType: 'completion_escalation' })} />);
     expect(screen.getByRole('button', { name: 'Submitting...' })).toBeDisabled();
   });
 

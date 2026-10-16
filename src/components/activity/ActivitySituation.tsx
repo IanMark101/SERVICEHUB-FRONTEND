@@ -71,6 +71,11 @@ export function getActivitySituation(
       : { tone: 'active', label: 'Work underway', title: 'Your service is in progress', detail: 'The provider has started work on this booking.', next: 'After the provider marks the work finished, you will confirm it or report an issue.' };
   }
   if (booking.status === 'awaiting_seeker_approval') {
+    if (role === 'provider' && booking.paymentMethod === 'On-site Cash') {
+      return { tone: 'waiting', label: 'Waiting on seeker', title: 'Work finished — waiting for seeker confirmation',
+        detail: 'Cash payment is handled directly between you and the seeker. This booking remains unconfirmed until the seeker responds.',
+        next: 'You can continue with other jobs. The seeker can confirm completion or report an issue. Use Safety report for a safety or conduct concern.' };
+    }
     return role === 'seeker'
       ? { tone: 'action', label: 'Your confirmation needed', title: 'Provider marked the work finished', detail: 'The booking is not final until you confirm the result or report an issue.', next: 'Confirm completion if the work is done, or Report Issue if something is wrong.' }
       : { tone: 'waiting', label: 'Waiting on seeker', title: 'Work submitted for confirmation', detail: 'You marked the work finished. The seeker has not confirmed it yet.', next: 'The seeker can confirm or report an issue. Admin review may be requested after 72 hours.' };
