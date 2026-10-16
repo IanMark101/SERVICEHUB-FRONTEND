@@ -25,16 +25,29 @@ describe('GCash payment return and recovery', () => {
     rememberGcashCheckout(oldCheckout);
   });
 
-  it('shows a verified failure, no booking claim, and both supported recovery choices', async () => {
+  it('keeps recovery GCash-only and lets the seeker return to the original listing', async () => {
     vi.mocked(apiConfirmOnlineBooking).mockResolvedValue({ success: true, data: { status: 'FAILED' } });
     const view = render(<PaymentReturn paymentIntentId="pi_old" />);
     await screen.findByRole('heading', { name: 'GCash payment was not completed' });
     expect(apiConfirmOnlineBooking).toHaveBeenCalledWith({ paymentIntentId: 'pi_old' });
     expect(screen.getByText('No booking was created and no payment was recorded as successful.')).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: 'Try GCash Again' })).toBeInTheDocument();
-    expect(await screen.findByRole('link', { name: 'Choose On-site Cash' })).toHaveAttribute('href', '/seeker/seek-services?serviceId=service-one');
+    expect(screen.queryByRole('link', { name: 'Choose On-site Cash' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to service' })).toHaveAttribute('href', '/seeker/seek-services?serviceId=service-one');
     expect(screen.queryByRole('link', { name: /Open PayMongo/ })).not.toBeInTheDocument();
     expect(view.container).not.toHaveTextContent('src_expired');
+  });
+
+  it('shows an unavailable total instead of inventing a zero amount when checkout details are missing', async () => {
+    localStorage.clear();
+    vi.mocked(apiConfirmOnlineBooking).mockResolvedValue({ success: true, data: { status: 'PENDING' } });
+    render(<PaymentReturn paymentIntentId="pi_unknown" />);
+    await screen.findByRole('heading', { name: 'Waiting for payment confirmation' });
+    expect(screen.getByRole('heading', { name: 'Order summary' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Payment summary')).toHaveTextContent('TotalUnavailable');
+    expect(screen.getByLabelText('Payment summary')).not.toHaveTextContent('₱0');
+    expect(screen.queryByRole('link', { name: /Open PayMongo/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Try GCash Again' })).not.toBeInTheDocument();
   });
 
   it('keeps ServiceHub available during PayMongo checkout and verifies before claiming success', async () => {

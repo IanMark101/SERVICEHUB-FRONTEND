@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { ArrowUpRight, CheckCircle2, Loader2, TriangleAlert, X } from 'lucide-react';
 import { apiConfirmOnlineBooking, apiInitiatePayment } from '../../api/bookings.api';
 import { useApp } from '../../context/AppContext';
-import { getServicePaymentMethods } from '../../lib/paymentUtils';
 import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
 import useDialogFocus from '../../hooks/useDialogFocus';
 import {
@@ -14,6 +13,7 @@ import {
   prepareGcashWindow, readGcashCheckout, rememberGcashCheckout, type PendingGcashCheckout,
 } from '../../lib/paymentCheckout';
 import form from '../ui/TransactionForm.module.css';
+import GCashLogo from '../ui/GCashLogo';
 import styles from './GcashPaymentStatus.module.css';
 
 type Phase = 'checking' | 'pending' | 'succeeded' | 'failed' | 'expired' | 'review' | 'unavailable';
@@ -24,7 +24,7 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
   onClose?: () => void;
 }) {
   const router = useRouter();
-  const { user, services = [], isDark } = useApp();
+  const { user, isDark } = useApp();
   const [checkout, setCheckout] = useState<PendingGcashCheckout | null>(() => initialCheckout?.seekerId === user?.id ? initialCheckout || null : null);
   const [phase, setPhase] = useState<Phase>('checking');
   const [retrying, setRetrying] = useState(false);
@@ -98,8 +98,6 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
     };
   }, [user?.id, paymentIntentId, checkVersion]);
 
-  const service = services.find(entry => entry.id === checkout?.serviceId);
-  const cashAvailable = checkout?.offerId ? true : service ? getServicePaymentMethods(service).cash : false;
   const returnHref = checkout?.offerId ? '/seeker/incoming-offers'
     : checkout?.serviceId ? `/seeker/seek-services?serviceId=${encodeURIComponent(checkout.serviceId)}` : '/seeker/seek-services';
   const providerUrl = isPayMongoCheckoutUrl(checkout?.redirectUrl) ? checkout.redirectUrl : null;
@@ -150,49 +148,70 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
           : !paymentIntentId ? 'Return to a service listing or offer to start a new payment.'
             : 'No booking or queue position exists until ServiceHub verifies a successful GCash payment.';
   const Heading = onClose ? 'h2' : 'h1';
+  const formattedTotal = Number.isFinite(checkout?.expectedAmount)
+    ? `₱${Number(checkout?.expectedAmount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : 'Unavailable';
 
   return (
     <div ref={dialogRef} tabIndex={onClose ? -1 : undefined} role={onClose ? 'dialog' : undefined}
       aria-modal={onClose ? true : undefined} aria-labelledby="gcash-status-title"
-      className={`${form.panel} ${styles.panel}`} data-theme={isDark ? 'dark' : 'light'} data-workspace="seeker">
-      {onClose && <header className={form.header}>
-        <h3>GCash payment</h3>
-        <button type="button" onClick={onClose} disabled={retrying} aria-label="Close payment status" className={form.close}><X size={18} aria-hidden="true" /></button>
-      </header>}
-      <div className={form.body}>
-        <div aria-live="polite" aria-atomic="true" className={styles.status}>
-          {phase === 'succeeded' ? <CheckCircle2 size={28} aria-hidden="true" />
-            : failed || phase === 'review' || phase === 'unavailable' || !paymentIntentId ? <TriangleAlert size={28} aria-hidden="true" />
-              : <Loader2 size={28} aria-hidden="true" className="animate-spin motion-reduce:animate-none" />}
-          <Heading id="gcash-status-title">{title}</Heading>
-          <p>{description}</p>
-        </div>
-        {(checkout?.title || checkout?.providerName || Number.isFinite(checkout?.expectedAmount)) && <dl className={styles.summary} aria-label="Payment summary">
-          {checkout?.title && <div><dt>{checkout.offerId ? 'Request' : 'Service'}</dt><dd>{checkout.title}</dd></div>}
-          {checkout?.providerName && <div><dt>Provider</dt><dd>{checkout.providerName}</dd></div>}
-          {Number.isFinite(checkout?.expectedAmount) && <div><dt>Total</dt><dd>₱{Number(checkout?.expectedAmount).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</dd></div>}
-        </dl>}
-        <p className={form.hint}>{phase === 'succeeded'
-          ? 'ServiceHub verified the payment. You can close the PayMongo tab.'
-          : failed ? 'You can close the old PayMongo tab and try a new payment below.'
-            : phase === 'review' ? 'Do not start another payment until this attempt is resolved.'
-              : 'Complete GCash via PayMongo Test Mode in the other tab, then return here. Payment status updates automatically.'}</p>
-      </div>
-      <footer className={form.footer}>
-        {retryError && <p role="alert" className={form.error}>{retryError}</p>}
-        <div className={styles.actions}>
+      className={`${form.panel} ${styles.panel}`} data-theme={isDark ? 'dark' : 'light'} data-workspace="seeker" data-presentation={onClose ? 'dialog' : 'page'}>
+      <header className={styles.header}>
+        <div><h2>GCash checkout</h2><p>Review your booking and follow your payment status.</p></div>
+        {onClose && <button type="button" onClick={onClose} disabled={retrying} aria-label="Close payment status" className={form.close}><X size={18} aria-hidden="true" /></button>}
+      </header>
+      <div className={`${form.body} ${styles.body}`}>
+        <div className={styles.layout}>
+          <section className={styles.payment} aria-labelledby="gcash-method-title">
+            <h2 id="gcash-method-title" className={styles.sectionTitle}>Payment method</h2>
+            <p className={styles.mobileTotal} aria-label="Booking total"><span>Total</span><strong>{formattedTotal}</strong></p>
+            <div className={styles.method}>
+              <div><strong>GCash</strong><span>Continue through PayMongo Test Mode</span></div>
+              <GCashLogo />
+            </div>
+            <p className={styles.testNotice}><strong>Test mode.</strong> No real money is transferred.</p>
+            <div aria-live="polite" aria-atomic="true" className={styles.status} data-state={phase}>
+              {phase === 'succeeded' ? <CheckCircle2 size={22} aria-hidden="true" />
+                : failed || phase === 'review' || phase === 'unavailable' || !paymentIntentId ? <TriangleAlert size={22} aria-hidden="true" />
+                  : <Loader2 size={22} aria-hidden="true" className="animate-spin motion-reduce:animate-none" />}
+              <div><Heading id="gcash-status-title">{title}</Heading><p>{description}</p></div>
+            </div>
+            {phase !== 'pending' && phase !== 'checking' && <p className={form.hint}>{phase === 'succeeded'
+              ? 'ServiceHub verified the payment. You can close the PayMongo tab.'
+              : failed ? 'You can close the old PayMongo tab and try a new payment below.'
+                : phase === 'review' ? 'Do not start another payment until this attempt is resolved.'
+                  : paymentIntentId ? 'Check this payment before starting another attempt.' : 'Start from a service listing or an offer to see your booking total here.'}</p>}
+            {retryError && <p role="alert" className={`${form.error} ${styles.retryError}`}>{retryError}</p>}
+            <div className={styles.actions}>
           {phase === 'pending' && providerUrl && <a href={providerUrl} target="_blank" rel="noopener noreferrer" className={`${form.button} ${form.primary}`}>
             Open PayMongo Test Mode <ArrowUpRight size={16} aria-hidden="true" />
           </a>}
           {failed && checkout && <button type="button" onClick={() => { void tryAgain(); }} disabled={retrying} className={`${form.button} ${form.primary}`}>
             {retrying ? 'Starting a new attempt…' : 'Try GCash Again'}
           </button>}
-          {failed && cashAvailable && <Link href={returnHref} onClick={onClose} className={form.button}>Choose On-site Cash</Link>}
           {(phase === 'pending' || phase === 'unavailable') && paymentIntentId && <button type="button" onClick={() => setCheckVersion(value => value + 1)} className={form.button}>Check payment status</button>}
-          {phase === 'succeeded' ? <Link href="/seeker/seeker-activity" onClick={onClose} className={`${form.button} ${form.primary}`}>View booking in Activity</Link>
-            : onClose ? <button type="button" onClick={onClose} disabled={retrying} className={form.button}>Close for now</button>
-              : <Link href={returnHref} className={form.button}>{checkout?.offerId ? 'Back to Offers Received' : 'Back to service'}</Link>}
+          {phase === 'succeeded' && <Link href="/seeker/seeker-activity" onClick={onClose} className={`${form.button} ${form.primary}`}>View booking in Activity</Link>}
+            </div>
+            {(phase === 'pending' || phase === 'checking') && paymentIntentId && <ol className={styles.steps} aria-label="GCash payment steps">
+              <li><strong>Complete the GCash checkout</strong><span>Use the PayMongo Test Mode tab to finish the payment.</span></li>
+              <li><strong>Return to ServiceHub</strong><span>Payment status updates automatically. Your booking appears after confirmation.</span></li>
+            </ol>}
+          </section>
+          <aside className={styles.order} aria-labelledby="gcash-summary-title">
+            <h2 id="gcash-summary-title" className={styles.sectionTitle}>Order summary</h2>
+            <dl className={styles.summary} aria-label="Payment summary">
+              <div className={styles.service}><dt>{checkout?.offerId ? 'Request' : 'Service'}</dt><dd>{checkout?.title || 'Booking details unavailable'}</dd></div>
+              {checkout?.providerName && <div><dt>Provider</dt><dd>{checkout.providerName}</dd></div>}
+              {checkout?.quantity !== undefined && checkout.quantity > 1 && <div><dt>Quantity</dt><dd>{checkout.quantity}</dd></div>}
+              <div><dt>Payment method</dt><dd>GCash</dd></div>
+              <div className={styles.total}><dt>Total</dt><dd>{formattedTotal}</dd></div>
+            </dl>
+            <p className={styles.orderNote}>{Number.isFinite(checkout?.expectedAmount) ? 'This is the booking total supplied by ServiceHub.' : 'Payment details could not be restored in this browser. Check the payment status before starting another payment.'}</p>
+          </aside>
         </div>
+      </div>
+      <footer className={`${form.footer} ${styles.footer}`}>
+        {phase !== 'succeeded' && (onClose ? <button type="button" onClick={onClose} disabled={retrying} className={form.button}>Close for now</button>
+          : <Link href={returnHref} className={form.button}>{checkout?.offerId ? 'Back to Offers Received' : 'Back to service'}</Link>)}
         {onClose && phase !== 'succeeded' && <p className={form.hint}>Closing this dialog does not cancel payment.</p>}
       </footer>
     </div>
