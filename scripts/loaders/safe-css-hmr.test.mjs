@@ -67,14 +67,25 @@ test('normal refresh removes the original, retains the replacement, and tolerate
 });
 
 function configFor(environment, platform = process.platform) {
-  const source = fs.readFileSync(path.join(projectRoot, 'next.config.ts'), 'utf8');
-  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText;
-  const moduleRef = { exports: {} };
-  vm.runInNewContext(compiled, {
-    module: moduleRef, exports: moduleRef.exports, require: createRequire(path.join(projectRoot, 'next.config.ts')),
-    process: { env: { NODE_ENV: environment }, platform, cwd: () => projectRoot },
-  });
-  return moduleRef.exports.default;
+  const simulatedProcess = { env: { NODE_ENV: environment }, platform, cwd: () => projectRoot };
+  function loadTypeScript(filename) {
+    const source = fs.readFileSync(filename, 'utf8');
+    const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText;
+    const moduleRef = { exports: {} };
+    const localRequire = createRequire(filename);
+    vm.runInNewContext(compiled, {
+      module: moduleRef, exports: moduleRef.exports, process: simulatedProcess, URL,
+      require(specifier) {
+        // Next supports extensionless local TypeScript imports in its config.
+        // Transpile those helpers too, retaining the simulated platform/env.
+        const helper = path.resolve(path.dirname(filename), `${specifier}.ts`);
+        if (specifier.startsWith('.') && fs.existsSync(helper)) return loadTypeScript(helper);
+        return localRequire(specifier);
+      },
+    }, { filename });
+    return moduleRef.exports;
+  }
+  return loadTypeScript(path.join(projectRoot, 'next.config.ts')).default;
 }
 
 test('webpack guard is scoped to the development browser CSS HMR module', () => {

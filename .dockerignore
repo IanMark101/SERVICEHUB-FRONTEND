@@ -3,6 +3,15 @@ node_modules
 out
 dist
 coverage
+.impeccable/review
+.audit-results
+artifacts
+test-results
+playwright-report
+.domain-*.json
+.gcash-*.json
+.listing-ui-map-*.json
+.pwa-console-*.json
 .git
 .gitignore
 .env

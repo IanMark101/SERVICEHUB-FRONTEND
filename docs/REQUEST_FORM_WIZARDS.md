@@ -1,5 +1,7 @@
 # Request form wizards
 
+Historical capture scripts, logs and browser reports cited below remain in Git history at `3411838`, before the October 16, 2026 cleanup. The maintained wizard regression tests remain in `src/` and run with `npm test`.
+
 Implemented October 14, 2026 on `feature/request-form-wizards`, created from local `development`.
 
 Post Request uses Details, Location, Budget, Payment and Review. Offer Services uses Details, Location, Price, Payment and Review, with the existing provider green styling. The existing Request Service booking dialog uses Details, Location, Payment and Review. Input fields and their IDs remain unchanged. The new Review summaries are read-only and provide Edit buttons that return to the original inputs.

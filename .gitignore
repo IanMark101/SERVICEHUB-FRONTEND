@@ -18,10 +18,22 @@
 /public/maplibre/
 
 # debug
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 open-next.log*
+
+# Generated local verification output and temporary browser evidence
+/.impeccable/review/
+/.audit-results/
+/artifacts/
+/test-results/
+/playwright-report/
+/.domain-*.json
+/.gcash-*.json
+/.listing-ui-map-*.json
+/.pwa-console-*.json
 
 # local env files
 .env

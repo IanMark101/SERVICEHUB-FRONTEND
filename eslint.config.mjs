@@ -5,11 +5,6 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  {
-    files: [".impeccable/review/**/*.cjs"],
-    // Browser capture helpers intentionally use the CommonJS module format.
-    rules: { "@typescript-eslint/no-require-imports": "off" },
-  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -17,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".impeccable/review/**",
+    ".audit-results/**",
+    "artifacts/**",
+    "test-results/**",
+    "playwright-report/**",
     // Unmodified third-party distribution; keep application rules on maintained code.
     "public/vendor/particles.js/particles.js",
     "public/maplibre/**",

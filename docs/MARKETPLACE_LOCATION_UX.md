@@ -1,5 +1,7 @@
 # Location rules and compact inboxes
 
+Historical browser evidence cited below remains in Git history at `3411838`, before the October 16, 2026 cleanup. Current location behavior is documented in `MARKETPLACE_UX_AND_MESSAGE_RECEIPTS.md`; the retained regression tests run with `npm test`.
+
 ## Provider listings
 
 | Arrangement | Required location | Travel coverage |
