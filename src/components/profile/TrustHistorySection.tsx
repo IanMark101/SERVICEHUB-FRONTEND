@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Award } from 'lucide-react';
 import type { getTrustBand } from './ProfileHeader';
-import { TrustCasesPanel } from './TrustCaseControls';
 
 export interface TrustHistoryEvent {
   id: string;
@@ -21,10 +20,9 @@ interface Props {
   score: number;
   band: ReturnType<typeof getTrustBand>;
   isDark: boolean;
-  isOwnProfile?: boolean;
 }
 
-export default function TrustHistorySection({ events, loading, error, onRetry, score, band, isDark, isOwnProfile = false }: Props) {
+export default function TrustHistorySection({ events, loading, error, onRetry, score, band, isDark }: Props) {
   const muted = isDark ? 'text-neutral-300' : 'text-slate-600';
   return (
     <section aria-labelledby="trust-history-heading" className={`rounded-2xl border p-5 sm:p-6 ${isDark ? 'bg-charcoal-surface border-neutral-800 text-white' : 'bg-white border-slate-200 text-ink'}`}>
@@ -80,7 +78,6 @@ export default function TrustHistorySection({ events, loading, error, onRetry, s
         <p className={`text-sm leading-6 ${muted}`}>Trust scores reflect approved verification, eligible completed bookings, and documented admin findings. Star ratings do not change trust points. Older review events remain in history; a policy adjustment removes their effect.</p>
         <Link href="/help/trust-reputation/what-is-trust-score" className={`mt-2 inline-flex min-h-11 items-center text-sm font-semibold   focus-visible:outline-2 focus-visible:outline-offset-2 ${isDark ? 'text-orange-300' : 'text-orange-800'}`}>How trust scores work</Link>
       </div>
-      {isOwnProfile && <div className="mt-5"><TrustCasesPanel /></div>}
     </section>
   );
 }

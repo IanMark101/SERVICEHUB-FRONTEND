@@ -9,7 +9,7 @@ import { useToast } from '../../../components/ui/Toast';
 import ReasonModal from '../../../components/ui/ReasonModal';
 import { getApiErrorMessage } from '../../../lib/api/errors';
 import AdminPagination from '../../../components/admin/AdminPagination';
-import { TrustCasesPanel } from '../../../components/profile/TrustCaseControls';
+import { AdminTrustCasesPanel } from '../../../components/admin/AdminTrustCasesPanel';
 import type { ReviewViolation } from '../../../api/trust.api';
 import FormSelect from '../../../components/ui/FormSelect';
 
@@ -73,7 +73,7 @@ export default function AdminReviewsPage() {
 
   return (
     <div className="space-y-5">
-      <TrustCasesPanel admin />
+      <AdminTrustCasesPanel />
       <section className={`rounded-2xl border p-5 ${isDark ? 'border-neutral-800 bg-charcoal-surface' : 'border-slate-200 bg-white'}`}>
         <h2 className="text-base font-extrabold">Review Moderation</h2>
         <p className="mt-1 text-sm leading-6 text-ink-muted">Hide documented policy violations or restore reviews. Genuine negative feedback stays visible. Reviews do not change Trust Score.</p>

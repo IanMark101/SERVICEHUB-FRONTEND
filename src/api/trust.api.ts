@@ -8,11 +8,8 @@ export interface TrustCaseItem {
   review?: { id: string; rating: number; text?: string; completedService: { bookingId?: string } };
   trustEvent?: { id: string; reason: string; delta: number; bookingId?: string };
 }
-export async function apiListTrustCases(admin = false, page = 1): Promise<{ data: TrustCaseItem[]; pagination: { totalPages: number } }> {
-  return (await api.get(admin ? '/admin/trust-cases' : '/reviews/trust-cases', { params: { page }, apiCache: 'no-store' })).data;
-}
-export async function apiRespondTrustCase(id: string, response: string) {
-  return (await api.patch(`/reviews/trust-cases/${id}/response`, { response })).data;
+export async function apiListAdminTrustCases(page = 1): Promise<{ data: TrustCaseItem[]; pagination: { totalPages: number } }> {
+  return (await api.get('/admin/trust-cases', { params: { page }, apiCache: 'no-store' })).data;
 }
 export async function apiDecideTrustCase(id: string, input: { uphold: boolean; reason: string; violation?: ReviewViolation }) {
   return (await api.patch(`/admin/trust-cases/${id}`, input)).data;

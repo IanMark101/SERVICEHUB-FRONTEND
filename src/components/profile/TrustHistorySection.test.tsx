@@ -1,11 +1,33 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import TrustHistorySection from './TrustHistorySection';
 import { getTrustBand } from './ProfileHeader';
+import UserProfileTabs from './user-profile/UserProfileTabs';
+import { api } from '../../lib/api/axios';
+
+vi.mock('../../lib/api/axios', () => ({ api: { get: vi.fn() } }));
 
 const props = { events: [], score: 65, band: getTrustBand(65), isDark: false, loading: false, error: false, onRetry: vi.fn() };
 
 describe('public trust timeline', () => {
+  it('keeps the owner trust tab focused on score events without fetching review or appeal cases', async () => {
+    const model = {
+      activeTab: 'trust', isOwnProfile: true, isDark: false,
+      trustScore: 65, trustBand: getTrustBand(65),
+      trustHistoryLoading: false, trustHistoryError: false, retryTrustHistory: vi.fn(),
+      trustHistory: [{ id: 'penalty', delta: -5, reason: 'Recorded admin finding', scoreBefore: 70, scoreAfter: 65, createdAt: '2026-10-07T05:00:00Z' }],
+    } satisfies Partial<Parameters<typeof UserProfileTabs>[0]['model']>;
+    // Other tab fields are unused while rendering only the trust tab.
+    render(<UserProfileTabs model={model as unknown as Parameters<typeof UserProfileTabs>[0]['model']} />);
+    const history = screen.getByRole('region', { name: 'Trust history' });
+    expect(within(history).getByText('Recorded admin finding')).toBeInTheDocument();
+    expect(within(history).getByText('Score: 70 → 65')).toBeInTheDocument();
+    expect(within(history).getByRole('link', { name: 'How trust scores work' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Review disputes and trust appeals' })).not.toBeInTheDocument();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(api.get).not.toHaveBeenCalled();
+  });
+
   it('distinguishes loading, failed fetch, and a truly empty log with an actionable retry', () => {
     const { rerender } = render(<TrustHistorySection {...props} loading />);
     expect(screen.getByRole('status')).toHaveTextContent('Loading trust history');

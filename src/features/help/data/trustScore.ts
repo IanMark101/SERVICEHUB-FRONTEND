@@ -100,7 +100,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
   },
   {
     slug: 'appealing-trust-penalties', title: 'Reviewing a Trust Penalty', category: 'trust-reputation',
-    description: 'Understand recorded trust deductions and follow decisions on previously submitted cases.',
+    description: 'Understand recorded trust deductions and administrator corrections in your Trust History.',
     lastUpdated: 'October 2026', readTimeMinutes: 3,
     keywords: ['appeal', 'penalty', 'unfair', 'correction', 'evidence'],
     relatedArticleSlugs: ['viewing-trust-history', 'how-trust-score-changes', 'how-reviews-and-ratings-work'],
@@ -108,7 +108,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       { heading: 'Review a recorded penalty', steps: [
         'Open your User Profile and choose Trust History.',
         'Find the recorded penalty and review its reason, date, and score before and after the deduction.',
-        'Previously submitted cases remain available under Review disputes and trust appeals in the same tab.',
+        'Trust History displays recorded score changes. It has no review-dispute or trust-appeal case panel.',
       ] },
       { heading: 'What the decision means', paragraphs: [
         'An appeal does not automatically hide a review or restore trust. If upheld, the original recorded deduction is reversed once, within the 0-to-100 boundaries. If rejected, the finding remains. The decision is recorded with a reason.',

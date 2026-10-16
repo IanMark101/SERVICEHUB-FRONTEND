@@ -303,7 +303,7 @@ export default function UserProfileTabs({ model }: { model: UserProfileTabsModel
       )}
 
       {/* TAB 3: TRUST HISTORY (Explains how Trust Score was earned) */}
-      {activeTab === 'trust' && <TrustHistorySection events={trustHistory} loading={trustHistoryLoading} error={trustHistoryError} onRetry={retryTrustHistory} score={trustScore} band={trustBand} isDark={isDark} isOwnProfile={isOwnProfile} />}
+      {activeTab === 'trust' && <TrustHistorySection events={trustHistory} loading={trustHistoryLoading} error={trustHistoryError} onRetry={retryTrustHistory} score={trustScore} band={trustBand} isDark={isDark} />}
 
     </>
   );

@@ -1,33 +1,32 @@
 'use client';
 
 import { useCallback, useEffect, useId, useState } from 'react';
-import { useApp } from '../../context/AppContext';
-import { apiListTrustCases, apiRespondTrustCase, apiDecideTrustCase, type TrustCaseItem, type ReviewViolation } from '../../api/trust.api';
+import { apiListAdminTrustCases, apiDecideTrustCase, type TrustCaseItem, type ReviewViolation } from '../../api/trust.api';
 import { getApiErrorMessage } from '../../lib/api/errors';
 import { useApiCacheRefresh } from '../../hooks/useApiCacheRefresh';
 import { apiGetAdminBookingMessages } from '../../api/admin.api';
-import type { CaseMessage } from '../admin/cases/types';
+import type { CaseMessage } from './cases/types';
 import FormSelect from '../ui/FormSelect';
 
 const inputClass = 'w-full min-w-0 rounded-lg border border-[color:var(--workspace-border)] bg-[color:var(--workspace-surface)] p-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2';
 const buttonClass = 'inline-flex min-h-11 items-center justify-center rounded-lg border border-[color:var(--workspace-border)] px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50';
 
-export function TrustCasesPanel({ admin = false }: { admin?: boolean }) {
+export function AdminTrustCasesPanel() {
   const [items, setItems] = useState<TrustCaseItem[]>([]); const [page, setPage] = useState(1); const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true); const [error, setError] = useState('');
   const load = useCallback(async () => { setLoading(true); setError('');
-    try { const result = await apiListTrustCases(admin, page); setItems(result.data); setPages(Math.max(1, result.pagination.totalPages)); }
+    try { const result = await apiListAdminTrustCases(page); setItems(result.data); setPages(Math.max(1, result.pagination.totalPages)); }
     catch (cause) { setError(getApiErrorMessage(cause, 'Cases could not load. Try again.')); }
     finally { setLoading(false); }
-  }, [admin, page]);
+  }, [page]);
   useEffect(() => { const timer = window.setTimeout(() => void load(), 0); return () => window.clearTimeout(timer); }, [load]);
   useApiCacheRefresh(['reviews', 'admin'], () => load(), !loading);
   return <section aria-label="Review disputes and trust appeals" className="space-y-4 rounded-xl border border-[color:var(--workspace-border)] p-5 sm:p-6">
     <h2 className="text-lg font-bold">Review disputes and trust appeals</h2>
     <button type="button" className={buttonClass} disabled={loading} onClick={() => void load()}>Refresh cases</button>
-    <p className="text-sm leading-6">{admin ? 'Review both explanations and booking evidence. The review author has 48 hours to respond before a dispute can be upheld, unless they respond earlier. Genuine criticism stays visible. Upholding a penalty appeal reverses the original deduction once.' : 'Track your cases and respond to a dispute about a review you wrote. Review authors have 48 hours to explain before a dispute can be upheld. Ratings and pending cases do not change Trust Score.'}</p>
+    <p className="text-sm leading-6">Review both explanations and booking evidence. The review author has 48 hours to respond before a dispute can be upheld, unless they respond earlier. Genuine criticism stays visible. Upholding a penalty appeal reverses the original deduction once.</p>
     {error && <div role="alert"><p className="text-sm">{error}</p><button className={buttonClass} onClick={() => void load()}>Retry loading cases</button></div>}
-    {loading ? <p role="status">Loading cases…</p> : !items.length && !error ? <p className="text-sm">No cases yet.</p> : items.map(item => <TrustCaseDecision key={item.id} item={item} admin={admin} onSaved={load} />)}
+    {loading ? <p role="status">Loading cases…</p> : !items.length && !error ? <p className="text-sm">No cases yet.</p> : items.map(item => <TrustCaseDecision key={item.id} item={item} onSaved={load} />)}
     {pages > 1 && <nav aria-label="Case pages" className="flex flex-wrap items-center gap-3">
       <button className={buttonClass} disabled={page === 1 || loading} onClick={() => setPage(page - 1)}>Previous</button><span>Page {page} of {pages}</span>
       <button className={buttonClass} disabled={page === pages || loading} onClick={() => setPage(page + 1)}>Next</button>
@@ -35,41 +34,38 @@ export function TrustCasesPanel({ admin = false }: { admin?: boolean }) {
   </section>;
 }
 
-function TrustCaseDecision({ item, admin, onSaved }: { item: TrustCaseItem; admin: boolean; onSaved: () => Promise<void> }) {
-  const { user } = useApp(); const id = useId(); const [text, setText] = useState('');
+function TrustCaseDecision({ item, onSaved }: { item: TrustCaseItem; onSaved: () => Promise<void> }) {
+  const id = useId(); const [text, setText] = useState('');
   const [uphold, setUphold] = useState(false); const [violation, setViolation] = useState<ReviewViolation>('MANIPULATION');
   const [busy, setBusy] = useState(false); const [error, setError] = useState('');
-  const canRespond = !admin && item.respondentId === user?.id && item.status === 'PENDING';
   const bookingId = item.trustEvent?.bookingId || item.review?.completedService.bookingId;
   return <article className="space-y-3 border-t border-[color:var(--workspace-border)] pt-4 [overflow-wrap:anywhere]">
     <h3 className="text-sm font-bold">{item.review ? 'Review policy dispute' : 'Trust penalty appeal'} — {item.status === 'UPHELD' ? 'Appeal upheld' : item.status === 'REJECTED' ? 'Appeal rejected' : 'Pending review'}</h3>
-    {admin && <p className="text-sm">Submitted by {item.user.name}{item.respondent ? `; other participant: ${item.respondent.name}` : ''}</p>}
+    <p className="text-sm">Submitted by {item.user.name}{item.respondent ? `; other participant: ${item.respondent.name}` : ''}</p>
     {item.review && <p className="text-sm">Review: {item.review.rating}/5 — {item.review.text || 'No written feedback'}</p>}
     {item.trustEvent && <p className="text-sm">Original finding: {item.trustEvent.reason} ({item.trustEvent.delta} points)</p>}
     <p className="whitespace-pre-wrap text-sm leading-6">{item.description}</p>
     {item.response && <p className="whitespace-pre-wrap text-sm leading-6">Other participant’s explanation: {item.response}</p>}
     {item.decisionReason && <p className="whitespace-pre-wrap text-sm leading-6">Admin decision: {item.decisionReason}</p>}
-    {admin && bookingId && <><a className={`${buttonClass} break-all`} href={`/admin/reports?booking=${encodeURIComponent(bookingId)}`}>Inspect booking cases</a><TrustCaseMessages bookingId={bookingId} /></>}
-    {(canRespond || (admin && item.status === 'PENDING')) && <form className="space-y-3" onSubmit={async event => {
+    {bookingId && <><a className={`${buttonClass} break-all`} href={`/admin/reports?booking=${encodeURIComponent(bookingId)}`}>Inspect booking cases</a><TrustCaseMessages bookingId={bookingId} /></>}
+    {item.status === 'PENDING' && <form className="space-y-3" onSubmit={async event => {
       event.preventDefault(); if (busy || text.trim().length < 20) return;
       setBusy(true); setError('');
-      try { if (admin) await apiDecideTrustCase(item.id, { uphold, reason: text.trim(), violation: uphold && item.review ? violation : undefined });
-        else await apiRespondTrustCase(item.id, text.trim()); await onSaved(); }
-      catch (cause) { setError(getApiErrorMessage(cause, 'The explanation or decision could not be saved.')); }
+      try { await apiDecideTrustCase(item.id, { uphold, reason: text.trim(), violation: uphold && item.review ? violation : undefined }); await onSaved(); }
+      catch (cause) { setError(getApiErrorMessage(cause, 'The decision could not be saved.')); }
       finally { setBusy(false); }
     }}>
-      {admin && <><label htmlFor={`${id}-decision`} className="block text-sm font-semibold">Decision</label>
+      <label htmlFor={`${id}-decision`} className="block text-sm font-semibold">Decision</label>
         <FormSelect id={`${id}-decision`} tone="admin" className={inputClass} value={String(uphold)} onChange={event => setUphold(event.target.value === 'true')}>
           <option value="false">{item.review ? 'Reject — keep review' : 'Reject — keep penalty'}</option><option value="true">{item.review ? 'Uphold — hide review' : 'Uphold — reverse penalty'}</option>
         </FormSelect>
         {uphold && item.review && <><label htmlFor={`${id}-violation`} className="block text-sm font-semibold">Review policy violated</label><FormSelect id={`${id}-violation`} tone="admin" className={inputClass} value={violation} onChange={event => setViolation(event.target.value as ReviewViolation)}>
           <option value="MANIPULATION">Manipulation or threats</option><option value="HARASSMENT">Harassment or abuse</option><option value="FABRICATED">Fabricated participation</option><option value="IRRELEVANT">Unrelated content</option><option value="OTHER_POLICY">Other policy violation</option>
         </FormSelect></>}
-      </>}
-      <label htmlFor={`${id}-reason`} className="block text-sm font-semibold">{admin ? 'Finding and supporting evidence' : 'Your explanation'} (at least 20 characters)</label>
+      <label htmlFor={`${id}-reason`} className="block text-sm font-semibold">Finding and supporting evidence (at least 20 characters)</label>
       <textarea id={`${id}-reason`} className={inputClass} required minLength={20} maxLength={2000} rows={3} value={text} onChange={event => setText(event.target.value)} />
       {error && <p role="alert" className="text-sm text-red-600 dark:text-red-300">{error}</p>}
-      <button className={buttonClass} disabled={busy || text.trim().length < 20}>{busy ? 'Saving…' : admin ? 'Record decision' : 'Send explanation'}</button>
+      <button className={buttonClass} disabled={busy || text.trim().length < 20}>{busy ? 'Saving…' : 'Record decision'}</button>
     </form>}
   </article>;
 }
