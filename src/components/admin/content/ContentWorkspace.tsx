@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { RefreshCw, Search, ShieldCheck } from 'lucide-react';
 import { apiGetContentCases, apiGetContentCase, apiGetMarketplaceContent, apiGetMarketplaceItem, type ContentCase, type ContentCaseDetail, type ContentItem, type ContentType } from '@/api/contentWorkspace.api';
 import { getApiErrorMessage } from '@/lib/api/errors';
+import { CONTENT_REPORT_REASON_FILTERS } from '@/lib/contentReportReasons';
 import { getSocket } from '@/lib/socket';
 import { useToast } from '@/components/ui/Toast';
 import AdminPagination from '../AdminPagination';
@@ -29,6 +30,7 @@ export default function ContentWorkspace() {
   const view: View = params.get('view') === 'content' ? 'content' : params.get('view') === 'history' ? 'history' : 'review';
   const type = ['SERVICE_LISTING', 'SERVICE_REQUEST'].includes(params.get('type') || '') ? params.get('type') as ContentType : undefined;
   const caseType = ['REPORT', 'APPEAL'].includes(params.get('kind') || '') ? params.get('kind') as 'REPORT' | 'APPEAL' : undefined;
+  const reportReason = view !== 'content' && caseType !== 'APPEAL' ? CONTENT_REPORT_REASON_FILTERS.find(reason => reason.value === params.get('reason'))?.value : undefined;
   const caseId = params.get('caseId');
   const contentId = params.get('contentId');
   const rawPage = Number(params.get('page') || 1);
@@ -38,7 +40,7 @@ export default function ContentWorkspace() {
   const [cases, setCases] = useState<ContentCase[]>([]);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
-  const { loading, beginLoad } = useRefreshableLoad(JSON.stringify([page, type, view, querySearch, caseType]));
+  const { loading, beginLoad } = useRefreshableLoad(JSON.stringify([page, type, view, querySearch, caseType, reportReason]));
   const [error, setError] = useState('');
   const [detail, setDetail] = useState<ContentCaseDetail | ContentItem | null>(null);
   const [detailError, setDetailError] = useState('');
@@ -63,7 +65,7 @@ export default function ContentWorkspace() {
     let succeeded = false;
     setError('');
     try {
-      const query = { page, limit: pageSize, contentType: type, ...(view === 'content' ? { search: querySearch } : { caseType, status: view === 'history' ? 'RESOLVED' as const : 'OPEN' as const }) };
+      const query = { page, limit: pageSize, contentType: type, ...(view === 'content' ? { search: querySearch } : { caseType, reportReason, status: view === 'history' ? 'RESOLVED' as const : 'OPEN' as const }) };
       if (view === 'content') {
         const response = await apiGetMarketplaceContent(query);
         if (sequence !== listSequence.current || !request.current()) return;
@@ -76,7 +78,7 @@ export default function ContentWorkspace() {
       succeeded = true;
     } catch (cause) { if (sequence === listSequence.current && request.current()) setError(getApiErrorMessage(cause, 'This view could not be loaded. Try Refresh.')); }
     finally { if (sequence === listSequence.current) request.finish(succeeded); }
-  }, [page, type, view, querySearch, caseType, beginLoad, setContent, setPagination, setCases]);
+  }, [page, type, view, querySearch, caseType, reportReason, beginLoad, setContent, setPagination, setCases]);
   const loadDetail = useCallback(async () => {
     const sequence = ++detailSequence.current;
     setDetail(null); setDetailError('');
@@ -104,7 +106,7 @@ export default function ContentWorkspace() {
     navigate({ caseId: null, contentId: null, view: isCase ? 'history' : 'content', page: null });
   }
   const back = () => navigate({ caseId: null, contentId: null });
-  const filtered = !!type || (view !== 'content' && !!caseType) || !!querySearch;
+  const filtered = !!type || (view !== 'content' && (!!caseType || !!reportReason)) || !!querySearch;
   const rows = view === 'content' ? content : cases;
 
   return <div className="cw-workspace review-workspace">
@@ -112,14 +114,15 @@ export default function ContentWorkspace() {
       <header className="review-header"><h1>Content Reports &amp; Appeals</h1><button type="button" className="cw-button" onClick={() => { invalidateApiCache(['admin', 'content']); void load(); }} disabled={loading}><RefreshCw size={16} aria-hidden /> Refresh</button></header>
       <ReportWorkflowNav current="content" />
       <section className="cw-queue review-queue" aria-labelledby="content-list-title">
-      <div className="review-queue-head"><nav className="cw-views" aria-label="Content workspace views">{views.map(item => <button type="button" key={item.id} aria-current={view === item.id ? 'page' : undefined} onClick={() => navigate({ view: item.id === 'review' ? null : item.id, page: null, kind: null, search: null })}>{item.label}</button>)}</nav>{!loading && !error && <span className="review-result-count">{pagination.total} {view === 'content' ? 'items' : pagination.total === 1 ? 'case' : 'cases'}</span>}</div>
+      <div className="review-queue-head"><nav className="cw-views" aria-label="Content workspace views">{views.map(item => <button type="button" key={item.id} aria-current={view === item.id ? 'page' : undefined} onClick={() => navigate({ view: item.id === 'review' ? null : item.id, page: null, kind: null, reason: null, search: null })}>{item.label}</button>)}</nav>{!loading && !error && <span className="review-result-count">{pagination.total} {view === 'content' ? 'items' : pagination.total === 1 ? 'case' : 'cases'}</span>}</div>
       <div className="cw-list-heading"><h2 id="content-list-title">{view === 'content' ? 'Marketplace content records' : view === 'history' ? 'Resolved reports and appeals' : 'Reports and appeals awaiting a decision'}</h2>
         <p>{view === 'content' ? 'Public and retained listings. Marketplace visibility is separate from booking completion.' : view === 'history' ? 'Open a case to see the content decision, account action, and admin explanation.' : 'Review a report or owner appeal, inspect the content, and record your decision.'}</p></div>
       <div className="cw-toolbar"><label className="cw-filter">Listing type<FormSelect value={type || ''} onChange={event => navigate({ type: event.target.value || null, page: null })}><option value="">All listings</option><option value="SERVICE_LISTING">Provider services</option><option value="SERVICE_REQUEST">Seeker requests</option></FormSelect></label>
-        {view !== 'content' ? <label className="cw-filter">Show<FormSelect value={caseType || ''} onChange={event => navigate({ kind: event.target.value || null, page: null })}><option value="">All reports and appeals</option><option value="REPORT">Reports from users</option><option value="APPEAL">Appeals from listing owners</option></FormSelect></label> : <form className="cw-search" role="search" onSubmit={event => { event.preventDefault(); navigate({ search: search.trim() || null, page: null }); }}><label htmlFor="content-search">Find content</label><div><Search size={17} aria-hidden /><input id="content-search" maxLength={100} value={search} onChange={event => setSearch(event.target.value)} placeholder="Search title or description" /><button type="submit" className="cw-button">Search</button></div></form>}
-        {filtered && <button type="button" className="cw-text-link" onClick={() => { setSearch(''); navigate({ type: null, kind: null, search: null, page: null }); }}>Clear filters</button>}
+        {view !== 'content' ? <><label className="cw-filter">Show<FormSelect value={caseType || ''} onChange={event => navigate({ kind: event.target.value || null, reason: event.target.value === 'REPORT' ? reportReason || null : null, page: null })}><option value="">All reports and appeals</option><option value="REPORT">Reports from users</option><option value="APPEAL">Appeals from listing owners</option></FormSelect></label>
+          {caseType !== 'APPEAL' && <label className="cw-filter">Report reason<FormSelect value={reportReason || ''} onChange={event => navigate({ reason: event.target.value || null, ...(event.target.value && { kind: 'REPORT' }), page: null })}><option value="">All reasons</option>{CONTENT_REPORT_REASON_FILTERS.map(reason => <option key={reason.value} value={reason.value}>{reason.label}</option>)}</FormSelect></label>}</> : <form className="cw-search" role="search" onSubmit={event => { event.preventDefault(); navigate({ search: search.trim() || null, page: null }); }}><label htmlFor="content-search">Find content</label><div><Search size={17} aria-hidden /><input id="content-search" maxLength={100} value={search} onChange={event => setSearch(event.target.value)} placeholder="Search title or description" /><button type="submit" className="cw-button">Search</button></div></form>}
+        {filtered && <button type="button" className="cw-text-link" onClick={() => { setSearch(''); navigate({ type: null, kind: null, reason: null, search: null, page: null }); }}>Clear filters</button>}
       </div>
-      {error ? <div className="cw-error" role="alert"><p>{error}</p><button type="button" className="cw-button" onClick={() => { invalidateApiCache(['admin', 'content']); void load(); }}>Retry</button></div> : loading ? <ReviewQueueLoading label="Loading content" /> : !rows.length ? <div className="cw-empty"><ShieldCheck size={28} aria-hidden /><h3>{filtered ? 'No matches for these filters' : view === 'content' ? 'No marketplace content yet' : view === 'history' ? 'No completed cases yet' : 'No cases need review'}</h3>{filtered && <button type="button" className="cw-text-link" onClick={() => navigate({ type: null, kind: null, search: null, page: null })}>Clear filters</button>}</div> : <ContentCaseTable cases={cases} content={content} view={view} onCase={id => navigate({ caseId: id }, true)} onContent={item => navigate({ contentId: item.id, type: item.contentType }, true)} />}
+      {error ? <div className="cw-error" role="alert"><p>{error}</p><button type="button" className="cw-button" onClick={() => { invalidateApiCache(['admin', 'content']); void load(); }}>Retry</button></div> : loading ? <ReviewQueueLoading label="Loading content" /> : !rows.length ? <div className="cw-empty"><ShieldCheck size={28} aria-hidden /><h3>{filtered ? 'No matches for these filters' : view === 'content' ? 'No marketplace content yet' : view === 'history' ? 'No completed cases yet' : 'No cases need review'}</h3>{filtered && <button type="button" className="cw-text-link" onClick={() => navigate({ type: null, kind: null, reason: null, search: null, page: null })}>Clear filters</button>}</div> : <ContentCaseTable cases={cases} content={content} view={view} onCase={id => navigate({ caseId: id }, true)} onContent={item => navigate({ contentId: item.id, type: item.contentType }, true)} />}
       {!loading && !error && <AdminPagination page={page} totalPages={pagination.totalPages} totalItems={pagination.total} pageSize={pageSize} onPageChange={value => navigate({ page: String(value) })} itemLabel={view === 'content' ? 'items' : 'cases'} />}
       </section>
     </>}

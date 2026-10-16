@@ -9,6 +9,13 @@ export const CONTENT_REPORT_REASONS = [
 
 export type ContentReportReason = typeof CONTENT_REPORT_REASONS[number]['value'];
 
+export const CONTENT_REPORT_REASON_FILTERS = [
+  ...CONTENT_REPORT_REASONS,
+  { value: 'UNSPECIFIED', label: 'Not specified' },
+] as const;
+
+export type ContentReportReasonFilter = typeof CONTENT_REPORT_REASON_FILTERS[number]['value'];
+
 export function contentReportReasonLabel(value?: string | null) {
   return CONTENT_REPORT_REASONS.find(reason => reason.value === value)?.label || 'Not specified';
 }

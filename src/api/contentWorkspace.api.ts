@@ -25,7 +25,7 @@ export interface ContentCaseDetail extends ContentCase {
   history: { id: string; action: string; reason: string; createdAt: string; resourceId: string | null }[];
 }
 export interface ContentDecisionInput { decision: ContentDecision; penalty: ContentPenalty; resolution: string; expectedUpdatedAt?: string; expectedOwnerStatus?: ContentOwner['moderationStatus']; suspensionDays: number }
-export interface ContentQuery { page: number; limit: number; contentType?: ContentType; caseType?: 'REPORT' | 'APPEAL'; status?: 'OPEN' | 'RESOLVED'; search?: string }
+export interface ContentQuery { page: number; limit: number; contentType?: ContentType; caseType?: 'REPORT' | 'APPEAL'; reportReason?: import('../lib/contentReportReasons').ContentReportReasonFilter; status?: 'OPEN' | 'RESOLVED'; search?: string }
 export interface ContentPage<T> { success: boolean; data: T[]; pagination: { page: number; limit: number; total: number; totalPages: number } }
 
 export async function apiGetContentCases(query: ContentQuery) { return (await api.get<ContentPage<ContentCase>>('/admin/content/cases', { params: query })).data; }

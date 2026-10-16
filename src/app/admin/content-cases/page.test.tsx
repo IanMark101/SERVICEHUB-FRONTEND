@@ -58,4 +58,40 @@ describe('Unified admin content workspace', () => {
     expect(screen.getByRole('link', { name: /Disputes & Reports/ })).toHaveAttribute('href', '/admin/reports');
     expect(screen.getByRole('link', { name: 'Ban Appeals' })).toHaveAttribute('href', '/admin/ban-appeals');
   });
+  it('applies the report reason to server requests and resets pagination when it changes', async () => {
+    navigation.params = new URLSearchParams('view=history&type=SERVICE_REQUEST&kind=REPORT&reason=SCAM&page=2');
+    render(<ContentWorkspace />); await screen.findByText('Kitchen faucet repair');
+    expect(api.apiGetContentCases).toHaveBeenCalledWith(expect.objectContaining({ page: 2, contentType: 'SERVICE_REQUEST', caseType: 'REPORT', reportReason: 'SCAM', status: 'RESOLVED' }));
+    expect(screen.getByLabelText('Report reason')).toHaveValue('SCAM');
+    fireEvent.change(screen.getByLabelText('Report reason'), { target: { value: 'UNSPECIFIED' } });
+    const next = new URL(navigation.replace.mock.calls.at(-1)![0], 'http://localhost');
+    expect(next.searchParams.get('reason')).toBe('UNSPECIFIED');
+    expect(next.searchParams.get('type')).toBe('SERVICE_REQUEST');
+    expect(next.searchParams.get('kind')).toBe('REPORT');
+    expect(next.searchParams.has('page')).toBe(false);
+  });
+  it('selecting a reason narrows to reports and clear filters removes it', async () => {
+    const { rerender } = render(<ContentWorkspace />); await screen.findByText('Kitchen faucet repair');
+    fireEvent.change(screen.getByLabelText('Report reason'), { target: { value: 'SCAM' } });
+    expect(navigation.replace).toHaveBeenCalledWith('/admin/content-cases?reason=SCAM&kind=REPORT', { scroll: false });
+    navigation.params = new URLSearchParams('reason=SCAM&kind=REPORT'); rerender(<ContentWorkspace />);
+    fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(navigation.replace).toHaveBeenLastCalledWith('/admin/content-cases', { scroll: false });
+    fireEvent.change(screen.getByLabelText('Show'), { target: { value: 'APPEAL' } });
+    expect(navigation.replace).toHaveBeenLastCalledWith('/admin/content-cases?kind=APPEAL', { scroll: false });
+    fireEvent.click(screen.getByRole('button', { name: 'All content' }));
+    expect(navigation.replace).toHaveBeenLastCalledWith('/admin/content-cases?view=content', { scroll: false });
+  });
+  it('ignores invalid reasons and hides the reason control for appeals and marketplace content', async () => {
+    navigation.params = new URLSearchParams('reason=NOT_A_REASON');
+    const { rerender } = render(<ContentWorkspace />); await screen.findByText('Kitchen faucet repair');
+    expect(api.apiGetContentCases).toHaveBeenLastCalledWith(expect.objectContaining({ reportReason: undefined }));
+    navigation.params = new URLSearchParams('kind=APPEAL&reason=SCAM'); rerender(<ContentWorkspace />);
+    await waitFor(() => expect(api.apiGetContentCases).toHaveBeenLastCalledWith(expect.objectContaining({ caseType: 'APPEAL', reportReason: undefined })));
+    expect(screen.queryByLabelText('Report reason')).not.toBeInTheDocument();
+    navigation.params = new URLSearchParams('view=content&reason=SCAM'); rerender(<ContentWorkspace />);
+    await waitFor(() => expect(api.apiGetMarketplaceContent).toHaveBeenCalled());
+    expect(vi.mocked(api.apiGetMarketplaceContent).mock.calls.at(-1)![0]).not.toHaveProperty('reportReason');
+    expect(screen.queryByLabelText('Report reason')).not.toBeInTheDocument();
+  });
 });
