@@ -1,38 +1,16 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TrustPenaltyAppealForm, TrustCasesPanel } from './TrustCaseControls';
+import { TrustCasesPanel } from './TrustCaseControls';
 import * as api from '../../api/trust.api';
 import { apiGetAdminBookingMessages } from '../../api/admin.api';
 
 vi.mock('../../context/AppContext', () => ({ useApp: () => ({ user: { id: 'recipient' } }) }));
 vi.mock('../../hooks/useApiCacheRefresh', () => ({ useApiCacheRefresh: vi.fn() }));
 vi.mock('../../api/admin.api', () => ({ apiGetAdminBookingMessages: vi.fn() }));
-vi.mock('../../api/trust.api', () => ({ apiSubmitTrustCase: vi.fn(), apiListTrustCases: vi.fn(), apiRespondTrustCase: vi.fn(), apiDecideTrustCase: vi.fn() }));
+vi.mock('../../api/trust.api', () => ({ apiListTrustCases: vi.fn(), apiRespondTrustCase: vi.fn(), apiDecideTrustCase: vi.fn() }));
 beforeEach(() => { vi.resetAllMocks(); vi.mocked(api.apiListTrustCases).mockResolvedValue({ data: [], pagination: { totalPages: 1 } }); });
 
 describe('review and trust appeal controls', () => {
-  it('requires an explanation and submits only the selected penalty source', async () => {
-    vi.mocked(api.apiSubmitTrustCase).mockResolvedValue({ success: true });
-    render(<TrustPenaltyAppealForm trustEventId="event-1" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Appeal trust penalty' }));
-    const button = screen.getByRole('button', { name: 'Submit for admin review' });
-    expect(button).toBeDisabled();
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'The booking messages document a mutual cancellation.' } });
-    fireEvent.click(button);
-    await waitFor(() => expect(api.apiSubmitTrustCase).toHaveBeenCalledWith({ trustEventId: 'event-1', description: 'The booking messages document a mutual cancellation.' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Case submitted');
-  });
-  it('retains the explanation after a failed submission and allows retry', async () => {
-    vi.mocked(api.apiSubmitTrustCase).mockRejectedValueOnce(new Error('Offline')).mockResolvedValueOnce({ success: true });
-    render(<TrustPenaltyAppealForm trustEventId="event-1" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Appeal trust penalty' }));
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'The booking messages document a mutual cancellation.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Submit for admin review' }));
-    expect(await screen.findByRole('alert')).toBeInTheDocument();
-    expect(screen.getByRole('textbox')).toHaveValue('The booking messages document a mutual cancellation.');
-    fireEvent.click(screen.getByRole('button', { name: 'Submit for admin review' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Case submitted');
-  });
   it('distinguishes a failed case load from an empty case list', async () => {
     vi.mocked(api.apiListTrustCases).mockRejectedValueOnce(new Error('Offline')).mockResolvedValueOnce({ data: [], pagination: { totalPages: 1 } });
     render(<TrustCasesPanel />);

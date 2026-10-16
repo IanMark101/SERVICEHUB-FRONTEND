@@ -8,9 +8,6 @@ export interface TrustCaseItem {
   review?: { id: string; rating: number; text?: string; completedService: { bookingId?: string } };
   trustEvent?: { id: string; reason: string; delta: number; bookingId?: string };
 }
-export async function apiSubmitTrustCase(input: { trustEventId: string; description: string }) {
-  return (await api.post('/reviews/trust-cases', input)).data;
-}
 export async function apiListTrustCases(admin = false, page = 1): Promise<{ data: TrustCaseItem[]; pagination: { totalPages: number } }> {
   return (await api.get(admin ? '/admin/trust-cases' : '/reviews/trust-cases', { params: { page }, apiCache: 'no-store' })).data;
 }
