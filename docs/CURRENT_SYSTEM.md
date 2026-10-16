@@ -41,6 +41,8 @@ Trust History shows recorded events, score changes and its help link. The member
 
 ## Maintained code and evidence
 
+Listing report controls use a red flag icon for both provider services and seeker requests. A new report requires a selected reason and a 10–1,000-character explanation. The six choices cover misleading information, scams, inappropriate content, unsafe services, spam and other concerns. Admin list and detail views show that reason beside the original message. The admin filters use Listing type and Show (all reports and appeals, reports from users, or appeals from listing owners), without the former Case type label. Owner appeals remain separate and do not ask for a report reason. Earlier uncategorized reports display Not specified. This feature is local on feature/content-report-reasons; deploy the backend migration before the new frontend.
+
 Cleanup removed historical execution logs, browser captures, a disposable fixture proxy, two unreferenced landing components, unused public assets and redundant dependencies. Maintained regression tests, migrations, operational scripts, design guidance and private database backups remain. Historical removed evidence is recoverable before cleanup at frontend 3411838 and API c9a9a38.
 
 Local cleanup verification passed 1,441 frontend tests, 258 backend schema/contract tests, 16 development-runtime checks and four production-build map scenarios. Both builds and frontend lint passed. These results do not establish new live-wallet, database-integration or community acceptance. Earlier dated verification totals retain their original scope.

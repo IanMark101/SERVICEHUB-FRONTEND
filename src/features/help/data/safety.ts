@@ -6,12 +6,19 @@ export const SAFETY_ARTICLES: HelpArticle[] = [
     title: 'Reporting Users, Scams, and Filing Disputes',
     category: 'safety',
     description: 'Learn how to file a formal dispute report, what evidence is collected, and how administrators arbitrate fair outcomes.',
-    lastUpdated: 'August 2026',
+    lastUpdated: 'October 2026',
     readTimeMinutes: 3,
     popular: true,
     keywords: ['report', 'dispute', 'scam', 'arbitration', 'moderator', 'safety', 'no show'],
     relatedArticleSlugs: ['safe-marketplace-tips', 'why-messaging-is-transaction-bound', 'what-is-trust-score'],
     sections: [
+      {
+        heading: 'Reporting a service or request listing',
+        paragraphs: [
+          'Use the red flag on someone else’s listing to report a concern about its content. Choose a report reason, add your explanation, then select Send report. Reasons include misleading information, scams, inappropriate content, unsafe services, spam and other concerns.',
+          'An admin reviews the selected reason and your explanation. Sending a report does not automatically remove the listing or change anyone’s Trust Score. For a problem with an actual booking, use its report controls in Activity.',
+        ],
+      },
       {
         heading: 'When to File a Report',
         paragraphs: [

@@ -1,6 +1,7 @@
 'use client';
 
 import FormSelect from '../../ui/FormSelect';
+import { contentReportReasonLabel } from '@/lib/contentReportReasons';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, ArrowUpRight, ShieldAlert } from 'lucide-react';
 import { apiDecideContentCase, type ContentCaseDetail, type ContentDecision, type ContentPenalty } from '@/api/contentWorkspace.api';
@@ -73,8 +74,7 @@ export default function ContentCaseWorkroom({ item, onBack, onReload, onSaved }:
     <header className={styles.header}>
       <div className={styles.titleRow}><h2 ref={heading} tabIndex={-1}>{snapshot?.title || item.content?.title || 'Publication check appeal'}</h2><span>{resolved ? 'Case resolved' : 'Needs review'}</span></div>
       <InspectionFacts facts={[
-        { label: 'Case type', value: item.caseType === 'REPORT' ? 'Content report' : 'Owner appeal' },
-        { label: 'Content type', value: contentTypeLabel(item.contentType) },
+        { label: 'Listing type', value: contentTypeLabel(item.contentType) },
         { label: item.caseType === 'REPORT' ? 'Reported by' : 'Appealed by', value: item.submitter.name },
         { label: 'Submitted', value: contentDate(item.createdAt) },
       ]} />
@@ -88,7 +88,9 @@ export default function ContentCaseWorkroom({ item, onBack, onReload, onSaved }:
           { id: 'people', label: 'People & bookings' }, { id: 'history', label: 'Admin history' },
         ]} />
         {tab === 'summary' && <div className={resolved ? styles.summaryGrid : styles.stack}>
-          <InspectionPanel title={item.caseType === 'REPORT' ? 'What was reported' : 'Why the owner appealed'}><InspectionText text={item.reason} />
+          <InspectionPanel title={item.caseType === 'REPORT' ? 'What was reported' : 'Why the owner appealed'}>
+            {item.caseType === 'REPORT' && <p className="cw-prose"><strong>Report reason:</strong> {contentReportReasonLabel(item.reportReason)}</p>}
+            <InspectionText text={item.reason} />
             <InspectionFacts facts={[
               { label: 'Content owner', value: owner?.name || snapshot?.ownerName || 'Unavailable' },
               { label: 'Current marketplace visibility', value: item.content?.visibility || 'Content unavailable' },

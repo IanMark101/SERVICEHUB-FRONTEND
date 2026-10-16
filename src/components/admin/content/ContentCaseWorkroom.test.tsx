@@ -10,6 +10,14 @@ function chooseRemoval() {
   fireEvent.change(screen.getByLabelText(/Decision explanation/), { target: { value: notes } });
 }
 describe('Content case decision safety', () => {
+  it('shows the report reason in plain language and keeps older reports readable', () => {
+    const { rerender } = render(<ContentCaseWorkroom item={{ ...fixtureCase, reportReason: 'MISLEADING' }} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);
+    expect(screen.getByText('False or misleading information')).toBeInTheDocument();
+    expect(screen.queryByText('Case type')).not.toBeInTheDocument();
+    rerender(<ContentCaseWorkroom item={{ ...fixtureCase, reportReason: null }} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);
+    expect(screen.getByText('Not specified')).toBeInTheDocument();
+    expect(screen.getByText(fixtureCase.reason)).toBeInTheDocument();
+  });
   it('shows original reported photos and discloses a changed current photo set', () => {
     const photo = { id: 'original', url: '/images/hero-presenter-casual.png', width: 800, height: 800 };
     render(<ContentCaseWorkroom item={{ ...fixtureCase, contentSnapshot: { ...fixtureCase.contentSnapshot!, photos: [photo] }, content: { ...fixtureCase.content!, photos: [{ ...photo, id: 'replacement', url: '/images/model.png' }] } }} onBack={vi.fn()} onReload={vi.fn()} onSaved={vi.fn()} />);

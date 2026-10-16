@@ -25,7 +25,10 @@ describe('Unified admin content workspace', () => {
     expect(screen.getByRole('button', { name: 'Case history' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Review case/ }));
     expect(navigation.push).toHaveBeenCalledWith('/admin/content-cases?caseId=case-1', { scroll: false });
-    fireEvent.change(screen.getByLabelText('Content type'), { target: { value: 'SERVICE_REQUEST' } });
+    expect(screen.queryByLabelText('Case type')).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Show'), { target: { value: 'APPEAL' } });
+    expect(navigation.replace).toHaveBeenCalledWith('/admin/content-cases?kind=APPEAL', { scroll: false });
+    fireEvent.change(screen.getByLabelText('Listing type'), { target: { value: 'SERVICE_REQUEST' } });
     expect(navigation.replace).toHaveBeenCalledWith('/admin/content-cases?type=SERVICE_REQUEST', { scroll: false });
   });
   it('all content includes unreported content and opens the exact item', async () => {

@@ -22,10 +22,11 @@ describe('Save and Report listing controls', () => {
   it.each(['SERVICE_LISTING', 'SERVICE_REQUEST'] as const)('submits a %s report to the existing flow once', async contentType => {
     render(<ListingCardTools contentType={contentType} listingId="one" isOwned={false} isDark={false} />);
     fireEvent.click(screen.getByRole('button', { name: 'Report listing' }));
+    fireEvent.change(screen.getByLabelText('Report reason'), { target: { value: 'MISLEADING' } });
     fireEvent.change(screen.getByLabelText('Your explanation'), { target: { value: 'This listing misrepresents the service.' } });
     const form = screen.getByRole('dialog'); fireEvent.submit(form); fireEvent.submit(form);
     await waitFor(() => expect(apiSubmitContentCase).toHaveBeenCalledTimes(1));
-    expect(apiSubmitContentCase).toHaveBeenCalledWith({ caseType: 'REPORT', contentType, resourceId: 'one', reason: 'This listing misrepresents the service.' });
+    expect(apiSubmitContentCase).toHaveBeenCalledWith({ caseType: 'REPORT', contentType, resourceId: 'one', reason: 'This listing misrepresents the service.', reportReason: 'MISLEADING' });
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(screen.getByRole('button', { name: 'Report sent' })).toBeDisabled();
   });

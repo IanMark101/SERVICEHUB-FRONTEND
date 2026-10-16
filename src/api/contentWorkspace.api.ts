@@ -13,6 +13,7 @@ export interface ContentItem {
 }
 export interface ContentSnapshot { photos?: import('../lib/listingPhotos').ListingPhoto[]; title: string; description: string; category: string; ownerId: string; ownerName: string; updatedAt: string; price: number | null; priceType: string | null; budgetMin: number | null; budgetMax: number | null; urgency: string | null }
 export interface ContentCase {
+  reportReason?: import('../lib/contentReportReasons').ContentReportReason | null;
   id: string; caseType: 'REPORT' | 'APPEAL'; contentType: ContentType; resourceId: string | null; status: 'OPEN' | 'RESOLVED'; reason: string; resolution: string | null;
   createdAt: string; decidedAt: string | null; decision: ContentDecision | null; penalty: ContentPenalty | null; contentSnapshot: ContentSnapshot | null;
   decisionResult: { contentStatus: string | null; ownerStatus: string | null; suspensionDays?: number } | null;
