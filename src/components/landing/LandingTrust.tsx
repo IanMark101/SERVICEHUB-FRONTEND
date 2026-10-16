@@ -33,7 +33,7 @@ const topics = {
       { title: 'A neutral starting point', detail: 'Every account starts at 50. Trust Score stays between 0 and 100.' },
       { title: 'Approved verification: +5', detail: 'Your first approved verification earns 5 points, once per account.' },
       { title: 'Eligible completed booking: +3', detail: 'Each eligible participant earns 3 points after a completed booking is settled.' },
-      { title: 'A limit on repeat rewards', detail: 'One completion per account pair earns points in a rolling 30-day period, including when roles are switched.' },
+      { title: 'A limit on repeat rewards', detail: 'One completion per account pair earns points in a rolling 7-day period, including when roles are switched.' },
       { title: 'Evidence before deductions', detail: 'Documented at-fault cancellation after work starts deducts 5 points; serious misconduct deducts 10. One penalty per booking and participant.' },
       { title: 'A way to challenge a decision', detail: 'View the reason in Trust History and appeal a penalty. Star ratings never add or deduct trust points.' },
     ],

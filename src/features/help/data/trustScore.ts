@@ -51,7 +51,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
         bullets: [
           'Your first approved identity and residency verification adds 5 points once.',
           'An eligible completed booking adds 3 points to each eligible Seeker and Provider. Both identities must be approved, completion and payment settlement must be recorded, and no booking complaint can remain unresolved. A participant with an uncorrected fault penalty for that booking receives no reward.',
-          'Only one completed booking between the same two accounts can earn points in a rolling 30-day period, including when they exchange workspace roles. Repeat bookings and reviews remain available.',
+          'Only one completed booking between the same two accounts can earn points in a rolling 7-day period, including when they exchange workspace roles. The next reward is available after seven full days from their last rewarded completion, rather than at a calendar-week reset. Repeat bookings and reviews remain available.',
           'Payments, accepting bookings, and starting work do not award extra trust points by themselves.',
         ],
       },
@@ -116,7 +116,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
         'Administrators can correct an eligible recorded event with a documented reason and password confirmation. They cannot enter arbitrary rewards or deductions through the correction form.',
       ] },
       { heading: 'Existing accounts', paragraphs: [
-        'The new policy keeps old events visible and records a policy adjustment removing earlier review-based points and duplicate booking penalties. Historical completion rewards remain recognized; the new mutual reward and 30-day limit apply to new eligibility decisions.',
+        'The policy keeps old events visible and records a policy adjustment removing earlier review-based points and duplicate booking penalties. Historical completion rewards remain recognized. New eligibility decisions use the current rolling 7-day account-pair limit; changing the window does not automatically award points for earlier skipped bookings.',
       ] },
     ],
   },

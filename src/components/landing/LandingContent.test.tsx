@@ -97,7 +97,7 @@ describe('landing information and disclosure controls', () => {
     expect(scorePanel.getByText(/Every account starts at 50/)).toBeVisible();
     expect(scorePanel.getByText(/first approved verification earns 5 points, once per account/)).toBeVisible();
     expect(scorePanel.getByText(/Each eligible participant earns 3 points/)).toBeVisible();
-    expect(scorePanel.getByText(/rolling 30-day period, including when roles are switched/)).toBeVisible();
+    expect(scorePanel.getByText(/rolling 7-day period, including when roles are switched/)).toBeVisible();
     expect(scorePanel.getByText(/after work starts deducts 5 points; serious misconduct deducts 10/)).toBeVisible();
     fireEvent.keyDown(score, { key: 'ArrowRight' });
     expect(overview).toHaveFocus();
