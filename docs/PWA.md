@@ -1,5 +1,6 @@
 # ServiceHub PWA
 
+Current behavior and release boundary: see CURRENT_SYSTEM.md. Dated implementation checks below retain their original scope. Generated review captures and logs removed during cleanup remain recoverable from the recorded pre-cleanup Git revisions.
 Historical logs and browser captures cited below were removed from the working tree during the October 16, 2026 cleanup. They remain available in Git history at `3411838`. The maintained PWA tests remain in `src/`; use `npm test` to run them.
 
 ServiceHub is one installable web app for both Seeker and Provider workspaces. Existing sign-in, verification and role checks still apply. The first phase provides app icons, installation guidance, an offline fallback and user-controlled updates. It does not implement web push notifications.

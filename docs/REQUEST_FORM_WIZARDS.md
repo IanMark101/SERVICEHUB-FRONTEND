@@ -2,6 +2,7 @@
 
 Historical capture scripts, logs and browser reports cited below remain in Git history at `3411838`, before the October 16, 2026 cleanup. The maintained wizard regression tests remain in `src/` and run with `npm test`.
 
+Current October 16 behavior: physical forms use one discovery point; no provider travel-limit control exists. Providers receiving visitors add private workplace directions. Remote forms expose no location fields. GCash-selected posts require the reusable saved number. Earlier coverage/location references and test totals below describe the original wizard revision, not current controls. See CURRENT_SYSTEM.md.
 Implemented October 14, 2026 on `feature/request-form-wizards`, created from local `development`.
 
 Post Request uses Details, Location, Budget, Payment and Review. Offer Services uses Details, Location, Price, Payment and Review, with the existing provider green styling. The existing Request Service booking dialog uses Details, Location, Payment and Review. Input fields and their IDs remain unchanged. The new Review summaries are read-only and provide Edit buttons that return to the original inputs.

@@ -1,5 +1,6 @@
 # Session, map and PWA console audit
 
+Current behavior and release boundary: see CURRENT_SYSTEM.md. Dated implementation checks below retain their original scope. Generated review captures and logs removed during cleanup remain recoverable from the recorded pre-cleanup Git revisions.
 The reported screenshots show repeated private API 401s, a numeric map-worker warning, and Chrome's deferred-install notice.
 
 ## Authentication

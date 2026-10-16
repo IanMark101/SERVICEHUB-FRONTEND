@@ -7,7 +7,7 @@ The blank basemap was reproduced in Chrome against the deployed site. Leaflet co
 - Development startup and production prebuild copy the installed MapLibre worker, shared ESM module and license into a versioned public directory. The client explicitly selects that same-origin worker using the installed library version.
 - Basemap readiness waits for the renderer, with cancellation and bounded loading. Style, worker, GPU or initial rendering failures switch to Leaflet raster tiles on the existing map. If both providers fail, the picker displays its existing recovery message.
 - The Leaflet adapter safely removes a partially initialized GPU layer. Closing a picker cancels pending work and removes readiness listeners and timers.
-- Pins, public-location consent, approximate seeker areas, radius calculations, location confirmation, clustering, marketplace API routing and session transport retain their existing implementations.
+- Map rendering retains pins, radius calculations, confirmation, clustering, marketplace API routing and session transport. Current forms use one physical discovery point, no remote location and no public-pin checkbox. Only legacy provider consent remains compatible; CURRENT_SYSTEM.md defines these location rules.
 
 The raster fallback defaults to OpenStreetMap, includes attribution, uses normal browser HTTP caching and requests only visible tiles. `NEXT_PUBLIC_MAP_FALLBACK_TILE_URL` can select another compatible tile provider; its licensing and usage rules must be respected. No offline tile downloading was added.
 

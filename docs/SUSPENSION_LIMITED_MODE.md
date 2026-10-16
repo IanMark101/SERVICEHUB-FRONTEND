@@ -1,5 +1,6 @@
 # Suspension and Limited Mode
 
+Current behavior and release boundary: see CURRENT_SYSTEM.md. Dated implementation checks below retain their original scope. Generated review captures and logs removed during cleanup remain recoverable from the recorded pre-cleanup Git revisions.
 Suspended members retain signed-in browsing in both Seeker and Provider workspaces, like members awaiting residency verification. An approved verification record and `isActive=true` do not override `moderationStatus=SUSPENDED`.
 
 The shared frontend permission check matches the API's new-transaction requirements: approved residency, verified email, an active account and active moderation status. Posting, booking, offers, payments, reviews and starting work remain unavailable during suspension. The persistent workspace notice and blocked-action dialog explain suspension, while posting forms disable their fields and publishing actions. Suspended verified members are not asked to verify again as a way to remove suspension.
