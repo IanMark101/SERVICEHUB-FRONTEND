@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: 'How does the discovery radius work?',
-    a: 'Choose 1, 2, 5, 10, 15, 20 or 30 km around your search pin. Only eligible services or requests inside that circle appear. Distance is measured in a straight line, not by driving route. Widen the radius or move the pin if there are no matches. A Provider\u2019s service coverage is a separate limit for the actual job location.',
+    a: 'Choose a radius from 0.5 to 30 km around your search pin. Presets include 0.5, 1, 2, 5, 10, 15, 20 or 30 km. Eligible physical services and requests inside that circle appear; online services and requests can appear regardless of radius. Distance is measured in a straight line, not by driving route. There is no fixed Provider travel limit; Providers decide whether to offer or accept the work.',
   },
   {
     q: 'How does ServiceHub decide which results appear first?',
@@ -33,7 +33,7 @@ const faqs = [
   },
   {
     q: 'What is Trust Score, and how does it change?',
-    a: 'Trust Score is a reputation score from 0 to 100 for both Seekers and Providers. New accounts start at 50. Approved verification, confirmed completed work, review ratings and administrator decisions can change it. Your profile\u2019s Trust History shows the reason for each recorded change.',
+    a: 'Trust Score is a reputation score from 0 to 100 for both Seekers and Providers. New accounts start at 50. Approved verification, eligible confirmed and settled work, and reasoned administrator decisions can change it. Review ratings do not change trust points. The same two accounts can earn a completion reward once per rolling seven days, even when they swap roles. Your profile\u2019s Trust History shows the reason for each recorded change.',
   },
   {
     q: 'Do I need verification to book or offer services?',
