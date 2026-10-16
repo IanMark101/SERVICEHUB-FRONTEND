@@ -59,7 +59,7 @@ describe('private GCash number in listing forms', () => {
     expect(publish).not.toHaveBeenCalled(); expect(screen.getByRole('textbox', { name: 'Listing title' })).toHaveValue('Laptop repair');
     expect(screen.getByText(/Saved number ending in 6789/)).toBeVisible();
     expect(screen.queryByText('09123456789')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Edit GCash number' })).toHaveFocus();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Edit GCash number' })).toHaveFocus());
     expect(screen.getByRole('status')).toHaveTextContent('Your contact number is unchanged');
   });
   it('validates missing/invalid input, and cancel leaves the draft and saved number untouched', async () => {
