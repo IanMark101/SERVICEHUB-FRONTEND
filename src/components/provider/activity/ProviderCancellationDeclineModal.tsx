@@ -46,7 +46,7 @@ export default function ProviderCancellationDeclineModal({
 
         <form onSubmit={(event) => { if (!validReason || isActionDisabled || isSubmitting) { event.preventDefault(); return; } onSubmit(event); }} className="p-5 space-y-4">
           <p id="decline-cancellation-description" className={`text-base leading-relaxed ${isDark ? "text-ink-muted" : "text-ink-muted"}`}>
-            Provide an explanation note to the seeker explaining why you are declining their cancellation request (e.g. work already in progress, resources purchased).
+            Provide an explanation note to the customer explaining why you are declining their cancellation request (e.g. work already in progress, resources purchased).
           </p>
 
           <div>

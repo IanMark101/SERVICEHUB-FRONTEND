@@ -130,7 +130,7 @@ describe('All booking workroom mutation handlers', () => {
     expect(applyBookingAction).toHaveBeenCalledWith(expect.objectContaining({ completionReview: expect.objectContaining({ pending: true }) }));
   });
 
-  it.each(['cancel', 'approve', 'cancel_escalation', 'hide', 'review', 'edit_review'] as const)('seeker %s does not wait for or duplicate feed reads', async action => {
+  it.each(['cancel', 'approve', 'cancel_escalation', 'hide', 'review', 'edit_review'] as const)('customer %s does not wait for or duplicate feed reads', async action => {
     mount('seeker');
     if (action === 'cancel') {
       await act(async () => { await seekerModel.handleCancelClick(booking); });

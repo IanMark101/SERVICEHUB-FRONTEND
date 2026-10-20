@@ -189,7 +189,7 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
             {retrying ? 'Starting a new attempt…' : 'Try GCash Again'}
           </button>}
           {(phase === 'pending' || phase === 'unavailable') && paymentIntentId && <button type="button" onClick={() => setCheckVersion(value => value + 1)} className={form.button}>Check payment status</button>}
-          {phase === 'succeeded' && <Link href="/seeker/seeker-activity" onClick={onClose} className={`${form.button} ${form.primary}`}>View booking in Activity</Link>}
+          {phase === 'succeeded' && <Link href="/seeker/seeker-activity" onClick={onClose} className={`${form.button} ${form.primary}`}>View booking in My Bookings</Link>}
             </div>
             {(phase === 'pending' || phase === 'checking') && paymentIntentId && <ol className={styles.steps} aria-label="GCash payment steps">
               <li><strong>Complete the GCash checkout</strong><span>Use the PayMongo Test Mode tab to finish the payment.</span></li>
@@ -211,7 +211,7 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
       </div>
       <footer className={`${form.footer} ${styles.footer}`}>
         {phase !== 'succeeded' && (onClose ? <button type="button" onClick={onClose} disabled={retrying} className={form.button}>Close for now</button>
-          : <Link href={returnHref} className={form.button}>{checkout?.offerId ? 'Back to Offers Received' : 'Back to service'}</Link>)}
+          : <Link href={returnHref} className={form.button}>{checkout?.offerId ? 'Back to Offers' : 'Back to service'}</Link>)}
         {onClose && phase !== 'succeeded' && <p className={form.hint}>Closing this dialog does not cancel payment.</p>}
       </footer>
     </div>

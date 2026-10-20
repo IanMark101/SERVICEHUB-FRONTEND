@@ -81,7 +81,7 @@ export function bookingProgressRows(booking: JobEngagement): HistoryRow[] {
 
 export default function BookingProgressHistory({ booking }: { booking: JobEngagement }) {
   const actor = (role?: BookingProgressEvent['actorRole']) => {
-    if (role === 'SEEKER') return `Seeker · ${booking.seekerName}`;
+    if (role === 'SEEKER') return `Customer · ${booking.seekerName}`;
     if (role === 'PROVIDER') return `Provider · ${booking.providerName}`;
     if (role === 'ADMIN') return 'Administrator';
     if (role === 'SYSTEM') return 'ServiceHub';

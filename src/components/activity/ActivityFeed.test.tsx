@@ -31,7 +31,7 @@ describe('Activity overview', () => {
     render(<ActivityFeed entries={[
       { ...queued, id: 'cancel', group: 'history', outcome: 'canceled', status: 'This booking was canceled' },
       { ...queued, id: 'withdraw', kind: 'offer', group: 'history', outcome: 'withdrawn', status: 'Offer withdrawn' },
-      { ...queued, id: 'decline', kind: 'offer', group: 'history', outcome: 'declined', status: 'Offer declined by seeker' },
+      { ...queued, id: 'decline', kind: 'offer', group: 'history', outcome: 'declined', status: 'Offer declined by customer' },
       { ...queued, id: 'unknown', kind: 'offer', group: 'history', situationLabel: 'Closed', status: 'Offer closed' },
     ]} tone={tone} onOpen={vi.fn()} />);
     expect(screen.getByText('Canceled')).toHaveClass('bg-stone-100');
@@ -40,7 +40,7 @@ describe('Activity overview', () => {
     expect(screen.getByText('Closed')).toBeInTheDocument();
     expect(screen.queryByText('Completed')).not.toBeInTheDocument();
   });
-  it('shows the seeker payment-secured queue state without suggesting an action', () => {
+  it('shows the customer payment-secured queue state without suggesting an action', () => {
     const onOpen = vi.fn();
     render(<ActivityFeed entries={[queued]} tone="seeker" onOpen={onOpen} />);
 
@@ -60,7 +60,7 @@ describe('Activity overview', () => {
     const onOpen = vi.fn();
     const onStart = vi.fn();
     const providerEntry: ActivityFeedEntry = {
-      ...queued, group: 'your_turn', participant: 'Seeker: John',
+      ...queued, group: 'your_turn', participant: 'Customer: John',
       action: 'Ready to start', situationLabel: 'Ready to start', canStart: true,
       next: 'Only one job may be active across your services.',
     };
@@ -82,7 +82,7 @@ describe('Activity overview', () => {
     const { rerender } = render(<ActivityFeed entries={[second]} tone="seeker" onOpen={vi.fn()} />);
     expect(screen.getByText('Waiting in the provider’s work queue')).toBeInTheDocument();
     expect(screen.getByText('#2')).toBeInTheDocument();
-    rerender(<ActivityFeed entries={[{ ...second, participant: 'Seeker: John' }]} tone="provider" onOpen={vi.fn()} onStart={vi.fn()} />);
+    rerender(<ActivityFeed entries={[{ ...second, participant: 'Customer: John' }]} tone="provider" onOpen={vi.fn()} onStart={vi.fn()} />);
     expect(screen.getByText('Waiting for your turn')).toBeInTheDocument();
     expect(screen.getByText('Start Job is available at position #1')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Start Job/ })).not.toBeInTheDocument();
@@ -90,7 +90,7 @@ describe('Activity overview', () => {
 
   it('disables provider Start Job while another job is active or this one is starting', () => {
     const onStart = vi.fn();
-    const blocked = { ...queued, group: 'waiting' as const, participant: 'Seeker: John', canStart: false, startUnavailableReason: 'Finish your current job before starting another booking.' };
+    const blocked = { ...queued, group: 'waiting' as const, participant: 'Customer: John', canStart: false, startUnavailableReason: 'Finish your current job before starting another booking.' };
     const { rerender } = render(<ActivityFeed entries={[blocked]} tone="provider" onOpen={vi.fn()} onStart={onStart} />);
     expect(screen.getByText('First in line, start unavailable')).toBeInTheDocument();
     const button = screen.getByRole('button', { name: 'Start Job: House Cleaning' });

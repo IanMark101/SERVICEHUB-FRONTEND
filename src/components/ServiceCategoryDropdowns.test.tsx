@@ -42,7 +42,7 @@ function fillProvider(container: HTMLElement) {
   fireEvent.change(container.querySelector('#listing-description')!, { target: { value: 'I inspect and repair household plumbing and leaking faucets.' } });
 }
 
-describe('Seeker and Provider admin-managed categories', () => {
+describe('Customer and Provider admin-managed categories', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     activeCategories = [{ id: 'plumbing-id', name: 'Plumbing' }];
@@ -163,7 +163,7 @@ describe('Seeker and Provider admin-managed categories', () => {
       expect(createServiceListing).toHaveBeenCalledWith('resident-id', 'PLUMBING INSPECTION AND REPAIR', 'fallback-id', 500, 'I inspect and repair household plumbing and leaking faucets.', expect.any(Object), expect.any(Object));
     });
   });
-  it('explains the selected category in both forms and preserves its official ID', () => {
+  it('preserves the official category ID without adding description paragraphs', () => {
     activeCategories = [
       { id: 'computer-id', name: 'Computer & Laptop Repair', description: 'Laptop and desktop repairs. For routers, choose Internet & Wi-Fi Setup.' },
       { id: 'electrical-id', name: 'Electrical Wiring & Repairs', description: 'Wiring, outlets, lights, and circuit breakers.' },
@@ -172,9 +172,11 @@ describe('Seeker and Provider admin-managed categories', () => {
     const provider = render(<OfferServices />);
     for (const view of [seeker, provider]) {
       fireEvent.change(view.container.querySelector('select')!, { target: { value: 'computer-id' } });
-      expect(within(view.container).getByText(activeCategories[0].description!)).toBeInTheDocument();
+      expect(view.container.querySelector('select')).toHaveValue('computer-id');
+      expect(within(view.container).queryByText(activeCategories[0].description!)).not.toBeInTheDocument();
       fireEvent.change(view.container.querySelector('select')!, { target: { value: 'electrical-id' } });
-      expect(within(view.container).getByText(activeCategories[1].description!)).toBeInTheDocument();
+      expect(view.container.querySelector('select')).toHaveValue('electrical-id');
+      expect(within(view.container).queryByText(activeCategories[1].description!)).not.toBeInTheDocument();
       expect(within(view.container).queryByText(activeCategories[0].description!)).not.toBeInTheDocument();
     }
   });

@@ -11,10 +11,10 @@ import styles from './LandingWorkspaces.module.css';
 
 const workspaces = {
   seeker: {
-    label: 'Seeker',
+    label: 'Customer',
     icon: Search,
     heading: 'Find help or post what you need.',
-    description: 'Keep nearby services, incoming offers and your booking activity together in the Seeker workspace.',
+    description: 'Keep nearby services, incoming offers and your booking activity together in the Customer workspace.',
     features: [
       'Browse nearby services',
       'Post requests and compare offers',
@@ -26,13 +26,13 @@ const workspaces = {
     label: 'Provider',
     icon: BriefcaseBusiness,
     heading: 'Offer services and manage your work.',
-    description: 'Keep your service listings, Seeker requests and booking activity together in the Provider workspace.',
+    description: 'Keep your service listings, Customer requests and booking activity together in the Provider workspace.',
     features: [
       'Publish and manage service listings',
-      'Browse Service Requests and send offers',
+      'Find Work and send offers',
       'Track completed bookings and recorded earnings',
     ],
-    tip: 'Update pricing, payment options and availability in Service Manager.',
+    tip: 'Update pricing, payment options and availability in My Services.',
   },
 } as const;
 

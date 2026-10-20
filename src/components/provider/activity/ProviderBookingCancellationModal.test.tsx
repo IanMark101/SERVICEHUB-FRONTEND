@@ -22,9 +22,9 @@ describe('Provider booking cancellation wording', () => {
   it('treats a queued GCash booking as immediate cancellation and requires a reason', () => {
     const callbacks = renderModal(queuedBooking, 'No');
     expect(screen.getByRole('heading', { name: 'Cancel this booking?' })).toBeInTheDocument();
-    expect(screen.getByText(/remove this booking from your paid work queue and notify the seeker/)).toBeInTheDocument();
+    expect(screen.getByText(/remove this booking from your paid work queue and notify the customer/)).toBeInTheDocument();
     expect(screen.getByText(/existing GCash refund handling will apply/)).toBeInTheDocument();
-    expect(screen.queryByText(/request will go to the seeker for review/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/request will go to the customer for review/)).not.toBeInTheDocument();
     const confirm = screen.getByRole('button', { name: 'Cancel Booking' });
     expect(confirm).toBeDisabled();
     fireEvent.change(screen.getByRole('textbox', { name: 'Reason for cancellation' }), { target: { value: 'Not available' } });
@@ -45,15 +45,15 @@ describe('Provider booking cancellation wording', () => {
   it('keeps accepted on-site cash pre-start cancellation immediate without claiming a queue refund', () => {
     renderModal({ ...queuedBooking, status: 'in_progress', paymentMethod: 'On-site Cash', started: false });
     expect(screen.getByRole('heading', { name: 'Cancel this booking?' })).toBeInTheDocument();
-    expect(screen.getByText(/immediately close this booking and notify the seeker/)).toBeInTheDocument();
+    expect(screen.getByText(/immediately close this booking and notify the customer/)).toBeInTheDocument();
     expect(screen.getByText(/no platform refund/)).toBeInTheDocument();
     expect(screen.queryByText(/remove this booking from your paid work queue/)).not.toBeInTheDocument();
   });
 
-  it('keeps started work as a cancellation request awaiting seeker review', () => {
+  it('keeps started work as a cancellation request awaiting customer review', () => {
     const callbacks = renderModal({ ...queuedBooking, status: 'in_progress', started: true }, 'Work cannot continue');
     expect(screen.getByRole('heading', { name: 'Request cancellation' })).toBeInTheDocument();
-    expect(screen.getByText(/request will go to the seeker for review/)).toBeInTheDocument();
+    expect(screen.getByText(/request will go to the customer for review/)).toBeInTheDocument();
     expect(screen.getByText(/will not be canceled just by sending this request/)).toBeInTheDocument();
     expect(screen.getByText('Reason ready. Request will be sent.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Cancel Booking' })).not.toBeInTheDocument();

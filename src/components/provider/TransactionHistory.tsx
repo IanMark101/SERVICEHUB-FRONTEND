@@ -62,10 +62,10 @@ export default function TransactionHistory({ currentUserId }: { currentUserId?: 
 
         {loading ? <div role="status" className={styles.empty}><ReceiptText size={28} aria-hidden="true" /><h3>Loading payment records</h3><p>Getting your booking history and recorded earnings.</p></div>
           : !currentUserId ? <div className={styles.empty}><h3>Sign in to view your records</h3></div>
-          : data && data.items.length === 0 ? <div className={styles.empty}><ReceiptText size={28} aria-hidden="true" /><h3>{filtered ? 'No records match these filters' : 'No previous bookings yet'}</h3><p>{filtered ? 'Choose another date or status, or clear your filters.' : 'Confirmed completions and cancelled bookings will appear here. Ongoing work stays in Activity.'}</p>{filtered && <button type="button" className={styles.clear} onClick={clearFilters}>Show all records</button>}</div>
+          : data && data.items.length === 0 ? <div className={styles.empty}><ReceiptText size={28} aria-hidden="true" /><h3>{filtered ? 'No records match these filters' : 'No previous bookings yet'}</h3><p>{filtered ? 'Choose another date or status, or clear your filters.' : 'Confirmed completions and cancelled bookings will appear here. Ongoing work stays in My Bookings.'}</p>{filtered && <button type="button" className={styles.clear} onClick={clearFilters}>Show all records</button>}</div>
           : data && <div className={styles.tableWrap}><table className={styles.table}>
             <caption className={styles.srOnly}>Your previous provider service bookings and recorded earnings</caption>
-            <thead><tr><th scope="col">Service / seeker</th><th scope="col">Recorded date</th><th scope="col">Method / status</th><th scope="col" className={styles.amountHeader}>Earned amount</th><th scope="col"><span className={styles.srOnly}>Booking details</span></th></tr></thead>
+            <thead><tr><th scope="col">Service / customer</th><th scope="col">Recorded date</th><th scope="col">Method / status</th><th scope="col" className={styles.amountHeader}>Earned amount</th><th scope="col"><span className={styles.srOnly}>Booking details</span></th></tr></thead>
             <tbody>{data.items.map(record => <RecordRow key={record.id} record={record} linked={record.bookingId === booking || record.id === booking} />)}</tbody>
           </table></div>}
 
@@ -82,10 +82,10 @@ function RecordRow({ record, linked }: { record: ProviderPaymentRecord; linked: 
   const isEarned = record.earnedAmount > 0;
   const cash = record.paymentMethod === 'On-site Cash';
   return <tr className={linked ? styles.linked : undefined}>
-    <td data-label="Service / seeker" className={styles.serviceCell}><strong>{record.serviceTitle}</strong><span>{record.seekerName}</span>{linked && <span className={styles.linkedLabel}>Linked booking</span>}</td>
+    <td data-label="Service / customer" className={styles.serviceCell}><strong>{record.serviceTitle}</strong><span>{record.seekerName}</span>{linked && <span className={styles.linkedLabel}>Linked booking</span>}</td>
     <td data-label="Recorded date"><time dateTime={record.recordedAt}>{recordDate.format(new Date(record.recordedAt))}</time></td>
     <td data-label="Method / status"><div className={styles.method}>{cash ? 'On-site cash' : 'GCash (Test Mode)'}</div><span className={styles.status} data-outcome={record.outcome}>{outcomes[record.outcome]}</span></td>
-    <td data-label="Earned amount" className={styles.amount} data-earned={isEarned}><strong>{currency.format(record.earnedAmount)}</strong>{!isEarned && <span>{record.outcome === 'refunded' ? currency.format(record.amount) + ' returned to seeker' : record.outcome === 'cancelled' ? 'No earnings recorded' : 'Payment not confirmed'}</span>}</td>
+    <td data-label="Earned amount" className={styles.amount} data-earned={isEarned}><strong>{currency.format(record.earnedAmount)}</strong>{!isEarned && <span>{record.outcome === 'refunded' ? currency.format(record.amount) + ' returned to customer' : record.outcome === 'cancelled' ? 'No earnings recorded' : 'Payment not confirmed'}</span>}</td>
     <td className={styles.detailsCell}>{record.bookingId ? <Link href={'/provider/provider-activity?tab=' + (record.outcome === 'completed' ? 'completed' : 'canceled') + '&booking=' + encodeURIComponent(record.bookingId)} className={styles.details} aria-label={'View booking: ' + record.serviceTitle}>View booking <ArrowUpRight size={15} aria-hidden="true" /></Link> : <span className={styles.archived}>Archived record</span>}</td>
   </tr>;
 }

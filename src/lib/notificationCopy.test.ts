@@ -4,8 +4,8 @@ import { mapDbNotification } from '../context/mappers';
 
 describe('plain-language notification copy', () => {
   it('simplifies a saved booking notification while preserving the exact service name', () => {
-    expect(notificationCopy('New Direct Booking Request', 'A new Direct Arrangement booking request has arrived for "Direct Arrangement Plumbing". Review it in Incoming Requests.')).toEqual({
-      title: 'New booking request', description: 'A new booking request has arrived for "Direct Arrangement Plumbing". Review it in Incoming Requests.',
+    expect(notificationCopy('New Direct Booking Request', 'A new Direct Arrangement booking request has arrived for "Direct Arrangement Plumbing". Review it in Requests.')).toEqual({
+      title: 'New booking request', description: 'A new booking request has arrived for "Direct Arrangement Plumbing". Review it in Requests.',
     });
   });
   it('explains the next step after acceptance without suggesting the work has started', () => {
@@ -19,7 +19,7 @@ describe('plain-language notification copy', () => {
   });
   it('clearly tells the provider what to do after their offer is accepted', () => {
     expect(notificationCopy('Offer Accepted! 💰', 'Your offer on "PIPE REPAIR" was accepted! Messaging is now enabled — chat to coordinate service details.')).toEqual({
-      title: 'Offer accepted', description: 'Your offer on "PIPE REPAIR" was accepted! You can now message the seeker to arrange the work.',
+      title: 'Offer accepted', description: 'Your offer on "PIPE REPAIR" was accepted! You can now message the customer to arrange the work.',
     });
   });
   it('preserves notification ownership, read state and booking link when mapping saved data', () => {

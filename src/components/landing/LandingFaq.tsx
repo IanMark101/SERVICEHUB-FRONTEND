@@ -12,12 +12,12 @@ interface LandingFaqProps {
 
 const faqs = [
   {
-    q: 'How can a Seeker discover Providers?',
-    a: 'Open Seek Services in the Seeker workspace, choose your search location and radius, then search by task or category. Compare service details, prices, reviews and Provider Trust Scores before booking. You can also post a Service Request so Providers can send you offers.',
+    q: 'How can a Customer discover Providers?',
+    a: 'Open Find Services in the Customer workspace, choose your search location and radius, then search by task or category. Compare service details, prices, reviews and Provider Trust Scores before booking. You can also post a Service Request so Providers can send you offers.',
   },
   {
-    q: 'How can a Provider discover Seeker requests?',
-    a: 'Open Browse Service Requests in the Provider workspace and set your search location, radius and category. Review nearby tasks, budgets and schedules, then send an offer for work you can do. Open requests do not require your own service listing; a request tied to a specific listing requires that matching listing.',
+    q: 'How can a Provider discover Customer requests?',
+    a: 'Open Find Work in the Provider workspace and set your search location, radius and category. Review nearby tasks, budgets and schedules, then send an offer for work you can do. Open requests do not require your own service listing; a request tied to a specific listing requires that matching listing.',
   },
   {
     q: 'How do I use the map to choose a search area?',
@@ -33,7 +33,7 @@ const faqs = [
   },
   {
     q: 'What is Trust Score, and how does it change?',
-    a: 'Trust Score is a reputation score from 0 to 100 for both Seekers and Providers. New accounts start at 50. Approved verification, eligible confirmed and settled work, and reasoned administrator decisions can change it. Review ratings do not change trust points. The same two accounts can earn a completion reward once per rolling seven days, even when they swap roles. Your profile\u2019s Trust History shows the reason for each recorded change.',
+    a: 'Trust Score is a reputation score from 0 to 100 for both Customers and Providers. New accounts start at 50. Approved verification, eligible confirmed and settled work, and reasoned administrator decisions can change it. Review ratings do not change trust points. The same two accounts can earn a completion reward once per rolling seven days, even when they swap roles. Your profile\u2019s Trust History shows the reason for each recorded change.',
   },
   {
     q: 'Do I need verification to book or offer services?',
@@ -41,7 +41,7 @@ const faqs = [
   },
   {
     q: 'How do both members follow a booking\u2019s progress?',
-    a: 'Activity shows the booking status in both workspaces, including when the Provider starts the job and submits the finished work. The Seeker confirms completion, then the booking is saved in History and both members can leave a review. Booking chat becomes available after acceptance.',
+    a: 'Activity shows the booking status in both workspaces, including when the Provider starts the job and submits the finished work. The Customer confirms completion, then the booking is saved in History and both members can leave a review. Booking chat becomes available after acceptance.',
   },
 ];
 

@@ -15,7 +15,7 @@ describe('authoritative offer states', () => {
     expect(offerSituation({ status: 'pending', requestStatus: 'OPEN' }).canWithdraw).toBe(true);
   });
   it('distinguishes an explicit decline from losing to another offer', () => {
-    expect(offerSituation({ status: 'declined', decisionReason: 'DECLINED' }).title).toBe('Offer declined by seeker');
+    expect(offerSituation({ status: 'declined', decisionReason: 'DECLINED' }).title).toBe('Offer declined by customer');
     expect(offerSituation({ status: 'declined', decisionReason: 'NOT_SELECTED' }).title).toBe('Another offer was selected');
   });
   it('retains declined and withdrawn offers in Activity without counting them as pending', () => {

@@ -46,7 +46,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
       const response = await apiGetMyServices();
       const listing = response.data?.map(mapServiceToListing).find((item: ServiceListing) => item.id === request.targetServiceId && item.status === 'ACTIVE' && !item.isPaused);
       if (!response.success || !listing) throw new Error('The requested listing is no longer available.');
-      if (listing.priceType !== 'BY_AGREEMENT') throw new Error('This service has a set price. Close the old inquiry and ask the seeker to book at the listed price.');
+      if (listing.priceType !== 'BY_AGREEMENT') throw new Error('This service has a set price. Close the old inquiry and ask the customer to book at the listed price.');
       setPriceListing([listing]); setPrice(0); setDuration(listing.estimatedDurationMins || 60); setIncludedWork(''); setAvailability(''); setPriceRequest(request);
     } catch (error) { toast.error('Could not open request', getApiErrorMessage(error, 'Try loading your listing again.')); }
     finally { responseLock.current = false; setLoadingJobId(null); setLoadingAction(null); }
@@ -54,7 +54,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
   const declineInquiry = async (request: JobRequest) => {
     if (responseLock.current) return;
     responseLock.current = true; setLoadingJobId(request.id); setLoadingAction('declining');
-    try { await apiDeclineListingInquiry(request.id); toast.success('Request declined', 'The seeker has been notified. No booking was created.'); await refreshAll(); }
+    try { await apiDeclineListingInquiry(request.id); toast.success('Request declined', 'The customer has been notified. No booking was created.'); await refreshAll(); }
     catch (error) { toast.error('Could not decline request', getApiErrorMessage(error, 'Please try again.')); }
     finally { responseLock.current = false; setLoadingJobId(null); setLoadingAction(null); }
   };
@@ -135,7 +135,7 @@ export default function IncomingRequests({ currentProviderId = 'u3' }: { current
       <InboxState loading icon={Loader2} title="Loading incoming requests..." description="Fetching booking requests and quote inquiries." /> :
       inboxItems.length === 0 && (requestsStatus === 'error' || engagementsStatus === 'error') ?
       <InboxState kind="error" title="Incoming requests could not be loaded." description="Try again to fetch your inbox." actionLabel="Try again" onAction={refreshAll} /> :
-      inboxItems.length === 0 ? <InboxState icon={Inbox} title="No Incoming Requests" description="When seekers choose your services, their booking requests and quote inquiries will appear here." /> :
+      inboxItems.length === 0 ? <InboxState icon={Inbox} title="No Requests" description="When customers choose your services, their booking requests and quote inquiries will appear here." /> :
       matchingItems.length === 0 ? <InboxState icon={Search} title="No matching requests" description="Try another person or service name." actionLabel="Clear search" onAction={() => {setSearchQuery('');pagination.reset();}} /> :
       <div className="space-y-2">
         {pagination.paginatedItems.map(entry => entry.kind === 'booking' ?

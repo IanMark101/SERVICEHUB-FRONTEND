@@ -15,22 +15,18 @@ export default function ActivityDetailSituation({ situation, role, action, close
   return (
     <div className={`overflow-hidden rounded-2xl border ${emphasis}`}>
       <section aria-label="What is happening now" className="px-4 py-4 sm:px-6 sm:py-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-ink-muted dark:text-ink-secondary">Now</p>
-          <span className="rounded-full border border-stone-300 bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-ink-secondary dark:border-neutral-600 dark:bg-charcoal dark:text-ink">{situation.label}</span>
-        </div>
-        <h2 className="mt-2 break-words text-xl font-bold leading-snug tracking-tight text-ink dark:text-ink sm:text-2xl">{situation.title}</h2>
-        <p className="mt-1 text-base leading-relaxed text-ink-secondary dark:text-ink">{situation.detail}</p>
+        <h2 className="break-words text-xl font-bold leading-snug tracking-tight text-ink dark:text-ink sm:text-2xl">{situation.title}</h2>
       </section>
-      <div className="grid border-t border-stone-200/80 bg-white/80 dark:border-neutral-700 dark:bg-charcoal/45 sm:grid-cols-2">
-        <section aria-label="Your action" className="px-4 py-3.5 sm:border-r sm:border-stone-200/80 sm:px-6 dark:sm:border-neutral-700">
+      <div className="border-t border-stone-200/80 bg-white/80 dark:border-neutral-700 dark:bg-charcoal/45">
+        <section aria-label="Your action" className="px-4 py-3.5 sm:px-6">
           <h3 className={`text-[11px] font-bold uppercase tracking-widest ${actionTone}`}>Your action</h3>
           <p className="mt-1 text-base font-semibold leading-relaxed text-ink dark:text-ink">{action}</p>
         </section>
-        <section aria-label="What happens next" className="border-t border-stone-200/80 px-4 py-3.5 sm:border-t-0 sm:px-6 dark:border-neutral-700">
-          <h3 className="text-[11px] font-bold uppercase tracking-widest text-ink-muted dark:text-ink-secondary">Next</h3>
-          <p className="mt-1 text-base leading-relaxed text-ink dark:text-ink">{situation.next}</p>
-        </section>
+        <details className="border-t border-stone-200/80 px-4 py-3.5 sm:px-6 dark:border-neutral-700">
+          <summary className="cursor-pointer text-sm font-semibold text-ink-secondary focus-visible:outline-2 focus-visible:outline-offset-2 dark:text-ink">Status details</summary>
+          <p className="mt-2 text-sm leading-relaxed text-ink-secondary dark:text-ink">{situation.detail}</p>
+          <p className="mt-2 text-sm leading-relaxed text-ink-secondary dark:text-ink">{situation.next}</p>
+        </details>
       </div>
     </div>
   );

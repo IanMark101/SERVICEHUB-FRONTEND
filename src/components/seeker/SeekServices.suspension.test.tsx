@@ -40,13 +40,13 @@ beforeEach(() => {
 describe('Request service suspension gate', () => {
   it.each(['card', 'details'] as const)('immediately blocks a suspended approved member from the %s button before opening or submitting a request', async entry => {
     render(<SeekServices />);
-    await screen.findByRole('button', { name: 'Request service' });
+    await screen.findByRole('button', { name: 'Request a Quote' });
     if (entry === 'details') {
       fireEvent.click(screen.getByRole('button', { name: 'Inspect Laptop repair details' }));
       const details = screen.getByRole('dialog');
       expect(within(details).getByText('About this service', { exact: false })).toBeInTheDocument();
-      fireEvent.click(within(details).getByRole('button', { name: 'Request service' }));
-    } else fireEvent.click(screen.getByRole('button', { name: 'Request service' }));
+      fireEvent.click(within(details).getByRole('button', { name: 'Request a Quote' }));
+    } else fireEvent.click(screen.getByRole('button', { name: 'Request a Quote' }));
     expect(screen.getByRole('dialog', { name: 'Account suspended' })).toBeVisible();
     expect(screen.queryByRole('dialog', { name: 'Service request form' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Verify Now' })).not.toBeInTheDocument();
@@ -54,13 +54,13 @@ describe('Request service suspension gate', () => {
     expect(apiGetProviderSummary).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Continue browsing' }));
     expect(screen.queryByRole('dialog', { name: 'Account suspended' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Request service' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Request a Quote' })).toBeVisible();
   });
 
   it('keeps Request service available to an active approved member', async () => {
     account('ACTIVE');
     render(<SeekServices />);
-    fireEvent.click(await screen.findByRole('button', { name: 'Request service' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Request a Quote' }));
     expect(screen.getByRole('dialog', { name: 'Service request form' })).toBeVisible();
     expect(screen.queryByRole('dialog', { name: 'Account suspended' })).not.toBeInTheDocument();
   });
@@ -68,9 +68,9 @@ describe('Request service suspension gate', () => {
   it('blocks the next click when a currently browsing member becomes suspended', async () => {
     account('ACTIVE');
     const view = render(<SeekServices />);
-    await screen.findByRole('button', { name: 'Request service' });
+    await screen.findByRole('button', { name: 'Request a Quote' });
     account(); view.rerender(<SeekServices />);
-    fireEvent.click(screen.getByRole('button', { name: 'Request service' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Request a Quote' }));
     expect(screen.getByRole('dialog', { name: 'Account suspended' })).toBeVisible();
     expect(screen.queryByRole('dialog', { name: 'Service request form' })).not.toBeInTheDocument();
     expect(api.post).not.toHaveBeenCalled();

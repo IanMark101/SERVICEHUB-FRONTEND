@@ -62,7 +62,7 @@ function ReviewContent({
   const stats = statsFor(context);
   const reviews = initialReviews.filter(review => review.reviewContext === context);
   const isService = context === 'PROVIDER';
-  const heading = isService ? 'Reviews as Service Provider' : 'Reviews as Service Seeker';
+  const heading = isService ? 'Reviews as Service Provider' : 'Reviews as Customer';
   const { currentPage, totalPages, paginatedItems, goToPage, nextPage, prevPage, startIndex, endIndex } = usePagination(reviews, 3);
 
   return (
@@ -76,7 +76,7 @@ function ReviewContent({
         idPrefix="profile-review-context"
         items={[
           { value: 'PROVIDER', label: 'Reviews as Service Provider', count: serviceCount },
-          { value: 'SEEKER', label: 'Reviews as Service Seeker', count: seekerCount },
+          { value: 'SEEKER', label: 'Reviews as Customer', count: seekerCount },
         ]}
       />
       <div role="tabpanel" id={`profile-review-context-panel-${context}`} aria-labelledby={`profile-review-context-tab-${context}`} tabIndex={0} className="space-y-6">
@@ -84,8 +84,8 @@ function ReviewContent({
           <div>
             <h3 className={`flex items-center gap-2 text-base font-bold ${headingText}`}><MessageSquare size={18} className="text-amber-500" aria-hidden="true" />{heading} ({stats.reviewCount})</h3>
             <p className={`mt-2 text-sm leading-6 ${labelText}`}>{isService
-              ? 'Feedback from service seekers about the work this member provided.'
-              : 'Feedback from service providers about working with this member as a service seeker.'}</p>
+              ? 'Feedback from customers about the work this member provided.'
+              : 'Feedback from service providers about working with this member as a customer.'}</p>
           </div>
           {!isOwnProfile && (isVerified && canReview
             ? <Link href={reviewActivityHref} className="inline-flex min-h-11 items-center rounded-xl border border-[color:var(--workspace-border)] px-3 text-sm font-semibold text-[color:var(--workspace-focus)]">Review a completed booking</Link>
@@ -99,7 +99,7 @@ function ReviewContent({
               <div className="flex items-center gap-1" role="img" aria-label={`${stats.averageRating.toFixed(1)} out of 5 stars`}>
                 {[1, 2, 3, 4, 5].map(star => <Star key={star} size={16} aria-hidden="true" className={star <= Math.round(stats.averageRating) ? 'text-amber-500 fill-amber-500' : 'text-ink-subtle'} />)}
               </div>
-              <p className={`text-xs ${labelText}`}>{stats.reviewCount} {stats.reviewCount === 1 ? 'verified rating' : 'verified ratings'} {isService ? 'from service seekers' : 'from service providers'}</p>
+              <p className={`text-xs ${labelText}`}>{stats.reviewCount} {stats.reviewCount === 1 ? 'verified rating' : 'verified ratings'} {isService ? 'from customers' : 'from service providers'}</p>
             </div>
             <div className="sm:col-span-8 space-y-2" aria-label="Rating distribution">
               {stats.ratingDistribution.map(({ star, count }) => {
@@ -116,11 +116,11 @@ function ReviewContent({
 
         {stats.reviewCount === 0 ? (
           <div className="py-6 space-y-2">
-            <p className={`font-semibold ${headingText}`}>No {isService ? 'provider' : 'seeker'} reviews yet</p>
+            <p className={`font-semibold ${headingText}`}>No {isService ? 'provider' : 'customer'} reviews yet.</p>
             <p className={`text-sm leading-6 ${labelText}`}>{isService
-              ? 'Provider reviews appear after service seekers review completed work.'
-              : 'Seeker reviews appear after service providers review a completed booking.'}</p>
-            {(isService ? seekerCount : serviceCount) > 0 && <p className={`text-sm leading-6 ${labelText}`}>This member has reviews as a {isService ? 'service seeker' : 'service provider'} in the other review tab.</p>}
+              ? 'Provider reviews appear after customers review completed work.'
+              : 'Customer reviews appear after service providers review a completed booking.'}</p>
+            {(isService ? seekerCount : serviceCount) > 0 && <p className={`text-sm leading-6 ${labelText}`}>This member has reviews as a {isService ? 'customer' : 'service provider'} in the other review tab.</p>}
           </div>
         ) : (
           <div className="space-y-3">
@@ -137,7 +137,7 @@ function ReviewContent({
               </div>
               {review.comment && <p className={`text-sm leading-6 break-words ${isDark ? 'text-neutral-300' : 'text-ink-secondary'}`}>{review.comment}</p>}
               {review.response && <p className={`text-sm leading-6 break-words ${labelText}`}>Member’s response: {review.response}</p>}
-              <p className={`pt-3 border-t border-[color:var(--workspace-border)] text-xs ${labelText}`}>Reviewed {isService ? 'as a service provider by a service seeker' : 'as a service seeker by a service provider'} · Completed booking</p>
+              <p className={`pt-3 border-t border-[color:var(--workspace-border)] text-xs ${labelText}`}>Reviewed {isService ? 'as a service provider by a customer' : 'as a customer by a service provider'} · Completed booking</p>
             </article>)}
             {totalPages > 1 && <PaginationBar currentPage={currentPage} totalPages={totalPages} goToPage={goToPage} nextPage={nextPage} prevPage={prevPage} startIndex={startIndex} endIndex={endIndex} totalItems={reviews.length} variant={isService ? 'provider' : 'seeker'} />}
           </div>

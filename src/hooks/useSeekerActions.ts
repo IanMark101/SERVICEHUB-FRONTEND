@@ -267,7 +267,7 @@ export function useSeekerActions({
       if (res.success) {
         const status = normalizeOfferStatus(res.data?.status || 'REJECTED');
         setBids(current => current.map(bid => bid.id === bidId ? { ...bid, status, decisionReason: status === 'declined' ? 'DECLINED' : null } : bid));
-        success(status === 'withdrawn' ? 'Offer withdrawn' : 'Offer declined', status === 'withdrawn' ? 'Your offer is no longer available to the seeker.' : 'The provider has been notified.');
+        success(status === 'withdrawn' ? 'Offer withdrawn' : 'Offer declined', status === 'withdrawn' ? 'Your offer is no longer available to the customer.' : 'The provider has been notified.');
         return;
       }
     } catch (err: unknown) {

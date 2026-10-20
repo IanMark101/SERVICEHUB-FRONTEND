@@ -17,7 +17,7 @@ describe('workspace API mappers', () => {
     expect(bid.serviceId).toBeUndefined();expect(bid.requestPaymentMethods).toEqual({cash:false,gcash:true});
     expect(bid.price).toBe(2500);
   });
-  it('retains offer Seeker metadata without a loaded request list', () => {
+  it('retains offer Customer metadata without a loaded request list', () => {
     const bid = mapOfferToBid({ id: 'offer-1', requestId: 'closed-request', providerId: 'provider-1',
       provider: { name: 'John' }, estimatedDuration: 90, availability: 'Saturday morning',
       decisionAt: '2026-10-03T05:15:00.000Z', status: 'REJECTED', decisionReason: 'DECLINED',
@@ -47,7 +47,7 @@ describe('workspace API mappers', () => {
       service: { category: { name: 'Aircon repair' }, estimatedDurationMins: 60 } })).toMatchObject({ category: 'Aircon repair', estimatedDurationMins: 60 });
   });
 
-  it('keeps the original public request reachable from completed Activity without depending on Request Manager', () => {
+  it('keeps the original public request reachable from completed Activity without depending on My Requests', () => {
     const booking = { id: 'booking-archived', status: 'COMPLETED', seekerId: 'seeker', providerId: 'provider',
       offer: { id: 'offer', requestId: 'archived-request', request: { title: 'Tutor request', targetServiceId: null } } };
     expect(mapBookingToEngagement(booking).repostRequestId).toBe('archived-request');

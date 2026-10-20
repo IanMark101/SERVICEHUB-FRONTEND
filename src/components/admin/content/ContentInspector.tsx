@@ -39,7 +39,7 @@ export default function ContentInspector({ item, onBack, onReload, onSaved }: { 
     <div className={styles.layout}>
       <div className={styles.main}>
         <InspectionTabs value={tab} onChange={setTab} label="Content inspection sections" tabs={[{ id: 'content', label: 'Content details' }, { id: 'owner', label: 'Owner account' }, { id: 'status', label: 'Publication status' }]} />
-        {tab === 'content' && <InspectionPanel title={item.contentType === 'SERVICE_LISTING' ? 'Service listing' : 'Seeker request'}><ListingPhotoGallery key={item.id} photos={item.photos} title={item.title} /><InspectionText text={item.description} label="content" /><ContentFacts item={item} /></InspectionPanel>}
+        {tab === 'content' && <InspectionPanel title={item.contentType === 'SERVICE_LISTING' ? 'Service listing' : 'Customer request'}><ListingPhotoGallery key={item.id} photos={item.photos} title={item.title} /><InspectionText text={item.description} label="content" /><ContentFacts item={item} /></InspectionPanel>}
         {tab === 'owner' && <InspectionPanel title="Content owner"><div className={styles.person}><strong>{item.owner.name}</strong><p>{item.owner.email}</p><InspectionFacts facts={[
           { label: 'Account status', value: accountStateLabel(item.owner.moderationStatus) }, { label: 'Trust score', value: `${item.owner.trustScore}/100` },
           { label: 'Residency verification', value: item.owner.verificationStatus === 'APPROVED' ? 'Verified resident' : 'Not verified' },

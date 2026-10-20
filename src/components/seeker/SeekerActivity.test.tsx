@@ -46,7 +46,7 @@ function setEngagements(jobEngagements: unknown[]) {
   } as unknown as ReturnType<typeof useApp>);
 }
 
-describe('Seeker Activity booking links', () => {
+describe('My Bookings booking links', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     HTMLElement.prototype.scrollIntoView = vi.fn();

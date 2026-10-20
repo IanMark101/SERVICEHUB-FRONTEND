@@ -33,13 +33,13 @@ function renderListing(service: ServiceListing) {
   return { push, handleBookListing };
 }
 
-describe('Seek Services listing booking entry point', () => {
+describe('Find Services listing booking entry point', () => {
   it('requests an agreement price even when the paid queue is full and never displays zero as a price', () => {
     const agreement = { ...listing, price: 0, priceType: 'BY_AGREEMENT' as const, providerWaitingCount: 5, queueSize: 5 };
     const { handleBookListing } = renderListing(agreement);
-    expect(screen.getByText('Price by agreement')).toBeVisible();
+    expect(screen.getByText('Quote required')).toBeVisible();
     expect(screen.queryByText(/₱0/)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Request service' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Request a Quote' }));
     expect(handleBookListing).toHaveBeenCalledWith(agreement, 'On-site Cash');
     expect(screen.queryByRole('button', { name: /Join.*waitlist/i })).not.toBeInTheDocument();
   });
@@ -55,7 +55,7 @@ describe('Seek Services listing booking entry point', () => {
   });
   it('shows the same zero rating format for an unreviewed provider and opens provider reviews', () => {
     const { push } = renderListing(listing);
-    expect(screen.getByRole('img', { name: 'No reviews yet as a service provider' })).toHaveTextContent('0.0(0)');
+    expect(screen.getByRole('img', { name: 'No reviews yet as a provider' })).toHaveTextContent('0.0(0)');
     expect(screen.queryByText('NEW')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'View reviews for Ian' }));
     expect(push).toHaveBeenCalledWith('/profile/provider-1?tab=reviews&reviewRole=provider');
@@ -63,13 +63,13 @@ describe('Seek Services listing booking entry point', () => {
 
   it('preserves the actual rating and count for reviewed providers', () => {
     renderListing({ ...listing, rating: 4.5, reviewCount: 2 });
-    expect(screen.getByRole('img', { name: 'Service provider rating: 4.5 out of 5 from 2 reviews' })).toHaveTextContent('4.5(2)');
+    expect(screen.getByRole('img', { name: 'Provider rating: 4.5 out of 5 from 2 reviews' })).toHaveTextContent('4.5(2)');
   });
   it('opens direct booking for a FIXED listing instead of redirecting to Post Request', () => {
     const travelListing = { ...listing, serviceLocationMode:'PROVIDER_VISITS' as const };
     const { push, handleBookListing } = renderListing(travelListing);
     fireEvent.click(screen.getByRole('button', { name: 'Inspect House Cleaning details' }));
-    expect(screen.getByText('On-site Cash')).toBeInTheDocument();
+    expect(screen.getByText('Cash', { exact: true })).toBeInTheDocument();
     expect(screen.getByText('GCash · Test Mode')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     fireEvent.click(screen.getByRole('button', { name: 'Book Service' }));

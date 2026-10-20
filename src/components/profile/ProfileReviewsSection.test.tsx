@@ -17,9 +17,9 @@ describe('profile review roles', () => {
     expect(screen.getByText(/Completed booking/)).toBeInTheDocument();
   });
 
-  it('opens the requested seeker role for a member with reviews in both roles', () => {
+  it('opens the requested customer role for a member with reviews in both roles', () => {
     const { rerender } = render(<ProfileReviewsSection {...props} initialReviewContext="SEEKER" initialReviews={[clientReview, serviceReview]} />);
-    expect(screen.getByRole('tab', { name: 'Reviews as Service Seeker 1' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Reviews as Customer 1' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('kunohay')).toBeInTheDocument();
     expect(screen.queryByText('The repair was incomplete.')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('tab', { name: 'Reviews as Service Provider 1' }));
@@ -30,19 +30,19 @@ describe('profile review roles', () => {
     expect(screen.getByText('kunohay')).toBeInTheDocument();
   });
 
-  it('keeps an explicitly requested empty seeker role separate from provider reviews', () => {
+  it('keeps an explicitly requested empty customer role separate from provider reviews', () => {
     render(<ProfileReviewsSection {...props} initialReviewContext="SEEKER" initialReviews={[serviceReview]} />);
-    expect(screen.getByText('No seeker reviews yet')).toBeInTheDocument();
+    expect(screen.getByText('No customer reviews yet.')).toBeInTheDocument();
     expect(screen.queryByRole('img', { name: /stars/ })).not.toBeInTheDocument();
   });
   it('labels the screenshot’s five-star review as client feedback without inventing service reviews', () => {
     render(<ProfileReviewsSection {...props} initialReviews={[clientReview]} />);
-    expect(screen.getByRole('tab', { name: 'Reviews as Service Seeker 1' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('heading', { name: 'Reviews as Service Seeker (1)' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Reviews as Customer 1' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('heading', { name: 'Reviews as Customer (1)' })).toBeInTheDocument();
     expect(screen.getByText('kunohay')).toBeInTheDocument();
-    expect(screen.getByText(/Reviewed as a service seeker by a service provider/)).toBeInTheDocument();
+    expect(screen.getByText(/Reviewed as a customer by a service provider/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('tab', { name: 'Reviews as Service Provider 0' }));
-    expect(screen.getByText('No provider reviews yet')).toBeInTheDocument();
+    expect(screen.getByText('No provider reviews yet.')).toBeInTheDocument();
     expect(screen.queryByText('kunohay')).not.toBeInTheDocument();
     expect(screen.queryByRole('img', { name: /stars/ })).not.toBeInTheDocument();
   });
@@ -52,7 +52,7 @@ describe('profile review roles', () => {
     expect(screen.getByRole('img', { name: '2.0 out of 5 stars' })).toBeInTheDocument();
     expect(screen.getByText('The repair was incomplete.')).toBeInTheDocument();
     expect(screen.queryByText('kunohay')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('tab', { name: 'Reviews as Service Seeker 1' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Reviews as Customer 1' }));
     expect(screen.getByRole('img', { name: '5.0 out of 5 stars' })).toBeInTheDocument();
     expect(screen.queryByText('The repair was incomplete.')).not.toBeInTheDocument();
   });

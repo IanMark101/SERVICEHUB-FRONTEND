@@ -186,7 +186,7 @@ export default function ServiceManager({
     e.preventDefault();
     if (!editingService || savingRef.current) return;
     if (!editingService.serviceLocation && editingService.serviceLocationMode !== 'REMOTE' && editingService.serviceLocationMode !== (services.find(service => service.id === editingService.serviceId)?.serviceLocationMode ?? 'PROVIDER_VISITS')) {
-      error('Choose your discovery location', 'Choose where nearby seekers can find your service on the map.');
+      error('Choose your map location', 'Choose where nearby customers can find your service on the map.');
       return;
     }
 

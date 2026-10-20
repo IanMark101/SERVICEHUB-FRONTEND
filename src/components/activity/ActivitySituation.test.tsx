@@ -25,9 +25,9 @@ describe('Activity situation and filter semantics', () => {
 
   it('keeps accepted cash before work distinct from a started job', () => {
     const accepted = { ...booking, status: 'in_progress' as const, paymentMethod: 'On-site Cash' as const, queuePosition: undefined };
-    expect(getActivitySituation(accepted, 'seeker').title).toBe('Booking accepted, work not started');
+    expect(getActivitySituation(accepted, 'seeker').title).toBe('Accepted');
     expect(getActivitySituation(accepted, 'provider').label).toBe('Ready to start');
-    expect(getActivitySituation({ ...accepted, started: true }, 'seeker').title).toBe('Your service is in progress');
+    expect(getActivitySituation({ ...accepted, started: true }, 'seeker').title).toBe('In progress');
   });
 
   it('does not invite a provider to start cash work ahead of paid bookings', () => {
@@ -37,17 +37,17 @@ describe('Activity situation and filter semantics', () => {
     expect(provider.next).toContain('Start the paid jobs first');
   });
 
-  it('makes the seeker completion decision and provider waiting state explicit', () => {
+  it('makes the customer completion decision and provider waiting state explicit', () => {
     const awaiting = { ...booking, status: 'awaiting_seeker_approval' as const };
     expect(getActivitySituation(awaiting, 'seeker').label).toBe('Your confirmation needed');
-    expect(getActivitySituation(awaiting, 'provider').label).toBe('Waiting on seeker');
+    expect(getActivitySituation(awaiting, 'provider').label).toBe('Waiting on customer');
     expect(getActivitySituation(awaiting, 'seeker').next).toContain('Report Issue');
   });
 
   it('keeps cash confirmation separate from the GCash no-response review window', () => {
     const awaiting = { ...booking, status: 'awaiting_seeker_approval' as const };
     const cash = getActivitySituation({ ...awaiting, paymentMethod: 'On-site Cash' }, 'provider');
-    expect(cash.title).toBe('Work finished — waiting for seeker confirmation');
+    expect(cash.title).toBe('Awaiting confirmation');
     expect(cash.next).toContain('continue with other jobs');
     expect(cash.next).not.toMatch(/72|admin/i);
     expect(getActivitySituation(awaiting, 'provider').next).toContain('72 hours');
@@ -55,8 +55,8 @@ describe('Activity situation and filter semantics', () => {
 
   it('does not describe an offer or an onsite-cash request as queued work', () => {
     const cashRequest = { ...booking, status: 'pending_provider' as const, paymentMethod: 'On-site Cash' as const };
-    expect(getActivitySituation(cashRequest, 'provider').title).toBe('A direct request is waiting');
-    expect(getActivitySituation(cashRequest, 'seeker').title).toBe('Your request is awaiting approval');
+    expect(getActivitySituation(cashRequest, 'provider').title).toBe('Pending approval');
+    expect(getActivitySituation(cashRequest, 'seeker').title).toBe('Pending approval');
   });
 
   it('prioritizes an incoming cancellation decision and ignores stale requests on closed bookings', () => {
@@ -67,8 +67,8 @@ describe('Activity situation and filter semantics', () => {
   });
 
   it('surfaces disputes and closed history without promising an automatic release', () => {
-    expect(getActivitySituation({ ...booking, status: 'disputed' }, 'seeker').label).toBe('Admin review');
-    expect(getActivitySituation({ ...booking, status: 'completed' }, 'provider').title).toBe('This booking is complete');
+    expect(getActivitySituation({ ...booking, status: 'disputed' }, 'seeker').label).toBe('Under review');
+    expect(getActivitySituation({ ...booking, status: 'completed' }, 'provider').title).toBe('Completed');
     expect(getActivitySituation({ ...booking, status: 'canceled' }, 'seeker').title).toBe('This booking was canceled');
   });
 
@@ -84,7 +84,7 @@ describe('Activity situation and filter semantics', () => {
     expect(filterProviderActivityItems({ activeTab: 'in_progress', engagements, pendingBids: [], jobRequests: [], services: [], searchQuery: '', sortBy: 'newest' }).map((item) => item.data.id)).toEqual(['cash-2']);
   });
 
-  it('includes incoming cancellation decisions in the seeker Action Required tab', () => {
+  it('includes incoming cancellation decisions in the customer Action Required tab', () => {
     const incoming = { ...booking, cancellationRequests: [{ id: 'cancel-1', status: 'PENDING', requestedBy: 'ian' }] };
     const engagements = [incoming];
     expect(countSeekerActivityStatus(engagements, 'action_required', 'johncarlo')).toBe(1);

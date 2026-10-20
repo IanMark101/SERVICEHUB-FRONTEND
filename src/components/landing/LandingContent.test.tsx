@@ -21,7 +21,7 @@ describe('landing information and disclosure controls', () => {
   it('keeps the journey role switch usable and points to dedicated policy sections', async () => {
     render(<LandingHowItWorks isDark={false} />);
     expect(screen.getByRole('heading', { name: 'A straightforward path from need to completed work.' })).toBeVisible();
-    const seekerSteps = within(screen.getByRole('list', { name: 'Seeker service steps' }));
+    const seekerSteps = within(screen.getByRole('list', { name: 'Customer service steps' }));
     expect(seekerSteps.getAllByRole('listitem')).toHaveLength(3);
     expect(seekerSteps.getByRole('heading', { name: 'Browse or post a request' })).toBeVisible();
     expect(seekerSteps.getByRole('heading', { name: 'Choose an available payment option' })).toBeVisible();
@@ -34,7 +34,7 @@ describe('landing information and disclosure controls', () => {
     expect(providerSteps.getAllByRole('listitem')).toHaveLength(3);
     expect(providerSteps.getByRole('heading', { name: 'Create a service listing' })).toBeVisible();
     expect(providerSteps.getByRole('heading', { name: 'Deliver the agreed work' })).toBeVisible();
-    expect(screen.getByText(/Browse Service Requests and send an offer/)).toBeVisible();
+    expect(screen.getByText(/Find Work and send an offer/)).toBeVisible();
     expect(await screen.findByRole('heading', { name: 'Respond to custom requests' })).toBeVisible();
     expect(screen.getByRole('link', { name: 'Payment and queue rules' })).toHaveAttribute('href', '/help/queue/how-the-queue-works');
     expect(screen.getByRole('link', { name: 'Verification and messaging' })).toHaveAttribute('href', '/help/verification/why-verification-is-required');
@@ -48,8 +48,8 @@ describe('landing information and disclosure controls', () => {
     expect(screen.getByRole('heading', { name: 'Frequently asked questions.' })).toBeVisible();
     expect(screen.getAllByRole('button')).toHaveLength(8);
     const topics = [
-      { question: /How can a Seeker discover Providers/, answer: /Open Seek Services/ },
-      { question: /How can a Provider discover Seeker requests/, answer: /a request tied to a specific listing requires that matching listing/ },
+      { question: /How can a Customer discover Providers/, answer: /Open Find Services/ },
+      { question: /How can a Provider discover Customer requests/, answer: /a request tied to a specific listing requires that matching listing/ },
       { question: /How do I use the map/, answer: /select Apply location to update your results/ },
       { question: /How does the discovery radius work/, answer: /1, 2, 5, 10, 15, 20 or 30 km/ },
       { question: /which results appear first/, answer: /higher Provider Trust Scores breaking equal-distance ties/ },
@@ -87,7 +87,7 @@ describe('landing information and disclosure controls', () => {
     const reviewPanel = within(screen.getByRole('tabpanel', { name: 'Reviews' }));
     const reviewRows = within(reviewPanel.getByRole('list')).getAllByRole('listitem');
     expect(reviewRows[0]).toHaveTextContent('The Provider submits the work');
-    expect(reviewRows[1]).toHaveTextContent('The Seeker confirms the result');
+    expect(reviewRows[1]).toHaveTextContent('The Customer confirms the result');
     expect(reviewRows[2]).toHaveTextContent('Both sides can leave a review');
     expect(reviewRows[2]).toHaveTextContent('separately from Trust Score');
     expect(reviewPanel.getByRole('heading', { name: 'Responses and disputes' })).toBeVisible();

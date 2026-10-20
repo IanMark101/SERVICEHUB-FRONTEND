@@ -18,11 +18,11 @@ describe('payment selected when requesting a listing', () => {
     vi.mocked(useApp).mockReturnValue({isDark:false,users:[],services:[],jobRequests:[request],bids:[bid],acceptBid,declineBid:vi.fn()} as unknown as ReturnType<typeof useApp>);
     render(<IncomingOffers currentUserId="seeker-1" />);
     fireEvent.click(screen.getByRole('button',{name:'Accept Offer'}));
-    const confirm = screen.getByRole('button',{name:method === 'GCash' ? 'GCash' : 'Confirm booking'});
+    const confirm = screen.getByRole('button',{name:method === 'GCash' ? 'GCash · Test Mode' : 'Confirm booking'});
     fireEvent.click(confirm);
     expect(acceptBid).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent('Enter the job address');
-    fireEvent.change(screen.getByRole('textbox',{name:'Job address and directions'}),{target:{value:'Blue gate beside Ibabao barangay hall'}});
+    fireEvent.change(screen.getByRole('textbox',{name:'Service address'}),{target:{value:'Blue gate beside Ibabao barangay hall'}});
     fireEvent.click(confirm);
     await waitFor(() => expect(acceptBid).toHaveBeenCalledWith('offer-1',method,{label:'Job address',address:'Blue gate beside Ibabao barangay hall'}));
     expect(request.jobLocation).toEqual({latitude:10.3,longitude:123.9,label:'Discovery point'});
@@ -35,7 +35,7 @@ describe('payment selected when requesting a listing', () => {
     expect(screen.getByRole('dialog', { name: 'Confirm price & booking' })).toHaveTextContent('Final total₱1,250');
     expect(screen.getByRole('dialog')).toHaveTextContent('Charging port repair including labor, parts and travel.');
     expect(acceptBid).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: method }));
+    fireEvent.click(screen.getByRole('button', { name: method === 'On-site Cash' ? 'Cash' : 'GCash · Test Mode' }));
     await waitFor(() => expect(acceptBid).toHaveBeenCalledWith('price', method));
     expect(acceptBid).toHaveBeenCalledTimes(1);
   });
@@ -44,7 +44,7 @@ describe('payment selected when requesting a listing', () => {
       offersStatus: 'ready', requestsStatus: 'ready', jobRequests: open
         ? [{ id: 'open-request', seekerId: 'seeker-1', status: 'OPEN' }] : [] } as unknown as ReturnType<typeof useApp>);
     render(<IncomingOffers currentUserId="seeker-1" />);
-    expect(screen.getByRole('heading', { name: 'No Offers Received' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'No Offers' })).toBeVisible();
     expect(screen.getByText('When providers send offers for your service requests, they will appear here.')).toBeVisible();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
@@ -58,13 +58,13 @@ describe('payment selected when requesting a listing', () => {
     render(<IncomingOffers currentUserId="seeker-1" />);
     fireEvent.click(screen.getByRole('button', { name: 'Accept Offer' }));
     expect(screen.getByRole('dialog', { name: 'Select Payment Method' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'On-site Cash' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'GCash' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cash' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'GCash · Test Mode' })).toBeInTheDocument();
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(acceptBid).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Accept Offer' }));
-    fireEvent.click(screen.getByRole('button', { name: 'GCash' }));
+    fireEvent.click(screen.getByRole('button', { name: 'GCash · Test Mode' }));
     await waitFor(() => expect(acceptBid).toHaveBeenCalledWith('offer-1', 'GCash'));
   });
 
@@ -95,13 +95,13 @@ describe('payment selected when requesting a listing', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Accept Offer' }));
     const chosen = paymentMethods.cash ? 'On-site Cash' : 'GCash';
     const unchecked = paymentMethods.cash ? 'GCash' : 'On-site Cash';
-    expect(screen.queryByRole('button', { name: unchecked })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: unchecked === 'On-site Cash' ? 'Cash' : 'GCash · Test Mode' })).not.toBeInTheDocument();
     expect(acceptBid).not.toHaveBeenCalled();
     if (paymentMethods.cash) {
       expect(screen.getByRole('dialog', { name: 'Confirm offer' })).toHaveTextContent('Agreed price');
       expect(screen.queryByText('Select Payment Method')).not.toBeInTheDocument();
     }
-    fireEvent.click(screen.getByRole('button', { name: paymentMethods.cash ? 'Confirm booking' : chosen }));
+    fireEvent.click(screen.getByRole('button', { name: paymentMethods.cash ? 'Confirm booking' : 'GCash · Test Mode' }));
     await waitFor(() => expect(acceptBid).toHaveBeenCalledWith('offer-1', chosen));
   });
 
@@ -113,8 +113,8 @@ describe('payment selected when requesting a listing', () => {
     render(<IncomingOffers currentUserId="seeker-1" />);
     fireEvent.click(screen.getByRole('button', { name: 'Accept Offer' }));
     expect(screen.getByRole('button', { name: 'Confirm booking' })).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toHaveTextContent('On-site Cash');
-    expect(screen.queryByRole('button', { name: 'GCash' })).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveTextContent('Cash');
+    expect(screen.queryByRole('button', { name: 'GCash · Test Mode' })).not.toBeInTheDocument();
   });
   it('does not show an empty inbox before offers have loaded', () => {
     vi.mocked(useApp).mockReturnValue({
@@ -123,7 +123,7 @@ describe('payment selected when requesting a listing', () => {
     } as unknown as ReturnType<typeof useApp>);
     render(<IncomingOffers currentUserId="seeker-1" />);
     expect(screen.getByRole('status')).toHaveTextContent('Loading offers received');
-    expect(screen.queryByText('No Offers Received')).not.toBeInTheDocument();
+    expect(screen.queryByText('No Offers')).not.toBeInTheDocument();
   });
 
   it('shows a newly received offer before the general request list loads', () => {
@@ -137,7 +137,7 @@ describe('payment selected when requesting a listing', () => {
     expect(screen.getByRole('button', { name: 'Accept Offer' })).toBeInTheDocument();
   });
 
-  it('keeps GCash selected when the seeker accepts the provider’s exact offer', async () => {
+  it('keeps GCash selected when the customer accepts the provider’s exact offer', async () => {
     const acceptBid = vi.fn().mockResolvedValue(undefined);
     vi.mocked(useApp).mockReturnValue({
       isDark: false, users: [], services: [], acceptBid, declineBid: vi.fn(),
@@ -147,7 +147,7 @@ describe('payment selected when requesting a listing', () => {
     render(<IncomingOffers currentUserId="seeker-1" />);
     fireEvent.click(screen.getByRole('button', { name: 'Accept Offer' }));
     expect(screen.getByRole('button', { name: 'Confirm GCash' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Confirm On-site Cash' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Confirm Cash' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Confirm GCash' }));
     await waitFor(() => expect(acceptBid).toHaveBeenCalledWith('offer-1', 'GCash'));
   });

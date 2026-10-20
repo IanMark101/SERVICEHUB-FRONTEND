@@ -25,7 +25,7 @@ const seekerFlow = [
   {
     step: 'Delivery & Confirmation',
     title: 'Track and verify the work',
-    description: 'Follow progress in Activity, stay in touch about the task, and confirm the result when the work is finished.',
+    description: 'Follow progress in My Bookings, stay in touch about the task, and confirm the result when the work is finished.',
     icon: CheckCircle2,
   },
 ];
@@ -34,19 +34,19 @@ const providerFlow = [
   {
     step: 'Service Listing',
     title: 'Create a service listing',
-    description: 'Add your service details and operating area in Offer Services so people can discover what you do.',
+    description: 'Add your service details and operating area in List a Service so people can discover what you do.',
     icon: BriefcaseBusiness,
   },
   {
     step: 'Request Intake',
     title: 'Respond to custom requests',
-    description: 'Browse Service Requests and send an offer with the terms you propose for a specific task.',
+    description: 'Find Work and send an offer with the terms you propose for a specific task.',
     icon: UserRoundSearch,
   },
   {
     step: 'Delivery & Completion',
     title: 'Deliver the agreed work',
-    description: 'Manage accepted bookings in Activity and send finished work for Seeker confirmation.',
+    description: 'Manage accepted bookings in My Bookings and send finished work for Customer confirmation.',
     icon: MessageSquare,
   },
 ];
@@ -93,7 +93,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
               A straightforward path from need to completed work.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-neutral-600 dark:text-zinc-400">
-              Switch between Seeker and Provider to see what happens on each side.
+              Switch between Customer and Provider to see what happens on each side.
             </p>
           </div>
           <div className="inline-grid w-fit max-w-full grid-cols-2 rounded-xl border border-slate-200 bg-white p-1 shadow-xs dark:border-zinc-800 dark:bg-charcoal" role="group" aria-label="Choose how you use ServiceHub">
@@ -109,7 +109,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
           </div>
         </ScrollReveal>
 
-        <ol id="service-journey" aria-label={role === 'seeker' ? 'Seeker service steps' : 'Provider service steps'} data-role={role} className="mt-12 grid list-none gap-6 p-0 md:grid-cols-3">
+        <ol id="service-journey" aria-label={role === 'seeker' ? 'Customer service steps' : 'Provider service steps'} data-role={role} className="mt-12 grid list-none gap-6 p-0 md:grid-cols-3">
           {flow.map((item, index) => <JourneyCard key={index} item={item} index={index} role={role} />)}
         </ol>
 

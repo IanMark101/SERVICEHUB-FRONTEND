@@ -1,11 +1,11 @@
 import {fireEvent,render,screen} from '@testing-library/react';
 import {describe,expect,it} from 'vitest';
 import {ToastProvider,useToast} from './Toast';
-function Trigger(){const toast=useToast();return <><button onClick={()=>toast.error('Location required','Choose your service area.')}>Error</button><button onClick={()=>toast.success('Saved')}>Success</button><button onClick={()=>toast.success('Listing saved','Available in Saved.','seeker')}>Seeker save</button><button onClick={()=>toast.success('Listing saved','Available in Saved.','provider')}>Provider save</button></>;}
+function Trigger(){const toast=useToast();return <><button onClick={()=>toast.error('Location required','Choose your service area.')}>Error</button><button onClick={()=>toast.success('Saved')}>Success</button><button onClick={()=>toast.success('Listing saved','Available in Saved.','seeker')}>Customer save</button><button onClick={()=>toast.success('Listing saved','Available in Saved.','provider')}>Provider save</button></>;}
 describe('semantic toast feedback',()=>{
   it.each(['seeker','provider'])('keeps %s save feedback separate from error styling', tone => {
     render(<ToastProvider><Trigger /></ToastProvider>);
-    fireEvent.click(screen.getByRole('button', { name:tone === 'seeker' ? 'Seeker save' : 'Provider save' }));
+    fireEvent.click(screen.getByRole('button', { name:tone === 'seeker' ? 'Customer save' : 'Provider save' }));
     expect(screen.getByRole('status')).toHaveAttribute('data-feedback-tone', tone);
     expect(screen.getByRole('status')).toHaveAttribute('data-feedback-kind', 'success');
     fireEvent.click(screen.getByRole('button', { name:'Error' }));

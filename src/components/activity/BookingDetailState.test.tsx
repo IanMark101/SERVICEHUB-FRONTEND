@@ -11,7 +11,7 @@ vi.mock('../provider/activity/ProviderActivityItem', () => ({ default: ({ item }
 
 const booking: JobEngagement = {
   id: 'booking-1', completedServiceId: 'completion-1', title: 'Outlet repair',
-  seekerId: 'seeker-1', seekerName: 'Seeker', seekerAvatar: '', providerId: 'provider-1',
+  seekerId: 'seeker-1', seekerName: 'Customer', seekerAvatar: '', providerId: 'provider-1',
   providerName: 'Provider', providerAvatar: '', serviceId: null, price: 200,
   status: 'completed', paymentMethod: 'On-site Cash', createdAt: '2026-10-08T05:00:00.000Z',
 };
@@ -69,7 +69,7 @@ describe.each(['seeker', 'provider'] as const)('%s booking detail recovery', rol
     render(detail(role, 'ready', [], booking.id, vi.fn().mockResolvedValue(undefined), back));
     expect(screen.getByRole('heading', { name: 'Booking unavailable' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Back to Activity' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Back to My Bookings' }));
     expect(back).toHaveBeenCalledTimes(1);
   });
 });

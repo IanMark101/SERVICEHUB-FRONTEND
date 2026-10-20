@@ -81,9 +81,9 @@ export default function JobRequestDetailsModal({
             </div>
             <div className={styles.identity}>
               <div className={styles.person}>
-                <UserAvatar src={request.seekerAvatar} name={request.seekerName || 'Service seeker'} alt={request.seekerName} size={48} role="seeker" />
+                <UserAvatar src={request.seekerAvatar} name={request.seekerName || 'Service customer'} alt={request.seekerName} size={48} role="seeker" />
                 <div className={styles.personText}>
-                  <div className={styles.personName}><span>{request.seekerName}</span><span className={styles.tag}>Service Seeker</span></div>
+                  <div className={styles.personName}><span>{request.seekerName}</span><span className={styles.tag}>Customer</span></div>
                   {request.seekerVerificationStatus === 'APPROVED' && <div className="flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1"><ShieldCheck size={14} /><span>Verified resident</span></div>}
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function JobRequestDetailsModal({
               <div>
                 <div className={styles.priceLine}>
                   <span className={styles.price}>{request.targetServiceId && !request.budget ? 'Quote required' : `₱${request.budget}`}</span>
-                  <span className={styles.priceNote}>{request.targetServiceId ? 'Listed Rate' : 'Seeker Budget'}</span>
+                  <span className={styles.priceNote}>{request.targetServiceId ? 'Listed Rate' : 'Customer Budget'}</span>
                 </div>
                 {request.targetServiceId && <p className={styles.hint}>Requested from your listing</p>}
               </div>
@@ -114,7 +114,7 @@ export default function JobRequestDetailsModal({
             <section className={styles.detailSection}>
               <h3 className={styles.sectionTitle}>Request details</h3>
               <dl className={styles.detailFacts}>
-                <div><dt><MapPin size={16} aria-hidden="true" />Service arrangement</dt><dd>{arrangementLabel[request.serviceLocationMode ?? 'PROVIDER_VISITS']}</dd></div>
+                <div><dt><MapPin size={16} aria-hidden="true" />Work location</dt><dd>{arrangementLabel[request.serviceLocationMode ?? 'PROVIDER_VISITS']}</dd></div>
                 <div><dt><Alarm size={16} aria-hidden="true" />When it is needed</dt><dd>{formatUrgencyDisplay(request.urgency)}</dd></div>
               </dl>
             </section>
@@ -131,7 +131,7 @@ export default function JobRequestDetailsModal({
               <ol className={styles.bookingSteps}>
                 <li><strong>Review the request</strong><p>Check the work, location and payment options.</p></li>
                 <li><strong>Send your offer</strong><p>Include your final price and explain the work you will do.</p></li>
-                <li><strong>Wait for the seeker</strong><p>The seeker reviews your offer and chooses whether to accept it.</p></li>
+                <li><strong>Wait for the customer</strong><p>The customer reviews your offer and chooses whether to accept it.</p></li>
               </ol>
             </section>
           </div>

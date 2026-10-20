@@ -12,7 +12,7 @@ export default function InstallPage() {
     prefetchLinks={false}
     code="APP"
     title={installed ? 'ServiceHub is ready on your device.' : 'Keep ServiceHub a tap away.'}
-    description="Install ServiceHub for home-screen access to both your Seeker and Provider workspaces."
+    description="Install ServiceHub for home-screen access to both your Customer and Provider workspaces."
     icon={<DownloadSimple size={30} aria-hidden="true" />}
     actions={<>
       {!installed && canInstall && <button type="button" className="system-state-primary-action" onClick={() => void install()} disabled={installing} aria-busy={installing}>

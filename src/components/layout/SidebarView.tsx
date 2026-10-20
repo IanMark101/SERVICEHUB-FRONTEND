@@ -81,21 +81,21 @@ export default function SidebarView({
 }: SidebarViewProps) {
   const menus: Record<'seeker' | 'provider', MenuItem[]> = {
     seeker: [
-      { id: 'seek-services', label: 'Seek Services', icon: Compass },
+      { id: 'seek-services', label: 'Find Services', icon: Compass },
       { id: 'post-request', label: 'Post Request', icon: PlusCircle },
-      { id: 'incoming-offers', label: 'Offers Received', icon: Tray, badge: pendingBidsCount || undefined },
-      { id: 'request-manager', label: 'Request Manager', icon: Stack },
+      { id: 'incoming-offers', label: 'Offers', icon: Tray, badge: pendingBidsCount || undefined },
+      { id: 'request-manager', label: 'My Requests', icon: Stack },
       { id: 'saved', label: 'Saved', icon: BookmarkSimple },
-      { id: 'seeker-activity', label: 'Activity', icon: TrendUp },
+      { id: 'seeker-activity', label: 'My Bookings', icon: TrendUp },
     ],
     provider: [
-      { id: 'browse-services', label: 'Browse Service Requests', icon: Compass },
-      { id: 'offer-services', label: 'Offer Services', icon: PlusCircle },
-      { id: 'incoming-requests', label: 'Incoming Requests', icon: Tray, badge: pendingRequestsCount || undefined },
-      { id: 'service-manager', label: 'Service Manager', icon: Stack },
+      { id: 'browse-services', label: 'Find Work', icon: Compass },
+      { id: 'offer-services', label: 'List a Service', icon: PlusCircle },
+      { id: 'incoming-requests', label: 'Requests', icon: Tray, badge: pendingRequestsCount || undefined },
+      { id: 'service-manager', label: 'My Services', icon: Stack },
       { id: 'saved', label: 'Saved', icon: BookmarkSimple },
-      { id: 'provider-activity', label: 'Activity', icon: TrendUp },
-      { id: 'work-queue', label: 'Work Queue', icon: ListNumbers },
+      { id: 'provider-activity', label: 'My Bookings', icon: TrendUp },
+      { id: 'work-queue', label: 'Job Queue', icon: ListNumbers },
       { id: 'transaction-history', label: 'Payment Records', icon: ClockCounterClockwise },
     ],
   };
@@ -210,7 +210,7 @@ export default function SidebarView({
             {showLabels && <p className={styles.sectionLabel}>Switch workspace</p>}
             <div className={styles.switcher} aria-label="Choose workspace">
               {([
-                { role: 'seeker' as const, label: 'Seeker', icon: MagnifyingGlass },
+                { role: 'seeker' as const, label: 'Customer', icon: MagnifyingGlass },
                 { role: 'provider' as const, label: 'Provider', icon: Briefcase },
               ]).map(({ role, label, icon: Icon }) => (
                 <button
@@ -274,7 +274,7 @@ export default function SidebarView({
             {showLabels && (
               <div className={isStandardWorkspace ? styles.profileText : 'min-w-0 flex-1'}>
                 <p className={isStandardWorkspace ? styles.profileName : 'truncate text-[11px] font-semibold text-ink transition-colors group-hover/profile:text-[var(--workspace-focus)] dark:text-white'}>{user.firstName} {user.lastName}</p>
-                <p className={isStandardWorkspace ? styles.profileRole : 'mt-0.5 text-[10px] capitalize text-ink-muted dark:text-ink-muted'}>{currentRole}</p>
+                <p className={isStandardWorkspace ? styles.profileRole : 'mt-0.5 text-[10px] capitalize text-ink-muted dark:text-ink-muted'}>{currentRole === 'seeker' ? 'Customer' : currentRole}</p>
               </div>
             )}
           </Link>

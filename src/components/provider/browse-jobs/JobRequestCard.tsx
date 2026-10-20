@@ -15,13 +15,13 @@ interface JobRequestCardProps extends ListingSaveProps {
 }
 
 export default function JobRequestCard({ request, proposalCount, isOwned, offerState, isDark, readOnly = false, onProfile, onDetails, onSendOffer, saved, saving, onToggleSaved }: JobRequestCardProps) {
-  return <TrailCard status={isOwned ? 'Your own request' : `Needed: ${formatUrgencyDisplay(request.urgency)}`} tools={!readOnly && <ListingCardTools compact contentType="SERVICE_REQUEST" listingId={request.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />} photo={request.photos?.[0]} title={request.title} location={request.serviceLocationMode === 'REMOTE' ? `Online / remote${request.locationLabel ? ' · ' + request.locationLabel : ''}` : request.locationLabel} category={request.category} isDark={isDark}>
+  return <TrailCard status={isOwned ? 'Your own request' : `Needed: ${formatUrgencyDisplay(request.urgency)}`} tools={!readOnly && <ListingCardTools compact contentType="SERVICE_REQUEST" listingId={request.id} isOwned={isOwned} isDark={isDark} saved={saved} saving={saving} onToggleSaved={onToggleSaved} />} photo={request.photos?.[0]} title={request.title} location={request.serviceLocationMode === 'REMOTE' ? `Online${request.locationLabel ? ' · ' + request.locationLabel : ''}` : request.locationLabel} category={request.category} isDark={isDark}>
     <div className={styles.identity}>
       <button type="button" className={styles.person} disabled={!request.seekerId} onClick={() => onProfile()} aria-label={`View ${request.seekerName}'s profile`}>
         <UserAvatar src={request.seekerAvatar} name={request.seekerName} alt="" size={32} role="seeker" />
         <div><span className={styles.name}>{request.seekerName}</span><span className={styles.reputation}><TrustScoreBadge score={request.seekerTrustScore} />{request.seekerVerificationStatus === 'APPROVED' && <span className={styles.verified} role="img" aria-label="Verified resident" title="Verified resident"><ShieldCheck size={15} aria-hidden="true" /></span>}</span></div>
       </button>
-      <button type="button" className={styles.person} disabled={!request.seekerId} onClick={() => onProfile(true)} aria-label={`View service seeker reviews for ${request.seekerName}`}><MarketplaceRating rating={request.seekerRating} reviewCount={request.seekerReviewCount} context="seeker" /></button>
+      <button type="button" className={styles.person} disabled={!request.seekerId} onClick={() => onProfile(true)} aria-label={`View customer reviews for ${request.seekerName}`}><MarketplaceRating rating={request.seekerRating} reviewCount={request.seekerReviewCount} context="seeker" /></button>
     </div>
     <TrailCardStats items={[{ label: request.targetServiceId ? 'Listed rate' : 'Budget', value: request.targetServiceId && !request.budget ? 'Quote required' : `₱${request.budget.toLocaleString()}` }, { label: 'Distance', value: request.serviceLocationMode === 'REMOTE' ? 'No travel' : request.distanceKm == null ? 'Not set' : formatDistance(request.distanceKm) }, { label: 'Offers', value: proposalCount }]} />
     <div className={styles.actions} data-workspace="provider">

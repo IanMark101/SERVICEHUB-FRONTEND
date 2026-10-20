@@ -124,7 +124,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
             <label className={`block font-semibold ${labelText}`}>Account Role</label>
             <input
               type="text"
-              value={isAdmin ? 'Administrator' : 'Member · Seeker and Provider'}
+              value={isAdmin ? 'Administrator' : 'Member · Customer and Provider'}
               disabled
               className={`${inputClass} opacity-80 cursor-not-allowed uppercase font-bold`}
             />
@@ -210,7 +210,7 @@ export default function AccountSettingsView({ user }: AccountSettingsViewProps) 
               rows={3}
               value={editForm.bio}
               onChange={e => setEditForm((form) => ({ ...form, bio: e.target.value }))}
-              placeholder="Tell service seekers or providers about your background, experience, and services..."
+              placeholder="Tell customers or providers about your background, experience, and services..."
               className={`${inputClass} resize-none`}
             />
           </div>

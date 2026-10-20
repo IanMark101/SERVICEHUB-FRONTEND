@@ -101,7 +101,7 @@ export default function SeekServices() {
       ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
     );
     if (existingActive) {
-      toastInfo('Active Booking', 'You already have an active booking for this service. Redirecting to Activity...');
+      toastInfo('Active Booking', 'You already have an active booking for this service. Redirecting to My Bookings...');
       router.push(`/seeker/seeker-activity?tab=all&booking=${existingActive.id}`);
       return;
     }

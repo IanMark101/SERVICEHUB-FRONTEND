@@ -97,7 +97,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
   if (openBookingId) return (
     <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-charcoal sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
       {selectedBooking && <button type="button" onClick={closeBooking} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-orange-500 dark:text-ink dark:hover:bg-charcoal">
-        <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
+        <ArrowLeft size={18} aria-hidden="true" /> Back to My Bookings
       </button>}
       {selectedBooking ? <SeekerActivityItem engagement={selectedBooking} model={itemModel} /> : <BookingDetailState status={engagementsStatus} role="seeker" onRetry={retryBooking} onBack={closeBooking} />}
     </div>
@@ -117,7 +117,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
                 <Search className="w-4 h-4 mr-2" />
               </span>
               <input
-                aria-label="Search seeker activity"
+                aria-label="Search customer activity"
                 type="text"
                 placeholder="Search by job title or provider name..."
                 value={searchQuery}
@@ -131,7 +131,7 @@ export default function SeekerActivityList({ model }: { model: SeekerActivityLis
               <span className="workspace-muted whitespace-nowrap text-xs font-semibold">Sort each section:</span>
               <FormSelect
                 compact
-                aria-label="Sort seeker activity"
+                aria-label="Sort customer activity"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SeekerActivitySort)}
                 className="min-h-11 rounded-xl border px-3 py-2 text-xs font-semibold outline-none"

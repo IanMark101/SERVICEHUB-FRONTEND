@@ -51,7 +51,7 @@ describe('useProviderActions category identity', () => {
     vi.mocked(apiToggleServiceAvailability).mockResolvedValue({ success: true, data: { isAvailable: available, status: available ? 'ACTIVE' : 'INACTIVE' } });
     const { result } = renderProviderActions();
     expect(await result.current.toggleServiceListingStatus('listing-id')).toEqual({ success: true });
-    expect(available ? toastSuccess : toastInfo).toHaveBeenCalledWith(available ? 'Service active' : 'Service paused', available ? 'Seekers can now find and book your service.' : 'New bookings are paused. Existing bookings are unchanged.');
+    expect(available ? toastSuccess : toastInfo).toHaveBeenCalledWith(available ? 'Service active' : 'Service paused', available ? 'Customers can now find and book your service.' : 'New bookings are paused. Existing bookings are unchanged.');
   });
 
   it('persists the selected active Admin category ID', async () => {
@@ -73,13 +73,13 @@ describe('useProviderActions category identity', () => {
     expect(toastInfo).not.toHaveBeenCalled();
   });
 
-  it('directs an unpublished legacy response to Service Manager without promising visibility', async () => {
+  it('directs an unpublished legacy response to My Services without promising visibility', async () => {
     vi.mocked(apiCreateService).mockResolvedValue({ success: true, data: {
       id: 'flagged-id', status: 'PENDING_REVIEW', isAvailable: false, category: { name: 'Plumbing' },
     } });
     const { result } = renderProviderActions();
     await act(async () => { await result.current.createServiceListing('provider-id', 'Pipe repair', 'category-cuid', 500, 'Repair pipes', { cash: true, gcash: false }); });
-    expect(toastInfo).toHaveBeenCalledWith('Listing needs attention', expect.stringContaining('Service Manager'));
+    expect(toastInfo).toHaveBeenCalledWith('Listing needs attention', expect.stringContaining('My Services'));
     expect(toastSuccess).not.toHaveBeenCalled();
   });
 

@@ -62,7 +62,7 @@ export default function TrustScoreGuide({
               labelText={labelText}
               items={[
                 'First approved identity and residency verification: +5 once',
-                'Eligible confirmed booking with settled payment: +3 for each eligible Seeker and Provider',
+                'Eligible confirmed booking with settled payment: +3 for each eligible Customer and Provider',
                 'One rewarded booking per account pair every 7 full days, including switched roles; both identities must be approved and no complaint can remain unresolved',
               ]}
             />

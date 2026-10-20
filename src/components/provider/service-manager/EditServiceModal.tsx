@@ -136,10 +136,10 @@ export default function EditServiceModal({
             </div>
 
             <div>
-              <label className={label}>How do you charge?</label>
+              <label className={label}>Pricing</label>
               <div className="relative">
                 <FormSelect
-                  aria-label="How do you charge?"
+                  aria-label="Pricing"
                   className={`${field} appearance-none pr-10 cursor-pointer`}
                   value={value.priceType === 'PER_SESSION' ? 'FIXED' : value.priceType}
                   onChange={(e) =>
@@ -154,12 +154,9 @@ export default function EditServiceModal({
                   <option value="PER_HOUR">Per Hour</option>
                   <option value="PER_DAY">Per Day</option>
                   <option value="PER_PROJECT">Per Project</option>
-                  <option value="BY_AGREEMENT">Price by agreement</option>
+                  <option value="BY_AGREEMENT">Quote required</option>
                 </FormSelect>
               </div>
-              <p className={`mt-1.5 text-xs leading-relaxed ${isDark ? 'text-neutral-400' : 'text-ink-muted'}`}>
-                Choose a set price or rate, or agree on the price after reviewing the seeker’s request. Each booking is a separate job.
-              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -176,7 +173,7 @@ export default function EditServiceModal({
               </div>}
 
               <div>
-                <label className={label}>Time needed (minutes)</label>
+                <label className={label}>Duration (minutes)</label>
                 <input
                   className={field}
                   type="number"
@@ -192,7 +189,7 @@ export default function EditServiceModal({
             <ListingPhotoUploader workspace="provider" value={value.photos ?? []} onChange={photos => onChange({ ...value, photos })} onBusyChange={setPhotosBusy} />
             <ListingLocationFields userId={userId} value={value} isDark={isDark} showTransportation={value.priceType !== 'BY_AGREEMENT'} onChange={patch => onChange({ ...value, ...patch })} />
             <div>
-              <label className={label}>What is included?</label>
+              <label className={label}>Service description</label>
               <textarea
                 className={`${field} resize-none leading-relaxed`}
                 rows={4}
@@ -205,12 +202,12 @@ export default function EditServiceModal({
             </div>
 
             <div>
-              <span className={label}>How can seekers pay you?</span>
+              <span className={label}>Payment methods</span>
               <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 mt-1">
                 {(
                   [
-                    ['cash', 'Cash in person'],
-                    ['gcash', 'GCash (test mode)'],
+                    ['cash', 'Cash'],
+                    ['gcash', 'GCash · Test Mode'],
                   ] as const
                 ).map(([key, text]) => {
                   const isChecked = value.paymentMethods[key];
@@ -238,7 +235,7 @@ export default function EditServiceModal({
                         }
                         className="h-4 w-4 rounded accent-emerald-600 cursor-pointer"
                       />
-                      <span className="text-xs font-semibold">{key === 'cash' && value.serviceLocationMode === 'REMOTE' ? 'Cash in person (arrange separately)' : text}</span>
+                      <span className="text-xs font-semibold">{key === 'cash' && value.serviceLocationMode === 'REMOTE' ? 'Cash' : text}</span>
                     </label>
                   );
                 })}

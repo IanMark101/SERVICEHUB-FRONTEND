@@ -21,7 +21,7 @@ export default function WelcomeStep({ isDark }: OnboardingStepProps) {
           <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400">
             <Search className="h-4 w-4" aria-hidden="true" />
           </span>
-          <h3 className="text-sm font-bold text-ink dark:text-white">Seeker</h3>
+          <h3 className="text-sm font-bold text-ink dark:text-white">Customer</h3>
           <p className="mt-1 text-xs leading-5 text-ink-muted dark:text-ink-muted">Find local services, post a request, compare provider offers, and manage your bookings.</p>
         </div>
         <div className={`rounded-2xl border p-4 ${card}`}>

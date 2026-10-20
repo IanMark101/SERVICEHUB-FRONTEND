@@ -162,7 +162,7 @@ describe('useSeekerActions Post Request payload', () => {
     expect(setJobRequests).not.toHaveBeenCalled();
   });
 
-  it('uses the saved search area without stale private directions or travel budget after switching to seeker visits', async () => {
+  it('uses the saved search area without stale private directions or travel budget after switching to customer visits', async () => {
     vi.mocked(apiUpdateRequest).mockResolvedValue({ success: true, data: {
       id: 'request-id', title: 'LAPTOP REPAIR', description: 'Visit a workshop.', budgetMax: 1500,
       serviceLocationMode: 'SEEKER_VISITS', latitude: 10.3, longitude: 123.9,

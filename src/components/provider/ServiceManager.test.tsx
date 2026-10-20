@@ -1,3 +1,4 @@
+import { selectWorkLocation } from '../../test/selectWorkLocation';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
@@ -16,22 +17,22 @@ describe('compact managed listings and durable save state',()=>{
     render(<ServiceManager currentProviderId="provider-1"/>);
     fireEvent.click(screen.getByRole('button',{name:'Details of LAPTOP REPAIR'}));
     fireEvent.click(screen.getByRole('button',{name:'Edit'}));
-    fireEvent.click(screen.getByRole('radio',{name:/Online \/ remote/}));
-    expect(screen.getByText(/No discovery pin or job address is needed/)).toBeInTheDocument();
+    selectWorkLocation(/Online/);
+    expect(screen.queryByRole('textbox', {name:/Business address/})).not.toBeInTheDocument();
     expect(screen.queryByRole('checkbox',{name:/exact location publicly/})).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
     await waitFor(()=>expect(edit).toHaveBeenCalledWith(service.id,service.title,500,service.description,expect.objectContaining({serviceLocationMode:'REMOTE',serviceLocation:null,publicMapPin:false,transportationFee:null})));
     await waitFor(()=>expect(screen.queryByText('Edit Service Listing')).not.toBeInTheDocument());
   });
-  it.each(['You go to the seeker','The seeker comes to you','Either option'])('requires a new physical location when changing remote to %s',async arrangement=>{
+  it.each(['At customer’s place','At your place','Either location'])('requires a new physical location when changing remote to %s',async arrangement=>{
     const edit=vi.fn();
     vi.mocked(useApp).mockReturnValue({services:[{...service,serviceLocationMode:'REMOTE',serviceLocation:undefined}],setServices:vi.fn(),editServiceListing:edit,toggleServiceListingStatus:vi.fn(),deleteServiceListing:vi.fn(),isDark:false,user:{id:'provider-1'}} as unknown as ReturnType<typeof useApp>);
     render(<ServiceManager currentProviderId="provider-1"/>);
     fireEvent.click(screen.getByRole('button',{name:'Details of LAPTOP REPAIR'}));fireEvent.click(screen.getByRole('button',{name:'Edit'}));
-    fireEvent.click(screen.getByRole('radio',{name:new RegExp(arrangement)}));
+    selectWorkLocation(new RegExp(arrangement));
     fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
     expect(edit).not.toHaveBeenCalled();
-    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText('Map location (required)')).toBeInTheDocument();
   });
   it('keeps full content in Details and locks saving until the server responds, retaining failed edits',async()=>{
     let finish!:(value:boolean)=>void;

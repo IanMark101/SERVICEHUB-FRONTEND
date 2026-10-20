@@ -119,7 +119,7 @@ export default function LifecycleStepper({
     {
       id: 4,
       label: 'Confirmation',
-      sublabel: 'Seeker decision',
+      sublabel: 'Customer decision',
       icon: FileCheck2,
     },
     {

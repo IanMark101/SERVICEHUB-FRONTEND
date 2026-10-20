@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
 import IncomingRequests from './IncomingRequests';
@@ -18,20 +18,20 @@ describe('provider incoming listing inquiries', () => {
   it('does not reopen a withdrawn private price request while the request refresh is still pending', () => {
     vi.mocked(useApp).mockReturnValue({ jobRequests: [{ id: 'private', targetProviderId: 'provider-1', targetServiceId: 'service-1', preferredPaymentMethod: null, status: 'OPEN', title: 'Laptop repair', budget: 0 }], bids: [{ id: 'closed-price', requestId: 'private', providerId: 'provider-1', status: 'withdrawn' }], jobEngagements: [], isDark: false, requestsStatus: 'ready', engagementsStatus: 'ready' } as unknown as ReturnType<typeof useApp>);
     render(<IncomingRequests currentProviderId="provider-1" />);
-    expect(screen.getByRole('heading', { name: 'No Incoming Requests' })).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'Accept & set price' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'No Requests' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Send Quote' })).not.toBeInTheDocument();
   });
-  it('sets the final price inside Incoming Requests and uses the existing offer action', async () => {
+  it('sets the final price inside Requests and uses the existing offer action', async () => {
     const submitBid = vi.fn().mockResolvedValue(true);
     vi.mocked(apiGetMyServices).mockResolvedValue({ success: true, data: [{ id: 'service-1', title: 'Laptop repair', providerId: 'provider-1', priceType: 'BY_AGREEMENT', price: null, status: 'ACTIVE', isAvailable: true, serviceLocationMode: 'SEEKER_VISITS', locationLabel: 'Cordova shop' }] });
     vi.mocked(useApp).mockReturnValue({ jobRequests: [{ id: 'private', seekerId: 'seeker-1', targetProviderId: 'provider-1', targetServiceId: 'service-1', preferredPaymentMethod: null, paymentMethods: { cash: true, gcash: true }, status: 'OPEN', title: 'Laptop repair', seekerName: 'Client', description: 'The laptop does not turn on.', budget: 0, serviceLocationMode: 'SEEKER_VISITS' }], bids: [], jobEngagements: [], isDark: false, submitBid } as unknown as ReturnType<typeof useApp>);
     render(<IncomingRequests currentProviderId="provider-1" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Accept & set price' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Accept & set price' });
+    fireEvent.click(screen.getByRole('button', { name: 'Send Quote' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Send Quote' });
     expect(dialog).toHaveTextContent('The laptop does not turn on.');
     fireEvent.change(screen.getByLabelText(/Final.*total/i), { target: { value: '1250' } });
-    fireEvent.change(screen.getByLabelText('What is included in this price?'), { target: { value: 'Charging port repair, including parts and labor.' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Send price for approval' }));
+    fireEvent.change(screen.getByLabelText('What’s included'), { target: { value: 'Charging port repair, including parts and labor.' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Send Quote' }));
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('private', 'provider-1', 'service-1', 1250, 60, 'Charging port repair, including parts and labor.', undefined, { serviceLocationMode: 'SEEKER_VISITS' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
@@ -48,8 +48,8 @@ describe('provider incoming listing inquiries', () => {
     vi.mocked(useApp).mockReturnValue({ jobRequests: [], bids: [], jobEngagements: [], isDark: false,
       requestsStatus: 'ready', engagementsStatus: 'ready' } as unknown as ReturnType<typeof useApp>);
     render(<IncomingRequests currentProviderId="provider-1" />);
-    expect(screen.getByRole('heading', { name: 'No Incoming Requests' })).toBeVisible();
-    expect(screen.getByText('When seekers choose your services, their booking requests and quote inquiries will appear here.')).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'No Requests' })).toBeVisible();
+    expect(screen.getByText('When customers choose your services, their booking requests and quote inquiries will appear here.')).toBeVisible();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
@@ -59,7 +59,7 @@ describe('provider incoming listing inquiries', () => {
       requestsStatus: 'error', engagementsStatus: 'ready', refreshAll: retry } as unknown as ReturnType<typeof useApp>);
     render(<IncomingRequests currentProviderId="provider-1" />);
     expect(screen.getByRole('alert')).toHaveTextContent('Incoming requests could not be loaded.');
-    expect(screen.queryByText('No Incoming Requests')).not.toBeInTheDocument();
+    expect(screen.queryByText('No Requests')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(retry).toHaveBeenCalledOnce();
   });
@@ -98,7 +98,7 @@ describe('provider incoming listing inquiries', () => {
     } as unknown as ReturnType<typeof useApp>);
     render(<IncomingRequests currentProviderId="provider-1" />);
     expect(screen.getByRole('status')).toHaveTextContent('Loading incoming requests');
-    expect(screen.queryByText('No Incoming Requests')).not.toBeInTheDocument();
+    expect(screen.queryByText('No Requests')).not.toBeInTheDocument();
   });
 
   it('shows only this provider’s unanswered inquiry with a path to send its quote', () => {
@@ -111,7 +111,7 @@ describe('provider incoming listing inquiries', () => {
     } as unknown as ReturnType<typeof useApp>);
     render(<IncomingRequests currentProviderId="provider-1" />);
     expect(screen.getByText('Repair aircon')).toBeInTheDocument();
-    expect(screen.getByText('Seeker selected: GCash')).toBeInTheDocument();
+    expect(screen.getByText('Customer selected: GCash')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Send quote' })).toHaveAttribute('href', '/provider/browse-services?request=selected');
     expect(screen.queryByText('Other provider job')).not.toBeInTheDocument();
   });

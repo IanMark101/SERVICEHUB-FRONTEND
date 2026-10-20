@@ -1,3 +1,4 @@
+import { selectWorkLocation } from '../../test/selectWorkLocation';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
@@ -43,18 +44,18 @@ function details() {
   fireEvent.change(screen.getByLabelText('Request title'), { target: { value: 'Laptop will not turn on' } });
   fireEvent.click(screen.getByRole('combobox', { name: 'Service category' }));
   fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name: 'Computer & Laptop Repair' }));
-  fireEvent.change(screen.getByLabelText('Describe what you need'), { target: { value: 'Please check why my laptop will not start.' } });
+  fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Please check why my laptop will not start.' } });
 }
 function requestToPayment() {
   details(); next();
   fireEvent.click(screen.getByRole('button', { name: 'Use Cordova location' })); next();
-  fireEvent.change(screen.getByRole('combobox', { name: 'When do you need help?' }), { target: { value: 'This Week' } });
-  fireEvent.change(screen.getByRole('spinbutton', { name: /Your service budget/ }), { target: { value: '1500' } }); next();
+  fireEvent.change(screen.getByRole('combobox', { name: 'Needed by' }), { target: { value: 'This Week' } });
+  fireEvent.change(screen.getByRole('spinbutton', { name: /Budget/ }), { target: { value: '1500' } }); next();
 }
 function bookingToPayment() {
-  fireEvent.change(screen.getByRole('textbox', { name: 'Describe the work needed' }), { target: { value: 'Please repair my laptop.' } }); next();
+  fireEvent.change(screen.getByRole('textbox', { name: 'Work description' }), { target: { value: 'Please repair my laptop.' } }); next();
   fireEvent.click(screen.getByRole('button', { name: 'Use Cordova location' }));
-  fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ })); next();
+  selectWorkLocation(/At provider’s place/); next();
 }
 
 describe('Post Request wizard', () => {
@@ -83,12 +84,12 @@ describe('Post Request wizard', () => {
     next();
     expect(screen.getByRole('group', { name: 'Request location' })).toHaveFocus();
     next();
-    expect(screen.getByRole('spinbutton', { name: /Your service budget/ })).toHaveValue(1500);
+    expect(screen.getByRole('spinbutton', { name: /Budget/ })).toHaveValue(1500);
     next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Post request' }));
     expect(post).toHaveBeenCalledWith('seeker-1', expect.any(String), 'category-1', 'This Week', 1500, expect.any(String), { cash: true, gcash: true }, expect.objectContaining({ photoIds: ['photo-1'], jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cordova' } }));
   });
-  it('requires a discovery location and validates the budget before showing Payment', () => {
+  it('requires a map location and validates the budget before showing Payment', () => {
     render(<PostRequest />); details(); next(); next();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '25');
     fireEvent.click(screen.getByRole('button', { name: 'Use Cordova location' })); next(); next();
@@ -125,7 +126,7 @@ describe('Request Service wizard', () => {
     render(<RequestServiceModal listing={listing} onClose={vi.fn()} />); next();
     expect(screen.getByRole('alert')).toHaveTextContent('describe the work');
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
-    fireEvent.change(screen.getByRole('textbox', { name: 'Describe the work needed' }), { target: { value: 'Fix my laptop.' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Work description' }), { target: { value: 'Fix my laptop.' } });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument(); next(); next();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '33');
     expect(screen.getByRole('alert')).toHaveTextContent('Choose where the work');
@@ -140,7 +141,7 @@ describe('Request Service wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('textbox', { name: /Preferred schedule/ })).toHaveValue('Saturday afternoon');
     expect(screen.getByRole('spinbutton', { name: 'Number of hours' })).toHaveValue(3);
-    expect(screen.getByRole('button', { name: 'On-site Cash' })).toHaveAttribute('aria-pressed', 'true'); next();
+    expect(screen.getByRole('button', { name: 'Cash' })).toHaveAttribute('aria-pressed', 'true'); next();
     fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
     expect(apiBookDirect).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3, schedule: 'Saturday afternoon', serviceLocationMode: 'SEEKER_VISITS' }));
   });
@@ -154,14 +155,14 @@ describe('Request Service wizard', () => {
   it('switches between arrangements without losing the job location and omits it for venue booking', () => {
     render(<RequestServiceModal listing={listing} onClose={vi.fn()} />); bookingToPayment();
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
-    fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ })); next(); next();
+    selectWorkLocation(/At provider’s place/); next(); next();
     const section = screen.getByRole('group', { name: 'Review your booking request' });
     expect(within(section).getByText('Total').nextElementSibling).toHaveTextContent('₱500');
     fireEvent.click(screen.getByRole('button', { name: 'Edit location' }));
-    fireEvent.click(screen.getByRole('radio', { name: /The provider comes to you/ })); next(); next();
+    selectWorkLocation(/At your place/); next(); next();
     expect(within(screen.getByRole('group', { name: 'Review your booking request' })).getByText('Cordova')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Edit location' }));
-    fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ })); next(); next();
+    selectWorkLocation(/At provider’s place/); next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
     expect(apiBookDirect).toHaveBeenCalledWith(expect.objectContaining({ serviceLocationMode: 'SEEKER_VISITS' }));
     expect(vi.mocked(apiBookDirect).mock.calls[0][0]).not.toHaveProperty('jobLocation');
@@ -172,7 +173,7 @@ describe('Request Service wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Send Request' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Provider is unavailable');
     fireEvent.click(screen.getByRole('button', { name: 'Edit work details' }));
-    expect(screen.getByRole('textbox', { name: 'Describe the work needed' })).toHaveValue('Please repair my laptop.');
+    expect(screen.getByRole('textbox', { name: 'Work description' })).toHaveValue('Please repair my laptop.');
   });
   it('blocks repeated confirms while the cash request is in flight', async () => {
     let resolve!: (value: { success: boolean }) => void;

@@ -8,8 +8,8 @@ vi.mock('../../api/bookings.api', () => ({
   apiUploadBookingEvidence: vi.fn(),
 }));
 
-const bookingA = { id: 'booking-a', title: 'Booking A', providerName: 'Provider A', seekerName: 'Seeker A' };
-const bookingB = { id: 'booking-b', title: 'Booking B', providerName: 'Provider B', seekerName: 'Seeker B' };
+const bookingA = { id: 'booking-a', title: 'Booking A', providerName: 'Provider A', seekerName: 'Customer A' };
+const bookingB = { id: 'booking-b', title: 'Booking B', providerName: 'Provider B', seekerName: 'Customer B' };
 
 describe('SafetyReportModal', () => {
   beforeEach(() => {

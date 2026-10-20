@@ -1,16 +1,15 @@
 import CategorySuggestion from '../marketplace/CategorySuggestion';
-import Link from 'next/link';
 import MoneyInput from '../ui/MoneyInput';
 import ListingFormSection from '../ui/ListingFormSection';
 import styles from '../ui/ListingForm.module.css';
 import ListingLocationFields from '../location/ListingLocationFields';
-import { involvesProviderTravel, listingUsesArea, type ServiceLocationMode } from '../../lib/serviceArrangement';
+import { arrangementOptionLabel, involvesProviderTravel, listingUsesArea, type ServiceLocationMode } from '../../lib/serviceArrangement';
 import TransportationField, { validTransportationFee } from '../location/TransportationField';
 import { LocationSchema, type LocationPoint } from '../../lib/location';
 import { orderServiceCategories } from '../../lib/category-catalog';
 import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { AlertCircle, Briefcase, Info } from 'lucide-react';
+import { AlertCircle, Briefcase } from 'lucide-react';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
 import { useToast } from '../ui/Toast';
 import type { ServiceListing } from '../../types';
@@ -89,17 +88,17 @@ export default function OfferServices() {
     }
     if (index === 1) {
       if (serviceLocationMode !== 'REMOTE' && !LocationSchema.safeParse(serviceLocation).success) {
-        problems.push({ field: 'location', heading: 'Choose your discovery location', message: 'Choose where nearby seekers can find your service on the map.' });
+        problems.push({ field: 'location', heading: 'Choose your map location', message: 'Choose where nearby customers can find your service on the map.' });
       }
-      if (!listingUsesArea(serviceLocationMode) && (venueAddress.trim().length < 5 || venueAddress.length > 500)) problems.push({ field: 'address', heading: 'Add your workplace address', message: 'Enter the workplace address or directions in 5–500 characters. This is saved for seekers who visit you.' });
+      if (!listingUsesArea(serviceLocationMode) && (venueAddress.trim().length < 5 || venueAddress.length > 500)) problems.push({ field: 'address', heading: 'Add your workplace address', message: 'Enter the workplace address or directions in 5–500 characters. This is saved for customers who visit you.' });
     }
     if (index === 2) {
       if (!priceByAgreement && (!Number.isFinite(price) || !Number.isInteger(price) || price < 50 || price > 50000)) problems.push({ field: 'price', heading: 'Check your service price', message: 'Enter a service price between ₱50 and ₱50,000 in whole pesos.' });
-      if (!PRICING_OPTIONS.includes(priceType)) problems.push({ field: 'priceType', heading: 'Choose how you charge', message: 'Choose a set price or rate, or Price by agreement.' });
+      if (!PRICING_OPTIONS.includes(priceType)) problems.push({ field: 'priceType', heading: 'Choose how you charge', message: 'Choose a set price or rate, or Quote required.' });
       if (!Number.isFinite(durationMins) || durationMins < 15 || durationMins > 480 || durationMins % 5 !== 0) problems.push({ field: 'duration', heading: 'Check the time needed', message: 'Enter 15–480 minutes in steps of 5, such as 30 or 45.' });
       if (!priceByAgreement && involvesProviderTravel(serviceLocationMode) && !validTransportationFee(transportationFee)) problems.push({ field: 'travel', heading: 'Check your travel fee', message: 'Leave it blank, or enter ₱0–₱5,000 using no more than two digits after the decimal point.' });
     }
-    if (index === 3 && !acceptCash && !acceptGCash) problems.push({ field: 'payment', heading: 'Choose a payment method', message: 'Choose at least one way seekers can pay you.' });
+    if (index === 3 && !acceptCash && !acceptGCash) problems.push({ field: 'payment', heading: 'Choose a payment method', message: 'Choose at least one way customers can pay you.' });
     if (index === 3 && acceptGCash && !gcashReady) problems.push({ field: 'gcash', heading: 'Add your GCash number', message: 'Save a valid GCash number before continuing, or choose Cash only.' });
     return problems;
   };
@@ -185,7 +184,7 @@ export default function OfferServices() {
       <div className={styles.panel}>
         <header className={styles.header}>
           <span className={styles.headerIcon}><Briefcase size={22} aria-hidden="true" /></span>
-          <div><h2>Create a Service Listing</h2><p>Describe what you offer, where you work, and what it costs.</p></div>
+          <div><h2>List a Service</h2></div>
         </header>
         {!canTransact && <div className={styles.verification}>
           {isSuspended ? <p><strong>Publishing is unavailable while suspended.</strong> You can still browse requests. You can publish again when your suspension ends.</p> : <>
@@ -201,14 +200,14 @@ export default function OfferServices() {
           </div>}
           <fieldset disabled={loading || photosBusy || !canTransact} className={styles.fields}>
             <WizardStep index={0} currentStep={step} label="Service details">
-            <ListingFormSection number={1} title="What service do you offer?" description="Tell seekers what you can do and what your price includes.">
+            <ListingFormSection number={1} title="Service details">
               <div className={styles.detailsColumns}>
                 <div>
                   <label htmlFor="listing-title" className={styles.label}>Service name</label>
                   <ListingTitleInput id="listing-title" required minLength={10} maxLength={100} placeholder="e.g. Laptop repair and diagnostics" value={title}
                     onChange={e => { setTitle(e.target.value); if (moderationError?.field === 'title') setModerationError(null); }}
                     aria-invalid={moderationError?.field === 'title' || !!validationMessage('title')} aria-describedby={fieldDescription('title', 'listing-title-help', 'listing-title-policy-error')} className={styles.field} />
-                  <p id="listing-title-help" className={styles.fieldHelp}>Name the service in 10–100 characters.</p>
+                  <p id="listing-title-help" className={styles.fieldHelp}>10–100 characters.</p>
                   {fieldError('title')}
                   {moderationError?.field === 'title' && <p id="listing-title-policy-error" role="alert" className={styles.error}>{moderationError.message} Edit the title and try again.</p>}
                 </div>
@@ -218,18 +217,18 @@ export default function OfferServices() {
                     onChange={e => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
                     options={categories.map(cat => ({ value:cat.id, label:cat.name, searchText:[cat.description, ...(cat.aliases ?? [])].join(' ') }))} placeholder="Select a category..." isDark={isDark} theme="provider"
                     ariaInvalid={moderationError?.field === 'category' || !!validationMessage('category')} ariaDescribedBy={fieldDescription('category', 'listing-category-help', 'listing-category-policy-error')} />
-                  <p id="listing-category-help" className={styles.fieldHelp}>{categories.find(item => item.id === selectedCategoryId)?.description || 'Choose the type of service you offer. If none fits, choose Other Services.'}</p>
+                  <p id="listing-category-help" className={styles.fieldHelp}>Other Services if no category fits.</p>
                   {fieldError('category')}
                   <CategorySuggestion title={title} description={description} categories={categories} selectedId={selectedCategoryId} onChoose={id=>{setCategory(id);if(moderationError?.field==='category')setModerationError(null);}} tone="provider" />
                   {moderationError?.field === 'category' && <p id="listing-category-policy-error" role="alert" className={styles.error}>{moderationError.message} Choose the right category and try again.</p>}
                 </div>
               </div>
               <div>
-                <label htmlFor="listing-description" className={styles.label}>What is included?</label>
+                <label htmlFor="listing-description" className={styles.label}>Service description</label>
                 <textarea id="listing-description" rows={4} required minLength={30} maxLength={1000} placeholder="e.g. I check and repair laptops. The price includes checking the problem and basic repairs. Replacement parts cost extra." value={description}
                   onChange={e => { setDescription(e.target.value); if (moderationError?.field === 'description') setModerationError(null); }}
                   aria-invalid={moderationError?.field === 'description' || !!validationMessage('description')} aria-describedby={fieldDescription('description', 'listing-description-help', 'listing-description-policy-error')} className={styles.field} />
-                <p id="listing-description-help" className={styles.fieldHelp}>Explain what you do and any extra costs, such as parts. Use 30–1,000 characters.</p>
+                <p id="listing-description-help" className={styles.fieldHelp}>30–1,000 characters.</p>
                 {fieldError('description')}
                 {moderationError?.field === 'description' && <p id="listing-description-policy-error" role="alert" className={styles.error}>{moderationError.message} Edit the description and try again.</p>}
               </div>
@@ -237,8 +236,8 @@ export default function OfferServices() {
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={1} currentStep={step} label="Service location">
-            <ListingFormSection number={2} title="How will you deliver the service?" description="Choose a visit arrangement or deliver the work online.">
-              <div data-listing-location><ListingLocationFields userId={user?.id} reuseSaved locationError={locationError} value={{ serviceLocation, publicMapPin, serviceLocationMode, venueAddress, transportationFee }} isDark={isDark} disabled={!canTransact || loading} arrangementLayout="responsive" showTransportation={false} onChange={patch => {
+            <ListingFormSection number={2} title="Location">
+              <div data-listing-location><ListingLocationFields userId={user?.id} reuseSaved locationError={locationError} value={{ serviceLocation, publicMapPin, serviceLocationMode, venueAddress, transportationFee }} isDark={isDark} disabled={!canTransact || loading} showTransportation={false} onChange={patch => {
                 setLocationError('');
                 if (patch.publicMapPin !== undefined) setPublicMapPin(patch.publicMapPin);
                 if (patch.serviceLocation !== undefined) setServiceLocation(patch.serviceLocation);
@@ -249,48 +248,48 @@ export default function OfferServices() {
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={2} currentStep={step} label="Service price and duration">
-            <ListingFormSection number={3} title="How much do you charge?" description="Set your service price and how long the work usually takes.">
+            <ListingFormSection number={3} title="Pricing">
               <div className={priceByAgreement ? styles.columns : styles.threeColumns}>
                 {!priceByAgreement && <div>
                   <label htmlFor="listing-price" className={styles.label}>Service price (₱)</label>
                   <MoneyInput id="listing-price" min={50} max={50000} required placeholder="e.g. 500" value={price} onChange={e => setPrice(Number(e.target.value))} aria-invalid={!!validationMessage('price')} aria-describedby={fieldDescription('price', 'listing-price-help')} className={styles.field} />
-                  <p id="listing-price-help" className={styles.fieldHelp}>Enter ₱50–₱50,000. Choose how you charge next.</p>
+                  <p id="listing-price-help" className={styles.fieldHelp}>₱50–₱50,000.</p>
                   {fieldError('price')}
                 </div>}
                 <div>
-                  <label htmlFor="listing-price-unit" className={styles.label}>How do you charge?</label>
-                  <FormalSelect id="listing-price-unit" ariaLabel="How do you charge?" value={priceType} onChange={e => setPriceType(e.target.value as NonNullable<ServiceListing['priceType']>)} ariaInvalid={!!validationMessage('priceType')} ariaDescribedBy={validationMessage('priceType') ? 'listing-priceType-error' : undefined}
-                    options={[{ value:'FIXED', label:'Fixed Price' },{ value:'PER_HOUR', label:'Per Hour' },{ value:'PER_DAY', label:'Per Day' },{ value:'PER_PROJECT', label:'Per Project' },{ value:'BY_AGREEMENT', label:'Price by agreement' }]} placeholder="Choose how you charge" isDark={isDark} theme="provider" />
+                  <label htmlFor="listing-price-unit" className={styles.label}>Pricing</label>
+                  <FormalSelect id="listing-price-unit" ariaLabel="Pricing" value={priceType} onChange={e => setPriceType(e.target.value as NonNullable<ServiceListing['priceType']>)} ariaInvalid={!!validationMessage('priceType')} ariaDescribedBy={validationMessage('priceType') ? 'listing-priceType-error' : undefined}
+                    options={[{ value:'FIXED', label:'Fixed Price' },{ value:'PER_HOUR', label:'Per Hour' },{ value:'PER_DAY', label:'Per Day' },{ value:'PER_PROJECT', label:'Per Project' },{ value:'BY_AGREEMENT', label:'Quote required' }]} placeholder="Choose how you charge" isDark={isDark} theme="provider" />
                   {fieldError('priceType')}
                 </div>
                 <div>
-                  <label htmlFor="listing-duration" className={styles.label}>Time needed (minutes)</label>
+                  <label htmlFor="listing-duration" className={styles.label}>Duration (minutes)</label>
                   <input id="listing-duration" type="number" min={15} max={480} step={5} required value={durationMins} onChange={e => setDurationMins(Math.max(1,Number(e.target.value)))} aria-invalid={!!validationMessage('duration')} aria-describedby={fieldDescription('duration', 'listing-duration-help')} className={styles.field} />
-                  <p id="listing-duration-help" className={styles.fieldHelp}>{priceByAgreement ? 'A general estimate: 15–480 minutes. Give the actual expected duration when you propose a price.' : 'Usual time for one job: 15–480 minutes (up to 8 hours).'}</p>
+                  <p id="listing-duration-help" className={styles.fieldHelp}>15–480 minutes, in 5-minute steps.</p>
                   {fieldError('duration')}
                 </div>
               </div>
-              {priceByAgreement ? <p className={styles.help}><strong>Price by agreement.</strong> Seekers describe the work in a service request. You accept with a final price, including any travel, or decline. They approve your price before booking or payment.</p> : price > 0 && <p className={styles.help}><strong>Price preview:</strong> ₱{price}{priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}</p>}
+              {priceByAgreement ? <p className={styles.help}>Send a quote before booking.</p> : price > 0 && <p className={styles.help}><strong>Price preview:</strong> ₱{price}{priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price'}</p>}
               {!priceByAgreement && involvesProviderTravel(serviceLocationMode) && <div data-listing-travel><TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} disabled={!canTransact || loading} error={validationMessage('travel')} /></div>}
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={3} currentStep={step} label="Accepted payment methods">
-            <ListingFormSection number={4} title="How can seekers pay you?" description="Choose the payment methods you accept.">
+            <ListingFormSection number={4} title="Payment methods">
               <div data-listing-payment><PaymentMethodCheckboxes remote={serviceLocationMode === 'REMOTE'} legend="Choose at least one payment method" value={{ cash:acceptCash, gcash:acceptGCash }} onChange={methods => { setAcceptCash(methods.cash); setAcceptGCash(methods.gcash); }} isDark={isDark} disabled={loading || !canTransact}
-                description="You can choose both. GCash is currently in test mode; no real money is transferred."
+
                 error={validationMessage('payment')} /></div>
               <GCashNumberField userId={user?.id} enabled={acceptGCash} isDark={isDark} workspace="provider" disabled={loading || !canTransact} onReadinessChange={setGCashReadiness} />
               {validationMessage('gcash') && <p role="alert" className={styles.fieldError}>{validationMessage('gcash')}</p>}
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={4} currentStep={step} label="Review your service listing">
-              <ListingFormSection number={5} title="Review your service listing" description="Check the details seekers will see before publishing.">
+              <ListingFormSection number={5} title="Review service">
                 <div>
-                  <WizardReviewSection title="Service details" onEdit={() => changeStep(0)}><dl><dt>Service name</dt><dd>{title}</dd><dt>Service category</dt><dd>{categories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>What is included?</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Who will travel?</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no travel' : serviceLocationMode === 'PROVIDER_VISITS' ? 'You go to the seeker' : serviceLocationMode === 'SEEKER_VISITS' ? 'The seeker comes to you' : 'Either option'}</dd><dt>Discovery location</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no location needed' : serviceLocation?.label || 'Not selected'}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Private workplace address</dt><dd>{venueAddress}</dd></>}</dl></WizardReviewSection>
-                  <WizardReviewSection title="Price and duration" onEdit={() => changeStep(2)}><dl><dt>Service price</dt><dd>{priceByAgreement ? 'Price by agreement' : '₱' + price.toLocaleString() + (priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price')}</dd><dt>Time needed</dt><dd>{durationMins} minutes</dd>{!priceByAgreement && involvesProviderTravel(serviceLocationMode) && <><dt>Your travel fee</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
-                  <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[acceptCash && 'Cash in person', acceptGCash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p>{acceptGCash && <p>GCash is currently in test mode; no real money is transferred.</p>}</WizardReviewSection>
-                  <p className={styles.help}>You can accept separate bookings from this listing. A seeker can book again after their previous booking ends.</p>
+                  <WizardReviewSection title="Service details" onEdit={() => changeStep(0)}><dl><dt>Service name</dt><dd>{title}</dd><dt>Service category</dt><dd>{categories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>Service description</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Work location</dt><dd>{arrangementOptionLabel(serviceLocationMode, 'provider')}</dd><dt>Map location</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Not required' : serviceLocation?.label || 'Not selected'}</dd>{!listingUsesArea(serviceLocationMode) && venueAddress && <><dt>Business address</dt><dd>{venueAddress}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Price and duration" onEdit={() => changeStep(2)}><dl><dt>Service price</dt><dd>{priceByAgreement ? 'Quote required' : '₱' + price.toLocaleString() + (priceType === 'PER_HOUR' ? ' / hour' : priceType === 'PER_DAY' ? ' / day' : priceType === 'PER_PROJECT' ? ' / project' : ' fixed price')}</dd><dt>Time needed</dt><dd>{durationMins} minutes</dd>{!priceByAgreement && involvesProviderTravel(serviceLocationMode) && <><dt>Your travel fee</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
+                  <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[acceptCash && 'Cash', acceptGCash && 'GCash · Test Mode'].filter(Boolean).join(' · ')}</p>{acceptGCash && <p>GCash is currently in test mode; no real money is transferred.</p>}</WizardReviewSection>
+
                 </div>
               </ListingFormSection>
             </WizardStep>
@@ -304,9 +303,7 @@ export default function OfferServices() {
           </fieldset>
         </form>
       </div>
-      <div className={styles.notice}><Info size={16} aria-hidden="true" /><div><p>Once published, seekers can find and book your service. If something needs fixing, we will tell you what to change.</p>
-        <p className="mt-2">Pause or resume your listing in <Link href="/provider/service-manager" className={styles.link}>Service Manager</Link>. Track your bookings in <Link href="/provider/provider-activity" className={styles.link}>Provider Activity</Link>.</p>
-      </div></div>
+
     </div>
   );
 }

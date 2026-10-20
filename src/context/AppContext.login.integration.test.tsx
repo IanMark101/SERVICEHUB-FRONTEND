@@ -527,7 +527,7 @@ describe('login/session integration through the real auth flow', () => {
 
   it.each([
     { role: 'seeker', path: '/seeker/seek-services', heading: 'Find local experts for any task.' },
-    { role: 'provider', path: '/provider/browse-services', heading: 'Find seeker requests for any task.' },
+    { role: 'provider', path: '/provider/browse-services', heading: 'Find customer requests for any task.' },
   ])('reopens the real $role content repeatedly after visiting the landing page', async ({ role, path, heading }) => {
     cookieValid = true;
     localStorage.setItem('workspaceRole', role);

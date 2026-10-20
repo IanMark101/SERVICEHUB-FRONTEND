@@ -1,3 +1,4 @@
+import { selectWorkLocation } from '../../test/selectWorkLocation';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
@@ -20,15 +21,16 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-describe('Request Manager activation', () => {
+describe('My Requests activation', () => {
   it('saves a physical public request as remote without requiring another location',async()=>{
     vi.mocked(apiGetMyRequests).mockReturnValue(new Promise(()=>{}));
     vi.mocked(useApp).mockReturnValue({jobRequests:[{...request,jobLocation:{latitude:10.3,longitude:123.9,label:'Cordova'},serviceLocationMode:'PROVIDER_VISITS'}],bids:[],deleteJobRequest:vi.fn(),editJobRequest:edit,isDark:false} as unknown as ReturnType<typeof useApp>);
     edit.mockResolvedValue({...request,serviceLocationMode:'REMOTE',jobLocation:undefined});
     render(<RequestManager currentUserId="seeker-1"/>);
     fireEvent.click(screen.getByRole('button',{name:'Edit PIPE REPAIR'}));
-    fireEvent.click(screen.getByRole('radio',{name:/Online \/ remote/}));
-    expect(screen.getByText(/No discovery pin or job address is needed/)).toBeInTheDocument();
+    selectWorkLocation(/Online/);
+    expect(screen.getByRole('combobox', { name: 'Work location' })).toHaveValue('REMOTE');
+    expect(screen.queryByText('Map location (required)')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:'Save Changes'}));
     await waitFor(()=>expect(edit).toHaveBeenCalledWith(request.id,request.title,request.budget,request.description,undefined,expect.objectContaining({serviceLocationMode:'REMOTE',jobLocation:null})));
     await waitFor(()=>expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -37,7 +39,7 @@ describe('Request Manager activation', () => {
     vi.mocked(apiGetMyRequests).mockReturnValueOnce(new Promise(() => {}));
     vi.mocked(useApp).mockReturnValue({ jobRequests: [{ ...request, budget: 0, targetServiceId: 'service-1', targetProviderId: 'provider-1', status: 'CANCELED' }], bids: [], deleteJobRequest: vi.fn(), isDark: false } as unknown as ReturnType<typeof useApp>);
     render(<RequestManager currentUserId="seeker-1" />);
-    expect(screen.getByText('No requests in Request Manager')).toBeVisible();
+    expect(screen.getByText('No requests in My Requests')).toBeVisible();
     expect(screen.queryByText('Waiting for the provider’s price')).not.toBeInTheDocument();
     expect(screen.queryByText('₱0')).not.toBeInTheDocument();
   });
@@ -47,7 +49,7 @@ describe('Request Manager activation', () => {
     render(<RequestManager currentUserId="seeker-1" />);
     expect(screen.getByText('Request closed')).toBeVisible();
     expect(screen.queryByText('Waiting for the provider’s price')).not.toBeInTheDocument();
-    expect(screen.getByText('Price by agreement')).toBeVisible();
+    expect(screen.getByText('Quote required')).toBeVisible();
   });
   beforeEach(() => {
     vi.clearAllMocks();
@@ -71,7 +73,7 @@ describe('Request Manager activation', () => {
     expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(toggle).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('On-site Cash')).toBeInTheDocument();
+    expect(screen.getByText('Cash')).toBeInTheDocument();
     expect(screen.queryByText('GCash · Test Mode')).not.toBeInTheDocument();
   });
 
@@ -107,8 +109,8 @@ describe('Request Manager activation', () => {
     const { rerender } = render(<RequestManager currentUserId="seeker-1" />);
     fireEvent.click(screen.getByRole('button', { name: 'Edit PIPE REPAIR' }));
     fireEvent.change(screen.getByLabelText('Request title'), { target: { value: 'PIPE REPAI' } });
-    fireEvent.change(screen.getByLabelText('Your service budget (₱)'), { target: { value: '650' } });
-    fireEvent.change(screen.getByLabelText('Describe what you need'), { target: { value: saved.description } });
+    fireEvent.change(screen.getByLabelText('Budget (₱)'), { target: { value: '650' } });
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: saved.description } });
     fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
     expect(screen.getByRole('button', { name: /Saving changes/ })).toBeDisabled();
@@ -133,7 +135,7 @@ describe('Request Manager activation', () => {
     expect(screen.getByText('₱650')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: `Edit ${saved.title}` }));
     expect(screen.getByLabelText('Request title')).toHaveValue(saved.title);
-    expect(screen.getByLabelText('Your service budget (₱)')).toHaveValue(650);
+    expect(screen.getByLabelText('Budget (₱)')).toHaveValue(650);
   });
 
   it('keeps unsaved changes open after a rejected save and allows a successful retry', async () => {
@@ -169,8 +171,8 @@ describe('booked requests belong in Activity', () => {
     render(<RequestManager currentUserId="seeker-1" onNavigateToActivity={navigate} />);
     await act(async () => {});
     expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
-    expect(screen.getByText('No requests in Request Manager')).toBeInTheDocument();
-    expect(screen.getByText(/Once a booking is created, manage it in Activity/)).toBeInTheDocument();
+    expect(screen.getByText('No requests in My Requests')).toBeInTheDocument();
+    expect(screen.getByText(/Once a booking is created, manage it in My Bookings/)).toBeInTheDocument();
     expect(screen.queryByRole('switch')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Archive|Repost|Delete PIPE REPAIR|Edit PIPE REPAIR/i })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'View Activity' }));
@@ -189,7 +191,7 @@ describe('booked requests belong in Activity', () => {
     render(<RequestManager currentUserId="seeker-1" />);
     await act(async () => {});
     expect(screen.queryByRole('heading', { name: completed.title })).not.toBeInTheDocument();
-    expect(screen.getByText('No requests in Request Manager')).toBeInTheDocument();
+    expect(screen.getByText('No requests in My Requests')).toBeInTheDocument();
   });
 
   it('removes a listing when offer acceptance creates a booking and refreshes the mounted manager', async () => {
@@ -264,7 +266,7 @@ describe('booked requests belong in Activity', () => {
   });
 });
 
-describe('Request Manager deletion', () => {
+describe('My Requests deletion', () => {
   const remove = vi.fn();
   const open = { ...request, status: 'OPEN', canDelete: true };
   const context = (row = open, bids: unknown[] = []) => ({ jobRequests: [row], bids, jobEngagements: [{ id: 'booking-1', status: 'in_progress' }], toggleJobRequestStatus: toggle, deleteJobRequest: remove, editJobRequest: edit, isDark: false } as unknown as ReturnType<typeof useApp>);

@@ -34,7 +34,7 @@ export const previewServices: ServiceListing[] = [
 ];
 
 export const previewRequests: JobRequest[] = previewServices.map((service, index) => ({
-  id: `preview-request-${index}`, seekerId: `preview-seeker-${index}`, seekerName: ['Sam Rivera', 'Chris Tan', 'Taylor Cruz'][index],
+  id: `preview-request-${index}`, seekerId: `preview-customer-${index}`, seekerName: ['Sam Rivera', 'Chris Tan', 'Taylor Cruz'][index],
   seekerAvatar: '', seekerTrustScore: 65, seekerVerificationStatus: 'APPROVED', seekerRating: 5, seekerReviewCount: 3,
   title: ['Aircon needs cleaning', 'Help with home cleaning', 'Fix a leaking kitchen faucet'][index],
   category: service.category, description: service.description, urgency: ['ASAP / Today', 'This Week', 'Flexible Schedule'][index],

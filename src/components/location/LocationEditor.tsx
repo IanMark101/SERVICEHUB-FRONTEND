@@ -141,18 +141,18 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
   };
   return <div className={styles.editor}>
     <div className={styles.search}>
-      <label><span className={styles.label}>Find a city or barangay</span><input className={styles.field} value={query} maxLength={80} placeholder="e.g. Cordova, Cebu" disabled={disabled || busy}
+      <label><span className={styles.label}>City or barangay</span><input className={styles.field} value={query} maxLength={80} placeholder="e.g. Cordova, Cebu" disabled={disabled || busy}
         onChange={e => setQuery(e.target.value)} onKeyDown={e => { if(e.key==='Enter'){ e.preventDefault(); void search(); } }} aria-describedby={`${id}-hint`} /></label>
       <button type="button" className={styles.button} disabled={disabled || busy || query.trim().length<3} onClick={() => void search()}><Search size={16}/>{operation === 'search' ? 'Searching…' : 'Search'}</button>
     </div>
-    <p id={`${id}-hint`} className={styles.hint}>Enter only a city or barangay here. Keep house numbers and private addresses out of this search.</p>
+    <p id={`${id}-hint`} className={styles.hint}>City or barangay only. No private addresses.</p>
     {results.length>0 && <div className={styles.results} aria-label="Matching places">{results.map((p,i) => <button type="button" disabled={disabled} className={styles.result} key={`${p.latitude}-${p.longitude}-${i}`} onClick={() => areaOnly ? selectPoint({ latitude:p.latitude, longitude:p.longitude, label:p.label }) : proposePoint(p)}><MapPin size={16}/>{p.label}</button>)}</div>}
     {areaOnly && <p className={styles.hint}>{allowMap ? 'Select a search result, or choose a point on the map.' : 'Select your city or barangay from the results.'}</p>}
     {areaOnly && allowMap && <button type="button" className={styles.button} aria-expanded={showAreaMap} onClick={() => setShowAreaMap(!showAreaMap)}>{showAreaMap ? 'Hide area map' : 'Use map instead'}</button>}
-    {allowMap && (!areaOnly || showAreaMap) && <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my device location'}</button>}
+    {allowMap && (!areaOnly || showAreaMap) && <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my location'}</button>}
     {operation === 'location' && <div className={styles.selected}><p role="status" className={styles.hint}>Allow location in your browser. You can cancel and retry after turning on device location.</p><button type="button" className={styles.button} onClick={cancelRequest}>Cancel location request</button></div>}
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
-    {allowMap && (!areaOnly || showAreaMap) && <><p className={styles.hint}>{purpose === 'search' ? 'Choose the center of your nearby search. This does not change any listing or booking address.' : purpose === 'discovery' ? 'Place the pin where nearby users should find your listing, then confirm. This does not set the job address.' : areaOnly ? 'Choose a point in your city or barangay, then confirm. No exact address is needed.' : 'Click the map or move the pin to the job location or workplace, then confirm.'}</p>
+    {allowMap && (!areaOnly || showAreaMap) && <><p className={styles.hint}>{purpose === 'search' ? 'Choose your search center.' : purpose === 'discovery' ? 'Move the public map pin, then confirm.' : areaOnly ? 'Choose an approximate location.' : 'Move the pin to the service address, then confirm.'}</p>
       <Map point={value} candidate={candidate} onCandidateChange={proposePoint} radiusKm={radiusKm} onChange={selectPoint} accent={accent} disabled={disabled}
         results={mapResults} resultPlacement="area" resultAccent={mapResultAccent} resultActionLabel="View listing" onResultSelect={onResultSelect} onViewportChange={onViewportChange}/></>}
     {(candidate || value) && (!compact || manualLabel) && <label><span className={styles.label}>{compact ? 'City or barangay for the selected point' : label}</span><input className={styles.field} value={candidate?.label ?? value?.label ?? ''} maxLength={160} disabled={disabled || Boolean(candidate)} onChange={e => { cancelLookup(); if(value) onChange({ ...value, label:e.target.value }); }}/></label>}

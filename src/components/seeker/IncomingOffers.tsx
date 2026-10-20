@@ -230,7 +230,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
       ) : pendingBids.length === 0 ? (
         <InboxState
           icon={Inbox}
-          title="No Offers Received"
+          title="No Offers"
           description="When providers send offers for your service requests, they will appear here."
         />
       ) : sortedBids.length === 0 ? (
@@ -296,7 +296,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                   <dl className="space-y-3 text-sm">
                     <div className="flex justify-between gap-4"><dt className="shrink-0 text-ink-muted">Provider</dt><dd className="min-w-0 text-right font-semibold break-words [overflow-wrap:anywhere]">{paymentSelectionBid?.providerName}</dd></div>
                     <div className="flex justify-between gap-4"><dt className="text-ink-muted">Agreed price</dt><dd className="text-lg font-bold tabular-nums">₱{Number(paymentSelectionBid?.price).toLocaleString()}</dd></div>
-                    <div className="flex justify-between gap-4"><dt className="text-ink-muted">Payment</dt><dd className="font-semibold">On-site Cash</dd></div>
+                    <div className="flex justify-between gap-4"><dt className="text-ink-muted">Payment</dt><dd className="font-semibold">Cash</dd></div>
                   </dl>
                   {paymentSelectionBid?.message && <p className="text-sm leading-relaxed break-words">{paymentSelectionBid.message}</p>}
                   <button type="button" onClick={() => handleSelectPaymentMethod('On-site Cash')} className="min-h-11 w-full rounded-xl bg-orange-600 px-4 py-3 text-sm font-bold text-white hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">Confirm booking</button>
@@ -318,7 +318,7 @@ export default function IncomingOffers({ currentUserId = 'u1' }: { currentUserId
                 .map(([method]) => (
                   <button key={method} onClick={() => handleSelectPaymentMethod(method)}
                     className="w-full p-4 border rounded-2xl text-left text-sm hover:border-orange-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
-                    {method === 'On-site Cash' && paymentSelectionBid?.serviceLocationMode === 'REMOTE' ? 'Cash in person (arrange separately)' : paymentSelectionRequest?.preferredPaymentMethod ? `Confirm ${method}` : method}
+                    {method === 'On-site Cash' ? paymentSelectionRequest?.preferredPaymentMethod ? 'Confirm Cash' : 'Cash' : paymentSelectionRequest?.preferredPaymentMethod ? 'Confirm GCash' : 'GCash · Test Mode'}
                   </button>
                 ))}
               </>}

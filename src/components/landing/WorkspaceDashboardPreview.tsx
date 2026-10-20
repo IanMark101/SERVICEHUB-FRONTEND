@@ -25,9 +25,9 @@ export default function WorkspaceDashboardPreview({ role, isDark }: { role: 'see
   const resultsId = useId();
   const user = { ...previewUser, role };
   const activeTab = role === 'seeker' ? 'seek-services' : 'browse-services';
-  const pageName = role === 'seeker' ? 'Seek Services' : 'Browse Service Requests';
+  const pageName = role === 'seeker' ? 'Find Services' : 'Find Work';
   const filters = role === 'seeker' ? ['All', 'Available Now', 'Top Rated', 'Low Queue'] : ['All', 'Urgent', 'High Budget', 'Few Offers'];
-  return <ScaledPreview width={1440} label={`${role === 'seeker' ? 'Seeker' : 'Provider'} dashboard — current UI with fictional sample data`}>
+  return <ScaledPreview width={1440} label={`${role === 'seeker' ? 'Customer' : 'Provider'} dashboard — current UI with fictional sample data`}>
     <div className={`workspace-shell ${role === 'provider' ? 'workspace-shell--provider' : ''} ${styles.dashboard}`} data-current-workspace={role}>
       <SidebarView currentRole={role} setCurrentRole={noop} activeTab={activeTab} setActiveTab={noop}
         isCollapsed={false} setIsCollapsed={noop} isMobileOpen={false} setIsMobileOpen={noop}

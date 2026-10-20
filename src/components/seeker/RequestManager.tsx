@@ -79,7 +79,7 @@ export default function RequestManager({
   const [activeAiRequestId, setActiveAiRequestId] = useState<string | null>(null);
   const handleToggleAiSuggestions = (requestId:string) => setActiveAiRequestId(requestId);
 
-  // Booked work belongs in Activity. Apply the same rule to cached/fallback data.
+  // Booked work belongs in My Bookings. Apply the same rule to cached/fallback data.
   const myRequests = (myOwnRequests ?? jobRequests.filter(r => r.seekerId === currentUserId))
     .map(r => localRequestEdits[r.id] ? { ...r, ...localRequestEdits[r.id] } : r)
     .map(r => localRequestStatuses[r.id] ? { ...r, status: localRequestStatuses[r.id] } : r)
@@ -202,7 +202,7 @@ export default function RequestManager({
     e.preventDefault();
     if (!editingRequest || savingEditRef.current) return;
     if (!editingRequest.jobLocation && editingRequest.serviceLocationMode !== 'REMOTE' && editingRequest.serviceLocationMode !== editingRequest.originalServiceLocationMode) {
-      error('Choose your discovery location', 'Choose where nearby providers can find your request on the map.');
+      error('Choose your map location', 'Choose where nearby providers can find your request on the map.');
       return;
     }
     savingEditRef.current = true;
@@ -268,8 +268,8 @@ export default function RequestManager({
       {myRequests.length === 0 ? (
         <EmptyState
           icon={ClipboardList}
-          title="No requests in Request Manager"
-          description="Post a task to receive offers from local providers. Once a booking is created, manage it in Activity. Repost completed requests from Activity → Completed."
+          title="No requests in My Requests"
+          description="Post a task to receive offers from local providers. Once a booking is created, manage it in My Bookings. Repost completed requests from My Bookings → Completed."
           actionLabel="+ Broadcast a Request"
           onAction={() => {
             if (onNavigateToPost) onNavigateToPost();
@@ -382,7 +382,7 @@ export default function RequestManager({
                             )}
                           </div>
                         ) : req.targetServiceId ? (
-                          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">{['CANCELED', 'CLOSED'].includes(req.status) || (!req.preferredPaymentMethod && bids.some(bid => bid.requestId === req.id && ['declined', 'rejected', 'withdrawn'].includes(bid.status.toLowerCase()))) ? 'Request closed' : req.status === 'PAYMENT_PENDING' ? 'Payment in progress' : bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Price received · review in Offers Received' : req.sourcePriceType && req.sourcePriceType !== 'BY_AGREEMENT' ? 'Listed price applies · close this old inquiry and book the service' : 'Waiting for the provider’s price'}</span>
+                          <span className="text-xs font-semibold text-brand-text dark:text-orange-400">{['CANCELED', 'CLOSED'].includes(req.status) || (!req.preferredPaymentMethod && bids.some(bid => bid.requestId === req.id && ['declined', 'rejected', 'withdrawn'].includes(bid.status.toLowerCase()))) ? 'Request closed' : req.status === 'PAYMENT_PENDING' ? 'Payment in progress' : bids.some(bid => bid.requestId === req.id && bid.status.toLowerCase() === 'pending') ? 'Price received · review in Offers' : req.sourcePriceType && req.sourcePriceType !== 'BY_AGREEMENT' ? 'Listed price applies · close this old inquiry and book the service' : 'Waiting for the provider’s price'}</span>
                         ) : (() => {
                           const isToggling = togglingRequestId === req.id;
                           return (
@@ -450,7 +450,7 @@ export default function RequestManager({
                     <div className="flex items-center space-x-2">
                       <span className="text-[11px] font-semibold text-ink-muted">{req.targetServiceId ? 'Service pricing' : 'Estimated budget'}</span>
                       <span className={`font-extrabold text-sm sm:text-base ${isDark ? 'text-orange-400' : 'text-brand-text'}`}>
-                        {req.targetServiceId && req.sourcePrice != null ? `₱${req.sourcePrice.toLocaleString()}` : req.targetServiceId && !req.budget ? 'Price by agreement' : `₱${req.budget}`}
+                        {req.targetServiceId && req.sourcePrice != null ? `₱${req.sourcePrice.toLocaleString()}` : req.targetServiceId && !req.budget ? 'Quote required' : `₱${req.budget}`}
                       </span>
                     </div>
 

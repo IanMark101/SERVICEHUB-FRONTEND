@@ -29,10 +29,10 @@ export default function CompletionReviewAction({ booking, busy, submitting, onRe
     return () => { window.clearTimeout(timer); window.removeEventListener('focus', update); };
   }, [deadline, now, pending]);
 
-  const description = pending ? 'Your request is with an administrator. The seeker can still confirm completion.'
+  const description = pending ? 'Your request is with an administrator. The customer can still confirm completion.'
     : !Number.isFinite(deadline) ? 'Refresh the booking to check when admin review becomes available.'
-    : ready ? 'The 72-hour seeker response period has ended. You can request admin review.'
-    : `Available ${formatDate.format(deadline)} (Philippine time), after the 72-hour seeker response period.`;
+    : ready ? 'The 72-hour customer response period has ended. You can request admin review.'
+    : `Available ${formatDate.format(deadline)} (Philippine time), after the 72-hour customer response period.`;
 
   if (booking.paymentMethod !== 'GCash') return null;
 

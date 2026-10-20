@@ -22,7 +22,7 @@ describe('provider markers in the location modal',()=>{
     await waitFor(() => expect(api.get).toHaveBeenCalled());
     expect(result.current.pins).toEqual([pin]);
   });
-  it('loads seeker request pins for providers without exposing private coordinates or crossing workspace data', async () => {
+  it('loads customer request pins for providers without exposing private coordinates or crossing workspace data', async () => {
     const requestPin = {...pin,id:'request-1',title:'Laptop will not turn on'};
     vi.mocked(api.get).mockResolvedValue({data:{success:true,data:{mapPins:[requestPin],items:[]}}});
     const {result,rerender}=renderHook(({workspace}) => useProviderMapListings(viewport,filters,[requestPin],workspace),{initialProps:{workspace:'provider' as 'provider'|'seeker'}});

@@ -19,7 +19,7 @@ export default function ProviderActivityTabs({
     { value: 'waiting', label: 'Before Work', count: countTabItems('waiting') },
     { value: 'pending_offers', label: 'Pending Offers', count: countTabItems('pending_offers') },
     { value: 'closed_offers', label: 'Closed Offers', count: countTabItems('closed_offers') },
-    { value: 'awaiting_approval', label: 'Awaiting Seeker', count: countTabItems('awaiting_approval') },
+    { value: 'awaiting_approval', label: 'Awaiting Customer', count: countTabItems('awaiting_approval') },
     { value: 'disputed', label: 'Disputes', count: countTabItems('disputed') },
     { value: 'completed', label: 'Completed', count: countTabItems('completed') },
     { value: 'canceled', label: 'Canceled', count: countTabItems('canceled') },

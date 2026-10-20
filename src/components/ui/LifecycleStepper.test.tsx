@@ -9,7 +9,7 @@ describe('LifecycleStepper', () => {
     expect(screen.getByText('Position #3')).toBeInTheDocument();
   });
 
-  it('shows the first paid seeker as waiting for the provider rather than in progress', () => {
+  it('shows the first paid customer as waiting for the provider rather than in progress', () => {
     render(<LifecycleStepper status="queued" queuePosition={1} role="seeker" isDark={false} />);
     expect(screen.getByText('First in Queue')).toBeInTheDocument();
     expect(screen.getByText('Waiting for provider')).toBeInTheDocument();

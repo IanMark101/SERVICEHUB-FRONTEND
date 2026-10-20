@@ -26,7 +26,7 @@ export default function ActivityDetailLayout({
   children: ReactNode;
 }) {
   const counterpart = role === 'provider' ? 'seeker' : 'provider';
-  const label = counterpart === 'seeker' ? 'Seeker' : 'Provider';
+  const label = counterpart === 'seeker' ? 'Customer' : 'Provider';
   const focus = role === 'provider' ? 'focus-visible:outline-emerald-500' : 'focus-visible:outline-orange-500';
   const accent = role === 'provider'
     ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-text dark:text-orange-400';

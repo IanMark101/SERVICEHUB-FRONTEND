@@ -47,7 +47,7 @@ describe('Admin case decisions', () => {
   });
   it('restores the exact reserved fault finding for retries', () => {
     mount({ ...safetyCase, type: 'CANCELLATION_ESCALATION', allowedOutcomes: ['approve_cancellation'],
-      resolutionOperation: { status: 'FAILED_RETRYABLE', stage: 'FINANCIAL_EFFECT_ESTABLISHED', requestedOutcome: 'ADMIN_APPROVE', requestedPenalty: 'cancellation_fault_seeker', notes: 'The seeker abandoned the agreed started work.' } });
+      resolutionOperation: { status: 'FAILED_RETRYABLE', stage: 'FINANCIAL_EFFECT_ESTABLISHED', requestedOutcome: 'ADMIN_APPROVE', requestedPenalty: 'cancellation_fault_seeker', notes: 'The customer abandoned the agreed started work.' } });
     expect(screen.getByLabelText(/Who was at fault/)).toHaveValue('seeker');
     expect(screen.getByLabelText(/Who was at fault/)).toBeDisabled();
   });

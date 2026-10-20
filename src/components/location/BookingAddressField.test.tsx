@@ -11,7 +11,7 @@ function Field() {
 it('accepts written directions without loading a map, and retains them when an optional pin is added',()=>{
   render(<Field/>);
   expect(screen.queryByRole('button',{name:'Choose test job pin'})).not.toBeInTheDocument();
-  fireEvent.change(screen.getByRole('textbox',{name:'Job address and directions'}),{target:{value:'Blue gate beside Ibabao barangay hall'}});
+  fireEvent.change(screen.getByRole('textbox',{name:'Service address'}),{target:{value:'Blue gate beside Ibabao barangay hall'}});
   expect(BookingLocationSchema.safeParse(JSON.parse(screen.getByTestId('booking-value').textContent!)).success).toBe(true);
   fireEvent.click(screen.getByRole('button',{name:'Add job pin (optional)'}));
   fireEvent.click(screen.getByRole('button',{name:'Choose test job pin'}));

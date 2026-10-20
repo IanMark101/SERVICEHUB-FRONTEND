@@ -67,7 +67,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       if (!selectedCategoryId) problems.push({ field: 'category', heading: 'Choose a category', message: 'Select the type of service you need.' });
     }
     if (index === 1 && serviceLocationMode !== 'REMOTE' && !LocationSchema.safeParse(jobLocation).success) {
-      problems.push({ field: 'location', heading: 'Choose your discovery location', message: 'Choose where nearby providers can find your request on the map.' });
+      problems.push({ field: 'location', heading: 'Choose your map location', message: 'Choose where nearby providers can find your request on the map.' });
     }
     if (index === 2) {
       if (!Number.isFinite(budget) || budget < 50 || budget > 50_000 || !Number.isInteger(budget)) problems.push({ field: 'budget', heading: 'Invalid budget', message: 'Enter an estimated budget between ₱50 and ₱50,000 in whole pesos.' });
@@ -142,10 +142,10 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
       <div className={styles.panel}>
         <header className={styles.header}>
           <span className={styles.headerIcon}><PlusCircle size={22} aria-hidden="true" /></span>
-          <div><h2>{initialTemplate ? 'Post this request again' : 'Post a Request'}</h2><p>{initialTemplate ? 'Check the copied details and choose when you need help again.' : 'Tell providers what you need and how much you plan to spend. Compare their offers before choosing.'}</p></div>
+          <div><h2>{initialTemplate ? 'Post this request again' : 'Post a Request'}</h2></div>
         </header>
         {initialTemplate && !success && <div className={styles.status}>
-          <div><p>This creates a new request. Your previous booking stays in Activity.</p>
+          <div><p>This creates a new request. Your previous booking stays in My Bookings.</p>
           {!initialTemplate.categoryId && <p>{initialTemplate.categoryName} is no longer available. Choose another category.</p>}
           {!initialTemplate.paymentMethods && <p>Choose how you can pay before posting.</p>}</div>
         </div>}
@@ -161,14 +161,14 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
           {problems.length > 0 && step !== 1 && <ul id="request-step-errors" role="alert" className={wizard.errors}>{problems.map(issue => <li key={issue.field}>{issue.message}</li>)}</ul>}
           <fieldset disabled={loading || photosBusy || !canTransact} className={styles.fields}>
             <WizardStep index={0} currentStep={step} label="Request details">
-            <ListingFormSection number={1} title="What do you need help with?" description="Describe the work so providers can give you a price.">
+            <ListingFormSection number={1} title="Request details">
               <div className={styles.detailsColumns}>
                 <div>
                   <label htmlFor="request-title" className={styles.label}>Request title</label>
                   <ListingTitleInput id="request-title" required minLength={3} maxLength={100} placeholder="e.g. Laptop will not turn on" value={title}
                     onChange={e => { setTitle(e.target.value); if (moderationError?.field === 'title') setModerationError(null); }}
                     aria-invalid={moderationError?.field === 'title' || (validationAttempted && (title.trim().length < 3 || title.trim().length > 100))} aria-describedby={moderationError?.field === 'title' ? 'request-title-help request-title-policy-error' : 'request-title-help'} className={styles.field} />
-                  <p id="request-title-help" className={styles.fieldHelp}>A short title, 3–100 characters.</p>
+                  <p id="request-title-help" className={styles.fieldHelp}>3–100 characters.</p>
                   {moderationError?.field === 'title' && <p id="request-title-policy-error" role="alert" className={styles.error}>{moderationError.message} Edit the title and try again.</p>}
                 </div>
                 <div>
@@ -177,65 +177,65 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
                     onChange={e => { setCategory(e.target.value); if (moderationError?.field === 'category') setModerationError(null); }}
                     options={orderServiceCategories(dbCategories).map(cat => ({ value:cat.id, label:cat.name, searchText:[cat.description, ...(cat.aliases ?? [])].join(' ') }))} placeholder="Select a category..." isDark={isDark} theme="seeker"
                     ariaInvalid={moderationError?.field === 'category' || (validationAttempted && !selectedCategoryId)} ariaDescribedBy={moderationError?.field === 'category' ? 'request-category-policy-error' : 'request-category-help'} />
-                  <p id="request-category-help" className={styles.fieldHelp}>{dbCategories.find(item => item.id === selectedCategoryId)?.description || 'Choose the type of help you need. If none fits, choose Other Services.'}</p>
+                  <p id="request-category-help" className={styles.fieldHelp}>Other Services if no category fits.</p>
                   <CategorySuggestion title={title} description={description} categories={dbCategories} selectedId={selectedCategoryId} onChoose={id=>{setCategory(id);if(moderationError?.field==='category')setModerationError(null);}} tone="seeker" />
                   {moderationError?.field === 'category' && <p id="request-category-policy-error" role="alert" className={styles.error}>{moderationError.message}</p>}
                 </div>
               </div>
               <div>
-                <label htmlFor="request-description" className={styles.label}>Describe what you need</label>
+                <label htmlFor="request-description" className={styles.label}>Description</label>
                 <textarea id="request-description" rows={4} required minLength={10} maxLength={2000} placeholder="e.g. My laptop will not turn on, even when plugged in. I need someone to check and repair it." value={description}
                   onChange={e => { setDescription(e.target.value); if (moderationError?.field === 'description') setModerationError(null); }}
                   aria-invalid={moderationError?.field === 'description' || (validationAttempted && (description.trim().length < 10 || description.trim().length > 2000))} aria-describedby={moderationError?.field === 'description' ? 'request-description-help request-description-policy-error' : 'request-description-help'} className={styles.field} />
-                <p id="request-description-help" className={styles.fieldHelp}>Explain the problem and what you want done. Use 10–2,000 characters.</p>
+                <p id="request-description-help" className={styles.fieldHelp}>10–2,000 characters.</p>
                 {moderationError?.field === 'description' && <p id="request-description-policy-error" role="alert" className={styles.error}>{moderationError.message} Edit the description and try again.</p>}
               </div>
             <ListingPhotoUploader value={photos} onChange={setPhotos} onBusyChange={setPhotosBusy} disabled={loading || !canTransact} />
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={1} currentStep={step} label="Request location">
-            <ListingFormSection number={2} title="Location and delivery" description="Let nearby providers find your request, then choose who travels. Job addresses are handled when booking.">
+            <ListingFormSection number={2} title="Location">
               <ServiceArrangementField value={serviceLocationMode} onChange={mode => {
                 setServiceLocationMode(mode); setLocationError('');
-              }} disabled={!canTransact || loading} layout="responsive" />
-              {serviceLocationMode === 'REMOTE' ? <p className={styles.fieldHelp}>Work is delivered online. No discovery pin or job address is needed.</p> : <DiscoveryLocationField userId={user?.id} reuseSaved workspace="seeker" error={locationError} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} disabled={!canTransact || loading} />}
+              }} disabled={!canTransact || loading} />
+              {serviceLocationMode !== 'REMOTE' && <DiscoveryLocationField userId={user?.id} reuseSaved workspace="seeker" error={locationError} value={jobLocation} onChange={point => { setJobLocation(point); setLocationError(''); }} disabled={!canTransact || loading} />}
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={2} currentStep={step} label="Request timing and budget">
-            <ListingFormSection number={3} title="When do you need help, and what is your budget?" description="Providers use these details when making an offer.">
+            <ListingFormSection number={3} title="Budget and timing">
               <div className={styles.columns}>
                 <div>
-                  <label htmlFor="request-urgency" className={styles.label}>When do you need help?</label>
+                  <label htmlFor="request-urgency" className={styles.label}>Needed by</label>
                   <FormSelect id="request-urgency" required value={urgency} onChange={e => setUrgency(e.target.value)} aria-invalid={problems.some(issue => issue.field === 'urgency')} aria-describedby="request-urgency-help" className={styles.field}>
                     <option value="" disabled>Choose when you need help</option>
                     {REQUEST_URGENCY_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                   </FormSelect>
-                  <p id="request-urgency-help" className={styles.fieldHelp}>If you need a specific date or time, add it to your description.</p>
+                  <p id="request-urgency-help" className={styles.fieldHelp}>Add specific dates in Description.</p>
                 </div>
                 <div>
-                  <label htmlFor="request-budget" className={styles.label}>Your service budget (₱)</label>
+                  <label htmlFor="request-budget" className={styles.label}>Budget (₱)</label>
                   <MoneyInput id="request-budget" min={50} max={50000} required placeholder="e.g. 500" value={budget} onChange={e => setBudget(Number(e.target.value))} aria-invalid={problems.some(issue => issue.field === 'budget')} aria-describedby="request-budget-help" className={styles.field} />
-                  <p id="request-budget-help" className={styles.fieldHelp}>How much you expect to spend on the work: ₱50–₱50,000. Review the provider’s price before accepting.</p>
+                  <p id="request-budget-help" className={styles.fieldHelp}>₱50–₱50,000.</p>
                 </div>
               </div>
               {involvesProviderTravel(serviceLocationMode) && <TransportationField value={transportationFee} onChange={setTransportationFee} isDark={isDark} budget disabled={!canTransact || loading} />}
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={3} currentStep={step} label="Request payment methods">
-            <ListingFormSection number={4} title="How can you pay?" description="Let providers know which payment methods you can use.">
+            <ListingFormSection number={4} title="Payment methods">
               <PaymentMethodCheckboxes remote={serviceLocationMode === 'REMOTE'} value={paymentMethods} onChange={setPaymentMethods} isDark={isDark} legend="Choose at least one payment method" disabled={loading || !canTransact}
-                description="You can choose both. Posting a request does not charge you. GCash is currently in test mode; no real money is transferred."
+
                 error={!hasPaymentMethod ? 'Choose at least one way you can pay.' : undefined} />
               <GCashNumberField userId={user?.id} enabled={paymentMethods.gcash} isDark={isDark} workspace="seeker" disabled={loading || !canTransact} onReadinessChange={setGCashReadiness} />
             </ListingFormSection>
             </WizardStep>
             <WizardStep index={4} currentStep={step} label="Review your request">
-              <ListingFormSection number={5} title="Review your request" description="Check everything before sharing it with providers.">
+              <ListingFormSection number={5} title="Review request">
                 <div>
-                  <WizardReviewSection title="Request details" onEdit={() => changeStep(0)}><dl><dt>Request title</dt><dd>{title}</dd><dt>Service category</dt><dd>{dbCategories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>Describe what you need</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd><dt>Discovery location</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Online / remote — no location needed' : jobLocation?.label || 'Not selected'}</dd></dl></WizardReviewSection>
+                  <WizardReviewSection title="Request details" onEdit={() => changeStep(0)}><dl><dt>Request title</dt><dd>{title}</dd><dt>Service category</dt><dd>{dbCategories.find(item => item.id === selectedCategoryId)?.name}</dd><dt>Description</dt><dd>{description}</dd><dt>Photos</dt><dd>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} added` : 'No photos added'}</dd></dl></WizardReviewSection>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Work location</dt><dd>{arrangementLabel[serviceLocationMode]}</dd><dt>Map location</dt><dd>{serviceLocationMode === 'REMOTE' ? 'Not required' : jobLocation?.label || 'Not selected'}</dd></dl></WizardReviewSection>
                   <WizardReviewSection title="Timing and budget" onEdit={() => changeStep(2)}><dl><dt>When you need help</dt><dd>{urgency}</dd><dt>Your service budget</dt><dd>₱{budget.toLocaleString()}</dd>{involvesProviderTravel(serviceLocationMode) && <><dt>Extra travel budget</dt><dd>{transportationFee === '' ? 'None specified' : `₱${Number(transportationFee).toLocaleString()}`}</dd></>}</dl></WizardReviewSection>
-                  <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[paymentMethods.cash && 'Cash in person', paymentMethods.gcash && 'GCash (test mode)'].filter(Boolean).join(' · ')}</p><p>Posting does not charge you. Compare providers’ offers before choosing.</p></WizardReviewSection>
+                  <WizardReviewSection title="Payment methods" onEdit={() => changeStep(3)}><p>{[paymentMethods.cash && 'Cash', paymentMethods.gcash && 'GCash · Test Mode'].filter(Boolean).join(' · ')}</p><p>Posting is free. Review offers before booking.</p></WizardReviewSection>
                 </div>
               </ListingFormSection>
             </WizardStep>
@@ -249,9 +249,7 @@ export default function PostRequest({ appealRequestId = '', initialTemplate }: {
           </fieldset>
         </form>
       </div>
-      <div className={styles.notice}><Info size={16} aria-hidden="true" /><div><p>After your request passes our content checks, verified providers can send offers. Compare their prices and profiles before choosing.</p>
-        {safeAppealRequestId && <div className="mt-2"><strong>Was your request removed?</strong><p>You can ask an Admin to review the removal. This will not republish the request automatically.</p><ContentCaseAction caseType="APPEAL" contentType="SERVICE_REQUEST" resourceId={safeAppealRequestId} isDark={isDark} label="Appeal this removal" /></div>}
-      </div></div>
+      {safeAppealRequestId && <div className={styles.notice}><Info size={16} aria-hidden="true" /><div><strong>Request removed?</strong><p>Ask an admin to review the removal.</p><ContentCaseAction caseType="APPEAL" contentType="SERVICE_REQUEST" resourceId={safeAppealRequestId} isDark={isDark} label="Appeal removal" /></div></div>}
     </div>
   );
 }

@@ -129,7 +129,7 @@ export function useProviderActions({
           };
           setServices(prev => [newListing, ...prev]);
           if (item.status === 'ACTIVE') success('Listing Published', 'Your service is now visible to customers.');
-          else info('Listing needs attention', 'Open Service Manager to check the details and publish your listing.');
+          else info('Listing needs attention', 'Open My Services to check the details and publish your listing.');
           return { success: true, data: item };
         }
       } else {
@@ -223,7 +223,7 @@ export function useProviderActions({
         const isNowAvailable = res.data?.isAvailable;
         setServices(prev => prev.map(s => s.id === serviceId ? { ...s, status: res.data.status, isPaused: !isNowAvailable } : s));
         if (isNowAvailable) {
-          success('Service active', 'Seekers can now find and book your service.');
+          success('Service active', 'Customers can now find and book your service.');
         } else {
           info('Service paused', 'New bookings are paused. Existing bookings are unchanged.');
         }
@@ -244,7 +244,7 @@ export function useProviderActions({
     const recordConfirmedOffer = (offer: Parameters<typeof mapOfferToBid>[0]) => {
       const bid = mapOfferToBid({ ...offer, requestId, providerId, serviceId: offer.serviceId || serviceId, offeredPrice: offer.offeredPrice ?? price, estimatedDuration: offer.estimatedDuration ?? estimatedDuration, message: offer.message ?? message, availability: offer.availability ?? availability, status: offer.status || 'PENDING' });
       setBids(prev => [bid, ...prev.filter(item => item.id !== bid.id)]);
-      success('Offer sent', 'Your offer was sent to the seeker.');
+      success('Offer sent', 'Your offer was sent to the customer.');
     };
     try {
       const res = await apiSubmitOffer({
@@ -289,7 +289,7 @@ export function useProviderActions({
       const res = await apiRespondDirectRequest(jobId, accept);
       if (res.success) {
         if (res.data) applyBookingAction(res.data);
-        success(accept ? 'Booking Accepted' : 'Booking Declined', 'Seeker has been notified.');
+        success(accept ? 'Booking Accepted' : 'Booking Declined', 'Customer has been notified.');
         return;
       }
     } catch (err: unknown) {
@@ -303,7 +303,7 @@ export function useProviderActions({
       const res = await apiCompleteJob(jobId);
       if (res.success) {
         if (res.data) applyBookingAction(res.data);
-        success('Work marked finished', 'Waiting for the seeker to confirm that the work is complete.');
+        success('Work marked finished', 'Waiting for the customer to confirm that the work is complete.');
         return;
       }
     } catch (err: unknown) {

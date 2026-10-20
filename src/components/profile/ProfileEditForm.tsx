@@ -139,7 +139,7 @@ export default function ProfileEditForm({
             rows={3}
             value={editForm.bio}
             onChange={e => setEditForm((form) => ({ ...form, bio: e.target.value }))}
-            placeholder="Tell service seekers or providers about your background, experience, and services..."
+            placeholder="Tell customers or providers about your background, experience, and services..."
           />
         </div>
 

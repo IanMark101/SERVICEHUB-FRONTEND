@@ -25,7 +25,7 @@ describe('GCash payment return and recovery', () => {
     rememberGcashCheckout(oldCheckout);
   });
 
-  it('keeps recovery GCash-only and lets the seeker return to the original listing', async () => {
+  it('keeps recovery GCash-only and lets the customer return to the original listing', async () => {
     vi.mocked(apiConfirmOnlineBooking).mockResolvedValue({ success: true, data: { status: 'FAILED' } });
     const view = render(<PaymentReturn paymentIntentId="pi_old" />);
     await screen.findByRole('heading', { name: 'GCash payment was not completed' });
@@ -79,7 +79,7 @@ describe('GCash payment return and recovery', () => {
     await screen.findByRole('heading', { name: 'GCash payment confirmed' });
     expect(screen.getByText(/ServiceHub verified the payment/)).toBeInTheDocument();
     expect(screen.queryByText(/An unsuccessful attempt cannot be reused/)).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'View booking in Activity' })).toHaveAttribute('href', '/seeker/seeker-activity');
+    expect(screen.getByRole('link', { name: 'View booking in My Bookings' })).toHaveAttribute('href', '/seeker/seeker-activity');
     expect(screen.queryByRole('button', { name: 'Try GCash Again' })).not.toBeInTheDocument();
     expect(readGcashCheckout('seeker-one', 'pi_old')).toBeNull();
   });

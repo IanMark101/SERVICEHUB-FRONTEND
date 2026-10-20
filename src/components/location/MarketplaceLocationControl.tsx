@@ -39,7 +39,7 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, initi
       <header className={styles.header}><h2 id={title}>Change search location</h2><button className={styles.close} type="button" aria-label="Close location dialog" onClick={onClose}><X size={20}/></button></header>
       <div className={styles.body}>
         <p className={styles.hint}>Choose a location and search radius. The circle previews the area used to find nearby {workspace==='seeker' ? 'service areas' : 'request areas'}. Your search, category and quick filters stay applied.</p>
-        <p className={styles.hint}>The radius filters physical listings only. Online / remote listings remain available without a map pin. Providers decide whether to accept each physical job.</p>
+        <p className={styles.hint}>The radius filters physical listings only. Online listings remain available without a map pin. Providers decide whether to accept each physical job.</p>
         <div className={styles.fieldGroup}>
           <label><span className={styles.label}>Search radius</span><FormSelect tone={workspace} className={styles.field} value={radiusChoice} aria-describedby={radiusHintId} onChange={event => {
             const choice = event.target.value;
@@ -54,8 +54,8 @@ function LocationDialog({ value, workspace, onClose, onApply, providerMap, initi
           {radiusError && <p id={radiusErrorId} role="alert" className={styles.error}>{radiusError}</p>}
         </div>}
         {providerMap && <div className={styles.hint}>
-          <p>{workspace==='seeker' ? 'Orange: your search location and radius. Green: provider listings. Exact pins are shared by the provider; other pins show approximate areas.' : 'Green: your search location and radius. Orange: seeker requests. Request pins show approximate areas to protect private job locations.'}</p>
-          <p role="status">{mapListings.error || (mapListings.loading ? `Loading ${workspace==='seeker' ? 'provider listings' : 'seeker requests'}...` : mapListings.resolved ? `${mapListings.pins.length} ${workspace==='seeker' ? 'provider listing' : 'seeker request'}${mapListings.pins.length===1 ? '' : 's'} loaded for this map.` : '')}</p>
+          <p>{workspace==='seeker' ? 'Orange: your search location and radius. Green: provider listings. Exact pins are shared by the provider; other pins show approximate areas.' : 'Green: your search location and radius. Orange: customer requests. Request pins show approximate areas to protect private job locations.'}</p>
+          <p role="status">{mapListings.error || (mapListings.loading ? `Loading ${workspace==='seeker' ? 'provider listings' : 'customer requests'}...` : mapListings.resolved ? `${mapListings.pins.length} ${workspace==='seeker' ? 'provider listing' : 'customer request'}${mapListings.pins.length===1 ? '' : 's'} loaded for this map.` : '')}</p>
           {mapListings.limited && <p>Zoom in to load listings across the visible area.</p>}
           {mapListings.error && <button className={styles.button} type="button" onClick={mapListings.retry}>Retry map listings</button>}
         </div>}

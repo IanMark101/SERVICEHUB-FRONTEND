@@ -32,15 +32,14 @@ export default function LocationField({ value, onChange, onClear, label, radiusK
         <span className={styles.pickerIcon}><MapPinned size={22} aria-hidden="true" /></span>
         <span className={styles.pickerCopy}>
           <strong id={`${id}-title`}>{value?.label || (areaOnly ? 'Choose a city or barangay' : 'Choose a location')}</strong>
-          <small>{purpose === 'discovery' ? 'Choose where nearby users can find this listing.' : areaOnly ? 'Choose a general area. No exact address is needed here.' : value ? 'Check the marked place. Move the pin if needed.' : 'Search your city or barangay, then mark the exact place.'}</small>
         </span>
         <span id={`${id}-action`} className={styles.pickerAction}>{open ? 'Close' : value ? 'Change' : areaOnly ? 'Choose area' : 'Choose location'}<ChevronDown size={16} aria-hidden="true" /></span>
       </summary>
       {open && !disabled && <LocationEditor compact purpose={purpose} key={selectionMode} selectionMode={selectionMode} value={value} onChange={onChange} onSelected={closeAfterSelection} radiusKm={radiusKm ?? undefined} accent={workspace==='provider' ? '#059669' : 'var(--color-brand-text)'}/>}
     </details>
     {value && onClear && <button type="button" className={styles.button} disabled={disabled} onClick={onClear}>Remove area</button>}
-    <p id={`${id}-hint`} className={styles.hint}>{hint || (privateAddress ? 'Mark where the provider should come. Only the city or barangay is public; the exact location and directions are shared after booking.' : 'Other users see the general area and approximate distance. Your exact location stays private.')}</p>
+    <p id={`${id}-hint`} className={styles.hint}>{hint || (privateAddress ? 'Exact location is shared privately after booking.' : 'Only an approximate location is public.')}</p>
     {error && <p id={`${id}-error`} role="alert" className={styles.error}>{error}</p>}
-    {privateAddress && value && <label><span className={styles.label}>Address or directions (optional, shared after booking)</span><textarea className={styles.field} rows={2} maxLength={500} placeholder="e.g. Blue gate beside the barangay hall" disabled={disabled} value={value.address || ''} onChange={e => onChange({ ...value, address:e.target.value })}/></label>}
+    {privateAddress && value && <label><span className={styles.label}>Directions (optional)</span><textarea className={styles.field} rows={2} maxLength={500} placeholder="e.g. Blue gate beside the barangay hall" disabled={disabled} value={value.address || ''} onChange={e => onChange({ ...value, address:e.target.value })}/></label>}
   </div>;
 }

@@ -334,7 +334,7 @@ export default function SeekerActivity({ currentUserId }: { currentUserId?: stri
   const handleDeleteClick = (je: JobEngagement) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Remove from Activity',
+      title: 'Remove from My Bookings',
       message: 'Are you sure you want to remove this record from your activity view? It will no longer be visible here.',
       confirmText: 'Remove',
       cancelText: 'Cancel',

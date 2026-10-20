@@ -129,7 +129,7 @@ export default function HeaderNotifications({
               </div>
             </div>
             <div className={`notification-filters flex shrink-0 flex-nowrap gap-1.5 overflow-x-auto border-b px-3 py-2.5 ${isDark ? 'border-neutral-800' : 'border-slate-100'}`} aria-label="Filter notifications">
-              {['All', 'Unread', 'Seeker', 'Provider', 'Community'].map((item) => (
+              {['All', 'Unread', 'Customer', 'Provider', 'Community'].map((item) => (
                 <button
                   key={item}
                   type="button"

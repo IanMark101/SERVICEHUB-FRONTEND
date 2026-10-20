@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import ActivityBookingFacts from './ActivityBookingFacts';
 import type { JobEngagement } from '../../types';
 
-const booking: JobEngagement = {id:'booking',title:'Laptop repair',status:'queued',bookingStatus:'ACCEPTED',providerId:'provider',providerName:'Provider',providerAvatar:'',seekerId:'seeker',seekerName:'Seeker',seekerAvatar:'',serviceId:'service',price:500,paymentMethod:'On-site Cash',serviceLocationMode:'SEEKER_VISITS',estimatedDurationMins:60,createdAt:'2026-10-16'};
+const booking: JobEngagement = {id:'booking',title:'Laptop repair',status:'queued',bookingStatus:'ACCEPTED',providerId:'provider',providerName:'Provider',providerAvatar:'',seekerId:'seeker',seekerName:'Customer',seekerAvatar:'',serviceId:'service',price:500,paymentMethod:'On-site Cash',serviceLocationMode:'SEEKER_VISITS',estimatedDurationMins:60,createdAt:'2026-10-16'};
 it('shows a saved workplace address without inventing an exact map link', () => {
   render(<ActivityBookingFacts role="seeker" booking={{...booking,jobLocation:{label:'Provider workplace',address:'Shop 2 beside the barangay hall'}}} />);
   expect(screen.getByText('Shop 2 beside the barangay hall')).toBeVisible();

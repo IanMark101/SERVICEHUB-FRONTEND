@@ -38,9 +38,9 @@ function GCashNumberControl({ userId, isDark, workspace, disabled, onReadinessCh
 
   return <div className={styles.row} data-gcash-number data-theme={isDark ? 'dark' : 'light'} data-workspace={workspace}>
     <div className={styles.copy}>
-      <strong>GCash number <span>(required for GCash)</span></strong>
-      <p>{phase === 'loading' ? 'Loading your saved number…' : phase === 'error' ? 'Could not load your GCash number. Retry before continuing, or choose Cash only.' : number ? `Saved number ending in ${number.slice(-4)}. Used across your listings.` : 'Add your GCash number to continue, or choose Cash only. It can differ from your contact number.'}</p>
-      <p className={styles.note}>Private to your account. GCash is in test mode; this number does not receive payouts.</p>
+      <strong>GCash number <span>(required)</span></strong>
+      <p>{phase === 'loading' ? 'Loading…' : phase === 'error' ? 'Could not load your number. Retry or choose Cash only.' : number ? `Saved · ending in ${number.slice(-4)}` : 'Add a number or choose Cash only.'}</p>
+      <p className={styles.note}>Private · no Test Mode payouts.</p>
       <span className={styles.status} role="status">{message}</span>
     </div>
     <button className={styles.edit} type="button" disabled={disabled || phase === 'loading'} onClick={() => {
@@ -93,14 +93,14 @@ function GCashNumberModal({ initialNumber, isDark, workspace, onClose, onSaved }
       <div className={form.header}><h3 id={`${id}-title`}>{initialNumber ? 'Edit GCash number' : 'Add GCash number'}</h3><button type="button" className={form.close} aria-label="Close GCash number" disabled={busy} onClick={onClose}><X size={20} aria-hidden="true" /></button></div>
       <form className={form.form} onSubmit={submit} noValidate aria-label="Save GCash number">
         <div className={form.body}>
-          <p id={`${id}-description`} className={styles.description}>Save one GCash number for your listings. You can change it here anytime. Your contact number stays the same.</p>
+          <p id={`${id}-description`} className={styles.description}>Private payment number. Separate from your contact number.</p>
           <label className={form.label} htmlFor={`${id}-number`}>GCash mobile number</label>
           <div className={`${styles.phone} form-control-group`} data-invalid={Boolean(error)}>
             <span className={styles.prefix} aria-hidden="true"><PhilippineFlag />+63</span>
             <input data-form-unstyled id={`${id}-number`} type="tel" inputMode="numeric" autoComplete="off" placeholder="917 123 4567" value={value} disabled={busy} aria-invalid={!!error} aria-describedby={`${id}-help${error ? ` ${id}-error` : ''}`} onChange={event => { setValue(formatPhilippineMobile(event.target.value)); setError(''); }} />
           </div>
-          <div className={styles.phoneHelp}><p id={`${id}-help`} className={form.hint}>Philippine mobile number: +63 followed by 10 digits starting with 9. No MPIN or OTP is needed.</p><span aria-hidden="true">{value.replace(/\D/g, '').length}/10 digits</span></div>
-          <p className={form.notice}>Saving a number does not verify wallet ownership or change checkout. GCash payments use test mode, so no real money is transferred to this number.</p>
+          <div className={styles.phoneHelp}><p id={`${id}-help`} className={form.hint}>10 digits starting with 9. No MPIN or OTP.</p><span aria-hidden="true">{value.replace(/\D/g, '').length}/10 digits</span></div>
+          <p className={form.notice}>Test Mode: no real money is transferred. Saving does not verify the wallet.</p>
           {error && <p id={`${id}-error`} role="alert" className={form.error}>{error}</p>}
         </div>
         <div className={form.footer}><div className={form.actions}>

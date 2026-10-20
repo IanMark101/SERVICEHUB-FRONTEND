@@ -13,7 +13,7 @@ const booking: JobEngagement = {
 };
 
 describe('Activity presentation from authoritative booking state', () => {
-  it('places the same queue booking under Waiting for the seeker and provider', () => {
+  it('places the same queue booking under Waiting for the customer and provider', () => {
     expect(getBookingActivityGroup(booking, 'seeker', 'johncarlo')).toBe('waiting');
     expect(getBookingActivityGroup(booking, 'provider', 'ian')).toBe('waiting');
     expect(getBookingActivityGroup({ ...booking, queuePosition: 1 }, 'provider', 'ian')).toBe('your_turn');
@@ -48,9 +48,9 @@ describe('Activity presentation from authoritative booking state', () => {
   it('renders an action-first single column overview and opens the selected booking', () => {
     const onOpen = vi.fn();
     const entries: ActivityFeedEntry[] = [
-      { id: 'waiting', group: 'waiting', title: 'House Cleaning', participant: 'Seeker: John Carlo', status: 'Position #2', explanation: 'Waiting for earlier jobs', next: 'Provider starts when ready', price: 250, payment: 'Payment confirmed', queue: 'Position #2', action: 'None right now' },
-      { id: 'action', group: 'your_turn', title: 'Faucet Repair', participant: 'Seeker: Lee', status: 'Ready to start', explanation: 'First in line', next: 'Start the job', price: 500 },
-      { id: 'dispute', group: 'under_review', title: 'Tutoring', participant: 'Seeker: Ana', status: 'Admin review', explanation: 'Case is being reviewed', next: 'Await decision', price: 100 },
+      { id: 'waiting', group: 'waiting', title: 'House Cleaning', participant: 'Customer: John Carlo', status: 'Position #2', explanation: 'Waiting for earlier jobs', next: 'Provider starts when ready', price: 250, payment: 'Payment confirmed', queue: 'Position #2', action: 'None right now' },
+      { id: 'action', group: 'your_turn', title: 'Faucet Repair', participant: 'Customer: Lee', status: 'Ready to start', explanation: 'First in line', next: 'Start the job', price: 500 },
+      { id: 'dispute', group: 'under_review', title: 'Tutoring', participant: 'Customer: Ana', status: 'Admin review', explanation: 'Case is being reviewed', next: 'Await decision', price: 100 },
     ];
     render(<ActivityFeed entries={entries} tone="provider" onOpen={onOpen} />);
     const headings = screen.getAllByRole('heading').map((node) => node.textContent);
@@ -64,7 +64,7 @@ describe('Activity presentation from authoritative booking state', () => {
   it.each(['seeker', 'provider'] as const)('distinguishes completed, canceled, and Admin review outcomes for the %s', (tone) => {
     const onOpen = vi.fn();
     const entries: ActivityFeedEntry[] = [
-      { id: 'done', group: 'history', outcome: 'completed', title: 'Haircut', participant: 'Ian', status: 'This booking is complete', explanation: '', next: 'Leave a review', date: 'Sep 25, 2026', price: 250 },
+      { id: 'done', group: 'history', outcome: 'completed', title: 'Haircut', participant: 'Ian', status: 'Completed', explanation: '', next: 'Leave a review', date: 'Sep 25, 2026', price: 250 },
       { id: 'closed', group: 'history', outcome: 'canceled', title: 'Cleaning', participant: 'John Carlo', status: 'This booking is closed', explanation: '', next: 'Find another service', date: 'Sep 26, 2026', price: 500 },
       { id: 'review', group: 'under_review', title: 'Tutoring', participant: 'Lee', status: 'Admin is reviewing this booking', explanation: 'A dispute is open', next: 'Await an Admin decision', price: 100 },
     ];

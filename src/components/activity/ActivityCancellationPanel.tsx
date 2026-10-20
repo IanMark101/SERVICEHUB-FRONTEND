@@ -29,7 +29,7 @@ export default function ActivityCancellationPanel({ booking, role, currentUserId
   const resolved = request.status === 'RESOLVED';
   const canRetry = processing && !request.adminId && !mine;
   const title = pending
-    ? mine ? 'Your Cancellation Request' : `Cancellation Requested by ${role === 'provider' ? 'Seeker' : 'Provider'}`
+    ? mine ? 'Your Cancellation Request' : `Cancellation Requested by ${role === 'provider' ? 'Customer' : 'Provider'}`
     : declined
       ? mine ? `Cancellation declined by ${other}` : 'You declined the cancellation request'
       : processing ? 'Cancellation is being processed'
@@ -48,7 +48,7 @@ export default function ActivityCancellationPanel({ booking, role, currentUserId
         ? 'Approving cancels the booking and processes any eligible GCash Test Mode refund.'
         : 'Approving cancels the booking. Cash payments are arranged directly; ServiceHub does not issue a cash refund.'}</p>}
       {declined && <p>{booking.status === 'awaiting_seeker_approval'
-        ? role === 'seeker' ? 'The provider has since marked the work finished. Review the completion decision below. You can still ask Admin to review the declined cancellation.' : 'You have marked the work finished. The seeker must review completion.'
+        ? role === 'seeker' ? 'The provider has since marked the work finished. Review the completion decision below. You can still ask Admin to review the declined cancellation.' : 'You have marked the work finished. The customer must review completion.'
         : mine ? 'The booking remains open. You can ask Admin to review this decision.' : `The ${other} has been notified and can ask Admin to review this decision.`}</p>}
       {processing && <p>{request.adminId ? 'An administrator is processing the decision. The booking will update when processing finishes.' : 'Cancellation approval is awaiting settlement. Check the booking status before trying again.'}</p>}
       {request.status === 'ESCALATED' && <p>An administrator is reviewing the cancellation. You will be notified when a decision is made.</p>}

@@ -49,7 +49,7 @@ export default function DashboardHeader({ currentRole, pageName, isDark, user, u
               </span>
               <div className="min-w-0 leading-tight">
                 <span className="workspace-header-role-label block truncate text-[9.5px] font-bold uppercase tracking-[0.12em]">
-                  {currentRole === 'seeker' ? 'Seeker workspace' : 'Provider workspace'}
+                  {currentRole === 'seeker' ? 'Customer workspace' : 'Provider workspace'}
                 </span>
                 <span className={`workspace-header-page-name mt-0.5 block truncate text-[14px] font-bold capitalize leading-none tracking-[-0.025em] ${isDark ? 'text-white' : 'text-ink'}`}>
                   {pageName}

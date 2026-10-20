@@ -62,11 +62,11 @@ describe('landing content before hydration and viewport initialization', () => {
     }
     expect(container.querySelector('[data-preview-theme]')).toBeVisible();
     const workspaces = within(container.querySelector('#workspaces')! as HTMLElement);
-    expect(workspaces.getByRole('tab', { name: 'Seeker Workspace' })).toHaveAttribute('aria-selected', 'true');
+    expect(workspaces.getByRole('tab', { name: 'Customer Workspace' })).toHaveAttribute('aria-selected', 'true');
     expect(workspaces.getByRole('tab', { name: 'Provider Workspace' })).toHaveAttribute('aria-selected', 'false');
-    expect(within(workspaces.getByRole('tabpanel', { name: 'Seeker Workspace' })).getByRole('img', { name: /^Seeker dashboard/ })).toBeVisible();
+    expect(within(workspaces.getByRole('tabpanel', { name: 'Customer Workspace' })).getByRole('img', { name: /^Customer dashboard/ })).toBeVisible();
     expect(container.querySelector('.brand-loading')).not.toBeInTheDocument();
-    const steps = within(main).getByRole('list', { name: 'Seeker service steps' });
+    const steps = within(main).getByRole('list', { name: 'Customer service steps' });
     expect(within(steps).getAllByRole('listitem')).toHaveLength(3);
     expect(within(main).getByRole('region', { name: 'Example booking preview' })).toBeVisible();
     expect(within(main).getByRole('button', { name: 'Preview Start Job' })).toBeVisible();

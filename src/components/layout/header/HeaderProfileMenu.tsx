@@ -32,7 +32,7 @@ export default function HeaderProfileMenu({ currentRole, user, isDark, isOpen, b
             <div className={`p-4 border-b ${isDark ? 'border-neutral-800 bg-charcoal-inset/45' : 'border-slate-100 bg-slate-50/45'}`}>
               <p className="text-[10px] text-ink-subtle font-semibold">Signed in as</p>
               <p className="text-xs font-bold truncate mt-0.5">{user.firstName} {user.lastName}</p>
-              <span className={`inline-block px-1.5 py-0.5 text-[8.5px] font-extrabold rounded mt-1 uppercase tracking-wider ${currentRole === 'admin' ? 'bg-[var(--admin-soft)] text-[var(--admin-accent)]' : 'bg-slate-100 text-ink-muted'}`}>{currentRole}</span>
+              <span className={`inline-block px-1.5 py-0.5 text-[8.5px] font-extrabold rounded mt-1 uppercase tracking-wider ${currentRole === 'admin' ? 'bg-[var(--admin-soft)] text-[var(--admin-accent)]' : 'bg-slate-100 text-ink-muted'}`}>{currentRole === 'seeker' ? 'Customer' : currentRole}</span>
             </div>
             <div className="py-1">
               <button onClick={() => { onClose(); onViewProfile?.(user); }} className={`flex w-full items-center px-4 py-1.5 text-[10px] font-medium leading-4 transition-colors ${isDark ? 'text-slate-300 hover:text-white hover:bg-charcoal-hover' : 'text-ink-muted hover:text-ink hover:bg-slate-50'}`}><User className="mr-2 h-3 w-3 text-ink-subtle" />View Profile</button>

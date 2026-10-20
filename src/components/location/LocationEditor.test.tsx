@@ -34,7 +34,7 @@ describe('device-location recovery', () => {
     const onChange=vi.fn();
     render(<LocationEditor compact selectionMode="area-search" value={null} onChange={onChange}/>);
     expect(screen.queryByRole('button',{name:/map|device location/i})).not.toBeInTheDocument();
-    fireEvent.change(screen.getByRole('textbox',{name:'Find a city or barangay'}),{target:{value:'Cordova'}});
+    fireEvent.change(screen.getByRole('textbox',{name:'City or barangay'}),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
     fireEvent.click(await screen.findByRole('button',{name:'Cordova, Cebu'}));
     expect(onChange).toHaveBeenCalledWith({latitude:10.3,longitude:123.9,label:'Cordova, Cebu'});
@@ -46,12 +46,12 @@ describe('device-location recovery', () => {
       .mockImplementationOnce(success => success(position));
     const onChange = vi.fn();
     render(<Editor onChange={onChange}/>);
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     expect(screen.getByRole('alert')).toHaveTextContent(code === 1 ? 'Allow location for this site' : code === 2 ? 'Turn on device location' : 'timed out');
-    expect(screen.getByRole('button', {name:'Use my device location'})).toBeEnabled();
+    expect(screen.getByRole('button', {name:'Use my location'})).toBeEnabled();
     expect(onChange).not.toHaveBeenCalled();
     // The user enables device/site location between attempts.
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     expect(gps).toHaveBeenCalledTimes(2);
     expect(gps).toHaveBeenLastCalledWith(expect.any(Function),expect.any(Function),{timeout:10000,maximumAge:0,enableHighAccuracy:false});
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -65,16 +65,16 @@ describe('device-location recovery', () => {
     vi.useFakeTimers();
     const onChange = vi.fn();
     render(<Editor onChange={onChange}/>);
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     const oldSuccess = gps.mock.calls[0][0];
     expect(screen.getByRole('button', {name:'Locating your device…'})).toBeDisabled();
     expect(screen.getByRole('status')).toHaveTextContent('cancel and retry');
     expect(screen.getByRole('button', {name:'Search'})).toBeInTheDocument();
     act(() => vi.advanceTimersByTime(12000));
     expect(screen.getByRole('alert')).toHaveTextContent('timed out');
-    expect(screen.getByRole('button', {name:'Use my device location'})).toBeEnabled();
+    expect(screen.getByRole('button', {name:'Use my location'})).toBeEnabled();
     gps.mockImplementationOnce(success => success(position));
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     act(() => oldSuccess({coords:{latitude:11,longitude:124}} as GeolocationPosition));
     expect(onChange).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
@@ -86,11 +86,11 @@ describe('device-location recovery', () => {
   it('can cancel a pending permission request and retry without closing the picker', () => {
     const onChange = vi.fn();
     render(<Editor onChange={onChange}/>);
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     const oldError = gps.mock.calls[0][1];
     fireEvent.click(screen.getByRole('button', {name:'Cancel location request'}));
-    expect(screen.getByRole('button', {name:'Use my device location'})).toBeEnabled();
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    expect(screen.getByRole('button', {name:'Use my location'})).toBeEnabled();
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     expect(gps).toHaveBeenCalledTimes(2);
     act(() => oldError?.(failure(1)));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -102,21 +102,21 @@ describe('device-location recovery', () => {
   it('keeps a manually selected pin when an earlier device request finishes', () => {
     const onChange = vi.fn();
     render(<Editor onChange={onChange}/>);
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     fireEvent.click(screen.getByRole('button', {name:'Choose map pin'}));
     act(() => gps.mock.calls[0][0](position));
     expect(onChange).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(screen.getByLabelText('City or barangay shown to other users')).toHaveValue('Chosen map pin');
-    expect(screen.getByRole('button', {name:'Use my device location'})).toBeEnabled();
+    expect(screen.getByRole('button', {name:'Use my location'})).toBeEnabled();
   });
 
   it('cleans up pending attempts when the picker closes', () => {
     vi.useFakeTimers();
     const onChange = vi.fn();
     const view = render(<Editor onChange={onChange}/>);
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     view.unmount();
     expect(vi.getTimerCount()).toBe(0);
     act(() => gps.mock.calls[0][0](position));
@@ -127,9 +127,9 @@ describe('device-location recovery', () => {
     gps.mockImplementationOnce(() => {throw new Error('Location unavailable');})
       .mockImplementationOnce(success => success(position));
     render(<Editor onChange={vi.fn()}/>);
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     expect(screen.getByRole('alert')).toHaveTextContent('could not start');
-    fireEvent.click(screen.getByRole('button', {name:'Use my device location'}));
+    fireEvent.click(screen.getByRole('button', {name:'Use my location'}));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(screen.getByLabelText('City or barangay shown to other users')).toHaveValue('My device location');
@@ -190,7 +190,7 @@ describe('general area selection', () => {
     const onChange = vi.fn();
     render(<LocationEditor value={null} onChange={onChange} selectionMode="area" radiusKm={10}/>);
     expect(screen.queryByRole('button',{name:'Choose map pin'})).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Find a city or barangay'),{target:{value:'Cordova'}});
+    fireEvent.change(screen.getByLabelText('City or barangay'),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
     fireEvent.click(await screen.findByRole('button',{name:'Cordova, Cebu'}));
     expect(onChange).toHaveBeenCalledWith({latitude:10.25,longitude:123.95,label:'Cordova, Cebu'});
@@ -201,7 +201,7 @@ describe('general area selection', () => {
     vi.mocked(api.get).mockResolvedValue({data:{data:[point]}});
     const onChange=vi.fn();
     render(<LocationEditor value={null} onChange={onChange}/>);
-    fireEvent.change(screen.getByLabelText('Find a city or barangay'),{target:{value:'Cordova'}});
+    fireEvent.change(screen.getByLabelText('City or barangay'),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
     fireEvent.click(await screen.findByRole('button',{name:'Cordova, Cebu'}));
     expect(onChange).not.toHaveBeenCalled();

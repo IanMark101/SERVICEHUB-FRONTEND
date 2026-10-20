@@ -69,7 +69,7 @@ export function MarketplaceConnectionFace() {
         </svg>
         <div className={`${styles.connectionRole} ${styles.connectionSeeker}`}>
           <span className={styles.connectionRoleIcon}><MagnifyingGlass size={22} weight="duotone" aria-hidden="true" /></span>
-          <span className={styles.connectionRoleCopy}><strong>Seeker</strong><span>Needs help</span></span>
+          <span className={styles.connectionRoleCopy}><strong>Customer</strong><span>Needs help</span></span>
         </div>
         <div className={styles.connectionService}>
           <span className={styles.connectionServiceEyebrow}><Lightning size={15} weight="fill" aria-hidden="true" /> Agreed work</span>

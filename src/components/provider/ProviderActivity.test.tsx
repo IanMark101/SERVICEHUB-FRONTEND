@@ -37,8 +37,8 @@ function setEngagements(jobEngagements: unknown[]) {
   } as unknown as ReturnType<typeof useApp>);
 }
 
-describe('Provider Activity deep-link tab selection', () => {
-  it('keeps Activity available without rendering the transferred Work Queue panel', () => {
+describe('My Bookings deep-link tab selection', () => {
+  it('keeps Activity available without rendering the transferred Job Queue panel', () => {
     setEngagements([]); vi.mocked(useSearchParams).mockReturnValue(new URLSearchParams() as ReturnType<typeof useSearchParams>);
     render(<ProviderActivity />); expect(screen.getByTestId('activity-view')).toBeVisible();
     expect(screen.queryByTestId('work-queue-panel')).not.toBeInTheDocument();

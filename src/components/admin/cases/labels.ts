@@ -7,10 +7,10 @@ export const CASE_TYPES: Record<string, string> = { COMPLETION_DISPUTE: 'Complet
 const STATES: Record<string, string> = {
   PENDING: 'Pending', UNDER_REVIEW: 'Under review', RESOLVED: 'Resolved', DISMISSED: 'Dismissed',
   PENDING_APPROVAL: 'Awaiting provider approval', WAITING: 'In the paid queue', ACCEPTED: 'Ready to start',
-  ONGOING: 'Work underway', AWAITING_CONFIRMATION: 'Awaiting seeker confirmation', DISPUTED: 'Paused for case review',
+  ONGOING: 'Work underway', AWAITING_CONFIRMATION: 'Awaiting customer confirmation', DISPUTED: 'Paused for case review',
   COMPLETED: 'Completed', CANCELED: 'Cancelled', CANCELLED: 'Cancelled',
   PAID_HELD: 'Payment held until completion', FROZEN_HELD: 'Payment temporarily held for review', RELEASED: 'Released to provider ledger',
-  REFUNDED: 'Refunded to seeker', UNPAID: 'No payment collected by ServiceHub', CASH_CONFIRMED: 'On-site cash confirmed',
+  REFUNDED: 'Refunded to customer', UNPAID: 'No payment collected by ServiceHub', CASH_CONFIRMED: 'On-site cash confirmed',
   APPROVED: 'Verified', ACTIVE: 'Active', SUSPENDED: 'Temporarily suspended', BANNED: 'Banned',
   SUCCEEDED: 'Succeeded', FAILED: 'Failed', EXPIRED: 'Expired', SERVING: 'Current job',
   QUEUED: 'Waiting in queue', PROCESSING: 'Processing', FAILED_RETRYABLE: 'Decision needs retry',
@@ -18,7 +18,7 @@ const STATES: Record<string, string> = {
   REPORT_CANCEL_BOOKING: 'Booking cancelled', REPORT_RELEASE_PROVIDER_AND_COMPLETE: 'Booking completed',
   CANCELLATION_APPROVED: 'Cancellation approved', CANCELLATION_DENIED: 'Cancellation declined',
   CANCELLATION_CASE_CLOSED_BY_PARTICIPANT: 'Cancellation case closed after participant approval',
-  COMPLETION_ESCALATION_KEEP_AWAITING: 'Kept awaiting confirmation', COMPLETION_ESCALATION_REFUND_SEEKER: 'Seeker refunded',
+  COMPLETION_ESCALATION_KEEP_AWAITING: 'Kept awaiting confirmation', COMPLETION_ESCALATION_REFUND_SEEKER: 'Customer refunded',
   COMPLETION_ESCALATION_RELEASE_PROVIDER_AND_COMPLETE: 'Completed in provider’s favor',
 };
 export function stateLabel(value?: string | null) { return value ? STATES[value] || value.toLowerCase().replace(/_/g, ' ').replace(/^./, s => s.toUpperCase()) : 'Not recorded'; }
@@ -33,9 +33,9 @@ export const DECISIONS: Record<string, { title: string; description: string; dan
   dismiss: { title: 'Dismiss report', description: 'Close the report without a penalty. Restore the previous booking state once no other case blocks it.' },
   resolve_safety: { title: 'Record a supported safety finding', description: 'Resolve the safety report and restore the previous booking state once no other case blocks it. Existing completed or cancelled bookings keep their payment outcome.' },
   cancel_booking: { title: 'Cancel booking', description: 'Close the booking and remove it from the queue. Refund any held online payment. No platform refund is created for cash.', danger: true },
-  refund_seeker: { title: 'Cancel and refund seeker', description: 'Close the booking and remove it from the queue. Refund any held online payment. No platform refund is created for cash.', danger: true },
+  refund_seeker: { title: 'Cancel and refund customer', description: 'Close the booking and remove it from the queue. Refund any held online payment. No platform refund is created for cash.', danger: true },
   release_provider_and_complete: { title: 'Complete in provider’s favor', description: 'Record service completion. Release held online payment to the provider ledger, or record cash as externally confirmed. Apply the existing completion trust event once.' },
-  keep_awaiting: { title: 'Keep awaiting confirmation', description: 'Close this escalation while the booking awaits the seeker. Payment remains held. The provider can escalate again after the 72-hour cooldown.' },
+  keep_awaiting: { title: 'Keep awaiting confirmation', description: 'Close this escalation while the booking awaits the customer. Payment remains held. The provider can escalate again after the 72-hour cooldown.' },
   approve_cancellation: { title: 'Approve cancellation', description: 'Close the linked cancellation case, cancel the booking and remove it from the queue. Refund any held online payment. Cash has no platform refund.', danger: true },
   deny_cancellation: { title: 'Decline cancellation', description: 'Close the linked cancellation case and keep the booking active. Other open cases may continue to block it. Payment is not released.' },
 };

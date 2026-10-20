@@ -209,7 +209,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         tags
       });
       if (res.data && reviewingEngagement) applyBookingAction({ id: reviewingEngagement.id, review: res.data });
-      success('Review updated', 'Your review for the seeker has been updated.');
+      success('Review updated', 'Your review for the customer has been updated.');
     } else {
       if (!reviewingEngagement || !reviewingEngagement.completedServiceId) return;
       const res = await apiSubmitReview({
@@ -219,7 +219,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
         tags
       });
       if (res.data) applyBookingAction({ id: reviewingEngagement.id, review: res.data });
-      success('Seeker review submitted', 'Thank you for your rating and feedback.');
+      success('Customer review submitted', 'Thank you for your rating and feedback.');
     }
   };
 
@@ -258,7 +258,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
     setLoadingItemId(id);
     setLoadingActionType('completion_escalation');
     try {
-      await apiEscalateCompletion(id, 'The seeker has not responded to the completion request after the required waiting period.');
+      await apiEscalateCompletion(id, 'The customer has not responded to the completion request after the required waiting period.');
       applyBookingAction({ id, status: 'AWAITING_CONFIRMATION', completionReview: {
         ...completionReviewForBooking(booking)!, pending: true,
       } });
@@ -290,7 +290,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       if (response.data?.immediate) {
         success('Booking Cancelled', 'The reason was recorded and any eligible online refund was submitted.');
       } else {
-        info('Cancellation Request Sent', 'The seeker must review the request because work has started.');
+        info('Cancellation Request Sent', 'The customer must review the request because work has started.');
       }
       setCancelingBookingId(null);
       setCancelReason('');
@@ -369,7 +369,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
   const handleDeleteClick = (je: JobEngagement) => {
     setConfirmModal({
       isOpen: true,
-      title: 'Remove from Activity',
+      title: 'Remove from My Bookings',
       message: 'Are you sure you want to remove this record from your activity view? It will no longer be visible here.',
       confirmText: 'Remove',
       cancelText: 'Cancel',
@@ -406,7 +406,7 @@ export default function ProviderActivity({ currentProviderId }: { currentProvide
       const res = await apiRespondCancellationRequest(respondingReqId, false, declineNote);
       if (res.success) {
         if (res.data?.booking) applyBookingAction({ id: res.data.booking.id, ...res.data });
-        info('Cancellation Declined', 'The seeker has been notified and may escalate to admin.');
+        info('Cancellation Declined', 'The customer has been notified and may escalate to admin.');
         setRespondingReqId(null);
         setDeclineNote('');
       } else {

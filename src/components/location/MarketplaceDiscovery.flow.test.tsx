@@ -35,7 +35,7 @@ const aircon = (km:number) => ({ id:`aircon-${km}`, providerId:'provider', provi
 const plumbing = { ...aircon(.5), id:'plumbing', title:'Plumbing service', category:{name:'Plumbing'} };
 const requestParams = (options: Parameters<typeof api.get>[1]) => (options?.params ?? {}) as Record<string, unknown>;
 
-describe('actual Seeker and Provider discovery pages with the nearby hook', () => {
+describe('actual Customer and Provider discovery pages with the nearby hook', () => {
   beforeEach(() => {
     vi.clearAllMocks(); localStorage.clear(); window.history.replaceState({}, '', '/');
     window.matchMedia = vi.fn().mockReturnValue({ matches:false });
@@ -112,7 +112,7 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     await waitFor(()=>expect(screen.getByTestId('map-results')).toBeEmptyDOMElement());
   });
 
-  it('uses only the Seeker location modal map, loads outside-radius listings and opens details without applying its draft',async()=>{
+  it('uses only the Customer location modal map, loads outside-radius listings and opens details without applying its draft',async()=>{
     const saved={...location,radiusKm:2};
     localStorage.setItem('servicehub:marketplace-location:member:seeker',JSON.stringify(saved));
     render(<SeekServices/>);
@@ -274,7 +274,7 @@ describe('actual Seeker and Provider discovery pages with the nearby hook', () =
     expect(screen.getByRole('textbox', {name:'Search service listings'})).toHaveValue('Aircon Repair');
   });
 
-  it('provider details lead to an offer, while seeker cards lead to the existing booking form', async () => {
+  it('provider details lead to an offer, while customer cards lead to the existing booking form', async () => {
     localStorage.setItem('servicehub:marketplace-location:member:provider', JSON.stringify({...location,radiusKm:2}));
     submitBid.mockResolvedValue(true);
     const view = render(<BrowseJobs/>);

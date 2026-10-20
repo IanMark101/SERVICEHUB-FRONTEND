@@ -51,7 +51,7 @@ describe('illustrative landing booking progress', () => {
     expect(scrollTo).toHaveBeenCalledExactlyOnceWith(secondFrame, { block: 'center', behavior: 'instant' });
     expect(scrollIntoView).not.toHaveBeenCalled();
     expectProgress(20);
-    expect(preview().getByRole('button', { name: 'Preview Mark Work Finished' })).toHaveFocus();
+    expect(preview().getByRole('button', { name: 'Preview Finish Work' })).toHaveFocus();
   });
 
   it('keeps mobile timeframe selection in place without a scroll or pin', () => {
@@ -72,33 +72,33 @@ describe('illustrative landing booking progress', () => {
     expect(preview().getByRole('button', { name: 'Preview Start Job' })).toBeInTheDocument();
     moveScroll(0.22);
     expectProgress(20);
-    expect(preview().getByText('This job is in progress')).toBeInTheDocument();
-    expect(preview().getByRole('button', { name: 'Preview Mark Work Finished' })).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'In progress' })).toBeInTheDocument();
+    expect(preview().getByRole('button', { name: 'Preview Finish Work' })).toBeInTheDocument();
     moveScroll(0.4);
     expectProgress(40);
-    expect(preview().getByText('Your service is in progress')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'In progress' })).toBeInTheDocument();
     expect(preview().getByText('The provider has started work on this booking.')).toBeInTheDocument();
-    expect(preview().queryByRole('button', { name: 'Preview Mark Work Finished' })).not.toBeInTheDocument();
+    expect(preview().queryByRole('button', { name: 'Preview Finish Work' })).not.toBeInTheDocument();
     expect(preview().queryByRole('button', { name: 'Preview Confirm Completion' })).not.toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Example booking preview' })).toHaveAttribute('data-role', 'seeker');
     moveScroll(0.57);
     expectProgress(60);
-    expect(preview().getByText('Work submitted for confirmation')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Awaiting confirmation' })).toBeInTheDocument();
     expect(preview().queryByRole('button', { name: 'Preview Confirm Completion' })).not.toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Example booking preview' })).toHaveAttribute('data-role', 'provider');
     moveScroll(0.74);
     expectProgress(80);
-    expect(preview().getByText('Provider marked the work finished')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Awaiting confirmation' })).toBeInTheDocument();
     expect(preview().getByText('The booking is not final until you confirm the result or report an issue.')).toBeInTheDocument();
-    expect(preview().queryByText('This booking is complete')).not.toBeInTheDocument();
+    expect(preview().queryByText('Completed')).not.toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Example booking preview' })).toHaveAttribute('data-role', 'seeker');
     moveScroll(1);
     expectProgress(100);
-    expect(preview().getByText('This booking is complete')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Completed' })).toBeInTheDocument();
     expect(preview().getByRole('button', { name: 'Restart booking demo' })).toBeInTheDocument();
     moveScroll(0.22);
     expectProgress(20);
-    expect(preview().getByText('This job is in progress')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'In progress' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Stage 2: In progress' })).toHaveAttribute('aria-current', 'step');
   });
 
@@ -107,16 +107,16 @@ describe('illustrative landing booking progress', () => {
     vi.stubGlobal('fetch', fetchSpy);
     render(<LandingBookingProgress isDark={true} />);
     fireEvent.click(preview().getByRole('button', { name: 'Preview Start Job' }));
-    expect(preview().getByRole('button', { name: 'Preview Mark Work Finished' })).toHaveFocus();
-    fireEvent.click(preview().getByRole('button', { name: 'See Seeker progress' }));
+    expect(preview().getByRole('button', { name: 'Preview Finish Work' })).toHaveFocus();
+    fireEvent.click(preview().getByRole('button', { name: 'See Customer progress' }));
     expect(preview().getByText('The provider has started work on this booking.')).toBeInTheDocument();
     expect(preview().getByRole('button', { name: 'See work submitted' })).toHaveFocus();
     expectProgress(40);
     fireEvent.click(preview().getByRole('button', { name: 'See work submitted' }));
-    fireEvent.click(preview().getByRole('button', { name: 'See Seeker confirmation' }));
+    fireEvent.click(preview().getByRole('button', { name: 'See Customer confirmation' }));
     expect(preview().getByRole('link', { name: /What if there is an issue/ })).toHaveAttribute('href', '/help/safety/reporting-users-and-disputes');
     fireEvent.click(preview().getByRole('button', { name: 'Preview Confirm Completion' }));
-    expect(preview().getByText('This booking is complete')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Completed' })).toBeInTheDocument();
     expectProgress(100);
     expect(preview().getByRole('button', { name: 'Restart booking demo' })).toHaveFocus();
     fireEvent.click(preview().getByRole('button', { name: 'Restart booking demo' }));
@@ -127,12 +127,12 @@ describe('illustrative landing booking progress', () => {
     expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center', behavior: 'instant' });
   });
 
-  it('keeps Mark Work Finished linked to submitted work rather than the Seeker started preview', () => {
+  it('keeps Finish Work linked to submitted work rather than the Customer started preview', () => {
     render(<LandingBookingProgress isDark={false} />);
     fireEvent.click(preview().getByRole('button', { name: 'Preview Start Job' }));
-    fireEvent.click(preview().getByRole('button', { name: 'Preview Mark Work Finished' }));
-    expect(preview().getByText('Work submitted for confirmation')).toBeInTheDocument();
-    expect(preview().queryByText('Your service is in progress')).not.toBeInTheDocument();
+    fireEvent.click(preview().getByRole('button', { name: 'Preview Finish Work' }));
+    expect(preview().getByRole('heading', { name: 'Awaiting confirmation' })).toBeInTheDocument();
+    expect(preview().queryByText('In progress')).not.toBeInTheDocument();
     expectProgress(60);
   });
 
@@ -160,7 +160,7 @@ describe('illustrative landing booking progress', () => {
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: 640 });
     render(<LandingBookingProgress isDark={false} />);
     moveScroll(0.3);
-    expect(preview().getByText('This job is in progress')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'In progress' })).toBeInTheDocument();
     moveScroll(0.74);
     expect(preview().getByRole('button', { name: 'Preview Confirm Completion' })).toBeInTheDocument();
   });
@@ -175,13 +175,13 @@ describe('illustrative landing booking progress', () => {
     });
     scroll.progress!.set(0.47);
     render(<LandingBookingProgress isDark={false} />);
-    expect(preview().getByText('Work submitted for confirmation')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Awaiting confirmation' })).toBeInTheDocument();
     moveScroll(0.6);
     expect(preview().getByRole('button', { name: 'Preview Confirm Completion' })).toBeInTheDocument();
     moveScroll(0.73);
-    expect(preview().getByText('This booking is complete')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Completed' })).toBeInTheDocument();
     moveScroll(0.95);
-    expect(preview().getByText('This booking is complete')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Completed' })).toBeInTheDocument();
   });
 
   it('removes its responsive listener and both size observers on unmount', () => {
@@ -202,7 +202,7 @@ describe('illustrative landing booking progress', () => {
     });
     const { container } = render(<LandingBookingProgress isDark={false} />);
     moveScroll(1);
-    expect(preview().getByText('This booking is complete')).toBeInTheDocument();
+    expect(preview().getByRole('heading', { name: 'Completed' })).toBeInTheDocument();
     const timeline = container.querySelector<HTMLElement>('[data-booking-timeline]')!;
     expect(timeline.style.getPropertyValue('--booking-final-stage-space')).toBe('388px');
     animatedHeight = 210;

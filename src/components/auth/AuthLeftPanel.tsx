@@ -104,7 +104,7 @@ export default function AuthLeftPanel({
 
           <p className="auth-overview__description mx-auto mt-5 max-w-[32rem] text-center text-sm leading-6 text-ink-muted dark:text-white/64 xl:text-[15px]">
             {isSignup
-              ? 'Move between Seeker and Provider workspaces without splitting your profile, verification, or trust history.'
+              ? 'Move between Customer and Provider workspaces without splitting your profile, verification, or trust history.'
               : 'Manage requests, listings, messages, and bookings under one verified local identity.'}
           </p>
 

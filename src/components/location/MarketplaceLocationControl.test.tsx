@@ -90,7 +90,7 @@ describe('marketplace search location', () => {
     fireEvent.click(screen.getByRole('button', { name:/Choose your search location/ }));
     expect(screen.getByRole('button', { name:'Apply location' })).toBeDisabled();
     expect(gps).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByLabelText('Find a city or barangay'), { target:{ value:'Cordova' } });
+    fireEvent.change(screen.getByLabelText('City or barangay'), { target:{ value:'Cordova' } });
     expect(api.get).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name:'Search' }));
     fireEvent.click(await screen.findByRole('button', { name:'Cordova, Cebu' }));
@@ -105,7 +105,7 @@ describe('marketplace search location', () => {
     vi.stubGlobal('navigator', Object.assign(Object.create(navigator), { geolocation:{ getCurrentPosition:gps } }));
     render(<MarketplaceLocationControl value={null} workspace="seeker" onApply={vi.fn()}/>);
     fireEvent.click(screen.getByRole('button', { name:/Choose your search location/ }));
-    fireEvent.click(screen.getByRole('button', { name:'Use my device location' }));
+    fireEvent.click(screen.getByRole('button', { name:'Use my location' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Search a place or select a pin');
     fireEvent.click(screen.getByRole('button', { name:'Choose map pin' }));
     fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));
@@ -117,14 +117,14 @@ describe('marketplace search location', () => {
   it('lazy loads a job location picker and keeps private directions out of place search', async () => {
     function JobField() { const [point,setPoint] = useState<LocationPoint|null>(null); return <LocationField value={point} onChange={setPoint} label="Job location" privateAddress/>; }
     render(<JobField/>);
-    expect(screen.queryByLabelText('Find a city or barangay')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('City or barangay')).not.toBeInTheDocument();
     const details = document.querySelector('details')!;
     details.open = true; fireEvent(details, new Event('toggle'));
     fireEvent.click(await screen.findByRole('button', { name:'Choose map pin' }));
     fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));
-    fireEvent.change(screen.getByLabelText('Address or directions (optional, shared after booking)'), { target:{ value:'Unit 7, private directions' } });
+    fireEvent.change(screen.getByLabelText('Directions (optional)'), { target:{ value:'Unit 7, private directions' } });
     expect(api.get).not.toHaveBeenCalled();
     expect(document.querySelector('summary')).toHaveTextContent('Lapu-Lapu City, Cebu');
-    await waitFor(() => expect(screen.getByLabelText('Address or directions (optional, shared after booking)')).toHaveValue('Unit 7, private directions'));
+    await waitFor(() => expect(screen.getByLabelText('Directions (optional)')).toHaveValue('Unit 7, private directions'));
   });
 });

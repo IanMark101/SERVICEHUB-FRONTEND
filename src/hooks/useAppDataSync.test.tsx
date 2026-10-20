@@ -177,7 +177,7 @@ describe('useAppDataSync initial marketplace loading', () => {
     expect(apiGetMyServices).toHaveBeenCalledTimes(1);
   });
 
-  it('does not fetch provider-only listings on seeker loads or refreshes, and loads them after a provider switch', async () => {
+  it('does not fetch provider-only listings on customer loads or refreshes, and loads them after a provider switch', async () => {
     const { result, rerender } = renderHook(({ role }: { role: 'seeker' | 'provider' }) => useAppDataSync({
       authLoading: false, isAuthenticated: true, user: { ...user, role }, toastSuccess, toastError,
     }), { initialProps: { role: 'seeker' as 'seeker' | 'provider' } });

@@ -9,12 +9,12 @@ describe('private inquiry pricing state', () => {
   const decline=vi.fn(); const price=vi.fn();
   render(<IncomingInquiryCard request={{...base,sourcePriceType,sourcePrice:300}} timeLabel="Today" disabled={false} loadingAction={null} onDecline={decline} onSetPrice={price}/>);
   expect(screen.getByText('Listed price applies')).toBeVisible();
-  expect(screen.queryByRole('button',{name:'Accept & set price'})).not.toBeInTheDocument();
+  expect(screen.queryByRole('button',{name:'Send Quote'})).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button',{name:'Decline request'})); expect(decline).toHaveBeenCalledOnce(); expect(price).not.toHaveBeenCalled();
  });
- it('retains price negotiation for Price by agreement',()=>{
+ it('retains price negotiation for Quote required',()=>{
   const price=vi.fn();
   render(<IncomingInquiryCard request={{...base,sourcePriceType:'BY_AGREEMENT'}} timeLabel="Today" disabled={false} loadingAction={null} onDecline={vi.fn()} onSetPrice={price}/>);
-  fireEvent.click(screen.getByRole('button',{name:'Accept & set price'})); expect(price).toHaveBeenCalledOnce();
+  fireEvent.click(screen.getByRole('button',{name:'Send Quote'})); expect(price).toHaveBeenCalledOnce();
  });
 });

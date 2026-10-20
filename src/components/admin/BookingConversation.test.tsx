@@ -9,7 +9,7 @@ beforeEach(() => vi.resetAllMocks());
 it('loads older messages without duplication, keeps chronology, and identifies each participant', async () => {
   vi.mocked(apiGetAdminBookingMessages).mockResolvedValueOnce({ data: { messages: [message('new')], messageCount: 3, seeker: { id: 'seeker', name: 'Mara' }, pagination: { hasMore: true, nextBefore: 'new' } } }).mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce({ data: { messages: [message('old'), message('new')], messageCount: 3, seeker: { id: 'seeker', name: 'Mara' }, pagination: { hasMore: false, nextBefore: null } } });
   render(<BookingConversation bookingId="booking" />);
-  await screen.findByText('Seeker');
+  await screen.findByText('Customer');
   fireEvent.click(screen.getByRole('button', { name: 'Load older messages' }));
   await screen.findByRole('alert');
   expect(screen.getByText('new')).toBeInTheDocument();

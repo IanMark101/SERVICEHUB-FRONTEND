@@ -36,11 +36,11 @@ interface WalkthroughStage {
 
 const stages: readonly WalkthroughStage[] = [
   { title: 'Ready when it is your turn.', description: 'A confirmed GCash Test Mode booking reaches the front of the Provider\'s paid queue. Start Job becomes available when no other service is active.', role: 'provider', label: 'Ready to start', status: 'queued', action: { label: 'Start Job', next: 1 } },
-  { title: 'The service is underway.', description: 'The Provider starts the service. Activity shows that work is in progress, with the same booking available to both members.', role: 'provider', label: 'In progress', status: 'in_progress', action: { label: 'Mark Work Finished', next: 3 }, nextView: { label: 'See Seeker progress', next: 2 } },
-  { title: 'The Seeker sees work has started.', description: 'The same booking updates in the Seeker workspace: the Provider has started the service. Confirmation becomes available after the Provider submits the finished work.', role: 'seeker', label: 'Provider started', status: 'in_progress', nextView: { label: 'See work submitted', next: 3 } },
-  { title: 'Finished, awaiting a response.', description: 'The Provider marks the work finished. Their booking card changes to waiting on the Seeker; submission alone does not complete the booking.', role: 'provider', label: 'Work submitted', status: 'awaiting_seeker_approval', nextView: { label: 'See Seeker confirmation', next: 4 } },
-  { title: 'Finished work. Your confirmation.', description: 'Mark Work Finished sends the result to the Seeker. The booking stays open until the Seeker confirms the work or reports an issue.', role: 'seeker', label: 'Awaiting confirmation', status: 'awaiting_seeker_approval', action: { label: 'Confirm Completion', next: 5 } },
-  { title: 'Confirmed, then recorded.', description: 'Seeker confirmation completes the booking. Both members can find it in History and leave a review; the Provider can check its payment record.', role: 'provider', label: 'Completed', status: 'completed' },
+  { title: 'The service is underway.', description: 'The Provider starts the service. Activity shows that work is in progress, with the same booking available to both members.', role: 'provider', label: 'In progress', status: 'in_progress', action: { label: 'Finish Work', next: 3 }, nextView: { label: 'See Customer progress', next: 2 } },
+  { title: 'The Customer sees work has started.', description: 'The same booking updates in the Customer workspace: the Provider has started the service. Confirmation becomes available after the Provider submits the finished work.', role: 'seeker', label: 'Provider started', status: 'in_progress', nextView: { label: 'See work submitted', next: 3 } },
+  { title: 'Finished, awaiting a response.', description: 'The Provider marks the work finished. Their booking card changes to waiting on the Customer; submission alone does not complete the booking.', role: 'provider', label: 'Work submitted', status: 'awaiting_seeker_approval', nextView: { label: 'See Customer confirmation', next: 4 } },
+  { title: 'Finished work. Your confirmation.', description: 'Finish Work sends the result to the Customer. The booking stays open until the Customer confirms the work or reports an issue.', role: 'seeker', label: 'Awaiting confirmation', status: 'awaiting_seeker_approval', action: { label: 'Confirm Completion', next: 5 } },
+  { title: 'Confirmed, then recorded.', description: 'Customer confirmation completes the booking. Both members can find it in History and leave a review; the Provider can check its payment record.', role: 'provider', label: 'Completed', status: 'completed' },
 ];
 
 const bookingStatuses = {
@@ -210,7 +210,7 @@ export default function LandingBookingProgress({ isDark }: { isDark: boolean }) 
       <div className={styles.inner} data-landing-anchor>
         <ScrollReveal className={styles.heading}>
           <h2 id="booking-progress-heading">Every step, in the same booking.</h2>
-          <p>From the Provider starting the service to the Seeker confirming the result. See how the booking changes along the way.</p>
+          <p>From the Provider starting the service to the Customer confirming the result. See how the booking changes along the way.</p>
         </ScrollReveal>
         <div className={styles.layout}>
           <div ref={timelineRef} className={styles.timelineTrack} data-booking-timeline>
@@ -228,7 +228,7 @@ export default function LandingBookingProgress({ isDark }: { isDark: boolean }) 
                       {index < stageIndex && <Check className={styles.passedCheck} size={17} weight="bold" />}
                     </span>
                     <span className={styles.stepContent}>
-                      <span className={styles.role}>{item.role === 'provider' ? 'Provider' : 'Seeker'} <ArrowRight size={13} aria-hidden="true" /> {item.label}</span>
+                      <span className={styles.role}>{item.role === 'provider' ? 'Provider' : 'Customer'} <ArrowRight size={13} aria-hidden="true" /> {item.label}</span>
                       <span className={styles.stepTitle}>{item.title}</span>
                       <span className={styles.description}>{item.description}</span>
                     </span>
@@ -241,7 +241,7 @@ export default function LandingBookingProgress({ isDark }: { isDark: boolean }) 
             <div ref={previewRef} id="booking-progress-preview" className={styles.preview} data-role={stage.role}
               role="region" aria-label="Example booking preview">
               <div className={styles.previewHeader}>
-                <span className={styles.workspace}><span aria-hidden="true" /> {stage.role === 'provider' ? 'Provider' : 'Seeker'} workspace <span className={styles.path}>/ Activity</span></span>
+                <span className={styles.workspace}><span aria-hidden="true" /> {stage.role === 'provider' ? 'Provider' : 'Customer'} workspace <span className={styles.path}>/ My Bookings</span></span>
                 <span className={styles.demoLabel}>Interactive demo</span>
               </div>
               <div className={styles.walkthroughProgress}>

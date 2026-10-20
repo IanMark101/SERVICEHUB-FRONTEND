@@ -27,7 +27,7 @@ export default function BookingDetailState({ status, role, onRetry, onBack }: Bo
   if (status === 'loading' || retrying) return (
     <div className="space-y-4">
       <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-[color:var(--workspace-focus)] dark:text-ink dark:hover:bg-charcoal">
-        <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
+        <ArrowLeft size={18} aria-hidden="true" /> Back to My Bookings
       </button>
       <section role="status" aria-label="Loading booking details" aria-busy="true" className="workspace-surface rounded-[24px] border p-5 shadow-sm sm:p-7">
         <span className="sr-only">Loading booking details.</span>
@@ -48,13 +48,13 @@ export default function BookingDetailState({ status, role, onRetry, onBack }: Bo
 
   if (status === 'error') return (
     <section role="alert">
-      <EmptyState icon={WarningCircle} title="Couldn't load this booking" description="Check your connection and try again." accentColor={accentColor} actionLabel="Retry" onAction={() => { void retry(); }} secondaryActionLabel="Back to Activity" onSecondaryAction={onBack} />
+      <EmptyState icon={WarningCircle} title="Couldn't load this booking" description="Check your connection and try again." accentColor={accentColor} actionLabel="Retry" onAction={() => { void retry(); }} secondaryActionLabel="Back to My Bookings" onSecondaryAction={onBack} />
     </section>
   );
 
   return (
     <section role="status">
-      <EmptyState icon={CalendarBlank} title="Booking unavailable" description="This booking is no longer in your Activity, or this account does not have access to it." accentColor={accentColor} actionLabel="Back to Activity" onAction={onBack} />
+      <EmptyState icon={CalendarBlank} title="Booking unavailable" description="This booking is no longer in your Activity, or this account does not have access to it." accentColor={accentColor} actionLabel="Back to My Bookings" onAction={onBack} />
     </section>
   );
 }

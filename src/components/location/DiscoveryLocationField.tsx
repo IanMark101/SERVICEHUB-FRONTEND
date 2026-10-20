@@ -22,8 +22,8 @@ export default function DiscoveryLocationField({ userId, value, onChange, worksp
     const saved = readDiscoveryLocation(userId);
     if (saved) onChange(saved);
   }, [reuseSaved, userId, value, onChange]);
-  return <LocationField label="Discovery location" purpose="discovery" required value={value} workspace={workspace} disabled={disabled} error={error}
-    hint={`Your ${workspace === 'provider' ? 'service' : 'request'} appears near this point on the public map. Only an approximate area is shown. The job address is handled separately when booking.`}
+  return <LocationField label="Map location" purpose="discovery" required value={value} workspace={workspace} disabled={disabled} error={error}
+    hint="Only an approximate location is public."
     onChange={point => {
       const discovery = { latitude: point.latitude, longitude: point.longitude, label: point.label };
       if (userId) try { localStorage.setItem(storageKey(userId), JSON.stringify(discovery)); } catch { /* Posting works without browser storage. */ }

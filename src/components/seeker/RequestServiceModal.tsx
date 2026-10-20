@@ -116,7 +116,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
       return;
     }
 
-    const existingActive = jobEngagements.find(je => 
+    const existingActive = jobEngagements.find(je =>
       je.seekerId === user.id &&
       je.serviceId === listing.id &&
       ['pending_provider', 'queued', 'in_progress', 'awaiting_seeker_approval', 'disputed'].includes(je.status)
@@ -171,15 +171,15 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
     <div className={styles.overlay}>
       <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="request-dialog-title" className={styles.panel} data-theme={isDark ? 'dark' : 'light'} data-workspace="seeker">
         <header className={styles.header}>
-          <h3 id="request-dialog-title">Send a request</h3>
+          <h3 id="request-dialog-title">{reviewRequired ? 'Request a Quote' : 'Book Service'}</h3>
           <button type="button" onClick={onClose} disabled={loading} aria-label="Close request form" className={styles.close}><X size={18} aria-hidden="true" /></button>
         </header>
 
         {success ? (
           <div role="status" className={styles.success}>
             <CheckCircle2 size={40} aria-hidden="true" />
-            <h4>{reviewRequired ? 'Service request sent' : paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}</h4>
-            <p>{reviewRequired ? 'The provider will review your work and location, then send a final price or decline. Review their price in Offers Received. No booking or payment has been created.' : paymentMethod === 'On-site Cash'
+            <h4>{reviewRequired ? 'Quote request sent' : paymentMethod === 'On-site Cash' ? 'Request Sent Successfully!' : 'Booking Created Successfully!'}</h4>
+            <p>{reviewRequired ? 'The provider will review your work and location, then send a final price or decline. Review their price in Offers. No booking or payment has been created.' : paymentMethod === 'On-site Cash'
               ? 'The request was sent to ' + listing.providerName + ' for acceptance. Your preferred schedule is a proposal until the provider accepts it.'
               : "Your verified online booking has entered this service listing's queue."}</p>
             {reviewRequired && <button type="button" className={`${styles.button} ${styles.primary}`} onClick={() => { onClose(); router.push('/seeker/request-manager'); }}>View your request</button>}
@@ -193,7 +193,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                   <div className={styles.summaryHeading}>
                     <h4>{listing.title}</h4>
                     <div className={styles.amount}>
-                      <span>{agreement ? 'Price by agreement' : priceUnavailable ? 'Price unavailable' : '₱' + Number(listing.price).toLocaleString()}</span>
+                      <span>{agreement ? 'Quote required' : priceUnavailable ? 'Price unavailable' : '₱' + Number(listing.price).toLocaleString()}</span>
                       <span>{reviewRequired ? 'Final total after provider review' : priceUnavailable ? 'Final price required' : listing.priceType === 'PER_HOUR' ? 'Per hour' : listing.priceType === 'PER_DAY' ? 'Per day' : listing.priceType === 'PER_PROJECT' ? 'Per project' : 'Fixed price'}</span>
                     </div>
                   </div>
@@ -202,10 +202,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     <span>{listing.category}</span>
                     {listing.estimatedDurationMins && <span><Clock size={14} aria-hidden="true" />Estimated duration: {listing.estimatedDurationMins} minutes</span>}
                   </div>
-                  <p className={styles.hint}>
-                    <strong>{agreement ? 'Request this service' : isMetered ? 'Displayed listing rate' : 'Agreed listing price'}</strong>
-                    {' · '}{reviewRequired ? 'Send the work and job location. The provider reviews the request and proposes a final total before payment.' : priceUnavailable ? 'The provider must enter a final price before this listing can be booked.' : remote ? 'Online delivery. No transportation fee applies. Review the final total before booking.' : isMetered ? 'The server calculates the total from this rate and your selected quantity.' : 'Review the service total before booking.'}
-                  </p>
+
                 </section>
 
                 {isOwned && <p role="alert" className={styles.error}>This is your own service listing. Marketplace transactions with your own account are not allowed.</p>}
@@ -213,9 +210,9 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 <div className={styles.review}><ReviewSummaryPanel subjectId={listing.providerId} context="provider" serviceId={listing.id} isDark={isDark} /></div>
 
                 <div>
-                  <label htmlFor="request-work-description" className={styles.label}>Describe the work needed</label>
+                  <label htmlFor="request-work-description" className={styles.label}>Work description</label>
                   <textarea id="request-work-description" rows={4} required minLength={reviewRequired ? 10 : undefined} maxLength={2000} disabled={isOwned} aria-invalid={Boolean(formError && !description.trim())} aria-describedby={formError && !description.trim() ? 'booking-form-error' : undefined}
-                    placeholder="Describe exactly what needs to be done, location details, preferred schedules..."
+                    placeholder="Describe the work you need."
                     value={description} onChange={(event) => { setDescription(event.target.value); setFormError(null); }} className={styles.field} />
                 </div>
                 {reviewRequired && <ListingPhotoUploader purpose="inquiry" value={photos} onChange={setPhotos} onBusyChange={setPhotosBusy} disabled={loading || isOwned} />}
@@ -223,10 +220,10 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
                 <WizardStep index={1} currentStep={step} label="Work location">
                 <ServiceArrangementField value={serviceLocationMode} options={arrangements} onChange={mode => { setServiceLocationMode(mode as BookingLocationMode); setFormError(null); }} disabled={loading || isOwned} />
-                {serviceLocationMode === 'REMOTE' ? <div className={styles.hint}><strong>Online / remote — no meetup required</strong><p>Agree on the deliverables and schedule through Messages. Follow progress, completion and any concerns in Activity. No address or travel fee is needed.</p></div> : serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Where will the job happen?" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Mark where the provider should come. Review the listed price and any displayed travel fee before booking. The exact pin and directions stay private until booking." /> : <div className={styles.hint}>
-                  <strong>Provider’s service venue</strong>
+                {serviceLocationMode === 'REMOTE' ? <p className={styles.hint}>No travel required.</p> : serviceLocationMode === 'PROVIDER_VISITS' ? <LocationField label="Service address" value={jobLocation} onChange={point => { setJobLocation(point); setFormError(null); }} required error={formError && step === 1 ? formError : undefined} privateAddress disabled={loading || isOwned} hint="Exact location is shared privately after booking." /> : <div className={styles.hint}>
+                  <strong>Provider address</strong>
                   <p>{listing.locationLabel || 'The provider’s saved service venue'}</p>
-                  <p>You’ll travel to the provider. Exact directions are shared in your booking; no seeker job pin or provider transportation fee is needed.</p>
+                  <p>Exact directions are shared privately after booking.</p>
                 </div>}
                 </WizardStep>
 
@@ -237,7 +234,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                     <input id="request-preferred-schedule" type="text" maxLength={500} disabled={isOwned}
                       value={preferredSchedule} onChange={(event) => setPreferredSchedule(event.target.value)}
                       placeholder="e.g. Saturday afternoon; please confirm availability" className={styles.field} aria-describedby="request-schedule-hint" />
-                    <p id="request-schedule-hint" className={styles.hint}>This is a proposal, not a reserved appointment. The provider must confirm availability.</p>
+                    <p id="request-schedule-hint" className={styles.hint}>Subject to provider confirmation.</p>
                   </div>
                 )}
 
@@ -252,7 +249,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
 
                 {!priceUnavailable && <div className={styles.hint}>
                   <p>Service: ₱{(Number(listing.price) * quantity).toLocaleString()}</p>
-                  {!!transportationFee && <p>Provider transportation (once): ₱{transportationFee.toLocaleString()}</p>}
+                  {!!transportationFee && <p>Travel fee: ₱{transportationFee.toLocaleString()}</p>}
                   <p className={styles.total}>Total: ₱{total.toLocaleString()}</p>
                 </div>}
                 <section className={styles.payment} aria-labelledby="request-payment-title">
@@ -262,24 +259,24 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                       .filter(([, accepted]) => accepted)
                       .map(([method]) => (
                         <button key={method} type="button" disabled={isOwned}
-                          aria-label={method === 'GCash' ? 'GCash · Test Mode' : method}
+                          aria-label={method === 'GCash' ? 'GCash · Test Mode' : 'Cash'}
                           aria-pressed={paymentMethod === method}
                           onClick={() => { setPaymentMethod(method); setFormError(null); }} className={styles.paymentChoice}>
-                          {method === 'GCash' ? <><GCashLogo /><span>· Test Mode</span></> : remote ? 'Cash in person (arrange separately)' : method}
+                          {method === 'GCash' ? <><GCashLogo /><span>· Test Mode</span></> : 'Cash'}
                         </button>
                       ))}
                   </div>
-                  {remote && cash && <p className={styles.hint}>Cash needs a separate in-person payment arrangement, even though the work is online. GCash Test Mode does not transfer real money.</p>}
+                  {remote && cash && <p className={styles.hint}>Arrange cash payment separately.</p>}
                   {!cash && !gcash && <p className={styles.error}>No supported payment method is available.</p>}
-                  {gcash && <p className={styles.hint}>GCash checkout uses PayMongo Test Mode. ServiceHub confirms the payment before adding your booking to the provider’s shared work queue; test payments are not real provider payouts.</p>}
+                  {gcash && <p className={styles.hint}>Test Mode: no real money is transferred.</p>}
                 </section>
                 </WizardStep>}
 
                 <WizardStep index={finalStep} currentStep={step} label="Review your booking request">
                   <h4 className={styles.label}>Review your request</h4>
                   <WizardReviewSection title="Work details" onEdit={() => changeStep(0)}><p>{description}</p>{reviewRequired && <p>{photos.length ? `${photos.length} photo${photos.length === 1 ? '' : 's'} attached` : 'No photos attached'}</p>}</WizardReviewSection>
-                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Service arrangement</dt><dd>{arrangementLabel[serviceLocationMode]}</dd>{serviceLocationMode === 'REMOTE' ? <><dt>Delivery</dt><dd>Online. Coordinate through Messages and Activity; no meetup or travel fee.</dd></> : <><dt>{serviceLocationMode === 'PROVIDER_VISITS' ? 'Job location' : 'Provider’s service venue'}</dt><dd>{serviceLocationMode === 'PROVIDER_VISITS' ? jobLocation?.label : listing.locationLabel || 'The provider’s saved service venue'}</dd></>}{serviceLocationMode === 'PROVIDER_VISITS' && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
-                  {reviewRequired ? <p className={styles.hint}>The provider reviews your work and location, then proposes a final price including any travel. Approve their price in Offers Received before booking or payment. Sending this request does not charge you.</p> : <WizardReviewSection title="Schedule and payment" onEdit={() => changeStep(2)}><dl>{paymentMethod === 'On-site Cash' && <><dt>Preferred schedule</dt><dd>{preferredSchedule.trim() || 'Not specified'}</dd></>}{isMetered && <><dt>Number of {unitName}</dt><dd>{quantity}</dd></>}<dt>Service</dt><dd>₱{(Number(listing.price) * quantity).toLocaleString()}</dd>{!!transportationFee && <><dt>Provider transportation (once)</dt><dd>₱{transportationFee.toLocaleString()}</dd></>}<dt>Total</dt><dd>₱{total.toLocaleString()}</dd><dt>Payment Method</dt><dd>{paymentMethod === 'GCash' ? 'GCash · Test Mode' : remote ? 'Cash in person (arrange separately)' : paymentMethod}</dd></dl>
+                  <WizardReviewSection title="Location" onEdit={() => changeStep(1)}><dl><dt>Work location</dt><dd>{arrangementLabel[serviceLocationMode]}</dd>{serviceLocationMode === 'REMOTE' ? <><dt>Delivery</dt><dd>Online</dd></> : <><dt>{serviceLocationMode === 'PROVIDER_VISITS' ? 'Job location' : 'Provider address'}</dt><dd>{serviceLocationMode === 'PROVIDER_VISITS' ? jobLocation?.label : listing.locationLabel || 'The provider’s saved service venue'}</dd></>}{serviceLocationMode === 'PROVIDER_VISITS' && jobLocation?.address && <><dt>Private directions</dt><dd>{jobLocation.address}</dd></>}</dl></WizardReviewSection>
+                  {reviewRequired ? <p className={styles.hint}>No charge now. Review the provider’s quote in Offers.</p> : <WizardReviewSection title="Schedule and payment" onEdit={() => changeStep(2)}><dl>{paymentMethod === 'On-site Cash' && <><dt>Preferred schedule</dt><dd>{preferredSchedule.trim() || 'Not specified'}</dd></>}{isMetered && <><dt>Number of {unitName}</dt><dd>{quantity}</dd></>}<dt>Service</dt><dd>₱{(Number(listing.price) * quantity).toLocaleString()}</dd>{!!transportationFee && <><dt>Travel fee</dt><dd>₱{transportationFee.toLocaleString()}</dd></>}<dt>Total</dt><dd>₱{total.toLocaleString()}</dd><dt>Payment Method</dt><dd>{paymentMethod === 'GCash' ? 'GCash · Test Mode' : 'Cash'}</dd></dl>
                   <p>{paymentMethod === 'On-site Cash' ? 'Your preferred schedule is a proposal. The provider must accept your request and confirm availability.' : 'Continue to PayMongo Test Mode checkout. Your booking is added only after payment is confirmed.'}</p></WizardReviewSection>}
                 {!reviewRequired && <div className={styles.notice}>
                   <TriangleAlert size={16} aria-hidden="true" />
@@ -300,7 +297,7 @@ export default function RequestServiceModal({ listing, onClose, initialPaymentMe
                 ) : (
                   <button type="submit" disabled={loading || photosBusy || (priceUnavailable && !reviewRequired)} className={[styles.button, styles.primary].join(' ')}>
                     {loading && <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />}
-                    {priceUnavailable && !reviewRequired ? 'Price Needed Before Booking' : reviewRequired ? loading ? 'Sending request…' : 'Send service request' : loading ? paymentMethod === 'GCash' ? 'Preparing checkout…' : 'Sending request…' : paymentMethod === 'GCash' ? 'Continue to GCash' : 'Send Request'}
+                    {priceUnavailable && !reviewRequired ? 'Price Needed Before Booking' : reviewRequired ? loading ? 'Sending request…' : 'Request a Quote' : loading ? paymentMethod === 'GCash' ? 'Preparing checkout…' : 'Sending request…' : paymentMethod === 'GCash' ? 'Continue to GCash' : 'Send Request'}
                   </button>
                 )}
               </div>

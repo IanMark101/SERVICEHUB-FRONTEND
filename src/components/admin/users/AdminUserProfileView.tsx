@@ -44,7 +44,7 @@ export default function AdminUserProfileView({ data, backHref, onRefresh }: { da
   }, [load, invalidate, data]);
   const status = user.deactivatedAt ? 'Deleted account' : user.moderationStatus !== 'ACTIVE' ? label(user.moderationStatus) : user.isActive ? 'Active' : 'Inactive';
   const facts: [string, string | null | undefined][] = [
-    ['User ID', user.id], ['Account role', user.role === 'admin' ? 'Administrator' : 'User · seeker and provider workspaces'],
+    ['User ID', user.id], ['Account role', user.role === 'admin' ? 'Administrator' : 'User · customer and provider workspaces'],
     ['Email', user.email], ['Phone', user.phone], ['Email verification', user.emailVerified ? 'Verified' : 'Not verified'],
     ['Residency verification', label(user.verificationStatus)], ['Location', user.location], ['Joined', date(user.createdAt)],
     ['Account status', status], ['Suspension ends', user.suspendedUntil ? date(user.suspendedUntil) : null],

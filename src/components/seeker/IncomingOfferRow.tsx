@@ -30,7 +30,7 @@ export default function IncomingOfferRow({ bid, request, provider, relatedServic
       <span>{timeLabel}</span>
       <span>{bid.estimatedDuration ? `${bid.estimatedDuration} minutes` : 'Duration to confirm'}</span>
     </div>
-    <p className={styles.summary}><span>{arrangementLabel[mode]}</span><span>{mode === 'SEEKER_VISITS' ? `Provider venue: ${bid.venueLabel || 'Shared after booking'}` : `Job area: ${request?.locationLabel || 'Seeker’s posted job location'}`}</span></p>
+    <p className={styles.summary}><span>{arrangementLabel[mode]}</span><span>{mode === 'SEEKER_VISITS' ? `Provider venue: ${bid.venueLabel || 'Shared after booking'}` : `Job area: ${request?.locationLabel || 'Customer’s posted job location'}`}</span></p>
     <div className={styles.decision}><details className={styles.details}>
       <summary>Offer details</summary>
       <div className={styles.detailsCopy}>

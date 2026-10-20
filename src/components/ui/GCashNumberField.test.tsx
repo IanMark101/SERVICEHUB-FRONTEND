@@ -24,7 +24,7 @@ describe('private GCash number in listing forms', () => {
   it.each(['provider', 'seeker'] as const)('requires a saved number for the %s listing and reports readiness after saving', async workspace => {
     const readiness = vi.fn();
     render(<GCashNumberField userId="owner" enabled isDark={false} workspace={workspace} onReadinessChange={readiness} />);
-    expect(screen.getByText('(required for GCash)')).toBeInTheDocument();
+    expect(screen.getByText('(required)')).toBeInTheDocument();
     expect(screen.queryByText('(optional)')).not.toBeInTheDocument();
     await open();
     expect(readiness).toHaveBeenLastCalledWith({ userId: 'owner', ready: false });
@@ -57,7 +57,7 @@ describe('private GCash number in listing forms', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(apiSaveGCashNumber).toHaveBeenCalledWith('09123456789', expect.any(AbortSignal));
     expect(publish).not.toHaveBeenCalled(); expect(screen.getByRole('textbox', { name: 'Listing title' })).toHaveValue('Laptop repair');
-    expect(screen.getByText(/Saved number ending in 6789/)).toBeVisible();
+    expect(screen.getByText(/Saved · ending in 6789/)).toBeVisible();
     expect(screen.queryByText('09123456789')).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Edit GCash number' })).toHaveFocus());
     expect(screen.getByRole('status')).toHaveTextContent('Your contact number is unchanged');

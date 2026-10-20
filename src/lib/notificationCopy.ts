@@ -13,8 +13,8 @@ export function notificationCopy(title: string, body: string) {
   const description = body.split(/("[^"]*")/g).map((part, index) => index % 2 ? part : part
     .replace('A new Direct Arrangement booking request has arrived', 'A new booking request has arrived')
     .replace('Messaging is now enabled — coordinate details with your provider via chat.', 'You can now message your provider to arrange the work.')
-    .replace('Messaging is now open to coordinate with the seeker.', 'You can now message the seeker to arrange the work.')
-    .replace('Messaging is now enabled — chat to coordinate service details.', 'You can now message the seeker to arrange the work.')
+    .replace('Messaging is now open to coordinate with the customer.', 'You can now message the customer to arrange the work.')
+    .replace('Messaging is now enabled — chat to coordinate service details.', 'You can now message the customer to arrange the work.')
     .replace('Messaging is now enabled to coordinate with your provider.', 'You can now message your provider to arrange the work.')
   ).join('');
   return { title: titles[title] ?? title, description };

@@ -37,13 +37,13 @@ describe('tabbed workspace dashboard previews', () => {
 
   it('switches the current dashboard and its matching features together', () => {
     render(<LandingWorkspaces isDark={false} />);
-    const seeker = screen.getByRole('tab', { name: 'Seeker Workspace' });
+    const seeker = screen.getByRole('tab', { name: 'Customer Workspace' });
     const provider = screen.getByRole('tab', { name: 'Provider Workspace' });
     expect(seeker).toHaveAttribute('aria-selected', 'true');
     expect(provider).toHaveAttribute('tabindex', '-1');
     expect(screen.getAllByRole('tabpanel')).toHaveLength(1);
-    let panel = within(screen.getByRole('tabpanel', { name: 'Seeker Workspace' }));
-    expect(panel.getByRole('img', { name: /^Seeker dashboard/ })).toBeVisible();
+    let panel = within(screen.getByRole('tabpanel', { name: 'Customer Workspace' }));
+    expect(panel.getByRole('img', { name: /^Customer dashboard/ })).toBeVisible();
     expect(panel.getByRole('img').querySelector('[data-current-workspace="seeker"]')).not.toBeNull();
     expect(panel.getByRole('heading', { name: 'Find help or post what you need.' })).toBeVisible();
     expect(panel.getAllByRole('listitem')).toHaveLength(3);
@@ -55,14 +55,14 @@ describe('tabbed workspace dashboard previews', () => {
     panel = within(screen.getByRole('tabpanel', { name: 'Provider Workspace' }));
     expect(panel.getByRole('img', { name: /^Provider dashboard/ })).toBeVisible();
     expect(panel.getByRole('img').querySelector('[data-current-workspace="provider"]')).not.toBeNull();
-    expect(panel.getByText('Browse Service Requests and send offers')).toBeVisible();
+    expect(panel.getByText('Find Work and send offers')).toBeVisible();
     expect(panel.getByText('Track completed bookings and recorded earnings')).toBeVisible();
     expect(screen.queryByRole('heading', { name: 'Find help or post what you need.' })).not.toBeInTheDocument();
   });
 
   it('supports arrow keys, Home and End with one active keyboard tab', () => {
     render(<LandingWorkspaces isDark={true} />);
-    const seeker = screen.getByRole('tab', { name: 'Seeker Workspace' });
+    const seeker = screen.getByRole('tab', { name: 'Customer Workspace' });
     const provider = screen.getByRole('tab', { name: 'Provider Workspace' });
     seeker.focus();
     fireEvent.keyDown(seeker, { key: 'ArrowRight' });
@@ -108,7 +108,7 @@ describe('tabbed workspace dashboard previews', () => {
   it('restores the existing overflow style when an expanded preview unmounts', () => {
     document.body.style.overflow = 'clip';
     const { unmount } = render(<LandingWorkspaces isDark={false} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Expand Seeker dashboard preview' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Expand Customer dashboard preview' }));
     expect(document.body.style.overflow).toBe('hidden');
     unmount();
     expect(document.body.style.overflow).toBe('clip');

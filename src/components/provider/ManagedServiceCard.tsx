@@ -19,7 +19,7 @@ export default function ManagedServiceCard({ service, isDark, highlighted, toggl
   const removed = service.status === 'SUSPENDED';
   const needsPrice = service.priceType === 'STARTS_AT' || service.priceType === 'CUSTOM' || (service.priceType !== 'BY_AGREEMENT' && Number(service.price) < 50);
   const active = !service.isPaused && !needsPrice;
-  const rate = service.priceType === 'BY_AGREEMENT' ? 'Price by agreement' : needsPrice ? 'Price needed' : `₱${Number(service.price).toLocaleString()}`;
+  const rate = service.priceType === 'BY_AGREEMENT' ? 'Quote required' : needsPrice ? 'Price needed' : `₱${Number(service.price).toLocaleString()}`;
   const unit = service.priceType === 'PER_HOUR' ? ' / hour' : service.priceType === 'PER_DAY' ? ' / day' : service.priceType === 'PER_PROJECT' ? ' / project' : ' fixed price';
   const methods = [service.paymentMethods?.cash && 'Cash', service.paymentMethods?.gcash && 'GCash'].filter(Boolean).join(' · ');
   const lengthyDescription = (service.description?.length ?? 0) > 240;
@@ -38,7 +38,7 @@ export default function ManagedServiceCard({ service, isDark, highlighted, toggl
       <div className={styles.content}>
         <dl className={styles.price}><dt>Service price</dt><dd>{rate}{!needsPrice && service.priceType !== 'BY_AGREEMENT' && <small>{unit}</small>}</dd></dl>
         {service.priceType === 'BY_AGREEMENT' && <p className={styles.priceHint}>Review the request, then send your final price.</p>}
-        <p className={styles.location}><MapPin size={17} aria-hidden="true" /><span>{service.serviceLocationMode === 'REMOTE' && <span>Online / remote · </span>}{service.locationLabel || 'Add your service area or venue in Edit to appear in nearby discovery.'}</span></p>
+        <p className={styles.location}><MapPin size={17} aria-hidden="true" /><span>{service.serviceLocationMode === 'REMOTE' && <span>Online · </span>}{service.locationLabel || 'Add your service area or venue in Edit to appear in nearby discovery.'}</span></p>
         <div className={styles.descriptionBlock}>
           <h4>About this service</h4>
           <p id={descriptionId} className={styles.description} data-collapsed={lengthyDescription && !showDescription}>{service.description}</p>
@@ -64,8 +64,8 @@ export default function ManagedServiceCard({ service, isDark, highlighted, toggl
         </button>
       </div>}
     </footer>
-    {needsPrice && <p className={styles.notice}>Enter a final price in Edit Listing. This older listing is hidden from seekers until it has an exact bookable price.</p>}
+    {needsPrice && <p className={styles.notice}>Enter a final price in Edit Listing. This older listing is hidden from customers until it has an exact bookable price.</p>}
     {rejected && <section className={styles.notice} data-error="true"><strong><WarningCircle size={17} aria-hidden="true" />What to fix</strong><p>{service.adminNotes || 'Check your service details, then save to publish.'}</p><p>Customers cannot see this service yet. Open Edit Listing, check the details, and save to publish. No admin approval is needed.</p><div className={styles.noticeActions}><ContentCaseAction caseType="APPEAL" contentType="SERVICE_LISTING" resourceId={service.id} isDark={isDark} /></div></section>}
-    {removed && <section className={styles.notice} data-error="true"><strong>This listing was removed from public view.</strong><p>Existing bookings are still managed in Activity.</p><ContentCaseAction caseType="APPEAL" contentType="SERVICE_LISTING" resourceId={service.id} isDark={isDark} label="Appeal this removal" /></section>}
+    {removed && <section className={styles.notice} data-error="true"><strong>This listing was removed from public view.</strong><p>Existing bookings are still managed in My Bookings.</p><ContentCaseAction caseType="APPEAL" contentType="SERVICE_LISTING" resourceId={service.id} isDark={isDark} label="Appeal this removal" /></section>}
   </article>;
 }

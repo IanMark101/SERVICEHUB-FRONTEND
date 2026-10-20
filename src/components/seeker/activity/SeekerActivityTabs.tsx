@@ -32,7 +32,7 @@ export default function SeekerActivityTabs({
       activeValue={activeTab}
       items={tabs}
       onChange={onTabChange}
-      ariaLabel="Filter seeker activity"
+      ariaLabel="Filter customer activity"
       tone="seeker"
       scrollControls
     />

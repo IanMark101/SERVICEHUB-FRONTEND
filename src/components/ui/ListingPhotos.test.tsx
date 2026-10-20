@@ -76,7 +76,7 @@ describe('listing photo input', () => {
     const { container } = render(<UploadFixture initial={photos.slice(0, 1)} />);
     fireEvent.change(container.querySelector('input[type="file"]')!, { target: { files: [new File(['image'], 'repair.jpg', { type: 'image/jpeg' })] } });
     await screen.findByRole('alert');
-    expect(screen.getByText(/1 of 3 photos/)).toBeInTheDocument();
+    expect(screen.getByText(/1\/3/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Publish test listing' })).toBeEnabled();
   });
 });

@@ -4,7 +4,7 @@ import { clearGcashCheckout, isPayMongoCheckoutUrl, paymentReturnPath, readGcash
 describe('GCash checkout context', () => {
   beforeEach(() => localStorage.clear());
 
-  it('keeps the return tied to the owning seeker and the exact intent', () => {
+  it('keeps the return tied to the owning customer and the exact intent', () => {
     rememberGcashCheckout({ seekerId: 'seeker-one', serviceId: 'service-one', paymentIntentId: 'pi_one', redirectUrl: 'https://test-sources.paymongo.com/sources/one' });
     expect(readGcashCheckout('seeker-two', 'pi_one')).toBeNull();
     expect(readGcashCheckout('seeker-one', 'pi_other')).toBeNull();

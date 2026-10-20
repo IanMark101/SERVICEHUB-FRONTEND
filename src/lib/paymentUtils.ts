@@ -39,7 +39,7 @@ export function getServicePaymentMethods(service?: ServicePaymentSource | null):
 }
 
 export function getPrimaryBookingCTA(service?: unknown): string {
-  void service;
+  if (service && typeof service === 'object' && 'priceType' in service && service.priceType === 'BY_AGREEMENT') return 'Request a Quote';
   return 'Book Service';
 }
 

@@ -13,7 +13,7 @@ export default function BookingCaseTable({ items, history, onOpen }: { items: Mo
         <span className={`review-status ${['PENDING', 'UNDER_REVIEW'].includes(item.status) ? 'review-status-open' : ''}`}>{caseStatusLabel(item).replace(' — ', ' · ')}</span>
       </ReviewCell>
       <ReviewCell label="Participants">
-        <div className="review-person"><small>Service seeker</small><span>{item.booking.seeker.name}</span></div>
+        <div className="review-person"><small>Service customer</small><span>{item.booking.seeker.name}</span></div>
         <div className="review-person"><small>Service provider</small><span>{item.booking.provider.name}</span></div>
       </ReviewCell>
       <ReviewCell label="Payment">

@@ -19,8 +19,8 @@ export default function ProviderBookingCancellationModal({
   // cancellation endpoint: pre-start is immediate; started needs review.
   const immediate = !booking.started;
   const preStartConsequence = booking.status === 'queued'
-    ? 'Canceling will immediately remove this booking from your paid work queue and notify the seeker.'
-    : 'Canceling will immediately close this booking and notify the seeker.';
+    ? 'Canceling will immediately remove this booking from your paid work queue and notify the customer.'
+    : 'Canceling will immediately close this booking and notify the customer.';
   const paymentConsequence = booking.paymentMethod === 'GCash'
     ? 'The existing GCash refund handling will apply.'
     : 'ServiceHub has not collected on-site cash, so there is no platform refund.';
@@ -31,7 +31,7 @@ export default function ProviderBookingCancellationModal({
       title={immediate ? 'Cancel this booking?' : 'Request cancellation'}
       description={immediate
         ? `This service has not started. ${preStartConsequence} ${paymentConsequence}`
-        : 'Work has already started. Your request will go to the seeker for review. The booking will not be canceled just by sending this request.'}
+        : 'Work has already started. Your request will go to the customer for review. The booking will not be canceled just by sending this request.'}
       label={immediate ? 'Reason for cancellation' : 'Reason for request'}
       value={value}
       onChange={onChange}

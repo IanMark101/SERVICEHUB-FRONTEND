@@ -33,8 +33,8 @@ describe('account deletion safeguards', () => {
     vi.mocked(apiGetAccountDeletionEligibility).mockResolvedValue({ success: true, data: blocked });
     render(<AccountDeletionPanel email="owner@example.test" isDark />);
     expect(await screen.findByText('2 published service listings')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Service Manager' })).toHaveAttribute('href', '/provider/service-manager');
-    expect(screen.getByRole('link', { name: 'Request Manager' })).toHaveAttribute('href', '/seeker/request-manager');
+    expect(screen.getByRole('link', { name: 'My Services' })).toHaveAttribute('href', '/provider/service-manager');
+    expect(screen.getByRole('link', { name: 'My Requests' })).toHaveAttribute('href', '/seeker/request-manager');
     expect(screen.getByRole('button', { name: /Continue to account deletion/ })).toBeDisabled();
     expect(apiDeleteOwnAccount).not.toHaveBeenCalled();
   });

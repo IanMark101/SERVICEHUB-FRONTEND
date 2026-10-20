@@ -27,12 +27,12 @@ describe('booking review digest', () => {
     expect(await screen.findByText('Respectful (1 review).')).toBeInTheDocument();
     expect(apiGetSeekerSummary).toHaveBeenCalledWith('seeker-1', { force: true, waitForFresh: false });
     expect(apiGetProviderSummary).not.toHaveBeenCalled();
-    expect(screen.getByText(/AI-assisted selection/)).toHaveTextContent('Feedback received as a service seeker from service providers.');
+    expect(screen.getByText(/AI-assisted selection/)).toHaveTextContent('Feedback received as a customer from service providers.');
   });
   it('renders no history as an empty state rather than a broken AI feature', async () => {
-    vi.mocked(apiGetSeekerSummary).mockResolvedValue({ success: true, data: { summary: null, source: 'empty', reason: 'No reviews as a service seeker from completed bookings yet.' } });
+    vi.mocked(apiGetSeekerSummary).mockResolvedValue({ success: true, data: { summary: null, source: 'empty', reason: 'No reviews as a customer from completed bookings yet.' } });
     render(<ReviewSummaryPanel subjectId="new-client" context="seeker" />);
-    expect(await screen.findByText('No reviews as a service seeker from completed bookings yet.')).toBeInTheDocument();
+    expect(await screen.findByText('No reviews as a customer from completed bookings yet.')).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
   it('offers retry without blocking or submitting the booking form', async () => {

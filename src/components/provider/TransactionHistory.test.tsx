@@ -12,7 +12,7 @@ vi.mock('../../api/transactions.api', () => ({ apiGetProviderPaymentRecords: vi.
 vi.mock('../../hooks/useApiCacheRefresh', () => ({ useApiCacheRefresh: vi.fn() }));
 
 const completed = {
-  id: 'booking-1', bookingId: 'booking-1', serviceTitle: 'House Cleaning', seekerName: 'Test seeker',
+  id: 'booking-1', bookingId: 'booking-1', serviceTitle: 'House Cleaning', seekerName: 'Test customer',
   paymentMethod: 'On-site Cash', outcome: 'completed' as const, paymentStatus: 'CASH_CONFIRMED',
   amount: 250, earnedAmount: 250, recordedAt: '2026-10-09T17:00:00.000Z',
 };
@@ -55,12 +55,12 @@ describe('Provider payment records', () => {
     expect(apiGetProviderPaymentRecords).toHaveBeenCalledWith({ page: 1, limit: 8, status: 'all' }, expect.any(AbortSignal));
   });
 
-  it('shows a refund as zero provider earnings and identifies the amount returned to the seeker', async () => {
+  it('shows a refund as zero provider earnings and identifies the amount returned to the customer', async () => {
     render(<TransactionHistory currentUserId="provider" />);
     await loaded();
     const row = screen.getByText('Aircon Cleaning').closest('tr')!;
     expect(within(row).getByText('₱0.00')).toBeVisible();
-    expect(within(row).getByText('₱1,500.00 returned to seeker')).toBeVisible();
+    expect(within(row).getByText('₱1,500.00 returned to customer')).toBeVisible();
     expect(within(row).getByText('Refunded')).toBeVisible();
     expect(row.querySelector('[data-earned]')).toHaveAttribute('data-earned', 'false');
     expect(screen.queryByText('+ ₱1500')).not.toBeInTheDocument();

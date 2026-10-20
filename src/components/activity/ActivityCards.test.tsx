@@ -94,13 +94,13 @@ describe('Activity card actions with the new hierarchy', () => {
       : render(<SeekerActivityItem engagement={canceled} model={model as SeekerActivityItemModel} />);
     const name = role === 'provider' ? 'John Carlo' : 'Ian';
     const profile = screen.getByRole('button', { name: `View ${name}'s profile` });
-    expect(within(profile).getByText(role === 'provider' ? 'Seeker:' : 'Provider:')).toBeInTheDocument();
+    expect(within(profile).getByText(role === 'provider' ? 'Customer:' : 'Provider:')).toBeInTheDocument();
     expect(within(profile).getByRole('img', { name: `${name} avatar` })).toBeInTheDocument();
     expect(screen.queryByText('Client:')).not.toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'What is happening now' }).parentElement).toHaveClass('border-stone-300');
     const facts = screen.getByRole('region', { name: 'Booking facts' });
     expect(facts.closest('aside')).toHaveClass('xl:col-start-2');
-    expect(view.container.querySelector('details')).toHaveAttribute('open');
+    expect(screen.getByText('Booking journey').closest('details')).toHaveAttribute('open');
     expect(view.container.querySelector('.workspace-card')).toHaveClass('rounded-2xl');
     fireEvent.click(profile);
     expect(model.router.push).toHaveBeenCalledWith(role === 'provider' ? '/profile/johncarlo' : '/profile/ian');
@@ -114,9 +114,10 @@ describe('Activity card actions with the new hierarchy', () => {
       status: 'declined', decisionReason: 'DECLINED', createdAt: booking.createdAt,
       requestTitle: booking.title, seekerName: booking.seekerName, category: 'House Cleaning',
     } }} model={model} />);
-    expect(screen.getByRole('heading', { name: 'Offer declined by seeker' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Offer declined by customer' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Your action' })).toHaveTextContent('No action needed for this offer.');
-    expect(screen.getByRole('region', { name: 'What happens next' })).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Status details'));
+    expect(screen.getByText('Status details').closest('details')).toHaveAttribute('open');
     expect(screen.getByRole('region', { name: 'Offer facts' }).closest('aside')).toHaveClass('xl:col-start-2');
     expect(screen.getByText('No booking created')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Withdraw Offer' })).not.toBeInTheDocument();
@@ -162,12 +163,12 @@ describe('Activity card actions with the new hierarchy', () => {
     else render(<ProviderActivityItem item={{ type: 'engagement', data: canceled }} model={providerModel()} />);
     expect(screen.getAllByText('Canceled').length).toBeGreaterThan(0);
     expect(screen.getByText('This booking was canceled')).toBeInTheDocument();
-    expect(screen.getByText('This engagement ended without completion.')).toBeInTheDocument();
+    expect(screen.getByText('This booking ended without completion.')).toBeInTheDocument();
     expect(screen.getByLabelText('What is happening now').parentElement).toHaveClass('border-stone-300');
     expect(screen.getByText('Provider availability')).toBeInTheDocument();
     expect(screen.getByText('Monday')).toBeInTheDocument();
     expect(screen.queryByText('Completed')).not.toBeInTheDocument();
-    expect(screen.queryByText('This booking is complete')).not.toBeInTheDocument();
+    expect(screen.queryByText('Completed')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Complete Transaction' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Escalate to Admin' })).not.toBeInTheDocument();
   });
@@ -182,7 +183,7 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(model.setDeclineNote).toHaveBeenCalledWith('');
   });
 
-  it('opens the seeker decline flow without immediately submitting a decision', () => {
+  it('opens the customer decline flow without immediately submitting a decision', () => {
     const model = seekerModel();
     render(<SeekerActivityItem engagement={{ ...booking, cancellationRequests: [{ id: 'cancel-1', status: 'PENDING', requestedBy: 'ian', reason: 'Unable to attend.' }] }} model={model} />);
     fireEvent.click(screen.getByRole('button', { name: 'Decline' }));
@@ -192,7 +193,7 @@ describe('Activity card actions with the new hierarchy', () => {
   it('prioritizes completion over an old declined cancellation while keeping escalation available', () => {
     const model = seekerModel();
     render(<SeekerActivityItem engagement={{ ...booking, status: 'awaiting_seeker_approval', paymentMethod: 'On-site Cash', cancellationRequests: [{ id: 'cancel-1', status: 'DECLINED', requestedBy: 'johncarlo', responderNote: 'Work has already started.' }] }} model={model} />);
-    expect(screen.getByText('Provider marked the work finished')).toBeInTheDocument();
+    expect(screen.getByText('Awaiting confirmation')).toBeInTheDocument();
     expect(screen.queryByText('Cancellation was declined')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Escalate to Admin' }));
     expect(model.handleEscalateClick).toHaveBeenCalledWith('cancel-1');
@@ -200,14 +201,15 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(model.setConfirmModal).toHaveBeenCalledWith(expect.objectContaining({ title: 'Complete Transaction' }));
   });
 
-  it('cash completion waits for the seeker without offering routine admin review or enabling unearned reviews', () => {
+  it('cash completion waits for the customer without offering routine admin review or enabling unearned reviews', () => {
     const model = providerModel();
     const cash = { ...booking, status: 'awaiting_seeker_approval' as const, paymentMethod: 'On-site Cash' as const,
       completionReview: { availableAt: '2020-01-01T00:00:00Z', pending: false } };
     render(<ProviderActivityItem item={{ type: 'engagement', data: cash }} model={model} />);
-    expect(screen.getByText('Work finished — waiting for seeker confirmation')).toBeVisible();
+    expect(screen.getByText('Awaiting confirmation')).toBeVisible();
+    fireEvent.click(screen.getByText('Status details'));
     expect(screen.getByText(/You can continue with other jobs/)).toBeVisible();
-    expect(screen.queryByRole('button', { name: /Admin Review|Review Seeker/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Admin Review|Review Customer/ })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Safety report' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Open Conversation' })).toBeEnabled();
   });
@@ -229,7 +231,7 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(screen.queryByRole('button', { name: 'Retry approval' })).not.toBeInTheDocument();
   });
 
-  it('keeps the seeker queue state and journey visible without a completion action', () => {
+  it('keeps the customer queue state and journey visible without a completion action', () => {
     render(<SeekerActivityItem engagement={booking} model={seekerModel()} />);
     expect(screen.getByText("First in this provider's paid queue")).toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'Booking journey' })).toBeInTheDocument();
@@ -237,17 +239,17 @@ describe('Activity card actions with the new hierarchy', () => {
     expect(screen.getByRole('button', { name: 'Cancel Booking' })).toBeInTheDocument();
   });
 
-  it('keeps seeker completion and dispute actions while explaining the decision', () => {
+  it('keeps customer completion and dispute actions while explaining the decision', () => {
     const model = seekerModel();
     render(<SeekerActivityItem engagement={{ ...booking, status: 'awaiting_seeker_approval' }} model={model} />);
-    expect(screen.getByText('Provider marked the work finished')).toBeInTheDocument();
+    expect(screen.getByText('Awaiting confirmation')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Report Issue' }));
     expect(model.setDisputingJob).toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Confirm Completion' }));
     expect(model.setConfirmModal).toHaveBeenCalled();
   });
 
-  it('lets the seeker respond to an incoming cancellation request', () => {
+  it('lets the customer respond to an incoming cancellation request', () => {
     const model = seekerModel();
     render(<SeekerActivityItem engagement={{ ...booking, cancellationRequests: [{ id: 'cancel-1', status: 'PENDING', requestedBy: 'ian' }] }} model={model} />);
     expect(screen.getByText('Review the cancellation request')).toBeInTheDocument();
@@ -304,7 +306,7 @@ describe('Activity card actions with the new hierarchy', () => {
   it('keeps provider completion and cash-approval navigation available', () => {
     const model = providerModel();
     const { rerender } = render(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'in_progress', started: true } }} model={model} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Mark Work Finished' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Finish Work' }));
     expect(model.handleRequestJobApproval).toHaveBeenCalledWith('booking-1');
     rerender(<ProviderActivityItem item={{ type: 'engagement', data: { ...booking, status: 'pending_provider', paymentMethod: 'On-site Cash' } }} model={model} />);
     fireEvent.click(screen.getByRole('button', { name: 'Review request' }));
@@ -319,7 +321,7 @@ describe('Activity card actions with the new hierarchy', () => {
       createdAt: '2026-09-27T09:00:00.000Z', requestTitle: 'House Cleaning', seekerName: 'John Carlo',
     };
     render(<ProviderActivityItem item={{ type: 'bid', data: offer }} model={model} />);
-    expect(screen.getByText('Offer sent to seeker')).toBeInTheDocument();
+    expect(screen.getByText('Offer sent to customer')).toBeInTheDocument();
     expect(screen.getByText(/no booking exists yet/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Withdraw Offer' }));
     expect(model.handleCancelOffer).toHaveBeenCalledWith('offer-1');
@@ -342,7 +344,9 @@ describe('Activity card actions with the new hierarchy', () => {
       : render(<ProviderActivityItem item={{ type: 'engagement', data: booking }} model={providerModel()} />);
     expect(screen.getByRole('region', { name: 'What is happening now' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Your action' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'What happens next' })).toBeInTheDocument();
+    expect(screen.getByText('Status details').closest('details')).not.toHaveAttribute('open');
+    fireEvent.click(screen.getByText('Status details'));
+    expect(screen.getByText('Status details').closest('details')).toHaveAttribute('open');
     expect(screen.getByRole('region', { name: 'Booking facts' })).toBeInTheDocument();
     expect(screen.getByText('Payment confirmed')).toBeInTheDocument();
     expect(screen.getByText('Position #1')).toBeInTheDocument();

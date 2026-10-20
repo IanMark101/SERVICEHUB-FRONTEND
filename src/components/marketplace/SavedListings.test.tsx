@@ -22,7 +22,7 @@ describe('Saved workspace page', () => {
     await waitFor(() => expect(apiSetListingSaved).toHaveBeenCalledWith('SERVICE_LISTING', 'service', false));
     expect(await screen.findByText('No saved listings yet')).toBeVisible();
   });
-  it('opens a saved seeker request through the original provider details route', async () => {
+  it('opens a saved customer request through the original provider details route', async () => {
     vi.mocked(apiGetSavedListings).mockResolvedValue({ items: [{ id: 'saved', listingId: 'request', contentType: 'SERVICE_REQUEST', savedAt: '', listing: { id: 'request', seekerId: 'owner', title: 'Laptop will not start', description: 'Repair', status: 'OPEN', urgency: 'This Week', budgetMax: 500, seeker: { id: 'owner', name: 'John' }, category: { name: 'Computer & Laptop Repair' } } }], pagination });
     render(<SavedListings workspace="provider" />);
     fireEvent.click(await screen.findByRole('button', { name: 'Inspect Laptop will not start details' }));

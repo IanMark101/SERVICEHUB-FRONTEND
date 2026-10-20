@@ -13,7 +13,7 @@ export default function AccountSuspensionBanner() {
         <ShieldAlert className="h-5 w-5" strokeWidth={1.75} />
       </span>
       <p className="min-w-0 leading-relaxed">
-        <strong>Limited Mode — account suspended.</strong> {SUSPENSION_BROWSING_NOTICE} You can still review and resolve eligible existing bookings in Activity.
+        <strong>Limited Mode — account suspended.</strong> {SUSPENSION_BROWSING_NOTICE} You can still review and resolve eligible existing bookings in My Bookings.
       </p>
     </div>
   );

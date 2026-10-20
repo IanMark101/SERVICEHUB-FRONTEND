@@ -17,16 +17,16 @@ const booking: JobEngagement = {
 };
 
 describe('Booking progress times on Activity cards', () => {
-  it('shows separate actual provider and seeker times in Philippine time, with full dates', () => {
+  it('shows separate actual provider and customer times in Philippine time, with full dates', () => {
     render(<BookingProgressHistory booking={booking} />);
     expect(screen.getByText('1:00 PM').closest('time')).toHaveAttribute('datetime', '2026-10-06T05:00:00.000Z');
     expect(screen.getByText('3:05 PM')).toBeInTheDocument();
     expect(screen.getByText('3:12 PM')).toBeInTheDocument();
     expect(screen.getAllByText('Oct 6, 2026')).toHaveLength(4);
     expect(screen.queryByText('Booking accepted')).not.toBeInTheDocument();
-    expect(within(screen.getByText('Booking created').closest('li')!).queryByText(/Seeker|Provider/)).not.toBeInTheDocument();
+    expect(within(screen.getByText('Booking created').closest('li')!).queryByText(/Customer|Provider/)).not.toBeInTheDocument();
     expect(within(screen.getByText('Work marked complete').closest('li')!).getByText('Provider · John')).toBeInTheDocument();
-    expect(within(screen.getByText('Completion confirmed').closest('li')!).getByText('Seeker · Ian')).toBeInTheDocument();
+    expect(within(screen.getByText('Completion confirmed').closest('li')!).getByText('Customer · Ian')).toBeInTheDocument();
     expect(screen.queryByText('Pending')).not.toBeInTheDocument();
   });
 

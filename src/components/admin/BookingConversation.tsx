@@ -60,7 +60,7 @@ export default function BookingConversation({ bookingId }: { bookingId: string }
     {data && !data.messages.length && <p className={styles.notice}>No messages have been sent in this booking.</p>}
     {data && !!data.messages.length && <div ref={frame} className={styles.frame} role="region" aria-label="Booking conversation" tabIndex={0} aria-busy={loading}>
       <ol className={styles.messages}>{data.messages.map(message => {
-        const role = message.isSystem ? 'System update' : message.senderId === data.seeker?.id ? 'Seeker' : message.senderId === data.provider?.id ? 'Provider' : 'Participant';
+        const role = message.isSystem ? 'System update' : message.senderId === data.seeker?.id ? 'Customer' : message.senderId === data.provider?.id ? 'Provider' : 'Participant';
         return <li key={message.id} className={message.isSystem ? styles.system : styles.message}>
           <div className={styles.meta}><div><strong>{message.isSystem ? 'ServiceHub' : message.sender?.name || 'Booking participant'}</strong><span>{role}</span></div><time dateTime={message.createdAt}>{dateLabel(message.createdAt)}</time></div>
           <p>{message.content}</p>

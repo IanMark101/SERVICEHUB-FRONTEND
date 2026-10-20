@@ -1,3 +1,4 @@
+import { selectWorkLocation } from '../../test/selectWorkLocation';
 import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ServiceListing } from '../../types';
@@ -25,7 +26,7 @@ const listing: ServiceListing = {
 const online = vi.fn();
 const refreshAll = vi.fn();
 
-describe('price by agreement service requests', () => {
+describe('quote required service requests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({ user: { id: 'seeker-1' }, bookProviderDirectly: online, isDark: false, jobEngagements: [], refreshAll } as unknown as ReturnType<typeof useApp>);
@@ -36,35 +37,35 @@ describe('price by agreement service requests', () => {
     expect(screen.queryByText(/₱0/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByRole('alert')).toHaveTextContent('describe the work');
-    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'broken' } });
+    fireEvent.change(screen.getByLabelText('Work description'), { target: { value: 'broken' } });
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByRole('alert')).toHaveTextContent('10 characters');
-    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'My laptop will not turn on. Please check it.' } });
+    fireEvent.change(screen.getByLabelText('Work description'), { target: { value: 'My laptop will not turn on. Please check it.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Attach test photo' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Review request' }));
     expect(screen.getByRole('alert')).toHaveTextContent('Choose where');
     fireEvent.click(screen.getByTestId('test-location'));
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
-    expect(screen.getByLabelText('Describe the work needed')).toHaveValue('My laptop will not turn on. Please check it.');
+    expect(screen.getByLabelText('Work description')).toHaveValue('My laptop will not turn on. Please check it.');
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Review request' }));
     expect(screen.getByText('1 photo attached')).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'On-site Cash' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Send service request' }));
+    expect(screen.queryByRole('button', { name: 'Cash' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Request a Quote' }));
     await waitFor(() => expect(apiCreateListingInquiry).toHaveBeenCalledWith({ serviceId: listing.id, message: 'My laptop will not turn on. Please check it.', serviceLocationMode: 'PROVIDER_VISITS', jobLocation: { latitude: 10.3, longitude: 123.9, label: 'Cebu' }, photoIds: ['photo-1'] }));
     expect(await screen.findByRole('status')).toHaveTextContent('No booking or payment has been created');
     expect(refreshAll).toHaveBeenCalledOnce();
     expect(apiBookDirect).not.toHaveBeenCalled(); expect(online).not.toHaveBeenCalled();
   });
-  it('uses the provider venue without a seeker pin and keeps the request on submission failure', async () => {
+  it('uses the provider venue without a customer pin and keeps the request on submission failure', async () => {
     vi.mocked(apiCreateListingInquiry).mockRejectedValue(new Error('This listing changed.'));
     rtlRender(<RequestServiceModal listing={{ ...listing, price: 0, priceType: 'BY_AGREEMENT', serviceLocationMode: 'SEEKER_VISITS', locationLabel: 'Cordova workshop' }} onClose={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'Please repair the charging port.' } });
+    fireEvent.change(screen.getByLabelText('Work description'), { target: { value: 'Please repair the charging port.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.queryByTestId('test-location')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Review request' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Send service request' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Request a Quote' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('This listing changed.');
     expect(apiCreateListingInquiry).toHaveBeenCalledWith({ serviceId: listing.id, message: 'Please repair the charging port.', serviceLocationMode: 'SEEKER_VISITS' });
     expect(apiBookDirect).not.toHaveBeenCalled(); expect(online).not.toHaveBeenCalled();
@@ -82,9 +83,9 @@ describe('direct listing booking payment choices', () => {
   it('offers only cash and books the listing without a ServiceRequest', async () => {
     vi.mocked(apiBookDirect).mockResolvedValue({ success: true });
     render(<RequestServiceModal listing={{ ...listing, paymentMethods: { cash: true, gcash: false } }} onClose={vi.fn()} />);
-    expect(screen.getByRole('button', { name: 'On-site Cash' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cash' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /GCash/ })).not.toBeInTheDocument();
-    fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
+    fireEvent.change(screen.getByPlaceholderText(/Describe the work you need/), { target: { value: 'Please clean the kitchen and living room.' } });
     submitBooking('Send Request');
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({
       serviceLocationMode: 'SEEKER_VISITS', serviceId: 'fixed-listing', quantity: 1, message: 'Please clean the kitchen and living room.', schedule: undefined,
@@ -95,30 +96,30 @@ describe('direct listing booking payment choices', () => {
   it('offers only GCash for a GCash-only listing', () => {
     render(<RequestServiceModal listing={{ ...listing, paymentMethods: { cash: false, gcash: true } }} onClose={vi.fn()} />);
     expect(screen.getByRole('button', { name: /GCash · Test Mode/ })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'On-site Cash' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cash' })).not.toBeInTheDocument();
   });
 
-  it('books a provider venue without a seeker pin or a provider travel fee', async () => {
+  it('books a provider venue without a customer pin or a provider travel fee', async () => {
     vi.mocked(apiBookDirect).mockResolvedValue({ success: true });
     render(<RequestServiceModal listing={{ ...listing, serviceLocationMode: 'SEEKER_VISITS', locationLabel: 'Cordova workshop', transportationFee: 75 }} onClose={vi.fn()} />);
     expect(screen.queryByTestId('test-location')).not.toBeInTheDocument();
     expect(screen.getAllByText('Cordova workshop')[0]).toBeInTheDocument();
     expect(screen.getByText('Total: ₱500')).toBeInTheDocument();
-    fireEvent.change(screen.getByPlaceholderText(/Describe exactly/), { target: { value: 'Please repair my laptop at your workshop.' } });
+    fireEvent.change(screen.getByPlaceholderText(/Describe the work you need/), { target: { value: 'Please repair my laptop at your workshop.' } });
     submitBooking('Send Request');
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({ serviceLocationMode: 'SEEKER_VISITS', serviceId: listing.id, quantity: 1, message: 'Please repair my laptop at your workshop.', schedule: undefined }));
   });
 
   it('switches a fixed-price listing between travel and shop checkout without requiring a quote', async () => {
     rtlRender(<RequestServiceModal listing={{ ...listing, serviceLocationMode: 'BOTH', transportationFee: 75 }} onClose={vi.fn()} initialPaymentMethod="GCash" />);
-    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'I will bring my laptop to your venue.' } });
+    fireEvent.change(screen.getByLabelText('Work description'), { target: { value: 'I will bring my laptop to your venue.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByTestId('test-location'));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText('Total: '+String.fromCharCode(8369)+'575')).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'Send service request' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Request a Quote' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
-    fireEvent.click(screen.getByRole('radio', { name: /You go to the provider/ }));
+    selectWorkLocation(/At provider’s place/);
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText('Total: ₱500')).toBeVisible();
     submitBooking('Continue to GCash');
@@ -128,17 +129,17 @@ describe('direct listing booking payment choices', () => {
   it('allows both supported methods when the provider selected both', () => {
     render(<RequestServiceModal listing={listing} onClose={vi.fn()} />);
     expect(screen.getByRole('button', { name: /GCash · Test Mode/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'On-site Cash' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cash' })).toBeInTheDocument();
   });
 
   it('books an hourly listing directly with the chosen duration and payment method', async () => {
     vi.mocked(apiBookDirect).mockResolvedValue({ success: true });
     render(<RequestServiceModal listing={{ ...listing, priceType: 'PER_HOUR' }} onClose={vi.fn()} />);
-    expect(screen.getByText('Displayed listing rate')).toBeInTheDocument();
+    expect(screen.getByText('Service: ₱500')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Payment Method' })).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Number of hours'), { target: { value: '2' } });
     expect(screen.getByText('Total: ₱1,000')).toBeInTheDocument();
-    fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
+    fireEvent.change(screen.getByPlaceholderText(/Describe the work you need/), { target: { value: 'Please clean the kitchen and living room.' } });
     submitBooking('Send Request');
     await waitFor(() => expect(apiBookDirect).toHaveBeenCalledWith({
       serviceLocationMode: 'SEEKER_VISITS', serviceId: 'fixed-listing', quantity: 2, message: 'Please clean the kitchen and living room.', schedule: undefined,
@@ -150,7 +151,7 @@ describe('direct listing booking payment choices', () => {
     render(<RequestServiceModal listing={{ ...listing, priceType: 'PER_DAY' }} onClose={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Number of days'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: /GCash · Test Mode/ }));
-    fireEvent.change(screen.getByPlaceholderText(/Describe exactly what needs to be done/), { target: { value: 'Please clean the kitchen and living room.' } });
+    fireEvent.change(screen.getByPlaceholderText(/Describe the work you need/), { target: { value: 'Please clean the kitchen and living room.' } });
     submitBooking('Continue to GCash');
     await waitFor(() => expect(online).toHaveBeenCalledWith('seeker-1', 'fixed-listing', 500, 'Please clean the kitchen and living room.', 'GCash', 3, undefined, 'SEEKER_VISITS'));
   });
@@ -159,7 +160,7 @@ describe('direct listing booking payment choices', () => {
     const onClose = vi.fn();
     online.mockResolvedValueOnce({ seekerId: 'seeker-1', paymentIntentId: 'pi_pending' });
     render(<RequestServiceModal listing={listing} onClose={onClose} initialPaymentMethod="GCash" />);
-    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'Fix the kitchen.' } });
+    fireEvent.change(screen.getByLabelText('Work description'), { target: { value: 'Fix the kitchen.' } });
     submitBooking('Continue to GCash');
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('Booking Created Successfully!')).not.toBeInTheDocument();
@@ -169,10 +170,10 @@ describe('direct listing booking payment choices', () => {
     const onClose = vi.fn();
     online.mockRejectedValueOnce(new Error('Checkout unavailable'));
     render(<RequestServiceModal listing={listing} onClose={onClose} initialPaymentMethod="GCash" />);
-    fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'Fix the kitchen.' } });
+    fireEvent.change(screen.getByLabelText('Work description'), { target: { value: 'Fix the kitchen.' } });
     submitBooking('Continue to GCash');
     expect(await screen.findByRole('alert')).toHaveTextContent('Checkout unavailable');
-    expect(screen.getByLabelText('Describe the work needed')).toHaveValue('Fix the kitchen.');
+    expect(screen.getByLabelText('Work description')).toHaveValue('Fix the kitchen.');
     expect(onClose).not.toHaveBeenCalled();
   });
 
@@ -191,7 +192,7 @@ function render(...args: Parameters<typeof rtlRender>) {
   const view = rtlRender(...args);
   const choice = view.container.querySelector<HTMLButtonElement>('[data-testid="test-location"]');
   if (choice) fireEvent.click(choice);
-  fireEvent.change(screen.getByLabelText('Describe the work needed'), { target: { value: 'Work required for this payment fixture.' } });
+  fireEvent.change(screen.getByLabelText('Work description'), { target: { value: 'Work required for this payment fixture.' } });
   for (let i = 0; i < 2; i++) {
     const next = screen.queryByRole('button', { name: 'Next' });
     if (next) fireEvent.click(next);
@@ -227,11 +228,11 @@ describe('one-time direct booking transportation', () => {
     vi.clearAllMocks();
     vi.mocked(useApp).mockReturnValue({ user:{id:'seeker-1'}, bookProviderDirectly:online, isDark:false,jobEngagements:[],refreshAll } as unknown as ReturnType<typeof useApp>);
     rtlRender(<RequestServiceModal listing={{ ...listing, priceType:'BY_AGREEMENT', price:0, serviceLocationMode:'REMOTE' }} onClose={vi.fn()} />);
-    fireEvent.change(screen.getByLabelText('Describe the work needed'), {target:{value:'Build a website with five pages and a contact form.'}});
+    fireEvent.change(screen.getByLabelText('Work description'), {target:{value:'Build a website with five pages and a contact form.'}});
     fireEvent.click(screen.getByRole('button', {name:'Next'}));
-    expect(screen.getByText('Online / remote — no meetup required')).toBeVisible();
+    expect(screen.getByText('No travel required.')).toBeVisible();
     fireEvent.click(screen.getByRole('button', {name:'Review request'}));
-    fireEvent.click(screen.getByRole('button', {name:'Send service request'}));
+    fireEvent.click(screen.getByRole('button', {name:'Request a Quote'}));
     await waitFor(() => expect(apiCreateListingInquiry).toHaveBeenCalledWith({serviceId:listing.id,message:'Build a website with five pages and a contact form.',serviceLocationMode:'REMOTE'}));
   });
   it.each(['FIXED', 'PER_HOUR', 'PER_DAY'] as const)('books a travelling %s listing at the posted price plus one displayed travel fee', async priceType => {

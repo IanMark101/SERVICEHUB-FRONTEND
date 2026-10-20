@@ -13,7 +13,7 @@ export default function IncomingInquiryCard({ request, timeLabel, disabled, load
 }) {
   const quote = Boolean(request.preferredPaymentMethod);
   const setPriceInquiry = !quote && Boolean(request.sourcePriceType && request.sourcePriceType !== 'BY_AGREEMENT');
-  const name = request.seekerName || 'Seeker';
+  const name = request.seekerName || 'Customer';
   const photos = request.photos ?? [];
   return <article className={styles.card} aria-busy={Boolean(loadingAction)}>
     <header className={styles.header}>
@@ -27,20 +27,20 @@ export default function IncomingInquiryCard({ request, timeLabel, disabled, load
     </div>
     <p className={styles.description}>{request.description}</p>
     <div className={styles.facts}>
-      <span><CurrencyPeso size={16} aria-hidden="true" />{setPriceInquiry ? `Listed price: ₱${request.sourcePrice?.toLocaleString() ?? '—'}` : request.budget ? `Listed rate: ₱${request.budget.toLocaleString()}` : 'Price by agreement'}</span>
+      <span><CurrencyPeso size={16} aria-hidden="true" />{setPriceInquiry ? `Listed price: ₱${request.sourcePrice?.toLocaleString() ?? '—'}` : request.budget ? `Listed rate: ₱${request.budget.toLocaleString()}` : 'Quote required'}</span>
       {request.locationLabel && <span><MapPin size={16} aria-hidden="true" />{request.locationLabel}</span>}
       {photos.length > 0 && <span><PhotoIcon size={16} aria-hidden="true" />{photos.length} photo{photos.length === 1 ? '' : 's'} attached</span>}
     </div>
     <div className={styles.decision}>
-      <p>{setPriceInquiry ? 'This old inquiry was sent through the wrong booking flow. Close it and ask the seeker to book at the listed price. No booking or payment was created.' : quote ? `Seeker selected: ${request.preferredPaymentMethod}` : 'Send your final price and what it includes. The seeker approves it before booking or paying.'}</p>
+      <p>{setPriceInquiry ? 'This old inquiry was sent through the wrong booking flow. Close it and ask the customer to book at the listed price. No booking or payment was created.' : quote ? `Customer selected: ${request.preferredPaymentMethod}` : 'Send your final price and what it includes. The customer approves it before booking or paying.'}</p>
       <div className={styles.actions}>{quote ? <Link href={`/provider/browse-services?request=${encodeURIComponent(request.id)}`} className={`${styles.button} ${styles.primary}`}>Send quote<ArrowRight size={16} aria-hidden="true" /></Link> : <>
         <button type="button" className={styles.button} disabled={disabled} onClick={onDecline}>{loadingAction === 'declining' ? <CircleNotch className={styles.spinner} size={16} aria-hidden="true" /> : <X size={16} aria-hidden="true" />}{loadingAction === 'declining' ? 'Declining…' : 'Decline request'}</button>
-        {!setPriceInquiry && <button type="button" className={`${styles.button} ${styles.primary}`} disabled={disabled} onClick={onSetPrice}>{loadingAction === 'accepting' ? <CircleNotch className={styles.spinner} size={16} aria-hidden="true" /> : <CurrencyPeso size={16} aria-hidden="true" />}{loadingAction === 'accepting' ? 'Opening…' : 'Accept & set price'}</button>}
+        {!setPriceInquiry && <button type="button" className={`${styles.button} ${styles.primary}`} disabled={disabled} onClick={onSetPrice}>{loadingAction === 'accepting' ? <CircleNotch className={styles.spinner} size={16} aria-hidden="true" /> : <CurrencyPeso size={16} aria-hidden="true" />}{loadingAction === 'accepting' ? 'Opening…' : 'Send Quote'}</button>}
       </>}</div>
     </div>
     <details className={styles.details}><summary>Inquiry details<ArrowRight size={16} aria-hidden="true" /></summary>
       <div className={styles.expanded}>
-        <p className={styles.hint}>{photos.length ? 'The description above is shown in full. Review the seeker’s photos before sending your price.' : 'No photos were attached. The seeker’s description is shown in full above.'}</p>
+        <p className={styles.hint}>{photos.length ? 'The description above is shown in full. Review the customer’s photos before sending your price.' : 'No photos were attached. The customer’s description is shown in full above.'}</p>
         <ListingPhotoGallery photos={photos} title={request.title} />
       </div>
     </details>

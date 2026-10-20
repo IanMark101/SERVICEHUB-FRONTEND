@@ -82,7 +82,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
         kind: 'offer',
         group: isOfferClosed(item.data) ? 'history' : 'waiting',
         title: request?.title || item.data.requestTitle || 'Service request',
-        participant: `Seeker: ${request?.seekerName || item.data.seekerName || 'Seeker'}`,
+        participant: `Customer: ${request?.seekerName || item.data.seekerName || 'Customer'}`,
         status: situation.title,
         explanation: situation.detail,
         next: situation.next,
@@ -109,7 +109,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
       id: booking.id,
       group: getBookingActivityGroup(booking, 'provider', resolvedProviderId || user?.id, activeJobId, paidWaiting),
       title: booking.title,
-      participant: `Seeker: ${booking.seekerName}`,
+      participant: `Customer: ${booking.seekerName}`,
       status: situation.title,
       explanation: situation.detail,
       next: situation.next,
@@ -141,10 +141,10 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
   if (openItemId) return (
     <div className="fixed inset-0 z-30 w-full space-y-4 overflow-y-auto bg-[#f8f6f2] p-4 dark:bg-charcoal sm:static sm:z-auto sm:mx-auto sm:max-w-[1340px] sm:overflow-visible sm:bg-transparent sm:p-0">
       {selectedItem && <button type="button" onClick={closeItem} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-ink-secondary hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-emerald-500 dark:text-ink dark:hover:bg-charcoal">
-        <ArrowLeft size={18} aria-hidden="true" /> Back to Activity
+        <ArrowLeft size={18} aria-hidden="true" /> Back to My Bookings
       </button>}
       {selectedItem ? <ProviderActivityItem item={selectedItem} model={itemModel} /> : openItemId.startsWith('offer:')
-        ? <EmptyState title="Offer unavailable" description="This offer is no longer in your Activity." accentColor="emerald" actionLabel="Back to Activity" onAction={closeItem} />
+        ? <EmptyState title="Offer unavailable" description="This offer is no longer in your Activity." accentColor="emerald" actionLabel="Back to My Bookings" onAction={closeItem} />
         : <BookingDetailState status={engagementsStatus} role="provider" onRetry={retryBooking} onBack={closeItem} />}
     </div>
   );
@@ -165,7 +165,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
               <input
                 aria-label="Search provider activity"
                 type="text"
-                placeholder="Search by job title, seeker name or category..."
+                placeholder="Search by job title, customer name or category..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="service-search-input w-full border-0 bg-transparent text-xs outline-none placeholder:text-ink-subtle"
@@ -217,7 +217,7 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                 }
                 title={
                   activeTab === 'awaiting_approval'
-                    ? 'No Work Awaiting Seeker Confirmation'
+                    ? 'No Work Awaiting Customer Confirmation'
                     : activeTab === 'in_progress'
                       ? 'No Work Underway'
                       : activeTab === 'waiting'
@@ -238,15 +238,15 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                 }
                 description={
                   activeTab === 'awaiting_approval'
-                    ? 'You have not marked any work complete that still needs seeker confirmation.'
+                    ? 'You have not marked any work complete that still needs customer confirmation.'
                     : activeTab === 'in_progress'
                       ? 'You have no jobs that have been started and are still underway.'
                       : activeTab === 'waiting'
                         ? 'You have no incoming approvals, queued bookings, or accepted bookings waiting to start.'
                         : activeTab === 'pending_offers'
-                          ? 'You haven’t submitted any offers to open seeker job requests yet.'
+                          ? 'You haven’t submitted any offers to open customer job requests yet.'
                           : activeTab === 'disputed'
-                            ? 'All seeker transactions are operating smoothly with zero dispute reports.'
+                            ? 'All customer transactions are operating smoothly with zero dispute reports.'
                             : activeTab === 'completed'
                               ? 'You have not completed any service bookings yet.'
                               : activeTab === 'canceled'
@@ -255,13 +255,13 @@ export default function ProviderActivityList({ model }: { model: ProviderActivit
                                   ? 'Declined, withdrawn, and unselected offers will appear here.'
                                 : searchQuery
                                   ? `No jobs matched your search "${searchQuery}". Try adjusting your keywords.`
-                                  : 'You have no active jobs or proposals yet. Check the job board to find seekers looking for services!'
+                                  : 'You have no active jobs or proposals yet. Check the job board to find customers looking for services!'
                 }
                 actionLabel={
                   searchQuery
                     ? 'Clear Search'
                     : activeTab === 'pending_offers' || activeTab === 'all'
-                      ? 'Browse Open Seeker Requests'
+                      ? 'Browse Open Customer Requests'
                       : undefined
                 }
                 onAction={() => {

@@ -84,7 +84,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
     const req = getRequestForBid(b.requestId);
     const closed = isOfferClosed(b);
     const seekerId = req?.seekerId || b.seekerId;
-    const seekerName = req?.seekerName || b.seekerName || 'Seeker';
+    const seekerName = req?.seekerName || b.seekerName || 'Customer';
     const formattedDate = new Date(b.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
     return (
       <ActivityDetailLayout
@@ -94,7 +94,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
         participant={{ name: seekerName, avatar: b.seekerAvatar || req?.seekerAvatar, trustScore: b.seekerTrustScore ?? req?.seekerTrustScore }}
         onOpenProfile={seekerId ? () => router.push(`/profile/${encodeURIComponent(seekerId)}`) : undefined}
         facts={<ActivityFacts title="Offer details" label="Offer facts" rows={[
-          { label: 'Seeker', value: seekerName },
+          { label: 'Customer', value: seekerName },
           { label: 'Your offer', value: <span className={closed ? '' : 'text-emerald-700 dark:text-emerald-400'}>₱{b.price}</span> },
           { label: 'Estimated duration', value: formatActivityDuration(b.estimatedDuration) },
           ...(b.availability?.trim() ? [{ label: 'Your availability', value: b.availability }] : []),
@@ -142,7 +142,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
         <div className={`border rounded-xl p-3 text-[10px] flex items-start space-x-2 ${isDark ? 'bg-red-950/15 border-red-900/30 text-red-400' : 'bg-red-50/50 border-red-100 text-red-700'
           }`}>
           <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-          <span>Disputed by Seeker: &quot;{je.disputeReason}&quot;</span>
+          <span>Disputed by Customer: &quot;{je.disputeReason}&quot;</span>
         </div>
       )}
 
@@ -171,7 +171,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
           {je.status === 'awaiting_seeker_approval' && (
             <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border ${isDark ? 'text-orange-400 bg-orange-950/20 border-orange-900/30' : 'text-orange-700 bg-orange-50 border-orange-100'
               }`}>
-              Awaiting Seeker
+              Awaiting Customer
             </span>
           )}
           {je.status === 'disputed' && (
@@ -212,7 +212,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                 onClick={() => setReviewingEngagement(je)}
                 className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[10px] rounded-xl transition-all active:scale-95 shadow-sm cursor-pointer"
               >
-                Review Seeker
+                Review Customer
               </button>
             );
           })()}
@@ -310,7 +310,7 @@ export default function ProviderActivityItem({ item, model }: { item: ProviderAc
                     <span>Submitting...</span>
                   </>
                 ) : (
-                  <span>Mark Work Finished</span>
+                  <span>Finish Work</span>
                 )}
               </button>
               {!je.cancellationRequests?.some((request) => ['PENDING', 'DECLINED', 'ESCALATED', 'UNDER_REVIEW'].includes(request.status)) && <button disabled={!!loadingItemId} onClick={() => handleProviderRemoveFromQueue(je.id)} className="rounded-xl border border-red-200 px-3 py-1.5 text-[10px] font-bold text-red-600">Request Cancellation</button>}

@@ -6,7 +6,7 @@ import ProviderActivityItem, { type ProviderActivityItemModel } from '../provide
 import { mapBookingToEngagement } from '../../context/mappers';
 
 const queued: JobEngagement = {
-  id: 'queued-booking', title: 'Queued repair', seekerId: 'seeker-1', seekerName: 'Seeker', seekerAvatar: '',
+  id: 'queued-booking', title: 'Queued repair', seekerId: 'seeker-1', seekerName: 'Customer', seekerAvatar: '',
   providerId: 'provider-1', providerName: 'Provider', providerAvatar: '', serviceId: 'service-1', price: 500,
   status: 'queued', paymentMethod: 'GCash', createdAt: '2026-09-20', queuePosition: 2,
 };
@@ -28,7 +28,7 @@ const providerModel = {
 } as unknown as ProviderActivityItemModel;
 
 describe('queued safety reporting actions', () => {
-  it('is available to the seeker for an eligible queued booking', () => {
+  it('is available to the customer for an eligible queued booking', () => {
     render(<SeekerActivityItem engagement={queued} model={seekerModel} />);
     expect(screen.getByRole('button', { name: /Safety report/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Safety report/i }));

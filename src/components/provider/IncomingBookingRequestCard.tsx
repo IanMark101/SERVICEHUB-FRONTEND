@@ -39,19 +39,19 @@ export default function IncomingBookingRequestCard({ booking, timeLabel, disable
     <div className={styles.decision}><details className={styles.details}>
     <summary>Request details</summary>
     <dl className={styles.facts}>
-      <div><dt>Service arrangement</dt><dd>{arrangementLabel[booking.serviceLocationMode ?? 'PROVIDER_VISITS']}</dd></div>
+      <div><dt>Work location</dt><dd>{arrangementLabel[booking.serviceLocationMode ?? 'PROVIDER_VISITS']}</dd></div>
       <div><dt>{booking.serviceLocationMode === 'REMOTE' ? 'Delivery' : visitsProvider ? 'Your service venue' : 'Job location'}</dt><dd>
-        {booking.serviceLocationMode === 'REMOTE' ? <span>Online delivery. Coordinate through Messages and Activity; no job pin is needed.</span> : location ? <><span className={styles.location}><MapPin size={16} aria-hidden="true" />Agreed job pin</span>
+        {booking.serviceLocationMode === 'REMOTE' ? <span>Online delivery. Coordinate through Messages and My Bookings; no job pin is needed.</span> : location ? <><span className={styles.location}><MapPin size={16} aria-hidden="true" />Agreed job pin</span>
           {location.address && <span className={styles.directions}>{location.address}</span>}
           <a href={`https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}#map=17/${location.latitude}/${location.longitude}`} target="_blank" rel="noopener noreferrer" className={styles.mapLink}>View agreed job pin</a>
-        </> : <span>Job location was not saved for this older booking. Confirm it with the seeker after accepting.</span>}
+        </> : <span>Job location was not saved for this older booking. Confirm it with the customer after accepting.</span>}
       </dd></div>
-      {booking.preferredSchedule && <div><dt>Preferred schedule</dt><dd>{booking.preferredSchedule}<small className={styles.directions}>Proposed by the seeker; confirm your availability.</small></dd></div>}
+      {booking.preferredSchedule && <div><dt>Preferred schedule</dt><dd>{booking.preferredSchedule}<small className={styles.directions}>Proposed by the customer; confirm your availability.</small></dd></div>}
       {!!booking.transportationFee && <div><dt>Provider transportation</dt><dd>₱{booking.transportationFee.toLocaleString()} <small className={styles.directions}>Included once in the booking total.</small></dd></div>}
       {!!booking.quantity && booking.quantity > 1 && <div><dt>Requested duration</dt><dd>{booking.quantity} {booking.priceType === 'PER_DAY' ? 'days' : 'hours'}</dd></div>}
     </dl>
     {booking.description && <div className={styles.description}><h4>Work requested</h4><p>{booking.description}</p></div>}
-    <p className={styles.explanation}>Accepting confirms the booking and opens private messaging. Start the job separately in Activity.</p>
+    <p className={styles.explanation}>Accepting confirms the booking and opens private messaging. Start the job separately in My Bookings.</p>
     </details>
     <footer className={styles.footer}>
       <div className={styles.actions}>

@@ -1,3 +1,4 @@
+import { selectWorkLocation } from '../../test/selectWorkLocation';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
@@ -28,7 +29,7 @@ const description = 'I will repair the leaking kitchen pipe and clean up.';
 function next() { fireEvent.click(screen.getByRole('button', { name: /^(Next|Review service)$/ })); }
 function fillDetails() {
   fireEvent.change(screen.getByRole('textbox', { name: 'Service name' }), { target: { value: 'Kitchen pipe repair' } });
-  fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: description } });
+  fireEvent.change(screen.getByRole('textbox', { name: 'Service description' }), { target: { value: description } });
   fireEvent.click(screen.getByRole('combobox', { name:'Service category' }));
   fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
 }
@@ -51,24 +52,24 @@ beforeEach(() => {
 
 it('publishes an approximate discovery point and a separate private workplace address', async () => {
   render(<OfferServices />); fillDetails(); next();
-  fireEvent.click(screen.getByRole('radio', {name:/The seeker comes to you/}));
+  selectWorkLocation(/At your place/);
   fireEvent.click(screen.getByTestId('test-location'));
   expect(screen.queryByRole('checkbox', { name:/exact location publicly/ })).not.toBeInTheDocument();
-  fireEvent.change(screen.getByRole('textbox', { name:/Your workplace address/ }), { target:{value:'Shop beside the barangay hall'} });
+  fireEvent.change(screen.getByRole('textbox', { name:/Business address/ }), { target:{value:'Shop beside the barangay hall'} });
   next(); next(); next();
   fireEvent.click(screen.getByRole('button', { name:'Publish service' }));
   await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String),expect.any(String),expect.any(String),expect.any(Number),expect.any(String),expect.any(Object),expect.objectContaining({publicMapPin:false,serviceLocation:{latitude:10.3,longitude:123.9,label:'Cebu'},venueAddress:'Shop beside the barangay hall'})));
 });
 
-describe('Offer Services wizard', () => {
+describe('List a Service wizard', () => {
   it('publishes remote work without requiring a location or carrying venue, pin consent or travel fees', async () => {
     render(<OfferServices />); fillDetails(); next();
-    fireEvent.click(screen.getByRole('radio', { name: /Online \/ remote/ }));
+    selectWorkLocation(/Online/);
     expect(screen.queryByRole('checkbox', { name: /Show this exact pin/ })).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/How far will you travel/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Address or directions/)).not.toBeInTheDocument();
     next();
-    expect(screen.queryByLabelText(/Your travel fee/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Travel fee/)).not.toBeInTheDocument();
     next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
     await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: 'REMOTE', serviceLocation:undefined, publicMapPin: false, coverageRadiusKm: null, venueAddress: null, transportationFee: null })));
@@ -76,14 +77,14 @@ describe('Offer Services wizard', () => {
   it('lets providers publish by agreement without an amount or separate travel fee and retains a fixed-price draft', async () => {
     render(<OfferServices />); toPrice();
     fireEvent.change(screen.getByLabelText('Service price (₱)'), { target: { value: '2500' } });
-    fireEvent.change(screen.getByLabelText('How do you charge?'), { target: { value: 'BY_AGREEMENT' } });
+    fireEvent.change(screen.getByLabelText('Pricing'), { target: { value: 'BY_AGREEMENT' } });
     expect(screen.queryByLabelText('Service price (₱)')).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Travel fee/)).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('How do you charge?'), { target: { value: 'FIXED' } });
+    fireEvent.change(screen.getByLabelText('Pricing'), { target: { value: 'FIXED' } });
     expect(screen.getByLabelText('Service price (₱)')).toHaveValue(2500);
-    fireEvent.change(screen.getByLabelText('How do you charge?'), { target: { value: 'BY_AGREEMENT' } });
+    fireEvent.change(screen.getByLabelText('Pricing'), { target: { value: 'BY_AGREEMENT' } });
     next(); next();
-    expect(screen.getAllByText('Price by agreement').some(element => element.tagName !== 'OPTION')).toBe(true);
+    expect(screen.getAllByText('Quote required').some(element => element.tagName !== 'OPTION')).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
     await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 2500, description, expect.any(Object), expect.objectContaining({ priceType: 'BY_AGREEMENT', transportationFee: null })));
   });
@@ -100,7 +101,7 @@ describe('Offer Services wizard', () => {
     expect(name).toHaveFocus();
     expect(name).toHaveAccessibleDescription(/Enter a service name/);
     expect(screen.getByRole('combobox', { name: 'Service category' })).toHaveAccessibleDescription(/Choose the category that best fits/);
-    expect(screen.getByRole('textbox', { name: 'What is included?' })).toHaveAccessibleDescription(/Describe what you will do/);
+    expect(screen.getByRole('textbox', { name: 'Service description' })).toHaveAccessibleDescription(/Describe what you will do/);
     expect(toastError).not.toHaveBeenCalled();
     expect(createServiceListing).not.toHaveBeenCalled();
   });
@@ -117,10 +118,10 @@ describe('Offer Services wizard', () => {
     fireEvent.click(screen.getByRole('combobox', { name:'Service category' }));
   fireEvent.click(within(screen.getByRole('listbox')).getByRole('option', { name:'Plumbing' }));
     next();
-    expect(screen.getByRole('textbox', { name: 'What is included?' })).toHaveFocus();
-    fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: 'Too short' } });
-    expect(screen.getByRole('textbox', { name: 'What is included?' })).toHaveAccessibleDescription(/Use 30–1,000 characters/);
-    fireEvent.change(screen.getByRole('textbox', { name: 'What is included?' }), { target: { value: description } });
+    expect(screen.getByRole('textbox', { name: 'Service description' })).toHaveFocus();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Service description' }), { target: { value: 'Too short' } });
+    expect(screen.getByRole('textbox', { name: 'Service description' })).toHaveAccessibleDescription(/Use 30–1,000 characters/);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Service description' }), { target: { value: description } });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     next();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '25');
@@ -141,19 +142,19 @@ describe('Offer Services wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
     await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 500, description, { cash: true, gcash: true }, expect.objectContaining({ serviceLocationMode: 'PROVIDER_VISITS', coverageRadiusKm: null, venueAddress: null })));
   });
-  it.each(['The seeker comes to you', 'Either option'])('requires a venue for %s and preserves its conditional payload', async choice => {
+  it.each(['At your place', 'Either location'])('requires a venue for %s and preserves its conditional payload', async choice => {
     render(<OfferServices />); toPrice();
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
-    fireEvent.click(screen.getByRole('radio', { name: new RegExp(choice) })); next();
+    selectWorkLocation(new RegExp(choice)); next();
     expect(createServiceListing).not.toHaveBeenCalled();
     expect(screen.getByText(/Enter the workplace address or directions in/)).toBeVisible();
-    if (choice === 'The seeker comes to you') expect(screen.queryByLabelText('How far will you travel? (required)')).not.toBeInTheDocument();
+    if (choice === 'At your place') expect(screen.queryByLabelText('How far will you travel? (required)')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('test-location'));
-    fireEvent.change(screen.getByRole('textbox', { name: /Your workplace address/ }), { target: { value: 'Shop beside the barangay hall' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /Business address/ }), { target: { value: 'Shop beside the barangay hall' } });
     next(); next(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
-    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: choice === 'Either option' ? 'BOTH' : 'SEEKER_VISITS', coverageRadiusKm: null, venueAddress: 'Shop beside the barangay hall', transportationFee: null })));
+    await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith(expect.any(String), expect.any(String), expect.any(String), 500, description, expect.any(Object), expect.objectContaining({ serviceLocationMode: choice === 'Either location' ? 'BOTH' : 'SEEKER_VISITS', coverageRadiusKm: null, venueAddress: 'Shop beside the barangay hall', transportationFee: null })));
   });
   it('publishes without a coverage circle and resets only on success', async () => {
     createServiceListing.mockResolvedValue({ success: true });
@@ -178,16 +179,16 @@ describe('Offer Services wizard', () => {
     render(<OfferServices />);
     fireEvent.click(screen.getByRole('button', { name: 'Add test photo' })); toPrice();
     fireEvent.change(screen.getByRole('spinbutton', { name: 'Service price (₱)' }), { target: { value: '900' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'How do you charge?' }), { target: { value: 'PER_HOUR' } });
-    fireEvent.change(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' }), { target: { value: '45' } });
-    fireEvent.change(screen.getByRole('spinbutton', { name: /Your travel fee/ }), { target: { value: '75.50' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Pricing' }), { target: { value: 'PER_HOUR' } });
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'Duration (minutes)' }), { target: { value: '45' } });
+    fireEvent.change(screen.getByRole('spinbutton', { name: /Travel fee/ }), { target: { value: '75.50' } });
     next(); fireEvent.click(screen.getByRole('checkbox', { name: /GCash/ })); next();
     expect(screen.getByText('1 photo added')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Edit service details' }));
     expect(screen.getByRole('textbox', { name: 'Service name' })).toHaveValue('KITCHEN PIPE REPAIR');
     expect(screen.getByText('1 uploaded photos')).toBeVisible(); next(); next();
     expect(screen.getByRole('spinbutton', { name: 'Service price (₱)' })).toHaveValue(900);
-    expect(screen.getByRole('combobox', { name: 'How do you charge?' })).toHaveValue('PER_HOUR'); next();
+    expect(screen.getByRole('combobox', { name: 'Pricing' })).toHaveValue('PER_HOUR'); next();
     expect(screen.getByRole('checkbox', { name: /GCash/ })).not.toBeChecked(); next();
     fireEvent.click(screen.getByRole('button', { name: 'Publish service' }));
     await waitFor(() => expect(createServiceListing).toHaveBeenCalledWith('provider-id', 'KITCHEN PIPE REPAIR', 'category-cuid', 900, description, { cash: true, gcash: false }, expect.objectContaining({ photoIds: ['photo-1'], priceType: 'PER_HOUR', estimatedDurationMins: 45, transportationFee: 75.5 })));
@@ -200,20 +201,20 @@ describe('Offer Services wizard', () => {
     }
     fireEvent.change(screen.getByRole('spinbutton', { name: 'Service price (₱)' }), { target: { value: '500' } });
     for (const duration of ['14', '481', '17']) {
-      fireEvent.change(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' }), { target: { value: duration } }); next();
-      expect(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' })).toHaveAccessibleDescription(/Enter 15–480 minutes/);
-      expect(screen.getByRole('spinbutton', { name: 'Time needed (minutes)' })).toHaveFocus();
+      fireEvent.change(screen.getByRole('spinbutton', { name: 'Duration (minutes)' }), { target: { value: duration } }); next();
+      expect(screen.getByRole('spinbutton', { name: 'Duration (minutes)' })).toHaveAccessibleDescription(/Enter 15–480 minutes/);
+      expect(screen.getByRole('spinbutton', { name: 'Duration (minutes)' })).toHaveFocus();
     }
     expect(createServiceListing).not.toHaveBeenCalled();
   });
   it('requires a payment choice before Review', () => {
     render(<OfferServices />); toPrice(); next();
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Cash in person' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Cash' }));
     fireEvent.click(screen.getByRole('checkbox', { name: /GCash/ })); next();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '75');
     expect(screen.queryByRole('button', { name: 'Publish service' })).not.toBeInTheDocument();
     expect(createServiceListing).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Cash in person' })); next();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Cash' })); next();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
   });
   it('blocks navigation while photos upload', () => {

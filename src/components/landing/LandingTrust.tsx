@@ -12,17 +12,17 @@ const topics = {
     items: [
       { title: 'Verified participation', detail: 'Email and residency verification are required before requesting or offering services.' },
       { title: 'Conversations connected to the work', detail: 'Booking chat opens after acceptance, keeping task discussions with the service agreement.' },
-      { title: 'Reviews follow completed service.', detail: 'The Provider submits the work. The Seeker confirms completion before either side can review.' },
+      { title: 'Reviews follow completed service.', detail: 'The Provider submits the work. The Customer confirms completion before either side can review.' },
       { title: 'Ratings and trust are separate', detail: 'Reviews describe the service experience. A low star rating alone does not reduce Trust Score.' },
       { title: 'Documented decisions', detail: 'Trust penalties require documented findings. Members can view their history and appeal a penalty.' },
-      { title: 'One account, shared trust', detail: 'Your Seeker and Provider workspaces use the same verification and Trust Score.' },
+      { title: 'One account, shared trust', detail: 'Your Customer and Provider workspaces use the same verification and Trust Score.' },
     ],
   },
   reviews: {
     label: 'Reviews',
     items: [
-      { title: 'The Provider submits the work', detail: 'Finished work awaits the Seeker’s confirmation.' },
-      { title: 'The Seeker confirms the result', detail: 'Completion is recorded with the booking.' },
+      { title: 'The Provider submits the work', detail: 'Finished work awaits the Customer’s confirmation.' },
+      { title: 'The Customer confirms the result', detail: 'Completion is recorded with the booking.' },
       { title: 'Both sides can leave a review', detail: 'Feedback contributes to the member’s star rating, separately from Trust Score.' },
       { title: 'Responses and disputes', detail: 'Members can respond publicly to a review or dispute it for administrator review.' },
     ],

@@ -160,7 +160,7 @@ export default function BrowseJobs({
 
     const targetReq = jobRequests.find(r => r.id === selectedRequestId) || proposalRequest;
     if (targetReq && (targetReq.status === 'CLOSED' || (targetReq.status as string) === 'closed' || (targetReq.status as string) === 'paused')) {
-      warning('Request unavailable', 'The seeker paused this request, so it is no longer accepting offers.');
+      warning('Request unavailable', 'The customer paused this request, so it is no longer accepting offers.');
       setSelectedRequestId(null);
       return;
     }
@@ -248,7 +248,7 @@ export default function BrowseJobs({
                 offerState={hasSentBid ? (previousOffer?.status === 'accepted' || previousOffer?.status === 'ACCEPTED' ? 'accepted' : 'submitted') : null}
                 isDark={isDark}
                 saved={saved.isSaved(req.id)} saving={saved.isBusy(req.id)} onToggleSaved={() => { void saved.toggle(req.id); }}
-                    onProfile={(reviews) => router.push(`/profile/${encodeURIComponent(req.seekerId)}${reviews ? '?tab=reviews&reviewRole=seeker' : ''}`)}
+                    onProfile={(reviews) => router.push(`/profile/${encodeURIComponent(req.seekerId)}${reviews ? '?tab=reviews&reviewRole=customer' : ''}`)}
                 onDetails={() => setPreviewRequest(req)}
                 onSendOffer={() => {
                   if (!canTransact) { setBlockedModalOpen(true); return; }

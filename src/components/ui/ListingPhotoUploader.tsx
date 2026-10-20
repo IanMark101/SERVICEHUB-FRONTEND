@@ -33,7 +33,6 @@ export default function ListingPhotoUploader({ value, onChange, onBusyChange, di
   };
   return <div className={styles.upload} data-form-tone={workspace}>
     <span id={`${id}-label`} className={styles.label}>Photos (optional, up to 3)</span>
-    <p id={`${id}-help`} className={styles.hint}>{purpose === 'inquiry' ? 'Show the problem or work you need. These photos are attached to this request. Leave out personal information and private documents.' : <>{workspace === 'provider' ? 'Show your work, tools, or shop.' : 'Show the problem or the work you need.'} The first photo appears on your card. All photos appear in Details. Photos are public; leave out personal information.</>}</p>
     {!!value.length && <div className={styles.items}>{value.map((photo, index) => <div key={photo.id} className={styles.item}>
       <Image unoptimized src={listingPhotoUrl(photo.url, 320, true)} width={320} height={200} alt={`Listing photo ${index + 1}`} className={styles.preview} />
       {index === 0 && purpose === 'listing' && <span className={styles.cover}>Cover</span>}
@@ -47,7 +46,7 @@ export default function ListingPhotoUploader({ value, onChange, onBusyChange, di
     </div>)}</div>}
     <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden disabled={busy || disabled || value.length >= 3} aria-labelledby={`${id}-label`} aria-describedby={`${id}-help`} onChange={event => { const files = Array.from(event.target.files ?? []); event.target.value = ''; void add(files); }} />
     <button type="button" className={styles.add} disabled={busy || disabled || value.length >= 3} onClick={() => input.current?.click()}><ImagePlus size={17} aria-hidden="true" />{busy ? 'Uploading photos…' : value.length >= 3 ? '3 photos added' : 'Add photos'}</button>
-    <p className={styles.hint}>{value.length} of 3 photos · JPEG, PNG or WebP · Up to 5 MB each</p>
+    <p id={`${id}-help`} className={styles.hint}>{value.length}/3 · JPG, PNG, WebP · 5 MB max{purpose === 'listing' && ' · Public photos'}</p>
     {busy && <p role="status" className={styles.hint}>Finish uploading before you publish or save.</p>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
   </div>;

@@ -30,11 +30,11 @@ const listing = {
   category: { name: 'Plumbing' }, status: 'ACTIVE', isAvailable: true, price: 500,
 };
 
-describe('Browse Service Requests offer eligibility', () => {
-  it('opens the request author’s seeker reviews directly while the author link opens their overview', async () => {
+describe('Find Work offer eligibility', () => {
+  it('opens the request author’s customer reviews directly while the author link opens their overview', async () => {
     render(<BrowseJobs />);
-    fireEvent.click(await screen.findByRole('button', { name: 'View service seeker reviews for Client' }));
-    expect(push).toHaveBeenLastCalledWith('/profile/seeker-id?tab=reviews&reviewRole=seeker');
+    fireEvent.click(await screen.findByRole('button', { name: 'View customer reviews for Client' }));
+    expect(push).toHaveBeenLastCalledWith('/profile/seeker-id?tab=reviews&reviewRole=customer');
     fireEvent.click(screen.getByRole('button', { name: "View Client's profile" }));
     expect(push).toHaveBeenLastCalledWith('/profile/seeker-id');
   });
@@ -109,7 +109,7 @@ describe('Browse Service Requests offer eligibility', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Send Offer' }));
     await waitFor(() => expect(screen.getByRole('option', { name: 'Emergency pipe repair' })).toBeInTheDocument());
     fireEvent.change(screen.getByLabelText('Service listing (optional)'), { target: { value: 'second-listing-id' } });
-    fireEvent.change(screen.getByLabelText('Expected duration (minutes)'), { target: { value: '90' } });
+    fireEvent.change(screen.getByLabelText('Duration (minutes)'), { target: { value: '90' } });
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
     fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', 'second-listing-id', 500, 90, 'I can repair the pipe tomorrow.', undefined, { serviceLocationMode: 'PROVIDER_VISITS' }));

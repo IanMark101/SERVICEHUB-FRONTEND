@@ -26,7 +26,7 @@ describe('request and authoritative Activity data', () => {
     if (uiStatus === 'canceled') {
       expect(engagement.completedServiceId).toBeUndefined();
       expect(engagement.completedAt).toBeUndefined();
-      expect(getActivitySituation(engagement, 'provider').detail).toBe('This engagement ended without completion.');
+      expect(getActivitySituation(engagement, 'provider').detail).toBe('This booking ended without completion.');
     }
   });
 
