@@ -210,7 +210,7 @@ describe('useSeekerActions Post Request payload', () => {
     } as unknown as Parameters<typeof useSeekerActions>[0]));
   }
 
-  it('opens checkout for a GCash-only custom offer without needing a service listing or the request feed', async () => {
+  it('prepares a review for a GCash-only custom offer without opening the gateway', async () => {
     const popup = { opener: window, document: { title: '', body: { textContent: '' } }, location: { replace: vi.fn() }, close: vi.fn() };
     vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
     vi.mocked(apiInitiatePayment).mockResolvedValue({ success: true, data: {
@@ -219,11 +219,11 @@ describe('useSeekerActions Post Request payload', () => {
     const { result } = renderCustomGcashOffer();
     const checkout = await result.current.acceptBid('offer-id', 'GCash');
     expect(apiInitiatePayment).toHaveBeenCalledWith(expect.objectContaining({ offerId: 'offer-id', serviceId: undefined, paymentMethodType: 'gcash' }));
-    expect(checkout).toMatchObject({ seekerId: 'seeker-id', offerId: 'offer-id', expectedAmount: 2500 });
+    expect(checkout).toMatchObject({ seekerId: 'seeker-id', offerId: 'offer-id', expectedAmount: 2500, checkoutOpened: false });
     expect(checkout).not.toHaveProperty('serviceId');
     expect(readPendingGcashCheckout('seeker-id')).toEqual(checkout);
-    expect(popup.opener).toBeNull();
-    expect(popup.location.replace).toHaveBeenCalledWith('https://test-sources.paymongo.com/sources/custom-offer');
+    expect(window.open).not.toHaveBeenCalled();
+    expect(popup.location.replace).not.toHaveBeenCalled();
     expect(popup.close).not.toHaveBeenCalled();
     expect(apiBookDirectFromOffer).not.toHaveBeenCalled();
     expect(setBids).not.toHaveBeenCalled();
@@ -231,13 +231,14 @@ describe('useSeekerActions Post Request payload', () => {
     expect(toastError).not.toHaveBeenCalled();
   });
 
-  it('closes the preparing tab and leaves the offer unchanged when GCash initiation fails', async () => {
+  it('opens no tab and leaves the offer unchanged when GCash initiation fails', async () => {
     const popup = { opener: window, document: { title: '', body: { textContent: '' } }, close: vi.fn() };
     vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
     vi.mocked(apiInitiatePayment).mockRejectedValue(new Error('Validation failed'));
     const { result } = renderCustomGcashOffer();
     await expect(result.current.acceptBid('offer-id', 'GCash')).rejects.toThrow('Validation failed');
-    expect(popup.close).toHaveBeenCalledOnce();
+    expect(window.open).not.toHaveBeenCalled();
+    expect(popup.close).not.toHaveBeenCalled();
     expect(readPendingGcashCheckout('seeker-id')).toBeNull();
     expect(setBids).not.toHaveBeenCalled();
     expect(toastSuccess).not.toHaveBeenCalled();

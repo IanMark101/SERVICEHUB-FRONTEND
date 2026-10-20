@@ -8,6 +8,11 @@ export interface PendingGcashCheckout {
   title?: string;
   providerName?: string;
   expectedAmount?: number;
+  checkoutOpened?: boolean;
+  isTestMode?: boolean;
+  bookingId?: string;
+  reference?: string;
+  paidAt?: string | null;
   commission?: { ratePercent: number; platformFeeAmount: number; providerNetAmount: number };
 }
 
@@ -75,24 +80,4 @@ export function clearGcashCheckout(paymentIntentId: string) {
     // Storage may be blocked; server verification is still authoritative.
   }
   window.dispatchEvent(new CustomEvent(GCASH_CHECKOUT_EVENT));
-}
-
-// Reserve the tab during the user's click, before awaiting the API. Browsers
-// may block it; the status dialog always provides an ordinary checkout link.
-export function prepareGcashWindow(): Window | null {
-  try {
-    const popup = window.open('about:blank', '_blank');
-    if (popup) {
-      popup.opener = null;
-      popup.document.title = 'Opening GCash checkout';
-      popup.document.body.textContent = 'Preparing your GCash checkout…';
-    }
-    return popup;
-  } catch { return null; }
-}
-
-export function navigateGcashWindow(popup: Window | null, redirectUrl?: string) {
-  if (!popup) return;
-  if (!isPayMongoCheckoutUrl(redirectUrl)) { popup.close(); return; }
-  try { popup.location.replace(redirectUrl); } catch { popup.close(); }
 }

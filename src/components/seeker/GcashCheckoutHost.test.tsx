@@ -30,17 +30,17 @@ describe('Workspace GCash dialog', () => {
   it('opens in place with the service, provider and server total, then closes without a floating control', async () => {
     render(<GcashCheckoutHost />);
     act(() => rememberGcashCheckout(checkout));
-    const dialog = await screen.findByRole('dialog', { name: 'Waiting for payment confirmation' });
+    const dialog = await screen.findByRole('dialog', { name: 'Waiting for payment' });
     expect(dialog).toHaveTextContent('House cleaning');
     expect(dialog).toHaveTextContent('Ian');
     expect(dialog).toHaveTextContent('₱1,500.00');
-    expect(screen.getByRole('link', { name: /Open PayMongo/ })).toHaveAttribute('target', '_blank');
-    fireEvent.click(screen.getByRole('button', { name: 'Close for now' }));
+    expect(screen.getByRole('link', { name: 'Open GCash' })).toHaveAttribute('target', '_blank');
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(readGcashCheckout('seeker', 'pi_one')).not.toBeNull();
     expect(screen.queryByRole('button', { name: /Resume/ })).not.toBeInTheDocument();
     act(() => rememberGcashCheckout(checkout));
-    await screen.findByRole('dialog', { name: 'Waiting for payment confirmation' });
+    await screen.findByRole('dialog', { name: 'Waiting for payment' });
     expect(apiConfirmOnlineBooking).toHaveBeenCalledTimes(2);
     expect(apiConfirmOnlineBooking).toHaveBeenLastCalledWith({ paymentIntentId: 'pi_one' });
     expect(apiInitiatePayment).not.toHaveBeenCalled();
@@ -77,25 +77,25 @@ describe('Workspace GCash dialog', () => {
     } });
     render(<GcashCheckoutHost />);
     act(() => rememberGcashCheckout(checkout));
-    fireEvent.click(await screen.findByRole('button', { name: 'Try GCash Again' }));
-    await screen.findByRole('dialog', { name: 'Waiting for payment confirmation' });
+    fireEvent.click(await screen.findByRole('button', { name: 'Try again' }));
+    await screen.findByRole('dialog', { name: 'Review payment' });
     expect(apiInitiatePayment).toHaveBeenCalledWith({ retryPaymentIntentId: 'pi_one', serviceId: 'service', offerId: undefined, quantity: 3, paymentMethodType: 'gcash' });
-    expect(apiConfirmOnlineBooking).toHaveBeenLastCalledWith({ paymentIntentId: 'pi_new' });
-    expect(screen.getByRole('link', { name: /Open PayMongo/ })).toHaveAttribute('href', 'https://test-sources.paymongo.com/sources/new');
+    expect(apiConfirmOnlineBooking).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('link', { name: 'Continue with GCash' })).toHaveAttribute('href', 'https://test-sources.paymongo.com/sources/new');
     expect(state.replace).not.toHaveBeenCalled();
   });
 
   it('shows the success action only after backend verification and clears the saved attempt', async () => {
     render(<GcashCheckoutHost />);
     act(() => rememberGcashCheckout(checkout));
-    await screen.findByRole('dialog', { name: 'Waiting for payment confirmation' });
+    await screen.findByRole('dialog', { name: 'Waiting for payment' });
     expect(screen.queryByRole('link', { name: /View booking/ })).not.toBeInTheDocument();
     vi.mocked(apiConfirmOnlineBooking).mockResolvedValue({ success: true, data: { status: 'SUCCEEDED' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Check payment status' }));
-    await screen.findByRole('dialog', { name: 'GCash payment confirmed' });
+    fireEvent.click(screen.getByRole('button', { name: 'Check status' }));
+    await screen.findByRole('dialog', { name: 'Payment successful' });
     expect(screen.getByRole('link', { name: /View booking/ })).toHaveAttribute('href', '/seeker/seeker-activity');
     expect(readGcashCheckout('seeker', 'pi_one')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Close payment status' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Close payment' }));
     expect(screen.queryByRole('button', { name: /Resume/ })).not.toBeInTheDocument();
   });
 
@@ -103,8 +103,8 @@ describe('Workspace GCash dialog', () => {
     vi.mocked(apiConfirmOnlineBooking).mockRejectedValue(new Error('Network unavailable'));
     render(<GcashCheckoutHost />);
     act(() => rememberGcashCheckout(checkout));
-    await screen.findByRole('dialog', { name: 'Payment status is temporarily unavailable' });
-    expect(screen.queryByRole('button', { name: 'Try GCash Again' })).not.toBeInTheDocument();
+    await screen.findByRole('dialog', { name: 'Unable to check payment' });
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
     expect(readGcashCheckout('seeker', 'pi_one')).not.toBeNull();
     expect(apiInitiatePayment).not.toHaveBeenCalled();
   });
@@ -112,11 +112,11 @@ describe('Workspace GCash dialog', () => {
   it('traps keyboard focus and allows Escape to close without cancelling the attempt', async () => {
     render(<GcashCheckoutHost />);
     act(() => rememberGcashCheckout(checkout));
-    const dialog = await screen.findByRole('dialog', { name: 'Waiting for payment confirmation' });
-    const last = screen.getByRole('button', { name: 'Close for now' });
+    const dialog = await screen.findByRole('dialog', { name: 'Waiting for payment' });
+    const last = screen.getByRole('button', { name: 'Close' });
     last.focus();
     fireEvent.keyDown(last, { key: 'Tab' });
-    expect(screen.getByRole('button', { name: 'Close payment status' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Close payment' })).toHaveFocus();
     fireEvent.keyDown(dialog, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Resume/ })).not.toBeInTheDocument();
@@ -127,7 +127,7 @@ describe('Workspace GCash dialog', () => {
     vi.mocked(apiConfirmOnlineBooking).mockResolvedValue({ success: false, data: { status: 'SUCCEEDED' } });
     render(<GcashCheckoutHost />);
     act(() => rememberGcashCheckout(checkout));
-    await screen.findByRole('dialog', { name: 'Payment status is temporarily unavailable' });
+    await screen.findByRole('dialog', { name: 'Unable to check payment' });
     expect(screen.queryByRole('link', { name: /View booking/ })).not.toBeInTheDocument();
     expect(readGcashCheckout('seeker', 'pi_one')).not.toBeNull();
   });

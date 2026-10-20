@@ -15,7 +15,7 @@ import {
 import { apiRejectOffer } from '../api/offers.api';
 import { useToast } from '../components/ui/Toast';
 import { getApiErrorBody, getApiErrorMessage, getApiErrorStatus, getUserFacingErrorMessage } from '../lib/api/errors';
-import { isPayMongoCheckoutUrl, navigateGcashWindow, prepareGcashWindow, rememberGcashCheckout, type PendingGcashCheckout } from '../lib/paymentCheckout';
+import { isPayMongoCheckoutUrl, rememberGcashCheckout, type PendingGcashCheckout } from '../lib/paymentCheckout';
 import { normalizeOfferStatus } from '../lib/offerStatus';
 import { mapRequestToJobRequest } from '../context/mappers';
 
@@ -55,27 +55,21 @@ export function useSeekerActions({
   const { success, error: toastError, info } = useToast();
 
   const startGcashCheckout = async (context: Omit<PendingGcashCheckout, 'paymentIntentId' | 'redirectUrl'>, jobLocation?: BookingLocation, serviceLocationMode?: BookingLocationMode) => {
-    const popup = prepareGcashWindow();
-    try {
-      const response = await apiInitiatePayment({
-        serviceId: context.serviceId, offerId: context.offerId,
-        quantity: context.quantity, paymentMethodType: 'gcash',
-        ...(jobLocation && { jobLocation }),
-        ...(serviceLocationMode && { serviceLocationMode }),
-      });
-      if (!response.success || !response.data?.paymentIntentId) throw new Error(response.error || 'GCash checkout could not be started.');
-      if (response.data.redirectUrl && !isPayMongoCheckoutUrl(response.data.redirectUrl)) throw new Error('The payment checkout link is unavailable. Please try again.');
-      const checkout: PendingGcashCheckout = {
-        ...context, paymentIntentId: response.data.paymentIntentId,
-        redirectUrl: response.data.redirectUrl, expectedAmount: response.data.expectedAmount, commission: response.data.commission,
-      };
-      rememberGcashCheckout(checkout);
-      navigateGcashWindow(popup, checkout.redirectUrl);
-      return checkout;
-    } catch (error) {
-      popup?.close();
-      throw error;
-    }
+    const response = await apiInitiatePayment({
+      serviceId: context.serviceId, offerId: context.offerId,
+      quantity: context.quantity, paymentMethodType: 'gcash',
+      ...(jobLocation && { jobLocation }),
+      ...(serviceLocationMode && { serviceLocationMode }),
+    });
+    if (!response.success || !response.data?.paymentIntentId) throw new Error(response.error || 'GCash checkout could not be started.');
+    if (response.data.redirectUrl && !isPayMongoCheckoutUrl(response.data.redirectUrl)) throw new Error('The payment checkout link is unavailable. Please try again.');
+    const checkout: PendingGcashCheckout = {
+      ...context, paymentIntentId: response.data.paymentIntentId,
+      redirectUrl: response.data.redirectUrl, expectedAmount: response.data.expectedAmount, commission: response.data.commission,
+      checkoutOpened: false, isTestMode: response.data.isTestMode,
+    };
+    rememberGcashCheckout(checkout);
+    return checkout;
   };
 
   const postJobRequest = async (
