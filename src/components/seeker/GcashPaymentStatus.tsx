@@ -167,9 +167,14 @@ function PaymentFlow({ paymentIntentId, initialCheckout, onClose, userId, isDark
 }
 
 function PaymentDetails({ checkout, paymentIntentId, feeOnly = false }: { checkout: PendingGcashCheckout | null; paymentIntentId: string | null; feeOnly?: boolean }) {
-  if (feeOnly && !checkout?.commission) return null;
-  return <details className={styles.details}><summary>{feeOnly ? 'Fee details' : 'Payment details'}</summary><dl>
-    {checkout?.commission && <><div><dt>Platform fee ({checkout.commission.ratePercent}%)</dt><dd>{money.format(checkout.commission.platformFeeAmount)}</dd></div><div><dt>Provider share</dt><dd>{money.format(checkout.commission.providerNetAmount)}</dd></div></>}
-    {!feeOnly && <><div><dt>Reference</dt><dd>{checkout?.reference || paymentIntentId || 'Unavailable'}</dd></div>{checkout?.paidAt && <div><dt>Paid on</dt><dd>{new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Manila' }).format(new Date(checkout.paidAt))} · PH time</dd></div>}</>}
-  </dl></details>;
+  return <>
+    {checkout?.commission && <section className={styles.details} aria-label="Fee breakdown"><h3 className={styles.feeTitle}>Fee details</h3><dl>
+      <div><dt>Platform fee ({checkout.commission.ratePercent}%)</dt><dd>{money.format(checkout.commission.platformFeeAmount)}</dd></div>
+      <div><dt>Provider share</dt><dd>{money.format(checkout.commission.providerNetAmount)}</dd></div>
+    </dl></section>}
+    {!feeOnly && <details className={styles.details}><summary>Payment details</summary><dl>
+      <div><dt>Reference</dt><dd>{checkout?.reference || paymentIntentId || 'Unavailable'}</dd></div>
+      {checkout?.paidAt && <div><dt>Paid on</dt><dd>{new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Manila' }).format(new Date(checkout.paidAt))} · PH time</dd></div>}
+    </dl></details>}
+  </>;
 }

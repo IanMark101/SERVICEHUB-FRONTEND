@@ -30,6 +30,7 @@
 .total dd { font-size:32px; letter-spacing:-.02em; line-height:1.4; margin-top:8px; }
 .feeNote { font-size:12px; line-height:1.6; color:var(--form-muted); margin:12px 0 16px; }
 .details { text-align:left; border-top:1px solid var(--form-border); margin-top:20px; }
+.feeTitle { margin:16px 0 12px; font-size:13px; font-weight:650; color:var(--form-ink); }
 .details summary { display:list-item; cursor:pointer; min-height:44px; padding:12px 0; color:var(--form-muted); font-size:13px; font-weight:600; }
 .details dl { display:grid; gap:12px; margin:4px 0 16px; font-size:12px; line-height:1.6; }
 .details dt { flex-shrink:0; color:var(--form-muted); }

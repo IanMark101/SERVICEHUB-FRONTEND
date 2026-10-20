@@ -26,10 +26,9 @@ describe('GCash review, return and recovery', () => {
     expect(screen.getByRole('heading', { name: 'Review payment' })).toBeVisible();
     expect(screen.getByRole('complementary', { name: 'Payment summary' })).toHaveTextContent('Total you pay₱500.00');
     expect(screen.getByText('The 10% platform fee is included.')).toBeVisible();
-    expect(screen.getByText('Platform fee (10%)')).not.toBeVisible();
-    fireEvent.click(screen.getByText('Fee details'));
     expect(screen.getByText('Platform fee (10%)')).toBeVisible();
     expect(screen.getByText('₱450.00')).toBeVisible();
+    expect(screen.getByRole('region', { name: 'Fee breakdown' }).querySelector('summary')).toBeNull();
     expect(apiConfirmOnlineBooking).not.toHaveBeenCalled();
     expect(window.open).not.toHaveBeenCalled();
     const link = screen.getByRole('link', { name: 'Continue with GCash' });
@@ -108,9 +107,10 @@ describe('GCash review, return and recovery', () => {
     expect(screen.queryByText('Payment method')).not.toBeInTheDocument();
     expect(screen.queryByText(/paid work queue/)).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Continue with GCash' })).not.toBeInTheDocument();
+    expect(screen.getByText('Platform fee (10%)')).toBeVisible();
+    expect(screen.getByText('₱450.00')).toBeVisible();
     fireEvent.click(screen.getByText('Payment details'));
     expect(screen.getByText('pay_verified')).toBeVisible();
-    expect(screen.getByText('Platform fee (10%)')).toBeVisible();
     expect(readGcashCheckout('seeker-one', 'pi_old')).toBeNull();
   });
 
