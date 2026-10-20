@@ -44,7 +44,7 @@ describe('GCash payment return and recovery', () => {
     render(<PaymentReturn paymentIntentId="pi_unknown" />);
     await screen.findByRole('heading', { name: 'Waiting for payment confirmation' });
     expect(screen.getByRole('heading', { name: 'Order summary' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Payment summary')).toHaveTextContent('TotalUnavailable');
+    expect(screen.getByLabelText('Payment summary')).toHaveTextContent('Total you payUnavailable');
     expect(screen.getByLabelText('Payment summary')).not.toHaveTextContent('₱0');
     expect(screen.queryByRole('link', { name: /Open PayMongo/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Try GCash Again' })).not.toBeInTheDocument();
@@ -64,12 +64,14 @@ describe('GCash payment return and recovery', () => {
     vi.mocked(apiConfirmOnlineBooking).mockResolvedValue({ success: true, data: { status: 'FAILED' } });
     vi.mocked(apiInitiatePayment).mockResolvedValue({ success: true, data: {
       paymentIntentId: 'pi_fresh', redirectUrl: 'https://test-sources.paymongo.com/sources/src_fresh',
+      commission: { ratePercent: 10, platformFeeAmount: 100, providerNetAmount: 900 },
     } });
     render(<PaymentReturn paymentIntentId="pi_old" />);
     fireEvent.click(await screen.findByRole('button', { name: 'Try GCash Again' }));
     await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/seeker/payment-return?payment_intent_id=pi_fresh'));
     expect(apiInitiatePayment).toHaveBeenCalledWith({ serviceId: 'service-one', offerId: undefined, paymentMethodType: 'gcash', retryPaymentIntentId: 'pi_old' });
     expect(readGcashCheckout('seeker-one', 'pi_fresh')?.redirectUrl).toContain('src_fresh');
+    expect(readGcashCheckout('seeker-one', 'pi_fresh')?.commission).toEqual({ ratePercent: 10, platformFeeAmount: 100, providerNetAmount: 900 });
     expect(readGcashCheckout('seeker-one', 'pi_old')).toBeNull();
   });
 

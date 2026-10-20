@@ -41,6 +41,7 @@ function GCashNumberControl({ userId, isDark, workspace, disabled, onReadinessCh
       <strong>GCash number <span>(required for GCash)</span></strong>
       <p>{phase === 'loading' ? 'Loading your saved number…' : phase === 'error' ? 'Could not load your GCash number. Retry before continuing, or choose Cash only.' : number ? `Saved number ending in ${number.slice(-4)}. Used across your listings.` : 'Add your GCash number to continue, or choose Cash only. It can differ from your contact number.'}</p>
       <p className={styles.note}>Private to your account. GCash is in test mode; this number does not receive payouts.</p>
+      {workspace === 'provider' && <p className={styles.note}>10% platform fee on completed GCash bookings, including travel.</p>}
       <span className={styles.status} role="status">{message}</span>
     </div>
     <button className={styles.edit} type="button" disabled={disabled || phase === 'loading'} onClick={() => {

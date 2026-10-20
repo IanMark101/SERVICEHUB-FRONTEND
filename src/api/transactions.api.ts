@@ -16,6 +16,8 @@ export interface ProviderPaymentRecord {
   paymentStatus: string;
   amount: number;
   earnedAmount: number;
+  platformFeeAmount?: number;
+  commissionRateBps?: number;
   recordedAt: string;
 }
 export interface ProviderPaymentRecords {

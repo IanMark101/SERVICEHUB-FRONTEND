@@ -122,7 +122,7 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
         return;
       }
       if (result.data.redirectUrl && !isPayMongoCheckoutUrl(result.data.redirectUrl)) throw new Error('Invalid checkout link');
-      rememberGcashCheckout({ ...checkout, paymentIntentId: nextIntentId, redirectUrl: result.data.redirectUrl, expectedAmount: result.data.expectedAmount ?? checkout.expectedAmount });
+      rememberGcashCheckout({ ...checkout, paymentIntentId: nextIntentId, redirectUrl: result.data.redirectUrl, expectedAmount: result.data.expectedAmount ?? checkout.expectedAmount, commission: result.data.commission });
       navigateGcashWindow(popup, result.data.redirectUrl);
       if (!onClose) router.replace(paymentReturnPath(nextIntentId));
     } catch {
@@ -203,8 +203,10 @@ export default function GcashPaymentStatus({ paymentIntentId, initialCheckout, o
               {checkout?.providerName && <div><dt>Provider</dt><dd>{checkout.providerName}</dd></div>}
               {checkout?.quantity !== undefined && checkout.quantity > 1 && <div><dt>Quantity</dt><dd>{checkout.quantity}</dd></div>}
               <div><dt>Payment method</dt><dd>GCash</dd></div>
-              <div className={styles.total}><dt>Total</dt><dd>{formattedTotal}</dd></div>
+              {checkout?.commission && <><div><dt>Platform fee ({checkout.commission.ratePercent}%)</dt><dd>₱{checkout.commission.platformFeeAmount.toFixed(2)}</dd></div><div><dt>Provider share</dt><dd>₱{checkout.commission.providerNetAmount.toFixed(2)}</dd></div></>}
+              <div className={styles.total}><dt>Total you pay</dt><dd>{formattedTotal}</dd></div>
             </dl>
+            {checkout?.commission && <p className={styles.orderNote}>The platform fee is deducted from the agreed total. You pay no extra fee.</p>}
             <p className={styles.orderNote}>{Number.isFinite(checkout?.expectedAmount) ? 'This is the booking total supplied by ServiceHub.' : 'Payment details could not be restored in this browser. Check the payment status before starting another payment.'}</p>
           </aside>
         </div>
