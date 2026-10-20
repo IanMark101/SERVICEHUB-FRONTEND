@@ -130,7 +130,7 @@ export default function SidebarView({
     },
     {
       label: 'Activity Records',
-      items: [{ id: 'audit-logs', label: 'Audit Log', icon: ClockCounterClockwise }],
+      items: [{ id: 'earnings', label: 'Platform Earnings', icon: ChartBar }, { id: 'audit-logs', label: 'Audit Log', icon: ClockCounterClockwise }],
     },
   ];
 

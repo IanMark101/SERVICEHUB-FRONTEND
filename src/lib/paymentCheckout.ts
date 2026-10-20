@@ -8,6 +8,7 @@ export interface PendingGcashCheckout {
   title?: string;
   providerName?: string;
   expectedAmount?: number;
+  commission?: { ratePercent: number; platformFeeAmount: number; providerNetAmount: number };
 }
 
 const CHECKOUT_KEY = 'servicehub:pending-gcash-checkout';

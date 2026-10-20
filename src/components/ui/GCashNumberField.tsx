@@ -41,6 +41,7 @@ function GCashNumberControl({ userId, isDark, workspace, disabled, onReadinessCh
       <strong>GCash number <span>(required)</span></strong>
       <p>{phase === 'loading' ? 'Loading…' : phase === 'error' ? 'Could not load your number. Retry or choose Cash only.' : number ? `Saved · ending in ${number.slice(-4)}` : 'Add a number or choose Cash only.'}</p>
       <p className={styles.note}>Private · no Test Mode payouts.</p>
+      {workspace === 'provider' && <p className={styles.note}>10% platform fee on completed GCash bookings, including travel.</p>}
       <span className={styles.status} role="status">{message}</span>
     </div>
     <button className={styles.edit} type="button" disabled={disabled || phase === 'loading'} onClick={() => {

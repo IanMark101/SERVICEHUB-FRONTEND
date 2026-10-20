@@ -67,7 +67,7 @@ export function useSeekerActions({
       if (response.data.redirectUrl && !isPayMongoCheckoutUrl(response.data.redirectUrl)) throw new Error('The payment checkout link is unavailable. Please try again.');
       const checkout: PendingGcashCheckout = {
         ...context, paymentIntentId: response.data.paymentIntentId,
-        redirectUrl: response.data.redirectUrl, expectedAmount: response.data.expectedAmount,
+        redirectUrl: response.data.redirectUrl, expectedAmount: response.data.expectedAmount, commission: response.data.commission,
       };
       rememberGcashCheckout(checkout);
       navigateGcashWindow(popup, checkout.redirectUrl);
