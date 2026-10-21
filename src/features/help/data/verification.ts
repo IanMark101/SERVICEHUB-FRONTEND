@@ -6,7 +6,7 @@ export const VERIFICATION_ARTICLES: HelpArticle[] = [
     title: 'Why Residency Verification is Required',
     category: 'verification',
     description: 'Learn why identity and residency verification is the cornerstone of trust and safety on ServiceHub.',
-    lastUpdated: 'October 2026',
+    lastUpdated: 'October 21, 2026',
     readTimeMinutes: 3,
     popular: true,
     keywords: ['verification', 'residency', 'safety', 'barangay id', 'limited mode', 'why verify'],
@@ -15,7 +15,7 @@ export const VERIFICATION_ARTICLES: HelpArticle[] = [
       {
         heading: 'Trust across local communities',
         paragraphs: [
-          'Every member account must verify its email and submit identity or residency documents for administrator review before posting services or requests, booking, or sending and accepting offers. One approved account can use both Seeker and Provider workspaces.',
+          'Every member account must verify its email and submit identity or residency documents for administrator review before posting services or requests, booking, or sending and accepting offers. One approved account can use both Customer and Provider workspaces.',
           'Submitting a document does not verify your account automatically. The administrator reviews its contents and decides whether the proof is sufficient. Documents can come from different communities and cities; approval is not tied to one municipality.',
           'A map pin is not proof of identity or residency. Choosing a new search location does not approve an account or change its verification status.',
         ],
@@ -108,7 +108,7 @@ export const VERIFICATION_ARTICLES: HelpArticle[] = [
     title: 'What is Limited Mode?',
     category: 'verification',
     description: 'Learn what actions unverified accounts can and cannot perform on ServiceHub.',
-    lastUpdated: 'August 2026',
+    lastUpdated: 'October 21, 2026',
     readTimeMinutes: 3,
     popular: true,
     keywords: ['limited mode', 'restrictions', 'unverified account', 'permission denied'],
@@ -135,7 +135,7 @@ export const VERIFICATION_ARTICLES: HelpArticle[] = [
         bullets: [
           'Booking a service or joining a live provider queue.',
           'Posting custom job requests on the community board.',
-          'Submitting offers to seeker requests.',
+          'Submitting offers to customer requests.',
           'Publishing active service listings as a provider.',
           'Sending direct messages or starting transaction chats.',
         ],

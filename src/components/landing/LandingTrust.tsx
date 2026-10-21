@@ -14,7 +14,7 @@ const topics = {
       { title: 'Conversations connected to the work', detail: 'Booking chat opens after acceptance, keeping task discussions with the service agreement.' },
       { title: 'Reviews follow completed service.', detail: 'The Provider submits the work. The Customer confirms completion before either side can review.' },
       { title: 'Ratings and trust are separate', detail: 'Reviews describe the service experience. A low star rating alone does not reduce Trust Score.' },
-      { title: 'Documented decisions', detail: 'Trust penalties require documented findings. Members can view their history and appeal a penalty.' },
+      { title: 'Documented decisions', detail: 'Trust penalties require documented findings. Trust History shows each recorded change and its reason.' },
       { title: 'One account, shared trust', detail: 'Your Customer and Provider workspaces use the same verification and Trust Score.' },
     ],
   },
@@ -24,7 +24,7 @@ const topics = {
       { title: 'The Provider submits the work', detail: 'Finished work awaits the Customer’s confirmation.' },
       { title: 'The Customer confirms the result', detail: 'Completion is recorded with the booking.' },
       { title: 'Both sides can leave a review', detail: 'Feedback contributes to the member’s star rating, separately from Trust Score.' },
-      { title: 'Responses and disputes', detail: 'Members can respond publicly to a review or dispute it for administrator review.' },
+      { title: 'Reviews and support', detail: 'Profile reviews are read-only. Submit or edit your own review through a completed booking, and report booking concerns in My Bookings.' },
     ],
   },
   score: {
@@ -35,7 +35,7 @@ const topics = {
       { title: 'Eligible completed booking: +3', detail: 'Each eligible participant earns 3 points after a completed booking is settled.' },
       { title: 'A limit on repeat rewards', detail: 'One completion per account pair earns points in a rolling 7-day period, including when roles are switched.' },
       { title: 'Evidence before deductions', detail: 'Documented at-fault cancellation after work starts deducts 5 points; serious misconduct deducts 10. One penalty per booking and participant.' },
-      { title: 'A way to challenge a decision', detail: 'View the reason in Trust History and appeal a penalty. Star ratings never add or deduct trust points.' },
+      { title: 'See why your score changed', detail: 'Trust History records the reason for each adjustment. Star ratings never add or deduct trust points.' },
     ],
   },
 } as const;

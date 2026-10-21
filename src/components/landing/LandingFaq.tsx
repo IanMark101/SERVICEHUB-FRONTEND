@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: 'How do I use the map to choose a search area?',
-    a: 'Select Change location, search for a city or barangay, click the map or drag the pin. You can also use device location if you allow browser permission. Choose a radius and select Apply location to update your results. Your search pin is separate from your profile area and the actual job location.',
+    a: 'Select Change location and start typing a city or barangay. Matching places appear as you type; select one, or use the arrow keys and Enter. You can also choose a map pin or use your device location. Confirm the pin, choose a radius, then select Apply location to update your results. Your search pin is separate from your profile area and service address.',
   },
   {
     q: 'How does the discovery radius work?',
@@ -41,7 +41,15 @@ const faqs = [
   },
   {
     q: 'How do both members follow a booking\u2019s progress?',
-    a: 'Activity shows the booking status in both workspaces, including when the Provider starts the job and submits the finished work. The Customer confirms completion, then the booking is saved in History and both members can leave a review. Booking chat becomes available after acceptance.',
+    a: 'My Bookings shows the status in both workspaces, including when the Provider starts the job and submits the finished work. The Customer confirms completion, then the booking is saved in History and both members can leave a review. Booking chat becomes available after acceptance.',
+  },
+  {
+    q: 'Do Providers need a paid plan?',
+    a: 'Providers start on Free with up to 3 active service listings and a 10% GCash fee. Pro costs ₱199 per month, allows unlimited active listings and lowers the GCash fee to 5%. Both plans include provider analytics. Pro gives eligible services a small priority for featured placement; it does not guarantee jobs or change ordinary nearby search order.',
+  },
+  {
+    q: 'How do GCash fees and cash payments work?',
+    a: 'The GCash fee is deducted from the agreed booking total, including any travel charge. It is not added on top of what the Customer pays. Checkout shows the fee and Provider share before payment. Cash is paid directly to the Provider with no ServiceHub platform fee. GCash currently runs in Test Mode, so no real money is transferred.',
   },
 ];
 
@@ -62,7 +70,7 @@ export default function LandingFaq({ isDark }: LandingFaqProps) {
             Frequently asked questions.
           </h2>
           <p className="mt-5 max-w-[42ch] text-base leading-relaxed text-neutral-600 dark:text-zinc-400">
-            Finding services, discovering requests and understanding Trust Score. Start with the basics for both workspaces.
+            Find services, understand bookings and payments, and compare Provider plans.
           </p>
           <Link
             href="/help"

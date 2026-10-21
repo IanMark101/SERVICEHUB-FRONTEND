@@ -6,7 +6,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
     title: 'What is Trust Score?',
     category: 'trust-reputation',
     description: 'Understand the reliability score, star ratings, and verification badge as separate measures.',
-    lastUpdated: 'October 2026',
+    lastUpdated: 'October 21, 2026',
     readTimeMinutes: 3,
     popular: true,
     keywords: ['trust score', 'reputation', 'score', 'audit log', 'trust rating', 'points'],
@@ -15,7 +15,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
       {
         heading: 'A Living Measure of Reliability',
         paragraphs: [
-          'Trust Score is a 0-to-100 record of approved verification, eligible completed bookings, and documented administrator findings. Your Seeker and Provider workspaces share one score. Every account starts at a neutral baseline of 50.',
+          'Trust Score is a 0-to-100 record of approved verification, eligible completed bookings, and documented administrator findings. Your Customer and Provider workspaces share one score. Every account starts at a neutral baseline of 50.',
           'Star ratings describe satisfaction and do not change Trust Score. The verification badge indicates approved identity and residency documents. None of these measures guarantees workmanship or safety; consider them together with reviews and booking details.',
         ],
       },
@@ -40,7 +40,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
     title: 'How Trust Score Increases and Decreases',
     category: 'trust-reputation',
     description: 'A complete breakdown of all actions that award or deduct Trust Score points on the platform.',
-    lastUpdated: 'October 2026',
+    lastUpdated: 'October 21, 2026',
     readTimeMinutes: 3,
     popular: true,
     keywords: ['trust points', 'gain trust', 'lose trust', 'deduction', 'penalty', '5 star review'],
@@ -50,7 +50,7 @@ export const TRUST_SCORE_ARTICLES: HelpArticle[] = [
         heading: 'Ways to Gain Trust Points (+)',
         bullets: [
           'Your first approved identity and residency verification adds 5 points once.',
-          'An eligible completed booking adds 3 points to each eligible Seeker and Provider. Both identities must be approved, completion and payment settlement must be recorded, and no booking complaint can remain unresolved. A participant with an uncorrected fault penalty for that booking receives no reward.',
+          'An eligible completed booking adds 3 points to each eligible Customer and Provider. Both identities must be approved, completion and payment settlement must be recorded, and no booking complaint can remain unresolved. A participant with an uncorrected fault penalty for that booking receives no reward.',
           'Only one completed booking between the same two accounts can earn points in a rolling 7-day period, including when they exchange workspace roles. The next reward is available after seven full days from their last rewarded completion, rather than at a calendar-week reset. Repeat bookings and reviews remain available.',
           'Payments, accepting bookings, and starting work do not award extra trust points by themselves.',
         ],

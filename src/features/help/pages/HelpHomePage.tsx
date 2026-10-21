@@ -16,8 +16,8 @@ const quickTopics = [
   { label: 'Trust Score system', detail: 'How reputation changes over time', href: '/help/trust-reputation/what-is-trust-score' },
   { label: 'Service queues', detail: 'How first-come, first-served works', href: '/help/queue/how-the-queue-works' },
   { label: 'Direct bookings', detail: 'Request a listed service safely', href: '/help/bookings/how-direct-booking-works' },
-  { label: 'Messaging rules', detail: 'When a conversation becomes available', href: '/help/messaging/when-messaging-unlocks' },
-  { label: 'Payment records', detail: 'Understand internal payment holds', href: '/help/payments/how-escrow-works' },
+  { label: 'Provider plans', detail: 'Compare Free and Pro', href: '/help/payments/provider-plans-and-subscriptions' },
+  { label: 'Payments and fees', detail: 'GCash charges and direct cash payments', href: '/help/payments/gcash-fees-and-provider-earnings' },
 ];
 
 const categoryGroups: Array<{
@@ -60,7 +60,7 @@ export default function HelpHomePage() {
             Answers for every step.
           </h1>
           <p className="mt-6 max-w-[37rem] text-sm leading-6 text-ink-muted dark:text-white/64 sm:text-base sm:leading-7">
-            Learn how to find a service, post a request or offer your skills. Get clear guidance on search locations, verification, bookings, queues and payments.
+            Find a service, post a request or offer your skills. Get clear guidance on location search, verification, bookings, payments and Provider plans.
           </p>
           <div className="mt-8 max-w-[39rem]">
             <HelpSearch size="lg" autoFocus={false} placeholder="What do you need help with?" />
@@ -122,7 +122,7 @@ export default function HelpHomePage() {
       <section aria-labelledby="frequent-guides-heading">
         <div className="mb-7 border-b border-black/10 pb-5 dark:border-white/10">
           <h2 id="frequent-guides-heading" className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Frequently read guides</h2>
-          <p className="mt-3 text-sm leading-6 text-ink-muted dark:text-white/58">Good starting points for new seekers and providers.</p>
+          <p className="mt-3 text-sm leading-6 text-ink-muted dark:text-white/58">Good starting points for new Customers and Providers.</p>
         </div>
         <div className="grid gap-x-10 md:grid-cols-2">
           {popularArticles.map((article) => {

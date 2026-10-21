@@ -55,6 +55,7 @@ const helpLinks = [
   { href: '/help/queue/how-the-queue-works', label: 'Payment and queue rules' },
   { href: '/help/verification/why-verification-is-required', label: 'Verification and messaging' },
   { href: '/help/reviews/how-reviews-and-ratings-work', label: 'How reviews work' },
+  { href: '/help/payments/provider-plans-and-subscriptions', label: 'Free and Pro plans' },
 ];
 
 function JourneyCard({ item, index, role }: { item: typeof seekerFlow[number]; index: number; role: Role }) {
@@ -102,7 +103,7 @@ export default function LandingHowItWorks({ isDark }: { isDark: boolean }) {
               return (
                 <button key={item} type="button" onClick={() => setRole(item)} aria-pressed={active} aria-controls="service-journey" className={`relative min-h-11 rounded-lg px-4 py-2 text-xs font-bold capitalize transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 ${item === 'seeker' ? 'focus-visible:outline-brand-focus' : 'focus-visible:outline-provider-navigation'} ${active ? 'text-white' : 'text-neutral-600 hover:text-[#0a0a0a] dark:text-zinc-400 dark:hover:text-white'}`}>
                   {active && <motion.span aria-hidden="true" layoutId="active-role-tab" className={`absolute inset-0 rounded-lg shadow-xs ${item === 'seeker' ? 'bg-brand' : 'bg-provider-navigation'}`} transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }} />}
-                  <span className="relative z-10">{item === 'seeker' ? 'Seeking services' : 'Offering services'}</span>
+                  <span className="relative z-10">{item === 'seeker' ? 'Customer' : 'Provider'}</span>
                 </button>
               );
             })}

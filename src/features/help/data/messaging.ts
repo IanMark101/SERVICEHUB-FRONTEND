@@ -36,7 +36,7 @@ export const MESSAGING_ARTICLES: HelpArticle[] = [
     title: 'Why Messaging is Tied to Bookings & Read-Only Rules',
     category: 'messaging',
     description: 'How scoped chat logs keep transactions safe, provide evidence during dispute arbitration, and archive upon completion.',
-    lastUpdated: 'August 2026',
+    lastUpdated: 'October 21, 2026',
     readTimeMinutes: 3,
     keywords: ['read only chat', 'completed chat', 'dispute evidence', 'chat history', 'privacy'],
     relatedArticleSlugs: ['when-messaging-unlocks', 'reporting-users-and-disputes'],
@@ -47,7 +47,7 @@ export const MESSAGING_ARTICLES: HelpArticle[] = [
           'Tying chat messages directly to a specific booking ID provides two crucial protections:',
         ],
         bullets: [
-          '1. Spam & Harassment Prevention: Providers and seekers are protected from unsolicited DMs, marketing spam, or out-of-context harassment.',
+          '1. Spam & Harassment Prevention: Providers and customers are protected from unsolicited DMs, marketing spam, or out-of-context harassment.',
           '2. Fair Dispute Evidence: If a dispute or report is filed, ServiceHub administrators can review the exact, untampered chat logs between both parties for that specific booking to make an impartial decision.',
         ],
       },

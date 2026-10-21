@@ -27,7 +27,7 @@ describe('landing information and disclosure controls', () => {
     expect(seekerSteps.getByRole('heading', { name: 'Choose an available payment option' })).toBeVisible();
     expect(seekerSteps.getByRole('heading', { name: 'Track and verify the work' })).toBeVisible();
     expect(screen.getAllByRole('button')).toHaveLength(2);
-    const providerTab = screen.getByRole('button', { name: 'Offering services' });
+    const providerTab = screen.getByRole('button', { name: 'Provider' });
     fireEvent.click(providerTab);
     expect(providerTab).toHaveAttribute('aria-pressed', 'true');
     const providerSteps = within(screen.getByRole('list', { name: 'Provider service steps' }));
@@ -39,14 +39,14 @@ describe('landing information and disclosure controls', () => {
     expect(screen.getByRole('link', { name: 'Payment and queue rules' })).toHaveAttribute('href', '/help/queue/how-the-queue-works');
     expect(screen.getByRole('link', { name: 'Verification and messaging' })).toHaveAttribute('href', '/help/verification/why-verification-is-required');
     expect(screen.getByRole('link', { name: 'How reviews work' })).toHaveAttribute('href', '/help/reviews/how-reviews-and-ratings-work');
-    fireEvent.click(screen.getByRole('button', { name: 'Seeking services' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customer' }));
     expect(await screen.findByRole('heading', { name: 'Browse or post a request' })).toBeVisible();
   });
 
-  it('answers eight practical discovery and account questions with accessible disclosure controls', async () => {
+  it('answers ten practical discovery and account questions with accessible disclosure controls', async () => {
     render(<LandingFaq isDark={false} />);
     expect(screen.getByRole('heading', { name: 'Frequently asked questions.' })).toBeVisible();
-    expect(screen.getAllByRole('button')).toHaveLength(8);
+    expect(screen.getAllByRole('button')).toHaveLength(10);
     const topics = [
       { question: /How can a Customer discover Providers/, answer: /Open Find Services/ },
       { question: /How can a Provider discover Customer requests/, answer: /a request tied to a specific listing requires that matching listing/ },
@@ -90,7 +90,7 @@ describe('landing information and disclosure controls', () => {
     expect(reviewRows[1]).toHaveTextContent('The Customer confirms the result');
     expect(reviewRows[2]).toHaveTextContent('Both sides can leave a review');
     expect(reviewRows[2]).toHaveTextContent('separately from Trust Score');
-    expect(reviewPanel.getByRole('heading', { name: 'Responses and disputes' })).toBeVisible();
+    expect(reviewPanel.getByRole('heading', { name: 'Reviews and support' })).toBeVisible();
     fireEvent.keyDown(reviews, { key: 'End' });
     expect(score).toHaveFocus();
     const scorePanel = within(screen.getByRole('tabpanel', { name: 'Trust score' }));

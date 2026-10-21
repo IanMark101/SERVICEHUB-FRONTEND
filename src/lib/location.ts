@@ -34,7 +34,7 @@ export function nextSearchRadius(radiusKm: number) {
 export function marketplaceSubject(workspace: 'seeker' | 'provider', search: string, category: string) {
   if (!search.trim() && isFallbackCategory(category)) return `${workspace === 'seeker' ? 'services' : 'requests'} in Other Services`;
   const subject = search.trim() || (category !== 'All Categories' ? category : '');
-  return subject ? `${subject} ${workspace === 'seeker' ? 'services' : 'requests'}` : workspace === 'seeker' ? 'Provider services' : 'Seeker requests';
+  return subject ? `${subject} ${workspace === 'seeker' ? 'services' : 'requests'}` : workspace === 'seeker' ? 'Provider services' : 'Customer requests';
 }
 export function formatDistance(distance?: number) {
   return distance == null ? '' : distance < 0.1 ? 'Less than 0.1 km away' : `${distance.toFixed(1)} km away`;
