@@ -158,9 +158,10 @@ function PaymentFlow({ paymentIntentId, initialCheckout, onClose, userId, isDark
         {checkout?.isTestMode !== false && <p className={styles.testNotice}>Test Mode · No real money is transferred.</p>}
       </section>
       {review && <aside className={styles.summary} aria-labelledby="gcash-summary-title"><h3 id="gcash-summary-title">Payment summary</h3>
-        <dl aria-label="Payment summary"><div><dt>Agreed total</dt><dd>{formattedTotal}</dd></div><div className={styles.total}><dt>Total you pay</dt><dd>{formattedTotal}</dd></div></dl>
-        {checkout?.commission && <p className={styles.feeNote}>The {checkout.commission.ratePercent}% platform fee is included.</p>}
+        <dl aria-label="Payment summary"><div><dt>Agreed total</dt><dd>{formattedTotal}</dd></div></dl>
         <PaymentDetails checkout={checkout} paymentIntentId={paymentIntentId} feeOnly />
+        <dl className={styles.totalSummary}><div className={styles.total}><dt>Total you pay</dt><dd>{formattedTotal}</dd></div></dl>
+        {checkout?.commission && <p className={styles.feeNote}>The {checkout.commission.ratePercent}% platform fee is included.</p>}
       </aside>}
     </div>
   </div>;

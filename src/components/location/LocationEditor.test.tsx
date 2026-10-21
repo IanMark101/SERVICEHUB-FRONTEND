@@ -34,7 +34,7 @@ describe('device-location recovery', () => {
     const onChange=vi.fn();
     render(<LocationEditor compact selectionMode="area-search" value={null} onChange={onChange}/>);
     expect(screen.queryByRole('button',{name:/map|device location/i})).not.toBeInTheDocument();
-    fireEvent.change(screen.getByRole('combobox',{name:'City or barangay'}),{target:{value:'Cordova'}});
+    fireEvent.change(screen.getByRole('combobox',{name:'Search places'}),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
     fireEvent.click(await screen.findByRole('option',{name:'Cordova, Cebu'}));
     expect(onChange).toHaveBeenCalledWith({latitude:10.3,longitude:123.9,label:'Cordova, Cebu'});
@@ -190,7 +190,7 @@ describe('general area selection', () => {
     const onChange = vi.fn();
     render(<LocationEditor value={null} onChange={onChange} selectionMode="area" radiusKm={10}/>);
     expect(screen.queryByRole('button',{name:'Choose map pin'})).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('City or barangay'),{target:{value:'Cordova'}});
+    fireEvent.change(screen.getByLabelText('Search places'),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
     fireEvent.click(await screen.findByRole('option',{name:'Cordova, Cebu'}));
     expect(onChange).toHaveBeenCalledWith({latitude:10.25,longitude:123.95,label:'Cordova, Cebu'});
@@ -201,7 +201,7 @@ describe('general area selection', () => {
     vi.mocked(api.get).mockResolvedValue({data:{data:[point]}});
     const onChange=vi.fn();
     render(<LocationEditor value={null} onChange={onChange}/>);
-    fireEvent.change(screen.getByLabelText('City or barangay'),{target:{value:'Cordova'}});
+    fireEvent.change(screen.getByLabelText('Search places'),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
     fireEvent.click(await screen.findByRole('option',{name:'Cordova, Cebu'}));
     expect(onChange).not.toHaveBeenCalled();

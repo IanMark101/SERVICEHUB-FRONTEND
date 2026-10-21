@@ -20,20 +20,24 @@
 .actions > a:focus-visible,.details summary:focus-visible { outline:2px solid var(--form-accent); outline-offset:4px; }
 .testNotice { margin:18px 0 0; font-size:12px; line-height:1.6; color:var(--form-muted); }
 .summary { padding:40px 28px; min-width:0; border-left:1px solid var(--form-border); background:var(--form-soft); }
-.summary h3 { font-size:17px; font-weight:700; margin:0 0 28px; }
-.summary dl { display:grid; gap:24px; margin:0; }
+.summary > h3 { font-size:17px; font-weight:700; margin:0 0 24px; }
+.summary > dl { display:grid; gap:24px; margin:0; }
 .summary dl > div,.details dl > div { display:flex; justify-content:space-between; align-items:baseline; gap:16px; }
 .summary dt { font-size:13px; color:var(--form-muted); }
 .summary dd { margin:0; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
-.summary .total { display:block; padding-top:24px; border-top:1px solid var(--form-border); }
+.summary > .totalSummary { margin-top:24px; }
+.summary .total { display:block; padding-top:20px; border-top:1px solid var(--form-border); }
 .total dt { color:var(--form-ink); font-weight:600; }
 .total dd { font-size:32px; letter-spacing:-.02em; line-height:1.4; margin-top:8px; }
-.feeNote { font-size:12px; line-height:1.6; color:var(--form-muted); margin:12px 0 16px; }
+.feeNote { font-size:12px; line-height:1.6; color:var(--form-muted); margin:10px 0 0; }
 .details { text-align:left; border-top:1px solid var(--form-border); margin-top:20px; }
 .feeTitle { margin:16px 0 12px; font-size:13px; font-weight:650; color:var(--form-ink); }
+.summary .details { padding-top:20px; margin-top:20px; }
+.summary .feeTitle { margin:0 0 12px; }
+.summary .details dl { margin:0; font-size:13px; }
 .details summary { display:list-item; cursor:pointer; min-height:44px; padding:12px 0; color:var(--form-muted); font-size:13px; font-weight:600; }
 .details dl { display:grid; gap:12px; margin:4px 0 16px; font-size:12px; line-height:1.6; }
-.details dt { flex-shrink:0; color:var(--form-muted); }
+.details dt { min-width:0; color:var(--form-muted); }
 .details dd { margin:0; min-width:0; text-align:right; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
 .panel:not([data-state='review']) { max-width:600px; }
 .panel:not([data-state='review']) .content { display:block; }

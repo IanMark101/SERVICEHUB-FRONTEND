@@ -15,17 +15,18 @@ export default function PlaceSearch({ query, onQueryChange, onSelect, disabled =
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState({ places: [] as LocationPoint[], loading: false, error: '' });
   const [active, setActive] = useState(-1);
+  const [composing, setComposing] = useState(false);
   const request = useRef(0);
   const controller = useRef<AbortController | null>(null);
   const options = useRef<Array<HTMLButtonElement | null>>([]);
   const cache = useRef(new Map<string, { expires: number; places: LocationPoint[] }>());
   const latitude = near?.latitude, longitude = near?.longitude;
-  const visible = mode !== null && !disabled && query.trim().length >= 3;
+  const visible = mode !== null && !disabled && !composing && query.trim().length >= 1;
   const cancel = () => { request.current++; controller.current?.abort(); };
   const close = () => { cancel(); setMode(null); setActive(-1); setState(current => ({ ...current, loading: false })); };
 
   useEffect(() => {
-    if (!mode || disabled || query.trim().length < 3) return;
+    if (!mode || disabled || composing || !query.trim()) return;
     const abort = new AbortController(); controller.current = abort;
     const version = ++request.current;
     const term = query.trim();
@@ -54,32 +55,33 @@ export default function PlaceSearch({ query, onQueryChange, onSelect, disabled =
       } catch {
         if (!abort.signal.aborted && version === request.current) setState({ places: [], loading: false, error: explicit ? 'Place search is unavailable. Try again shortly.' : 'Suggestions are unavailable. Use Search to try again.' });
       }
-    }, explicit ? 0 : 350);
+    }, explicit ? 0 : 250);
     return () => { clearTimeout(timer); abort.abort(); };
-  }, [query, mode, revision, disabled, latitude, longitude, cache]);
+  }, [query, mode, revision, disabled, composing, latitude, longitude, cache]);
 
   const select = (place: LocationPoint) => { close(); setState({ places: [], loading: false, error: '' }); onQueryChange(place.label); onSelect(place); };
   const move = (index: number) => { setActive(index); options.current[index]?.scrollIntoView?.({ block: 'nearest' }); };
   const search = () => {
-    if (disabled || query.trim().length < 3 || (state.loading && mode === 'search')) return;
+    if (disabled || composing || !query.trim() || (state.loading && mode === 'search')) return;
     cancel(); setState({ places: [], loading: true, error: '' }); setMode('search'); setRevision(value => value + 1);
   };
 
   return <div className={styles.placeSearch} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) close(); }}>
     <div className={styles.search}>
-      <label><span className={styles.label}>City or barangay</span><input className={styles.field} role="combobox" aria-autocomplete="list" aria-expanded={visible && state.places.length > 0} aria-controls={visible && state.places.length > 0 ? `${id}-results` : undefined} aria-activedescendant={visible && active >= 0 ? `${id}-place-${active}` : undefined} aria-describedby={`${id}-hint`} autoComplete="off" value={query} maxLength={80} placeholder="e.g. Cordova, Cebu" disabled={disabled}
+      <label><span className={styles.label}>Search places</span><input className={styles.field} role="combobox" aria-autocomplete="list" aria-expanded={visible && state.places.length > 0} aria-controls={visible && state.places.length > 0 ? `${id}-results` : undefined} aria-activedescendant={visible && active >= 0 ? `${id}-place-${active}` : undefined} aria-describedby={`${id}-hint`} autoComplete="off" value={query} maxLength={80} placeholder="Country, city or area" disabled={disabled}
         onChange={event => { cancel(); onQueryChange(event.target.value); setMode('suggest'); setActive(-1); setState({ places: [], loading: true, error: '' }); }}
+        onCompositionStart={() => { cancel(); setComposing(true); }} onCompositionEnd={() => setComposing(false)}
         onKeyDownCapture={event => {
           if (event.nativeEvent.isComposing) return;
           if (event.key === 'Escape' && mode) { event.preventDefault(); event.stopPropagation(); close(); }
           else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             if (visible && state.places.length) { event.preventDefault(); move(event.key === 'ArrowDown' ? (active + 1) % state.places.length : (active < 0 ? state.places.length - 1 : (active - 1 + state.places.length) % state.places.length)); }
-            else if (query.trim().length >= 3) { event.preventDefault(); setMode('suggest'); setRevision(value => value + 1); }
-          } else if (event.key === 'Enter') { event.preventDefault(); if (visible && active >= 0 && state.places[active]) select(state.places[active]); else if (query.trim().length >= 3) search(); }
+            else if (query.trim()) { event.preventDefault(); setMode('suggest'); setRevision(value => value + 1); }
+          } else if (event.key === 'Enter') { event.preventDefault(); if (visible && active >= 0 && state.places[active]) select(state.places[active]); else if (query.trim()) search(); }
         }}/></label>
-      <button type="button" className={styles.button} disabled={disabled || query.trim().length < 3} aria-disabled={state.loading && mode === 'search'} onClick={search}><Search size={16} aria-hidden="true"/>{state.loading && mode === 'search' ? 'Searching…' : 'Search'}</button>
+      <button type="button" className={styles.button} disabled={disabled || composing || !query.trim()} aria-disabled={state.loading && mode === 'search'} onClick={search}><Search size={16} aria-hidden="true"/>{state.loading && mode === 'search' ? 'Searching…' : 'Search'}</button>
     </div>
-    <p id={`${id}-hint`} className={styles.hint}>City or barangay only. No private addresses.</p>
+    <p id={`${id}-hint`} className={styles.hint}>Countries, cities and areas worldwide. No private addresses.</p>
     {visible && <>
       <p className={styles.suggestionStatus} role="status">{state.loading ? 'Finding places…' : state.error || (state.places.length ? `${state.places.length} matching place${state.places.length === 1 ? '' : 's'}` : 'No matching places. Try another name.')}</p>
       {state.places.length > 0 && <>

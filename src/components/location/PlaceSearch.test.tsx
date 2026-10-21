@@ -14,18 +14,24 @@ function Search({ onSelect = vi.fn(), disabled = false }: { onSelect?: (point: L
   return <PlaceSearch query={query} onQueryChange={setQuery} onSelect={onSelect} disabled={disabled}/>;
 }
 const type = (value: string) => fireEvent.change(screen.getByRole('combobox'), { target: { value } });
-const advance = (ms = 350) => act(async () => { await vi.advanceTimersByTimeAsync(ms); });
+const advance = (ms = 250) => act(async () => { await vi.advanceTimersByTimeAsync(ms); });
 
 describe('live place suggestions', () => {
   beforeEach(() => { vi.useFakeTimers(); vi.mocked(api.get).mockReset().mockResolvedValue(reply()); });
   afterEach(() => vi.useRealTimers());
 
-  it('waits for three characters and a pause, then suggests a partial place name without submitting', async () => {
+  it('suggests countries from the first letter, then updates matches as typing continues without Search', async () => {
+    const canada = { latitude: 61, longitude: -107, label: 'Canada' };
+    vi.mocked(api.get).mockResolvedValueOnce(reply([canada])).mockResolvedValueOnce(reply());
     render(<Search/>);
-    type('co'); await advance(1000); expect(api.get).not.toHaveBeenCalled();
-    type('cor'); await advance(200); type('cordov'); await advance(349); expect(api.get).not.toHaveBeenCalled();
+    type('c'); await advance(249); expect(api.get).not.toHaveBeenCalled();
     await advance(1);
     expect(api.get).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('option', { name: 'Canada' })).toBeVisible();
+    type('co'); await advance(200); type('cordov'); await advance(249); expect(api.get).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('option', { name: 'Canada' })).not.toBeInTheDocument();
+    await advance(1);
+    expect(api.get).toHaveBeenCalledTimes(2);
     expect(api.get).toHaveBeenCalledWith('/locations/suggest', expect.objectContaining({ params: { q: 'cordov' }, signal: expect.any(AbortSignal) }));
     expect(screen.getByRole('option', { name: 'Cordova, Cebu' })).toBeVisible();
     expect(screen.getByRole('combobox')).toBeEnabled();
@@ -86,16 +92,24 @@ describe('live place suggestions', () => {
 
   it('reuses matching recent results and does not search a selected initial location on mount', async () => {
     const view = render(<Search/>); expect(api.get).not.toHaveBeenCalled();
-    type('cordov'); await advance(); type('co'); await advance(); type('cordov'); await advance();
+    type('cordov'); await advance(); type(''); await advance(); type('cordov'); await advance();
     expect(api.get).toHaveBeenCalledTimes(1); expect(screen.getByRole('option')).toBeVisible();
     view.unmount(); render(<PlaceSearch query="Cordova, Cebu" onQueryChange={vi.fn()} onSelect={vi.fn()}/>);
     await advance(1000); expect(api.get).toHaveBeenCalledTimes(1);
   });
 
-  it('shows an empty state and clears it when the query becomes too short', async () => {
+  it('shows an empty state and clears it when the query is erased', async () => {
     vi.mocked(api.get).mockResolvedValue(reply([])); render(<Search/>);
     type('unknown'); await advance(); expect(screen.getByRole('status')).toHaveTextContent('No matching places');
-    type('un'); expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    type(''); expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    await advance(); expect(api.get).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for IME composition to finish before searching', async () => {
+    render(<Search/>); const input = screen.getByRole('combobox');
+    fireEvent.compositionStart(input); type('c'); await advance(1000);
+    expect(api.get).not.toHaveBeenCalled();
+    fireEvent.compositionEnd(input); await advance(); expect(api.get).toHaveBeenCalledTimes(1);
   });
 
   it('cancels pending work on unmount and never searches a disabled picker', async () => {

@@ -90,7 +90,7 @@ describe('marketplace search location', () => {
     fireEvent.click(screen.getByRole('button', { name:/Choose your search location/ }));
     expect(screen.getByRole('button', { name:'Apply location' })).toBeDisabled();
     expect(gps).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByLabelText('City or barangay'), { target:{ value:'Cordova' } });
+    fireEvent.change(screen.getByLabelText('Search places'), { target:{ value:'Cordova' } });
     expect(api.get).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name:'Search' }));
     fireEvent.click(await screen.findByRole('option', { name:'Cordova, Cebu' }));
@@ -117,7 +117,7 @@ describe('marketplace search location', () => {
   it('lazy loads a job location picker and keeps private directions out of place search', async () => {
     function JobField() { const [point,setPoint] = useState<LocationPoint|null>(null); return <LocationField value={point} onChange={setPoint} label="Job location" privateAddress/>; }
     render(<JobField/>);
-    expect(screen.queryByLabelText('City or barangay')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Search places')).not.toBeInTheDocument();
     const details = document.querySelector('details')!;
     details.open = true; fireEvent(details, new Event('toggle'));
     fireEvent.click(await screen.findByRole('button', { name:'Choose map pin' }));
