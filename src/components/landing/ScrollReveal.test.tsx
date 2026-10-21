@@ -61,7 +61,7 @@ describe('one-time landing viewport entrances', () => {
       expect(card).toHaveAttribute('data-entrance-active', 'true');
       intersect(card, false);
     }
-    fireEvent.click(screen.getByRole('button', { name: 'Offering services' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Provider' }));
     const providerCards = screen.getAllByRole('listitem');
     providerCards.forEach((card, index) => {
       expect(card).toBe(cards[index]);
