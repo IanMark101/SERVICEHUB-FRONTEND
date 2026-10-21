@@ -8,6 +8,7 @@ import { useApp } from '../../context/AppContext';
 import { useProviderPaymentRecords } from '../../hooks/useProviderPaymentRecords';
 import type { PaymentRecordFilter, ProviderPaymentRecord } from '../../api/transactions.api';
 import styles from './TransactionHistory.module.css';
+import PlanSummary from './subscription/PlanSummary';
 
 const currency = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 });
 const recordDate = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeZone: 'Asia/Manila' });
@@ -27,6 +28,7 @@ export default function TransactionHistory({ currentUserId }: { currentUserId?: 
 
   return (
     <div className={styles.page} data-theme={isDark ? 'dark' : 'light'}>
+      <PlanSummary userId={currentUserId} />
       <section className={styles.earnings} aria-labelledby="earnings-heading">
         <div className={styles.earningsLead}>
           <h1 id="earnings-heading">Recorded earnings</h1>

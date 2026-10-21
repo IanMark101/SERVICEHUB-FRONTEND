@@ -2,12 +2,12 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { MapPin, LocateFixed, Search } from 'lucide-react';
+import { LocateFixed } from 'lucide-react';
 import { api } from '../../lib/api/axios';
-import { getApiErrorMessage } from '../../lib/api/errors';
 import type { LocationPoint } from '../../lib/location';
 import type { MarketplaceMapPin, MarketplaceMapViewport } from '../../lib/marketplace-map';
 import styles from './Location.module.css';
+import PlaceSearch from './PlaceSearch';
 
 const Map = dynamic(() => import('./LocationMap'), { ssr:false, loading:() => <div className={styles.mapLoading}>Loading map…</div> });
 export default function LocationEditor({ value, onChange, radiusKm, accent, disabled = false, label = 'City or barangay shown to other users', onPendingChange,
@@ -22,8 +22,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
 }) {
   const id = useId();
   const [query, setQuery] = useState(value?.label || '');
-  const [results, setResults] = useState<LocationPoint[]>([]);
-  const [operation, setOperation] = useState<'search' | 'location' | null>(null);
+  const [operation, setOperation] = useState<'location' | null>(null);
   const [error, setError] = useState('');
   const [candidate,setCandidate]=useState<LocationPoint|null>(null);
   const [showAreaMap, setShowAreaMap] = useState(false);
@@ -76,7 +75,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
   const selectPoint = (point:LocationPoint) => {
     if (disabled) return;
     cancelRequest();
-    setError(''); setResults([]); setQuery(point.label);
+    setError(''); setQuery(point.label);
     selectedRef.current=point;
     onChange(point);
     lookupLabel(point, 'confirmed');
@@ -84,23 +83,10 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
   };
   const proposePoint=(point:LocationPoint|null)=>{
     if(disabled)return;
-    cancelRequest();setError('');setResults([]);
+    cancelRequest();setError('');
     setCandidate(point);onPendingChange?.(Boolean(point));
     if (point) lookupLabel(point, 'preview');
     else if (lookup.current?.mode !== 'confirmed') cancelLookup();
-  };
-  const search = async () => {
-    if (query.trim().length < 3 || busy || disabled) return;
-    cancelLookup();
-    const version = ++request.current;
-    setOperation('search'); setError(''); setResults([]);
-    try {
-      const response = await api.get('/locations/search', { params:{ q:query.trim() }, timeout:12000 });
-      if (version !== request.current) return;
-      setResults(response.data.data || []);
-      if (!response.data.data?.length) setError(allowMap ? 'No places found. Try another city or barangay name, or choose a place on the map.' : 'No places found. Try another city or barangay name.');
-    } catch (e) { if (version === request.current) setError(getApiErrorMessage(e, allowMap ? 'We could not search for places. Try again, or choose a place on the map.' : 'We could not search for places. Try again later.')); }
-    finally { if (version === request.current) setOperation(null); }
   };
   useEffect(() => () => {
     request.current++;
@@ -111,7 +97,7 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     if (disabled || busy) return;
     if (!navigator.geolocation) { setError('Your browser does not support device location. Search a place or choose a pin.'); return; }
     const version = ++request.current;
-    setOperation('location'); setError(''); setResults([]);
+    setOperation('location'); setError('');
     const finish = (message:string, point?:LocationPoint) => {
       if (version !== request.current) return;
       // getCurrentPosition cannot be canceled; ignore callbacks from old attempts.
@@ -140,13 +126,8 @@ export default function LocationEditor({ value, onChange, radiusKm, accent, disa
     }
   };
   return <div className={styles.editor}>
-    <div className={styles.search}>
-      <label><span className={styles.label}>City or barangay</span><input className={styles.field} value={query} maxLength={80} placeholder="e.g. Cordova, Cebu" disabled={disabled || busy}
-        onChange={e => setQuery(e.target.value)} onKeyDown={e => { if(e.key==='Enter'){ e.preventDefault(); void search(); } }} aria-describedby={`${id}-hint`} /></label>
-      <button type="button" className={styles.button} disabled={disabled || busy || query.trim().length<3} onClick={() => void search()}><Search size={16}/>{operation === 'search' ? 'Searching…' : 'Search'}</button>
-    </div>
-    <p id={`${id}-hint`} className={styles.hint}>City or barangay only. No private addresses.</p>
-    {results.length>0 && <div className={styles.results} aria-label="Matching places">{results.map((p,i) => <button type="button" disabled={disabled} className={styles.result} key={`${p.latitude}-${p.longitude}-${i}`} onClick={() => areaOnly ? selectPoint({ latitude:p.latitude, longitude:p.longitude, label:p.label }) : proposePoint(p)}><MapPin size={16}/>{p.label}</button>)}</div>}
+    <PlaceSearch query={query} disabled={disabled || busy} near={value} onQueryChange={next => { cancelLookup(); setError(''); setQuery(next); }}
+      onSelect={point => areaOnly ? selectPoint(point) : proposePoint(point)}/>
     {areaOnly && <p className={styles.hint}>{allowMap ? 'Select a search result, or choose a point on the map.' : 'Select your city or barangay from the results.'}</p>}
     {areaOnly && allowMap && <button type="button" className={styles.button} aria-expanded={showAreaMap} onClick={() => setShowAreaMap(!showAreaMap)}>{showAreaMap ? 'Hide area map' : 'Use map instead'}</button>}
     {allowMap && (!areaOnly || showAreaMap) && <button type="button" className={styles.button} onClick={locate} disabled={disabled || busy} aria-describedby={error ? `${id}-error` : undefined}><LocateFixed size={16}/>{operation === 'location' ? 'Locating your device…' : 'Use my location'}</button>}

@@ -6,6 +6,7 @@ import type { RecentService } from '../types/community.types';
 import CommunityEmptyState from './CommunityEmptyState';
 
 interface NewServicesSectionProps {
+  heading?: string;
   services: RecentService[];
   isDark?: boolean;
   onSelectService: (id: string) => void;
@@ -25,17 +26,18 @@ function formatPrice(service: RecentService) {
   }
 }
 
-export default function NewServicesSection({ services = [], isDark = false, onSelectService, onSelectProvider }: NewServicesSectionProps) {
+export default function NewServicesSection({ services = [], isDark = false, heading = 'New services', onSelectService, onSelectProvider }: NewServicesSectionProps) {
+  const titleId = React.useId();
   return (
     <section className={`min-w-0 rounded-3xl border p-4 sm:p-6 transition-all ${
       isDark
         ? 'bg-charcoal-inset border-neutral-800/90 shadow-xl shadow-black/40'
         : 'bg-white border-slate-200/90 shadow-sm shadow-slate-900/5'
-    }`} aria-labelledby="new-services-title">
+    }`} aria-labelledby={titleId}>
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-neutral-800/80 pb-3.5">
         <div className="flex items-center gap-2">
           <Briefcase size={18} className="text-brand-text" aria-hidden="true" />
-          <h3 id="new-services-title" className={`text-base font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>New services</h3>
+          <h3 id={titleId} className={`text-base font-bold tracking-tight ${isDark ? 'text-white' : 'text-ink'}`}>{heading}</h3>
         </div>
         <span className={`text-xs font-semibold ${isDark ? 'text-ink-subtle' : 'text-ink-muted'}`}>{services.length} listings</span>
       </div>

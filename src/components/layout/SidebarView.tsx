@@ -97,6 +97,7 @@ export default function SidebarView({
       { id: 'provider-activity', label: 'My Bookings', icon: TrendUp },
       { id: 'work-queue', label: 'Job Queue', icon: ListNumbers },
       { id: 'transaction-history', label: 'Payment Records', icon: ClockCounterClockwise },
+      { id: 'subscription', label: 'Subscription', icon: Tag },
     ],
   };
 
@@ -130,7 +131,7 @@ export default function SidebarView({
     },
     {
       label: 'Activity Records',
-      items: [{ id: 'earnings', label: 'Platform Earnings', icon: ChartBar }, { id: 'audit-logs', label: 'Audit Log', icon: ClockCounterClockwise }],
+      items: [{ id: 'earnings', label: 'Platform Earnings', icon: ChartBar }, { id: 'subscriptions', label: 'Subscriptions', icon: Tag }, { id: 'audit-logs', label: 'Audit Log', icon: ClockCounterClockwise }],
     },
   ];
 

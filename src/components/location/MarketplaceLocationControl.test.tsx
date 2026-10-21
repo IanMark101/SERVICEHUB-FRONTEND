@@ -82,7 +82,7 @@ describe('marketplace search location', () => {
     expect(apply).toHaveBeenCalledWith({ point:{ latitude:10.31, longitude:123.91, label:'Lapu-Lapu City, Cebu' }, radiusKm:15 });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
-  it('does not assume a map center or ask for GPS when first opened, and searches only on explicit action', async () => {
+  it('does not assume a map center or ask for GPS, and preserves the manual search fallback', async () => {
     const gps = vi.fn();
     vi.stubGlobal('navigator', Object.assign(Object.create(navigator), { geolocation:{ getCurrentPosition:gps } }));
     vi.mocked(api.get).mockResolvedValueOnce({ data:{ success:true, data:[initial.point] } });
@@ -93,7 +93,7 @@ describe('marketplace search location', () => {
     fireEvent.change(screen.getByLabelText('City or barangay'), { target:{ value:'Cordova' } });
     expect(api.get).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name:'Search' }));
-    fireEvent.click(await screen.findByRole('button', { name:'Cordova, Cebu' }));
+    fireEvent.click(await screen.findByRole('option', { name:'Cordova, Cebu' }));
     expect(api.get).toHaveBeenCalledWith('/locations/search', expect.objectContaining({ params:{ q:'Cordova' } }));
     expect(screen.getByRole('button', { name:'Apply location' })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name:'Confirm pin' }));

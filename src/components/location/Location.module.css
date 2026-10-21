@@ -35,6 +35,22 @@
 .results { display:grid; gap:4px; max-height:180px; overflow-y:auto; }
 .result { width:100%; display:flex; gap:8px; text-align:left; padding:10px; min-height:44px; border-radius:8px; color:inherit; background:transparent; cursor:pointer; font-size:13px; }
 .result:hover { background:#f2eeea; }
+.placeSearch { display:grid; gap:8px; min-width:0; }
+.placeSearch .search label { min-width:0; }
+.placeSearch .button[aria-disabled='true'] { cursor:wait; opacity:.65; }
+.suggestionStatus { color:var(--text-muted,#66615d); font-size:12px; line-height:1.5; }
+.suggestions { max-height:240px; border:1px solid var(--form-border,#d6d1cc); border-radius:12px; padding:4px; background:var(--form-surface,#fffdfa); scroll-padding:4px; }
+.suggestions .result { align-items:center; line-height:1.5; min-height:46px; padding:10px 12px; }
+.suggestions .result svg { flex-shrink:0; color:var(--form-accent,var(--location-accent,#9a4e17)); }
+.suggestions .result span { min-width:0; overflow-wrap:anywhere; }
+.suggestions .result mark { color:inherit; background:transparent; font-weight:700; }
+.suggestions .result[aria-selected='true'] { background:var(--form-menu-hover,#f2eeea); }
+.placeAttribution { font-size:11px; line-height:1.5; color:var(--text-muted,#66615d); }
+.placeAttribution a { text-decoration:underline; text-underline-offset:2px; }
+.placeAttribution a:focus-visible { outline:2px solid var(--form-accent,var(--color-brand-focus)); outline-offset:3px; }
+:global(.dark) .suggestions { background:#191a19; border-color:#454642; }
+:global(.dark) .suggestions .result[aria-selected='true'], :global(.dark) .suggestions .result:hover { background:#30322e; }
+:global(.dark) .suggestionStatus, :global(.dark) .placeAttribution { color:#c0bcb6; }
 .map { height:280px; width:100%; border:1px solid var(--form-border,#dedbd5); border-radius:12px; overflow:hidden; position:relative; isolation:isolate; background:#e6e9e5; }
 .mapFrame { position:relative; width:100%; min-width:0; max-width:100%; }
 .canvasFrame, .expandedCanvas { position:relative; min-width:0; }

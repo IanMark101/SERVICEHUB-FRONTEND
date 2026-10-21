@@ -10,6 +10,7 @@ vi.mock('next/navigation', () => ({ useSearchParams: vi.fn() }));
 vi.mock('../../context/AppContext', () => ({ useApp: vi.fn() }));
 vi.mock('../../api/transactions.api', () => ({ apiGetProviderPaymentRecords: vi.fn() }));
 vi.mock('../../hooks/useApiCacheRefresh', () => ({ useApiCacheRefresh: vi.fn() }));
+vi.mock('./subscription/PlanSummary', () => ({ default: () => null }));
 
 const completed = {
   id: 'booking-1', bookingId: 'booking-1', serviceTitle: 'House Cleaning', seekerName: 'Test customer',

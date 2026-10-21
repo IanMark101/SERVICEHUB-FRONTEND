@@ -15,6 +15,8 @@ import HeaderMobileSearch from './header/HeaderMobileSearch';
 import HeaderDesktopSearch from './header/HeaderDesktopSearch';
 
 const pageNames: Record<string, string> = {
+  subscription: 'Subscription',
+  subscriptions: 'Provider Subscriptions',
   earnings: 'Platform Earnings',
   users: 'User Management',
   'ban-appeals': 'Ban Appeals',

@@ -34,9 +34,9 @@ describe('device-location recovery', () => {
     const onChange=vi.fn();
     render(<LocationEditor compact selectionMode="area-search" value={null} onChange={onChange}/>);
     expect(screen.queryByRole('button',{name:/map|device location/i})).not.toBeInTheDocument();
-    fireEvent.change(screen.getByRole('textbox',{name:'City or barangay'}),{target:{value:'Cordova'}});
+    fireEvent.change(screen.getByRole('combobox',{name:'City or barangay'}),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
-    fireEvent.click(await screen.findByRole('button',{name:'Cordova, Cebu'}));
+    fireEvent.click(await screen.findByRole('option',{name:'Cordova, Cebu'}));
     expect(onChange).toHaveBeenCalledWith({latitude:10.3,longitude:123.9,label:'Cordova, Cebu'});
     expect(gps).not.toHaveBeenCalled();
   });
@@ -192,7 +192,7 @@ describe('general area selection', () => {
     expect(screen.queryByRole('button',{name:'Choose map pin'})).not.toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('City or barangay'),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
-    fireEvent.click(await screen.findByRole('button',{name:'Cordova, Cebu'}));
+    fireEvent.click(await screen.findByRole('option',{name:'Cordova, Cebu'}));
     expect(onChange).toHaveBeenCalledWith({latitude:10.25,longitude:123.95,label:'Cordova, Cebu'});
     expect(screen.queryByRole('button',{name:'Use this location'})).not.toBeInTheDocument();
   });
@@ -203,7 +203,7 @@ describe('general area selection', () => {
     render(<LocationEditor value={null} onChange={onChange}/>);
     fireEvent.change(screen.getByLabelText('City or barangay'),{target:{value:'Cordova'}});
     fireEvent.click(screen.getByRole('button',{name:'Search'}));
-    fireEvent.click(await screen.findByRole('button',{name:'Cordova, Cebu'}));
+    fireEvent.click(await screen.findByRole('option',{name:'Cordova, Cebu'}));
     expect(onChange).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button',{name:'Use this location'}));
     expect(onChange).toHaveBeenCalledWith(point);

@@ -14,6 +14,7 @@ import { clearAccessToken } from '../../lib/api/axios';
 import OnboardingGate from '../../features/onboarding/components/OnboardingGate';
 import { usePersistentSidebarState } from '../../hooks/usePersistentSidebarState';
 import BrandLoading from '@/components/ui/BrandLoading';
+import ListingLimitNotice from '@/components/provider/subscription/ListingLimitNotice';
 
 export default function ProviderLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
 
   const currentRole = 'provider';
   const navigateWorkspaceTab = (tabId: string) => {
-    router.push(tabId === 'community-hub' ? '/community' : `/provider/${tabId}`);
+    router.push(tabId === 'community-hub' ? '/community' : tabId === 'subscription' ? '/subscription' : `/provider/${tabId}`);
   };
 
   return (
@@ -127,6 +128,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
           })()}
  
           {/* Dynamic Tab Render Area */}
+          <ListingLimitNotice key={pathname} />
           {children}
  
         </main>

@@ -5,6 +5,7 @@ import CommunityHeader, { CommunitySectionNav } from '../../features/community/c
 import CommunityStats from '../../features/community/components/CommunityStats';
 import OfficialAnnouncements from '../../features/community/components/OfficialAnnouncements';
 import RecentlyAdded from '../../features/community/components/RecentlyAdded';
+import FeaturedServices from '../../features/community/components/FeaturedServices';
 import TopProviders from '../../features/community/components/TopProviders';
 import PlatformHandbook from '../../features/community/components/PlatformHandbook';
 import WorkspaceErrorState from '../ui/WorkspaceErrorState';
@@ -76,6 +77,7 @@ export default function CommunityHub() {
       />
 
       {/* Stage 4: Marketplace Discoveries (Recently Added Services & Categories) */}
+      <FeaturedServices isDark={isDark} />
       <RecentlyAdded
         categories={data?.recentCategories || []}
         services={data?.recentServices || []}
