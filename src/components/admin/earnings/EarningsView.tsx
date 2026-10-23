@@ -9,6 +9,7 @@ import FormSelect from '../../ui/FormSelect';
 import AdminPagination from '../AdminPagination';
 import EarningsTrend from './EarningsTrend';
 import styles from './Earnings.module.css';
+import { providerPlans } from '../../../lib/providerPlans';
 
 const money = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
 const date = new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Manila' });
@@ -51,7 +52,7 @@ export default function EarningsView({ isDark, userId }: { isDark: boolean; user
       <div><h1>Platform earnings</h1><p>GCash commissions from confirmed, completed bookings.</p></div>
       <button type="button" className={styles.button} disabled={loading || !userId} onClick={() => setRevision(value => value + 1)}><RefreshCw size={16} aria-hidden="true" />{loading && data ? 'Refreshing' : 'Refresh'}</button>
     </header>
-    <div className={styles.notice}><strong>10% platform fee</strong><span>Deducted from the agreed total, including travel. No extra customer charge.</span></div>
+    <div className={styles.notice}><strong>GCash fees by plan</strong><span>{providerPlans.map(plan => `${plan.name} ${plan.fee}%`).join(' · ')}. Deducted from the agreed total, including travel. No extra customer charge.</span></div>
     {error && <div role="alert" className={styles.error}><span>{error}{data && ' Showing the last loaded records.'}</span><button type="button" className={styles.button} onClick={() => setRevision(value => value + 1)}>Try again</button></div>}
     {!userId ? <p role="status">Sign in as an administrator to view earnings.</p> : <>
       <section aria-label="All-time earnings summary" className={styles.metrics}>

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UserSession } from '../components/auth/LoginContainer';
 import { apiGetCategories } from '../api/categories.api';
 import { apiBrowseServices, apiGetMyServices } from '../api/services.api';
-import { apiGetRequests } from '../api/requests.api';
+import { apiGetMyRequests, apiGetRequests } from '../api/requests.api';
 import { apiGetReceivedOffers, apiGetMyOffers } from '../api/offers.api';
 import { apiConfirmOnlineBooking, apiGetMyEngagements } from '../api/bookings.api';
 import { apiGetTransactions } from '../api/transactions.api';
@@ -26,7 +26,10 @@ vi.mock('../api/services.api', () => ({
   apiBrowseServices: vi.fn().mockResolvedValue({ success: true, data: [] }),
   apiGetMyServices: vi.fn().mockResolvedValue({ success: true, data: [] }),
 }));
-vi.mock('../api/requests.api', () => ({ apiGetRequests: vi.fn().mockResolvedValue({ success: true, data: [] }) }));
+vi.mock('../api/requests.api', () => ({
+  apiGetRequests: vi.fn().mockResolvedValue({ success: true, data: [] }),
+  apiGetMyRequests: vi.fn().mockResolvedValue({ success: true, data: [] }),
+}));
 vi.mock('../api/offers.api', () => ({
   apiGetReceivedOffers: vi.fn().mockResolvedValue({ success: true, data: [] }),
   apiGetMyOffers: vi.fn().mockResolvedValue({ success: true, data: [] }),
@@ -50,6 +53,59 @@ describe('useAppDataSync initial marketplace loading', () => {
   });
 
   afterEach(() => vi.useRealTimers());
+
+  it('loads only owned requests for Customers on entry and cache refresh, without opening the Provider feed', async () => {
+    auth.token = 'customer-token';
+    vi.mocked(apiGetMyRequests).mockResolvedValueOnce({ success: true, data: [{ id: 'own-request', seekerId: user.id, title: 'MY LAPTOP REPAIR' }] });
+    const { result } = renderHook(() => useAppDataSync({ authLoading: false, isAuthenticated: true, user, toastSuccess, toastError }));
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(apiGetMyRequests).toHaveBeenCalledTimes(1);
+    expect(apiGetRequests).not.toHaveBeenCalled();
+    expect(result.current.jobRequests.map(request => request.id)).toEqual(['own-request']);
+    expect(result.current.requestsStatus).toBe('ready');
+    act(() => invalidateApiCache(['requests']));
+    await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+    expect(apiGetMyRequests).toHaveBeenCalledTimes(2);
+    expect(apiGetRequests).not.toHaveBeenCalled();
+  });
+
+  it('ignores a slow Provider feed after switching to Customer and reloads the right feed when switching back', async () => {
+    auth.token = 'member-token';
+    let finish!: (value: Awaited<ReturnType<typeof apiGetRequests>>) => void;
+    vi.mocked(apiGetRequests).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    vi.mocked(apiGetMyRequests).mockResolvedValueOnce({ success: true, data: [{ id: 'own-request', seekerId: user.id, title: 'MY REQUEST' }] });
+    const { result, rerender } = renderHook(({ role }: { role: 'seeker' | 'provider' }) => useAppDataSync({
+      authLoading: false, isAuthenticated: true, user: { ...user, role }, toastSuccess, toastError,
+    }), { initialProps: { role: 'provider' as 'seeker' | 'provider' } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(apiGetRequests).toHaveBeenCalledTimes(1);
+    rerender({ role: 'seeker' });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(result.current.jobRequests.map(request => request.id)).toEqual(['own-request']);
+    await act(async () => { finish({ success: true, data: [{ id: 'public-request', seekerId: 'other', title: 'PUBLIC WORK' }] }); });
+    expect(result.current.jobRequests.map(request => request.id)).toEqual(['own-request']);
+    vi.mocked(apiGetRequests).mockResolvedValueOnce({ success: true, data: [{ id: 'new-public-request', seekerId: 'other', title: 'NEW WORK' }] });
+    rerender({ role: 'provider' });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(apiGetRequests).toHaveBeenCalledTimes(2);
+    expect(result.current.jobRequests.map(request => request.id)).toEqual(['new-public-request']);
+  });
+
+  it('does not restore a pending request response after sign-out', async () => {
+    auth.token = 'customer-token';
+    let finish!: (value: Awaited<ReturnType<typeof apiGetMyRequests>>) => void;
+    vi.mocked(apiGetMyRequests).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    const { result, rerender } = renderHook(({ currentUser }: { currentUser: UserSession | null }) => useAppDataSync({
+      authLoading: false, isAuthenticated: !!currentUser, user: currentUser, toastSuccess, toastError,
+    }), { initialProps: { currentUser: user as UserSession | null } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    auth.token = null;
+    rerender({ currentUser: null });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    await act(async () => { finish({ success: true, data: [{ id: 'old-request', seekerId: user.id, title: 'OLD REQUEST' }] }); });
+    expect(result.current.jobRequests).toEqual([]);
+    expect(result.current.requestsStatus).toBe('loading');
+  });
 
   it('keeps confirmed empty service and booking workspaces ready while tab-return requests are pending', async () => {
     auth.token = 'test-token';

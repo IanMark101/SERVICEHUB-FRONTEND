@@ -23,6 +23,7 @@ const NAV_LINKS = [
   { label: 'Compare', href: '#comparison' },
   { label: 'Trust', href: '#trust' },
   { label: 'Community', href: '#community' },
+  { label: 'Pricing', href: '#provider-plans' },
   { label: 'FAQ', href: '#faq' },
 ];
 

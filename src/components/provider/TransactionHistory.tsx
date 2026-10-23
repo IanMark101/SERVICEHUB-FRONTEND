@@ -9,6 +9,7 @@ import { useProviderPaymentRecords } from '../../hooks/useProviderPaymentRecords
 import type { PaymentRecordFilter, ProviderPaymentRecord } from '../../api/transactions.api';
 import styles from './TransactionHistory.module.css';
 import PlanSummary from './subscription/PlanSummary';
+import ProviderAnalytics from './ProviderAnalytics';
 
 const currency = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 });
 const recordDate = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeZone: 'Asia/Manila' });
@@ -43,6 +44,7 @@ export default function TransactionHistory({ currentUserId }: { currentUserId?: 
         <p className={styles.recordNote}>For tracking only. These records are not an available balance or a payout.</p>
       </section>
 
+      <ProviderAnalytics userId={currentUserId} isDark={isDark} />
       <section className={styles.history} aria-labelledby="history-heading" aria-busy={loading || refreshing}>
         <header className={styles.historyHeader}>
           <div><h2 id="history-heading">Previous bookings</h2><p>Completed, refunded and cancelled service bookings.</p></div>
