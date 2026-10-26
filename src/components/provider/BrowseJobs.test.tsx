@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApp } from '../../context/AppContext';
 import { useTransactionPermission } from '../../hooks/useTransactionPermission';
@@ -30,6 +30,16 @@ const listing = {
   category: { name: 'Plumbing' }, status: 'ACTIVE', isAvailable: true, price: 500,
 };
 
+function reviewOffer() {
+  const dialog = within(screen.getByRole('dialog', { name: 'Send Offer' }));
+  fireEvent.click(dialog.getByRole('button', { name: 'Next' }));
+  fireEvent.click(dialog.getByRole('button', { name: 'Review offer' }));
+}
+function sendOffer() {
+  reviewOffer();
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Send Offer' }));
+}
+
 describe('Find Work offer eligibility', () => {
   it('opens the request author’s customer reviews directly while the author link opens their overview', async () => {
     render(<BrowseJobs />);
@@ -54,7 +64,7 @@ describe('Find Work offer eligibility', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Send Offer' }));
     expect(screen.getByLabelText('Service listing (optional)')).toHaveValue('');
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
-    fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
+    sendOffer();
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', undefined, 350, 60, 'I can repair the pipe tomorrow.', undefined, { serviceLocationMode: 'PROVIDER_VISITS' }));
   });
 
@@ -86,7 +96,7 @@ describe('Find Work offer eligibility', () => {
     await waitFor(() => expect(screen.getByRole('option', { name: 'Pipe repair' })).toBeInTheDocument());
     fireEvent.change(screen.getByLabelText('Service listing (optional)'), { target: { value: 'listing-id' } });
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
-    fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
+    sendOffer();
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', 'listing-id', 500, 60, 'I can repair the pipe tomorrow.', undefined, { serviceLocationMode: 'PROVIDER_VISITS' }));
     await waitFor(() => expect(screen.queryByLabelText('Service listing (optional)')).not.toBeInTheDocument());
   });
@@ -97,7 +107,7 @@ describe('Find Work offer eligibility', () => {
     render(<BrowseJobs />);
     fireEvent.click(await screen.findByRole('button', { name: 'Send Offer' }));
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
-    fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
+    sendOffer();
     await waitFor(() => expect(submitBid).toHaveBeenCalled());
     expect(screen.getByPlaceholderText('Describe your approach and availability')).toHaveValue('I can repair the pipe tomorrow.');
   });
@@ -111,7 +121,7 @@ describe('Find Work offer eligibility', () => {
     fireEvent.change(screen.getByLabelText('Service listing (optional)'), { target: { value: 'second-listing-id' } });
     fireEvent.change(screen.getByLabelText('Duration (minutes)'), { target: { value: '90' } });
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'I can repair the pipe tomorrow.' } });
-    fireEvent.submit(screen.getAllByRole('button', { name: 'Send Offer' }).at(-1)!.closest('form')!);
+    sendOffer();
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', 'second-listing-id', 500, 90, 'I can repair the pipe tomorrow.', undefined, { serviceLocationMode: 'PROVIDER_VISITS' }));
   });
 
@@ -129,9 +139,11 @@ describe('Find Work offer eligibility', () => {
     submitBid.mockResolvedValue(true);
     render(<BrowseJobs />);
     fireEvent.click(await screen.findByRole('button', { name: 'Send Offer' }));
-    fireEvent.change(screen.getByLabelText('Availability (optional)'), { target: { value: 'Saturday morning' } });
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'Repair the door.' } });
-    fireEvent.submit(screen.getByRole('dialog').querySelector('form')!);
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Next' }));
+    fireEvent.change(screen.getByLabelText('Availability (optional)'), { target: { value: 'Saturday morning' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Review offer' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Send Offer' }));
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('request-id', 'provider-id', undefined, 350, 60, 'Repair the door.', 'Saturday morning', { serviceLocationMode: 'PROVIDER_VISITS' }));
   });
 
@@ -175,6 +187,7 @@ describe('Find Work offer eligibility', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Send Offer' }));
     const form = screen.getByRole('dialog').querySelector('form')!;
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), { target: { value: 'Repair the door.' } });
+    reviewOffer();
     fireEvent.submit(form);
     fireEvent.submit(form);
     expect(submitBid).toHaveBeenCalledTimes(1);
