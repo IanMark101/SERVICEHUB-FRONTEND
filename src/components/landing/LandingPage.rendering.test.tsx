@@ -121,5 +121,6 @@ describe('landing content before hydration and viewport initialization', () => {
     for (const anchor of container.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')) {
       expect(container.querySelector(anchor.getAttribute('href')!)).toBeInTheDocument();
     }
-  });
+    // Full-page server rendering and visibility checks include the real DOM.
+  }, 15_000);
 });
