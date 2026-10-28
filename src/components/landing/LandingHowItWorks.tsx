@@ -55,7 +55,7 @@ const helpLinks = [
   { href: '/help/queue/how-the-queue-works', label: 'Payment and queue rules' },
   { href: '/help/verification/why-verification-is-required', label: 'Verification and messaging' },
   { href: '/help/reviews/how-reviews-and-ratings-work', label: 'How reviews work' },
-  { href: '/help/payments/provider-plans-and-subscriptions', label: 'Free and Pro plans' },
+  { href: '/help/payments/provider-plans-and-subscriptions', label: 'Free, Basic and Pro plans' },
 ];
 
 function JourneyCard({ item, index, role }: { item: typeof seekerFlow[number]; index: number; role: Role }) {

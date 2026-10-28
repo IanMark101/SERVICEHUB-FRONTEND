@@ -77,7 +77,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
     slug: 'payments',
     title: 'Payments & Provider Plans',
     shortTitle: 'Payments',
-    description: 'GCash fees, direct cash payments, payment records, and Free and Pro plans.',
+    description: 'GCash fees, direct cash payments, payment records, and Free, Basic and Pro plans.',
     iconName: 'DollarSign',
     color: 'text-emerald-600 bg-emerald-600/10 border-emerald-600/20',
     popular: true,

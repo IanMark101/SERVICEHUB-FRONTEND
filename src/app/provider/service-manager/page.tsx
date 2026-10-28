@@ -4,16 +4,20 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import ServiceManager from '../../../components/provider/ServiceManager';
 import WorkspacePageSkeleton from '@/components/ui/WorkspacePageSkeleton';
+import PlanSummary from '@/components/provider/subscription/PlanSummary';
 
 function ServiceManagerContent() {
   const router = useRouter();
   const { user } = useApp();
 
   return (
-    <ServiceManager 
-      currentProviderId={user?.id} 
-      onNavigateToOffer={() => router.push('/provider/offer-services')} 
-    />
+    <>
+      <div className="mb-5"><PlanSummary userId={user?.id} /></div>
+      <ServiceManager
+        currentProviderId={user?.id}
+        onNavigateToOffer={() => router.push('/provider/offer-services')}
+      />
+    </>
   );
 }
 

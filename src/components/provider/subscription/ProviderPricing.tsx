@@ -1,41 +1,34 @@
 'use client';
-import { Check } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
-import NumberFlow from '@number-flow/react';
 import type { ProviderPricingProps } from './SubscriptionWorkspace';
+import ProviderPlanCards from './ProviderPlanCards';
+import { providerPlans } from '../../../lib/providerPlans';
 import styles from './ProviderPricing.module.css';
 
-// Independently implemented from the public preview of UI Layouts' PricingSection5:
-// https://21st.dev/@uilayout.contact/components/pricing
-// The registry requires authentication. This is not represented as an installed copy.
-const plans = [
-  { id: 'FREE', name: 'Free', description: 'Everything you need to get started.', fee: '10%',
-    features: ['Provider analytics', 'Up to 3 active service listings', 'Normal listing visibility'] },
-  { id: 'PRO', name: 'Pro', description: 'Keep more earnings. Grow your services.', fee: '5%',
-    features: ['Provider analytics', 'Unlimited active service listings', 'Priority for featured placement'] },
-] as const;
-
-export default function ProviderPricing({ currentPlan, monthlyPrice, disabled, onUpgrade }: ProviderPricingProps) {
-  const reducedMotion = useReducedMotion();
+export default function ProviderPricing({ membership, disabled, onChoose }: ProviderPricingProps) {
   return <section className={styles.pricing} aria-labelledby="provider-pricing-title">
     <header className={styles.intro}>
-      <h1 id="provider-pricing-title">{'Choose your plan'.split(' ').map((word, index) => <motion.span key={index} initial={false} animate={{ filter: 'blur(0px)', y: 0 }} transition={reducedMotion ? { duration: 0 } : { duration: .55, delay: index * .07, ease: [.16, 1, .3, 1] }} className={reducedMotion ? undefined : styles.word}>{word}{' '}</motion.span>)}</h1>
-      <p>Keep more of your earnings with Pro, or start with Free.</p>
+      <h1 id="provider-pricing-title">Choose your provider plan</h1>
+      <p>Try Free for 30 days. Continue with Basic or grow with Pro.</p>
     </header>
-    <div className={styles.cards}>
-      {plans.map((plan, index) => {
-        const pro = plan.id === 'PRO';
-        const isCurrent = plan.id === currentPlan;
-        return <motion.article key={plan.id} className={`${styles.card} ${pro ? styles.pro : ''}`} aria-label={`${plan.name} plan`} initial={false} animate={{ filter: 'blur(0px)', y: 0 }} transition={reducedMotion ? { duration: 0 } : { duration: .6, delay: .15 + index * .12, ease: [.16, 1, .3, 1] }}>
-          <div className={styles.top}><h2>{plan.name}</h2>{pro && <span className={styles.recommended}>Recommended</span>}</div>
-          <p className={styles.description}>{plan.description}</p>
-          <div className={styles.price} role="group" aria-label={`₱${pro ? monthlyPrice : 0} per month`}><span className={styles.currency}>₱</span><NumberFlow className={styles.amount} value={pro ? monthlyPrice : 0} format={{ maximumFractionDigits: 0 }} /><span className={styles.billing}>/month</span></div>
-          <button type="button" className={`${styles.planButton} ${pro ? styles.proButton : ''}`} disabled={disabled || isCurrent || !pro} onClick={pro && !isCurrent ? onUpgrade : undefined}>
-            {isCurrent ? 'Current Plan' : pro ? 'Upgrade to Pro' : 'Free Plan'}
-          </button>
-          <div className={styles.features}><h3><strong>{plan.fee}</strong> GCash fee</h3><ul>{plan.features.map(feature => <li key={feature}><span className={styles.check}><Check size={14} aria-hidden="true" /></span>{feature}</li>)}</ul></div>
-        </motion.article>;
-      })}
-    </div>
+    <ProviderPlanCards renderAction={id => {
+      const current = membership.marketplaceAccess && membership.plan === id;
+      const unavailable = id === 'FREE' || (membership.marketplaceAccess && membership.plan === 'PRO' && id === 'BASIC');
+      const label = current ? 'Current plan' : id === 'FREE' ? 'Free period used' : unavailable ? 'After Pro expires' : membership.plan === id ? 'Renew membership' : providerPlans.find(p => p.id === id)!.action;
+      return <button type="button" className={`${styles.planButton} ${id === 'BASIC' ? styles.primaryButton : ''}`} disabled={disabled || current || unavailable}
+        onClick={() => { if (id !== 'FREE') onChoose(id); }}>{label}</button>;
+    }} />
+    <p className={styles.note}>Cash has no platform fee. Customers always use ServiceHub for free.</p>
+    <details className={styles.comparison}>
+      <summary>Compare all features</summary>
+      <div className={styles.tableWrap}><table><caption className="sr-only">Provider membership comparison</caption>
+        <thead><tr><th scope="col">Included</th><th scope="col">Free</th><th scope="col">Basic</th><th scope="col">Pro</th></tr></thead>
+        <tbody>{[
+          ['Access', '30 days', 'Monthly', 'Monthly'], ['Active listings', '1', '3', 'Unlimited'],
+          ['GCash fee', '10%', '8%', '5%'], ['Analytics', 'Basic', 'Full', 'Full'],
+          ['Bookings and offers', 'Included', 'Included', 'Included'], ['Messaging and reviews', 'Included', 'Included', 'Included'],
+          ['Cash and GCash', 'Included', 'Included', 'Included'], ['Priority featured placement', 'No', 'No', 'Eligible listings'],
+        ].map(row => <tr key={row[0]}><th scope="row">{row[0]}</th>{row.slice(1).map((value, index) => <td key={index}>{value}</td>)}</tr>)}</tbody>
+      </table></div>
+    </details>
   </section>;
 }

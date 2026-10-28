@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Bid, JobEngagement, JobRequest, Message, Notification, ServiceListing, Transaction, UserReport } from "../types";
 import type { UserSession } from "../components/auth/LoginContainer";
 import { apiGetCategories } from "../api/categories.api";
-import { apiGetRequests } from "../api/requests.api";
+import { apiGetMyRequests, apiGetRequests } from "../api/requests.api";
 import { apiGetReceivedOffers, apiGetMyOffers } from "../api/offers.api";
 import { apiGetMyEngagements, apiConfirmOnlineBooking } from "../api/bookings.api";
 import { apiGetNotifications } from "../api/notifications.api";
@@ -54,6 +54,8 @@ export function useAppDataSync({
   const [bids, setBids] = useState<Bid[]>([]);
   const [jobEngagements, setJobEngagements] = useState<JobEngagement[]>([]);
   const [requestsStatus, setRequestsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const requestReadVersion = useRef(0);
+  const requestOwner = useRef('');
   const [offersStatus, setOffersStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [engagementsStatus, setEngagementsStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const engagementRequestVersion = useRef(0);
@@ -84,9 +86,13 @@ export function useAppDataSync({
   const [userReports, setUserReports] = useState<UserReport[]>([]);
   const [dbCategories, setDbCategories] = useState<{ id: string; name: string; description?: string; aliases?: readonly string[] }[]>([]);
   const isAdmin = user?.role === 'admin';
+  const requestUserId = user?.id;
+  const requestRole = user?.role;
   const canLoadWorkspace = isAuthenticated && user?.moderationStatus !== 'BANNED' && (isAdmin || user?.emailVerified === true);
 
   const clearPrivateData = useCallback(() => {
+    requestReadVersion.current++;
+    requestOwner.current = '';
     notificationRequestVersion.current++;
     pendingNotificationRefresh.current = pendingNotificationPage.current = null;
     engagementRequestVersion.current += 1;
@@ -190,14 +196,25 @@ export function useAppDataSync({
   }, [syncCategories]);
 
   const syncRequests = useCallback(async () => {
+    const version = ++requestReadVersion.current;
     const token = getAccessToken();
-    if (!token || isAdmin) {
+    if (!token || isAdmin || !requestUserId) {
+      requestOwner.current = '';
       setJobRequests([]);
       setRequestsStatus('loading');
       return;
     }
+    const owner = `${requestUserId}:${requestRole}`;
+    if (requestOwner.current !== owner) {
+      requestOwner.current = owner;
+      setJobRequests([]);
+      setRequestsStatus('loading');
+    }
     try {
-      const response = await apiGetRequests();
+      // The public work feed starts Provider access. Customer background reads
+      // must use the existing owner endpoint, including after Provider expiry.
+      const response = await (requestRole === 'provider' ? apiGetRequests() : apiGetMyRequests());
+      if (version !== requestReadVersion.current) return;
       if (response?.success && Array.isArray(response.data)) {
         setJobRequests(response.data.map(mapRequestToJobRequest));
         setRequestsStatus('ready');
@@ -205,9 +222,10 @@ export function useAppDataSync({
         setRequestsStatus('error');
       }
     } catch {
-      setRequestsStatus('error');
+      if (version === requestReadVersion.current) setRequestsStatus('error');
     }
-  }, [isAdmin]);
+  }, [isAdmin, requestUserId, requestRole]);
+  useEffect(() => () => { requestReadVersion.current++; }, [requestUserId, requestRole]);
 
   const syncBids = useCallback(async () => {
     const token = getAccessToken();
