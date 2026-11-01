@@ -51,6 +51,19 @@ function retrySettingsAfterProfileChange(config: InternalAxiosRequestConfig) {
   return api.request(config);
 }
 
+// A ban-status poll clears marketplace caches while retaining the appeal
+// session. Its uncached appeal result still belongs to the same account; never
+// replay a submitted appeal or discard its committed result because of that clear.
+function isCurrentAccountAppeal(config: InternalAxiosRequestConfig): boolean {
+  const accountId = requestAccountIds.get(config);
+  const token = getAccessToken();
+  return apiPath(config.url) === '/auth/ban-appeal'
+    && ['get', 'post'].includes((config.method || 'get').toLowerCase())
+    && responseCache.scope === null && !!accountId && !!token
+    && accountId === tokenSubject(token)
+    && requestGenerations.get(config) === sessionGeneration;
+}
+
 function tokenClaims(token: string): { sub?: unknown; exp?: unknown } | null {
   try {
     const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -95,7 +108,8 @@ export function getSessionGeneration(): number {
 
 export function setAccessToken(token: string): void {
   const subject = tokenSubject(token);
-  if (subject && responseCache.accountId && subject !== responseCache.accountId) {
+  const currentAccountId = responseCache.accountId || (accessToken ? tokenSubject(accessToken) : null);
+  if (subject && currentAccountId && subject !== currentAccountId) {
     // A refresh cookie can change accounts in another tab. Decoding only
     // rejects an identity mismatch; it never establishes cache authorization.
     sessionGeneration++;
@@ -194,7 +208,7 @@ api.interceptors.response.use(
     const generation = requestGenerations.get(response.config);
     if (generation !== undefined && generation !== sessionGeneration) throw new axios.CanceledError('Session changed while loading data');
     const cacheGeneration = requestCacheGenerations.get(response.config);
-    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) {
+    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation && !isCurrentAccountAppeal(response.config)) {
       const retry = retrySettingsAfterProfileChange(response.config);
       if (retry) return retry;
       throw new axios.CanceledError('Account changed while loading data');
@@ -231,7 +245,7 @@ api.interceptors.response.use(
     const generation = requestGenerations.get(originalRequest);
     if (generation !== undefined && generation !== sessionGeneration) return Promise.reject(new axios.CanceledError('Session changed while loading data'));
     const cacheGeneration = requestCacheGenerations.get(originalRequest);
-    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation) {
+    if (cacheGeneration !== undefined && cacheGeneration !== responseCache.generation && !isCurrentAccountAppeal(originalRequest)) {
       const retry = retrySettingsAfterProfileChange(originalRequest);
       if (retry) return retry;
       return Promise.reject(new axios.CanceledError('Account changed while loading data'));
