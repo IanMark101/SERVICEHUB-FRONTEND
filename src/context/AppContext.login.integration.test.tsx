@@ -523,7 +523,8 @@ describe('login/session integration through the real auth flow', () => {
 
     for (const link of screen.getAllByRole('link', { name: 'Open workspace' })) expect(link).toHaveAttribute('href', path);
     refreshed.unmount();
-  });
+    // This scenario renders the complete landing page twice with real auth.
+  }, 15_000);
 
   it.each([
     { role: 'seeker', path: '/seeker/seek-services', heading: 'Find local experts for any task.' },

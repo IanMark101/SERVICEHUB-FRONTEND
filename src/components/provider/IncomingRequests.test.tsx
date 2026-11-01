@@ -31,6 +31,9 @@ describe('provider incoming listing inquiries', () => {
     expect(dialog).toHaveTextContent('The laptop does not turn on.');
     fireEvent.change(screen.getByLabelText(/Final.*total/i), { target: { value: '1250' } });
     fireEvent.change(screen.getByLabelText('What’s included'), { target: { value: 'Charging port repair, including parts and labor.' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Next' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Review quote' }));
+    expect(submitBid).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Send Quote' }));
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('private', 'provider-1', 'service-1', 1250, 60, 'Charging port repair, including parts and labor.', undefined, { serviceLocationMode: 'SEEKER_VISITS' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());

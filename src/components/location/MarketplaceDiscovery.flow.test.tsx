@@ -283,7 +283,10 @@ describe('actual Customer and Provider discovery pages with the nearby hook', ()
     fireEvent.click(within(details).getByRole('button', {name:/Send Offer/}));
     expect(screen.getByLabelText('Service listing (optional)')).toHaveValue('');
     fireEvent.change(screen.getByPlaceholderText('Describe your approach and availability'), {target:{value:'I can repair the aircon tomorrow.'}});
-    fireEvent.submit(screen.getByRole('dialog').querySelector('form')!);
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', {name:'Next'}));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', {name:'Review offer'}));
+    expect(submitBid).not.toHaveBeenCalled();
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', {name:'Send Offer'}));
     await waitFor(() => expect(submitBid).toHaveBeenCalledWith('aircon-2','member',undefined,500,60,'I can repair the aircon tomorrow.',undefined,{serviceLocationMode:'PROVIDER_VISITS'}));
     view.unmount();
     // First seeker visit reuses only this account's deliberate marketplace area.

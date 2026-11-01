@@ -1,6 +1,6 @@
 .page { --sub-surface:var(--workspace-surface,#fffdfa); --sub-line:var(--border,#dedbd5); --sub-ink:var(--text-primary,#20201e); --sub-muted:var(--text-muted,#62605c); --sub-accent:#007b5d; --sub-soft:#eaf6f0; display:grid; gap:28px; color:var(--sub-ink); font-size:14px; font-variant-numeric:tabular-nums; min-width:0; }
 .page[data-theme='dark'] { --sub-surface:#1c1c1b; --sub-line:#44423f; --sub-ink:#f4f2ee; --sub-muted:#bcb9b3; --sub-accent:#77d9af; --sub-soft:#193a2d; }
-.providerPage { width:100%; max-width:960px; margin:0 auto; }
+.providerPage { width:100%; max-width:1120px; margin:0 auto; }
 .pricingNote { text-align:center; max-width:640px; margin:0 auto; font-size:13px; }
 .page h1 { font-size:clamp(26px,3vw,38px); font-weight:650; line-height:1.2; letter-spacing:-.025em; margin:0; }
 .page h2 { font-size:20px; font-weight:650; margin:0; }
@@ -46,4 +46,23 @@
 .checkout dl { padding:20px 0; border-block:1px solid var(--sub-line); display:flex; justify-content:space-between; align-items:baseline; }
 .checkout dd { font-size:32px; font-weight:650; }
 .checkout .primary { width:100%; margin-top:20px; }
+.membership { border:1px solid var(--sub-line); border-radius:14px; padding:22px 26px; background:var(--sub-surface); }
+.membershipHeading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.membershipHeading span,.membershipFacts dt { color:var(--sub-muted); font-size:12px; }
+.membershipHeading h2 { margin-top:5px; font-size:22px; }
+.membershipHeading h2 small { font-size:13px; font-weight:400; color:var(--sub-muted); margin-left:10px; }
+.status { font-size:12px; border:1px solid var(--sub-line); border-radius:999px; padding:5px 10px; white-space:nowrap; }
+.membershipFacts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin:22px 0 0; }
+.membershipFacts dd { margin:5px 0 0; font-size:14px; font-weight:600; }
+.membership p { color:var(--sub-muted); font-size:12px; margin:16px 0 0; }
+.membershipFoot { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.textButton { border:0; padding:4px 0; min-height:40px; color:var(--sub-accent); cursor:pointer; font-weight:600; font-size:13px; display:inline-flex; align-items:center; gap:8px; background:none; }
+.textButton:hover { text-decoration:underline; text-underline-offset:4px; }
+.expired { border-inline-start:3px solid var(--sub-accent); }
+.reviewTitle { margin-top:20px !important; }
+.enrollment { max-width:520px; margin:8vh auto; display:grid; gap:20px; }
+.enrollment p { color:var(--sub-muted); }
+.workspaceNotice { margin-bottom:16px; display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:12px; padding:14px 18px; border:1px solid var(--sub-line); border-radius:12px; background:var(--sub-surface); }
+.workspaceNotice p { margin:3px 0 0; color:var(--sub-muted); font-size:12px; }
+@media(max-width:600px) { .membership { padding:20px; } .membershipHeading { align-items:flex-start; } .membershipHeading h2 small { display:block; margin:5px 0 0; } .membershipFacts { grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 12px; } }
 @media(max-width:600px) { .page { gap:22px; } .header { flex-wrap:wrap; } .planSummary { padding:18px; gap:16px 24px; } .planSummary a { margin-left:0; } .summaryMetrics { gap:24px; } }

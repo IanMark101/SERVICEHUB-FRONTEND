@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
-import { spawn, execFileSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
 import { createRequire } from 'node:module';
 import { chromium } from 'playwright';
 
@@ -32,10 +33,14 @@ before(async () => {
 }, { timeout: 60_000 });
 
 after(async () => {
-  await browser?.close();
-  if (server && server.exitCode === null) {
-    if (process.platform === 'win32') execFileSync('taskkill', ['/PID', String(server.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
-    else server.kill('SIGTERM');
+  try {
+    await browser?.close();
+  } finally {
+    if (server && server.exitCode === null && server.signalCode === null) {
+      const exited = once(server, 'exit', { signal: AbortSignal.timeout(5000) });
+      server.kill('SIGTERM');
+      await exited;
+    }
   }
 });
 

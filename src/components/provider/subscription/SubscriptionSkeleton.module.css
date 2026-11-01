@@ -1,0 +1,36 @@
+.root { min-width:0; }
+.layout { display:grid; gap:28px; min-width:0; }
+.layout > div { min-width:0; }
+.layout :global(.workspace-skeleton) { max-width:100%; border-radius:5px; background:color-mix(in srgb,var(--sub-ink) 12%,var(--sub-surface)); }
+.currentPlan { display:grid; gap:10px; flex:1; min-width:0; }
+.label { width:96px; height:14px; }
+.currentTitle { width:220px; height:33px; }
+.layout .status { width:70px; height:28px; flex-shrink:0; border-radius:999px; }
+.fact { display:grid; gap:8px; min-width:0; }
+.value { width:120px; height:18px; }
+.footnote { width:310px; height:16px; margin-top:18px; }
+.title { width:450px; height:46px; margin:0 auto 12px; }
+.subtitle { width:430px; height:24px; margin:0 auto; }
+.planTitle { width:92px; height:28px; }
+.description { display:grid; align-content:center; gap:8px; }
+.descriptionLine { width:88%; height:14px; }
+.descriptionEnd { width:62%; height:14px; }
+.price { width:130px; height:73.6px; }
+.billing { width:64px; height:14px; margin-left:6px; align-self:flex-end; margin-bottom:7px; }
+.layout .action { width:100%; height:48px; border-radius:10px; }
+.fee { display:flex; align-items:center; gap:10px; min-height:35.2px; }
+.feeValue { width:48px; height:26px; }
+.feeLabel { width:80px; height:14px; }
+.featureList { display:grid; gap:14px; }
+.feature { display:flex; align-items:center; gap:9px; min-height:21px; }
+.layout .icon { width:17px; height:17px; border-radius:50%; flex-shrink:0; }
+.featureLine { width:78%; height:13px; }
+.featureShort { width:60%; height:13px; }
+.note { width:470px; height:21px; margin:24px auto 0; }
+.comparison { width:170px; height:20px; margin-block:12px; }
+.historyTitle { width:160px; height:24px; }
+.historyLine { width:230px; height:17px; margin-top:14px; }
+@media(max-width:1000px) and (min-width:781px) { .price { width:105px; height:64px; } .feature:last-child { min-height:42px; } }
+@media(max-width:780px) { .title { height:38px; margin-inline:0; } .subtitle { margin-inline:0; } .description { min-height:22px; } .descriptionEnd { display:none; } }
+@media(max-width:600px) { .layout { gap:22px; } .currentTitle { width:140px; height:58px; } .footnote { height:34px; margin-top:16px; } .title { width:85%; height:34px; } .subtitle { width:95%; height:48px; } .note { height:42px; } }
+@media(max-width:360px) { .title { height:66px; } }

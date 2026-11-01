@@ -15,6 +15,7 @@ import OnboardingGate from '../../features/onboarding/components/OnboardingGate'
 import { usePersistentSidebarState } from '../../hooks/usePersistentSidebarState';
 import BrandLoading from '@/components/ui/BrandLoading';
 import ListingLimitNotice from '@/components/provider/subscription/ListingLimitNotice';
+import ProviderMembershipNotice from '@/components/provider/subscription/ProviderMembershipNotice';
 
 export default function ProviderLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -129,6 +130,7 @@ export default function ProviderLayout({ children }: { children: React.ReactNode
  
           {/* Dynamic Tab Render Area */}
           <ListingLimitNotice key={pathname} />
+          <ProviderMembershipNotice userId={user?.id} isDark={isDark} />
           {children}
  
         </main>

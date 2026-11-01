@@ -10,7 +10,7 @@ vi.mock('../lib/api/axios',()=>({getAccessToken:()=>auth.token}));
 vi.mock('../lib/socket',()=>({connectSocket:vi.fn(()=>null),disconnectSocket:vi.fn()}));
 vi.mock('../api/categories.api',()=>({apiGetCategories:vi.fn().mockResolvedValue({success:true,data:[]})}));
 vi.mock('../api/services.api',()=>({apiBrowseServices:vi.fn().mockResolvedValue({success:true,data:[]}),apiGetMyServices:vi.fn().mockResolvedValue({success:true,data:[]})}));
-vi.mock('../api/requests.api',()=>({apiGetRequests:vi.fn().mockResolvedValue({success:true,data:[]})}));
+vi.mock('../api/requests.api',()=>({apiGetRequests:vi.fn().mockResolvedValue({success:true,data:[]}),apiGetMyRequests:vi.fn().mockResolvedValue({success:true,data:[]})}));
 vi.mock('../api/offers.api',()=>({apiGetReceivedOffers:vi.fn().mockResolvedValue({success:true,data:[]}),apiGetMyOffers:vi.fn().mockResolvedValue({success:true,data:[]})}));
 vi.mock('../api/bookings.api',()=>({apiGetMyEngagements:vi.fn().mockResolvedValue({success:true,data:{bookings:[],completedServices:[]}}),apiConfirmOnlineBooking:vi.fn()}));
 vi.mock('../api/transactions.api',()=>({apiGetTransactions:vi.fn().mockResolvedValue({success:true,data:[]})}));

@@ -12,6 +12,7 @@ import LandingTrust from './LandingTrust';
 import LandingCommunity from './LandingCommunity';
 import LandingComparison from './LandingComparison';
 import LandingFaq from './LandingFaq';
+import LandingPricing from './LandingPricing';
 import LandingCta from './LandingCta';
 import LandingScrollProgress from './LandingScrollProgress';
 import { CinematicFooter } from '@/components/ui/motion-footer';
@@ -58,6 +59,7 @@ export default function LandingPage() {
           <LandingComparison isDark={isDark} />
           <LandingTrust isDark={isDark} />
           <LandingCommunity isDark={isDark} />
+          <LandingPricing isDark={isDark} />
           <LandingFaq isDark={isDark} />
           <LandingCta isDark={isDark} />
           <CinematicFooter

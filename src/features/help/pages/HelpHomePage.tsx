@@ -16,7 +16,7 @@ const quickTopics = [
   { label: 'Trust Score system', detail: 'How reputation changes over time', href: '/help/trust-reputation/what-is-trust-score' },
   { label: 'Service queues', detail: 'How first-come, first-served works', href: '/help/queue/how-the-queue-works' },
   { label: 'Direct bookings', detail: 'Request a listed service safely', href: '/help/bookings/how-direct-booking-works' },
-  { label: 'Provider plans', detail: 'Compare Free and Pro', href: '/help/payments/provider-plans-and-subscriptions' },
+  { label: 'Provider plans', detail: 'Compare Free, Basic and Pro', href: '/help/payments/provider-plans-and-subscriptions' },
   { label: 'Payments and fees', detail: 'GCash charges and direct cash payments', href: '/help/payments/gcash-fees-and-provider-earnings' },
 ];
 

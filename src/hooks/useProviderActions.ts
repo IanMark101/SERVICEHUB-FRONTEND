@@ -140,7 +140,7 @@ export function useProviderActions({
       }
     } catch (err: unknown) {
       const body = getApiErrorBody(err);
-      if (body?.code === 'FREE_LISTING_LIMIT') notifyListingLimit();
+      if (['FREE_LISTING_LIMIT', 'PROVIDER_LISTING_LIMIT', 'PROVIDER_MEMBERSHIP_EXPIRED'].includes(body?.code ?? '')) notifyListingLimit();
       const errorMsg = getApiErrorMessage(err, 'We couldnâ€™t create your listing. Please try again.');
       toastError(body?.code === 'CONTENT_REVISION_REQUIRED' ? 'Check your service details' : 'Failed to create listing', errorMsg);
       return { success: false, error: errorMsg, field: body?.code === 'CONTENT_REVISION_REQUIRED' ? body.field : undefined };
@@ -214,7 +214,7 @@ export function useProviderActions({
       }
     } catch (err: unknown) {
       const message = getApiErrorMessage(err, 'Unable to update the listing.');
-      if (getApiErrorBody(err)?.code === 'FREE_LISTING_LIMIT') notifyListingLimit();
+      if (['FREE_LISTING_LIMIT', 'PROVIDER_LISTING_LIMIT', 'PROVIDER_MEMBERSHIP_EXPIRED'].includes(getApiErrorBody(err)?.code ?? '')) notifyListingLimit();
       toastError(getApiErrorStatus(err) === 422 && /revise|cannot be published/i.test(message) ? 'Please revise your listing' : 'Update Failed', message);
     }
     return false;
@@ -236,7 +236,7 @@ export function useProviderActions({
       return { success: false };
     } catch (err: unknown) {
       const message = getApiErrorMessage(err, 'Unable to update listing availability.');
-      if (getApiErrorBody(err)?.code === 'FREE_LISTING_LIMIT') notifyListingLimit();
+      if (['FREE_LISTING_LIMIT', 'PROVIDER_LISTING_LIMIT', 'PROVIDER_MEMBERSHIP_EXPIRED'].includes(getApiErrorBody(err)?.code ?? '')) notifyListingLimit();
       toastError('Action Failed', message);
       return { success: false, error: message };
     }

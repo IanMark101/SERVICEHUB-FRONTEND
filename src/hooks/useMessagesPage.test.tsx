@@ -77,8 +77,13 @@ describe('message pane scrolling', () => {
     const conv={bookingId:'booking-1',title:'Repair',otherPartyId:'ian',otherPartyName:'Ian',otherPartyRole:'Provider' as const,status:'ACCEPTED',unreadCount:0};
     vi.mocked(apiGetConversationGroups).mockResolvedValue({success:true,data:[{otherPartyId:'ian',otherPartyName:'Ian',unreadCount:0,bookings:[conv]}]});
     vi.mocked(apiGetMessages).mockResolvedValue({success:true,data:[]});
-    renderHook(() => useMessagesPage());
+    const { result } = renderHook(() => useMessagesPage());
     await waitFor(() => expect(apiGetMessages).toHaveBeenCalledWith('booking-1'));
+    // Let initial selection commit before simulating replacement of its socket.
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+      expect(socketHandlers.has('messages_read')).toBe(true);
+    });
     vi.mocked(joinBookingRoom).mockClear();socketHandlers.clear();
     act(() => invalidateApiCache(['messages'],'reconnect'));
     // Joining runs before React commits the effect that binds the replacement
@@ -87,6 +92,8 @@ describe('message pane scrolling', () => {
       expect(joinBookingRoom).toHaveBeenCalledWith('booking-1');
       expect(socketHandlers.has('messages_read')).toBe(true);
       expect(socketHandlers.has('new_message')).toBe(true);
+      expect(apiGetMessages).toHaveBeenCalledTimes(2);
+      expect(result.current.loading).toBe(false);
     });
     await act(async () => {socketHandlers.get('message_notification')?.({bookingId:'booking-1'});});
     await waitFor(() => expect(apiGetMessages).toHaveBeenCalledTimes(3));

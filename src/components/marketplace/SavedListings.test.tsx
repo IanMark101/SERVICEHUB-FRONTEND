@@ -1,12 +1,13 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SavedListings from './SavedListings';
 import { apiGetSavedListings, apiSetListingSaved } from '../../api/savedListings.api';
+import { mutationResources } from '../../lib/api/cachePolicy';
+import { invalidateApiCache } from '../../lib/api/responseCache';
 
 const push = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 vi.mock('../../context/AppContext', () => ({ useApp: () => ({ user: { id: 'viewer' }, isDark: false, jobEngagements: [], bids: [] }) }));
-vi.mock('../../hooks/useApiCacheRefresh', () => ({ useApiCacheRefresh: vi.fn() }));
 vi.mock('../../api/savedListings.api', () => ({ apiGetSavedListings: vi.fn(), apiSetListingSaved: vi.fn() }));
 vi.mock('../ui/Toast', () => ({ useToast: () => ({ success: vi.fn(), error: vi.fn() }) }));
 const pagination = { page: 1, limit: 12, total: 1, totalPages: 1 };
@@ -35,6 +36,16 @@ describe('Saved workspace page', () => {
     expect(await screen.findByText('Listing unavailable')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Remove from Saved' })).toBeEnabled();
     expect(screen.queryByRole('button', { name: 'Report listing' })).not.toBeInTheDocument();
+  });
+  it('refreshes hidden saved requests when Provider enrollment finishes on the same page', async () => {
+    vi.mocked(apiGetSavedListings)
+      .mockResolvedValueOnce({ items: [{ id: 'saved', listingId: 'request', contentType: 'SERVICE_REQUEST', savedAt: '', listing: null }], pagination })
+      .mockResolvedValue({ items: [{ id: 'saved', listingId: 'request', contentType: 'SERVICE_REQUEST', savedAt: '', listing: { id: 'request', seekerId: 'owner', title: 'Laptop will not start', description: 'Repair', status: 'OPEN', urgency: 'This Week', budgetMax: 500, seeker: { id: 'owner', name: 'John' }, category: { name: 'Computer & Laptop Repair' } } }], pagination });
+    render(<SavedListings workspace="provider" />);
+    expect(await screen.findByText('Listing unavailable')).toBeVisible();
+    act(() => { invalidateApiCache(mutationResources('/provider/subscription/start-free'), 'mutation'); });
+    expect(await screen.findByRole('button', { name: 'Inspect Laptop will not start details' })).toBeVisible();
+    expect(screen.queryByText('Listing unavailable')).not.toBeInTheDocument();
   });
   it('shows an error instead of an empty state when the API fails', async () => {
     vi.mocked(apiGetSavedListings).mockRejectedValue(new Error('Network unavailable'));

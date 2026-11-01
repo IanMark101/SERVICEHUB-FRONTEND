@@ -1,5 +1,14 @@
 import { api } from '../lib/api/axios';
 
+export interface ProviderAnalytics {
+  level: 'BASIC' | 'FULL'; days: number;
+  summary: { earned: number; cash: number; gcash: number; fees: number; completed: number; averagePerBooking: number } | null;
+  daily: { day: string; completed: number; earned: number }[] | null;
+}
+export async function apiGetProviderAnalytics(signal?: AbortSignal): Promise<ProviderAnalytics> {
+  return (await api.get('/transactions/provider-analytics', { signal, apiCache: 'no-store' })).data.data;
+}
+
 export async function apiGetTransactions(page = 1, limit = 20) {
   const response = await api.get('/transactions', { params: { page, limit } });
   return response.data;

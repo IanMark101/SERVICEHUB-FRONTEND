@@ -45,7 +45,7 @@ const faqs = [
   },
   {
     q: 'Do Providers need a paid plan?',
-    a: 'Providers start on Free with up to 3 active service listings and a 10% GCash fee. Pro costs ₱199 per month, allows unlimited active listings and lowers the GCash fee to 5%. Both plans include provider analytics. Pro gives eligible services a small priority for featured placement; it does not guarantee jobs or change ordinary nearby search order.',
+    a: 'Providers start with a 30-day Free plan: 1 active listing and a 10% GCash fee. Basic costs ₱99 per month for 3 listings, full analytics and an 8% fee. Pro costs ₱199 per month for unlimited listings, full analytics, eligible featured placement and a 5% fee. After expiry, renew to accept new customers; confirmed bookings remain available. Customers stay free.',
   },
   {
     q: 'How do GCash fees and cash payments work?',
