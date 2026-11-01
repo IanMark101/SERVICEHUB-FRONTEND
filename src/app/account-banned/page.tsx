@@ -9,7 +9,7 @@ import { clearAccessToken } from '@/lib/api/axios';
 import { getApiErrorMessage } from '@/lib/api/errors';
 import BrandLoading from '@/components/ui/BrandLoading';
 
-type Appeal = { id: string; status: string; message: string; decisionReason?: string | null; createdAt: string };
+type Appeal = { id: string; status: string; decisionReason?: string | null; createdAt: string };
 
 export default function AccountBannedPage() {
   const router = useRouter();
@@ -60,8 +60,7 @@ export default function AccountBannedPage() {
     setSubmitting(true);
     setError('');
     try {
-      await apiSubmitBanAppeal(message.trim());
-      const response = await apiGetBanAppeal();
+      const response = await apiSubmitBanAppeal(message.trim());
       setAppeal(response.data.appeal);
       setMessage('');
     } catch (cause: unknown) {

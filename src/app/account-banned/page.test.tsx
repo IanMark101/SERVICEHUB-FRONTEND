@@ -13,7 +13,7 @@ vi.mock('@/lib/api/axios', () => ({ clearAccessToken: vi.fn() }));
 
 describe('banned-account experience', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     vi.mocked(useApp).mockReturnValue({
       authLoading: false, isAuthenticated: true,
       user: { id: 'user-1', role: 'seeker', moderationStatus: 'BANNED' },
@@ -23,8 +23,8 @@ describe('banned-account experience', () => {
 
   it('shows the ban and submits one explained appeal', async () => {
     vi.mocked(apiGetBanAppeal).mockResolvedValueOnce({ success: true, data: { appeal: null } })
-      .mockResolvedValueOnce({ success: true, data: { appeal: { id: 'appeal-1', status: 'PENDING', createdAt: '2026-09-30T00:00:00Z' } } });
-    vi.mocked(apiSubmitBanAppeal).mockResolvedValue({ success: true });
+      .mockRejectedValueOnce(new Error('Status refresh is temporarily unavailable'));
+    vi.mocked(apiSubmitBanAppeal).mockResolvedValue({ success: true, data: { appeal: { id: 'appeal-1', status: 'PENDING', createdAt: '2026-09-30T00:00:00Z' } } });
     render(<AccountBannedPage />);
     expect(screen.getByRole('heading', { name: /account has been banned/i })).toBeInTheDocument();
     const explanation = await screen.findByLabelText('Appeal Ban');
@@ -33,6 +33,8 @@ describe('banned-account experience', () => {
     await waitFor(() => expect(apiSubmitBanAppeal).toHaveBeenCalledWith('Please review the circumstances of this account decision.'));
     expect(await screen.findByText('Appeal awaiting Admin review')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Submit appeal' })).not.toBeInTheDocument();
+    expect(apiGetBanAppeal).toHaveBeenCalledTimes(1);
+    expect(apiSubmitBanAppeal).toHaveBeenCalledTimes(1);
   });
 
   it('shows an existing appeal status without offering a duplicate form', async () => {

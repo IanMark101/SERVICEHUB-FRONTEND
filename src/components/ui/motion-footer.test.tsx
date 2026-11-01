@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { CinematicFooter } from './motion-footer';
@@ -54,6 +54,13 @@ afterEach(() => {
   gsap.globalTimeline.clear();
   observers.clear();
   vi.unstubAllGlobals();
+});
+
+afterAll(() => {
+  // Killing individual triggers leaves the plugin's global polling interval
+  // alive. Stop it before Vitest removes this file's browser globals.
+  ScrollTrigger.disable(true, true);
+  gsap.ticker.sleep();
 });
 
 describe('footer content visibility after hydration', () => {
